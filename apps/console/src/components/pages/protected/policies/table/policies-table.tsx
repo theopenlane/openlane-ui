@@ -88,6 +88,7 @@ export const PoliciesTable = () => {
   const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     approvalRequired: false,
     approver: false,
@@ -102,7 +103,7 @@ export const PoliciesTable = () => {
     createdBy: false,
   })
 
-  const { columns, mappedColumns } = getPoliciesColumns({ users, tokens })
+  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies }), [users, tokens, selectedPolicies])
 
   const handleCreateNew = async () => {
     router.push(`/policies/create`)
@@ -162,6 +163,10 @@ export const PoliciesTable = () => {
     setMemberIds(userIds)
   }, [policies, memberIds])
 
+  const handleBulkEdit = () => {
+    setSelectedPolicies([])
+  }
+
   return (
     <>
       <PoliciesTableToolbar
@@ -178,6 +183,9 @@ export const PoliciesTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={policies && policies.length > 0}
+        handleBulkEdit={handleBulkEdit}
+        selectedPolicies={selectedPolicies}
+        setSelectedPolicies={setSelectedPolicies}
       />
 
       <DataTable

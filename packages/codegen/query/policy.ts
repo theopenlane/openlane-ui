@@ -259,3 +259,11 @@ export const CREATE_CSV_BULK_INTERNAL_POLICY = gql`
     }
   }
 `
+
+export const BULK_EDIT_INTERNAL_POLICY = gql`
+  mutation UpdateBulkInternalPolicy($ids: [ID!]!, $input: UpdateInternalPolicyInput!) {
+    updateBulkInternalPolicy(ids: $ids, input: $input) {
+      updatedIDs
+    }
+  }
+`

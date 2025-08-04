@@ -8,45 +8,26 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
-import { Option } from '@repo/ui/multiple-selector'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
-import { useBulkEditControl } from '@/lib/graphql-hooks/controls'
-
-type BulkEditControlsDialogProps = {
-  selectedControls: { id: string; refCode: string }[]
-  setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>
-  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
-}
-
-interface BulkEditControlDialogFormValues {
-  fieldsArray: FieldItem[]
-}
-
-interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOption
-  name: string
-  placeholder: string
-  options: Option[]
-}
+import { useBulkEditInternalPolicy } from '@/lib/graphql-hooks/policy'
+import { Input } from '@repo/ui/input'
+import {
+  BulkEditDialogFormValues,
+  BulkEditPoliciesDialogProps,
+  defaultObject,
+  getAllSelectOptionsForBulkEditPolicies,
+  InputType,
+} from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
+import { Group } from '@repo/codegen/src/schema'
 
 enum SelectOption {
   Status = 'STATUS',
-  ControlType = 'CONTROL_TYPE',
-  ControlOwner = 'CONTROL_OWNER',
-}
-
-interface FieldItem {
-  value: SelectOption | undefined
-  selectedObject?: SelectOptionSelectedObject
-  selectedValue: string | undefined
-}
-
-const defaultObject = {
-  fieldsArray: [],
+  PolicyType = 'POLICY_TYPE',
+  PolicyApprover = 'POLICY_APPROVER',
+  PolicyDelegate = 'POLICY_DELEGATE',
 }
 
 const fieldItemSchema = z.object({
@@ -57,85 +38,76 @@ const fieldItemSchema = z.object({
       name: z.string(),
       placeholder: z.string(),
       selectedValue: z.string().optional(),
-      options: z.array(
-        z.object({
-          label: z.string(),
-          value: z.string(),
-        }),
-      ),
+      options: z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
+      inputValue: z.string().optional(),
     })
     .optional(),
 })
 
-const bulkEditControlsSchema = z.object({
+const bulkEditPoliciesSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
 
-export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setIsBulkEditing, setSelectedControls }) => {
+export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ selectedPolicies, setIsBulkEditing, setSelectedPolicies }) => {
   const [open, setOpen] = useState(false)
-  const { mutateAsync: bulkEditControl } = useBulkEditControl()
+  const { mutateAsync: bulkEditPolicies } = useBulkEditInternalPolicy()
   const { errorNotification, successNotification } = useNotification()
-  const form = useForm<BulkEditControlDialogFormValues>({
-    resolver: zodResolver(bulkEditControlsSchema),
+  const form = useForm<BulkEditDialogFormValues>({
+    resolver: zodResolver(bulkEditPoliciesSchema),
     defaultValues: defaultObject,
   })
   const { data } = useGetAllGroups({ where: {} })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
-  const allOptionSelects: SelectOptionSelectedObject[] = [
-    {
-      selectOptionEnum: SelectOption.ControlOwner,
-      name: 'controlOwnerID',
-      placeholder: 'Select control owner',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
-    },
-    {
-      selectOptionEnum: SelectOption.Status,
-      name: 'status',
-      placeholder: 'Select a status',
-      options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
-    },
-    {
-      selectOptionEnum: SelectOption.ControlType,
-      name: 'controlType',
-      placeholder: 'Select a control type',
-      options: ControlControlTypeOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
-    },
-  ]
+  const allOptionSelects = getAllSelectOptionsForBulkEditPolicies(groups.filter(Boolean) as Group[])
 
   const { control, handleSubmit, watch } = form
 
   const watchedFields = watch('fieldsArray') || []
-  const hasFieldsToUpdate = watchedFields.some((field) => field.selectedObject && field.selectedValue)
+  const hasFieldsToUpdate = watchedFields.some((field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.name === 'policyType')
+
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: 3 },
+    rules: { maxLength: 4 },
   })
 
   const onSubmit = async () => {
-    const ids = selectedControls.map((control) => control.id)
-    const input: Record<string, string> = {}
+    const ids = selectedPolicies.map((policy) => policy.id)
+    const input: Record<string, string | boolean> = {}
     if (watchedFields.length === 0) return
 
     if (ids.length === 0) return
     watchedFields.forEach((field) => {
       const key = field.selectedObject?.name
-      if (key && field?.selectedValue && field?.value) {
+      if (!key) return
+
+      if (field?.selectedValue && field?.value) {
         input[key] = field.selectedValue
+      }
+
+      if (field.selectedObject?.name === 'policyType' && !field?.selectedValue) {
+        input['clearPolicyType'] = true
       }
     })
 
     try {
-      await bulkEditControl({
+      await bulkEditPolicies({
         ids: ids,
         input,
       })
       successNotification({
-        title: 'Successfully bulk updated selected controls.',
+        title: 'Successfully bulk updated selected policies.',
       })
       setIsBulkEditing(false)
-      setSelectedControls([])
+      setSelectedPolicies([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
@@ -143,7 +115,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
         errorMessage = parseErrorMessage(error.response.errors)
       }
       errorNotification({
-        title: errorMessage ?? 'Failed to bulk edit control. Please try again.',
+        title: errorMessage ?? 'Failed to bulk edit policy. Please try again.',
       })
     }
   }
@@ -152,8 +124,8 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     <Dialog open={open} onOpenChange={setOpen}>
       <FormProvider {...form}>
         <DialogTrigger asChild>
-          <Button disabled={selectedControls.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
-            {selectedControls && selectedControls.length > 0 ? `Bulk Edit (${selectedControls.length})` : 'Bulk Edit'}
+          <Button disabled={selectedPolicies.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
+            {selectedPolicies && selectedPolicies.length > 0 ? `Bulk Edit (${selectedPolicies.length})` : 'Bulk Edit'}
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -179,47 +151,62 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         <SelectContent>
                           {Object.values(SelectOption).map((option) => (
                             <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                              {option === SelectOption.Status ? 'Status' : option === SelectOption.ControlOwner ? 'Control owner' : 'Control type'}
+                              {option === SelectOption.Status
+                                ? 'Status'
+                                : option === SelectOption.PolicyApprover
+                                ? 'Policy approver'
+                                : option === SelectOption.PolicyType
+                                ? 'Policy type'
+                                : 'Policy delegate'}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
-                    {item.selectedObject && (
-                      <div className="flex flex-col items-center gap-2">
-                        <Controller
-                          name={item.selectedObject.name as keyof BulkEditControlDialogFormValues}
-                          control={control}
-                          render={() => (
-                            <Select
-                              value={item.selectedValue as string | undefined}
-                              onValueChange={(value) =>
-                                update(index, {
-                                  ...item,
-                                  selectedValue: value,
-                                })
-                              }
-                            >
-                              <SelectTrigger className="w-60">
-                                <SelectValue placeholder={item.selectedObject?.placeholder} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {item.selectedObject?.options.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                      </div>
-                    )}
+                    {item.selectedObject &&
+                      (item.selectedObject.inputType === InputType.Select ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <Controller
+                            name={item.selectedObject.name as keyof BulkEditDialogFormValues}
+                            control={control}
+                            render={() => (
+                              <Select
+                                value={item.selectedValue as string | undefined}
+                                onValueChange={(value) =>
+                                  update(index, {
+                                    ...item,
+                                    selectedValue: value,
+                                  })
+                                }
+                              >
+                                <SelectTrigger className="w-60">
+                                  <SelectValue placeholder={item.selectedObject?.placeholder} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {item.selectedObject?.options?.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <Controller
+                            control={form.control}
+                            name={`fieldsArray.${index}.selectedValue`}
+                            render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
+                          />
+                        </div>
+                      ))}
                     <Button icon={<Trash2 />} iconPosition="center" variant="outline" onClick={() => remove(index)}></Button>
                   </div>
                 )
               })}
-              {fields.length < 3 ? (
+              {fields.length < 4 ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
