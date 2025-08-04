@@ -18,6 +18,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { Control } from '@repo/codegen/src/schema'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { useSession } from 'next-auth/react'
+import { canEdit } from '@/lib/authz/utils'
 
 const options = Object.values(ObjectTypes)
 
@@ -28,7 +32,9 @@ const defaultPagination = {
 }
 
 const AssignPermissionsDialog = () => {
+  const { data: session } = useSession()
   const { selectedGroup } = useGroupsStore()
+  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string; selectedObject: ObjectTypes }[]>([])
@@ -242,7 +248,7 @@ const AssignPermissionsDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left">
+        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!canEdit(permission?.roles)}>
           Assign permissions to group
         </Button>
       </DialogTrigger>

@@ -12,6 +12,10 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetAllGroups, useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { useSession } from 'next-auth/react'
+import { canEdit } from '@/lib/authz/utils'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -20,12 +24,14 @@ const columns = [
 ]
 
 const InheritPermissionDialog = () => {
+  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [group, setGroup] = useState('')
   const [step, setStep] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
   const { errorNotification, successNotification } = useNotification()
-  const { selectedGroup, isAdmin } = useGroupsStore()
+  const { selectedGroup } = useGroupsStore()
+  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
   const queryClient = useQueryClient()
 
   const { data } = useGetGroupDetails(selectedGroup)
@@ -94,7 +100,7 @@ const InheritPermissionDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !isAdmin}>
+        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
           Inherit permission
         </Button>
       </DialogTrigger>
