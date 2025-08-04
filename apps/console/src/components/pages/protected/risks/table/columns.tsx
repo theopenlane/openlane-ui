@@ -55,7 +55,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly }: Params) => {
     {
       accessorKey: 'businessCosts',
       header: 'Business Costs',
-      cell: ({ cell }) => cell.getValue() || '-',
+      cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
       size: 180,
     },
     {
@@ -88,7 +88,10 @@ export const getRiskColumns = ({ userMap, convertToReadOnly }: Params) => {
     {
       accessorKey: 'likelihood',
       header: 'Likelihood',
-      cell: ({ cell }) => cell.getValue() || '-',
+      cell: ({ row }) => {
+        const likelihood = row.original.likelihood
+        return likelihood ? <RiskLabel isEditing={false} likelihood={likelihood}></RiskLabel> : '-'
+      },
       size: 180,
     },
     {
