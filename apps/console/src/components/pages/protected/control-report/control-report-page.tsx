@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, Settings2 } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -25,7 +25,7 @@ const ControlReportPage = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const router = useRouter()
 
-  const { standardOptions } = useStandardsSelect({
+  const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {
       hasControlsWith: [
         {
@@ -45,9 +45,9 @@ const ControlReportPage = () => {
   }, [standardOptions])
 
   const where = useMemo(() => {
-    if (referenceFramework && referenceFramework !== 'CUSTOM') {
+    if (referenceFramework && referenceFramework !== 'Custom') {
       return { referenceFramework: referenceFramework, ownerIDNEQ: '' }
-    } else if (referenceFramework === 'CUSTOM') {
+    } else if (referenceFramework === 'Custom') {
       return { referenceFrameworkIsNil: true, ownerIDNEQ: '' }
     }
     return undefined
@@ -79,7 +79,7 @@ const ControlReportPage = () => {
 
   const handleRedirectWithFilter = (status: ControlControlStatus) => {
     if (!referenceFramework) return
-    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'CUSTOM'
+    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'Custom'
     const advancedFilters = [
       {
         field: 'standard',
@@ -113,10 +113,17 @@ const ControlReportPage = () => {
   }, [setCrumbs])
 
   useEffect(() => {
-    if (standardOptions?.[0]?.label) {
-      setReferenceFramework(standardOptions[0].label)
+    if (!isSuccessStandards) return
+
+    const onlyHasCustom = standardOptions.length === 0
+
+    if (onlyHasCustom) {
+      setReferenceFramework('Custom')
+    } else {
+      const first = standardOptions[0]?.label
+      setReferenceFramework(first || 'Custom')
     }
-  }, [standardOptions])
+  }, [standardOptions, isSuccessStandards])
 
   return (
     <TooltipProvider>
@@ -133,7 +140,7 @@ const ControlReportPage = () => {
                   {opt.label}
                 </SelectItem>
               ))}
-              <SelectItem value="CUSTOM">CUSTOM</SelectItem>
+              <SelectItem value="Custom">Custom</SelectItem>
             </SelectContent>
           </Select>
           <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
@@ -150,8 +157,47 @@ const ControlReportPage = () => {
       <div className="space-y-2">
         {isLoading || isFetching ? (
           <p>Loading controls...</p>
-        ) : data?.length === 0 ? (
-          <div className="mt-6 text-muted-foreground text-sm">No controls found for the selected framework.</div>
+        ) : !data || data.length === 0 ? (
+          <>
+            <div className="flex flex-col items-center justify-center mt-16 gap-6">
+              <div className="max-w-3xl p-4 border rounded-lg text-sm text-muted-foreground">
+                <div className="flex items-start gap-2">
+                  <span className="text-primary">
+                    <svg width="20" height="20" fill="currentColor">
+                      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+                      <circle cx="10" cy="10" r="1.5" />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="text-base font-medium">What are Controls?</p>
+                    <p className="mt-2 text-sm">
+                      Controls are the core building blocks of compliance management in Openlane. They represent specific security, privacy, or operational requirements that organizations must
+                      implement to meet compliance standards and manage risks effectively.
+                      <a href="https://docs.theopenlane.io/docs/docs/platform/controls/overview" target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500 underline">
+                        See docs to learn more.
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center gap-2">
+                <Settings2 className="text-border" size={89} strokeWidth={1} />
+                <p className="text-sm text-muted-foreground">No controls found</p>
+                <p className="text-sm text-muted-foreground">Ready to get started?</p>
+                <div className="flex gap-4 pt-2">
+                  <Link href="/standards" passHref>
+                    <Button variant="outline" className="h-8">
+                      Import from Standards Catalog
+                    </Button>
+                  </Link>
+                  <Link href="/controls/create-control" passHref>
+                    <Button className="h-8">Create Custom Controls</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
             {data?.map(({ category, controls }) => {

@@ -26,6 +26,7 @@ export const buttonStyles = tv({
     },
     iconPosition: {
       left: 'flex-row-reverse',
+      center: 'gap-0',
     },
     iconAnimated: {
       true: {

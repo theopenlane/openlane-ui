@@ -1,6 +1,6 @@
 import { FilterField, SelectFilterField } from '@/types'
 import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Group, OrderDirection, User } from '@repo/codegen/src/schema.ts'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate } from '@/utils/date'
@@ -8,6 +8,7 @@ import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, Contro
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
+import { Checkbox } from '@repo/ui/checkbox'
 
 export const CONTROLS_FILTER_FIELDS: FilterField[] = [
   { key: 'refCode', label: 'RefCode', type: 'text' },
@@ -44,10 +45,51 @@ export const CONTROLS_SORT_FIELDS = [
 type Params = {
   convertToReadOnly: (value: string, depth: number) => React.ReactNode
   userMap: Record<string, User>
+  selectedControls: { id: string; refCode: string }[]
+  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
 }
 
-export const getControlColumns = ({ convertToReadOnly, userMap }: Params): ColumnDef<ControlListFieldsFragment>[] => {
+export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls }: Params): ColumnDef<ControlListFieldsFragment>[] => {
+  const toggleSelection = (control: { id: string; refCode: string }) => {
+    setSelectedControls((prev) => {
+      const exists = prev.some((c) => c.id === control.id)
+      return exists ? prev.filter((c) => c.id !== control.id) : [...prev, control]
+    })
+  }
   return [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageControls = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPageControls.every((control) => selectedControls.some((sc) => sc.id === control.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked: boolean) => {
+                const newSelections = checked
+                  ? [...selectedControls.filter((sc) => !currentPageControls.some((c) => c.id === sc.id)), ...currentPageControls.map((c) => ({ id: c.id, refCode: c.refCode }))]
+                  : selectedControls.filter((sc) => !currentPageControls.some((c) => c.id === sc.id))
+
+                setSelectedControls(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }: { row: Row<ControlListFieldsFragment> }) => {
+        const { id, refCode } = row.original
+        const isChecked = selectedControls.some((c) => c.id === id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id, refCode })} />
+          </div>
+        )
+      },
+      size: 50,
+    },
     {
       header: 'Name',
       accessorKey: 'refCode',

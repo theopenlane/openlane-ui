@@ -214,7 +214,7 @@ const EditableSelect = ({
                   field.onChange(val)
                 }}
               >
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger>
                   <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value] ?? ''}</SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>
@@ -406,7 +406,7 @@ export const EditableSelectFromQuery = ({
         <div className="pt-0.5">{icon}</div>
         <div className="text-sm">{label}</div>
       </div>
-      <div className="text-sm">
+      <div className="text-sm min-w-0">
         <Controller
           name={name}
           control={control}
@@ -447,12 +447,12 @@ export const EditableSelectFromQuery = ({
             return (
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                  <div ref={triggerRef} className="w-[200px] flex text-sm h-10 px-3 justify-between border bg-input-background rounded-md items-center cursor-pointer">
+                  <div ref={triggerRef} className="flex text-sm h-10 px-3 justify-between border bg-input-background rounded-md items-center cursor-pointer">
                     <span className="truncate">{field.value || `Select ${label.toLowerCase()}`}</span>
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0 bg-input-background border z-50">
+                <PopoverContent className="p-0 bg-input-background border z-50">
                   <Command ref={popoverRef}>
                     <CommandInput
                       placeholder="Search..."
@@ -563,7 +563,7 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
                   field.onChange(val)
                 }}
               >
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger>
                   <SelectValue>{field.value === 'NULL' ? '-' : ControlStatusLabels[field.value as ControlControlStatus]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>

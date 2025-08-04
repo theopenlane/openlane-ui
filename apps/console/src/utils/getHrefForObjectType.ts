@@ -7,7 +7,9 @@ export type NormalizedObject = {
   description?: string
   summary?: string
   details?: string
+  standardID?: string | null
   control?: {
+    // for subcontrols
     id?: string
   }
 }
@@ -20,6 +22,8 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
       return `/policies/${row.id}/view`
     case 'procedures':
       return `/procedures/${row.id}/view`
+    case 'standard controls':
+      return `/standards/${row?.standardID}?controlId=${row.id}`
     case 'controls':
       return `/controls/${row.id}`
     case 'subcontrols':

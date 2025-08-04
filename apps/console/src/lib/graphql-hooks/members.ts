@@ -16,7 +16,6 @@ import {
   OrgMembershipsByIdsQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
-import { useSession } from 'next-auth/react'
 
 export const useUpdateUserRoleInOrg = () => {
   const { client } = useGraphQLClient()
@@ -90,16 +89,13 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
 }
 
 export const useUserSelect = () => {
-  const { data: session } = useSession()
   const { data, ...rest } = useGetOrgMemberships({})
 
   const userOptions =
-    data?.orgMemberships?.edges
-      ?.filter((edge) => edge?.node?.user?.id && edge.node.user.id !== session?.user?.userId)
-      ?.map((edge) => ({
-        label: edge?.node?.user.displayName || '',
-        value: edge?.node?.user.id || '',
-      })) ?? []
+    data?.orgMemberships?.edges?.map((edge) => ({
+      label: edge?.node?.user.displayName || '',
+      value: edge?.node?.user.id || '',
+    })) ?? []
 
   return { userOptions, ...rest }
 }
