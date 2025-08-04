@@ -29,6 +29,9 @@ import { useNotification } from '@/hooks/useNotification'
 import { DOCS_URL } from '@/constants'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -44,10 +47,11 @@ const GroupDetailsSheet = () => {
   const [activeTab, setActiveTab] = useState<'Members' | 'Permissions'>('Members')
   const [isEditing, setIsEditing] = useState(false)
   const searchParams = useSearchParams()
-  const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
+  const { selectedGroup, setSelectedGroup, setIsAdmin } = useGroupsStore()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
+  const { data: permission } = useAccountRole(sessionData, ObjectEnum.GROUP, selectedGroup!)
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
@@ -168,7 +172,7 @@ const GroupDetailsSheet = () => {
                     </Button>
                   </div>
                 ) : (
-                  <Button disabled={!!isManaged || !isAdmin} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                  <Button disabled={!!isManaged && canEdit(permission?.roles)} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
                     Edit Group
                   </Button>
                 )}

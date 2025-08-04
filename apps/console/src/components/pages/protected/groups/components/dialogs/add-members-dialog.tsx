@@ -11,9 +11,12 @@ import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { User } from '@repo/codegen/src/schema'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { canEdit } from '@/lib/authz/utils'
 
 const AddMembersDialog = () => {
-  const { selectedGroup, isAdmin } = useGroupsStore()
+  const { selectedGroup } = useGroupsStore()
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const { successNotification } = useNotification()
@@ -22,34 +25,27 @@ const AddMembersDialog = () => {
   const { data } = useGetGroupDetails(selectedGroup)
   const { members: membersGroupData, isManaged, id } = data?.group || {}
   const [hasInitialized, setHasInitialized] = useState(false)
+  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
 
   const members = useMemo(
     () =>
-      membersGroupData?.edges
-        ?.filter((member) => {
-          return member?.node?.user?.id != session?.user?.userId
-        })
-        .map((user) => {
-          return {
-            user: user?.node?.user as User,
-            groupID: user?.node?.id || '',
-          }
-        }) || [],
-    [membersGroupData?.edges, session?.user?.userId],
+      membersGroupData?.edges?.map((user) => {
+        return {
+          user: user?.node?.user as User,
+          groupID: user?.node?.id || '',
+        }
+      }) || [],
+    [membersGroupData?.edges],
   )
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
-  const membersOptions = membersData?.organization?.members?.edges
-    ?.filter((member) => {
-      return member?.node?.user?.id != session?.user?.userId
-    })
-    .map((member) => ({
-      value: member?.node?.user?.id,
-      label: `${member?.node?.user?.displayName}`,
-      membershipId: member?.node?.user?.id,
-    }))
+  const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
+    value: member?.node?.user?.id,
+    label: `${member?.node?.user?.displayName}`,
+    membershipId: member?.node?.user?.id,
+  }))
 
   const handleMemberChange = (newSelected: Option[]) => {
     setSelectedMembers(newSelected)
@@ -85,23 +81,21 @@ const AddMembersDialog = () => {
   }
 
   useEffect(() => {
-    if (!hasInitialized && members.length > 0 && session?.user?.userId) {
-      const initialSelected = members
-        .filter((member) => member.user.id !== session.user.userId)
-        .map((member) => ({
-          value: member.user.id,
-          label: `${member.user.displayName}`,
-        }))
+    if (!hasInitialized && members.length > 0) {
+      const initialSelected = members.map((member) => ({
+        value: member.user.id,
+        label: `${member.user.displayName}`,
+      }))
 
       setSelectedMembers(initialSelected)
       setHasInitialized(true)
     }
-  }, [members, session?.user?.userId, hasInitialized])
+  }, [members, hasInitialized])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged || !isAdmin}>
+        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged && canEdit(permission?.roles)}>
           Add members
         </Button>
       </DialogTrigger>

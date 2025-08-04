@@ -12,6 +12,9 @@ import { useSession } from 'next-auth/react'
 import { useDeleteGroupMembership, useGetGroupDetails, useUpdateGroupMembership } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
+import { canEdit } from '@/lib/authz/utils'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 
 interface Member {
   id: string
@@ -22,7 +25,8 @@ interface Member {
 
 const GroupsMembersTable = () => {
   const { data: session } = useSession()
-  const { selectedGroup, isAdmin } = useGroupsStore()
+  const { selectedGroup } = useGroupsStore()
+  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
   const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
@@ -42,7 +46,6 @@ const GroupsMembersTable = () => {
         })) || []
 
       const sortedMembers = membersList
-        .filter((member) => member.user.id !== session?.user?.userId)
         .map((member) => ({
           id: member.membershipID || '',
           name: member.user.displayName || 'Unknown Member',
@@ -57,7 +60,7 @@ const GroupsMembersTable = () => {
 
       setUsers(sortedMembers)
     }
-  }, [selectedGroup, members, session?.user?.userId])
+  }, [selectedGroup, members])
 
   const handleRoleChange = async (id: string, newRole: GroupMembershipRole) => {
     setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, role: newRole } : user)))
@@ -105,7 +108,7 @@ const GroupsMembersTable = () => {
         const user = row.original
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
-            <SelectTrigger disabled={!!isManaged || !isAdmin} className="w-28">
+            <SelectTrigger disabled={!!isManaged || !canEdit(permission?.roles)} className="w-28">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
@@ -127,10 +130,10 @@ const GroupsMembersTable = () => {
 
         return (
           <button
-            disabled={!!isManaged || !isAdmin || isDeleting}
+            disabled={!!isManaged || !canEdit(permission?.roles) || isDeleting}
             type="button"
             onClick={() => handleDelete(user.id)}
-            className={`text-brand flex justify-end mt-2.5 ${isManaged || !isAdmin ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            className={`text-brand flex justify-end mt-2.5 ${isManaged || !canEdit(permission?.roles) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <Trash2 className="h-5 w-5" />
           </button>
