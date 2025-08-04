@@ -100,7 +100,7 @@ const InheritPermissionDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged && canEdit(permission?.roles)}>
+        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
           Inherit permission
         </Button>
       </DialogTrigger>

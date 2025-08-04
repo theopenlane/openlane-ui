@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Textarea } from '@repo/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
-import { GroupSettingVisibility } from '@repo/codegen/src/schema'
+import { GroupMembershipRole, GroupSettingVisibility } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/groups'
@@ -19,6 +19,7 @@ import { useNotification } from '@/hooks/useNotification'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
+  admins: z.array(z.string()).optional(),
   members: z.array(z.string()),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
@@ -37,6 +38,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
   const [visibility, setVisibility] = useState<'Public' | 'Private'>('Public')
   const { mutateAsync: createGroup } = useCreateGroupWithMembers()
   const { successNotification, errorNotification } = useNotification()
+  const [adminValues, setAdminValues] = useState<{ value: string; label: string }[]>([])
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
@@ -57,9 +59,22 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
       description: '',
       tags: [],
       visibility: 'Public',
+      admins: adminValues.map((admin) => admin.value),
       members: [],
     },
   })
+
+  useEffect(() => {
+    if (session?.user?.userId) {
+      const initialAdmin = [{ value: session.user.userId, label: 'You' }]
+      setAdminValues(initialAdmin)
+      setValue(
+        'admins',
+        initialAdmin.map((admin) => admin.value),
+        { shouldValidate: true },
+      )
+    }
+  }, [session, setValue])
 
   const onSubmit = async (data: CreateGroupFormData) => {
     try {
@@ -72,9 +87,16 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
             visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
           },
         },
-        members: data.members.map((memberId) => ({
-          userID: memberId,
-        })),
+        members: [
+          ...(data.admins?.map((adminId) => ({
+            userID: adminId,
+            role: GroupMembershipRole.ADMIN,
+          })) || []),
+          ...data.members.map((memberId) => ({
+            userID: memberId,
+            role: GroupMembershipRole.MEMBER,
+          })),
+        ],
       })
 
       successNotification({ title: 'Group created successfully!' })
@@ -118,7 +140,25 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
 
           <div className="space-y-2">
             <Label className="text-sm font-medium" htmlFor="members">
-              Assign member(s) to the group:
+              Add admins(s):
+            </Label>
+            <MultipleSelector
+              defaultOptions={membersOptions as Option[]}
+              value={adminValues}
+              onChange={(selected) =>
+                setValue(
+                  'admins',
+                  selected.map((s) => s.value),
+                  { shouldValidate: true },
+                )
+              }
+            />
+            {errors.admins && <p className="text-red-500 text-sm">{errors.admins.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium" htmlFor="members">
+              Add member(s):
             </Label>
             <MultipleSelector
               defaultOptions={membersOptions as Option[]}
@@ -145,7 +185,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
               Tags:
             </Label>
             <MultipleSelector
-              creatable
+              defaultOptions={membersOptions as Option[]}
               onChange={(selected) =>
                 setValue(
                   'tags',
