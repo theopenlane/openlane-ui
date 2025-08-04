@@ -21,6 +21,7 @@ interface Member {
   name: string
   role: GroupMembershipRole
   avatar?: string
+  userId?: string
 }
 
 const GroupsMembersTable = () => {
@@ -51,6 +52,7 @@ const GroupsMembersTable = () => {
           name: member.user.displayName || 'Unknown Member',
           role: member.role as GroupMembershipRole,
           avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
+          userId: member.user.id,
         }))
         .sort((a, b) => {
           if (a.role === GroupMembershipRole.ADMIN && b.role !== GroupMembershipRole.ADMIN) return -1
@@ -64,12 +66,17 @@ const GroupsMembersTable = () => {
 
   const handleRoleChange = async (id: string, newRole: GroupMembershipRole) => {
     setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, role: newRole } : user)))
-    updateMembership({
-      updateGroupMembershipId: id,
-      input: {
-        role: newRole,
-      },
-    })
+    try {
+      await updateMembership({
+        updateGroupMembershipId: id,
+        input: {
+          role: newRole,
+        },
+      })
+      successNotification({ title: `Group membership updated successfully.` })
+    } catch {
+      errorNotification({ title: 'Failed to update role.' })
+    }
     queryClient.invalidateQueries({ queryKey: ['groups', id] })
   }
 
@@ -108,7 +115,7 @@ const GroupsMembersTable = () => {
         const user = row.original
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
-            <SelectTrigger disabled={!!isManaged || !canEdit(permission?.roles)} className="w-28">
+            <SelectTrigger disabled={!!isManaged || !canEdit(permission?.roles) || user?.userId === session?.user?.userId} className="w-28">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
