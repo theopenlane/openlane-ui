@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_SUBCONTROLS = gql`
-  query GetAllSubcontrols($where: SubcontrolWhereInput) {
-    subcontrols(where: $where) {
+  query GetAllSubcontrols($where: SubcontrolWhereInput, $after: Cursor, $first: Int) {
+    subcontrols(where: $where, after: $after, first: $first) {
       edges {
         node {
           id
