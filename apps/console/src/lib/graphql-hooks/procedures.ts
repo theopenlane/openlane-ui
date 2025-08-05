@@ -8,6 +8,7 @@ import {
   DELETE_PROCEDURE,
   CREATE_CSV_BULK_PROCEDURE,
   GET_TABLE_PROCEDURES,
+  BULK_EDIT_PROCEDURE,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -25,6 +26,8 @@ import {
   CreateBulkCsvProcedureMutationVariables,
   GetProceduresListQueryVariables,
   GetProceduresTableListQuery,
+  UpdateBulkProcedureMutation,
+  UpdateBulkProcedureMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -110,6 +113,17 @@ export const useUpdateProcedure = () => {
 
   return useMutation<UpdateProcedureMutation, unknown, UpdateProcedureMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_PROCEDURE, variables),
+  })
+}
+
+export const useBulkEditProcedure = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkProcedureMutation, unknown, UpdateBulkProcedureMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_PROCEDURE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+    },
   })
 }
 
