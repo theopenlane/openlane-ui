@@ -99,7 +99,7 @@ export const useAccountRole = (session: Session | null, objectType: ObjectEnum, 
     return response.json()
   }
 
-  const shouldFetch = session
+  const shouldFetch = session && objectType && objectID
 
   const { data, error, isValidating, mutate } = useSWR(shouldFetch ? `${openlaneAPIUrl}/v1/account/roles` : null, fetcher, {
     revalidateOnFocus: false,

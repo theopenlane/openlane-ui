@@ -53,12 +53,7 @@ const ControlReportPage = () => {
     return undefined
   }, [referenceFramework])
 
-  const {
-    data,
-    isLoading,
-    isFetching,
-    isSuccess: isSuccessControls,
-  } = useGetControlsGroupedByCategoryResolver({
+  const { data, isLoading, isFetching } = useGetControlsGroupedByCategoryResolver({
     where,
     enabled: Boolean(referenceFramework),
   })
