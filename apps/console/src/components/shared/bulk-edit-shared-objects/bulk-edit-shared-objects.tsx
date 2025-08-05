@@ -1,6 +1,6 @@
 import { Group } from '@repo/codegen/src/schema'
 import { Option } from '@repo/ui/multiple-selector'
-import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 
 export type BulkEditDialogPropsBase = {
@@ -92,7 +92,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): Selec
       name: 'status',
       inputType: InputType.Select,
       placeholder: 'Select a status',
-      options: InternalPolicyStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+      options: ProcedureStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureType,
