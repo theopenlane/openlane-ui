@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
@@ -13,20 +13,20 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { useBulkEditControl } from '@/lib/graphql-hooks/controls'
-import { BulkEditDialogFormValues, BulkEditControlsDialogProps, defaultObject, getAllSelectOptionsForBulkEditControls } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
+import {
+  BulkEditDialogFormValues,
+  BulkEditControlsDialogProps,
+  defaultObject,
+  getAllSelectOptionsForBulkEditControls,
+  SelectOptionBulkEditControls,
+} from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 
-enum SelectOption {
-  Status = 'STATUS',
-  ControlType = 'CONTROL_TYPE',
-  ControlOwner = 'CONTROL_OWNER',
-}
-
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOption).optional(),
+  value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
   selectedObject: z
     .object({
-      selectOptionEnum: z.nativeEnum(SelectOption),
+      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditControls),
       name: z.string(),
       placeholder: z.string(),
       selectedValue: z.string().optional(),
@@ -66,6 +66,15 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     name: 'fieldsArray',
     rules: { maxLength: 3 },
   })
+
+  useEffect(() => {
+    if (open) {
+      append({
+        value: undefined,
+        selectedValue: undefined,
+      })
+    }
+  }, [open, append])
 
   const onSubmit = async () => {
     const ids = selectedControls.map((control) => control.id)
@@ -123,17 +132,17 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                       <Select
                         value={watchedFields[index].value || undefined}
                         onValueChange={(value) => {
-                          const selectedEnum = value as SelectOption
+                          const selectedEnum = value as SelectOptionBulkEditControls
                           update(index, { value: selectedEnum, selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum), selectedValue: undefined })
                         }}
                       >
                         <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select a field to update" />
+                          <SelectValue placeholder="Select field..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.values(SelectOption).map((option) => (
+                          {Object.values(SelectOptionBulkEditControls).map((option) => (
                             <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                              {option === SelectOption.Status ? 'Status' : option === SelectOption.ControlOwner ? 'Control owner' : 'Control type'}
+                              {option}
                             </SelectItem>
                           ))}
                         </SelectContent>

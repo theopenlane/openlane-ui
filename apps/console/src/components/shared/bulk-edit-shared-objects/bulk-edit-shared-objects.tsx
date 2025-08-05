@@ -22,20 +22,24 @@ export interface BulkEditDialogFormValues {
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOption
+  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies
   name: string
   placeholder: string
   options?: Option[]
   inputType: InputType
 }
 
-enum SelectOption {
-  Status = 'STATUS',
-  PolicyType = 'POLICY_TYPE',
-  PolicyApprover = 'POLICY_APPROVER',
-  PolicyDelegate = 'POLICY_DELEGATE',
-  ControlType = 'CONTROL_TYPE',
-  ControlOwner = 'CONTROL_OWNER',
+export enum SelectOptionBulkEditControls {
+  Status = 'Status',
+  ControlType = 'Control type',
+  ControlOwner = 'Control owner',
+}
+
+export enum SelectOptionBulkEditPolicies {
+  Status = 'Status',
+  PolicyType = 'Policy type',
+  PolicyApprover = 'Approver',
+  PolicyDelegate = 'Delegate',
 }
 
 export enum InputType {
@@ -44,7 +48,7 @@ export enum InputType {
 }
 
 export interface FieldItem {
-  value: SelectOption | undefined
+  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue: string | undefined
 }
@@ -56,27 +60,27 @@ export const defaultObject = {
 export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectOptionSelectedObject[] => {
   return [
     {
-      selectOptionEnum: SelectOption.PolicyDelegate,
+      selectOptionEnum: SelectOptionBulkEditPolicies.PolicyDelegate,
       name: 'delegateID',
       inputType: InputType.Select,
-      placeholder: 'Select deletage',
+      placeholder: 'Select delegate',
       options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
     },
     {
-      selectOptionEnum: SelectOption.Status,
+      selectOptionEnum: SelectOptionBulkEditPolicies.Status,
       name: 'status',
       inputType: InputType.Select,
       placeholder: 'Select a status',
       options: InternalPolicyStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
-      selectOptionEnum: SelectOption.PolicyType,
+      selectOptionEnum: SelectOptionBulkEditPolicies.PolicyType,
       name: 'policyType',
       inputType: InputType.Input,
       placeholder: 'Select a policy type',
     },
     {
-      selectOptionEnum: SelectOption.PolicyApprover,
+      selectOptionEnum: SelectOptionBulkEditPolicies.PolicyApprover,
       name: 'approverID',
       inputType: InputType.Select,
       placeholder: 'Select approver',
@@ -88,21 +92,21 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectO
 export const getAllSelectOptionsForBulkEditControls = (groups: Group[]): SelectOptionSelectedObject[] => {
   return [
     {
-      selectOptionEnum: SelectOption.ControlOwner,
+      selectOptionEnum: SelectOptionBulkEditControls.ControlOwner,
       name: 'controlOwnerID',
-      placeholder: 'Select control owner',
+      placeholder: 'Select owner',
       inputType: InputType.Select,
       options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
     },
     {
-      selectOptionEnum: SelectOption.Status,
+      selectOptionEnum: SelectOptionBulkEditControls.Status,
       name: 'status',
       placeholder: 'Select a status',
       inputType: InputType.Select,
       options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
-      selectOptionEnum: SelectOption.ControlType,
+      selectOptionEnum: SelectOptionBulkEditControls.ControlType,
       name: 'controlType',
       placeholder: 'Select a control type',
       inputType: InputType.Select,

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
@@ -20,21 +20,15 @@ import {
   defaultObject,
   getAllSelectOptionsForBulkEditPolicies,
   InputType,
+  SelectOptionBulkEditPolicies,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 
-enum SelectOption {
-  Status = 'STATUS',
-  PolicyType = 'POLICY_TYPE',
-  PolicyApprover = 'POLICY_APPROVER',
-  PolicyDelegate = 'POLICY_DELEGATE',
-}
-
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOption).optional(),
+  value: z.nativeEnum(SelectOptionBulkEditPolicies).optional(),
   selectedObject: z
     .object({
-      selectOptionEnum: z.nativeEnum(SelectOption),
+      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditPolicies),
       name: z.string(),
       placeholder: z.string(),
       selectedValue: z.string().optional(),
@@ -78,6 +72,15 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
     name: 'fieldsArray',
     rules: { maxLength: 4 },
   })
+
+  useEffect(() => {
+    if (open) {
+      append({
+        value: undefined,
+        selectedValue: undefined,
+      })
+    }
+  }, [open, append])
 
   const onSubmit = async () => {
     const ids = selectedPolicies.map((policy) => policy.id)
@@ -141,23 +144,17 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
                       <Select
                         value={watchedFields[index].value || undefined}
                         onValueChange={(value) => {
-                          const selectedEnum = value as SelectOption
+                          const selectedEnum = value as SelectOptionBulkEditPolicies
                           update(index, { value: selectedEnum, selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum), selectedValue: undefined })
                         }}
                       >
                         <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select a field to update" />
+                          <SelectValue placeholder="Select field..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.values(SelectOption).map((option) => (
+                          {Object.values(SelectOptionBulkEditPolicies).map((option) => (
                             <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                              {option === SelectOption.Status
-                                ? 'Status'
-                                : option === SelectOption.PolicyApprover
-                                ? 'Policy approver'
-                                : option === SelectOption.PolicyType
-                                ? 'Policy type'
-                                : 'Policy delegate'}
+                              {option}
                             </SelectItem>
                           ))}
                         </SelectContent>
