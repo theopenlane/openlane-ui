@@ -1,17 +1,59 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import { Group, RiskRiskStatus, RiskTableFieldsFragment, User } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type Params = {
   userMap: Record<string, { id: string; displayName: string; gravatarLogoURL?: string; logoURL?: string }>
   convertToReadOnly?: (value: string, depth: number) => React.ReactNode
+  selectedRisks: { id: string }[]
+  setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getRiskColumns = ({ userMap, convertToReadOnly }: Params) => {
+export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
+  const toggleSelection = (procedure: { id: string }) => {
+    setSelectedRisks((prev) => {
+      const exists = prev.some((c) => c.id === procedure.id)
+      return exists ? prev.filter((c) => c.id !== procedure.id) : [...prev, procedure]
+    })
+  }
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageRisks = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPageRisks.every((risk) => selectedRisks.some((sc) => sc.id === risk.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked: boolean) => {
+                const newSelections = checked
+                  ? [...selectedRisks.filter((sc) => !currentPageRisks.some((c) => c.id === sc.id)), ...currentPageRisks.map((c) => ({ id: c.id }))]
+                  : selectedRisks.filter((sc) => !currentPageRisks.some((c) => c.id === sc.id))
+
+                setSelectedRisks(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }: { row: Row<RiskTableFieldsFragment> }) => {
+        const { id } = row.original
+        const isChecked = selectedRisks.some((c) => c.id === id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+          </div>
+        )
+      },
+      size: 50,
+    },
     {
       accessorKey: 'name',
       header: 'Name',

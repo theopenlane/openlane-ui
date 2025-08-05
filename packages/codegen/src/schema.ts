@@ -43798,6 +43798,13 @@ export type UpdateRiskMutationVariables = Exact<{
 
 export type UpdateRiskMutation = { __typename?: 'Mutation'; updateRisk: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
+export type UpdateBulkRiskMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateRiskInput
+}>
+
+export type UpdateBulkRiskMutation = { __typename?: 'Mutation'; updateBulkRisk: { __typename?: 'RiskBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type CreateBulkCsvRiskMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>

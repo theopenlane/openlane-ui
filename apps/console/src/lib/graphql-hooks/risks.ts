@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, GET_TABLE_RISKS, UPDATE_RISK } from '@repo/codegen/query/risks'
+import { BULK_EDIT_RISK, CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, GET_TABLE_RISKS, UPDATE_RISK } from '@repo/codegen/query/risks'
 
 import {
   CreateBulkCsvRiskMutation,
@@ -19,6 +19,7 @@ import {
   RiskFieldsFragment,
   RiskTableFieldsFragment,
   RiskWhereInput,
+  UpdateBulkRiskMutationVariables,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -137,6 +138,17 @@ export const useUpdateRisk = () => {
 
   return useMutation<UpdateRiskMutation, unknown, UpdateRiskMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_RISK, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['risks'] })
+    },
+  })
+}
+
+export const useBulkEditRisk = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateRiskMutation, unknown, UpdateBulkRiskMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_RISK, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })
     },
