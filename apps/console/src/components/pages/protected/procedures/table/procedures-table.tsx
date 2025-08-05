@@ -76,6 +76,7 @@ export const ProceduresTable = () => {
   const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     approvalRequired: false,
     approver: false,
@@ -89,7 +90,7 @@ export const ProceduresTable = () => {
     createdAt: false,
     createdBy: false,
   })
-  const { columns, mappedColumns } = getProceduresColumns({ users, tokens })
+  const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures })
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)
@@ -144,6 +145,10 @@ export const ProceduresTable = () => {
     ])
   }, [setCrumbs])
 
+  const handleBulkEdit = () => {
+    setSelectedProcedures([])
+  }
+
   return (
     <>
       <ProceduresTableToolbar
@@ -161,6 +166,9 @@ export const ProceduresTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={procedures && procedures.length > 0}
+        handleBulkEdit={handleBulkEdit}
+        selectedProcedures={selectedProcedures}
+        setSelectedProcedures={setSelectedProcedures}
       />
 
       <DataTable

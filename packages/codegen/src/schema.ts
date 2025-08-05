@@ -43017,6 +43017,13 @@ export type UpdateProcedureMutation = {
   updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureType?: string | null } }
 }
 
+export type UpdateBulkProcedureMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateProcedureInput
+}>
+
+export type UpdateBulkProcedureMutation = { __typename?: 'Mutation'; updateBulkProcedure: { __typename?: 'ProcedureBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllProceduresWithDetailsQuery = {

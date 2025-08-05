@@ -12,24 +12,24 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
-import { useBulkEditInternalPolicy } from '@/lib/graphql-hooks/policy'
 import { Input } from '@repo/ui/input'
 import {
   BulkEditDialogFormValues,
-  BulkEditPoliciesDialogProps,
+  BulkEditProceduresDialogProps,
   defaultObject,
-  getAllSelectOptionsForBulkEditPolicies,
+  getAllSelectOptionsForBulkEditProcedures,
   getMappedClearValue,
   InputType,
-  SelectOptionBulkEditPolicies,
+  SelectOptionBulkEditProcedures,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
+import { useBulkEditProcedure } from '@/lib/graphql-hooks/procedures'
 
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditPolicies).optional(),
+  value: z.nativeEnum(SelectOptionBulkEditProcedures).optional(),
   selectedObject: z
     .object({
-      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditPolicies),
+      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditProcedures),
       name: z.string(),
       placeholder: z.string(),
       selectedValue: z.string().optional(),
@@ -46,22 +46,22 @@ const fieldItemSchema = z.object({
     .optional(),
 })
 
-const bulkEditPoliciesSchema = z.object({
+const bulkEditProceduresSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
 
-export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ selectedPolicies, setIsBulkEditing, setSelectedPolicies }) => {
+export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> = ({ selectedProcedures, setIsBulkEditing, setSelectedProcedures }) => {
   const [open, setOpen] = useState(false)
-  const { mutateAsync: bulkEditPolicies } = useBulkEditInternalPolicy()
+  const { mutateAsync: bulkEditProcedures } = useBulkEditProcedure()
   const { errorNotification, successNotification } = useNotification()
   const form = useForm<BulkEditDialogFormValues>({
-    resolver: zodResolver(bulkEditPoliciesSchema),
+    resolver: zodResolver(bulkEditProceduresSchema),
     defaultValues: defaultObject,
   })
   const { data } = useGetAllGroups({ where: {} })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
-  const allOptionSelects = getAllSelectOptionsForBulkEditPolicies(groups.filter(Boolean) as Group[])
+  const allOptionSelects = getAllSelectOptionsForBulkEditProcedures(groups.filter(Boolean) as Group[])
 
   const { control, handleSubmit, watch } = form
 
@@ -84,7 +84,7 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
   }, [open, append])
 
   const onSubmit = async () => {
-    const ids = selectedPolicies.map((policy) => policy.id)
+    const ids = selectedProcedures.map((procedure) => procedure.id)
     const input: Record<string, string | boolean> = {}
     if (watchedFields.length === 0) return
 
@@ -104,15 +104,15 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
     })
 
     try {
-      await bulkEditPolicies({
+      await bulkEditProcedures({
         ids: ids,
         input,
       })
       successNotification({
-        title: 'Successfully bulk updated selected policies.',
+        title: 'Successfully bulk updated selected procedures.',
       })
       setIsBulkEditing(false)
-      setSelectedPolicies([])
+      setSelectedProcedures([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
@@ -120,7 +120,7 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
         errorMessage = parseErrorMessage(error.response.errors)
       }
       errorNotification({
-        title: errorMessage ?? 'Failed to bulk edit policy. Please try again.',
+        title: errorMessage ?? 'Failed to bulk edit procedure. Please try again.',
       })
     }
   }
@@ -129,8 +129,8 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
     <Dialog open={open} onOpenChange={setOpen}>
       <FormProvider {...form}>
         <DialogTrigger asChild>
-          <Button disabled={selectedPolicies.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
-            {selectedPolicies && selectedPolicies.length > 0 ? `Bulk Edit (${selectedPolicies.length})` : 'Bulk Edit'}
+          <Button disabled={selectedProcedures.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
+            {selectedProcedures && selectedProcedures.length > 0 ? `Bulk Edit (${selectedProcedures.length})` : 'Bulk Edit'}
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -146,7 +146,7 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
                       <Select
                         value={watchedFields[index].value || undefined}
                         onValueChange={(value) => {
-                          const selectedEnum = value as SelectOptionBulkEditPolicies
+                          const selectedEnum = value as SelectOptionBulkEditProcedures
                           update(index, { value: selectedEnum, selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum), selectedValue: undefined })
                         }}
                       >
@@ -154,7 +154,7 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
                           <SelectValue placeholder="Select field..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.values(SelectOptionBulkEditPolicies).map((option) => (
+                          {Object.values(SelectOptionBulkEditProcedures).map((option) => (
                             <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
                               {option}
                             </SelectItem>

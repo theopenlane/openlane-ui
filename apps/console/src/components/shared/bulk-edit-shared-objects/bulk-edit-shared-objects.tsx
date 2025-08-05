@@ -12,6 +12,11 @@ export type BulkEditPoliciesDialogProps = BulkEditDialogPropsBase & {
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
+export type BulkEditProceduresDialogProps = BulkEditDialogPropsBase & {
+  selectedProcedures: { id: string }[]
+  setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+}
+
 export type BulkEditControlsDialogProps = BulkEditDialogPropsBase & {
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
@@ -22,7 +27,7 @@ export interface BulkEditDialogFormValues {
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies
+  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures
   name: string
   placeholder: string
   options?: Option[]
@@ -42,19 +47,67 @@ export enum SelectOptionBulkEditPolicies {
   PolicyDelegate = 'Delegate',
 }
 
+export enum SelectOptionBulkEditProcedures {
+  Status = 'Status',
+  ProcedureType = 'Procedure type',
+  ProcedureApprover = 'Approver',
+  ProcedureDelegate = 'Delegate',
+}
+
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | undefined
+  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue: string | undefined
 }
 
 export const defaultObject = {
   fieldsArray: [],
+}
+
+const clearValueMap: Record<string, string> = {
+  procedureType: 'clearProcedureType',
+  policyType: 'clearPolicyType',
+}
+
+export const getMappedClearValue = (key: string): string => {
+  return clearValueMap[key]
+}
+
+export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): SelectOptionSelectedObject[] => {
+  return [
+    {
+      selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureDelegate,
+      name: 'delegateID',
+      inputType: InputType.Select,
+      placeholder: 'Select delegate',
+      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditProcedures.Status,
+      name: 'status',
+      inputType: InputType.Select,
+      placeholder: 'Select a status',
+      options: InternalPolicyStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureType,
+      name: 'procedureType',
+      inputType: InputType.Input,
+      placeholder: 'Select a procedure type',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureApprover,
+      name: 'approverID',
+      inputType: InputType.Select,
+      placeholder: 'Select approver',
+      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+    },
+  ]
 }
 
 export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectOptionSelectedObject[] => {
