@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import { ApiToken, InternalPolicy, User } from '@repo/codegen/src/schema.ts'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
@@ -7,14 +7,56 @@ import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentIconMapper, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TPoliciesColumnsProps = {
   users?: User[]
   tokens?: ApiToken[]
+  selectedPolicies: { id: string }[]
+  setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => {
+export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelectedPolicies }: TPoliciesColumnsProps) => {
+  const toggleSelection = (policy: { id: string }) => {
+    setSelectedPolicies((prev) => {
+      const exists = prev.some((c) => c.id === policy.id)
+      return exists ? prev.filter((c) => c.id !== policy.id) : [...prev, policy]
+    })
+  }
   const columns: ColumnDef<InternalPolicy>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        const currentPagePolicies = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPagePolicies.every((policy) => selectedPolicies.some((sc) => sc.id === policy.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked: boolean) => {
+                const newSelections = checked
+                  ? [...selectedPolicies.filter((sc) => !currentPagePolicies.some((c) => c.id === sc.id)), ...currentPagePolicies.map((c) => ({ id: c.id }))]
+                  : selectedPolicies.filter((sc) => !currentPagePolicies.some((c) => c.id === sc.id))
+
+                setSelectedPolicies(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }: { row: Row<InternalPolicy> }) => {
+        const { id } = row.original
+        const isChecked = selectedPolicies.some((c) => c.id === id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+          </div>
+        )
+      },
+      size: 50,
+    },
     {
       accessorKey: 'name',
       header: 'Name',
