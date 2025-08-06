@@ -19,6 +19,7 @@ import {
   RiskFieldsFragment,
   RiskTableFieldsFragment,
   RiskWhereInput,
+  UpdateBulkRiskMutation,
   UpdateBulkRiskMutationVariables,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
@@ -147,7 +148,7 @@ export const useUpdateRisk = () => {
 export const useBulkEditRisk = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<UpdateRiskMutation, unknown, UpdateBulkRiskMutationVariables>({
+  return useMutation<UpdateBulkRiskMutation, unknown, UpdateBulkRiskMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_EDIT_RISK, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })

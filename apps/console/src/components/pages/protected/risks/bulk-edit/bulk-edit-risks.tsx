@@ -71,7 +71,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: 4 },
+    rules: { maxLength: 7 },
   })
 
   useEffect(() => {
