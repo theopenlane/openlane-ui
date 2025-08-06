@@ -14,10 +14,10 @@ type Params = {
 }
 
 export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
-  const toggleSelection = (procedure: { id: string }) => {
+  const toggleSelection = (risk: { id: string }) => {
     setSelectedRisks((prev) => {
-      const exists = prev.some((c) => c.id === procedure.id)
-      return exists ? prev.filter((c) => c.id !== procedure.id) : [...prev, procedure]
+      const exists = prev.some((c) => c.id === risk.id)
+      return exists ? prev.filter((c) => c.id !== risk.id) : [...prev, risk]
     })
   }
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
