@@ -330,6 +330,22 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                               Write
                             </FormLabel>
                           </div>
+                          <div className={'flex'}>
+                            <Checkbox
+                              id={field.name}
+                              key={'group_manager'}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...(field.value || []), 'group_manager'])
+                                } else {
+                                  field.onChange((field.value || []).filter((scope) => scope !== 'group_manager'))
+                                }
+                              }}
+                            />
+                            <FormLabel htmlFor="scopes:group_manager" className="ml-2 cursor-pointer">
+                              Group Manager
+                            </FormLabel>
+                          </div>
                         </div>
                       </FormControl>
                     </FormItem>
