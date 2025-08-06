@@ -152,7 +152,7 @@ const ControlReportPage = () => {
         </div>
         <div className="flex items-center gap-2">
           <Link href="/controls/create-control">
-            <div aria-label="Add Association objects" className={`h-8 px-1 border rounded-md cursor-pointer`}>
+            <div aria-label="Create control" className={`h-8 px-1 border rounded-md cursor-pointer`}>
               <div className="flex items-center h-full">
                 <Settings2 size={15} className="mr-1" />
                 <div className="border-r h-full"></div>
