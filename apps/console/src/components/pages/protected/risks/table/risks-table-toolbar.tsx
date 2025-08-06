@@ -9,7 +9,7 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { canCreate, canEdit } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { useSession } from 'next-auth/react'
@@ -17,6 +17,8 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { RiskWhereInput } from '@repo/codegen/src/schema'
+import { BulkEditRisksDialog } from '../bulk-edit/bulk-edit-risks'
+import { Button } from '@repo/ui/button'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -32,6 +34,9 @@ type TProps = {
     header: string
   }[]
   exportEnabled: boolean
+  handleBulkEdit: () => void
+  selectedRisks: { id: string }[]
+  setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
 const RisksTableToolbar: React.FC<TProps> = ({
@@ -45,11 +50,19 @@ const RisksTableToolbar: React.FC<TProps> = ({
   mappedColumns,
   handleCreateNew,
   exportEnabled,
+  handleBulkEdit,
+  selectedRisks,
+  setSelectedRisks,
 }: TProps) => {
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
   const { programOptions, isSuccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
+  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsBulkEditing(selectedRisks.length > 0)
+  }, [selectedRisks])
 
   useEffect(() => {
     if (filterFields || !isSuccess) {
@@ -83,40 +96,62 @@ const RisksTableToolbar: React.FC<TProps> = ({
             variant="searchTable"
           />
         </div>
-        <Menu
-          trigger={CreateBtn}
-          content={
-            <>
-              {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Risk</span>
-                </div>
-              )}
-              <CreateTaskDialog trigger={TaskIconBtn} />
-            </>
-          }
-        />
-        <Menu
-          content={
-            <>
-              <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
-                <DownloadIcon size={16} strokeWidth={2} />
-                <span>Export</span>
-              </div>
-              {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-                <BulkCSVCreateRiskDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 hover:bg-muted">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
+        {isBulkEditing ? (
+          <>
+            {canEdit(permission?.roles) && (
+              <>
+                <BulkEditRisksDialog setIsBulkEditing={setIsBulkEditing} selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsBulkEditing(false)
+                    handleBulkEdit()
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <Menu
+              trigger={CreateBtn}
+              content={
+                <>
+                  {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+                      <CirclePlus size={16} strokeWidth={2} />
+                      <span>Risk</span>
                     </div>
-                  }
-                />
-              )}
-            </>
-          }
-        />
+                  )}
+                  <CreateTaskDialog trigger={TaskIconBtn} />
+                </>
+              }
+            />
+            <Menu
+              content={
+                <>
+                  <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
+                    <DownloadIcon size={16} strokeWidth={2} />
+                    <span>Export</span>
+                  </div>
+                  {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+                    <BulkCSVCreateRiskDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 hover:bg-muted">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Bulk Upload</span>
+                        </div>
+                      }
+                    />
+                  )}
+                </>
+              }
+            />
+          </>
+        )}
       </div>
       <div id="datatable-filter-portal" />
     </>

@@ -25,6 +25,7 @@ const RiskTable: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
     {
@@ -89,7 +90,7 @@ const RiskTable: React.FC = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly }), [userMap, convertToReadOnly])
+  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, convertToReadOnly, selectedRisks])
 
   useEffect(() => {
     setCrumbs([
@@ -137,6 +138,10 @@ const RiskTable: React.FC = () => {
     exportToCSV(risks, exportableColumns, 'risk_list')
   }
 
+  const handleBulkEdit = () => {
+    setSelectedRisks([])
+  }
+
   return (
     <>
       <PageHeading heading="Risks" />
@@ -155,6 +160,9 @@ const RiskTable: React.FC = () => {
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
         exportEnabled={risks && risks.length > 0}
+        handleBulkEdit={handleBulkEdit}
+        selectedRisks={selectedRisks}
+        setSelectedRisks={setSelectedRisks}
       />
       <DataTable
         sortFields={RISKS_SORT_FIELDS}

@@ -2,9 +2,15 @@ import { Group } from '@repo/codegen/src/schema'
 import { Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
+import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
 
 export type BulkEditDialogPropsBase = {
   setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export type BulkEditRisksDialogProps = BulkEditDialogPropsBase & {
+  selectedRisks: { id: string }[]
+  setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
 export type BulkEditPoliciesDialogProps = BulkEditDialogPropsBase & {
@@ -27,7 +33,7 @@ export interface BulkEditDialogFormValues {
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures
+  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks
   name: string
   placeholder: string
   options?: Option[]
@@ -54,13 +60,23 @@ export enum SelectOptionBulkEditProcedures {
   ProcedureDelegate = 'Delegate',
 }
 
+export enum SelectOptionBulkEditRisks {
+  Status = 'Status',
+  RiskType = 'Procedure type',
+  RiskStakeholder = 'Stakeholder',
+  RiskDelegate = 'Delegate',
+  RiskCategory = 'Category',
+  RiskScore = 'Score',
+  RiskLikelihood = 'Likelihood',
+}
+
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | undefined
+  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue: string | undefined
 }
@@ -72,10 +88,64 @@ export const defaultObject = {
 const clearValueMap: Record<string, string> = {
   procedureType: 'clearProcedureType',
   policyType: 'clearPolicyType',
+  riskType: 'clearRiskType',
+  score: 'clearScore',
+  category: 'clearCategory',
 }
 
 export const getMappedClearValue = (key: string): string => {
   return clearValueMap[key]
+}
+
+export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOptionSelectedObject[] => {
+  return [
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
+      name: 'delegateID',
+      inputType: InputType.Select,
+      placeholder: 'Select delegate',
+      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.Status,
+      name: 'status',
+      inputType: InputType.Select,
+      placeholder: 'Select a status',
+      options: RiskStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.RiskLikelihood,
+      name: 'likelihood',
+      inputType: InputType.Select,
+      placeholder: 'Select likelihood',
+      options: RiskLikelihoodOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.RiskType,
+      name: 'riskType',
+      inputType: InputType.Input,
+      placeholder: 'Select a risk type',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.RiskStakeholder,
+      name: 'stakeholderID',
+      inputType: InputType.Select,
+      placeholder: 'Select stakeholder',
+      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.RiskCategory,
+      name: 'category',
+      inputType: InputType.Input,
+      placeholder: 'Select category',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.RiskScore,
+      name: 'score',
+      inputType: InputType.Input,
+      placeholder: 'Select score',
+    },
+  ]
 }
 
 export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): SelectOptionSelectedObject[] => {
