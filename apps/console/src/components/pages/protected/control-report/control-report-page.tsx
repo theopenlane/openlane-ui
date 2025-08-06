@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Settings2 } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, Plus, Settings2 } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -150,9 +150,20 @@ const ControlReportPage = () => {
             </div>
           </Button>
         </div>
-        <Link href={'/controls'}>
-          <Button className="h-8 p-2">View All Controls</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/controls/create-control">
+            <div aria-label="Create control" className={`h-8 px-1 border rounded-md cursor-pointer`}>
+              <div className="flex items-center h-full">
+                <Settings2 size={15} className="mr-1" />
+                <div className="border-r h-full"></div>
+                <Plus size={15} className="ml-1" />
+              </div>
+            </div>
+          </Link>
+          <Link href={'/controls'}>
+            <Button className="h-8 p-2">View All Controls</Button>
+          </Link>
+        </div>
       </div>
       <div className="space-y-2">
         {isLoading || isFetching ? (
