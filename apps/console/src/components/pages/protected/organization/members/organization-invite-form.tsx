@@ -15,6 +15,7 @@ import { organizationInviteStyles } from './organization-invite-form.styles'
 import { CreateInviteInput, InputMaybe, InviteRole } from '@repo/codegen/src/schema'
 import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -69,9 +70,11 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
         title: `Invite${emails.length > 1 ? 's' : ''} sent successfully`,
       })
       setEmails([])
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Unexpected error occurred, invites not sent',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

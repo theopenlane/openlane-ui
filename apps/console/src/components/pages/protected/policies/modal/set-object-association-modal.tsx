@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
@@ -116,10 +117,11 @@ const SetObjectAssociationPoliciesDialog = ({ policyId }: TSetObjectAssociationD
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
       queryClient.invalidateQueries({ queryKey: ['internalPolicy', policyId!] })
       setOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the policy. Please try again.',
+        description: errorMessage,
       })
     }
   }

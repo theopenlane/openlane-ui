@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation'
 import './custom.css'
 import { surveyLicenseKey } from '@repo/dally/auth'
 import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/templates'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const enLocale = editorLocalization.getLocale('en')
 
@@ -101,9 +102,11 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
         successNotification({
           title: 'Questionnaire saved successfully',
         })
-      } catch {
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
         errorNotification({
-          title: 'There was a problem saving the questionnaire, please try again',
+          title: 'Error',
+          description: errorMessage,
         })
       }
       return
@@ -115,9 +118,11 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
         title: 'Questionnaire saved successfully',
       })
       router.push(`/questionnaires/questionnaire-editor?id=${data?.createTemplate.template.id}`)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem saving the questionnaire ',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

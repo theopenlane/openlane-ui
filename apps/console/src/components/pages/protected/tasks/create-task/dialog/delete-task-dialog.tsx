@@ -11,6 +11,7 @@ import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ taskName, taskId }) => {
   const searchParams = useSearchParams()
@@ -31,8 +32,12 @@ const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ task
       router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
       await deleteTask({ deleteTaskId: taskId })
       successNotification({ title: `Task deleted successfully.` })
-    } catch {
-      errorNotification({ title: 'Failed to delete task.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     } finally {
       setIsOpen(false)
     }

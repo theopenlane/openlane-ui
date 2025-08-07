@@ -9,6 +9,7 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { Permission } from '@repo/codegen/src/schema'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -68,8 +69,11 @@ const GroupsPermissionsTable = () => {
 
       successNotification({ title: 'Permissions updated successfully' })
     } catch (error) {
-      console.error('Failed to update permissions:', error)
-      errorNotification({ title: 'Failed to update permissions', description: 'Something went wrong' })
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
@@ -85,8 +89,11 @@ const GroupsPermissionsTable = () => {
 
       successNotification({ title: 'Permission removed successfully' })
     } catch (error) {
-      console.error('Failed to remove permission:', error)
-      errorNotification({ title: 'Failed to remove permission', description: 'Something went wrong' })
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

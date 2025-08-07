@@ -24,6 +24,7 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { Value } from 'platejs'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TProps = {
   onSuccess: () => void
@@ -82,10 +83,11 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       form.reset()
       props.onSuccess()
       setAssociationResetTrigger((prev) => prev + 1)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the task. Please try again.',
+        description: errorMessage,
       })
     }
   }

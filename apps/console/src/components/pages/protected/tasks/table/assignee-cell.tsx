@@ -10,6 +10,7 @@ import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskSt
 import { Form } from '@repo/ui/form'
 import useAssigneeFormSchema, { EditTaskAssigneeFormData } from '@/components/pages/protected/tasks/hooks/use-assignee-form-schema.ts'
 import { Check, CircleUser, X } from 'lucide-react'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TProps = {
   assignee?: User
@@ -41,15 +42,15 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
         title: 'Task Updated',
         description: 'The task assignee has been successfully updated.',
       })
-
-      setIsEditing(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an unexpected error. Please try again later.',
+        description: errorMessage,
       })
+    } finally {
+      setIsEditing(false)
     }
-    setIsEditing(false)
   }
 
   const handleCancel = () => {

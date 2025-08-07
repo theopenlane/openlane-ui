@@ -16,7 +16,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
-import { GqlError } from '@/types'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -104,9 +104,10 @@ const BasicInformation = () => {
       queryClient.invalidateQueries({ queryKey: ['programs', programId] })
       setIsEditing(false)
     } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update program',
-        gqlError: error as GqlError,
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

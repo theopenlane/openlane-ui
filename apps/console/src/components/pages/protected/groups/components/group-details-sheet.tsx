@@ -32,6 +32,7 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -122,8 +123,11 @@ const GroupDetailsSheet = () => {
       successNotification({ title: 'Group updated successfully!' })
       setIsEditing(false)
     } catch (error) {
-      console.error('Error updating group:', error)
-      errorNotification({ title: 'Failed to update group.' })
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

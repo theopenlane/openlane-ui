@@ -36,6 +36,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/manage-permissions-sheet'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -145,8 +146,12 @@ const ViewProcedurePage: React.FC = () => {
       await deleteProcedure({ deleteProcedureId: procedureId })
       successNotification({ title: 'Procedure deleted successfully' })
       router.push('/procedures')
-    } catch {
-      errorNotification({ title: 'Error deleting procedure' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
@@ -184,10 +189,11 @@ const ViewProcedurePage: React.FC = () => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the procedure. Please try again.',
+        description: errorMessage,
       })
     }
   }
@@ -204,10 +210,11 @@ const ViewProcedurePage: React.FC = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the procedure. Please try again.',
+        description: errorMessage,
       })
     }
   }

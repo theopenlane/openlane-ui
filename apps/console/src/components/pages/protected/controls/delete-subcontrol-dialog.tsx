@@ -9,6 +9,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter } from 'next/navigation'
 import { useDeleteSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string; refCode: string }> = ({ subcontrolId, controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
@@ -26,8 +27,12 @@ const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string
       await deleteSubcontrol({ deleteSubcontrolId: subcontrolId })
       successNotification({ title: `Subcontrol deleted successfully.` })
       router.push(`/controls/${controlId}`)
-    } catch {
-      errorNotification({ title: 'Failed to delete Subcontrol.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     } finally {
       setIsOpen(false)
     }

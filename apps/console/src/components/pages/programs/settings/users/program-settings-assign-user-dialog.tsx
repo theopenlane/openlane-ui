@@ -18,6 +18,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useDebounce } from '@uidotdev/usehooks'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type UserRow = {
   id: string
@@ -157,9 +158,11 @@ export const ProgramSettingsAssignUserDialog = () => {
 
       setSelectedUsers([])
       setOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to Assign Users',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

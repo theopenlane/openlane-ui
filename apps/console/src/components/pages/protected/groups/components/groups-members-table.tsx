@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface Member {
   id: string
@@ -74,8 +75,12 @@ const GroupsMembersTable = () => {
         },
       })
       successNotification({ title: `Group membership updated successfully.` })
-    } catch {
-      errorNotification({ title: 'Failed to update role.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
     queryClient.invalidateQueries({ queryKey: ['groups', id] })
   }
@@ -84,8 +89,12 @@ const GroupsMembersTable = () => {
     try {
       await deleteMembership({ deleteGroupMembershipId: id })
       successNotification({ title: `Group membership deleted successfully.` })
-    } catch {
-      errorNotification({ title: 'Failed to delete group membership.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

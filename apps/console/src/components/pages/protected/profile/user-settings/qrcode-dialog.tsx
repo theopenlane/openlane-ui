@@ -10,6 +10,7 @@ import { Copy } from 'lucide-react'
 import { useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 import { useQueryClient } from '@tanstack/react-query'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface QRCodeProps {
   qrcode: string | null
@@ -68,8 +69,11 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
           errorNotification({ title: 'OTP validation failed', description: data.message })
         }
       } catch (error) {
-        console.error('Error during OTP validation:', error)
-        errorNotification({ title: 'An error occurred' })
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
       }
     },
     [errorNotification, queryClient, successNotification, updateTfaSetting],
@@ -111,8 +115,12 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
         await navigator.clipboard.writeText(text)
         successNotification({ title: 'Copied to clipboard' })
         setModalClosable(true)
-      } catch {
-        errorNotification({ title: 'Failed to copy to clipboard' })
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
       }
     },
     [successNotification, errorNotification],

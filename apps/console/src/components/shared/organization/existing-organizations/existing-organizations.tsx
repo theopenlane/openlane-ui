@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRemoveUserFromOrg } from '@/lib/graphql-hooks/members'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export const ExistingOrganizations = () => {
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState<string | null>(null)
@@ -94,9 +95,11 @@ export const ExistingOrganizations = () => {
       queryClient.invalidateQueries({
         predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem leaving the organization, please try again',
+        title: 'Error',
+        description: errorMessage,
       })
     }
     setShowLeaveConfirmation(null)

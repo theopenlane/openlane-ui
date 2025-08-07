@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@uidotdev/usehooks'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type GroupRow = {
   id: string
@@ -181,9 +182,11 @@ export const ProgramSettingsAssignGroupDialog = () => {
 
       setSelectedGroups([])
       setOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to Assign Groups',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

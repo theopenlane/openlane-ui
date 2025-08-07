@@ -15,6 +15,7 @@ import TagsCard from '@/components/pages/protected/risks/create/cards/tags-card.
 import AssociationCard from '@/components/pages/protected/risks/create/cards/association-card.tsx'
 import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const CreateRiskForm: React.FC = () => {
   const { mutateAsync: createRisk, isPending } = useCreateRisk()
@@ -57,10 +58,11 @@ const CreateRiskForm: React.FC = () => {
       })
 
       router.push(`/risks/${createdRisk.createRisk.risk.id}`)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Error creating risk',
-        description: 'Something went wrong.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

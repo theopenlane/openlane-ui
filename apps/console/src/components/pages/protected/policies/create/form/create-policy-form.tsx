@@ -23,6 +23,7 @@ import TagsCard from '@/components/pages/protected/policies/create/cards/tags-ca
 import { DOCS_URL } from '@/constants'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -131,10 +132,11 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
       form.reset()
       router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the policy. Please try again.',
+        description: errorMessage,
       })
     }
   }
@@ -224,10 +226,11 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
       queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy.id] })
       router.push(`/policies`)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the policy. Please try again.',
+        description: errorMessage,
       })
     }
   }

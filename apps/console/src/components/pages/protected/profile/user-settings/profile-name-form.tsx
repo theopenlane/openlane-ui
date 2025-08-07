@@ -14,6 +14,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
 import { useGetCurrentUser, useUpdateUser } from '@/lib/graphql-hooks/user'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -64,9 +65,10 @@ const ProfileNameForm = () => {
       setIsSuccess(true)
       successNotification({ title: 'Profile updated successfully!' })
     } catch (error) {
-      console.error('Failed to update profile:', error)
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'An error occurred while updating your profile.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

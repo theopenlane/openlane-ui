@@ -30,6 +30,7 @@ import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type MemberActionsProps = {
   memberId: string
@@ -61,9 +62,11 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
       queryClient.invalidateQueries({
         predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem deleting the member, please try again',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }
@@ -80,10 +83,11 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
       queryClient.invalidateQueries({
         predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem updating the member, please try again',
-        variant: 'destructive',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

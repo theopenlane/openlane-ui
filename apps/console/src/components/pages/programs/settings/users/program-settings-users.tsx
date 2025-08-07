@@ -11,13 +11,14 @@ import { useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } fr
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
 import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-dialog'
-import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog' // You can reuse for users
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useNotification } from '@/hooks/useNotification'
 
 type MemberRow = {
   id: string
@@ -41,7 +42,7 @@ export const ProgramSettingsUsers = () => {
   const [selectedUser, setSelectedUser] = useState<MemberRow | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-
+  const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateProgram, isPending: isUpdating } = useUpdateProgram()
 
   const where = { programID: programId || undefined }
@@ -71,11 +72,16 @@ export const ProgramSettingsUsers = () => {
           return resource === 'memberships' || resource === 'programMemberships'
         },
       })
-
-      toast.success('User removed from program.')
+      successNotification({
+        title: 'Success',
+        description: `User removed from program.`,
+      })
     } catch (error) {
-      console.error(error)
-      toast.error('Failed to remove user.')
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     } finally {
       setIsDeleteDialogOpen(false)
     }
@@ -92,11 +98,17 @@ export const ProgramSettingsUsers = () => {
         },
       })
 
-      toast.success('User role updated.')
+      successNotification({
+        title: 'Role updated',
+        description: `User role updated.`,
+      })
       queryClient.invalidateQueries({ queryKey: ['programMemberships'] })
     } catch (error) {
-      console.error(error)
-      toast.error('Failed to update user role.')
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     } finally {
       setIsEditDialogOpen(false)
     }

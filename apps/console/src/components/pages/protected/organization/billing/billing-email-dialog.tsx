@@ -7,6 +7,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const BillingEmailDialog = () => {
   const queryClient = useQueryClient()
@@ -39,13 +40,15 @@ const BillingEmailDialog = () => {
       successNotification({
         title: `${emailInput} was successfully added as Billing Alert`,
       })
-      setIsOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: `Something went wrong with saving your email!`,
+        title: 'Error',
+        description: errorMessage,
       })
+    } finally {
+      setIsOpen(false)
     }
-    setIsOpen(false)
   }
 
   return (

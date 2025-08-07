@@ -10,6 +10,7 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const libraries: Libraries = ['places']
 
@@ -112,10 +113,11 @@ const BillingContactDialog = () => {
       successNotification({
         title: `Successfully saved your billing address!`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: `Something went wrong with saving your billing address!`,
-        variant: 'destructive',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }
