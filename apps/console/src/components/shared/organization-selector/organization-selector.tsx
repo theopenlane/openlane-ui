@@ -85,6 +85,7 @@ export const OrganizationSelector = () => {
         })
 
         requestAnimationFrame(() => {
+          queryClient?.clear()
           queryClient?.invalidateQueries()
         })
 
