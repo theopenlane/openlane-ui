@@ -56,7 +56,9 @@ export const ExistingOrganizations = () => {
           },
         })
       }
-
+      requestAnimationFrame(() => {
+        queryClient?.clear()
+      })
       push('/dashboard')
     }
   }
