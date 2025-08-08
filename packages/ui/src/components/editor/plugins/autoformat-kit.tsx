@@ -1,19 +1,11 @@
-'use client';
+'use client'
 
-import type { AutoformatRule } from '@platejs/autoformat';
+import type { AutoformatRule } from '@platejs/autoformat'
 
-import {
-  autoformatArrow,
-  autoformatLegal,
-  autoformatLegalHtml,
-  autoformatMath,
-  AutoformatPlugin,
-  autoformatPunctuation,
-  autoformatSmartQuotes,
-} from '@platejs/autoformat';
-import { insertEmptyCodeBlock } from '@platejs/code-block';
-import { toggleList } from '@platejs/list';
-import { KEYS } from 'platejs';
+import { autoformatArrow, autoformatLegal, autoformatLegalHtml, autoformatMath, AutoformatPlugin, autoformatPunctuation, autoformatSmartQuotes } from '@platejs/autoformat'
+import { insertEmptyCodeBlock } from '@platejs/code-block'
+import { toggleList } from '@platejs/list'
+import { KEYS } from 'platejs'
 
 const autoformatMarks: AutoformatRule[] = [
   {
@@ -86,7 +78,7 @@ const autoformatMarks: AutoformatRule[] = [
     mode: 'mark',
     type: KEYS.code,
   },
-];
+]
 
 const autoformatBlocks: AutoformatRule[] = [
   {
@@ -132,7 +124,7 @@ const autoformatBlocks: AutoformatRule[] = [
       insertEmptyCodeBlock(editor, {
         defaultType: KEYS.p,
         insertNodesOptions: { select: true },
-      });
+      })
     },
   },
   // {
@@ -146,14 +138,14 @@ const autoformatBlocks: AutoformatRule[] = [
     mode: 'block',
     type: KEYS.hr,
     format: (editor) => {
-      editor.tf.setNodes({ type: KEYS.hr });
+      editor.tf.setNodes({ type: KEYS.hr })
       editor.tf.insertNodes({
         children: [{ text: '' }],
         type: KEYS.p,
-      });
+      })
     },
   },
-];
+]
 
 const autoformatLists: AutoformatRule[] = [
   {
@@ -163,7 +155,7 @@ const autoformatLists: AutoformatRule[] = [
     format: (editor) => {
       toggleList(editor, {
         listStyleType: KEYS.ul,
-      });
+      })
     },
   },
   {
@@ -175,7 +167,7 @@ const autoformatLists: AutoformatRule[] = [
       toggleList(editor, {
         listRestartPolite: Number(matchString) || 1,
         listStyleType: KEYS.ol,
-      });
+      })
     },
   },
   {
@@ -185,11 +177,11 @@ const autoformatLists: AutoformatRule[] = [
     format: (editor) => {
       toggleList(editor, {
         listStyleType: KEYS.listTodo,
-      });
+      })
       editor.tf.setNodes({
         checked: false,
         listStyleType: KEYS.listTodo,
-      });
+      })
     },
   },
   {
@@ -199,14 +191,14 @@ const autoformatLists: AutoformatRule[] = [
     format: (editor) => {
       toggleList(editor, {
         listStyleType: KEYS.listTodo,
-      });
+      })
       editor.tf.setNodes({
         checked: true,
         listStyleType: KEYS.listTodo,
-      });
+      })
     },
   },
-];
+]
 
 export const AutoformatKit = [
   AutoformatPlugin.configure({
@@ -229,8 +221,8 @@ export const AutoformatKit = [
             !editor.api.some({
               match: { type: editor.getType(KEYS.codeBlock) },
             }),
-        })
+        }),
       ),
     },
   }),
-];
+]

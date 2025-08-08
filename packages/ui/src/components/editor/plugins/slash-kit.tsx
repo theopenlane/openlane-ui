@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { SlashInputPlugin, SlashPlugin } from '@platejs/slash-command/react';
-import { KEYS } from 'platejs';
+import { SlashInputPlugin, SlashPlugin } from '@platejs/slash-command/react'
+import { KEYS } from 'platejs'
 
-import { SlashInputElement } from '@repo/ui/components/ui/slash-node.tsx';
+import { SlashInputElement } from '@repo/ui/components/ui/slash-node.tsx'
 
 export const SlashKit = [
   SlashPlugin.configure({
@@ -15,4 +15,4 @@ export const SlashKit = [
     },
   }),
   SlashInputPlugin.withComponent(SlashInputElement),
-];
+]

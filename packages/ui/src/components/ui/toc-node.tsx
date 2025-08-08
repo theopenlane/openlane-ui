@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import type { PlateElementProps } from 'platejs/react';
+import type { PlateElementProps } from 'platejs/react'
 
-import { useTocElement, useTocElementState } from '@platejs/toc/react';
-import { cva } from 'class-variance-authority';
-import { PlateElement } from 'platejs/react';
+import { useTocElement, useTocElementState } from '@platejs/toc/react'
+import { cva } from 'class-variance-authority'
+import { PlateElement } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx';
+import { Button } from '@repo/ui/components/ui/button.tsx'
 
 const headingItemVariants = cva(
   'block h-auto w-full cursor-pointer truncate rounded-none px-0.5 py-1.5 text-left font-medium text-muted-foreground underline decoration-[0.5px] underline-offset-4 hover:bg-accent hover:text-muted-foreground',
@@ -20,13 +20,13 @@ const headingItemVariants = cva(
         3: 'pl-[50px]',
       },
     },
-  }
-);
+  },
+)
 
 export function TocElement(props: PlateElementProps) {
-  const state = useTocElementState();
-  const { props: btnProps } = useTocElement(state);
-  const { headingList } = state;
+  const state = useTocElementState()
+  const { props: btnProps } = useTocElement(state)
+  const { headingList } = state
 
   return (
     <PlateElement {...props} className="mb-1 p-0">
@@ -46,12 +46,10 @@ export function TocElement(props: PlateElementProps) {
             </Button>
           ))
         ) : (
-          <div className="text-sm text-gray-500">
-            Create a heading to display the table of contents.
-          </div>
+          <div className="text-sm text-gray-500">Create a heading to display the table of contents.</div>
         )}
       </div>
       {props.children}
     </PlateElement>
-  );
+  )
 }

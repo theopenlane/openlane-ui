@@ -1,26 +1,26 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import { MessageSquareTextIcon } from 'lucide-react';
-import { useEditorRef } from 'platejs/react';
+import { MessageSquareTextIcon } from 'lucide-react'
+import { useEditorRef } from 'platejs/react'
 
-import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx';
+import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
 
-import { ToolbarButton } from './toolbar';
+import { ToolbarButton } from './toolbar'
 
 export function CommentToolbarButton() {
-  const editor = useEditorRef();
+  const editor = useEditorRef()
 
   return (
     <ToolbarButton
       onClick={() => {
-        editor.getTransforms(commentPlugin).comment.setDraft();
+        editor.getTransforms(commentPlugin).comment.setDraft()
       }}
       data-plate-prevent-overlay
       tooltip="Comment"
     >
       <MessageSquareTextIcon />
     </ToolbarButton>
-  );
+  )
 }

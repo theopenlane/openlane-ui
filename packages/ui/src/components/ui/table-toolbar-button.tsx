@@ -215,13 +215,13 @@ function TablePicker() {
     >
       <div className="grid size-[130px] grid-cols-8 gap-0.5 p-1">
         {tablePicker.grid.map((rows, rowIndex) =>
-          rows.map((value, columIndex) => {
+          rows.map((value, columnIndex) => {
             return (
               <div
-                key={`(${rowIndex},${columIndex})`}
+                key={`(${rowIndex},${columnIndex})`}
                 className={cn('col-span-1 size-3 border border-solid bg-secondary', !!value && 'border-current')}
                 onMouseMove={() => {
-                  onCellMove(rowIndex, columIndex)
+                  onCellMove(rowIndex, columnIndex)
                 }}
               />
             )

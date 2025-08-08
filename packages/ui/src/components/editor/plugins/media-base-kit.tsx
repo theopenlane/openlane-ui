@@ -1,18 +1,11 @@
-import { BaseCaptionPlugin } from '@platejs/caption';
-import {
-  BaseAudioPlugin,
-  BaseFilePlugin,
-  BaseImagePlugin,
-  BaseMediaEmbedPlugin,
-  BasePlaceholderPlugin,
-  BaseVideoPlugin,
-} from '@platejs/media';
-import { KEYS } from 'platejs';
+import { BaseCaptionPlugin } from '@platejs/caption'
+import { BaseAudioPlugin, BaseFilePlugin, BaseImagePlugin, BaseMediaEmbedPlugin, BasePlaceholderPlugin, BaseVideoPlugin } from '@platejs/media'
+import { KEYS } from 'platejs'
 
-import { AudioElementStatic } from '@repo/ui/components/ui/media-audio-node-static.tsx';
-import { FileElementStatic } from '@repo/ui/components/ui/media-file-node-static.tsx';
-import { ImageElementStatic } from '@repo/ui/components/ui/media-image-node-static.tsx';
-import { VideoElementStatic } from '@repo/ui/components/ui/media-video-node-static.tsx';
+import { AudioElementStatic } from '@repo/ui/components/ui/media-audio-node-static.tsx'
+import { FileElementStatic } from '@repo/ui/components/ui/media-file-node-static.tsx'
+import { ImageElementStatic } from '@repo/ui/components/ui/media-image-node-static.tsx'
+import { VideoElementStatic } from '@repo/ui/components/ui/media-video-node-static.tsx'
 
 export const BaseMediaKit = [
   BaseImagePlugin.withComponent(ImageElementStatic),
@@ -28,4 +21,4 @@ export const BaseMediaKit = [
   }),
   BaseMediaEmbedPlugin,
   BasePlaceholderPlugin,
-];
+]

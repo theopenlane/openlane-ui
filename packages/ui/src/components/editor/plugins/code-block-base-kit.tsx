@@ -1,17 +1,9 @@
-import {
-  BaseCodeBlockPlugin,
-  BaseCodeLinePlugin,
-  BaseCodeSyntaxPlugin,
-} from '@platejs/code-block';
-import { all, createLowlight } from 'lowlight';
+import { BaseCodeBlockPlugin, BaseCodeLinePlugin, BaseCodeSyntaxPlugin } from '@platejs/code-block'
+import { all, createLowlight } from 'lowlight'
 
-import {
-  CodeBlockElementStatic,
-  CodeLineElementStatic,
-  CodeSyntaxLeafStatic,
-} from '@repo/ui/components/ui/code-block-node-static.tsx';
+import { CodeBlockElementStatic, CodeLineElementStatic, CodeSyntaxLeafStatic } from '@repo/ui/components/ui/code-block-node-static.tsx'
 
-const lowlight = createLowlight(all);
+const lowlight = createLowlight(all)
 
 export const BaseCodeBlockKit = [
   BaseCodeBlockPlugin.configure({
@@ -20,4 +12,4 @@ export const BaseCodeBlockKit = [
   }),
   BaseCodeLinePlugin.withComponent(CodeLineElementStatic),
   BaseCodeSyntaxPlugin.withComponent(CodeSyntaxLeafStatic),
-];
+]

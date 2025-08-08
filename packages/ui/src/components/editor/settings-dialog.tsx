@@ -1,50 +1,24 @@
-'use client';
+'use client'
 
 /* DEMO ONLY, DO NOT USE IN PRODUCTION */
 
-import * as React from 'react';
+import * as React from 'react'
 
-import { CopilotPlugin } from '@platejs/ai/react';
-import {
-  Check,
-  ChevronsUpDown,
-  ExternalLinkIcon,
-  Eye,
-  EyeOff,
-  Settings,
-  Wand2Icon,
-} from 'lucide-react';
-import { useEditorRef } from 'platejs/react';
+import { CopilotPlugin } from '@platejs/ai/react'
+import { Check, ChevronsUpDown, ExternalLinkIcon, Eye, EyeOff, Settings, Wand2Icon } from 'lucide-react'
+import { useEditorRef } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@repo/ui/command';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@repo/ui/components/ui/dialog.tsx';
-import { Input } from '@repo/ui/components/ui/input.tsx';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@repo/ui/components/ui/popover.tsx';
-import { cn } from '@repo/ui/lib/utils';
-import { aiChatPlugin } from '@repo/ui/components/editor/plugins/ai-kit.tsx';
+import { Button } from '@repo/ui/components/ui/button.tsx'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/components/ui/dialog.tsx'
+import { Input } from '@repo/ui/components/ui/input.tsx'
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
+import { cn } from '@repo/ui/lib/utils'
+import { aiChatPlugin } from '@repo/ui/components/editor/plugins/ai-kit.tsx'
 
 interface Model {
-  label: string;
-  value: string;
+  label: string
+  value: string
 }
 
 export const models: Model[] = [
@@ -54,25 +28,25 @@ export const models: Model[] = [
   { label: 'gpt-4', value: 'gpt-4' },
   { label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo' },
   { label: 'gpt-3.5-turbo-instruct', value: 'gpt-3.5-turbo-instruct' },
-];
+]
 
 export function SettingsDialog() {
-  const editor = useEditorRef();
+  const editor = useEditorRef()
 
-  const [tempModel, setTempModel] = React.useState(models[0]);
+  const [tempModel, setTempModel] = React.useState(models[0])
   const [tempKeys, setTempKeys] = React.useState<Record<string, string>>({
     openai: '',
     uploadthing: '',
-  });
-  const [showKey, setShowKey] = React.useState<Record<string, boolean>>({});
-  const [open, setOpen] = React.useState(false);
-  const [openModel, setOpenModel] = React.useState(false);
+  })
+  const [showKey, setShowKey] = React.useState<Record<string, boolean>>({})
+  const [open, setOpen] = React.useState(false)
+  const [openModel, setOpenModel] = React.useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Update AI chat options
-    const chatOptions = editor.getOptions(aiChatPlugin).chatOptions ?? {};
+    const chatOptions = editor.getOptions(aiChatPlugin).chatOptions ?? {}
     editor.setOption(aiChatPlugin, 'chatOptions', {
       ...chatOptions,
       body: {
@@ -80,13 +54,12 @@ export function SettingsDialog() {
         apiKey: tempKeys.openai,
         model: tempModel.value,
       },
-    });
+    })
 
-    setOpen(false);
+    setOpen(false)
 
     // Update AI complete options
-    const completeOptions =
-      editor.getOptions(CopilotPlugin).completeOptions ?? {};
+    const completeOptions = editor.getOptions(CopilotPlugin).completeOptions ?? {}
     editor.setOption(CopilotPlugin, 'completeOptions', {
       ...completeOptions,
       body: {
@@ -94,12 +67,12 @@ export function SettingsDialog() {
         apiKey: tempKeys.openai,
         model: tempModel.value,
       },
-    });
-  };
+    })
+  }
 
   const toggleKeyVisibility = (key: string) => {
-    setShowKey((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+    setShowKey((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
 
   const renderApiKeyInput = (service: string, label: string) => (
     <div className="group relative">
@@ -110,22 +83,8 @@ export function SettingsDialog() {
         >
           <span className="inline-flex bg-background px-2">{label}</span>
         </label>
-        <Button
-          asChild
-          size="icon"
-          variant="ghost"
-          className="absolute top-0 right-[28px] h-full"
-        >
-          <a
-            className="flex items-center"
-            href={
-              service === 'openai'
-                ? 'https://platform.openai.com/api-keys'
-                : 'https://uploadthing.com/dashboard'
-            }
-            rel="noopener noreferrer"
-            target="_blank"
-          >
+        <Button asChild size="icon" variant="ghost" className="absolute top-0 right-[28px] h-full">
+          <a className="flex items-center" href={service === 'openai' ? 'https://platform.openai.com/api-keys' : 'https://uploadthing.com/dashboard'} rel="noopener noreferrer" target="_blank">
             <ExternalLinkIcon className="size-4" />
             <span className="sr-only">Get {label}</span>
           </a>
@@ -136,31 +95,19 @@ export function SettingsDialog() {
         id={label}
         className="pr-10"
         value={tempKeys[service]}
-        onChange={(e) =>
-          setTempKeys((prev) => ({ ...prev, [service]: e.target.value }))
-        }
+        onChange={(e) => setTempKeys((prev) => ({ ...prev, [service]: e.target.value }))}
         placeholder=""
         data-1p-ignore
         type={showKey[service] ? 'text' : 'password'}
       />
-      <Button
-        size="icon"
-        variant="ghost"
-        className="absolute top-0 right-0 h-full"
-        onClick={() => toggleKeyVisibility(service)}
-        type="button"
-      >
-        {showKey[service] ? (
-          <EyeOff className="size-4" />
-        ) : (
-          <Eye className="size-4" />
-        )}
+      <Button size="icon" variant="ghost" className="absolute top-0 right-0 h-full" onClick={() => toggleKeyVisibility(service)} type="button">
+        {showKey[service] ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
         <span className="sr-only">
           {showKey[service] ? 'Hide' : 'Show'} {label}
         </span>
       </Button>
     </div>
-  );
+  )
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -168,10 +115,7 @@ export function SettingsDialog() {
         <Button
           size="icon"
           variant="default"
-          className={cn(
-            'group fixed right-4 bottom-4 z-50 size-10 overflow-hidden',
-            'rounded-full shadow-md hover:shadow-lg'
-          )}
+          className={cn('group fixed right-4 bottom-4 z-50 size-10 overflow-hidden', 'rounded-full shadow-md hover:shadow-lg')}
           // data-block-hide
         >
           <Settings className="size-4" />
@@ -180,9 +124,7 @@ export function SettingsDialog() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">Settings</DialogTitle>
-          <DialogDescription>
-            Configure your API keys and preferences.
-          </DialogDescription>
+          <DialogDescription>Configure your API keys and preferences.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-10" onSubmit={handleSubmit}>
@@ -199,21 +141,12 @@ export function SettingsDialog() {
               {renderApiKeyInput('openai', 'OpenAI API key')}
 
               <div className="group relative">
-                <label
-                  className="absolute start-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-disabled:opacity-50"
-                  htmlFor="select-model"
-                >
+                <label className="absolute start-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-disabled:opacity-50" htmlFor="select-model">
                   Model
                 </label>
                 <Popover open={openModel} onOpenChange={setOpenModel}>
                   <PopoverTrigger id="select-model" asChild>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="w-full justify-between"
-                      aria-expanded={openModel}
-                      role="combobox"
-                    >
+                    <Button size="lg" variant="outline" className="w-full justify-between" aria-expanded={openModel} role="combobox">
                       <code>{tempModel.label}</code>
                       <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                     </Button>
@@ -229,18 +162,11 @@ export function SettingsDialog() {
                               key={m.value}
                               value={m.value}
                               onSelect={() => {
-                                setTempModel(m);
-                                setOpenModel(false);
+                                setTempModel(m)
+                                setOpenModel(false)
                               }}
                             >
-                              <Check
-                                className={cn(
-                                  'mr-2 size-4',
-                                  tempModel.value === m.value
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
+                              <Check className={cn('mr-2 size-4', tempModel.value === m.value ? 'opacity-100' : 'opacity-0')} />
                               <code>{m.label}</code>
                             </CommandItem>
                           ))}
@@ -272,10 +198,8 @@ export function SettingsDialog() {
           </Button>
         </form>
 
-        <p className="text-sm text-muted-foreground">
-          Not stored anywhere. Used only for current session requests.
-        </p>
+        <p className="text-sm text-muted-foreground">Not stored anywhere. Used only for current session requests.</p>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

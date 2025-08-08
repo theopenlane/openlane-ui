@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import type { AIChatPluginConfig } from '@platejs/ai/react';
-import type { UseChatOptions } from 'ai/react';
+import type { AIChatPluginConfig } from '@platejs/ai/react'
+import type { UseChatOptions } from 'ai/react'
 
-import { streamInsertChunk, withAIBatch } from '@platejs/ai';
-import { AIChatPlugin, AIPlugin, useChatChunk } from '@platejs/ai/react';
-import { KEYS, PathApi } from 'platejs';
-import { usePluginOption } from 'platejs/react';
+import { streamInsertChunk, withAIBatch } from '@platejs/ai'
+import { AIChatPlugin, AIPlugin, useChatChunk } from '@platejs/ai/react'
+import { KEYS, PathApi } from 'platejs'
+import { usePluginOption } from 'platejs/react'
 
-import { AILoadingBar, AIMenu } from '@repo/ui/components/ui/ai-menu.tsx';
-import { AIAnchorElement, AILeaf } from '@repo/ui/components/ui/ai-node.tsx';
+import { AILoadingBar, AIMenu } from '@repo/ui/components/ui/ai-menu.tsx'
+import { AIAnchorElement, AILeaf } from '@repo/ui/components/ui/ai-node.tsx'
 
-import { CursorOverlayKit } from './cursor-overlay-kit';
-import { MarkdownKit } from './markdown-kit';
+import { CursorOverlayKit } from './cursor-overlay-kit'
+import { MarkdownKit } from './markdown-kit'
 
 export const aiChatPlugin = AIChatPlugin.extend({
   options: {
@@ -21,18 +21,10 @@ export const aiChatPlugin = AIChatPlugin.extend({
       body: {},
     } as UseChatOptions,
     promptTemplate: ({ isBlockSelecting, isSelecting }) => {
-      return isBlockSelecting
-        ? PROMPT_TEMPLATES.userBlockSelecting
-        : isSelecting
-          ? PROMPT_TEMPLATES.userSelecting
-          : PROMPT_TEMPLATES.userDefault;
+      return isBlockSelecting ? PROMPT_TEMPLATES.userBlockSelecting : isSelecting ? PROMPT_TEMPLATES.userSelecting : PROMPT_TEMPLATES.userDefault
     },
     systemTemplate: ({ isBlockSelecting, isSelecting }) => {
-      return isBlockSelecting
-        ? PROMPT_TEMPLATES.systemBlockSelecting
-        : isSelecting
-          ? PROMPT_TEMPLATES.systemSelecting
-          : PROMPT_TEMPLATES.systemDefault;
+      return isBlockSelecting ? PROMPT_TEMPLATES.systemBlockSelecting : isSelecting ? PROMPT_TEMPLATES.systemSelecting : PROMPT_TEMPLATES.systemDefault
     },
   },
   render: {
@@ -42,10 +34,7 @@ export const aiChatPlugin = AIChatPlugin.extend({
   },
   shortcuts: { show: { keys: 'mod+j' } },
   useHooks: ({ editor, getOption }) => {
-    const mode = usePluginOption(
-      { key: KEYS.aiChat } as AIChatPluginConfig,
-      'mode'
-    );
+    const mode = usePluginOption({ key: KEYS.aiChat } as AIChatPluginConfig, 'mode')
 
     useChatChunk({
       onChunk: ({ chunk, isFirst, nodes }) => {
@@ -58,44 +47,39 @@ export const aiChatPlugin = AIChatPlugin.extend({
               },
               {
                 at: PathApi.next(editor.selection!.focus.path.slice(0, 1)),
-              }
-            );
-          });
-          editor.setOption(AIChatPlugin, 'streaming', true);
+              },
+            )
+          })
+          editor.setOption(AIChatPlugin, 'streaming', true)
         }
 
         if (mode === 'insert' && nodes.length > 0) {
           withAIBatch(
             editor,
             () => {
-              if (!getOption('streaming')) return;
+              if (!getOption('streaming')) return
               editor.tf.withScrolling(() => {
                 streamInsertChunk(editor, chunk, {
                   textProps: {
                     ai: true,
                   },
-                });
-              });
+                })
+              })
             },
-            { split: isFirst }
-          );
+            { split: isFirst },
+          )
         }
       },
       onFinish: () => {
-        editor.setOption(AIChatPlugin, 'streaming', false);
-        editor.setOption(AIChatPlugin, '_blockChunks', '');
-        editor.setOption(AIChatPlugin, '_blockPath', null);
+        editor.setOption(AIChatPlugin, 'streaming', false)
+        editor.setOption(AIChatPlugin, '_blockChunks', '')
+        editor.setOption(AIChatPlugin, '_blockPath', null)
       },
-    });
+    })
   },
-});
+})
 
-export const AIKit = [
-  ...CursorOverlayKit,
-  ...MarkdownKit,
-  AIPlugin.withComponent(AILeaf),
-  aiChatPlugin,
-];
+export const AIKit = [...CursorOverlayKit, ...MarkdownKit, AIPlugin.withComponent(AILeaf), aiChatPlugin]
 
 const systemCommon = `\
 You are an advanced AI-powered note-taking assistant, designed to enhance productivity and creativity in note management.
@@ -111,7 +95,7 @@ Rules:
 - CRITICAL: DO NOT remove or modify the following custom MDX tags: <u>, <callout>, <kbd>, <toc>, <sub>, <sup>, <mark>, <del>, <date>, <span>, <column>, <column_group>, <file>, <audio>, <video> in <Selection> unless the user explicitly requests this change.
 - CRITICAL: Distinguish between INSTRUCTIONS and QUESTIONS. Instructions typically ask you to modify or add content. Questions ask for information or clarification.
 - CRITICAL: when asked to write in markdown, do not start with \`\`\`markdown.
-`;
+`
 
 const systemDefault = `\
 ${systemCommon}
@@ -121,7 +105,7 @@ ${systemCommon}
 <Block>
 {block}
 </Block>
-`;
+`
 
 const systemSelecting = `\
 ${systemCommon}
@@ -135,7 +119,7 @@ ${systemCommon}
 <Selection>
 {selection}
 </Selection>
-`;
+`
 
 const systemBlockSelecting = `\
 ${systemCommon}
@@ -146,19 +130,19 @@ ${systemCommon}
 <Selection>
 {block}
 </Selection>
-`;
+`
 
 const userDefault = `<Reminder>
 CRITICAL: NEVER write <Block>.
 </Reminder>
-{prompt}`;
+{prompt}`
 const userSelecting = `<Reminder>
 If this is a question, provide a helpful and concise answer about <Selection>.
 If this is an instruction, provide ONLY the text to replace <Selection>. No explanations.
 Ensure it fits seamlessly within <Block>. If <Block> is empty, write ONE random sentence.
 NEVER write <Block> or <Selection>.
 </Reminder>
-{prompt} about <Selection>`;
+{prompt} about <Selection>`
 
 const userBlockSelecting = `<Reminder>
 If this is a question, provide a helpful and concise answer about <Selection>.
@@ -166,7 +150,7 @@ If this is an instruction, provide ONLY the content to replace the entire <Selec
 Maintain the overall structure unless instructed otherwise.
 NEVER write <Block> or <Selection>.
 </Reminder>
-{prompt} about <Selection>`;
+{prompt} about <Selection>`
 
 export const PROMPT_TEMPLATES = {
   systemBlockSelecting,
@@ -175,4 +159,4 @@ export const PROMPT_TEMPLATES = {
   userBlockSelecting,
   userDefault,
   userSelecting,
-};
+}

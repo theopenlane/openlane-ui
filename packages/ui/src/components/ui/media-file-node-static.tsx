@@ -1,12 +1,12 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import type { SlateElementProps, TFileElement } from 'platejs';
+import type { SlateElementProps, TFileElement } from 'platejs'
 
-import { FileUp } from 'lucide-react';
-import { SlateElement } from 'platejs';
+import { FileUp } from 'lucide-react'
+import { SlateElement } from 'platejs'
 
 export function FileElementStatic(props: SlateElementProps<TFileElement>) {
-  const { name, url } = props.element;
+  const { name, url } = props.element
 
   return (
     <SlateElement className="my-px rounded-sm" {...props}>
@@ -26,5 +26,5 @@ export function FileElementStatic(props: SlateElementProps<TFileElement>) {
       </a>
       {props.children}
     </SlateElement>
-  );
+  )
 }

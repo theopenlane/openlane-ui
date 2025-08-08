@@ -1,28 +1,12 @@
-'use client';
+'use client'
 
-import {
-  BlockquotePlugin,
-  H1Plugin,
-  H2Plugin,
-  H3Plugin,
-  H4Plugin,
-  H5Plugin,
-  H6Plugin,
-  HorizontalRulePlugin,
-} from '@platejs/basic-nodes/react';
-import { ParagraphPlugin } from 'platejs/react';
+import { BlockquotePlugin, H1Plugin, H2Plugin, H3Plugin, H4Plugin, H5Plugin, H6Plugin, HorizontalRulePlugin } from '@platejs/basic-nodes/react'
+import { ParagraphPlugin } from 'platejs/react'
 
-import { BlockquoteElement } from '@repo/ui/components/ui/blockquote-node.tsx';
-import {
-  H1Element,
-  H2Element,
-  H3Element,
-  H4Element,
-  H5Element,
-  H6Element,
-} from '@repo/ui/components/ui/heading-node.tsx';
-import { HrElement } from '@repo/ui/components/ui/hr-node.tsx';
-import { ParagraphElement } from '@repo/ui/components/ui/paragraph-node.tsx';
+import { BlockquoteElement } from '@repo/ui/components/ui/blockquote-node.tsx'
+import { H1Element, H2Element, H3Element, H4Element, H5Element, H6Element } from '@repo/ui/components/ui/heading-node.tsx'
+import { HrElement } from '@repo/ui/components/ui/hr-node.tsx'
+import { ParagraphElement } from '@repo/ui/components/ui/paragraph-node.tsx'
 
 export const BasicBlocksKit = [
   ParagraphPlugin.withComponent(ParagraphElement),
@@ -85,4 +69,4 @@ export const BasicBlocksKit = [
     shortcuts: { toggle: { keys: 'mod+shift+period' } },
   }),
   HorizontalRulePlugin.withComponent(HrElement),
-];
+]

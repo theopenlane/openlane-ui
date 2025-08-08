@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { ExitBreakPlugin } from 'platejs';
+import { ExitBreakPlugin } from 'platejs'
 
 export const ExitBreakKit = [
   ExitBreakPlugin.configure({
@@ -9,4 +9,4 @@ export const ExitBreakKit = [
       insertBefore: { keys: 'mod+shift+enter' },
     },
   }),
-];
+]

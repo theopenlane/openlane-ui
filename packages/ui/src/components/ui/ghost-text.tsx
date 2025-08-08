@@ -1,33 +1,26 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import { CopilotPlugin } from '@platejs/ai/react';
-import { useElement, usePluginOption } from 'platejs/react';
+import { CopilotPlugin } from '@platejs/ai/react'
+import { useElement, usePluginOption } from 'platejs/react'
 
 export function GhostText() {
-  const element = useElement();
+  const element = useElement()
 
-  const isSuggested = usePluginOption(
-    CopilotPlugin,
-    'isSuggested',
-    element.id as string
-  );
+  const isSuggested = usePluginOption(CopilotPlugin, 'isSuggested', element.id as string)
 
-  if (!isSuggested) return null;
+  if (!isSuggested) return null
 
-  return <GhostTextContent />;
+  return <GhostTextContent />
 }
 
 function GhostTextContent() {
-  const suggestionText = usePluginOption(CopilotPlugin, 'suggestionText');
+  const suggestionText = usePluginOption(CopilotPlugin, 'suggestionText')
 
   return (
-    <span
-      className="pointer-events-none text-muted-foreground/70 max-sm:hidden"
-      contentEditable={false}
-    >
+    <span className="pointer-events-none text-muted-foreground/70 max-sm:hidden" contentEditable={false}>
       {suggestionText && suggestionText}
     </span>
-  );
+  )
 }

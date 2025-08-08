@@ -1,42 +1,30 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import type { TComboboxInputElement, TMentionElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
+import type { TComboboxInputElement, TMentionElement } from 'platejs'
+import type { PlateElementProps } from 'platejs/react'
 
-import { getMentionOnSelectItem } from '@platejs/mention';
-import { IS_APPLE, KEYS } from 'platejs';
-import {
-  PlateElement,
-  useFocused,
-  useReadOnly,
-  useSelected,
-} from 'platejs/react';
+import { getMentionOnSelectItem } from '@platejs/mention'
+import { IS_APPLE, KEYS } from 'platejs'
+import { PlateElement, useFocused, useReadOnly, useSelected } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils';
+import { cn } from '@repo/ui/lib/utils'
 
-import {
-  InlineCombobox,
-  InlineComboboxContent,
-  InlineComboboxEmpty,
-  InlineComboboxGroup,
-  InlineComboboxInput,
-  InlineComboboxItem,
-} from './inline-combobox';
+import { InlineCombobox, InlineComboboxContent, InlineComboboxEmpty, InlineComboboxGroup, InlineComboboxInput, InlineComboboxItem } from './inline-combobox'
 import { useMounted } from '../../../hooks/use-mounted.ts'
 
 export function MentionElement(
   props: PlateElementProps<TMentionElement> & {
-    prefix?: string;
-  }
+    prefix?: string
+  },
 ) {
-  const element = props.element;
+  const element = props.element
 
-  const selected = useSelected();
-  const focused = useFocused();
-  const mounted = useMounted();
-  const readOnly = useReadOnly();
+  const selected = useSelected()
+  const focused = useFocused()
+  const mounted = useMounted()
+  const readOnly = useReadOnly()
 
   return (
     <PlateElement
@@ -47,7 +35,7 @@ export function MentionElement(
         selected && focused && 'ring-2 ring-ring',
         element.children[0][KEYS.bold] === true && 'font-bold',
         element.children[0][KEYS.italic] === true && 'italic',
-        element.children[0][KEYS.underline] === true && 'underline'
+        element.children[0][KEYS.underline] === true && 'underline',
       )}
       attributes={{
         ...props.attributes,
@@ -72,26 +60,18 @@ export function MentionElement(
         </React.Fragment>
       )}
     </PlateElement>
-  );
+  )
 }
 
-const onSelectItem = getMentionOnSelectItem();
+const onSelectItem = getMentionOnSelectItem()
 
-export function MentionInputElement(
-  props: PlateElementProps<TComboboxInputElement>
-) {
-  const { editor, element } = props;
-  const [search, setSearch] = React.useState('');
+export function MentionInputElement(props: PlateElementProps<TComboboxInputElement>) {
+  const { editor, element } = props
+  const [search, setSearch] = React.useState('')
 
   return (
     <PlateElement {...props} as="span">
-      <InlineCombobox
-        value={search}
-        element={element}
-        setValue={setSearch}
-        showTrigger={false}
-        trigger="@"
-      >
+      <InlineCombobox value={search} element={element} setValue={setSearch} showTrigger={false} trigger="@">
         <span className="inline-block rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm ring-ring focus-within:ring-2">
           <InlineComboboxInput />
         </span>
@@ -101,11 +81,7 @@ export function MentionInputElement(
 
           <InlineComboboxGroup>
             {MENTIONABLES.map((item) => (
-              <InlineComboboxItem
-                key={item.key}
-                value={item.text}
-                onClick={() => onSelectItem(editor, item, search)}
-              >
+              <InlineComboboxItem key={item.key} value={item.text} onClick={() => onSelectItem(editor, item, search)}>
                 {item.text}
               </InlineComboboxItem>
             ))}
@@ -115,7 +91,7 @@ export function MentionInputElement(
 
       {props.children}
     </PlateElement>
-  );
+  )
 }
 
 const MENTIONABLES = [
@@ -193,4 +169,4 @@ const MENTIONABLES = [
   { key: '47', text: 'Bren Derlin' },
   { key: '48', text: 'Brendol Hux' },
   { key: '49', text: 'BT-1' },
-];
+]
