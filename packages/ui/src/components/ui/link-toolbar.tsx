@@ -1,54 +1,29 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import type { TLinkElement } from 'platejs';
+import type { TLinkElement } from 'platejs'
 
-import {
-  type UseVirtualFloatingOptions,
-  flip,
-  offset,
-} from '@platejs/floating';
-import { getLinkAttributes } from '@platejs/link';
-import {
-  type LinkFloatingToolbarState,
-  FloatingLinkUrlInput,
-  useFloatingLinkEdit,
-  useFloatingLinkEditState,
-  useFloatingLinkInsert,
-  useFloatingLinkInsertState,
-} from '@platejs/link/react';
-import { cva } from 'class-variance-authority';
-import { ExternalLink, Link, Text, Unlink } from 'lucide-react';
-import { KEYS } from 'platejs';
-import {
-  useEditorRef,
-  useEditorSelection,
-  useFormInputProps,
-  usePluginOption,
-} from 'platejs/react';
+import { type UseVirtualFloatingOptions, flip, offset } from '@platejs/floating'
+import { getLinkAttributes } from '@platejs/link'
+import { type LinkFloatingToolbarState, FloatingLinkUrlInput, useFloatingLinkEdit, useFloatingLinkEditState, useFloatingLinkInsert, useFloatingLinkInsertState } from '@platejs/link/react'
+import { cva } from 'class-variance-authority'
+import { ExternalLink, Link, Text, Unlink } from 'lucide-react'
+import { KEYS } from 'platejs'
+import { useEditorRef, useEditorSelection, useFormInputProps, usePluginOption } from 'platejs/react'
 
-import { buttonVariants } from '@repo/ui/components/ui/button.tsx';
-import { Separator } from '@repo/ui/components/ui/separator.tsx';
+import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
+import { Separator } from '@repo/ui/components/ui/separator.tsx'
 
-const popoverVariants = cva(
-  'z-50 w-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden'
-);
+const popoverVariants = cva('z-50 w-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden')
 
 const inputVariants = cva(
-  'flex h-[28px] w-full rounded-md border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm'
-);
+  'flex h-[28px] w-full rounded-md border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm',
+)
 
-export function LinkFloatingToolbar({
-  state,
-}: {
-  state?: LinkFloatingToolbarState;
-}) {
-  const activeCommentId = usePluginOption({ key: KEYS.comment }, 'activeId');
-  const activeSuggestionId = usePluginOption(
-    { key: KEYS.suggestion },
-    'activeId'
-  );
+export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarState }) {
+  const activeCommentId = usePluginOption({ key: KEYS.comment }, 'activeId')
+  const activeSuggestionId = usePluginOption({ key: KEYS.suggestion }, 'activeId')
 
   const floatingOptions: UseVirtualFloatingOptions = React.useMemo(() => {
     return {
@@ -59,10 +34,9 @@ export function LinkFloatingToolbar({
           padding: 12,
         }),
       ],
-      placement:
-        activeSuggestionId || activeCommentId ? 'top-start' : 'bottom-start',
-    };
-  }, [activeCommentId, activeSuggestionId]);
+      placement: activeSuggestionId || activeCommentId ? 'top-start' : 'bottom-start',
+    }
+  }, [activeCommentId, activeSuggestionId])
 
   const insertState = useFloatingLinkInsertState({
     ...state,
@@ -70,13 +44,8 @@ export function LinkFloatingToolbar({
       ...floatingOptions,
       ...state?.floatingOptions,
     },
-  });
-  const {
-    hidden,
-    props: insertProps,
-    ref: insertRef,
-    textInputProps,
-  } = useFloatingLinkInsert(insertState);
+  })
+  const { hidden, props: insertProps, ref: insertRef, textInputProps } = useFloatingLinkInsert(insertState)
 
   const editState = useFloatingLinkEditState({
     ...state,
@@ -84,18 +53,13 @@ export function LinkFloatingToolbar({
       ...floatingOptions,
       ...state?.floatingOptions,
     },
-  });
-  const {
-    editButtonProps,
-    props: editProps,
-    ref: editRef,
-    unlinkButtonProps,
-  } = useFloatingLinkEdit(editState);
+  })
+  const { editButtonProps, props: editProps, ref: editRef, unlinkButtonProps } = useFloatingLinkEdit(editState)
   const inputProps = useFormInputProps({
     preventDefaultOnEnterKeydown: true,
-  });
+  })
 
-  if (hidden) return null;
+  if (hidden) return null
 
   const input = (
     <div className="flex w-[330px] flex-col" {...inputProps}>
@@ -104,36 +68,23 @@ export function LinkFloatingToolbar({
           <Link className="size-4" />
         </div>
 
-        <FloatingLinkUrlInput
-          className={inputVariants()}
-          placeholder="Paste link"
-          data-plate-focus
-        />
+        <FloatingLinkUrlInput className={inputVariants()} placeholder="Paste link" data-plate-focus />
       </div>
       <Separator className="my-1" />
       <div className="flex items-center">
         <div className="flex items-center pr-1 pl-2 text-muted-foreground">
           <Text className="size-4" />
         </div>
-        <input
-          className={inputVariants()}
-          placeholder="Text to display"
-          data-plate-focus
-          {...textInputProps}
-        />
+        <input className={inputVariants()} placeholder="Text to display" data-plate-focus {...textInputProps} />
       </div>
     </div>
-  );
+  )
 
   const editContent = editState.isEditing ? (
     input
   ) : (
     <div className="box-content flex items-center">
-      <button
-        className={buttonVariants({ size: 'sm', variant: 'ghost' })}
-        type="button"
-        {...editButtonProps}
-      >
+      <button className={buttonVariants({ size: 'sm', variant: 'ghost' })} type="button" {...editButtonProps}>
         Edit link
       </button>
 
@@ -154,7 +105,7 @@ export function LinkFloatingToolbar({
         <Unlink width={18} />
       </button>
     </div>
-  );
+  )
 
   return (
     <>
@@ -166,27 +117,27 @@ export function LinkFloatingToolbar({
         {editContent}
       </div>
     </>
-  );
+  )
 }
 
 function LinkOpenButton() {
-  const editor = useEditorRef();
-  const selection = useEditorSelection();
+  const editor = useEditorRef()
+  const selection = useEditorSelection()
 
   const attributes = React.useMemo(
     () => {
       const entry = editor.api.node<TLinkElement>({
         match: { type: editor.getType(KEYS.link) },
-      });
+      })
       if (!entry) {
-        return {};
+        return {}
       }
-      const [element] = entry;
-      return getLinkAttributes(editor, element);
+      const [element] = entry
+      return getLinkAttributes(editor, element)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [editor, selection]
-  );
+    [editor, selection],
+  )
 
   return (
     <a
@@ -196,12 +147,12 @@ function LinkOpenButton() {
         variant: 'ghost',
       })}
       onMouseOver={(e) => {
-        e.stopPropagation();
+        e.stopPropagation()
       }}
       aria-label="Open link in a new tab"
       target="_blank"
     >
       <ExternalLink width={18} />
     </a>
-  );
+  )
 }

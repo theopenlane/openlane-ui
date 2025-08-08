@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import type { PlateEditor, PlateElementProps } from 'platejs/react';
+import type { PlateEditor, PlateElementProps } from 'platejs/react'
 
-import { AIChatPlugin } from '@platejs/ai/react';
+import { AIChatPlugin } from '@platejs/ai/react'
 import {
   CalendarIcon,
   ChevronRightIcon,
@@ -23,37 +23,26 @@ import {
   Square,
   Table,
   TableOfContentsIcon,
-} from 'lucide-react';
-import { type TComboboxInputElement, KEYS } from 'platejs';
-import { PlateElement } from 'platejs/react';
+} from 'lucide-react'
+import { type TComboboxInputElement, KEYS } from 'platejs'
+import { PlateElement } from 'platejs/react'
 
-import {
-  insertBlock,
-  insertInlineElement,
-} from '@repo/ui/components/editor/transforms.ts';
+import { insertBlock, insertInlineElement } from '@repo/ui/components/editor/transforms.ts'
 
-import {
-  InlineCombobox,
-  InlineComboboxContent,
-  InlineComboboxEmpty,
-  InlineComboboxGroup,
-  InlineComboboxGroupLabel,
-  InlineComboboxInput,
-  InlineComboboxItem,
-} from './inline-combobox';
+import { InlineCombobox, InlineComboboxContent, InlineComboboxEmpty, InlineComboboxGroup, InlineComboboxGroupLabel, InlineComboboxInput, InlineComboboxItem } from './inline-combobox'
 
 type Group = {
-  group: string;
+  group: string
   items: {
-    icon: React.ReactNode;
-    value: string;
-    onSelect: (editor: PlateEditor, value: string) => void;
-    className?: string;
-    focusEditor?: boolean;
-    keywords?: string[];
-    label?: string;
-  }[];
-};
+    icon: React.ReactNode
+    value: string
+    onSelect: (editor: PlateEditor, value: string) => void
+    className?: string
+    focusEditor?: boolean
+    keywords?: string[]
+    label?: string
+  }[]
+}
 
 const groups: Group[] = [
   {
@@ -64,7 +53,7 @@ const groups: Group[] = [
         icon: <SparklesIcon />,
         value: 'AI',
         onSelect: (editor) => {
-          editor.getApi(AIChatPlugin).aiChat.show();
+          editor.getApi(AIChatPlugin).aiChat.show()
         },
       },
     ],
@@ -147,7 +136,7 @@ const groups: Group[] = [
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -174,7 +163,7 @@ const groups: Group[] = [
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -197,16 +186,14 @@ const groups: Group[] = [
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertInlineElement(editor, value);
+        insertInlineElement(editor, value)
       },
     })),
   },
-];
+]
 
-export function SlashInputElement(
-  props: PlateElementProps<TComboboxInputElement>
-) {
-  const { editor, element } = props;
+export function SlashInputElement(props: PlateElementProps<TComboboxInputElement>) {
+  const { editor, element } = props
 
   return (
     <PlateElement {...props} as="span">
@@ -220,22 +207,12 @@ export function SlashInputElement(
             <InlineComboboxGroup key={group}>
               <InlineComboboxGroupLabel>{group}</InlineComboboxGroupLabel>
 
-              {items.map(
-                ({ focusEditor, icon, keywords, label, value, onSelect }) => (
-                  <InlineComboboxItem
-                    key={value}
-                    value={value}
-                    onClick={() => onSelect(editor, value)}
-                    label={label}
-                    focusEditor={focusEditor}
-                    group={group}
-                    keywords={keywords}
-                  >
-                    <div className="mr-2 text-muted-foreground">{icon}</div>
-                    {label ?? value}
-                  </InlineComboboxItem>
-                )
-              )}
+              {items.map(({ focusEditor, icon, keywords, label, value, onSelect }) => (
+                <InlineComboboxItem key={value} value={value} onClick={() => onSelect(editor, value)} label={label} focusEditor={focusEditor} group={group} keywords={keywords}>
+                  <div className="mr-2 text-muted-foreground">{icon}</div>
+                  {label ?? value}
+                </InlineComboboxItem>
+              ))}
             </InlineComboboxGroup>
           ))}
         </InlineComboboxContent>
@@ -243,5 +220,5 @@ export function SlashInputElement(
 
       {props.children}
     </PlateElement>
-  );
+  )
 }
