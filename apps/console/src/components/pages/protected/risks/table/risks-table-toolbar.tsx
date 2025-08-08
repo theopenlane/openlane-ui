@@ -9,11 +9,10 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { canCreate, canEdit } from '@/lib/authz/utils.ts'
+import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
 import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { RiskWhereInput } from '@repo/codegen/src/schema'
@@ -37,6 +36,8 @@ type TProps = {
   handleBulkEdit: () => void
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  canEdit: (accessRole: TAccessRole[]) => boolean
+  permission: TData
 }
 
 const RisksTableToolbar: React.FC<TProps> = ({
@@ -53,9 +54,9 @@ const RisksTableToolbar: React.FC<TProps> = ({
   handleBulkEdit,
   selectedRisks,
   setSelectedRisks,
+  canEdit,
+  permission,
 }: TProps) => {
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
   const { programOptions, isSuccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)

@@ -87,10 +87,10 @@ const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttribu
 })
 FormDescription.displayName = 'FormDescription'
 
-const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, children, ...props }, ref) => {
+const FormMessage = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
 
-  let body
+  let body: React.ReactNode = null
   if (error) {
     if (Array.isArray(error)) {
       const uniqueMessages = Array.from(new Set(error.map((err) => err.message)))
@@ -99,22 +99,19 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
       body = String(error?.message)
     }
   } else {
-    body = children
-  }
-
-  if (!body) {
-    return null
+    body = children || <span style={{ visibility: 'hidden' }}>Placeholder</span>
   }
 
   return (
     <div ref={ref} id={formMessageId} className={cn(formMessage(), className)} {...props}>
-      <span className={formMessageIcon()}>
-        <InfoIcon width={16} height={16} />
-      </span>
-      <>{body}</>
+      {error && (
+        <span className={formMessageIcon()}>
+          <InfoIcon width={16} height={16} />
+        </span>
+      )}
+      {body}
     </div>
   )
 })
 FormMessage.displayName = 'FormMessage'
-
 export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField }

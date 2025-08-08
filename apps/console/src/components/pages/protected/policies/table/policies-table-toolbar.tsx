@@ -5,9 +5,8 @@ import { usePoliciesFilters } from '@/components/pages/protected/policies/table/
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
-import { canCreate, canEdit } from '@/lib/authz/utils.ts'
+import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
+import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
@@ -34,6 +33,8 @@ type TPoliciesTableToolbarProps = {
   handleBulkEdit: () => void
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  canEdit: (accessRole: TAccessRole[]) => boolean
+  permission: TData
 }
 
 const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
@@ -50,10 +51,10 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   handleBulkEdit,
   selectedPolicies,
   setSelectedPolicies,
+  canEdit,
+  permission,
 }) => {
   const isSearching = useDebounce(searching, 200)
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
   const filterFields = usePoliciesFilters()
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
 

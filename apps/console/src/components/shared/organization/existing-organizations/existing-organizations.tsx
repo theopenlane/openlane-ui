@@ -57,7 +57,9 @@ export const ExistingOrganizations = () => {
           },
         })
       }
-
+      requestAnimationFrame(() => {
+        queryClient?.clear()
+      })
       push('/dashboard')
     }
   }
@@ -101,8 +103,9 @@ export const ExistingOrganizations = () => {
         title: 'Error',
         description: errorMessage,
       })
+    } finally {
+      setShowLeaveConfirmation(null)
     }
-    setShowLeaveConfirmation(null)
   }
 
   return (

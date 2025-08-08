@@ -26,6 +26,9 @@ import { getPoliciesColumns } from '@/components/pages/protected/policies/table/
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -34,6 +37,8 @@ export const PoliciesTable = () => {
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
 
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
@@ -145,6 +150,15 @@ export const PoliciesTable = () => {
   }
 
   useEffect(() => {
+    if (permission?.roles) {
+      setColumnVisibility((prev) => ({
+        ...prev,
+        select: canEdit(permission.roles),
+      }))
+    }
+  }, [permission?.roles])
+
+  useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Policies', href: '/policies' },
@@ -186,6 +200,8 @@ export const PoliciesTable = () => {
         handleBulkEdit={handleBulkEdit}
         selectedPolicies={selectedPolicies}
         setSelectedPolicies={setSelectedPolicies}
+        canEdit={canEdit}
+        permission={permission}
       />
 
       <DataTable

@@ -293,9 +293,9 @@ const ViewProcedurePage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={false} />
-      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={false} />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
+      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={editAllowed} />
+      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={editAllowed} />
       <HistoricalCard procedure={procedure} />
       <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>
