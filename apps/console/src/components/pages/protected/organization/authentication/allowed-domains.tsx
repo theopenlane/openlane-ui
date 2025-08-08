@@ -10,7 +10,7 @@ import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/g
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { GqlError } from '@/types'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const isValidDomain = (domain: string) => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
 
@@ -81,11 +81,11 @@ const AllowedDomains = () => {
         title: 'Domains saved',
         description: 'Allowed domains updated successfully.',
       })
-    } catch (err) {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to save',
-        description: 'An error occurred while saving domains.',
-        gqlError: err as GqlError,
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

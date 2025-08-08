@@ -9,6 +9,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 import { useOrganization } from '@/hooks/useOrganization'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type SelectedControl = { id: string; refCode: string }
 
@@ -46,8 +47,12 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
 
       successNotification({ title: 'Controls added to organization successfully!' })
       onOpenChange(false)
-    } catch {
-      errorNotification({ title: 'Failed to add controls to the organization.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

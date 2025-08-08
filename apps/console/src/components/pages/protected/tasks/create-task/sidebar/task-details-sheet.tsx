@@ -29,6 +29,7 @@ import Conversation from '../form/fields/conversation'
 import TasksSheetHeader from '../form/fields/header'
 import { buildTaskPayload, generateEvidenceFormData } from '../utils'
 import MarkAsComplete from '../form/fields/mark-as-complete'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -113,10 +114,11 @@ const TaskDetailsSheet = () => {
       })
 
       setIsEditing(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an unexpected error. Please try again later.',
+        description: errorMessage,
       })
     }
   }
@@ -131,9 +133,11 @@ const TaskDetailsSheet = () => {
         title: 'Task updated',
         description: 'The task has been successfully updated.',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        description: 'There was an unexpected error. Please try again later.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

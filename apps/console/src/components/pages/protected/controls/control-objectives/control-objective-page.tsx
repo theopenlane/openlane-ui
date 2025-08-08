@@ -16,6 +16,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ControlObjectivePage = () => {
   const params = useParams()
@@ -92,9 +93,11 @@ const ControlObjectivePage = () => {
         title: 'Objective unarchived',
         description: `${node.name} is now active.`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to unarchive objective',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

@@ -15,7 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
-import { GqlError } from '@/types'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -109,9 +109,10 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
       queryClient.invalidateQueries({ queryKey: ['programs', programId] })
       setIsEditing(false)
     } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update auditor',
-        gqlError: error as GqlError,
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

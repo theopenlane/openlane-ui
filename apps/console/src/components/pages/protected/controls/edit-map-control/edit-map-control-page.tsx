@@ -28,6 +28,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { MapControl } from '@/types'
 import { useOrganization } from '@/hooks/useOrganization'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const EditMapControlPage = () => {
   const { id, subcontrolId } = useParams()
@@ -144,9 +145,11 @@ const EditMapControlPage = () => {
         router.push(redirectUrl)
         queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: `Unable to ${mappedControlId ? 'update' : 'create'} control mapping, please try again later`,
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

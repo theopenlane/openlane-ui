@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export function SetObjectAssociationDialog() {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
@@ -121,8 +122,12 @@ export function SetObjectAssociationDialog() {
 
       successNotification({ title: `${isControl ? 'Control' : 'Subcontrol'} updated` })
       setOpen(false)
-    } catch {
-      errorNotification({ title: `Could not update ${isControl ? 'Control' : 'Subcontrol'}, please try again later` })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     } finally {
       setIsSaving(false)
     }

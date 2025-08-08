@@ -36,6 +36,7 @@ import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -167,10 +168,11 @@ export default function CreateControlForm() {
         successNotification({ title: 'Control created successfully, redirecting...' })
         router.push(`/controls/${newId}`)
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to create control',
-        description: 'Something went wrong. Please try again.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

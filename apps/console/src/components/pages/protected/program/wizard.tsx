@@ -22,6 +22,7 @@ import { SummaryCard } from './summary-card'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { addYears } from 'date-fns'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
@@ -99,10 +100,11 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
       fullForm.reset(getValues())
       router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
       onSuccess?.()
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the program. Please try again.',
+        description: errorMessage,
       })
     }
   }

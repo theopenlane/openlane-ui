@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Input } from '@repo/ui/input'
 import { canEdit } from '@/lib/authz/utils'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -61,8 +62,12 @@ const QuestionnaireViewerPage: React.FC = () => {
       await deleteTemplate({ deleteTemplateId: existingId })
       successNotification({ title: 'Questionnaire deleted successfully' })
       router.push('/questionnaires')
-    } catch {
-      errorNotification({ title: 'Error deleting questionnaire', variant: 'destructive' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

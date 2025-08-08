@@ -13,6 +13,7 @@ import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useGetCurrentUser, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const DefaultOrgForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -47,8 +48,11 @@ const DefaultOrgForm = () => {
       setIsSuccess(true)
       successNotification({ title: 'Default organization updated successfully!' })
     } catch (error) {
-      console.error('Failed to update default organization:', error)
-      errorNotification({ title: 'An error occurred while updating the default organization.', variant: 'destructive' })
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

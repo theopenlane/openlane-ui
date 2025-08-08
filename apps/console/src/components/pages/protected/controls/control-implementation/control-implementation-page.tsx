@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ControlImplementationPage = () => {
   const params = useParams()
@@ -86,10 +87,10 @@ const ControlImplementationPage = () => {
       })
       successNotification({ title: 'Marked as verified' })
     } catch (error) {
-      console.error('Verification update failed:', error)
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to mark as verified',
-        description: 'Something went wrong while updating the implementation.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

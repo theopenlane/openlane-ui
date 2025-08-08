@@ -28,6 +28,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -146,9 +147,11 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
         title: `Invite${emails.length > 1 ? 's' : ''} sent successfully`,
       })
       handleClose()
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Unexpected error occurred, invites not sent',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

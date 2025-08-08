@@ -12,6 +12,7 @@ import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TSetObjectAssociationDialog = {
   procedureId?: string
@@ -116,10 +117,11 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
       queryClient.invalidateQueries({ queryKey: ['procedure', procedureId!] })
       setOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the procedure. Please try again.',
+        description: errorMessage,
       })
     }
   }

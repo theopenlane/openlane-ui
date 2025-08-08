@@ -11,6 +11,7 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
 import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
@@ -116,10 +117,11 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
       })
 
       setOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the risk. Please try again.',
+        description: errorMessage,
       })
     }
   }

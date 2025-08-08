@@ -7,6 +7,7 @@ import { useCreateBulkInvite, useDeleteOrganizationInvite } from '@/lib/graphql-
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { CreateInviteInput, InputMaybe, InviteRole } from '@repo/codegen/src/schema'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type InviteActionsProps = {
   inviteId: string
@@ -30,9 +31,11 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
         title: 'Invite deleted successfully',
       })
       queryClient.invalidateQueries({ queryKey: ['invites'] })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem deleting this invite, please try again',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }
@@ -51,9 +54,11 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
         title: 'Invite resent successfully',
       })
       queryClient.invalidateQueries({ queryKey: ['invites'] })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem resending the invite',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

@@ -41,6 +41,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface FormValues {
   refCode: string
@@ -184,9 +185,11 @@ const ControlDetailsPage: React.FC = () => {
         title: 'Subcontrol updated',
         description: 'The subcontrol was successfully updated.',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update subcontrol',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

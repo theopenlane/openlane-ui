@@ -11,6 +11,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useOrganization } from '@/hooks/useOrganization'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const OrganizationDelete = () => {
   const { successNotification, errorNotification } = useNotification()
@@ -50,9 +51,11 @@ const OrganizationDelete = () => {
         queryClient?.invalidateQueries()
       })
       push('/organization')
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to delete organization',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

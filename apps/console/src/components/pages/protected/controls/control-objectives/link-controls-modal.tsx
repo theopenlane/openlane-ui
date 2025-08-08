@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveData: ControlObjectiveFieldsFragment }) {
   const params = useParams()
@@ -91,8 +92,12 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
 
       successNotification({ title: 'Control Objective updated' })
       setOpen(false)
-    } catch {
-      errorNotification({ title: `Could not update Control Objective, please try again later` })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     } finally {
       setIsSaving(false)
     }

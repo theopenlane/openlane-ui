@@ -14,6 +14,7 @@ import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useSearchParams } from 'next/navigation'
 import { useGetUsers } from '@/lib/graphql-hooks/user'
 import { TaskQuery, UserWhereInput } from '@repo/codegen/src/schema'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type ConversationProps = {
   isEditing: boolean
@@ -59,10 +60,11 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
         })
 
         queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      } catch {
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
         errorNotification({
           title: 'Error',
-          description: 'There was an unexpected error. Please try again later.',
+          description: errorMessage,
         })
       }
     },
