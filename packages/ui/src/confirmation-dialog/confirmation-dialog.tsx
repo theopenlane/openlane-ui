@@ -38,7 +38,7 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogOverlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
+      <AlertDialogOverlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs" />
       <AlertDialogContent className="z-50">
         <AlertDialogHeader>
           <AlertDialogTitle>{title || 'Are you absolutely sure?'}</AlertDialogTitle>

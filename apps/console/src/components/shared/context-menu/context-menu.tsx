@@ -39,7 +39,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, children }) =>
   }, [onClose])
 
   return (
-    <div ref={menuRef} className="fixed z-50 bg-popover border rounded shadow-md text-sm" style={{ top: y, left: x }}>
+    <div ref={menuRef} className="fixed z-50 bg-popover border rounded-sm shadow-md text-sm" style={{ top: y, left: x }}>
       {children}
     </div>
   )

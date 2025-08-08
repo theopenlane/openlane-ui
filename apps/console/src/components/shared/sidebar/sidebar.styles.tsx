@@ -6,7 +6,7 @@ const sidebarStyles = tv({
     navInner: 'relative',
     expandNav: 'relative flex gap-3.5 items-center',
     sideNav:
-      'text-sm left-8 opacity-0 transition-all duration-300 group-hover:z-50 group-hover:ml-4 group-hover:p-3 group-hover:opacity-100 group-hover:shadow-sm group-hover:border group-hover:border-border group-hover:rounded-xl group-hover:bg-background-secondary',
+      'text-sm left-8 opacity-0 transition-all duration-300 group-hover:z-50 group-hover:ml-4 group-hover:p-3 group-hover:opacity-100 group-hover:shadow-xs group-hover:border group-hover:border-border group-hover:rounded-xl group-hover:bg-background-secondary',
   },
   variants: {
     status: {

@@ -273,7 +273,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
       {isFullscreen && (
         <div className="fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center" onClick={closeFullScreen}>
           <div ref={containerRef} onClick={(e) => e.stopPropagation()} className="relative bg-card w-[75vw] h-[75vh] rounded-md shadow-lg">
-            <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
+            <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded-sm hover:bg-opacity-80">
               <X size={20} />
             </button>
 
