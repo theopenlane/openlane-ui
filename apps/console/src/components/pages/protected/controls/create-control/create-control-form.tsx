@@ -36,6 +36,12 @@ import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { useSession } from 'next-auth/react'
+import { canCreate } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
+import { Loading } from '@/components/shared/loading/loading'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -55,6 +61,10 @@ export default function CreateControlForm() {
   const [clearData, setClearData] = useState<boolean>(false)
   const [createObjective, setCreateObjective] = useState(false)
   const [createImplementation, setCreateImplementation] = useState(false)
+  const { data: sessionData } = useSession()
+
+  const { data: permission, isLoading: permissionsLoading } = useOrganizationRole(sessionData)
+  const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
 
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
@@ -228,6 +238,14 @@ export default function CreateControlForm() {
   const onCancel = () => {
     setClearData(true)
     reset()
+  }
+
+  if (!permissionsLoading && createAllowed === false) {
+    return <ProtectedArea />
+  }
+
+  if (permissionsLoading) {
+    return <Loading />
   }
 
   return (

@@ -18,12 +18,21 @@ import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 import { useRouter } from 'next/navigation'
 
+import { useSession } from 'next-auth/react'
+import { canCreate } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const router = useRouter()
+  const { data: sessionData } = useSession()
+
+  const { data: permission } = useOrganizationRole(sessionData)
+  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {
@@ -151,15 +160,17 @@ const ControlReportPage = () => {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/controls/create-control">
-            <div aria-label="Create control" className={`h-8 px-1 border rounded-md cursor-pointer`}>
-              <div className="flex items-center h-full">
-                <Settings2 size={15} className="mr-1" />
-                <div className="border-r h-full"></div>
-                <Plus size={15} className="ml-1" />
+          {createAllowed && (
+            <Link href="/controls/create-control">
+              <div aria-label="Create control" className={`h-8 px-1 border rounded-md cursor-pointer`}>
+                <div className="flex items-center h-full">
+                  <Settings2 size={15} className="mr-1" />
+                  <div className="border-r h-full"></div>
+                  <Plus size={15} className="ml-1" />
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+          )}
           <Link href={'/controls'}>
             <Button className="h-8 p-2">View All Controls</Button>
           </Link>

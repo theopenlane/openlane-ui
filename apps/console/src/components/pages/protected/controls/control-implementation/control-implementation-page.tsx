@@ -4,17 +4,21 @@ import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, Check, ChevronRight, ChevronsDownUp, CirclePlus, List, Pencil, Settings2 } from 'lucide-react'
+import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
-import { ControlImplementationCard } from './control-implementation-card'
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion'
+import { Accordion } from '@radix-ui/react-accordion'
 import CreateControlImplementationSheet from './create-control-implementation-sheet'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { ImplementationItem } from './implementation-item'
 
 const ControlImplementationPage = () => {
   const params = useParams()
@@ -39,6 +43,10 @@ const ControlImplementationPage = () => {
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
+
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRole(session)
+  const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation)
 
   const toggleAll = () => {
     if (!edges) return
@@ -158,43 +166,27 @@ const ControlImplementationPage = () => {
               <ChevronsDownUp size={16} />
             </div>
           </Button>
-          <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-            Create
-          </Button>
+          {createAllowed && (
+            <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+              Create
+            </Button>
+          )}
         </div>
       </div>
       <div className="space-y-4 mt-6">
         <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full mt-6">
           {edges.map((edge, i) => (
-            <AccordionItem key={edge.node.id} value={edge.node.id}>
-              <div className="flex justify-between items-center my-2">
-                <AccordionTrigger className="group flex items-center px-2 py-2 bg-background">
-                  <ChevronRight size={22} className="mr-2 text-brand transition-transform group-data-[state=open]:rotate-90" />
-                  <span className="text-base font-medium ">{`Implementation ${i + 1}`}</span>
-                </AccordionTrigger>
-
-                <div className="flex gap-2">
-                  <Button className="h-8 !px-2" icon={<Check />} iconPosition="left" onClick={() => handleMarkVerified(edge.node.id)} disabled={isPending || !!edge.node.verified}>
-                    {edge.node.verified ? 'Verified' : 'Mark verified'}
-                  </Button>
-                  <Button
-                    className="h-8 !px-2"
-                    variant="outline"
-                    icon={<Pencil />}
-                    iconPosition="left"
-                    onClick={() => {
-                      setEditData(edge.node)
-                      setShowCreateSheet(true)
-                    }}
-                  >
-                    Edit
-                  </Button>
-                </div>
-              </div>
-              <AccordionContent>
-                <ControlImplementationCard obj={edge.node} />
-              </AccordionContent>
-            </AccordionItem>
+            <ImplementationItem
+              key={edge.node.id}
+              idx={i}
+              node={edge.node}
+              onEdit={(n) => {
+                setEditData(n)
+                setShowCreateSheet(true)
+              }}
+              onMarkVerified={handleMarkVerified}
+              isUpdating={isPending}
+            />
           ))}
         </Accordion>
       </div>

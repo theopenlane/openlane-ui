@@ -36,11 +36,12 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api'
+import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { canEdit } from '@/lib/authz/utils'
+import { canCreate, canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 interface FormValues {
   refCode: string
@@ -95,6 +96,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
+  const { data: orgPermission } = useOrganizationRole(session)
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
     return {
@@ -244,26 +246,34 @@ const ControlDetailsPage: React.FC = () => {
             trigger={CreateBtn}
             content={
               <>
-                <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Control Implementation</span>
-                </div>
-                <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Control Objective</span>
-                </div>
-                <CreateControlObjectiveSheet
-                  open={showCreateObjectiveSheet}
-                  onOpenChange={(open) => {
-                    setShowCreateObjectiveSheet(open)
-                  }}
-                />
-                <CreateControlImplementationSheet
-                  open={showCreateImplementationSheet}
-                  onOpenChange={(open) => {
-                    setShowCreateImplementationSheet(open)
-                  }}
-                />
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
+                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Control Implementation</span>
+                  </div>
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
+                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Control Objective</span>
+                  </div>
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
+                  <CreateControlObjectiveSheet
+                    open={showCreateObjectiveSheet}
+                    onOpenChange={(open) => {
+                      setShowCreateObjectiveSheet(open)
+                    }}
+                  />
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
+                  <CreateControlImplementationSheet
+                    open={showCreateImplementationSheet}
+                    onOpenChange={(open) => {
+                      setShowCreateImplementationSheet(open)
+                    }}
+                  />
+                )}
                 <CreateTaskDialog
                   trigger={TaskIconBtn}
                   defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
@@ -275,12 +285,14 @@ const ControlDetailsPage: React.FC = () => {
                     subcontrolIDs: [subcontrolId],
                   }}
                 />
-                <Link href={`/controls/${id}/${subcontrolId}/map-control`}>
-                  <div className="flex items-center space-x-2 hover:bg-muted">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Map Control</span>
-                  </div>
-                </Link>
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
+                  <Link href={`/controls/${id}/${subcontrolId}/map-control`}>
+                    <div className="flex items-center space-x-2 hover:bg-muted">
+                      <CirclePlus size={16} strokeWidth={2} />
+                      <span>Map Control</span>
+                    </div>
+                  </Link>
+                )}
               </>
             }
           />
@@ -355,7 +367,7 @@ const ControlDetailsPage: React.FC = () => {
         handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
       />
       <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
-      <RelatedControls />
+      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
 
       <DetailsCard />
       {hasInfoData && (
