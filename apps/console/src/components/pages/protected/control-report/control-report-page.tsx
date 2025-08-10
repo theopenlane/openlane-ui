@@ -17,6 +17,7 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 import { useRouter } from 'next/navigation'
+import { Loading } from '@/components/shared/loading/loading'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
@@ -124,6 +125,10 @@ const ControlReportPage = () => {
       setReferenceFramework(first || 'Custom')
     }
   }, [standardOptions, isSuccessStandards])
+
+  if (isLoading || !data) {
+    return <Loading />
+  }
 
   return (
     <TooltipProvider>
