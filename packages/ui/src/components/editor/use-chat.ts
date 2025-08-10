@@ -1,71 +1,69 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import { useChat as useBaseChat } from '@ai-sdk/react';
-import { faker } from '@faker-js/faker';
-import { usePluginOption } from 'platejs/react';
+import { useChat as useBaseChat } from '@ai-sdk/react'
+import { faker } from '@faker-js/faker'
+import { usePluginOption } from 'platejs/react'
 
-import { aiChatPlugin } from '@repo/ui/components/editor/plugins/ai-kit.tsx';
+import { aiChatPlugin } from '@repo/ui/components/editor/plugins/ai-kit.tsx'
 
 export const useChat = () => {
-  const options = usePluginOption(aiChatPlugin, 'chatOptions');
+  const options = usePluginOption(aiChatPlugin, 'chatOptions')
 
   // remove when you implement the route /api/ai/command
-  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const abortControllerRef = React.useRef<AbortController | null>(null)
   const _abortFakeStream = () => {
     if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
     }
-  };
+  }
 
   const chat = useBaseChat({
     id: 'editor',
     // Mock the API response. Remove it when you implement the route /api/ai/command
     fetch: async (input, init) => {
-      const res = await fetch(input, init);
+      const res = await fetch(input, init)
 
       if (!res.ok) {
-        let sample: 'markdown' | 'mdx' | null = null;
+        let sample: 'markdown' | 'mdx' | null = null
 
         try {
-          const content = JSON.parse(init?.body as string).messages.at(
-            -1
-          ).content;
+          const content = JSON.parse(init?.body as string).messages.at(-1).content
 
           if (content.includes('Generate a markdown sample')) {
-            sample = 'markdown';
+            sample = 'markdown'
           } else if (content.includes('Generate a mdx sample')) {
-            sample = 'mdx';
+            sample = 'mdx'
           }
         } catch {
-          sample = null;
+          sample = null
         }
 
-        abortControllerRef.current = new AbortController();
-        await new Promise((resolve) => setTimeout(resolve, 400));
+        abortControllerRef.current = new AbortController()
+        await new Promise((resolve) => setTimeout(resolve, 400))
 
         const stream = fakeStreamText({
           sample,
           signal: abortControllerRef.current.signal,
-        });
+        })
 
         return new Response(stream, {
           headers: {
             Connection: 'keep-alive',
             'Content-Type': 'text/plain',
           },
-        });
+        })
       }
 
-      return res;
+      return res
     },
     ...options,
-  });
+  })
 
-  return { ...chat, _abortFakeStream };
-};
+  return { ...chat, _abortFakeStream }
+}
 
 // Used for testing. Remove it after implementing useChat api.
 const fakeStreamText = ({
@@ -74,18 +72,18 @@ const fakeStreamText = ({
   signal,
   streamProtocol = 'data',
 }: {
-  chunkCount?: number;
-  sample?: 'markdown' | 'mdx' | null;
-  signal?: AbortSignal;
-  streamProtocol?: 'data' | 'text';
+  chunkCount?: number
+  sample?: 'markdown' | 'mdx' | null
+  signal?: AbortSignal
+  streamProtocol?: 'data' | 'text'
 } = {}) => {
   const blocks = (() => {
     if (sample === 'markdown') {
-      return markdownChunks;
+      return markdownChunks
     }
 
     if (sample === 'mdx') {
-      return mdxChunks;
+      return mdxChunks
     }
 
     return [
@@ -103,65 +101,58 @@ const fakeStreamText = ({
         delay: faker.number.int({ max: 100, min: 30 }),
         texts: faker.lorem.words({ max: 3, min: 1 }) + ' ',
       })),
-    ];
-  })();
+    ]
+  })()
 
-  const encoder = new TextEncoder();
+  const encoder = new TextEncoder()
 
   return new ReadableStream({
     async start(controller) {
       if (signal?.aborted) {
-        controller.error(new Error('Aborted before start'));
-        return;
+        controller.error(new Error('Aborted before start'))
+        return
       }
 
       const abortHandler = () => {
-        controller.error(new Error('Stream aborted'));
-      };
+        controller.error(new Error('Stream aborted'))
+      }
 
-      signal?.addEventListener('abort', abortHandler);
+      signal?.addEventListener('abort', abortHandler)
 
       for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i];
+        const block = blocks[i]
 
         // Stream the block content
         for (const chunk of block) {
-          await new Promise((resolve) => setTimeout(resolve, chunk.delay));
+          await new Promise((resolve) => setTimeout(resolve, chunk.delay))
 
           if (streamProtocol === 'text') {
-            controller.enqueue(encoder.encode(chunk.texts));
+            controller.enqueue(encoder.encode(chunk.texts))
           } else {
-            controller.enqueue(
-              encoder.encode(`0:${JSON.stringify(chunk.texts)}\n`)
-            );
+            controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk.texts)}\n`))
           }
         }
 
         // Add double newline after each block except the last one
         if (i < blocks.length - 1) {
           if (streamProtocol === 'text') {
-            controller.enqueue(encoder.encode('\n\n'));
+            controller.enqueue(encoder.encode('\n\n'))
           } else {
-            controller.enqueue(encoder.encode(`0:${JSON.stringify('\n\n')}\n`));
+            controller.enqueue(encoder.encode(`0:${JSON.stringify('\n\n')}\n`))
           }
         }
       }
 
       if (streamProtocol === 'data') {
-        controller.enqueue(
-          `d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":${blocks.reduce(
-            (sum, block) => sum + block.length,
-            0
-          )}}}\n`
-        );
+        controller.enqueue(`d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":${blocks.reduce((sum, block) => sum + block.length, 0)}}}\n`)
       }
 
-      controller.close();
+      controller.close()
     },
-  });
-};
+  })
+}
 
-const delay = faker.number.int({ max: 20, min: 5 });
+const delay = faker.number.int({ max: 20, min: 5 })
 
 const markdownChunks = [
   [
@@ -282,8 +273,7 @@ const markdownChunks = [
     { delay, texts: '![Alt ' },
     {
       delay,
-      texts:
-        'text](https://images.unsplash.com/photo-1712688930249-98e1963af7bd?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)\n\n',
+      texts: 'text](https://images.unsplash.com/photo-1712688930249-98e1963af7bd?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)\n\n',
     },
     {
       delay,
@@ -331,7 +321,7 @@ const markdownChunks = [
     { delay, texts: 'Data    ' },
     { delay, texts: ' |' },
   ],
-];
+]
 
 const mdxChunks = [
   [
@@ -541,7 +531,7 @@ const mdxChunks = [
     },
     {
       delay,
-      texts: '| **Ment',
+      texts: '| **Meant',
     },
     {
       delay,
@@ -549,8 +539,7 @@ const mdxChunks = [
     },
     {
       delay,
-      texts:
-        '![](https://images.unsplash.com/photo-1712688930249-98e1963af7bd?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)\n\n',
+      texts: '![](https://images.unsplash.com/photo-1712688930249-98e1963af7bd?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)\n\n',
     },
     {
       delay,
@@ -770,7 +759,7 @@ const mdxChunks = [
     },
     {
       delay,
-      texts: 'nd-color',
+      texts: 'and-color',
     },
     {
       delay,
@@ -1134,8 +1123,7 @@ const mdxChunks = [
     },
     {
       delay,
-      texts:
-        'src="https://s26.q4cdn.com/900411403/files/doc_downloads/test.pdf" width="80%" isUpload="true" />\n\n',
+      texts: 'src="https://s26.q4cdn.com/900411403/files/doc_downloads/test.pdf" width="80%" isUpload="true" />\n\n',
     },
     {
       delay,
@@ -1195,8 +1183,7 @@ const mdxChunks = [
     },
     {
       delay,
-      texts:
-        'src="https://samplelib.com/lib/preview/mp3/sample-3s.mp3" width="80%" />\n\n',
+      texts: 'src="https://samplelib.com/lib/preview/mp3/sample-3s.mp3" width="80%" />\n\n',
     },
     {
       delay,
@@ -1256,8 +1243,7 @@ const mdxChunks = [
     },
     {
       delay,
-      texts:
-        'src="https://videos.pexels.com/video-files/6769791/6769791-uhd_2560_1440_24fps.mp4" width="80%" isUpload="true" />',
+      texts: 'src="https://videos.pexels.com/video-files/6769791/6769791-uhd_2560_1440_24fps.mp4" width="80%" isUpload="true" />',
     },
   ],
-];
+]

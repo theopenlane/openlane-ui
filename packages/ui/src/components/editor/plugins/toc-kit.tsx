@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { TocPlugin } from '@platejs/toc/react';
+import { TocPlugin } from '@platejs/toc/react'
 
-import { TocElement } from '@repo/ui/components/ui/toc-node.tsx';
+import { TocElement } from '@repo/ui/components/ui/toc-node.tsx'
 export const TocKit = [
   TocPlugin.configure({
     options: {
@@ -10,4 +10,4 @@ export const TocKit = [
       topOffset: 80,
     },
   }).withComponent(TocElement),
-];
+]

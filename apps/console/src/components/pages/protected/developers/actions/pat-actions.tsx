@@ -65,7 +65,7 @@ export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
         title={`Delete ${isOrg ? 'API Token' : 'Personal Token'}`}
         description={
           <>
-            This action cannot be undone. This will permanently remove the <b>${tokenName}</b> from the organization.
+            This action cannot be undone. This will permanently remove the <b>{tokenName}</b> from the organization.
           </>
         }
       />
