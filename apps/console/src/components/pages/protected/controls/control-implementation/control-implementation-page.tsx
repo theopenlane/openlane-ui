@@ -19,6 +19,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ImplementationItem } from './implementation-item'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ControlImplementationPage = () => {
   const params = useParams()
@@ -94,10 +95,10 @@ const ControlImplementationPage = () => {
       })
       successNotification({ title: 'Marked as verified' })
     } catch (error) {
-      console.error('Verification update failed:', error)
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to mark as verified',
-        description: 'Something went wrong while updating the implementation.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

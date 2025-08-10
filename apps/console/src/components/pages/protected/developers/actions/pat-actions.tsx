@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useDeleteApiToken, useDeletePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TokenActionProps = {
   tokenId: string
@@ -33,9 +34,11 @@ export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
       successNotification({
         title: 'Token deleted successfully',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem deleting this token, please try again',
+        title: 'Error',
+        description: errorMessage,
       })
     } finally {
       setIsDeleteDialogOpen(false)

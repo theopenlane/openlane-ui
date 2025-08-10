@@ -19,6 +19,7 @@ import { usePathname } from 'next/navigation'
 import { useCreateAPIToken, useCreatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { CreateApiTokenInput, Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type PersonalApiKeyDialogProps = {
   triggerText?: boolean
@@ -131,10 +132,11 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
       } else {
         throw new Error('Failed to create token')
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Error creating Token!',
-        description: 'Something went wrong. Please try again.',
+        title: 'Error',
+        description: errorMessage,
       })
     } finally {
       setIsSubmitting(false)

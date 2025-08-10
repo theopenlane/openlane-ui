@@ -9,8 +9,8 @@ import { useDeleteMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
-import { GqlError } from '@/types'
 import StandardChip from '../standards/shared/standard-chip'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const RelationCard = ({
   data,
@@ -39,9 +39,10 @@ const RelationCard = ({
         description: 'The mapped control was successfully removed.',
       })
     } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to delete mapping',
-        gqlError: error as GqlError,
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }
@@ -115,7 +116,7 @@ const RelationCard = ({
           </div>
           <div className="flex pt-2">
             <p className="flex gap-4 w-40 shrink-0 self-start items-center text-sm">Relation</p>
-            <p className="text-sm whitespace-pre-wrap text-sm">{data.relation}</p>
+            <p className="text-sm whitespace-pre-wrap">{data.relation}</p>
           </div>
         </div>
       </div>

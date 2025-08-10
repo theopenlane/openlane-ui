@@ -16,6 +16,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { switchOrganization } from '@/lib/user'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
+import { useQueryClient } from '@tanstack/react-query'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const { useStepper, steps } = defineStepper(
   { id: '0', label: `Company Info`, schema: step1Schema },
@@ -24,6 +26,7 @@ const { useStepper, steps } = defineStepper(
 )
 
 export default function MultiStepForm() {
+  const queryClient = useQueryClient()
   const stepper = useStepper()
   const { mutateAsync: createOnboarding } = useCreateOnboarding()
   const router = useRouter()
@@ -92,13 +95,19 @@ export default function MultiStepForm() {
               isOnboarding: false,
             },
           })
+          requestAnimationFrame(() => {
+            queryClient?.clear()
+          })
           router.push('/dashboard')
         }
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was an error while submitting the form. Please try again.',
+        title: 'Error',
+        description: errorMessage,
       })
+    } finally {
       setIsLoading(false)
     }
   }

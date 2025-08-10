@@ -9,6 +9,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useDeleteControl } from '@/lib/graphql-hooks/controls.ts'
 import { useRouter } from 'next/navigation'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({ controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
@@ -25,8 +26,12 @@ const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({
       router.push('/controls')
       await deleteControl({ deleteControlId: controlId })
       successNotification({ title: `Control deleted successfully.` })
-    } catch {
-      errorNotification({ title: 'Failed to delete control.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     } finally {
       setIsOpen(false)
     }

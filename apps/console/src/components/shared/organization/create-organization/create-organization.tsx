@@ -81,11 +81,10 @@ export const CreateOrganizationForm = () => {
         }
       }
 
-      requestAnimationFrame(() => {
-        queryClient?.invalidateQueries()
-      })
-
       if (response.data) {
+        requestAnimationFrame(() => {
+          queryClient?.invalidateQueries()
+        })
         push('/dashboard')
       }
     } catch (error: unknown) {

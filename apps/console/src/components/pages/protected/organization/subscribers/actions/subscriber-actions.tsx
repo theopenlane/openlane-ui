@@ -5,6 +5,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useDeleteSubscriber } from '@/lib/graphql-hooks/subscribes'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type SubscriberActionsProps = {
   subscriberEmail: string
@@ -23,10 +24,11 @@ export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) =
       successNotification({
         title: 'Subscriber deleted successfully',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'There was a problem deleting the subscriber, please try again',
-        variant: 'destructive',
+        title: 'Error',
+        description: errorMessage,
       })
     } finally {
       setIsDeleteDialogOpen(false)

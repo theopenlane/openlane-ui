@@ -15,6 +15,7 @@ import { useUpdateOrganization, useUpdateOrgAvatar } from '@/lib/graphql-hooks/o
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -92,10 +93,11 @@ const OrganizationNameForm = () => {
       successNotification({
         title: 'Avatar updated successfully',
       })
-    } catch {
-      console.error('file upload error')
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update avatar',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

@@ -16,6 +16,7 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/groups'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -103,8 +104,11 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
       setIsOpen(false)
       reset()
     } catch (error) {
-      console.error('Error creating group:', error)
-      errorNotification({ title: 'Failed to create group' })
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

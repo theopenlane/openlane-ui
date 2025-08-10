@@ -18,6 +18,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Pagination from '@repo/ui/pagination'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type GroupRow = {
   id: string
@@ -101,9 +102,11 @@ export const ProgramSettingsGroups = () => {
         title: 'Group removed',
         description: 'The group has been successfully removed from the program.',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to remove group',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }
@@ -143,9 +146,11 @@ export const ProgramSettingsGroups = () => {
       })
 
       setIsDialogOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update role',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

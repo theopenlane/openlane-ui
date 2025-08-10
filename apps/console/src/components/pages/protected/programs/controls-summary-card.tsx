@@ -40,6 +40,7 @@ export function ControlsSummaryCard() {
       field: 'hasProgramsWith',
       value: programId,
       type: 'selectIs',
+      label: 'Program Name',
       operator: 'EQ',
     },
   ]

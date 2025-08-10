@@ -28,6 +28,7 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TRisksPageProps = {
   riskId: string
@@ -115,8 +116,12 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       router.push('/risks')
       await deleteRisk({ deleteRiskId: riskId })
       successNotification({ title: 'Risk deleted successfully' })
-    } catch {
-      errorNotification({ title: 'Error deleting risk' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
@@ -162,10 +167,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       })
 
       setIsEditing(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Error updating risk',
-        description: 'Something went wrong.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }
@@ -178,9 +184,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         title: 'Risk updated',
         description: 'The risk was successfully updated.',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update risk',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

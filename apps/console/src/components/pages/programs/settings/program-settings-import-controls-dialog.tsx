@@ -12,6 +12,7 @@ import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ImportControlsDialog: React.FC = () => {
   const [open, setOpen] = useState(false)
@@ -45,9 +46,11 @@ const ImportControlsDialog: React.FC = () => {
         title: 'Controls Imported',
         description: `${selectedItems.length} control(s) successfully imported to the program.`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to Import Controls',
+        title: 'Error',
+        description: errorMessage,
       })
     }
     handleResetState()

@@ -25,6 +25,7 @@ import AuthorityCard from '@/components/pages/protected/procedures/view/cards/au
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -159,10 +160,11 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
       form.reset()
       router.push(`/procedures/${createdProcedure.createProcedure.procedure.id}/view`)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the procedure. Please try again.',
+        description: errorMessage,
       })
     }
   }
@@ -253,10 +255,11 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
       queryClient.invalidateQueries({ queryKey: ['procedure', procedure?.id] })
       router.push(`/procedures`)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the procedure. Please try again.',
+        description: errorMessage,
       })
     }
   }

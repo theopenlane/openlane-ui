@@ -19,6 +19,7 @@ import MapControlsRelations from './map-controls-relations'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { MapControl } from '@/types'
 import { useOrganization } from '@/hooks/useOrganization'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('To')
@@ -75,8 +76,12 @@ const MapControlPage = () => {
       await create({ input: data })
       successNotification({ title: 'Map Control created!' })
       router.back()
-    } catch {
-      errorNotification({ title: 'Unable to create control mapping, please try again later' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

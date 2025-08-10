@@ -16,6 +16,7 @@ import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { useSession } from 'next-auth/react'
 import { canEdit } from '@/lib/authz/utils'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -66,10 +67,11 @@ const InheritPermissionDialog = () => {
       })
 
       setIsOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to inherit permissions',
-        description: 'An unexpected error occurred.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

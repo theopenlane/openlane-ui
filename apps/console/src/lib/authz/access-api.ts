@@ -140,6 +140,7 @@ export const useOrganizationRole = (session: Session | null) => {
     revalidateOnMount: true,
     refreshInterval: 0,
     revalidateIfStale: false,
+    dedupingInterval: 1000 * 60 * 5,
   })
 
   return {

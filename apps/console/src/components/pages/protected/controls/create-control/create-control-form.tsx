@@ -42,6 +42,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -177,10 +178,11 @@ export default function CreateControlForm() {
         successNotification({ title: 'Control created successfully, redirecting...' })
         router.push(`/controls/${newId}`)
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to create control',
-        description: 'Something went wrong. Please try again.',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

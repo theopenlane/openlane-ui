@@ -15,6 +15,7 @@ import { Label } from '@repo/ui/label'
 import { Info, InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const setAuditorSchema = z.object({
   auditorName: z.string().optional().nullable(),
@@ -75,9 +76,11 @@ export const SetAuditorDialog = () => {
       successNotification({ title: 'Auditor successfully added/edited' })
       queryClient.invalidateQueries({ queryKey: ['programs'] })
       setOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Unexpected error occurred, invites not sent',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

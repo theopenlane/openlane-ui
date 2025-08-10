@@ -12,6 +12,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { useSession } from 'next-auth/react'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const DeleteGroupDialog = () => {
   const { data: session } = useSession()
@@ -36,8 +37,12 @@ const DeleteGroupDialog = () => {
       setSelectedGroup(null)
       setIsOpen(false)
       queryClient.invalidateQueries({ queryKey: ['groups'] })
-    } catch {
-      errorNotification({ title: 'Failed to delete group.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
