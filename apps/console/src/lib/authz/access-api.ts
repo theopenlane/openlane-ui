@@ -28,6 +28,10 @@ export type TAccessRole =
   | 'owner'
   | 'access'
   | 'can_invite_admins'
+  | 'can_create_job_template'
+  | 'can_manage_groups'
+  | 'can_create_scheduled_job'
+  | 'can_create_mapped_control'
 
 export type TData = {
   success?: boolean
