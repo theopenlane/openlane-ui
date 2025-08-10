@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import type { TLinkElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
+import type { TLinkElement } from 'platejs'
+import type { PlateElementProps } from 'platejs/react'
 
-import { getLinkAttributes } from '@platejs/link';
-import { PlateElement } from 'platejs/react';
+import { getLinkAttributes } from '@platejs/link'
+import { PlateElement } from 'platejs/react'
 
 export function LinkElement(props: PlateElementProps<TLinkElement>) {
   return (
@@ -18,11 +18,11 @@ export function LinkElement(props: PlateElementProps<TLinkElement>) {
         ...props.attributes,
         ...getLinkAttributes(props.editor, props.element),
         onMouseOver: (e) => {
-          e.stopPropagation();
+          e.stopPropagation()
         },
       }}
     >
       {props.children}
     </PlateElement>
-  );
+  )
 }

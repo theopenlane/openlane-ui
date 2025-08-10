@@ -1,26 +1,24 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import { AIChatPlugin } from '@platejs/ai/react';
-import { useEditorPlugin } from 'platejs/react';
+import { AIChatPlugin } from '@platejs/ai/react'
+import { useEditorPlugin } from 'platejs/react'
 
-import { ToolbarButton } from './toolbar';
+import { ToolbarButton } from './toolbar'
 
-export function AIToolbarButton(
-  props: React.ComponentProps<typeof ToolbarButton>
-) {
-  const { api } = useEditorPlugin(AIChatPlugin);
+export function AIToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
+  const { api } = useEditorPlugin(AIChatPlugin)
 
   return (
     <ToolbarButton
       {...props}
       onClick={() => {
-        api.aiChat.show();
+        api.aiChat.show()
       }}
       onMouseDown={(e) => {
-        e.preventDefault();
+        e.preventDefault()
       }}
     />
-  );
+  )
 }

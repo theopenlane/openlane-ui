@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import type { TComment } from '@repo/ui/components/ui/comment.tsx';
+import type { TComment } from '@repo/ui/components/ui/comment.tsx'
 
-import { createPlatePlugin } from 'platejs/react';
+import { createPlatePlugin } from 'platejs/react'
 
-import { BlockDiscussion } from '@repo/ui/components/ui/block-discussion.tsx';
+import { BlockDiscussion } from '@repo/ui/components/ui/block-discussion.tsx'
 
 export interface TDiscussion {
-  id: string;
-  comments: TComment[];
-  createdAt: Date;
-  isResolved: boolean;
-  userId: string;
-  documentContent?: string;
+  id: string
+  comments: TComment[]
+  createdAt: Date
+  isResolved: boolean
+  userId: string
+  documentContent?: string
 }
 
 const discussionsData: TDiscussion[] = [
@@ -102,15 +102,11 @@ const discussionsData: TDiscussion[] = [
     isResolved: false,
     userId: 'bob',
   },
-];
+]
 
-const avatarUrl = (seed: string) =>
-  `https://api.dicebear.com/9.x/glass/svg?seed=${seed}`;
+const avatarUrl = (seed: string) => `https://api.dicebear.com/9.x/glass/svg?seed=${seed}`
 
-const usersData: Record<
-  string,
-  { id: string; avatarUrl: string; name: string; hue?: number }
-> = {
+const usersData: Record<string, { id: string; avatarUrl: string; name: string; hue?: number }> = {
   alice: {
     id: 'alice',
     avatarUrl: avatarUrl('alice6'),
@@ -126,7 +122,7 @@ const usersData: Record<
     avatarUrl: avatarUrl('charlie2'),
     name: 'Charlie',
   },
-};
+}
 
 // This plugin is purely UI. It's only used to store the discussions and users data
 export const discussionPlugin = createPlatePlugin({
@@ -143,6 +139,6 @@ export const discussionPlugin = createPlatePlugin({
   .extendSelectors(({ getOption }) => ({
     currentUser: () => getOption('users')[getOption('currentUserId')],
     user: (id: string) => getOption('users')[id],
-  }));
+  }))
 
-export const DiscussionKit = [discussionPlugin];
+export const DiscussionKit = [discussionPlugin]
