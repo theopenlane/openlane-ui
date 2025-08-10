@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { Plus, Settings2, ListChecks, AlertTriangle, Users, type LucideIcon, Pencil, ShieldCheck, Fingerprint, ScrollText, NotebookPen, Award, Box, User } from 'lucide-react'
 import ControlImplementationIcon from '@/assets/ControlImplementationIcon'
 import ControlObjectiveIcon from '@/assets/ControlObjectiveIcon'
-import EntityIcon from '@/assets/EntitiyIcon'
 import MapControlIcon from '@/assets/MapControlIcon'
 import SubcontrolIcon from '@/assets/SubcontrolIcon'
 import ProcedureIcon from '@/assets/ProcedureIcon'
+import EntityIcon from '@/assets/EntityIcon'
 
 type CreateType =
   | 'general'
