@@ -157,7 +157,7 @@ const ControlReportPage = () => {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <CreateButton type="control" leftIconSize={18} />
+          <CreateButton type="control" leftIconSize={18} href="/controls/create-control" />
           <Link href={'/controls'}>
             <Button className="h-8 p-2">View All Controls</Button>
           </Link>
