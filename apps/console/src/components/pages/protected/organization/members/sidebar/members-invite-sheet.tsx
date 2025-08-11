@@ -25,10 +25,11 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { VisibilityState } from '@tanstack/react-table'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { canCreate, canEdit } from '@/lib/authz/utils.ts'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -63,6 +64,8 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     check: true,
   })
+
+  const canInviteAdmins = canCreate(permission?.roles, AccessEnum.CanInviteAdmins)
 
   const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
     {
@@ -186,6 +189,11 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     setIsMemberSheetOpen(false)
   }
 
+  const roleOptions = useMemo(() => {
+    const options = Object.entries(InviteRole) as [keyof typeof InviteRole, InviteRole][]
+    return canInviteAdmins ? options : options.filter(([, o]) => o !== InviteRole.ADMIN)
+  }, [canInviteAdmins])
+
   const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
   return (
     <Sheet open={isMemberSheetOpen} onOpenChange={setIsMemberSheetOpen}>
@@ -289,8 +297,8 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                               <SelectValue placeholder="Select role" />
                             </SelectTrigger>
                             <SelectContent>
-                              {Object.entries(InviteRole).map(([key, value], i) => (
-                                <SelectItem key={i} value={value}>
+                              {roleOptions.map(([key, value]) => (
+                                <SelectItem key={value} value={value}>
                                   {key[0].toUpperCase() + key.slice(1).toLowerCase()}
                                 </SelectItem>
                               ))}
