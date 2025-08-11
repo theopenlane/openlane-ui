@@ -22,6 +22,9 @@ import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const filterFields: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -48,6 +51,7 @@ const GroupsPage = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ updatedAt: false, updatedBy: false, createdAt: false, createdBy: false })
   const IsMyGroups = false
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { data: permissions } = useOrganizationRole(session)
 
   useEffect(() => {
     setCrumbs([
@@ -106,19 +110,21 @@ const GroupsPage = () => {
           <p>Show auto generated group</p>
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu
-            trigger={CreateBtn}
-            content={
-              <CreateGroupDialog
-                trigger={
-                  <div className="flex items-center space-x-2">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Group</span>
-                  </div>
-                }
-              />
-            }
-          />
+          {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
+            <Menu
+              trigger={CreateBtn}
+              content={
+                <CreateGroupDialog
+                  trigger={
+                    <div className="flex items-center space-x-2">
+                      <CirclePlus size={16} strokeWidth={2} />
+                      <span>Group</span>
+                    </div>
+                  }
+                />
+              }
+            />
+          )}
         </div>
       </div>
       <div id="datatable-filter-portal" />
