@@ -5,6 +5,11 @@ import Link from 'next/link'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { canCreate } from '@/lib/authz/utils'
+import { CreateButton } from '@/components/shared/create-button/create-button'
 
 type Props = {
   subcontrols: ({
@@ -20,12 +25,17 @@ type Props = {
 const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
   const { id } = useParams()
   const { convertToReadOnly } = usePlateEditor()
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRole(session)
 
   return (
     <div className="mt-8 space-y-4">
-      <div className="flex gap-2">
-        <h2 className="text-lg font-semibold">Subcontrols</h2>
-        <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">{totalCount}</span>
+      <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-lg font-semibold">Subcontrols</h2>
+          <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">{totalCount}</span>
+          {canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
+        </div>
       </div>
 
       <div className="rounded-md border border-border overflow-hidden bg-card">

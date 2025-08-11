@@ -302,11 +302,11 @@ const ControlDetailsPage: React.FC = () => {
             }
           />
           <Menu
+            className="w-fit min-w-0"
             content={
               <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                  <PencilIcon size={16} strokeWidth={2} />
-                  <span>Edit</span>
+                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer w-5" onClick={(e) => handleEdit(e)}>
+                  <PencilIcon size={16} strokeWidth={2} aria-label="Edit control" />
                 </div>
                 <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
               </>

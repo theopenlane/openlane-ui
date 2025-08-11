@@ -43,9 +43,8 @@ const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({
 
   return (
     <>
-      <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsOpen(true)}>
-        <Trash2 size={16} strokeWidth={2} />
-        <span>Delete</span>
+      <div className="flex items-center space-x-2 cursor-pointer w-5" onClick={() => setIsOpen(true)}>
+        <Trash2 size={16} strokeWidth={2} aria-label="Delete control" />
       </div>
       <ConfirmationDialog
         open={isOpen}

@@ -9,6 +9,11 @@ import { useParams } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { CreateButton } from '@/components/shared/create-button/create-button'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -21,6 +26,8 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   const { setSelectedControlEvidence } = useControlEvidenceStore()
   const isSubcontrol = !!subcontrolId
   const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRole(session)
 
   const evidenceSheetHandler = (controlEvidenceID: string) => {
     setSelectedControlEvidence(controlEvidenceID)
@@ -29,7 +36,10 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-lg font-semibold">{title}</h2>
+          {canCreate(orgPermission?.roles, AccessEnum.CanCreateEvidence) && <CreateButton type="evidence" href="/evidence/create" />}
+        </div>
         {canEdit && (
           <EvidenceCreateFormDialog
             formData={control}

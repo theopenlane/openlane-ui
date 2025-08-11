@@ -300,11 +300,11 @@ const ControlDetailsPage: React.FC = () => {
             }
           />
           <Menu
+            className="w-fit min-w-0"
             content={
               <>
                 <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                  <PencilIcon size={16} strokeWidth={2} />
-                  <span>Edit</span>
+                  <PencilIcon size={16} strokeWidth={2} aria-label="Edit subcontrol" />
                 </div>
                 <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
               </>
