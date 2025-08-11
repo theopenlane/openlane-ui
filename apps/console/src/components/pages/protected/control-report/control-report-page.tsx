@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Plus, Settings2 } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, Settings2 } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -17,6 +17,8 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 import { useRouter } from 'next/navigation'
+import { Loading } from '@/components/shared/loading/loading'
+import { CreateButton } from '@/components/shared/create-button/create-button'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
@@ -125,6 +127,10 @@ const ControlReportPage = () => {
     }
   }, [standardOptions, isSuccessStandards])
 
+  if (isLoading || !data) {
+    return <Loading />
+  }
+
   return (
     <TooltipProvider>
       <div className="flex justify-between items-center">
@@ -151,15 +157,7 @@ const ControlReportPage = () => {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/controls/create-control">
-            <div aria-label="Create control" className={`h-8 px-1 border rounded-md cursor-pointer`}>
-              <div className="flex items-center h-full">
-                <Settings2 size={15} className="mr-1" />
-                <div className="border-r h-full"></div>
-                <Plus size={15} className="ml-1" />
-              </div>
-            </div>
-          </Link>
+          <CreateButton type="control" leftIconSize={18} href="/controls/create-control" />
           <Link href={'/controls'}>
             <Button className="h-8 p-2">View All Controls</Button>
           </Link>
