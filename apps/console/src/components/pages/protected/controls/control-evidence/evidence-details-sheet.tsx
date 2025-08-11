@@ -752,7 +752,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   />
                 </Panel>
               )}
-              {selectedControlEvidence && <ControlEvidenceFiles controlEvidenceID={selectedControlEvidence} />}
+              {selectedControlEvidence && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={selectedControlEvidence} />}
             </Form>
           </>
         )}

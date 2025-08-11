@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 const MembersPageWrapper = () => {
   const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
+
   return (
     <>
       <div className="flex items-center justify-between">
