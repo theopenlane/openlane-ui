@@ -41939,7 +41939,6 @@ export type EvidenceFieldsFragment = {
   displayID: string
   id: string
   name: string
-  ownerID?: string | null
   renewalDate?: any | null
   source?: string | null
   status?: EvidenceEvidenceStatus | null
@@ -41970,7 +41969,6 @@ export type GetEvidenceQuery = {
     displayID: string
     id: string
     name: string
-    ownerID?: string | null
     renewalDate?: any | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
@@ -42005,7 +42003,6 @@ export type GetRenewEvidenceQuery = {
     displayID: string
     id: string
     name: string
-    ownerID?: string | null
     renewalDate?: any | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
