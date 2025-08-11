@@ -19,10 +19,10 @@ import { Control, ControlControlSource, ControlControlStatus, ControlControlType
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
-import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { canCreate, canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
@@ -41,6 +41,7 @@ import RelatedControls from '@/components/pages/protected/controls/related-contr
 import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 
 interface FormValues {
   refCode: string
@@ -83,6 +84,8 @@ const ControlDetailsPage: React.FC = () => {
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
+  const { data: orgPermission } = useOrganizationRole(session)
+
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
@@ -239,32 +242,42 @@ const ControlDetailsPage: React.FC = () => {
             trigger={CreateBtn}
             content={
               <>
-                <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Control Implementation</span>
-                </div>
-                <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Control Objective</span>
-                </div>
-                <CreateControlObjectiveSheet
-                  open={showCreateObjectiveSheet}
-                  onOpenChange={(open) => {
-                    setShowCreateObjectiveSheet(open)
-                  }}
-                />
-                <CreateControlImplementationSheet
-                  open={showCreateImplementationSheet}
-                  onOpenChange={(open) => {
-                    setShowCreateImplementationSheet(open)
-                  }}
-                />
-                <Link href={`/controls/${id}/create-subcontrol`}>
-                  <div className="flex items-center space-x-2 hover:bg-muted">
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
+                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
                     <CirclePlus size={16} strokeWidth={2} />
-                    <span>Subcontrol</span>
+                    <span>Control Implementation</span>
                   </div>
-                </Link>
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
+                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Control Objective</span>
+                  </div>
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
+                  <CreateControlObjectiveSheet
+                    open={showCreateObjectiveSheet}
+                    onOpenChange={(open) => {
+                      setShowCreateObjectiveSheet(open)
+                    }}
+                  />
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
+                  <CreateControlImplementationSheet
+                    open={showCreateImplementationSheet}
+                    onOpenChange={(open) => {
+                      setShowCreateImplementationSheet(open)
+                    }}
+                  />
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) && (
+                  <Link href={`/controls/${id}/create-subcontrol`}>
+                    <div className="flex items-center space-x-2 hover:bg-muted">
+                      <CirclePlus size={16} strokeWidth={2} />
+                      <span>Subcontrol</span>
+                    </div>
+                  </Link>
+                )}
                 <CreateTaskDialog
                   trigger={TaskIconBtn}
                   defaultSelectedObject={ObjectTypeObjects.CONTROL}
@@ -277,12 +290,14 @@ const ControlDetailsPage: React.FC = () => {
                     controlIDs: [id],
                   }}
                 />
-                <Link href={`/controls/${id}/map-control`}>
-                  <div className="flex items-center space-x-2 hover:bg-muted">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Map Control</span>
-                  </div>
-                </Link>
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
+                  <Link href={`/controls/${id}/map-control`}>
+                    <div className="flex items-center space-x-2 hover:bg-muted">
+                      <CirclePlus size={16} strokeWidth={2} />
+                      <span>Map Control</span>
+                    </div>
+                  </Link>
+                )}
               </>
             }
           />
@@ -367,7 +382,7 @@ const ControlDetailsPage: React.FC = () => {
       />
       <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
 
-      <RelatedControls />
+      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
       <DetailsCard />
       {hasInfoData && (
         <InfoCard
