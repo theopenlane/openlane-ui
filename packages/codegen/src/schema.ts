@@ -44386,6 +44386,13 @@ export type UserTasksQuery = {
   }
 }
 
+export type UpdateBulkTaskMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateTaskInput
+}>
+
+export type UpdateBulkTaskMutation = { __typename?: 'Mutation'; updateBulkTask: { __typename?: 'TaskBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
 }>
