@@ -26,25 +26,6 @@ import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
-// const fieldItemSchema = z.object({
-//   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
-//   selectedObject: z
-//     .object({
-//       selectOptionEnum: z.nativeEnum(SelectOptionBulkEditTasks),
-//       name: z.string(),
-//       placeholder: z.string(),
-//       options: z.array(
-//         z.object({
-//           label: z.string(),
-//           value: z.string(),
-//         }),
-//       ),
-//     })
-//     .optional(),
-//   selectedValue: z.string().optional(),
-//   selectedDate: z.date().nullable().optional(),
-// })
-
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
   selectedObject: z
