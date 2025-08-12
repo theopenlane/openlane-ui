@@ -10,6 +10,7 @@ import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter } from 'next/navigation'
 import { useDeleteSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Button } from '@repo/ui/button'
 
 const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string; refCode: string }> = ({ subcontrolId, controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
@@ -44,9 +45,9 @@ const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string
 
   return (
     <>
-      <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsOpen(true)}>
-        <Trash2 size={16} strokeWidth={2} aria-label="Delete subcontrol" />
-      </div>
+      <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsOpen(true)} aria-label="Delete subcontrol">
+        <Trash2 size={16} strokeWidth={2} />
+      </Button>
       <ConfirmationDialog
         open={isOpen}
         onOpenChange={setIsOpen}

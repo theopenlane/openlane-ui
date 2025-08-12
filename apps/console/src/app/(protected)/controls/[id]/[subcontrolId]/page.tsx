@@ -175,7 +175,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -299,17 +299,12 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <Menu
-            className="w-fit min-w-0"
-            content={
-              <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                  <PencilIcon size={16} strokeWidth={2} aria-label="Edit subcontrol" />
-                </div>
-                <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
-              </>
-            }
-          />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
+              <PencilIcon size={16} strokeWidth={2} />
+            </Button>
+            <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
+          </div>
         </div>
       )}
     </div>
