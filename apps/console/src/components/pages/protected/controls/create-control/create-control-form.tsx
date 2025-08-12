@@ -267,7 +267,7 @@ export default function CreateControlForm() {
         <div className="text-2xl font-semibold">{isCreateSubcontrol ? 'Create Subcontrol' : 'Create Control'}</div>
 
         <div className="flex gap-12">
-          <div className="flex-1">
+          <div className="w-[55%]">
             {/* Name */}
             <div>
               <Label>
@@ -398,7 +398,7 @@ export default function CreateControlForm() {
           </div>
 
           {/* Authority & Properties Grid */}
-          <div className="flex flex-col gap-5 min-w-[450px]">
+          <div className="w-[45%] flex flex-col gap-5">
             <AuthorityCard isEditing isEditAllowed />
             <PropertiesCard isEditing />
             <Card className="p-4">
