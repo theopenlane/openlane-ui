@@ -59,6 +59,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -214,10 +215,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       })
 
       setIsEditing(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an unexpected error. Please try again later.',
+        description: errorMessage,
       })
     }
   }
@@ -230,8 +232,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       }
       setSelectedControlEvidence(null)
-    } catch {
-      errorNotification({ title: 'Failed to delete evidence.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
@@ -250,8 +256,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-          ? oldValue.getTime() === newValue.getTime()
-          : oldValue === newValue
+        ? oldValue.getTime() === newValue.getTime()
+        : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -305,11 +311,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       return <span className="text-gray-500">no tags provided</span>
     }
     return (
-      <div className="flex flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => (
-          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
-        ))}
-      </div>
+      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
   }
 
@@ -750,7 +752,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   />
                 </Panel>
               )}
-              {selectedControlEvidence && <ControlEvidenceFiles controlEvidenceID={selectedControlEvidence} />}
+              {selectedControlEvidence && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={selectedControlEvidence} />}
             </Form>
           </>
         )}

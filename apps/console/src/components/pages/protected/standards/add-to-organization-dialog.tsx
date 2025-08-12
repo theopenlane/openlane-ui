@@ -8,7 +8,7 @@ import { useCloneControls } from '@/lib/graphql-hooks/standards'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
-import { useOrganization } from '@/hooks/useOrganization'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type SelectedControl = { id: string; refCode: string }
 
@@ -22,7 +22,6 @@ type AddToOrganizationDialogProps = {
 
 const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open, onOpenChange, selectedControls, standardId, standardName }) => {
   const [selectedProgram, setSelectedProgram] = useState<string | undefined>(undefined)
-  const { currentOrgId } = useOrganization()
   const { data: programsData } = useGetAllPrograms()
   const { mutateAsync: cloneControls, isPending } = useCloneControls()
   const { successNotification, errorNotification } = useNotification()
@@ -36,7 +35,6 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
     try {
       await cloneControls({
         input: {
-          ownerID: currentOrgId,
           programID: selectedProgram,
           ...(standardId ? { standardID: standardId } : { controlIDs }),
         },
@@ -46,8 +44,12 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
 
       successNotification({ title: 'Controls added to organization successfully!' })
       onOpenChange(false)
-    } catch {
-      errorNotification({ title: 'Failed to add controls to the organization.' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 

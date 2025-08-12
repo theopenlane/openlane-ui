@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
@@ -8,52 +8,25 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
-import { Option } from '@repo/ui/multiple-selector'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { useBulkEditControl } from '@/lib/graphql-hooks/controls'
-
-type BulkEditControlsDialogProps = {
-  selectedControls: { id: string; refCode: string }[]
-  setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>
-  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
-}
-
-interface BulkEditControlDialogFormValues {
-  fieldsArray: FieldItem[]
-}
-
-interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOption
-  name: string
-  placeholder: string
-  options: Option[]
-}
-
-enum SelectOption {
-  Status = 'STATUS',
-  ControlType = 'CONTROL_TYPE',
-  ControlOwner = 'CONTROL_OWNER',
-}
-
-interface FieldItem {
-  value: SelectOption | undefined
-  selectedObject?: SelectOptionSelectedObject
-  selectedValue: string | undefined
-}
-
-const defaultObject = {
-  fieldsArray: [],
-}
+import {
+  BulkEditDialogFormValues,
+  BulkEditControlsDialogProps,
+  defaultObject,
+  getAllSelectOptionsForBulkEditControls,
+  SelectOptionBulkEditControls,
+} from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
+import { Group } from '@repo/codegen/src/schema'
 
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOption).optional(),
+  value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
   selectedObject: z
     .object({
-      selectOptionEnum: z.nativeEnum(SelectOption),
+      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditControls),
       name: z.string(),
       placeholder: z.string(),
       selectedValue: z.string().optional(),
@@ -75,33 +48,14 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
   const { errorNotification, successNotification } = useNotification()
-  const form = useForm<BulkEditControlDialogFormValues>({
+  const form = useForm<BulkEditDialogFormValues>({
     resolver: zodResolver(bulkEditControlsSchema),
     defaultValues: defaultObject,
   })
   const { data } = useGetAllGroups({ where: {} })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
-  const allOptionSelects: SelectOptionSelectedObject[] = [
-    {
-      selectOptionEnum: SelectOption.ControlOwner,
-      name: 'controlOwnerID',
-      placeholder: 'Select control owner',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
-    },
-    {
-      selectOptionEnum: SelectOption.Status,
-      name: 'status',
-      placeholder: 'Select a status',
-      options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
-    },
-    {
-      selectOptionEnum: SelectOption.ControlType,
-      name: 'controlType',
-      placeholder: 'Select a control type',
-      options: ControlControlTypeOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
-    },
-  ]
+  const allOptionSelects = getAllSelectOptionsForBulkEditControls(groups.filter(Boolean) as Group[])
 
   const { control, handleSubmit, watch } = form
 
@@ -112,6 +66,15 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     name: 'fieldsArray',
     rules: { maxLength: 3 },
   })
+
+  useEffect(() => {
+    if (open) {
+      append({
+        value: undefined,
+        selectedValue: undefined,
+      })
+    }
+  }, [open, append])
 
   const onSubmit = async () => {
     const ids = selectedControls.map((control) => control.id)
@@ -169,17 +132,17 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                       <Select
                         value={watchedFields[index].value || undefined}
                         onValueChange={(value) => {
-                          const selectedEnum = value as SelectOption
+                          const selectedEnum = value as SelectOptionBulkEditControls
                           update(index, { value: selectedEnum, selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum), selectedValue: undefined })
                         }}
                       >
                         <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select a field to update" />
+                          <SelectValue placeholder="Select field..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.values(SelectOption).map((option) => (
+                          {Object.values(SelectOptionBulkEditControls).map((option) => (
                             <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                              {option === SelectOption.Status ? 'Status' : option === SelectOption.ControlOwner ? 'Control owner' : 'Control type'}
+                              {option}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -188,7 +151,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                     {item.selectedObject && (
                       <div className="flex flex-col items-center gap-2">
                         <Controller
-                          name={item.selectedObject.name as keyof BulkEditControlDialogFormValues}
+                          name={item.selectedObject.name as keyof BulkEditDialogFormValues}
                           control={control}
                           render={() => (
                             <Select
@@ -204,7 +167,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                                 <SelectValue placeholder={item.selectedObject?.placeholder} />
                               </SelectTrigger>
                               <SelectContent>
-                                {item.selectedObject?.options.map((option) => (
+                                {item.selectedObject?.options?.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                   </SelectItem>

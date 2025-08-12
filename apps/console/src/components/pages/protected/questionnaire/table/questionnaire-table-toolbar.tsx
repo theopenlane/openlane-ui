@@ -12,6 +12,10 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TemplateWhereInput } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplatelDialog } from '../dialog/bulk-csv-create-template-dialog'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -28,11 +32,7 @@ type TQuestionnaireTableToolbarProps = {
   }[]
   exportEnabled: boolean
 }
-const createDropdown = () => {
-  if (includeQuestionnaireCreation == 'true') {
-    return <Menu trigger={CreateBtn} content={<CreateDropdown />} />
-  }
-}
+
 const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   creating,
   searching,
@@ -46,6 +46,14 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   exportEnabled,
 }) => {
   const isSearching = useDebounce(searching, 200)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
+
+  const createDropdown = () => {
+    if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
+      return <Menu trigger={CreateBtn} content={<CreateDropdown />} />
+    }
+  }
 
   return (
     <>

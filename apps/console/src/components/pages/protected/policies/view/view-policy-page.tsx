@@ -32,6 +32,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/manage-permissions-sheet'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TViewPolicyPage = {
   policyId: string
@@ -147,8 +148,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       await deletePolicy({ deleteInternalPolicyId: policyId })
       successNotification({ title: 'Policy deleted successfully' })
       router.push('/policies')
-    } catch {
-      errorNotification({ title: 'Error deleting policy' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
@@ -186,10 +191,11 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the policy. Please try again.',
+        description: errorMessage,
       })
     }
   }
@@ -214,10 +220,11 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error updating the policy. Please try again.',
+        description: errorMessage,
       })
     }
   }
@@ -302,9 +309,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={false} />
-      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={false} />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
+      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} />
+      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} />
       <HistoricalCard policy={policy} />
       <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>

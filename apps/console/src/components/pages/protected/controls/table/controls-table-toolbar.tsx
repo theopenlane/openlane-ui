@@ -15,10 +15,10 @@ import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Button } from '@repo/ui/button'
-import { BulkEditControlsDialog } from '../shared/bulk-edit-controls'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
+import { TAccessRole, TData } from '@/lib/authz/access-api'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -37,6 +37,8 @@ type TProps = {
   handleBulkEdit: () => void
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
+  canEdit: (accessRole: TAccessRole[]) => boolean
+  permission: TData
 }
 
 const ControlsTableToolbar: React.FC<TProps> = ({
@@ -52,6 +54,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   handleBulkEdit,
   selectedControls,
   setSelectedControls,
+  canEdit,
+  permission,
 }: TProps) => {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
@@ -59,8 +63,9 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({})
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
+
+  const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
+  const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
 
   useEffect(() => {
     setIsBulkEditing(selectedControls.length > 0)
@@ -141,25 +146,32 @@ const ControlsTableToolbar: React.FC<TProps> = ({
             </>
           ) : (
             <>
-              <Menu
-                trigger={CreateBtn}
-                content={
-                  <>
-                    <Link href="/controls/create-control">
-                      <div className="flex items-center space-x-2 hover:bg-muted">
-                        <CirclePlus size={16} strokeWidth={2} />
-                        <span>Control</span>
-                      </div>
-                    </Link>
-                    <Link href="/controls/create-subcontrol">
-                      <div className="flex items-center space-x-2 hover:bg-muted">
-                        <CirclePlus size={16} strokeWidth={2} />
-                        <span>Subcontrol</span>
-                      </div>
-                    </Link>
-                  </>
-                }
-              />
+              {createControlAllowed ||
+                (createSubcontrolAllowed && (
+                  <Menu
+                    trigger={CreateBtn}
+                    content={
+                      <>
+                        {createControlAllowed && (
+                          <Link href="/controls/create-control">
+                            <div className="flex items-center space-x-2 hover:bg-muted">
+                              <CirclePlus size={16} strokeWidth={2} />
+                              <span>Control</span>
+                            </div>
+                          </Link>
+                        )}
+                        {createSubcontrolAllowed && (
+                          <Link href="/controls/create-subcontrol">
+                            <div className="flex items-center space-x-2 hover:bg-muted">
+                              <CirclePlus size={16} strokeWidth={2} />
+                              <span>Subcontrol</span>
+                            </div>
+                          </Link>
+                        )}
+                      </>
+                    }
+                  />
+                ))}
               <Menu
                 content={
                   <>

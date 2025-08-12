@@ -37,7 +37,6 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
         name: evidence.name,
         description: evidence.description ?? '',
         tags: evidence.tags ?? [],
-        ownerID: evidence.ownerID,
         collectionProcedure: evidence.collectionProcedure ?? '',
         source: evidence.source ?? '',
         ...(evidence.url ? { url: evidence.url } : {}),

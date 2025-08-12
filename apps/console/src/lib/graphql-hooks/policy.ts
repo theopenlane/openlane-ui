@@ -7,6 +7,7 @@ import {
   UPDATE_INTERNAL_POLICY,
   DELETE_INTERNAL_POLICY,
   CREATE_CSV_BULK_INTERNAL_POLICY,
+  BULK_EDIT_INTERNAL_POLICY,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -20,6 +21,8 @@ import {
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
   InternalPolicy,
+  UpdateBulkInternalPolicyMutation,
+  UpdateBulkInternalPolicyMutationVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -103,6 +106,17 @@ export const useUpdateInternalPolicy = () => {
   return useMutation<UpdateInternalPolicyMutation, unknown, UpdateInternalPolicyMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(UPDATE_INTERNAL_POLICY, variables)
+    },
+  })
+}
+
+export const useBulkEditInternalPolicy = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkInternalPolicyMutation, unknown, UpdateBulkInternalPolicyMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_INTERNAL_POLICY, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
     },
   })
 }

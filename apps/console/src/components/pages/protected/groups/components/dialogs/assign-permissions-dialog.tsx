@@ -22,6 +22,7 @@ import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { useSession } from 'next-auth/react'
 import { canEdit } from '@/lib/authz/utils'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const options = Object.values(ObjectTypes)
 
@@ -174,10 +175,10 @@ const AssignPermissionsDialog = () => {
 
       handleOpenChange(false)
     } catch (error) {
-      console.error('Failed to update group:', error)
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update permissions',
-        description: 'Something went wrong',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }

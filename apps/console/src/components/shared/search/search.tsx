@@ -18,6 +18,7 @@ import { generateSelectOptions, getSearchResultCount, searchTypeIcons } from './
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
+import { useQueryClient } from '@tanstack/react-query'
 
 type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
 
@@ -36,6 +37,7 @@ type RiskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['sea
 type OrganizationNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['organizations']>['edges']>[number]>['node']
 
 export const GlobalSearch = () => {
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const cmdInputRef = useRef<HTMLInputElement>(null)
@@ -100,7 +102,9 @@ export const GlobalSearch = () => {
           },
         })
       }
-
+      requestAnimationFrame(() => {
+        queryClient?.clear()
+      })
       push('/dashboard')
     }
   }

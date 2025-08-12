@@ -9,6 +9,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface Props {
   initialData: TObjectAssociationMap
@@ -79,10 +80,11 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
 
       successNotification({ title: 'Associations updated successfully.' })
       setOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update associations',
-        description: 'Please try again later.',
+        title: 'Error',
+        description: errorMessage,
       })
     } finally {
       setIsSaving(false)

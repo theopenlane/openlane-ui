@@ -1,5 +1,6 @@
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TaskQuery, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { useQueryClient } from '@tanstack/react-query'
@@ -32,10 +33,11 @@ const MarkAsComplete = ({ taskData }: MarkAsCompleteProps) => {
         title: 'Task Updated',
         description: 'The task has been successfully marked as complete.',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an unexpected error. Please try again later.',
+        description: errorMessage,
       })
     }
   }

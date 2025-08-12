@@ -23,6 +23,14 @@ export const UPDATE_PROCEDURE = gql`
   }
 `
 
+export const BULK_EDIT_PROCEDURE = gql`
+  mutation UpdateBulkProcedure($ids: [ID!]!, $input: UpdateProcedureInput!) {
+    updateBulkProcedure(ids: $ids, input: $input) {
+      updatedIDs
+    }
+  }
+`
+
 export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
   query GetAllProceduresWithDetails {
     procedures {

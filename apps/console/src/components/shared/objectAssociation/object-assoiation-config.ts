@@ -120,7 +120,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   [ObjectTypeObjects.CONTROL]: {
     responseObjectKey: 'controls',
     inputName: 'controlIDs',
-    placeholder: 'Search contrlos',
+    placeholder: 'Search controls',
     queryDocument: GET_ALL_CONTROLS,
     objectName: 'refCode',
   },

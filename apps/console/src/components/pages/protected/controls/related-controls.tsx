@@ -22,7 +22,11 @@ export type RelatedNode = {
 
 export type GroupedControls = Record<string, RelatedNode[]>
 
-const RelatedControls = () => {
+type Props = {
+  canCreate: boolean
+}
+
+const RelatedControls = ({ canCreate }: Props) => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const [sheetOpen, setSheetOpen] = useState(false)
   const searchParams = useSearchParams()
@@ -149,11 +153,15 @@ const RelatedControls = () => {
             View
           </Button>
         ) : (
-          <Link href={`${path}/map-control`} className="text-sm font-medium text-primary underline underline-offset-4">
-            <Button type="button" className="h-8 p-2" variant="outline">
-              Create
-            </Button>
-          </Link>
+          <>
+            {canCreate && (
+              <Link href={`${path}/map-control`} className="text-sm font-medium text-primary underline underline-offset-4">
+                <Button type="button" className="h-8 p-2" variant="outline">
+                  Create
+                </Button>
+              </Link>
+            )}
+          </>
         )}
       </div>
 

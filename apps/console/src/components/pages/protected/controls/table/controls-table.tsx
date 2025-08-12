@@ -16,18 +16,24 @@ import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
   const { convertToReadOnly } = usePlateEditor()
   const [filters, setFilters] = useState<ControlWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
       field: ControlOrderField.ref_code,
       direction: OrderDirection.ASC,
     },
   ])
+
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     referenceID: false,
     auditorReferenceID: false,
@@ -82,6 +88,15 @@ const ControlsTable: React.FC = () => {
 
     return conditions
   }, [filters])
+
+  useEffect(() => {
+    if (permission?.roles) {
+      setColumnVisibility((prev) => ({
+        ...prev,
+        select: canEdit(permission.roles),
+      }))
+    }
+  }, [permission?.roles])
 
   useEffect(() => {
     setCrumbs([
@@ -178,6 +193,8 @@ const ControlsTable: React.FC = () => {
         exportEnabled={controls && controls.length > 0}
         selectedControls={selectedControls}
         setSelectedControls={setSelectedControls}
+        permission={permission}
+        canEdit={canEdit}
       />
       <DataTable
         columns={columns}

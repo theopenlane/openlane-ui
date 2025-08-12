@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import type { TElement } from 'platejs';
+import type { TElement } from 'platejs'
 
-import { faker } from '@faker-js/faker';
-import { CopilotPlugin } from '@platejs/ai/react';
-import { serializeMd, stripMarkdown } from '@platejs/markdown';
+import { faker } from '@faker-js/faker'
+import { CopilotPlugin } from '@platejs/ai/react'
+import { serializeMd, stripMarkdown } from '@platejs/markdown'
 
-import { GhostText } from '@repo/ui/components/ui/ghost-text.tsx';
+import { GhostText } from '@repo/ui/components/ui/ghost-text.tsx'
 
-import { MarkdownKit } from './markdown-kit';
+import { MarkdownKit } from './markdown-kit'
 
 export const CopilotKit = [
   ...MarkdownKit,
@@ -18,7 +18,7 @@ export const CopilotKit = [
         api: '/api/ai/copilot',
         body: {
           system: `You are an advanced AI writing assistant, similar to VSCode Copilot but for general text. Your task is to predict and generate the next part of the text based on the given context.
-  
+
   Rules:
   - Continue the text naturally up to the next punctuation mark (., ,, ;, :, ?, or !).
   - Maintain style and tone. Don't repeat given text.
@@ -33,31 +33,31 @@ export const CopilotKit = [
           // Mock the API response. Remove it when you implement the route /api/ai/copilot
           api.copilot.setBlockSuggestion({
             text: stripMarkdown(faker.lorem.sentence()),
-          });
+          })
         },
         onFinish: (_, completion) => {
-          if (completion === '0') return;
+          if (completion === '0') return
 
           api.copilot.setBlockSuggestion({
             text: stripMarkdown(completion),
-          });
+          })
         },
       },
       debounceDelay: 500,
       renderGhostText: GhostText,
       getPrompt: ({ editor }) => {
-        const contextEntry = editor.api.block({ highest: true });
+        const contextEntry = editor.api.block({ highest: true })
 
-        if (!contextEntry) return '';
+        if (!contextEntry) return ''
 
         const prompt = serializeMd(editor, {
           value: [contextEntry[0] as TElement],
-        });
+        })
 
         return `Continue the text up to the next punctuation mark:
   """
   ${prompt}
-  """`;
+  """`
       },
     },
     shortcuts: {
@@ -75,4 +75,4 @@ export const CopilotKit = [
       },
     },
   })),
-];
+]

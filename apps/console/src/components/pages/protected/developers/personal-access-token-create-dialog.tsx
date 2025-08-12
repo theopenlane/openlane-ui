@@ -8,7 +8,6 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { AlertTriangleIcon, CirclePlusIcon, CopyIcon } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -19,6 +18,7 @@ import { usePathname } from 'next/navigation'
 import { useCreateAPIToken, useCreatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { CreateApiTokenInput, Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type PersonalApiKeyDialogProps = {
   triggerText?: boolean
@@ -32,7 +32,6 @@ enum STEP {
 const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
-  const { data: sessionData } = useSession()
   const { allOrgs: orgs } = useOrganization()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { mutateAsync: createPersonalAccessToken } = useCreatePersonalAccessToken()
@@ -100,7 +99,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           description: values.description,
           expiresAt: values.noExpire ? null : values.expiryDate,
           scopes: values.scopes,
-          ownerID: sessionData?.user.userId,
         }
 
         const response = await createApiToken({
@@ -131,10 +129,11 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
       } else {
         throw new Error('Failed to create token')
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Error creating Token!',
-        description: 'Something went wrong. Please try again.',
+        title: 'Error',
+        description: errorMessage,
       })
     } finally {
       setIsSubmitting(false)
@@ -328,6 +327,22 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                             />
                             <FormLabel htmlFor="scopes:write" className="ml-2 cursor-pointer">
                               Write
+                            </FormLabel>
+                          </div>
+                          <div className={'flex'}>
+                            <Checkbox
+                              id={field.name}
+                              key={'group_manager'}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...(field.value || []), 'group_manager'])
+                                } else {
+                                  field.onChange((field.value || []).filter((scope) => scope !== 'group_manager'))
+                                }
+                              }}
+                            />
+                            <FormLabel htmlFor="scopes:group_manager" className="ml-2 cursor-pointer">
+                              Group Manager
                             </FormLabel>
                           </div>
                         </div>

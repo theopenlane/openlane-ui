@@ -17,6 +17,13 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 import { useRouter } from 'next/navigation'
+import { Loading } from '@/components/shared/loading/loading'
+import { CreateButton } from '@/components/shared/create-button/create-button'
+
+import { useSession } from 'next-auth/react'
+import { canCreate } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
@@ -24,6 +31,10 @@ const ControlReportPage = () => {
   const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const router = useRouter()
+  const { data: sessionData } = useSession()
+
+  const { data: permission } = useOrganizationRole(sessionData)
+  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {
@@ -125,6 +136,10 @@ const ControlReportPage = () => {
     }
   }, [standardOptions, isSuccessStandards])
 
+  if (isLoading || !data) {
+    return <Loading />
+  }
+
   return (
     <TooltipProvider>
       <div className="flex justify-between items-center">
@@ -150,9 +165,12 @@ const ControlReportPage = () => {
             </div>
           </Button>
         </div>
-        <Link href={'/controls'}>
-          <Button className="h-8 p-2">View All Controls</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {createAllowed && <CreateButton type="control" leftIconSize={18} href="/controls/create-control" />}
+          <Link href={'/controls'}>
+            <Button className="h-8 p-2">View All Controls</Button>
+          </Link>
+        </div>
       </div>
       <div className="space-y-2">
         {isLoading || isFetching ? (

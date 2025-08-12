@@ -1,21 +1,26 @@
+// ✅ NEW updated on 7th of August
 export enum AccessEnum {
-  CanCreateStandard = 'can_create_standard',
-  CanCreateEvidence = 'can_create_evidence',
-  CanCreateControl = 'can_create_control',
-  CanCreateNarrative = 'can_create_narrative',
-  CanCreateRisk = 'can_create_risk',
-  CanCreateProcedure = 'can_create_procedure',
-  CanCreateGroup = 'can_create_group',
-  CanCreateControlObjective = 'can_create_control_objective',
-  CanDelete = 'can_delete',
   CanCreateTemplate = 'can_create_template',
+  CanCreateNarrative = 'can_create_narrative',
+  CanInviteAdmins = 'can_invite_admins',
+  CanCreateStandard = 'can_create_standard',
+  CanCreateJobTemplate = 'can_create_job_template', // ✅ NEW
   CanInviteMembers = 'can_invite_members',
   CanCreateSubcontrol = 'can_create_subcontrol',
   CanCreateInternalPolicy = 'can_create_internal_policy',
+  CanCreateProcedure = 'can_create_procedure',
+  CanCreateGroup = 'can_create_group',
+  CanManageGroups = 'can_manage_groups', // ✅ NEW
+  CanCreateScheduledJob = 'can_create_scheduled_job', // ✅ NEW
   AuditLogViewer = 'audit_log_viewer',
-  CanCreateProgram = 'can_create_program',
-  CanCreateControlImplementation = 'can_create_control_implementation',
-  CanView = 'can_view',
+  CanCreateRisk = 'can_create_risk',
   CanEdit = 'can_edit',
-  CanInviteAdmins = 'can_invite_admins',
+  CanView = 'can_view',
+  CanCreateControlObjective = 'can_create_control_objective',
+  CanCreateControlImplementation = 'can_create_control_implementation',
+  CanCreateControl = 'can_create_control',
+  CanCreateMappedControl = 'can_create_mapped_control', // ✅ NEW
+  CanCreateEvidence = 'can_create_evidence',
+  CanCreateProgram = 'can_create_program',
+  CanDelete = 'can_delete',
 }

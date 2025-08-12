@@ -15,13 +15,15 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import type { Row } from '@tanstack/react-table'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TControlEvidenceFiles = {
   controlEvidenceID: string
   controlEvidencename?: string
+  editAllowed: boolean
 }
 
-const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID }) => {
+const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID, editAllowed }) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
@@ -65,10 +67,11 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         title: 'Evidence Updated',
         description: 'The evidence has been successfully updated.',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an unexpected error. Please try again later.',
+        description: errorMessage,
       })
     }
   }
@@ -123,7 +126,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
       <div className="flex items-center justify-between mb-3">
         <p className="text-lg">Provided files</p>
         <div className="flex items-center gap-2">
-          <ControlEvidenceUploadDialog controlEvidenceID={controlEvidenceID} />
+          {editAllowed && <ControlEvidenceUploadDialog controlEvidenceID={controlEvidenceID} />}
           <Button icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
             Download All
           </Button>

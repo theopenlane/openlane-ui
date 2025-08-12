@@ -1,5 +1,5 @@
 'use client'
-import React, { Suspense } from 'react'
+import React, { Suspense, useContext, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import PricingPlan from '@/components/pages/protected/organization/billing/pricing-plan'
 import BillingSettings from '@/components/pages/protected/organization/billing/billing-settings'
@@ -10,6 +10,36 @@ import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+
+const BillingPage: React.FC = () => {
+  const { data: session } = useSession()
+  const { data: permission, isLoading } = useOrganizationRole(session)
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Billing', href: '/billing' },
+    ])
+  }, [setCrumbs])
+  return (
+    <>
+      {!isLoading && !canEdit(permission?.roles) && <ProtectedArea />}
+      {!isLoading && canEdit(permission?.roles) && (
+        <>
+          <PageHeading heading="Billing" eyebrow="Organization Settings" />
+          <Suspense>
+            <OrganizationContent />
+          </Suspense>
+        </>
+      )}
+    </>
+  )
+}
+
+export default BillingPage
 
 const OrganizationContent = () => {
   const { currentOrgId } = useOrganization()
@@ -41,24 +71,3 @@ const OrganizationContent = () => {
     </>
   )
 }
-
-const BillingPage: React.FC = () => {
-  const { data: session } = useSession()
-  const { data: permission, isLoading } = useOrganizationRole(session)
-
-  return (
-    <>
-      {!isLoading && !canEdit(permission?.roles) && <ProtectedArea />}
-      {!isLoading && canEdit(permission?.roles) && (
-        <>
-          <PageHeading heading="Billing" eyebrow="Organization Settings" />
-          <Suspense>
-            <OrganizationContent />
-          </Suspense>
-        </>
-      )}
-    </>
-  )
-}
-
-export default BillingPage

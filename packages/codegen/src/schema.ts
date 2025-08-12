@@ -404,7 +404,6 @@ export interface ActionPlan extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  users: UserConnection
 }
 
 export interface ActionPlanControlsArgs {
@@ -432,15 +431,6 @@ export interface ActionPlanRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
-}
-
-export interface ActionPlanUsersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<UserOrder>>
-  where?: InputMaybe<UserWhereInput>
 }
 
 /** Return response for createBulkActionPlan mutation */
@@ -1087,9 +1077,6 @@ export interface ActionPlanWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
-  /** users edge predicates */
-  hasUsers?: InputMaybe<Scalars['Boolean']['input']>
-  hasUsersWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -3389,6 +3376,7 @@ export interface ControlImplementation extends Node {
   subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** date the control implementation was verified */
@@ -3432,6 +3420,15 @@ export interface ControlImplementationSubcontrolsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubcontrolOrder>>
   where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface ControlImplementationTasksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TaskOrder>>
+  where?: InputMaybe<TaskWhereInput>
 }
 
 export interface ControlImplementationViewersArgs {
@@ -3834,6 +3831,9 @@ export interface ControlImplementationWhereInput {
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** tasks edge predicates */
+  hasTasks?: InputMaybe<Scalars['Boolean']['input']>
+  hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -4770,6 +4770,7 @@ export interface ControlOrder {
 export enum ControlOrderField {
   CONTROL_OWNER_name = 'CONTROL_OWNER_name',
   CONTROL_TYPE = 'CONTROL_TYPE',
+  DELEGATE_name = 'DELEGATE_name',
   REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
@@ -5222,7 +5223,6 @@ export interface CreateActionPlanInput {
   tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -5298,6 +5298,7 @@ export interface CreateControlImplementationInput {
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** date the control implementation was verified */
   verificationDate?: InputMaybe<Scalars['Time']['input']>
   /** set to true if the control implementation has been verified */
@@ -5544,6 +5545,7 @@ export interface CreateEvidenceInput {
   /** description of how the evidence was collected */
   collectionProcedure?: InputMaybe<Scalars['String']['input']>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence was retrieved */
   creationDate?: InputMaybe<Scalars['Time']['input']>
@@ -5664,6 +5666,9 @@ export interface CreateGroupInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** The group's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
+  entityBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5753,6 +5758,7 @@ export interface CreateInternalPolicyInput {
   approverID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** proposed controls referenced in the policy */
   controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -5824,6 +5830,8 @@ export interface CreateJobResultInput {
   fileID: Scalars['ID']['input']
   /** The time the job finished it's execution. This is different from the db insertion time */
   finishedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the log output from the job */
+  log?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   scheduledJobID: Scalars['ID']['input']
   /** The time the job started it's execution. This is different from the db insertion time */
@@ -5838,13 +5846,19 @@ export interface CreateJobResultInput {
  */
 export interface CreateJobRunnerInput {
   /** the IP address of this runner */
-  ipAddress: Scalars['String']['input']
+  ipAddress?: InputMaybe<Scalars['String']['input']>
   jobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the last time this runner was seen */
+  lastSeen?: InputMaybe<Scalars['Time']['input']>
   /** the name of the runner */
   name: Scalars['String']['input']
+  /** the operating system of the runner */
+  os?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the version of the runner */
+  version?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -6541,6 +6555,7 @@ export interface CreateTaskInput {
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['DateTime']['input']>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the details of the task */
   details?: InputMaybe<Scalars['String']['input']>
@@ -9345,15 +9360,15 @@ export interface Event extends Node {
   eventID?: Maybe<Scalars['String']['output']>
   eventType: Scalars['String']['output']
   files: FileConnection
-  groupmemberships: GroupMembershipConnection
+  groupMemberships: GroupMembershipConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
   integrations: IntegrationConnection
   invites: InviteConnection
   metadata?: Maybe<Scalars['Map']['output']>
+  orgMemberships: OrgMembershipConnection
   orgSubscriptions: OrgSubscriptionConnection
   organizations: OrganizationConnection
-  orgmemberships: OrgMembershipConnection
   personalAccessTokens: PersonalAccessTokenConnection
   secrets: HushConnection
   subscribers: SubscriberConnection
@@ -9373,7 +9388,7 @@ export interface EventFilesArgs {
   where?: InputMaybe<FileWhereInput>
 }
 
-export interface EventGroupmembershipsArgs {
+export interface EventGroupMembershipsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -9409,6 +9424,15 @@ export interface EventInvitesArgs {
   where?: InputMaybe<InviteWhereInput>
 }
 
+export interface EventOrgMembershipsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<OrgMembershipOrder>>
+  where?: InputMaybe<OrgMembershipWhereInput>
+}
+
 export interface EventOrgSubscriptionsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -9425,15 +9449,6 @@ export interface EventOrganizationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<OrganizationOrder>>
   where?: InputMaybe<OrganizationWhereInput>
-}
-
-export interface EventOrgmembershipsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<OrgMembershipOrder>>
-  where?: InputMaybe<OrgMembershipWhereInput>
 }
 
 export interface EventPersonalAccessTokensArgs {
@@ -9616,9 +9631,9 @@ export interface EventWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
-  /** groupmemberships edge predicates */
-  hasGroupmemberships?: InputMaybe<Scalars['Boolean']['input']>
-  hasGroupmembershipsWith?: InputMaybe<Array<GroupMembershipWhereInput>>
+  /** group_memberships edge predicates */
+  hasGroupMemberships?: InputMaybe<Scalars['Boolean']['input']>
+  hasGroupMembershipsWith?: InputMaybe<Array<GroupMembershipWhereInput>>
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -9628,15 +9643,15 @@ export interface EventWhereInput {
   /** invites edge predicates */
   hasInvites?: InputMaybe<Scalars['Boolean']['input']>
   hasInvitesWith?: InputMaybe<Array<InviteWhereInput>>
+  /** org_memberships edge predicates */
+  hasOrgMemberships?: InputMaybe<Scalars['Boolean']['input']>
+  hasOrgMembershipsWith?: InputMaybe<Array<OrgMembershipWhereInput>>
   /** org_subscriptions edge predicates */
   hasOrgSubscriptions?: InputMaybe<Scalars['Boolean']['input']>
   hasOrgSubscriptionsWith?: InputMaybe<Array<OrgSubscriptionWhereInput>>
   /** organizations edge predicates */
   hasOrganizations?: InputMaybe<Scalars['Boolean']['input']>
   hasOrganizationsWith?: InputMaybe<Array<OrganizationWhereInput>>
-  /** orgmemberships edge predicates */
-  hasOrgmemberships?: InputMaybe<Scalars['Boolean']['input']>
-  hasOrgmembershipsWith?: InputMaybe<Array<OrgMembershipWhereInput>>
   /** personal_access_tokens edge predicates */
   hasPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
   hasPersonalAccessTokensWith?: InputMaybe<Array<PersonalAccessTokenWhereInput>>
@@ -9695,6 +9710,7 @@ export interface Evidence extends Node {
   __typename?: 'Evidence'
   /** description of how the evidence was collected */
   collectionProcedure?: Maybe<Scalars['String']['output']>
+  controlImplementations: ControlImplementationConnection
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -9729,6 +9745,15 @@ export interface Evidence extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the url of the evidence if not uploaded directly to the system */
   url?: Maybe<Scalars['String']['output']>
+}
+
+export interface EvidenceControlImplementationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
 }
 
 export interface EvidenceControlObjectivesArgs {
@@ -10288,6 +10313,9 @@ export interface EvidenceWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** control_implementations edge predicates */
+  hasControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
   /** control_objectives edge predicates */
   hasControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectivesWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
@@ -11556,6 +11584,9 @@ export interface Group extends Node {
   displayID: Scalars['String']['output']
   /** The group's displayed 'friendly' name */
   displayName: Scalars['String']['output']
+  entityBlockedGroups: EntityConnection
+  entityEditors: EntityConnection
+  entityViewers: EntityConnection
   events: EventConnection
   files: FileConnection
   /** the URL to an auto generated gravatar image for the group */
@@ -11671,6 +11702,33 @@ export interface GroupControlObjectiveViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
   where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface GroupEntityBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface GroupEntityEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface GroupEntityViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
 }
 
 export interface GroupEventsArgs {
@@ -13209,6 +13267,15 @@ export interface GroupWhereInput {
   /** control_objective_viewers edge predicates */
   hasControlObjectiveViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectiveViewersWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
+  /** entity_blocked_groups edge predicates */
+  hasEntityBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityBlockedGroupsWith?: InputMaybe<Array<EntityWhereInput>>
+  /** entity_editors edge predicates */
+  hasEntityEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityEditorsWith?: InputMaybe<Array<EntityWhereInput>>
+  /** entity_viewers edge predicates */
+  hasEntityViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityViewersWith?: InputMaybe<Array<EntityWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -14293,6 +14360,7 @@ export interface InternalPolicy extends Node {
   /** the id of the group responsible for approving the policy */
   approverID?: Maybe<Scalars['ID']['output']>
   blockedGroups: GroupConnection
+  controlImplementations: ControlImplementationConnection
   controlObjectives: ControlObjectiveConnection
   /** proposed controls referenced in the policy */
   controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -14354,6 +14422,15 @@ export interface InternalPolicyBlockedGroupsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface InternalPolicyControlImplementationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
 }
 
 export interface InternalPolicyControlObjectivesArgs {
@@ -15010,6 +15087,9 @@ export interface InternalPolicyWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** control_implementations edge predicates */
+  hasControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
   /** control_objectives edge predicates */
   hasControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectivesWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
@@ -15465,6 +15545,8 @@ export interface JobResult extends Node {
   /** The time the job finished it's execution. This is different from the db insertion time */
   finishedAt: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** the log output from the job */
+  log?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -15488,6 +15570,20 @@ export interface JobResultConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createJobResult mutation */
+export interface JobResultCreatePayload {
+  __typename?: 'JobResultCreatePayload'
+  /** Created jobResult */
+  jobResult: JobResult
+}
+
+/** Return response for deleteJobResult mutation */
+export interface JobResultDeletePayload {
+  __typename?: 'JobResultDeletePayload'
+  /** Deleted jobResult ID */
+  deletedID: Scalars['ID']['output']
 }
 
 /** An edge in a connection. */
@@ -15523,6 +15619,13 @@ export enum JobResultOrderField {
   finished_at = 'finished_at',
   started_at = 'started_at',
   updated_at = 'updated_at',
+}
+
+/** Return response for updateJobResult mutation */
+export interface JobResultUpdatePayload {
+  __typename?: 'JobResultUpdatePayload'
+  /** Updated jobResult */
+  jobResult: JobResult
 }
 
 /**
@@ -15610,6 +15713,22 @@ export interface JobResultWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** log field predicates */
+  log?: InputMaybe<Scalars['String']['input']>
+  logContains?: InputMaybe<Scalars['String']['input']>
+  logContainsFold?: InputMaybe<Scalars['String']['input']>
+  logEqualFold?: InputMaybe<Scalars['String']['input']>
+  logGT?: InputMaybe<Scalars['String']['input']>
+  logGTE?: InputMaybe<Scalars['String']['input']>
+  logHasPrefix?: InputMaybe<Scalars['String']['input']>
+  logHasSuffix?: InputMaybe<Scalars['String']['input']>
+  logIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  logLT?: InputMaybe<Scalars['String']['input']>
+  logLTE?: InputMaybe<Scalars['String']['input']>
+  logNEQ?: InputMaybe<Scalars['String']['input']>
+  logNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<JobResultWhereInput>
   or?: InputMaybe<Array<JobResultWhereInput>>
   /** owner_id field predicates */
@@ -15693,10 +15812,14 @@ export interface JobRunner extends Node {
   displayID: Scalars['String']['output']
   id: Scalars['ID']['output']
   /** the IP address of this runner */
-  ipAddress: Scalars['String']['output']
+  ipAddress?: Maybe<Scalars['String']['output']>
   jobRunnerTokens: JobRunnerTokenConnection
+  /** the last time this runner was seen */
+  lastSeen?: Maybe<Scalars['Time']['output']>
   /** the name of the runner */
   name: Scalars['String']['output']
+  /** the operating system of the runner */
+  os?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -15708,6 +15831,8 @@ export interface JobRunner extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the version of the runner */
+  version?: Maybe<Scalars['String']['output']>
 }
 
 export interface JobRunnerJobRunnerTokensArgs {
@@ -15728,6 +15853,13 @@ export interface JobRunnerConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createJobRunner mutation */
+export interface JobRunnerCreatePayload {
+  __typename?: 'JobRunnerCreatePayload'
+  /** Created jobRunner */
+  jobRunner: JobRunner
 }
 
 /** Return response for deleteJobRunner mutation */
@@ -16309,10 +16441,23 @@ export interface JobRunnerWhereInput {
   ipAddressHasPrefix?: InputMaybe<Scalars['String']['input']>
   ipAddressHasSuffix?: InputMaybe<Scalars['String']['input']>
   ipAddressIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ipAddressIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ipAddressLT?: InputMaybe<Scalars['String']['input']>
   ipAddressLTE?: InputMaybe<Scalars['String']['input']>
   ipAddressNEQ?: InputMaybe<Scalars['String']['input']>
   ipAddressNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ipAddressNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_seen field predicates */
+  lastSeen?: InputMaybe<Scalars['Time']['input']>
+  lastSeenGT?: InputMaybe<Scalars['Time']['input']>
+  lastSeenGTE?: InputMaybe<Scalars['Time']['input']>
+  lastSeenIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastSeenIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastSeenLT?: InputMaybe<Scalars['Time']['input']>
+  lastSeenLTE?: InputMaybe<Scalars['Time']['input']>
+  lastSeenNEQ?: InputMaybe<Scalars['Time']['input']>
+  lastSeenNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastSeenNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -16329,6 +16474,22 @@ export interface JobRunnerWhereInput {
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<JobRunnerWhereInput>
   or?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** os field predicates */
+  os?: InputMaybe<Scalars['String']['input']>
+  osContains?: InputMaybe<Scalars['String']['input']>
+  osContainsFold?: InputMaybe<Scalars['String']['input']>
+  osEqualFold?: InputMaybe<Scalars['String']['input']>
+  osGT?: InputMaybe<Scalars['String']['input']>
+  osGTE?: InputMaybe<Scalars['String']['input']>
+  osHasPrefix?: InputMaybe<Scalars['String']['input']>
+  osHasSuffix?: InputMaybe<Scalars['String']['input']>
+  osIn?: InputMaybe<Array<Scalars['String']['input']>>
+  osIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  osLT?: InputMaybe<Scalars['String']['input']>
+  osLTE?: InputMaybe<Scalars['String']['input']>
+  osNEQ?: InputMaybe<Scalars['String']['input']>
+  osNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  osNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
   ownerIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -16382,6 +16543,22 @@ export interface JobRunnerWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** version field predicates */
+  version?: InputMaybe<Scalars['String']['input']>
+  versionContains?: InputMaybe<Scalars['String']['input']>
+  versionContainsFold?: InputMaybe<Scalars['String']['input']>
+  versionEqualFold?: InputMaybe<Scalars['String']['input']>
+  versionGT?: InputMaybe<Scalars['String']['input']>
+  versionGTE?: InputMaybe<Scalars['String']['input']>
+  versionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  versionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  versionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  versionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  versionLT?: InputMaybe<Scalars['String']['input']>
+  versionLTE?: InputMaybe<Scalars['String']['input']>
+  versionNEQ?: InputMaybe<Scalars['String']['input']>
+  versionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  versionNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface JobTemplate extends Node {
@@ -18063,6 +18240,10 @@ export interface Mutation {
   createInternalPolicy: InternalPolicyCreatePayload
   /** Create a new invite */
   createInvite: InviteCreatePayload
+  /** Create a new jobResult */
+  createJobResult: JobResultCreatePayload
+  /** Create a new invite */
+  createJobRunner: JobRunnerCreatePayload
   /** Create a new jobRunnerRegistrationToken */
   createJobRunnerRegistrationToken: JobRunnerRegistrationTokenCreatePayload
   /** Create a new jobRunnerToken */
@@ -18101,6 +18282,8 @@ export interface Mutation {
   createScan: ScanCreatePayload
   /** Create a new scheduledJob */
   createScheduledJob: ScheduledJobCreatePayload
+  /** Create a new scheduledJobRun */
+  createScheduledJobRun: ScheduledJobRunCreatePayload
   /** Create a new standard */
   createStandard: StandardCreatePayload
   /** Create a new subcontrol */
@@ -18175,6 +18358,8 @@ export interface Mutation {
   deleteInternalPolicy: InternalPolicyDeletePayload
   /** Delete an existing invite */
   deleteInvite: InviteDeletePayload
+  /** Delete an existing jobResult */
+  deleteJobResult: JobResultDeletePayload
   /** Delete an existing jobRunner */
   deleteJobRunner: JobRunnerDeletePayload
   /** Delete an existing jobRunnerRegistrationToken */
@@ -18209,6 +18394,8 @@ export interface Mutation {
   deleteScan: ScanDeletePayload
   /** Delete an existing scheduledJob */
   deleteScheduledJob: ScheduledJobDeletePayload
+  /** Delete an existing scheduledJobRun */
+  deleteScheduledJobRun: ScheduledJobRunDeletePayload
   /** Delete an existing standard */
   deleteStandard: StandardDeletePayload
   /** Delete an existing subcontrol */
@@ -18293,6 +18480,8 @@ export interface Mutation {
   updateInternalPolicy: InternalPolicyUpdatePayload
   /** Update an existing invite */
   updateInvite: InviteUpdatePayload
+  /** Update an existing jobResult */
+  updateJobResult: JobResultUpdatePayload
   /** Update an existing jobRunner */
   updateJobRunner: JobRunnerUpdatePayload
   /** Update an existing jobTemplate */
@@ -18323,6 +18512,8 @@ export interface Mutation {
   updateScan: ScanUpdatePayload
   /** Update an existing scheduledJob */
   updateScheduledJob: ScheduledJobUpdatePayload
+  /** Update an existing scheduledJobRun */
+  updateScheduledJobRun: ScheduledJobRunUpdatePayload
   /** Update an existing standard */
   updateStandard: StandardUpdatePayload
   /** Update an existing subcontrol */
@@ -18774,6 +18965,14 @@ export interface MutationCreateInviteArgs {
   input: CreateInviteInput
 }
 
+export interface MutationCreateJobResultArgs {
+  input: CreateJobResultInput
+}
+
+export interface MutationCreateJobRunnerArgs {
+  input: CreateJobRunnerInput
+}
+
 export interface MutationCreateJobRunnerRegistrationTokenArgs {
   input: CreateJobRunnerRegistrationTokenInput
 }
@@ -18851,6 +19050,10 @@ export interface MutationCreateScanArgs {
 
 export interface MutationCreateScheduledJobArgs {
   input: CreateScheduledJobInput
+}
+
+export interface MutationCreateScheduledJobRunArgs {
+  input: CreateScheduledJobRunInput
 }
 
 export interface MutationCreateStandardArgs {
@@ -19005,6 +19208,10 @@ export interface MutationDeleteInviteArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteJobResultArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteJobRunnerArgs {
   id: Scalars['ID']['input']
 }
@@ -19070,6 +19277,10 @@ export interface MutationDeleteScanArgs {
 }
 
 export interface MutationDeleteScheduledJobArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteScheduledJobRunArgs {
   id: Scalars['ID']['input']
 }
 
@@ -19274,6 +19485,11 @@ export interface MutationUpdateInviteArgs {
   input: UpdateInviteInput
 }
 
+export interface MutationUpdateJobResultArgs {
+  id: Scalars['ID']['input']
+  input: UpdateJobResultInput
+}
+
 export interface MutationUpdateJobRunnerArgs {
   id: Scalars['ID']['input']
   input: UpdateJobRunnerInput
@@ -19348,6 +19564,11 @@ export interface MutationUpdateScanArgs {
 export interface MutationUpdateScheduledJobArgs {
   id: Scalars['ID']['input']
   input: UpdateScheduledJobInput
+}
+
+export interface MutationUpdateScheduledJobRunArgs {
+  id: Scalars['ID']['input']
+  input: UpdateScheduledJobRunInput
 }
 
 export interface MutationUpdateStandardArgs {
@@ -30428,6 +30649,20 @@ export interface ScheduledJobRunConnection {
   totalCount: Scalars['Int']['output']
 }
 
+/** Return response for createScheduledJobRun mutation */
+export interface ScheduledJobRunCreatePayload {
+  __typename?: 'ScheduledJobRunCreatePayload'
+  /** Created scheduledJobRun */
+  scheduledJobRun: ScheduledJobRun
+}
+
+/** Return response for deleteScheduledJobRun mutation */
+export interface ScheduledJobRunDeletePayload {
+  __typename?: 'ScheduledJobRunDeletePayload'
+  /** Deleted scheduledJobRun ID */
+  deletedID: Scalars['ID']['output']
+}
+
 /** An edge in a connection. */
 export interface ScheduledJobRunEdge {
   __typename?: 'ScheduledJobRunEdge'
@@ -30455,6 +30690,13 @@ export enum ScheduledJobRunOrderField {
 export enum ScheduledJobRunScheduledJobRunStatus {
   ACQUIRED = 'ACQUIRED',
   PENDING = 'PENDING',
+}
+
+/** Return response for updateScheduledJobRun mutation */
+export interface ScheduledJobRunUpdatePayload {
+  __typename?: 'ScheduledJobRunUpdatePayload'
+  /** Updated scheduledJobRun */
+  scheduledJobRun: ScheduledJobRun
 }
 
 /**
@@ -32341,6 +32583,7 @@ export interface SubcontrolOrder {
 export enum SubcontrolOrderField {
   CONTROL_OWNER_name = 'CONTROL_OWNER_name',
   CONTROL_TYPE = 'CONTROL_TYPE',
+  DELEGATE_name = 'DELEGATE_name',
   REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
@@ -33651,6 +33894,7 @@ export interface Task extends Node {
   comments: NoteConnection
   /** the completion date of the task */
   completed?: Maybe<Scalars['DateTime']['output']>
+  controlImplementations: ControlImplementationConnection
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -33689,6 +33933,15 @@ export interface TaskCommentsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NoteOrder>>
   where?: InputMaybe<NoteWhereInput>
+}
+
+export interface TaskControlImplementationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
 }
 
 export interface TaskControlObjectivesArgs {
@@ -34329,6 +34582,9 @@ export interface TaskWhereInput {
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
+  /** control_implementations edge predicates */
+  hasControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
   /** control_objectives edge predicates */
   hasControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectivesWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
@@ -36919,7 +37175,6 @@ export interface UpdateActionPlanInput {
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -36953,7 +37208,6 @@ export interface UpdateActionPlanInput {
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
-  clearUsers?: InputMaybe<Scalars['Boolean']['input']>
   /** proposed controls referenced in the action_plan */
   controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -36977,7 +37231,6 @@ export interface UpdateActionPlanInput {
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the action_plan should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
   /** the frequency at which the action_plan should be reviewed, used to calculate the review_due date */
@@ -37091,6 +37344,7 @@ export interface UpdateControlImplementationInput {
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -37101,6 +37355,7 @@ export interface UpdateControlImplementationInput {
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearVerificationDate?: InputMaybe<Scalars['Boolean']['input']>
   clearVerified?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -37112,6 +37367,7 @@ export interface UpdateControlImplementationInput {
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the %s, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ControlImplementationDocumentStatus>
@@ -37518,6 +37774,7 @@ export interface UpdateEventInput {
  */
 export interface UpdateEvidenceInput {
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37525,6 +37782,7 @@ export interface UpdateEvidenceInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearCollectionProcedure?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
@@ -37549,6 +37807,7 @@ export interface UpdateEvidenceInput {
   /** the name of the evidence */
   name?: InputMaybe<Scalars['String']['input']>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37687,6 +37946,9 @@ export interface UpdateGroupInput {
   addControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupMembers?: InputMaybe<Array<CreateGroupMembershipInput>>
@@ -37720,6 +37982,9 @@ export interface UpdateGroupInput {
   clearControlObjectiveEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntityBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntityEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntityViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
@@ -37768,6 +38033,9 @@ export interface UpdateGroupInput {
   removeControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupMembers?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37858,6 +38126,7 @@ export interface UpdateInternalPolicyInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37879,6 +38148,7 @@ export interface UpdateInternalPolicyInput {
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
@@ -37923,6 +38193,7 @@ export interface UpdateInternalPolicyInput {
   policyType?: InputMaybe<Scalars['String']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37973,8 +38244,11 @@ export interface UpdateInviteInput {
  * Input was generated by ent.
  */
 export interface UpdateJobResultInput {
+  clearLog?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
+  /** the log output from the job */
+  log?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   scheduledJobID?: InputMaybe<Scalars['ID']['input']>
   /** the status of this job. did it fail? did it succeed? */
@@ -37988,15 +38262,27 @@ export interface UpdateJobResultInput {
 export interface UpdateJobRunnerInput {
   addJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearIPAddress?: InputMaybe<Scalars['Boolean']['input']>
   clearJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastSeen?: InputMaybe<Scalars['Boolean']['input']>
+  clearOs?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearVersion?: InputMaybe<Scalars['Boolean']['input']>
+  /** the IP address of this runner */
+  ipAddress?: InputMaybe<Scalars['String']['input']>
+  /** the last time this runner was seen */
+  lastSeen?: InputMaybe<Scalars['Time']['input']>
   /** the name of the runner */
   name?: InputMaybe<Scalars['String']['input']>
+  /** the operating system of the runner */
+  os?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the version of the runner */
+  version?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -39092,6 +39378,7 @@ export interface UpdateTaskInput {
   addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39110,6 +39397,7 @@ export interface UpdateTaskInput {
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearCompleted?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
@@ -39131,6 +39419,7 @@ export interface UpdateTaskInput {
   due?: InputMaybe<Scalars['DateTime']['input']>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -41650,7 +41939,6 @@ export type EvidenceFieldsFragment = {
   displayID: string
   id: string
   name: string
-  ownerID?: string | null
   renewalDate?: any | null
   source?: string | null
   status?: EvidenceEvidenceStatus | null
@@ -41681,7 +41969,6 @@ export type GetEvidenceQuery = {
     displayID: string
     id: string
     name: string
-    ownerID?: string | null
     renewalDate?: any | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
@@ -41716,7 +42003,6 @@ export type GetRenewEvidenceQuery = {
     displayID: string
     id: string
     name: string
-    ownerID?: string | null
     renewalDate?: any | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
@@ -42773,6 +43059,13 @@ export type CreateBulkCsvInternalPolicyMutation = {
   createBulkCSVInternalPolicy: { __typename?: 'InternalPolicyBulkCreatePayload'; internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string }> | null }
 }
 
+export type UpdateBulkInternalPolicyMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateInternalPolicyInput
+}>
+
+export type UpdateBulkInternalPolicyMutation = { __typename?: 'Mutation'; updateBulkInternalPolicy: { __typename?: 'InternalPolicyBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
@@ -42788,6 +43081,13 @@ export type UpdateProcedureMutation = {
   __typename?: 'Mutation'
   updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureType?: string | null } }
 }
+
+export type UpdateBulkProcedureMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateProcedureInput
+}>
+
+export type UpdateBulkProcedureMutation = { __typename?: 'Mutation'; updateBulkProcedure: { __typename?: 'ProcedureBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -43563,6 +43863,13 @@ export type UpdateRiskMutationVariables = Exact<{
 
 export type UpdateRiskMutation = { __typename?: 'Mutation'; updateRisk: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
+export type UpdateBulkRiskMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateRiskInput
+}>
+
+export type UpdateBulkRiskMutation = { __typename?: 'Mutation'; updateBulkRisk: { __typename?: 'RiskBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type CreateBulkCsvRiskMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>
@@ -43715,6 +44022,8 @@ export type GetAllStandardsSelectQuery = {
 
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
 }>
 
 export type GetAllSubcontrolsQuery = {

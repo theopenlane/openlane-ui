@@ -17,6 +17,9 @@ import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/tabl
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -25,7 +28,10 @@ const RiskTable: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
     {
       field: RiskOrderField.name,
@@ -89,7 +95,16 @@ const RiskTable: React.FC = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly }), [userMap, convertToReadOnly])
+  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, convertToReadOnly, selectedRisks])
+
+  useEffect(() => {
+    if (permission?.roles) {
+      setColumnVisibility((prev) => ({
+        ...prev,
+        select: canEdit(permission.roles),
+      }))
+    }
+  }, [permission?.roles])
 
   useEffect(() => {
     setCrumbs([
@@ -137,6 +152,10 @@ const RiskTable: React.FC = () => {
     exportToCSV(risks, exportableColumns, 'risk_list')
   }
 
+  const handleBulkEdit = () => {
+    setSelectedRisks([])
+  }
+
   return (
     <>
       <PageHeading heading="Risks" />
@@ -155,6 +174,11 @@ const RiskTable: React.FC = () => {
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
         exportEnabled={risks && risks.length > 0}
+        handleBulkEdit={handleBulkEdit}
+        selectedRisks={selectedRisks}
+        setSelectedRisks={setSelectedRisks}
+        canEdit={canEdit}
+        permission={permission}
       />
       <DataTable
         sortFields={RISKS_SORT_FIELDS}

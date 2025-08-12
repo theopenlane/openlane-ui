@@ -85,7 +85,7 @@ export const OrganizationSelector = () => {
         })
 
         requestAnimationFrame(() => {
-          queryClient?.invalidateQueries()
+          queryClient?.clear()
         })
 
         redirectWithoutParams()

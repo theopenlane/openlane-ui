@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import React from 'react'
 import { ApiToken, Procedure, User } from '@repo/codegen/src/schema.ts'
 import { formatDate, formatTimeSince } from '@/utils/date'
@@ -7,14 +7,56 @@ import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentIconMapper, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TProceduresColumnsProps = {
   users?: User[]
   tokens?: ApiToken[]
+  selectedProcedures: { id: string }[]
+  setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps) => {
+export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSelectedProcedures }: TProceduresColumnsProps) => {
+  const toggleSelection = (procedure: { id: string }) => {
+    setSelectedProcedures((prev) => {
+      const exists = prev.some((c) => c.id === procedure.id)
+      return exists ? prev.filter((c) => c.id !== procedure.id) : [...prev, procedure]
+    })
+  }
   const columns: ColumnDef<Procedure>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageProcedures = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPageProcedures.every((procedure) => selectedProcedures.some((sc) => sc.id === procedure.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked: boolean) => {
+                const newSelections = checked
+                  ? [...selectedProcedures.filter((sc) => !currentPageProcedures.some((c) => c.id === sc.id)), ...currentPageProcedures.map((c) => ({ id: c.id }))]
+                  : selectedProcedures.filter((sc) => !currentPageProcedures.some((c) => c.id === sc.id))
+
+                setSelectedProcedures(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }: { row: Row<Procedure> }) => {
+        const { id } = row.original
+        const isChecked = selectedProcedures.some((c) => c.id === id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+          </div>
+        )
+      },
+      size: 50,
+    },
     {
       accessorKey: 'name',
       header: 'Name',

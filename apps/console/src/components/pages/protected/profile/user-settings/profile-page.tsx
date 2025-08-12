@@ -15,6 +15,7 @@ import { useGetCurrentUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/
 import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 import PasskeySection from './passkeys-section'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -60,10 +61,11 @@ const ProfilePage = () => {
       successNotification({
         title: 'Avatar updated successfully',
       })
-    } catch {
-      console.error('file upload error')
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to update avatar',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }
@@ -107,9 +109,10 @@ const ProfilePage = () => {
           title: `Two-factor authentication ${checked ? 'enabled' : 'disabled'} successfully`,
         })
       } catch (error) {
-        console.error('Error updating TFA setting:', error)
+        const errorMessage = parseErrorMessage(error)
         errorNotification({
-          title: 'Failed to update TFA setting',
+          title: 'Error',
+          description: errorMessage,
         })
       }
     },
@@ -126,9 +129,11 @@ const ProfilePage = () => {
       successNotification({
         title: `Two-factor authentication removed successfully`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to remove Two-factor authentication ',
+        title: 'Error',
+        description: errorMessage,
       })
     }
   }, [errorNotification, successNotification, updateTfaSetting])

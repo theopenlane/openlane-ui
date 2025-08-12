@@ -26,6 +26,9 @@ import { getPoliciesColumns } from '@/components/pages/protected/policies/table/
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -34,6 +37,8 @@ export const PoliciesTable = () => {
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
 
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
@@ -88,6 +93,7 @@ export const PoliciesTable = () => {
   const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     approvalRequired: false,
     approver: false,
@@ -102,7 +108,7 @@ export const PoliciesTable = () => {
     createdBy: false,
   })
 
-  const { columns, mappedColumns } = getPoliciesColumns({ users, tokens })
+  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies }), [users, tokens, selectedPolicies])
 
   const handleCreateNew = async () => {
     router.push(`/policies/create`)
@@ -144,6 +150,15 @@ export const PoliciesTable = () => {
   }
 
   useEffect(() => {
+    if (permission?.roles) {
+      setColumnVisibility((prev) => ({
+        ...prev,
+        select: canEdit(permission.roles),
+      }))
+    }
+  }, [permission?.roles])
+
+  useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Policies', href: '/policies' },
@@ -162,6 +177,10 @@ export const PoliciesTable = () => {
     setMemberIds(userIds)
   }, [policies, memberIds])
 
+  const handleBulkEdit = () => {
+    setSelectedPolicies([])
+  }
+
   return (
     <>
       <PoliciesTableToolbar
@@ -178,6 +197,11 @@ export const PoliciesTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={policies && policies.length > 0}
+        handleBulkEdit={handleBulkEdit}
+        selectedPolicies={selectedPolicies}
+        setSelectedPolicies={setSelectedPolicies}
+        canEdit={canEdit}
+        permission={permission}
       />
 
       <DataTable

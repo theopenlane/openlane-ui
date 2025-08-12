@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useDeleteProgram, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export const ProgramSettingsDangerZone = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
@@ -35,9 +36,11 @@ export const ProgramSettingsDangerZone = () => {
       successNotification({
         title: 'The program has been successfully deleted.',
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
-        title: 'Failed to Delete Program',
+        title: 'Error',
+        description: errorMessage,
       })
     } finally {
       setDialogOpen(false)

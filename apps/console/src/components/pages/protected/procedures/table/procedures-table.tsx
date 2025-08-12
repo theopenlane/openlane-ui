@@ -18,6 +18,9 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -26,6 +29,8 @@ export const ProceduresTable = () => {
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
       field: ProcedureOrderField.name,
@@ -76,6 +81,7 @@ export const ProceduresTable = () => {
   const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     approvalRequired: false,
     approver: false,
@@ -89,7 +95,7 @@ export const ProceduresTable = () => {
     createdAt: false,
     createdBy: false,
   })
-  const { columns, mappedColumns } = getProceduresColumns({ users, tokens })
+  const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures })
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)
@@ -131,6 +137,15 @@ export const ProceduresTable = () => {
   }
 
   useEffect(() => {
+    if (permission?.roles) {
+      setColumnVisibility((prev) => ({
+        ...prev,
+        select: canEdit(permission.roles),
+      }))
+    }
+  }, [permission?.roles])
+
+  useEffect(() => {
     if (procedures.length > 0 && !memberIds) {
       const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
       setMemberIds(userIds)
@@ -143,6 +158,10 @@ export const ProceduresTable = () => {
       { label: 'Procedures', href: '/procedures' },
     ])
   }, [setCrumbs])
+
+  const handleBulkEdit = () => {
+    setSelectedProcedures([])
+  }
 
   return (
     <>
@@ -161,6 +180,11 @@ export const ProceduresTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={procedures && procedures.length > 0}
+        handleBulkEdit={handleBulkEdit}
+        selectedProcedures={selectedProcedures}
+        setSelectedProcedures={setSelectedProcedures}
+        canEdit={canEdit}
+        permission={permission}
       />
 
       <DataTable

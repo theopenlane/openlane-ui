@@ -1,11 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-c-s-v-create-procedure-dialog.tsx'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -14,6 +13,8 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '../../policies/table/table-config'
+import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
+import { Button } from '@repo/ui/button'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -30,6 +31,11 @@ type TProceduresTableToolbarProps = {
     header: string
   }[]
   exportEnabled: boolean
+  handleBulkEdit: () => void
+  selectedProcedures: { id: string }[]
+  setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  canEdit: (accessRole: TAccessRole[]) => boolean
+  permission: TData
 }
 
 const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
@@ -43,11 +49,19 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   setColumnVisibility,
   mappedColumns,
   exportEnabled,
+  handleBulkEdit,
+  selectedProcedures,
+  setSelectedProcedures,
+  canEdit,
+  permission,
 }) => {
   const isSearching = useDebounce(searching, 200)
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
   const filters = usePoliciesFilters()
+  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsBulkEditing(selectedProcedures.length > 0)
+  }, [selectedProcedures])
 
   return (
     <>
@@ -67,37 +81,59 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-            <Menu
-              trigger={CreateBtn}
-              content={
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Procedure</span>
-                </div>
-              }
-            />
+          {isBulkEditing ? (
+            <>
+              {canEdit(permission?.roles) && (
+                <>
+                  <BulkEditProceduresDialog setIsBulkEditing={setIsBulkEditing} selectedProcedures={selectedProcedures} setSelectedProcedures={setSelectedProcedures}></BulkEditProceduresDialog>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsBulkEditing(false)
+                      handleBulkEdit()
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
+                <Menu
+                  trigger={CreateBtn}
+                  content={
+                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+                      <CirclePlus size={16} strokeWidth={2} />
+                      <span>Procedure</span>
+                    </div>
+                  }
+                />
+              )}
+              <Menu
+                content={
+                  <>
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                      <BulkCSVCreateProcedureDialog
+                        trigger={
+                          <div className="flex items-center space-x-2 hover:bg-muted">
+                            <Import size={16} strokeWidth={2} />
+                            <span>Import existing document</span>
+                          </div>
+                        }
+                      />
+                    )}
+                    <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
+                      <DownloadIcon size={16} strokeWidth={2} />
+                      <span>Export</span>
+                    </div>
+                  </>
+                }
+              />
+            </>
           )}
-          <Menu
-            content={
-              <>
-                {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                  <BulkCSVCreateProcedureDialog
-                    trigger={
-                      <div className="flex items-center space-x-2 hover:bg-muted">
-                        <Import size={16} strokeWidth={2} />
-                        <span>Import existing document</span>
-                      </div>
-                    }
-                  />
-                )}
-                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </div>
-              </>
-            }
-          />
         </div>
       </div>
       <div id="datatable-filter-portal" />
