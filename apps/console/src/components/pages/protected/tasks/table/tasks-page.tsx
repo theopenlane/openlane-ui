@@ -16,6 +16,7 @@ import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { Loading } from '@/components/shared/loading/loading'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -27,7 +28,7 @@ const TasksPage: React.FC = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const searchParams = useSearchParams()
   const { data: session } = useSession()
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
@@ -146,6 +147,10 @@ const TasksPage: React.FC = () => {
       })
 
     exportToCSV(tasks, exportableColumns, 'task_list')
+  }
+
+  if (isMembersLoading) {
+    return <Loading />
   }
 
   return (
