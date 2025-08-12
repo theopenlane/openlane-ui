@@ -19,4 +19,5 @@ export const errorCodeMessages: Record<string, string> = {
   ORG_ALREADY_EXISTS: 'That name is already taken. Please choose a different name—you can keep your display name the same.',
   MAX_ATTEMPTS: 'Max attempts to resend email reached, please create a new request or reach out to support.',
   BAD_REQUEST: 'Something’s not right. Please check your input and try again.',
+  MODULE_NO_ACCESS: 'That feature is not enabled for your organization. Please contact an admin or upgrade your plan.',
 }
