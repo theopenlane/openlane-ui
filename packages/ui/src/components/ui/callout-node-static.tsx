@@ -9,7 +9,7 @@ import { cn } from '@repo/ui/lib/utils'
 export function CalloutElementStatic({ children, className, ...props }: SlateElementProps) {
   return (
     <SlateElement
-      className={cn('my-1 flex rounded-sm bg-muted p-4 pl-3', className)}
+      className={cn('my-1 flex rounded-xs bg-muted p-4 pl-3', className)}
       style={{
         backgroundColor: props.element.backgroundColor as any,
       }}

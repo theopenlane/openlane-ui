@@ -9,6 +9,7 @@ import { useParams } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
+import { CreateButton } from '@/components/shared/create-button/create-button'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -29,7 +30,10 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-lg font-semibold">{title}</h2>
+          <CreateButton type="evidence" href="/evidence/create" />
+        </div>
         {canEdit && (
           <EvidenceCreateFormDialog
             formData={control}

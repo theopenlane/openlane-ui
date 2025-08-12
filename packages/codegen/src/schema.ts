@@ -41939,7 +41939,6 @@ export type EvidenceFieldsFragment = {
   displayID: string
   id: string
   name: string
-  ownerID?: string | null
   renewalDate?: any | null
   source?: string | null
   status?: EvidenceEvidenceStatus | null
@@ -41970,7 +41969,6 @@ export type GetEvidenceQuery = {
     displayID: string
     id: string
     name: string
-    ownerID?: string | null
     renewalDate?: any | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
@@ -42005,7 +42003,6 @@ export type GetRenewEvidenceQuery = {
     displayID: string
     id: string
     name: string
-    ownerID?: string | null
     renewalDate?: any | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
@@ -44385,6 +44382,13 @@ export type UserTasksQuery = {
     edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; due?: string | null } | null } | null> | null
   }
 }
+
+export type UpdateBulkTaskMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateTaskInput
+}>
+
+export type UpdateBulkTaskMutation = { __typename?: 'Mutation'; updateBulkTask: { __typename?: 'TaskBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput

@@ -18,7 +18,7 @@ import { Separator } from '@repo/ui/components/ui/separator.tsx'
 const popoverVariants = cva('z-50 w-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden')
 
 const inputVariants = cva(
-  'flex h-[28px] w-full rounded-md border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm',
+  'flex h-[28px] w-full rounded-md border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-hidden md:text-sm',
 )
 
 export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarState }) {

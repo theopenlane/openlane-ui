@@ -118,7 +118,7 @@ const StandardsPage = () => {
             </Link>
           </Card>
         ))}
-        <Card className="bg-card p-28 rounded-lg shadow border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
+        <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href={INFO_EMAIL}>
             <Button variant="outline" className="!text-brand">

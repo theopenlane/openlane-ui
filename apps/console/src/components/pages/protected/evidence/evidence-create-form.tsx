@@ -12,7 +12,6 @@ import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 
 import { CreateEvidenceInput } from '@repo/codegen/src/schema'
-import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
@@ -42,7 +41,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
-  const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -58,10 +56,12 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
         tags: data.tags,
         creationDate: data.creationDate,
         renewalDate: data.renewalDate,
-        ownerID: sessionData?.user.userId,
         collectionProcedure: data.collectionProcedure,
         source: data.source,
         fileIDs: data.fileIDs,
+        controlIDs: data.controlIDs,
+        taskIDs: data.taskIDs,
+        subcontrolIDs: data.subcontrolIDs,
         ...(programId ? { programIDs: [programId] } : {}),
         ...(data.url ? { url: data.url } : {}),
         ...evidenceObjectTypes,

@@ -53,12 +53,13 @@ export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined
     displayID: taskData!.displayID,
     tags: taskData!.tags ?? undefined,
     objectAssociations: {
-      controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      controlIDs: taskData?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      taskIDs: taskData.id ? [taskData.id] : [],
     },
     objectAssociationsDisplayIDs: [
-      ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || []),
+      ...(taskData?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
       ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
       ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || []),
       taskData.displayID,

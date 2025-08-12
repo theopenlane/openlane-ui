@@ -27,7 +27,7 @@ const LegendItem = ({ name, color, onClick, activeLegend }: LegendItemProps) => 
     <li
       className={cn(
         // base
-        'group inline-flex flex-nowrap items-center gap-1.5 whitespace-nowrap rounded px-2 py-1 transition',
+        'group inline-flex flex-nowrap items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-1 transition',
         hasOnValueChange ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800' : 'cursor-default',
       )}
       onClick={(e) => {
@@ -86,7 +86,7 @@ const ScrollButton = ({ icon, onClick, disabled }: ScrollButtonProps) => {
       type="button"
       className={cn(
         // base
-        'group inline-flex size-5 items-center truncate rounded transition',
+        'group inline-flex size-5 items-center truncate rounded-sm transition',
         disabled
           ? 'cursor-not-allowed text-gray-400 dark:text-gray-600'
           : 'cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-50',
