@@ -3,6 +3,7 @@ import { Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
+import { TaskStatusOptions, TaskTypesOptions } from '../enum-mapper/task-enum'
 
 export type BulkEditDialogPropsBase = {
   setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>
@@ -28,12 +29,17 @@ export type BulkEditControlsDialogProps = BulkEditDialogPropsBase & {
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
 }
 
+export type BulkEditTasksDialogProps = BulkEditDialogPropsBase & {
+  selectedTasks: { id: string }[]
+  setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+}
+
 export interface BulkEditDialogFormValues {
   fieldsArray: FieldItem[]
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks
+  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks
   name: string
   placeholder: string
   options?: Option[]
@@ -70,15 +76,24 @@ export enum SelectOptionBulkEditRisks {
   RiskLikelihood = 'Likelihood',
 }
 
+export enum SelectOptionBulkEditTasks {
+  Status = 'Status',
+  TaskAssignee = 'Assignee',
+  DueDate = 'Due date',
+  TaskCategory = 'Category',
+}
+
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
+  Date = 'DATETIME',
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | undefined
+  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | undefined
   selectedObject?: SelectOptionSelectedObject
-  selectedValue: string | undefined
+  selectedValue?: string | undefined
+  selectedDate?: Date | null
 }
 
 export const defaultObject = {
@@ -91,6 +106,7 @@ const clearValueMap: Record<string, string> = {
   riskType: 'clearRiskType',
   score: 'clearScore',
   category: 'clearCategory',
+  due: 'clearDue',
 }
 
 export const getMappedClearValue = (key: string): string => {
@@ -234,6 +250,45 @@ export const getAllSelectOptionsForBulkEditControls = (groups: Group[]): SelectO
       placeholder: 'Select a control type',
       inputType: InputType.Select,
       options: ControlControlTypeOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+  ]
+}
+
+export const getAllSelectOptionsForBulkEditTasks = (
+  membersOptions:
+    | {
+        value: string | undefined
+        label: string
+      }[]
+    | undefined,
+): SelectOptionSelectedObject[] => {
+  return [
+    {
+      selectOptionEnum: SelectOptionBulkEditTasks.TaskAssignee,
+      name: 'assigneeID',
+      placeholder: 'Select assignee',
+      inputType: InputType.Select,
+      options: membersOptions?.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditTasks.Status,
+      name: 'status',
+      placeholder: 'Select a status',
+      inputType: InputType.Select,
+      options: TaskStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditTasks.DueDate,
+      name: 'due',
+      placeholder: 'Select a due date',
+      inputType: InputType.Date,
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditTasks.TaskCategory,
+      name: 'category',
+      inputType: InputType.Select,
+      placeholder: 'Select category',
+      options: TaskTypesOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
   ]
 }

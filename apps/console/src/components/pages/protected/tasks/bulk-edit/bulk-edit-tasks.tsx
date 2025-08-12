@@ -8,31 +8,31 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useSession } from 'next-auth/react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
-import { Input } from '@repo/ui/input'
+import { useBulkEditTask } from '@/lib/graphql-hooks/tasks'
 import {
   BulkEditDialogFormValues,
-  BulkEditProceduresDialogProps,
+  BulkEditTasksDialogProps,
   defaultObject,
-  getAllSelectOptionsForBulkEditProcedures,
+  getAllSelectOptionsForBulkEditTasks,
   getMappedClearValue,
   InputType,
-  SelectOptionBulkEditProcedures,
+  SelectOptionBulkEditTasks,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { Group } from '@repo/codegen/src/schema'
-import { useBulkEditProcedure } from '@/lib/graphql-hooks/procedures'
+import { Input } from '@repo/ui/input'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditProcedures).optional(),
+  value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
   selectedObject: z
     .object({
-      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditProcedures),
+      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditTasks),
       name: z.string(),
       placeholder: z.string(),
-      selectedValue: z.string().optional(),
       options: z
         .array(
           z.object({
@@ -41,39 +41,46 @@ const fieldItemSchema = z.object({
           }),
         )
         .optional(),
-      inputValue: z.string().optional(),
+      inputType: z.enum([InputType.Select, InputType.Input, InputType.Date]),
     })
     .optional(),
+  selectedValue: z.string().optional(),
+  selectedDate: z.date().nullable().optional(),
 })
 
-const bulkEditProceduresSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema).optional().default([]),
+const bulkEditTasksSchema = z.object({
+  fieldsArray: z.array(fieldItemSchema),
 })
 
-export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> = ({ selectedProcedures, setIsBulkEditing, setSelectedProcedures }) => {
+export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ selectedTasks, setIsBulkEditing, setSelectedTasks }) => {
   const [open, setOpen] = useState(false)
-  const { mutateAsync: bulkEditProcedures } = useBulkEditProcedure()
+  const { mutateAsync: bulkEditTasks } = useBulkEditTask()
   const { errorNotification, successNotification } = useNotification()
   const form = useForm<BulkEditDialogFormValues>({
-    resolver: zodResolver(bulkEditProceduresSchema),
+    resolver: zodResolver(bulkEditTasksSchema),
     defaultValues: defaultObject,
   })
-  const { data } = useGetAllGroups({ where: {} })
-  const groups = useMemo(() => {
-    if (!data) return
-    return data?.groups?.edges?.map((edge) => edge?.node) || []
-  }, [data])
+
+  const { data: session } = useSession()
+  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const membersOptions = useMemo(() => {
+    if (!membersData) return []
+    return membersData?.organization?.members?.edges?.map((member) => ({
+      value: member?.node?.user?.id,
+      label: `${member?.node?.user?.displayName}`,
+    }))
+  }, [membersData])
 
   const allOptionSelects = useMemo(() => {
-    if (!groups) return []
-    return getAllSelectOptionsForBulkEditProcedures(groups?.filter(Boolean) as Group[])
-  }, [groups])
+    return getAllSelectOptionsForBulkEditTasks(membersOptions)
+  }, [membersOptions])
 
   const { control, handleSubmit, watch } = form
 
   const watchedFields = watch('fieldsArray') || []
-  const hasFieldsToUpdate = watchedFields.some((field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input)
-
+  const hasFieldsToUpdate = watchedFields.some(
+    (field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input || field.selectedObject?.inputType === InputType.Date,
+  )
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
@@ -82,43 +89,45 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
 
   useEffect(() => {
     if (open) {
+      replace([])
       append({
         value: undefined,
         selectedValue: undefined,
+        selectedDate: undefined,
       })
     }
-  }, [open, append])
+  }, [open, append, replace])
 
   const onSubmit = async () => {
-    const ids = selectedProcedures.map((procedure) => procedure.id)
-    const input: Record<string, string | boolean> = {}
+    const ids = selectedTasks.map((task) => task.id)
+    const input: Record<string, string | Date | boolean | null> = {}
     if (watchedFields.length === 0) return
 
     if (ids.length === 0) return
     watchedFields.forEach((field) => {
       const key = field.selectedObject?.name
-      if (!key) return
-
-      if (field?.selectedValue && field?.value) {
+      if (key && field?.selectedValue && field?.value) {
         input[key] = field.selectedValue
       }
-
-      if (field.selectedObject?.inputType === InputType.Input && !field?.selectedValue) {
+      if (key && field?.selectedDate && field?.value) {
+        input[key] = field.selectedDate
+      }
+      if (field.selectedObject?.inputType === InputType.Date && !field?.selectedDate) {
         const clearValue = getMappedClearValue(field.selectedObject?.name)
         input[clearValue] = true
       }
     })
 
     try {
-      await bulkEditProcedures({
+      await bulkEditTasks({
         ids: ids,
         input,
       })
       successNotification({
-        title: 'Successfully bulk updated selected procedures.',
+        title: 'Successfully bulk updated selected tasks.',
       })
       setIsBulkEditing(false)
-      setSelectedProcedures([])
+      setSelectedTasks([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
@@ -126,7 +135,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
         errorMessage = parseErrorMessage(error.response.errors)
       }
       errorNotification({
-        title: errorMessage ?? 'Failed to bulk edit procedure. Please try again.',
+        title: errorMessage ?? 'Failed to bulk edit task. Please try again.',
       })
     }
   }
@@ -135,8 +144,8 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
     <Dialog open={open} onOpenChange={setOpen}>
       <FormProvider {...form}>
         <DialogTrigger asChild>
-          <Button disabled={selectedProcedures.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
-            {selectedProcedures && selectedProcedures.length > 0 ? `Bulk Edit (${selectedProcedures.length})` : 'Bulk Edit'}
+          <Button disabled={selectedTasks.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
+            {selectedTasks && selectedTasks.length > 0 ? `Bulk Edit (${selectedTasks.length})` : 'Bulk Edit'}
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -147,20 +156,25 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => {
                 return (
-                  <div key={item.id} className="flex justify-items items-start gap-2">
+                  <div key={item.id} className="flex items-center gap-2 w-full">
                     <div className="flex flex-col items-start gap-2">
                       <Select
                         value={watchedFields[index].value || undefined}
                         onValueChange={(value) => {
-                          const selectedEnum = value as SelectOptionBulkEditProcedures
-                          update(index, { value: selectedEnum, selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum), selectedValue: undefined })
+                          const selectedEnum = value as SelectOptionBulkEditTasks
+                          update(index, {
+                            value: selectedEnum,
+                            selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum),
+                            selectedValue: undefined,
+                            selectedDate: undefined,
+                          })
                         }}
                       >
                         <SelectTrigger className="w-48">
                           <SelectValue placeholder="Select field..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.values(SelectOptionBulkEditProcedures).map((option) => (
+                          {Object.values(SelectOptionBulkEditTasks).map((option) => (
                             <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
                               {option}
                             </SelectItem>
@@ -198,6 +212,24 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                             )}
                           />
                         </div>
+                      ) : item.selectedObject.inputType === InputType.Date ? (
+                        <div className="flex flex-col gap-2 w-full">
+                          <Controller
+                            control={control}
+                            name={`fieldsArray.${index}.selectedDate`}
+                            render={({ field: dateField }) => (
+                              <div className="w-full">
+                                <CalendarPopover
+                                  required={false}
+                                  field={dateField}
+                                  onChange={(date) => {
+                                    if (date) dateField.onChange(new Date(date))
+                                  }}
+                                />
+                              </div>
+                            )}
+                          />
+                        </div>
                       ) : (
                         <div className="flex flex-col items-center gap-2">
                           <Controller
@@ -218,6 +250,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                     append({
                       value: undefined,
                       selectedValue: undefined,
+                      selectedDate: undefined,
                     })
                   }
                   iconPosition="left"
