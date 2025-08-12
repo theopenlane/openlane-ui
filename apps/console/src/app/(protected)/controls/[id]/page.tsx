@@ -170,7 +170,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -301,17 +301,12 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <Menu
-            content={
-              <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                  <PencilIcon size={16} strokeWidth={2} />
-                  <span>Edit</span>
-                </div>
-                <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
-              </>
-            }
-          />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
+              <PencilIcon size={16} strokeWidth={2} />
+            </Button>
+            <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
+          </div>
         </div>
       )}
     </div>
