@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
@@ -63,13 +63,17 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
 
   const { data: session } = useSession()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
-  const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
-    value: member?.node?.user?.id,
-    label: `${member?.node?.user?.displayName}`,
-    membershipId: member?.node?.id,
-  }))
+  const membersOptions = useMemo(() => {
+    if (!membersData) return []
+    return membersData?.organization?.members?.edges?.map((member) => ({
+      value: member?.node?.user?.id,
+      label: `${member?.node?.user?.displayName}`,
+    }))
+  }, [membersData])
 
-  const allOptionSelects = getAllSelectOptionsForBulkEditTasks(membersOptions)
+  const allOptionSelects = useMemo(() => {
+    return getAllSelectOptionsForBulkEditTasks(membersOptions)
+  }, [membersOptions])
 
   const { control, handleSubmit, watch } = form
 
