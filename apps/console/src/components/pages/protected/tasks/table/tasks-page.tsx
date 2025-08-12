@@ -16,6 +16,8 @@ import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -37,7 +39,7 @@ const TasksPage: React.FC = () => {
   ])
   const allStatuses = useMemo(() => [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
   const statusesWithoutComplete = useMemo(() => [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW], [])
-
+  const { data: permission } = useOrganizationRole(session)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     createdAt: false,
     createdBy: false,
@@ -50,6 +52,7 @@ const TasksPage: React.FC = () => {
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
   const [hasTasks, setHasTasks] = useState(false)
+  const [selectedTasks, setSelectedTasks] = useState<{ id: string }[]>([])
   const whereFilter = useMemo(() => {
     if (!filters) {
       return null
@@ -106,7 +109,7 @@ const TasksPage: React.FC = () => {
   }
 
   const emptyUserMap = {}
-  const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap })
+  const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
     .map((column) => ({
       accessorKey: column.accessorKey,
@@ -117,7 +120,7 @@ const TasksPage: React.FC = () => {
     if (!hasTasks) return
     const tasks = tableRef.current?.exportData?.() ?? []
 
-    const exportableColumns = getTaskColumns({ userMap: emptyUserMap })
+    const exportableColumns = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
       .filter(isVisibleColumn)
       .map((col) => {
         const key = col.accessorKey as keyof Task
@@ -148,11 +151,16 @@ const TasksPage: React.FC = () => {
     exportToCSV(tasks, exportableColumns, 'task_list')
   }
 
+  const handleBulkEdit = () => {
+    setSelectedTasks([])
+  }
+
   return (
     <>
       <TaskTableToolbar
         onFilterChange={setFilters}
         onTabChange={handleTabChange}
+        handleBulkEdit={handleBulkEdit}
         onShowCompletedTasksChange={handleShowCompletedTasks}
         handleExport={handleExport}
         mappedColumns={mappedColumns}
@@ -165,6 +173,10 @@ const TasksPage: React.FC = () => {
         }}
         searching={searching}
         exportEnabled={hasTasks}
+        canEdit={canEdit}
+        permission={permission}
+        selectedTasks={selectedTasks}
+        setSelectedTasks={setSelectedTasks}
       />
       {activeTab === 'table' ? (
         <TasksTable
@@ -177,6 +189,10 @@ const TasksPage: React.FC = () => {
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           onHasTasksChange={setHasTasks}
+          selectedTasks={selectedTasks}
+          setSelectedTasks={setSelectedTasks}
+          canEdit={canEdit}
+          permission={permission}
         />
       ) : (
         <TaskInfiniteCards ref={tableRef} whereFilter={whereFilter} orderByFilter={orderByFilter} />
