@@ -12,13 +12,15 @@ type TRequiredSubscriptionProps = {
 const RequiredSubscription = ({ module = 'Security', moduleDescription = 'This module offers in-depth security measures. Ready to dive deeper?' }: TRequiredSubscriptionProps) => {
   const router = useRouter()
   return (
-    <div className="pt-[154px] flex flex-col items-center justify-center gap-4">
-      <div className="mb-5">
+    <div className="flex flex-col items-center justify-center gap-6 text-center px-8">
+      <div className="mb-2">
         <Diamond />
       </div>
-      <p className="text-3xl text-center break-words leading-9 w-[607px]">{`Unlock the full potential! It seems you've landed on a page that's part of ${module} module`}</p>
-      <p className="text-base mb-6">{moduleDescription}</p>
-      <Button onClick={() => router.push('/organization-settings/billing')}>{`Get Access to ${module} module`}</Button>
+      <h1 className="text-3xl font-normal text-foreground max-w-[607px] leading-relaxed">Unlock the full potential! It seems you&apos;ve landed on a page that&apos;s part of {module} module</h1>
+      <p className="text-base text-muted-foreground mb-2 max-w-md">{moduleDescription}</p>
+      <Button onClick={() => router.push('/organization-settings/billing')} className="px-6 py-2 rounded-md font-medium">
+        Get Access to {module} module
+      </Button>
     </div>
   )
 }

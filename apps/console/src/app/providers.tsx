@@ -8,6 +8,7 @@ import { ReactNode, useMemo } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
 import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
+import { SubscriptionProvider } from '@/providers/SubscriptionContext'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
 import { enableDevrevChat } from '@repo/dally/auth'
@@ -54,10 +55,12 @@ const Providers = ({ children }: ProvidersProps) => {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
           <BreadcrumbProvider>
-            {enableDevrevChat === 'true' && <InitPlugSDK />}
-            <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
-              {children}
-            </TooltipProvider>
+            <SubscriptionProvider>
+              {enableDevrevChat === 'true' && <InitPlugSDK />}
+              <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
+                {children}
+              </TooltipProvider>
+            </SubscriptionProvider>
           </BreadcrumbProvider>
         </QueryClientProvider>
       </ThemeProvider>

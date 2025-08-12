@@ -41,6 +41,7 @@ const TaskDetailsSheet = () => {
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
+
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')

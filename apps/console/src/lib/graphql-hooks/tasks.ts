@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
+
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -32,7 +33,10 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
 
   const queryResult = useQuery<TasksWithFilterQuery, unknown>({
     queryKey: ['tasks', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: async () => client.request(TASKS_WITH_FILTER, { where, orderBy, ...pagination?.query }),
+    queryFn: async (): Promise<TasksWithFilterQuery> => {
+      const result = await client.request(TASKS_WITH_FILTER, { where, orderBy, ...pagination?.query })
+      return result as TasksWithFilterQuery
+    },
     enabled,
   })
 
@@ -51,12 +55,14 @@ export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled
   const queryResult = useInfiniteQuery<TasksWithFilterQuery, Error, InfiniteData<TasksWithFilterQuery>>({
     initialPageParam: 1,
     queryKey: ['tasks', 'infinite', where, orderBy],
-    queryFn: () =>
-      client.request<TasksWithFilterQuery, TasksWithFilterQueryVariables>(TASKS_WITH_FILTER, {
+    queryFn: async (): Promise<TasksWithFilterQuery> => {
+      const result = await client.request<TasksWithFilterQuery, TasksWithFilterQueryVariables>(TASKS_WITH_FILTER, {
         where,
         orderBy,
         ...pagination?.query,
-      }),
+      })
+      return result as TasksWithFilterQuery
+    },
     getNextPageParam: (lastPage, allPages) => (lastPage.tasks?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined),
     staleTime: Infinity,
     enabled,
@@ -120,7 +126,10 @@ export const useTask = (taskId?: TaskQueryVariables['taskId']) => {
 
   return useQuery<TaskQuery, unknown>({
     queryKey: ['tasks', taskId],
-    queryFn: async () => client.request(TASK, { taskId }),
+    queryFn: async (): Promise<TaskQuery> => {
+      const result = await client.request(TASK, { taskId })
+      return result as TaskQuery
+    },
     enabled: !!taskId,
   })
 }
