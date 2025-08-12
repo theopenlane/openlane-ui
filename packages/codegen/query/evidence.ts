@@ -60,7 +60,6 @@ const EVIDENCE_FIELDS = gql`
     displayID
     id
     name
-    ownerID
     renewalDate
     source
     status
@@ -126,7 +125,6 @@ export const GET_RENEW_EVIDENCE = gql`
       displayID
       id
       name
-      ownerID
       renewalDate
       source
       status
