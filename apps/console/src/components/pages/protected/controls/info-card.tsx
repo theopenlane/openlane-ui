@@ -139,7 +139,7 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
   ]
 
   return (
-    <Card className="p-4 bg-muted rounded-xl shadow-sm">
+    <Card className="p-4 bg-muted rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Info</h3>
       <div>
         {infoItems

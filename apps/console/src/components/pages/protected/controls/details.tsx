@@ -16,7 +16,7 @@ const DetailsCard = () => {
   const controlImplementationPath = subcontrolId ? `/controls/${id}/${subcontrolId}/control-implementation` : `/controls/${id}/control-implementation`
 
   return (
-    <Card className="p-4 bg-muted rounded-xl shadow-sm">
+    <Card className="p-4 bg-muted rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Details</h3>
       <div className=" flex flex-col gap-2">
         <div className="flex justify-between pb-2.5  border-b items-center">

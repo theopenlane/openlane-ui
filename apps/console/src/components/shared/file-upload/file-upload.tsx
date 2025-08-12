@@ -69,7 +69,7 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
     <React.Fragment>
       <div
         {...getRootProps()}
-        className={cn('relative rounded border-dashed border border-teal-800/40 py-5 px-[110px] text-center h-[200px] flex items-center justify-center transition ease-in', {
+        className={cn('relative rounded-sm border-dashed border border-teal-800/40 py-5 px-[110px] text-center h-[200px] flex items-center justify-center transition ease-in', {
           'border-teal-800': isDragActive,
         })}
       >

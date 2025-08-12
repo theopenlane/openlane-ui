@@ -7,7 +7,7 @@ import { useEditorRef } from 'platejs/react'
 
 import { cn } from '@repo/ui/lib/utils'
 
-const buttonVariants = cva('rounded bg-[rgba(0,0,0,0.5)] px-1', {
+const buttonVariants = cva('rounded-sm bg-[rgba(0,0,0,0.5)] px-1', {
   defaultVariants: {
     variant: 'default',
   },
@@ -78,7 +78,7 @@ export function MediaPreviewDialog() {
               <div className="mx-px">
                 {isEditingScale ? (
                   <>
-                    <ScaleInput className="w-10 rounded px-1 text-slate-500 outline" /> <span>%</span>
+                    <ScaleInput className="w-10 rounded-sm px-1 text-slate-500 outline" /> <span>%</span>
                   </>
                 ) : (
                   <span {...scaleTextProps}>{scale * 100 + '%'}</span>
