@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronsDownUp, ChevronsUpDown, LayoutList, List } from 'lucide-react'
+import { ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal.tsx'
 import { Button } from '@repo/ui/button'
@@ -44,64 +44,58 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold">Associated Objects</h2>
-          {!isGraphView && (
+        <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-semibold">Associated Objects</h2>
+          </div>
+          {!isGraphView ? (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setToggleAll((prevState) => !prevState)}>
-                    <div className="flex">
-                      <List size={16} />
-                      {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
+                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsGraphView(true)}>
+                    <div className="flex items-center h-full">
+                      <Graph size={20} className="cursor-pointer hover:opacity-80" />
+                      <div className="border-r h-full"></div>
+                      <LayoutList size={15} className="ml-1" />
                     </div>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent> {toggleAll ? 'Collapse associated objects' : 'Expand associated objects'}</TooltipContent>
+                <TooltipContent>Graph View</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          )}
-
-          {isGraphView && (
+          ) : (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
-                    <div className="flex">
-                      <Graph size={16} />
-                      {!isFullscreen ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
+                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsGraphView(false)}>
+                    <div className="flex items-center h-full">
+                      <Graph size={20} className="cursor-pointer hover:opacity-80" />
+                      <div className="border-r h-full"></div>
+                      <LayoutList size={15} className="ml-1" />
                     </div>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Fullscreen Graph View</TooltipContent>
+                <TooltipContent>List View</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
-
-          {handleAssociationDialog()}
         </div>
-
-        {!isGraphView ? (
+        {!isGraphView && (
           <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div onClick={() => setIsGraphView(true)}>
-                  <Graph size={20} className="cursor-pointer hover:opacity-80" />
-                </div>
+                <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setToggleAll((prevState) => !prevState)}>
+                  <div className="flex">
+                    <List size={16} />
+                    {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
+                  </div>
+                </Button>
               </TooltipTrigger>
-              <TooltipContent>Graph View</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <LayoutList size={20} className="cursor-pointer hover:opacity-80" onClick={() => setIsGraphView(false)} />
-              </TooltipTrigger>
-              <TooltipContent>List View</TooltipContent>
+              <TooltipContent> {toggleAll ? 'Collapse associated objects' : 'Expand associated objects'}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
+        {handleAssociationDialog()}
       </div>
 
       {!isGraphView ? (
@@ -109,6 +103,20 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       ) : (
         <ObjectAssociationGraph closeFullScreen={() => setIsFullscreen(false)} centerNode={centerNode} sections={sections} isFullscreen={isFullscreen} />
       )}
+      <div className="flex items-center justify-end">
+        {isGraphView && (
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
+                  <div className="flex">{<Expand size={16} />}</div>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Fullscreen Graph View</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
     </div>
   )
 }
