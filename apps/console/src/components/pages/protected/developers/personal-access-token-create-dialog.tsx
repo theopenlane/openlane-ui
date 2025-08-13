@@ -187,7 +187,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                     <FormControl>
                       <Input placeholder="Enter token name" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage reserveSpace={false} />
                   </FormItem>
                 )}
               />
@@ -201,7 +201,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                     <FormControl>
                       <Input placeholder="Enter a description (optional)" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage reserveSpace={false} />
                   </FormItem>
                 )}
               />
@@ -244,7 +244,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage reserveSpace={false} />
                     </FormItem>
                   )}
                 />
@@ -266,7 +266,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                             onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage reserveSpace={false} />
                       </>
                     )}
                   </FormItem>
