@@ -146,32 +146,31 @@ const ControlsTableToolbar: React.FC<TProps> = ({
             </>
           ) : (
             <>
-              {createControlAllowed ||
-                (createSubcontrolAllowed && (
-                  <Menu
-                    trigger={CreateBtn}
-                    content={
-                      <>
-                        {createControlAllowed && (
-                          <Link href="/controls/create-control">
-                            <div className="flex items-center space-x-2 hover:bg-muted">
-                              <CirclePlus size={16} strokeWidth={2} />
-                              <span>Control</span>
-                            </div>
-                          </Link>
-                        )}
-                        {createSubcontrolAllowed && (
-                          <Link href="/controls/create-subcontrol">
-                            <div className="flex items-center space-x-2 hover:bg-muted">
-                              <CirclePlus size={16} strokeWidth={2} />
-                              <span>Subcontrol</span>
-                            </div>
-                          </Link>
-                        )}
-                      </>
-                    }
-                  />
-                ))}
+              {(createControlAllowed || createSubcontrolAllowed) && (
+                <Menu
+                  trigger={CreateBtn}
+                  content={
+                    <>
+                      {createControlAllowed && (
+                        <Link href="/controls/create-control">
+                          <div className="flex items-center space-x-2 hover:bg-muted">
+                            <CirclePlus size={16} strokeWidth={2} />
+                            <span>Control</span>
+                          </div>
+                        </Link>
+                      )}
+                      {createSubcontrolAllowed && (
+                        <Link href="/controls/create-subcontrol">
+                          <div className="flex items-center space-x-2 hover:bg-muted">
+                            <CirclePlus size={16} strokeWidth={2} />
+                            <span>Subcontrol</span>
+                          </div>
+                        </Link>
+                      )}
+                    </>
+                  }
+                />
+              )}
               <Menu
                 content={
                   <>
