@@ -336,6 +336,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 <Button className="h-8 p-2" icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link
                 </Button>
+                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 {isEditing ? (
                   <div className="flex gap-2">
                     <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
@@ -354,7 +355,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   </>
                 )}
-                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
                   <Trash2 size={16} strokeWidth={2} />
                 </Button>
