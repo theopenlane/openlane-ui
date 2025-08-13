@@ -321,7 +321,7 @@ const ControlDetailsPage: React.FC = () => {
           initialValue={initialValues.refCode}
           handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
         />
-        {isEditing && (
+        {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
             <InfoIcon size={14} className="mt-1 shrink-0" />
             <p>
