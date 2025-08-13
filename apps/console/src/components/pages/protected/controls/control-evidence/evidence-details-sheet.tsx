@@ -16,7 +16,7 @@ import {
   Link,
   LinkIcon,
   PanelRightClose,
-  Pencil,
+  PencilIcon,
   Tag,
   Trash2,
   UserRoundCheck,
@@ -55,11 +55,12 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
-import { useOrganizationRole } from '@/lib/authz/access-api'
+import { useAccountRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -89,7 +90,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
 
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useAccountRole(session, ObjectEnum.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles)
 
@@ -331,32 +332,33 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           <SheetHeader>
             <div className="flex items-center justify-between">
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
-              <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+              <div className="flex justify-end gap-2 items-center">
+                <Button className="h-8 p-2" icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link
                 </Button>
                 {isEditing ? (
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                    <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                    <Button className="h-8 p-2" onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
                       Save
                     </Button>
                   </div>
                 ) : (
                   <>
                     {editAllowed && (
-                      <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                        Edit
+                      <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
+                        <PencilIcon size={16} strokeWidth={2} />
                       </Button>
                     )}
                   </>
                 )}
                 {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
-                <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
-                  Delete
+                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                  <Trash2 size={16} strokeWidth={2} />
                 </Button>
+
                 <ConfirmationDialog
                   open={deleteDialogIsOpen}
                   onOpenChange={setDeleteDialogIsOpen}
