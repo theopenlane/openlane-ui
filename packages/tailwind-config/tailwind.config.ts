@@ -28,8 +28,8 @@ export const config: Partial<Config> = {
         },
       },
       animation: {
-        'accordion-down': 'accordion-down var(--animation-duration) var(--animation-easing)',
-        'accordion-up': 'accordion-up var(--animation-duration) var(--animation-easing)',
+        'accordion-down': 'accordion-down 0.3s ease-out',
+        'accordion-up': 'accordion-up 0.3s ease-out',
       },
 
       backgroundColor: (theme: any) => ({

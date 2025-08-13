@@ -10,6 +10,7 @@ import SetObjectAssociationProceduresDialog from '@/components/pages/protected/p
 import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import Graph from '@/assets/Graph.tsx'
+import { cn } from '@repo/ui/lib/utils'
 
 type TObjectAssociationSwitchProps = {
   sections: Section
@@ -44,57 +45,42 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-semibold">Associated Objects</h2>
           </div>
-          {!isGraphView ? (
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div onClick={() => setIsGraphView((prevState) => !prevState)} className="flex items-center h-8 border rounded-md cursor-pointer overflow-hidden">
+                  <div className={cn('pb-1 pt-1 pl-2 pr-2 flex-1 flex items-center justify-center h-full', isGraphView && 'bg-background-secondary')}>
+                    <Graph size={15} />
+                  </div>
+                  <div className="border-r h-full"></div>
+                  <div className={cn('pb-1 pt-1 pl-2 pr-2 flex-1 flex items-center justify-center h-full', !isGraphView && 'bg-background-secondary')}>
+                    <LayoutList size={15} />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>{isGraphView ? 'List View' : 'Graph View'}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {!isGraphView && (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsGraphView(true)}>
-                    <div className="flex items-center h-full">
-                      <Graph size={20} className="cursor-pointer hover:opacity-80" />
-                      <div className="border-r h-full"></div>
-                      <LayoutList size={15} className="ml-1" />
+                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setToggleAll((prevState) => !prevState)}>
+                    <div className="flex">
+                      <List size={16} />
+                      {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
                     </div>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Graph View</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : (
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsGraphView(false)}>
-                    <div className="flex items-center h-full">
-                      <Graph size={20} className="cursor-pointer hover:opacity-80" />
-                      <div className="border-r h-full"></div>
-                      <LayoutList size={15} className="ml-1" />
-                    </div>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>List View</TooltipContent>
+                <TooltipContent> {toggleAll ? 'Collapse associated objects' : 'Expand associated objects'}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
         </div>
-        {!isGraphView && (
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setToggleAll((prevState) => !prevState)}>
-                  <div className="flex">
-                    <List size={16} />
-                    {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
-                  </div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent> {toggleAll ? 'Collapse associated objects' : 'Expand associated objects'}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
         {handleAssociationDialog()}
       </div>
 
