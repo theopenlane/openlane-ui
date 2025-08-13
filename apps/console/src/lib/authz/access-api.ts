@@ -82,7 +82,7 @@ export const useAccessPermission = (session: Session | null, relation: RelationE
   }
 }
 
-export const useAccountRole = (session: Session | null, objectType: ObjectEnum, objectID: string | number | null) => {
+export const useAccountRole = (session: Session | null, objectType: ObjectEnum, objectID: string | number | null | undefined) => {
   const accessToken = session?.user?.accessToken
 
   const headers: HeadersInit = {
