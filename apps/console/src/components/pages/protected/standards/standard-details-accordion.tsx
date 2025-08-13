@@ -18,12 +18,18 @@ import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
 import { VisibilityState } from '@tanstack/react-table'
 import ControlDetailsSheet from './control-details-sheet'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 const generateWhere = (id: string, searchValue: string) => ({
-  and: [
-    { standardID: id },
+  or: [
+    { referenceFrameworkIsNil: true },
     {
-      or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
+      and: [
+        { standardID: id },
+        {
+          or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
+        },
+      ],
     },
   ],
 })
@@ -59,6 +65,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   const where = generateWhere(id, debouncedSearchQuery)
   const hasFilters = Object.keys(where).length > 0
   const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: hasFilters })
+  const { convertToReadOnly } = usePlateEditor()
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     select: true,
@@ -106,11 +113,12 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
           toggleSelection,
           setSelectedControls,
           controls,
+          convertToReadOnly,
         })
         return [category, columns]
       }),
     )
-  }, [groupedControls, selectedControls, setSelectedControls, toggleSelection])
+  }, [groupedControls, selectedControls, setSelectedControls, toggleSelection, convertToReadOnly])
 
   const allSectionKeys = useMemo(() => Object.keys(groupedControls), [groupedControls])
 

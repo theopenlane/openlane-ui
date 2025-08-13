@@ -14,9 +14,10 @@ type GetColumnsProps = {
   toggleSelection: (control: ControlSelection) => void
   setSelectedControls: React.Dispatch<React.SetStateAction<ControlSelection[]>>
   controls: ControlListFieldsFragment[]
+  convertToReadOnly: (value: string, depth: number) => React.ReactNode
 }
 
-export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls }: GetColumnsProps): ColumnDef<ControlListFieldsFragment>[] => {
+export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls, convertToReadOnly }: GetColumnsProps): ColumnDef<ControlListFieldsFragment>[] => {
   return [
     {
       id: 'select',
@@ -62,16 +63,7 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: (info) => (
-        <>
-          {(info.getValue() as string)?.split('\n').map((line: string, idx: number) => (
-            <React.Fragment key={idx}>
-              {line}
-              <br />
-            </React.Fragment>
-          ))}
-        </>
-      ),
+      cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
     },
     {
       accessorKey: 'subcategory',
