@@ -21,8 +21,9 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const { data } = useGetStandards({})
 
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
-  const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
+  const frameworks = [...(data?.standards?.edges?.map((edge) => edge?.node as Standard) || [])]
   const { wrapper, content } = statCardStyles({ color: 'green' })
+  const [customSelected, setCustomSelected] = useState(false)
 
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,
@@ -56,18 +57,27 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
     setSelectedFrameworkIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
   }
   const { allControls } = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: selectedFrameworkIds.length > 0 })
+  const customControlsData = useAllControlsGroupedWithListFields({ where: { referenceFrameworkIsNil: true } })
+  const customControls = customControlsData.allControls
   const handleCheckboxShowToggle = () => {
     setShowCheckboxes((prev) => (prev = !prev))
   }
 
   const tableData: SelectedItem[] = useMemo(() => {
-    if (!selectedFrameworkIds.length || !allControls) return []
-    return allControls.map((control) => ({
+    const frameworkControls = allControls.map((control) => ({
       id: control.id,
       name: control.refCode,
       source: control.referenceFramework || undefined,
     }))
-  }, [allControls, selectedFrameworkIds])
+    const customControlsMap = customSelected
+      ? customControls.map((control) => ({
+          id: control.id,
+          name: control.refCode,
+          source: control.referenceFramework || undefined,
+        }))
+      : []
+    return [...frameworkControls, ...customControlsMap]
+  }, [allControls, customControls, customSelected])
 
   const pagedData = useMemo(() => {
     const start = (pagination.page - 1) * pagination.pageSize
@@ -101,6 +111,12 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
                     </Label>
                   </div>
                 ))}
+                {!!customControls.length && (
+                  <div className="flex items-center space-x-2">
+                    <Checkbox checked={customSelected} onCheckedChange={() => setCustomSelected((prev) => !prev)} />
+                    <Label className="text-sm">{'CUSTOM'}</Label>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
