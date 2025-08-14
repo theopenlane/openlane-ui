@@ -57,3 +57,16 @@ p.red {
 .grecaptcha-badge {
   visibility: hidden;
 }
+
+@keyframes flash-bg {
+  0% {
+    background-color: rgba(255, 230, 150, 0.9);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.flash-highlight {
+  animation: flash-bg 1s ease-out;
+}

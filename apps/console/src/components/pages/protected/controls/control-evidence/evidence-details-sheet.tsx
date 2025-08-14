@@ -75,7 +75,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
-  const { selectedControlEvidence, setSelectedControlEvidence } = useControlEvidenceStore()
+  const { selectedControlEvidence, setSelectedControlEvidence, isEditPreset, setIsEditPreset } = useControlEvidenceStore()
   const searchParams = useSearchParams()
   const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
   const router = useRouter()
@@ -306,6 +306,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       enabled: !!editField && ['tags', 'renewalDate', 'creationDate', 'status'].includes(editField),
     },
   )
+
+  useEffect(() => {
+    if (isEditPreset) {
+      setIsEditing(true)
+      setIsEditPreset(false)
+    }
+  }, [isEditPreset, setIsEditPreset, setIsEditing])
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {
