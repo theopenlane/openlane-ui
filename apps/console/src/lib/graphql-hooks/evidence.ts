@@ -16,6 +16,7 @@ import {
   GET_PROGRAM_EVIDENCE_TREND_DATA,
   GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID,
   GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS,
+  GET_EVIDENCE_SUGGESTED_ACTIONS,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -42,6 +43,7 @@ import {
   GetEvidencesByStatusQuery,
   GetEvidenceFilesByIdQuery,
   GetEvidenceCountsByStatusAllProgramsQuery,
+  EvidenceSuggestedActionsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -329,5 +331,16 @@ export const useGetEvidenceFilesById = (evidenceId?: string | null) => {
     queryKey: ['evidences', 'files', evidenceId],
     queryFn: async () => client.request(GET_EVIDENCE_FILES_BY_ID, { evidenceId }),
     enabled: !!evidenceId,
+  })
+}
+
+export const useEvidenceSuggestedActions = () => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<EvidenceSuggestedActionsQuery, unknown>({
+    queryKey: ['evidences', 'suggested-actions'],
+    queryFn: async () => client.request(GET_EVIDENCE_SUGGESTED_ACTIONS),
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   })
 }

@@ -16,6 +16,7 @@ import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import EvidenceSuggestedActions from './table/evidence-suggested-actions'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
@@ -94,6 +95,7 @@ const EvidenceDetailsPage = () => {
               <h1>Evidence Center</h1>
             </div>
             <div className="flex gap-2.5 items-center">
+              <EvidenceSuggestedActions />
               <Select onValueChange={handleSelectChange} value={programId ?? ''}>
                 <SelectTrigger className="max-w-64 min-w-48 h-[32px] border rounded-md px-3 py-2 flex items-center justify-between">
                   <div className="truncate">{selectedProgram || 'All Programs'}</div>
