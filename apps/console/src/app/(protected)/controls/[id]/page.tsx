@@ -236,7 +236,7 @@ const ControlDetailsPage: React.FC = () => {
           </Button>
         </div>
       )}
-      {!isEditing && canEdit(permission?.roles) && (
+      {!isEditing && (
         <div className="flex gap-2 justify-end">
           <Menu
             trigger={CreateBtn}
