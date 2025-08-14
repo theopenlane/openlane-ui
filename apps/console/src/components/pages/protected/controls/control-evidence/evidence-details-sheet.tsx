@@ -69,6 +69,7 @@ type TEvidenceDetailsSheet = {
 type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
+  const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<Option[]>([])
 
@@ -311,6 +312,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     if (isEditPreset) {
       setIsEditing(true)
       setIsEditPreset(false)
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          objectAssociationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        })
+      }, 500)
     }
   }, [isEditPreset, setIsEditPreset, setIsEditing])
 
@@ -751,15 +757,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 </div>
               </form>
               {isEditing && (
-                <Panel className="mt-5">
-                  <PanelHeader heading="Object association" noBorder />
-                  <p>Associating objects will allow users with access to the object to see the created evidence.</p>
-                  <ObjectAssociation
-                    initialData={initialAssociations}
-                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                    excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
-                  />
-                </Panel>
+                <div ref={objectAssociationRef}>
+                  <Panel className="mt-5">
+                    <PanelHeader heading="Object association" noBorder />
+                    <p>Associating objects will allow users with access to the object to see the created evidence.</p>
+                    <ObjectAssociation
+                      initialData={initialAssociations}
+                      onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
+                    />
+                  </Panel>
+                </div>
               )}
               {selectedControlEvidence && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={selectedControlEvidence} />}
             </Form>
