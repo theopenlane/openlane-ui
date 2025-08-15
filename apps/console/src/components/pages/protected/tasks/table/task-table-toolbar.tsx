@@ -40,6 +40,8 @@ type TProps = {
   handleBulkEdit: () => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  showMyTasks: boolean
+  onShowMyTasksChange: (val: boolean) => void
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
@@ -92,6 +94,10 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
     props.onShowCompletedTasksChange(val)
   }
 
+  const handleShowMyTasks = (val: boolean) => {
+    props.onShowMyTasksChange(val)
+  }
+
   return (
     <>
       <div className="flex items-center gap-2 my-2">
@@ -111,6 +117,10 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
           <div className="grow flex flex-row items-center gap-2 pl-5">
             <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
             <p>Show completed tasks</p>
+          </div>
+          <div className="grow flex flex-row items-center gap-2 pl-5">
+            <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
+            <p>Show my tasks</p>
           </div>
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">

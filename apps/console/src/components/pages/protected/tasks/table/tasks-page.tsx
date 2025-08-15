@@ -12,7 +12,7 @@ import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-inf
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { formatDate } from '@/utils/date'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -25,9 +25,11 @@ const TasksPage: React.FC = () => {
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
+  const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { data: session } = useSession()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
@@ -58,13 +60,14 @@ const TasksPage: React.FC = () => {
       return null
     }
     const conditions = {
+      ...(showMyTasks && { assigneeID: session?.user?.userId }),
       ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
       ...filters,
       ...{ titleContainsFold: debouncedSearch },
     }
 
     return conditions
-  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch])
+  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch, session, showMyTasks])
 
   useEffect(() => {
     setCrumbs([
@@ -77,6 +80,11 @@ const TasksPage: React.FC = () => {
     const taskId = searchParams.get('id')
     if (taskId) {
       setSelectedTask(taskId)
+    }
+    const myTasks = searchParams.get('showMyTasks')
+    if (myTasks) {
+      const doShowMyTasks = myTasks === 'true'
+      setShowMyTasks(doShowMyTasks)
     }
   }, [searchParams, setSelectedTask])
 
@@ -102,6 +110,20 @@ const TasksPage: React.FC = () => {
 
   const handleShowCompletedTasks = (val: boolean) => {
     setShowCompletedTasks(val)
+  }
+
+  const handleShowMyTasks = (val: boolean) => {
+    setShowMyTasks(val)
+
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (val) {
+      params.set('showMyTasks', 'true')
+    } else {
+      params.delete('showMyTasks')
+    }
+
+    router.replace(`?${params.toString()}`, { scroll: false })
   }
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
@@ -177,6 +199,8 @@ const TasksPage: React.FC = () => {
         permission={permission}
         selectedTasks={selectedTasks}
         setSelectedTasks={setSelectedTasks}
+        showMyTasks={showMyTasks}
+        onShowMyTasksChange={handleShowMyTasks}
       />
       {activeTab === 'table' ? (
         <TasksTable
