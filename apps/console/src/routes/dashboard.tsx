@@ -135,6 +135,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         title: 'Audit Logs',
         href: '/organization-settings/logs',
       },
+      { title: 'Integrations', href: '/organization-settings/integrations' },
     ],
   },
   {
