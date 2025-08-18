@@ -255,7 +255,7 @@ const GroupDetailsSheet = () => {
                     <p className="font-semibold">Did you know?</p>
                     <p className="text-sm">
                       Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href={`${DOCS_URL}/docs/docs/platform/groups/overview`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                      <a href={`${DOCS_URL}/docs/platform/basics/groups/permissions`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                         documentation
                       </a>
                       .
