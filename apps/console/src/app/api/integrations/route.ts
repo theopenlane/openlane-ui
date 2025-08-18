@@ -14,8 +14,6 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   const token = session?.user?.accessToken
 
-  console.log('token', token)
-
   const body = (await req.json().catch(() => ({}))) as StartBody
 
   const provider = body.provider
@@ -29,8 +27,6 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify({ provider, scopes, redirect_uri }),
   })
-
-  console.log('RESPONSEEEEEEEEEEEEEEEEEEEE', r)
 
   // get cookies so they can be set for the call-back
   const cookieHeader = r.headers.get('set-cookie')
