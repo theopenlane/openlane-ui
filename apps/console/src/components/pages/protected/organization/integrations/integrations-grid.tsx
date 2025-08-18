@@ -55,6 +55,32 @@ export function IntegrationsGrid({ items }: IntegrationsGridProps) {
 function IntegrationCard({ integration }: { integration: IntegrationNode }) {
   //   const Icon = getIconForName(integration.name)
 
+  const handleConnect = async () => {
+    try {
+      const res = await fetch('/api/integrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // Hardcode GitHub for now
+        body: JSON.stringify({
+          provider: 'github',
+          scopes: ['read:user', 'user:email', 'repo'],
+          redirect_uri: `${window.location.origin}/organization-settings/integrations`,
+        }),
+      })
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}))
+        throw new Error(e?.error || 'OAuth start failed')
+      }
+      const { authUrl, url } = await res.json()
+      const redirectTo = authUrl ?? url // support either naming
+      if (!redirectTo) throw new Error('Missing authUrl in response')
+      window.location.assign(redirectTo)
+    } catch (err) {
+      console.error(err)
+      // show toast / error UI here
+    }
+  }
+
   return (
     <Card className="h-full">
       <CardHeader className="flex-row items-start gap-3 space-y-0">
@@ -91,7 +117,7 @@ function IntegrationCard({ integration }: { integration: IntegrationNode }) {
       </CardContent>
 
       <CardFooter className="justify-between gap-2.5">
-        <Button className="w-full text-brand" variant="outline">
+        <Button className="w-full text-brand" variant="outline" onClick={handleConnect}>
           Connect
         </Button>
         <DropdownMenu>

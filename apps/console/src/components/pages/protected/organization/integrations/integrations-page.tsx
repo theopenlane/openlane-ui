@@ -10,12 +10,12 @@ const IntegrationsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
 
-  const { data, isFetching } = useGetIntegrations({
+  const { isFetching } = useGetIntegrations({
     where: {
       nameContainsFold: debouncedSearch,
     },
   })
-  console.log(data)
+
   const nodes = [
     { id: 'asd', name: 'Slack', tags: ['tag1', 'tag2'], description: 'desc' },
     { id: 'asd2', name: 'Slack', tags: ['tag1', 'tag2'], description: 'desc' },
