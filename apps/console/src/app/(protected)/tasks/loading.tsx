@@ -1,8 +1,8 @@
-import { Loading } from '@/components/shared/loading/loading'
 import React from 'react'
+import { TasksTableSkeleton } from '../../../components/pages/protected/tasks/skeleton/tasks-table-skeleton'
 
 const Loader: React.FC = () => {
-  return <Loading />
+  return <TasksTableSkeleton />
 }
 
 export default Loader
