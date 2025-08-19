@@ -2,7 +2,7 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { useTaskStore, TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -16,6 +16,7 @@ import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -29,6 +30,7 @@ const TasksPage: React.FC = () => {
   const { data: session } = useSession()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
       field: TaskOrderField.due,
@@ -101,10 +103,6 @@ const TasksPage: React.FC = () => {
     setShowCompletedTasks(val)
   }
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
-  }
-
   const emptyUserMap = {}
   const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap })
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
@@ -113,39 +111,17 @@ const TasksPage: React.FC = () => {
       header: column.header,
     }))
 
-  const handleExport = () => {
-    if (!hasTasks) return
-    const tasks = tableRef.current?.exportData?.() ?? []
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
 
-    const exportableColumns = getTaskColumns({ userMap: emptyUserMap })
-      .filter(isVisibleColumn)
-      .map((col) => {
-        const key = col.accessorKey as keyof Task
-        const label = col.header
-
-        return {
-          label,
-          accessor: (task: Task) => {
-            const value = task[key]
-
-            if (key === 'due' && value) {
-              return formatDate(value)
-            }
-
-            if (key === 'assignee') {
-              return task.assignee?.displayName || '-'
-            }
-
-            if (key === 'assigner') {
-              return task.assigner?.displayName
-            }
-
-            return typeof value === 'string' || typeof value === 'number' ? value : ''
-          },
-        }
-      })
-
-    exportToCSV(tasks, exportableColumns, 'task_list')
+  const handleExportFile = async () => {
+    handleExport({
+      exportType: ExportExportType.INTERNALPOLICY,
+      filters: JSON.stringify(filters),
+      fields: mappedColumns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      format: ExportExportFormat.CSV,
+    })
   }
 
   return (
@@ -154,7 +130,7 @@ const TasksPage: React.FC = () => {
         onFilterChange={setFilters}
         onTabChange={handleTabChange}
         onShowCompletedTasksChange={handleShowCompletedTasks}
-        handleExport={handleExport}
+        handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
