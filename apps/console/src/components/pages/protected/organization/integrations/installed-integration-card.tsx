@@ -92,7 +92,6 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
         </CardFooter>
       </Card>
 
-      {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
