@@ -8,7 +8,7 @@ import { IntegrationsGrid } from './integrations-grid'
 import { IntegrationTab } from './config'
 
 const IntegrationsPage = () => {
-  const [activeTab, setActiveTab] = useState<IntegrationTab>('Installed')
+  const [activeTab, setActiveTab] = useState<IntegrationTab>('Available')
 
   const { data } = useGetIntegrations({
     where: {},
