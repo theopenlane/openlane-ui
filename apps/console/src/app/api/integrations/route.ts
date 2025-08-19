@@ -18,9 +18,9 @@ export async function POST(req: NextRequest) {
 
   const provider = body.provider
   const scopes = body.scopes
-  const redirect_uri = 'http://localhost:17608/v1/integrations/oauth/callback'
+  const redirect_uri = `${base}/v1/integrations/oauth/callback`
 
-  const r = await secureFetch(`${base}/v1/integrations/oauth/start`, {
+  const res = await secureFetch(`${base}/v1/integrations/oauth/start`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -29,16 +29,16 @@ export async function POST(req: NextRequest) {
   })
 
   // get cookies so they can be set for the call-back
-  const cookieHeader = r.headers.get('set-cookie')
+  const cookieHeader = res.headers.get('set-cookie')
   const oauthCookies = await getOauthCookies(cookieHeader)
 
   let response: NextResponse
 
-  if (!r.ok) {
-    const msg = await r.text()
-    response = NextResponse.json({ error: msg || 'Failed to start OAuth' }, { status: r.status })
+  if (!res.ok) {
+    const msg = await res.text()
+    response = NextResponse.json({ error: msg || 'Failed to start OAuth' }, { status: res.status })
   } else {
-    const json = await r.json()
+    const json = await res.json()
     response = NextResponse.json(json)
   }
 

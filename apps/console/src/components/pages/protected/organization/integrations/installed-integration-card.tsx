@@ -7,9 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Logo } from '@repo/ui/logo'
-import { AVAILABLE_INTEGRATIONS, IntegrationNode } from './config'
-import Github from '@/assets/Github'
-import Slack from '@/assets/Slack'
+import { AVAILABLE_INTEGRATIONS, getIntegrationId, IntegrationNode } from './config'
 import { useDisconnectIntegration } from '@/lib/graphql-hooks/integrations'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
@@ -22,19 +20,8 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
     setConfirmOpen(false)
   }
 
-  const isGithub = integration.name.toLowerCase().includes('github')
-  const isSlack = integration.name.toLowerCase().includes('slack')
-  const docsHref = AVAILABLE_INTEGRATIONS.find((ai) => (isSlack && ai.id === 'slack') || (isGithub && ai.id === 'github'))?.docsUrl
-
-  const Icon = () => {
-    if (isGithub) {
-      return <Github size={27} />
-    }
-    if (isSlack) {
-      return <Slack />
-    }
-    return null
-  }
+  const integrationId = getIntegrationId(integration.name)
+  const integrationConfig = AVAILABLE_INTEGRATIONS.find((ai) => ai.id === integrationId)
 
   return (
     <>
@@ -46,9 +33,7 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
                 <Logo asIcon width={16} />
               </div>
               <ArrowLeftRight size={8} />
-              <div className="w-[42px] h-[42px] border rounded-full flex items-center justify-center">
-                <Icon />
-              </div>
+              <div className="w-[42px] h-[42px] border rounded-full flex items-center justify-center">{integrationConfig?.Icon}</div>
             </div>
             <div className="flex flex-col">
               <span>{integration.name}</span>
@@ -83,7 +68,7 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <a href={docsHref} target="_blank" rel="noreferrer">
+              <a href={integrationConfig?.docsUrl} target="_blank" rel="noreferrer">
                 <DropdownMenuItem>Read docs</DropdownMenuItem>
               </a>
               <DropdownMenuItem onClick={() => setConfirmOpen(true)}>Disconnect</DropdownMenuItem>

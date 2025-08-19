@@ -1,5 +1,6 @@
 import Github from '@/assets/Github'
 import Slack from '@/assets/Slack'
+import { DOCS_URL } from '@/constants'
 import { GetIntegrationsQuery } from '@repo/codegen/src/schema'
 
 export type IntegrationTab = 'Installed' | 'Available'
@@ -17,6 +18,7 @@ export type AvailableIntegrationNode = {
   description: string
   Icon: React.JSX.Element
   docsUrl: string
+  connectRequestBody: string
 }
 
 export const AVAILABLE_INTEGRATIONS: AvailableIntegrationNode[] = [
@@ -27,7 +29,11 @@ export const AVAILABLE_INTEGRATIONS: AvailableIntegrationNode[] = [
     description:
       'Link your GitHub repositories to automatically collect infrastructure-as-code data, identify compliance signals, and create issues when scans or tests uncover problems. Keep your workflows connected and your risks actionable.',
     Icon: <Github size={27} />,
-    docsUrl: 'https://docs.theopenlane.io/docs/platform/integrations/github',
+    docsUrl: `${DOCS_URL}/docs/platform/integrations/github`,
+    connectRequestBody: JSON.stringify({
+      provider: 'github',
+      scopes: ['read:user', 'user:email', 'repo'],
+    }),
   },
   {
     id: 'slack',
@@ -36,6 +42,17 @@ export const AVAILABLE_INTEGRATIONS: AvailableIntegrationNode[] = [
     description:
       'Connect Slack to receive real-time updates where your team already works. Get reminders for upcoming tasks, alerts when automated jobs fail, and notifications when new risks are detected—so nothing slips through the cracks.',
     Icon: <Slack />,
-    docsUrl: 'https://docs.theopenlane.io/docs/platform/integrations/slack',
+    docsUrl: `${DOCS_URL}/docs/platform/integrations/slack`,
+    connectRequestBody: JSON.stringify({
+      provider: 'github',
+      scopes: ['channels:read', 'chat:write', 'users:read'],
+    }),
   },
 ]
+
+export const getIntegrationId = (name: string) => {
+  const lower = name.toLowerCase()
+  if (lower.includes('github')) return 'github'
+  if (lower.includes('slack')) return 'slack'
+  return undefined
+}

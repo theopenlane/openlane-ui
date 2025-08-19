@@ -21,7 +21,7 @@ const BillingPage: React.FC = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Organization Settings', href: '/organization-settings' },
-      { label: 'Billing', href: '/billing' },
+      { label: 'Billing', href: '/organization-settings/billing' },
     ])
   }, [setCrumbs])
   return (

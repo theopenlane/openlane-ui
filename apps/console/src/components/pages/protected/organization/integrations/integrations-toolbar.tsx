@@ -14,11 +14,11 @@ const IntegrationsToolbar = ({ activeTab, setActiveTab, installedCount }: Props)
       <div>
         <Tabs className="w-[316px]" value={activeTab.toLowerCase()} onValueChange={(val) => setActiveTab(val === 'installed' ? 'Installed' : 'Available')}>
           <TabsList className="!p-1">
-            <TabsTrigger value="installed" className="flex justify-center items-center w-1/2 h-6">
-              <p>{`Installed (${installedCount || 0})`}</p>
+            <TabsTrigger value="installed" className="flex justify-center items-center w-1/2 h-6 data-[state=active]:text-text-dark">
+              {`Installed (${installedCount || 0})`}
             </TabsTrigger>
-            <TabsTrigger value="available" className="flex justify-center items-center w-1/2 h-6">
-              <p>Available</p>
+            <TabsTrigger value="available" className="flex justify-center items-center w-1/2 h-6 data-[state=active]:text-text-dark">
+              Available
             </TabsTrigger>
           </TabsList>
         </Tabs>

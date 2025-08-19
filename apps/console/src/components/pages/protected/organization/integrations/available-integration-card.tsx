@@ -8,38 +8,36 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@rep
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Logo } from '@repo/ui/logo'
 import { AvailableIntegrationNode } from './config'
+import { useNotification } from '@/hooks/useNotification'
 
 const AvailableIntegrationCard = ({ integration }: { integration: AvailableIntegrationNode }) => {
-  const handleConnect = async (integration: 'github' | 'slack') => {
-    const slackBody = JSON.stringify({
-      provider: 'github',
-      scopes: ['channels:read', 'chat:write', 'users:read'],
-    })
-    const githubBody = JSON.stringify({
-      provider: 'github',
-      scopes: ['read:user', 'user:email', 'repo'],
-    })
+  const { errorNotification } = useNotification()
 
+  const handleConnect = async (integration: AvailableIntegrationNode) => {
     try {
       const res = await fetch('/api/integrations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: integration === 'github' ? githubBody : slackBody,
+        body: integration.connectRequestBody,
       })
 
       if (!res.ok) {
-        const e = await res.json().catch(() => ({}))
-        throw new Error(e?.error || 'OAuth start failed')
+        await res.json()
+        errorNotification({
+          title: `Failed to connect ${integration.name}`,
+        })
       }
       const { authUrl, url } = await res.json()
       const redirectTo = authUrl ?? url
-      if (!redirectTo) throw new Error('Missing authUrl in response')
+
+      if (!redirectTo) console.error('Missing authUrl in response')
       window.location.assign(redirectTo)
-    } catch (err) {
-      console.error(err)
+    } catch {
+      errorNotification({
+        title: `Failed to connect ${integration.name}`,
+      })
     }
   }
-
   return (
     <Card className="h-full">
       <CardHeader className="flex-row items-start gap-3 space-y-0">
@@ -57,7 +55,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
               {integration.tags?.length ? (
                 <>
                   {integration.tags.slice(0, 6).map((t, i) => (
-                    <Badge key={i} variant="secondary" className="font-normal">
+                    <Badge key={i} variant="outline" className="font-normal">
                       {t}
                     </Badge>
                   ))}
@@ -74,7 +72,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
       </CardContent>
 
       <CardFooter className="justify-between gap-2.5">
-        <Button className="w-full text-brand" variant="outline" onClick={() => handleConnect(integration.id)}>
+        <Button className="w-full text-brand" variant="outline" onClick={() => handleConnect(integration)}>
           Connect
         </Button>
         <DropdownMenu>
