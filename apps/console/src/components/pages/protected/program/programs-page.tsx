@@ -93,6 +93,7 @@ const ProgramsPage: React.FC = () => {
     setSelectedProgram(programName)
     router.push(`/programs?id=${val}`)
   }
+
   if (isLoading) {
     return <Loading />
   }
