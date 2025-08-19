@@ -42186,6 +42186,27 @@ export type GetProgramEvidenceTrendDataQuery = {
   previousWeek: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
+export type EvidenceSuggestedActionsQueryVariables = Exact<{ [key: string]: never }>
+
+export type EvidenceSuggestedActionsQuery = {
+  __typename?: 'Query'
+  unlinked: {
+    __typename?: 'EvidenceConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null; updatedAt?: any | null } | null } | null> | null
+  }
+  needingReview: {
+    __typename?: 'EvidenceConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null; updatedAt?: any | null } | null } | null> | null
+  }
+  needsRenewal: {
+    __typename?: 'EvidenceConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null; updatedAt?: any | null } | null } | null> | null
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
