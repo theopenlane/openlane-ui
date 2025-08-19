@@ -27,7 +27,6 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
         body: integration === 'github' ? githubBody : slackBody,
       })
 
-      console.log('res', res)
       if (!res.ok) {
         const e = await res.json().catch(() => ({}))
         throw new Error(e?.error || 'OAuth start failed')
