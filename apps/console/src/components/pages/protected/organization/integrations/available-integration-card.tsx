@@ -10,17 +10,24 @@ import { Logo } from '@repo/ui/logo'
 import { AvailableIntegrationNode } from './config'
 
 const AvailableIntegrationCard = ({ integration }: { integration: AvailableIntegrationNode }) => {
-  const handleConnect = async () => {
+  const handleConnect = async (integration: 'github' | 'slack') => {
+    const slackBody = JSON.stringify({
+      provider: 'github',
+      scopes: ['channels:read', 'chat:write', 'users:read'],
+    })
+    const githubBody = JSON.stringify({
+      provider: 'github',
+      scopes: ['read:user', 'user:email', 'repo'],
+    })
+
     try {
       const res = await fetch('/api/integrations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: 'github',
-          scopes: ['read:user', 'user:email', 'repo'],
-          redirect_uri: `${window.location.origin}/organization-settings/integrations`,
-        }),
+        body: integration === 'github' ? githubBody : slackBody,
       })
+
+      console.log('res', res)
       if (!res.ok) {
         const e = await res.json().catch(() => ({}))
         throw new Error(e?.error || 'OAuth start failed')
@@ -38,7 +45,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
     <Card className="h-full">
       <CardHeader className="flex-row items-start gap-3 space-y-0">
         <div className="flex gap-4">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 self-start">
             <div className="w-[34px] h-[34px] border rounded-full flex items-center justify-center">
               <Logo asIcon width={16} />
             </div>
@@ -68,7 +75,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
       </CardContent>
 
       <CardFooter className="justify-between gap-2.5">
-        <Button className="w-full text-brand" variant="outline" onClick={handleConnect}>
+        <Button className="w-full text-brand" variant="outline" onClick={() => handleConnect(integration.id)}>
           Connect
         </Button>
         <DropdownMenu>
@@ -78,9 +85,9 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Read docs</DropdownMenuItem>
-            <DropdownMenuItem>Changelog</DropdownMenuItem>
-            <DropdownMenuItem>Report issue</DropdownMenuItem>
+            <a href={integration.docsUrl} target="_blank" rel="noreferrer">
+              <DropdownMenuItem>Read docs</DropdownMenuItem>
+            </a>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardFooter>

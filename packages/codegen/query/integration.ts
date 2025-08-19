@@ -14,3 +14,11 @@ export const GET_INTEGRATIONS = gql`
     }
   }
 `
+
+export const DELETE_INTEGRATION = gql`
+  mutation DeleteIntegration($deleteIntegrationId: ID!) {
+    deleteIntegration(id: $deleteIntegrationId) {
+      deletedID
+    }
+  }
+`

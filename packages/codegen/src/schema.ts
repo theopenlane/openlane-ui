@@ -42390,6 +42390,12 @@ export type GetIntegrationsQuery = {
   }
 }
 
+export type DeleteIntegrationMutationVariables = Exact<{
+  deleteIntegrationId: Scalars['ID']['input']
+}>
+
+export type DeleteIntegrationMutation = { __typename?: 'Mutation'; deleteIntegration: { __typename?: 'IntegrationDeletePayload'; deletedID: string } }
+
 export type CreateMappedControlMutationVariables = Exact<{
   input: CreateMappedControlInput
 }>
