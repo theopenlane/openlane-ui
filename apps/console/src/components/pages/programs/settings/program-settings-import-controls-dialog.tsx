@@ -26,10 +26,6 @@ const ImportControlsDialog: React.FC = () => {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  if (!programId) {
-    router.replace('/programs')
-  }
-
   const { mutateAsync: cloneControls } = useCloneControls()
 
   const handleImport = async () => {
@@ -74,6 +70,10 @@ const ImportControlsDialog: React.FC = () => {
     setSelectedFrameworkIds([])
     setSelectedImportControlsFrom(ObjectEnum.STANDARD)
     setOpen(false)
+  }
+
+  if (!programId) {
+    router.replace('/programs')
   }
 
   return (
