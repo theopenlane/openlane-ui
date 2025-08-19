@@ -114,14 +114,10 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
             onChange={(event) => props.setSearchTerm(event.currentTarget.value)}
             variant="searchTable"
           />
-          <div className="grow flex flex-row items-center gap-2 pl-5">
-            <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
-            <p>Show completed tasks</p>
-          </div>
-          <div className="grow flex flex-row items-center gap-2 pl-5">
-            <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
-            <p>Show my tasks</p>
-          </div>
+          <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
+          <p>Show completed tasks</p>
+          <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
+          <p>Show my tasks</p>
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {isBulkEditing ? (
