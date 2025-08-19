@@ -38,7 +38,10 @@ export function IntegrationsGrid({ integrations, activeTab }: IntegrationsGridPr
       {activeTab === 'Available' && (
         <Card className="flex justify-center items-center">
           <div className="flex flex-col justify-center items-center gap-4">
-            <h2>Missing an Integration?</h2>
+            <h2 className="text-center">
+              Missing an Integration? <br />
+              Reach out and we can get you setup.
+            </h2>
             <a href={INFO_EMAIL}>
               <Button variant="outline" className="text-brand">
                 Request
