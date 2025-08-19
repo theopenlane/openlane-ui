@@ -29,14 +29,6 @@ const ImportControlsDialog: React.FC = () => {
   const { mutateAsync: cloneControls } = useCloneControls()
 
   const handleImport = async () => {
-    if (!programId) {
-      errorNotification({
-        title: 'Missing Program ID',
-        description: 'Cannot import without a valid program ID.',
-      })
-      return
-    }
-
     try {
       await cloneControls({
         input: {
