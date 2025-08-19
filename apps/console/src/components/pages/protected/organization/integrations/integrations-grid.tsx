@@ -23,7 +23,7 @@ export function IntegrationsGrid({ integrations, activeTab }: IntegrationsGridPr
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
         <div className="text-center py-16 border rounded-lg max-w-screen-sm">
-          <p className="text-muted-foreground">No integrations found.</p>
+          <p className="text-muted-foreground">No integrations installed.</p>
         </div>
       </div>
     )
