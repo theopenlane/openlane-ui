@@ -174,8 +174,9 @@
   --color-gdpr: #d9ae40;
   --color-cis: #00549f;
   --color-ccm: #f6a15b;
-  --color-hippa: #3578be;
+  --color-hipaa: #3578be;
   --color-sox: #a42f00;
+  --color-pci: #2c6f76;
   --color-custom: #d9ae40;
 
   /* JSON Editor */
