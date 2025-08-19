@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { GetAllRisksQueryVariables, OrderDirection, RiskTableFieldsFragment, RiskWhereInput, RiskOrderField } from '@repo/codegen/src/schema.ts'
+import { GetAllRisksQueryVariables, OrderDirection, RiskTableFieldsFragment, RiskWhereInput, RiskOrderField, ExportExportType, ExportExportFormat } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTableRisks } from '@/lib/graphql-hooks/risks.ts'
-import { exportToCSV } from '@/utils/exportToCSV.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
 import { DataTable } from '@repo/ui/data-table'
@@ -20,6 +19,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils.ts'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -32,6 +32,7 @@ const RiskTable: React.FC = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
     {
       field: RiskOrderField.name,
@@ -113,10 +114,6 @@ const RiskTable: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
-  }
-
   const handleRowClick = (rowData: RiskTableFieldsFragment) => {
     router.push(`/risks/${rowData.id}`)
   }
@@ -125,31 +122,17 @@ const RiskTable: React.FC = () => {
     router.push(`/risks/create`)
   }
 
-  const handleExport = () => {
-    if (!risks || risks.length === 0) return
-    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof RiskTableFieldsFragment
-      const label = col.header
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
 
-      return {
-        label,
-        accessor: (risk: RiskTableFieldsFragment) => {
-          const value = risk[key]
-
-          if (key === 'details') {
-            return (value as string) ?? ''
-          }
-
-          if (key === 'score') {
-            return typeof value === 'number' ? value.toFixed(2) : ''
-          }
-
-          return typeof value === 'string' || typeof value === 'number' ? value : ''
-        },
-      }
+  const handleExportFile = () => {
+    handleExport({
+      exportType: ExportExportType.INTERNALPOLICY,
+      filters: JSON.stringify(filters),
+      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      format: ExportExportFormat.CSV,
     })
-
-    exportToCSV(risks, exportableColumns, 'risk_list')
   }
 
   const handleBulkEdit = () => {
@@ -169,7 +152,7 @@ const RiskTable: React.FC = () => {
         }}
         searching={searching}
         onFilterChange={setFilters}
-        handleExport={handleExport}
+        handleExport={handleExportFile}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}

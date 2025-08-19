@@ -23,12 +23,11 @@ import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
-import { VisibilityState } from '@tanstack/react-table'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 export const PoliciesTable = () => {
@@ -41,7 +40,6 @@ export const PoliciesTable = () => {
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
   const { handleExport } = useFileExport()
-  /*const { data: exportData, isLoading: fetchingExport } = useGetExport('01K2FVWHSBEN7AYEZF79HSJQD2')*/
 
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
@@ -121,17 +119,17 @@ export const PoliciesTable = () => {
     router.push(`/policies/${rowData.id}/view`)
   }
 
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
+
   const handleExportFile = async () => {
-    try {
-      handleExport({
-        exportType: ExportExportType.INTERNALPOLICY,
-        filters: JSON.stringify(filters),
-        fields: ['ID'],
-        format: ExportExportFormat.CSV,
-      })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-    }
+    handleExport({
+      exportType: ExportExportType.INTERNALPOLICY,
+      filters: JSON.stringify(filters),
+      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      format: ExportExportFormat.CSV,
+    })
   }
 
   useEffect(() => {
