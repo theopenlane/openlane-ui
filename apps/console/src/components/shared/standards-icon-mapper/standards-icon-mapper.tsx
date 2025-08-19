@@ -29,7 +29,7 @@ export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIcon
       GDPR: <Gdpr {...sizeProps} />,
       'CIS Benchmarks': <Cis {...sizeProps} />,
       CCM: <Ccm {...sizeProps} />,
-      HIPPA: <Hipaa {...sizeProps} />,
+      HIPAA: <Hipaa {...sizeProps} />,
       SOX: <Sox {...sizeProps} />,
     }
     return iconMap[shortName] || <Custom {...sizeProps} />
