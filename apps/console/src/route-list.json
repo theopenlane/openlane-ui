@@ -194,5 +194,9 @@
   {
     "route": "/control-report",
     "name": "Control Report"
+  },
+  {
+    "route": "/organization-settings/integrations",
+    "name": "Integrations"
   }
 ]

@@ -42399,6 +42399,24 @@ export type GetAllGroupsPaginatedQuery = {
   }
 }
 
+export type GetIntegrationsQueryVariables = Exact<{
+  where?: InputMaybe<IntegrationWhereInput>
+}>
+
+export type GetIntegrationsQuery = {
+  __typename?: 'Query'
+  integrations: {
+    __typename?: 'IntegrationConnection'
+    edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; name: string; tags?: Array<string> | null; description?: string | null } | null } | null> | null
+  }
+}
+
+export type DeleteIntegrationMutationVariables = Exact<{
+  deleteIntegrationId: Scalars['ID']['input']
+}>
+
+export type DeleteIntegrationMutation = { __typename?: 'Mutation'; deleteIntegration: { __typename?: 'IntegrationDeletePayload'; deletedID: string } }
+
 export type CreateMappedControlMutationVariables = Exact<{
   input: CreateMappedControlInput
 }>
