@@ -7,8 +7,9 @@ const classes: Record<string, string> = {
   GDPR: 'text-standard-gdpr',
   'CIS Benchmarks': 'text-standard-cis',
   CCM: 'text-standard-ccm',
-  HIPPA: 'text-standard-hippa',
+  HIPAA: 'text-standard-hipaa',
   SOX: 'text-standard-sox',
+  'PCI DSS': 'text-standard-pci',
 }
 
 export const StandardsColorSpan = ({ shortName, children }: { shortName: string; children: React.ReactNode }) => {
