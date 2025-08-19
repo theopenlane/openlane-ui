@@ -112,7 +112,7 @@ const StandardsPage = () => {
                 </Badge>
               ))}
             </div>
-            <p className="text-sm mb-4 line-clamp-3 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
+            <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`}>
               <Button className="mt-auto py-2 px-4 rounded">Details</Button>
             </Link>

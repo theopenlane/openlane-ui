@@ -10,6 +10,7 @@ import Gdpr from '@/assets/Gdpr'
 import Ccm from '@/assets/Ccm'
 import Hipaa from '@/assets/Hipaa'
 import Sox from '@/assets/Sox'
+import Pci from '@/assets/Pci'
 
 type TStandardsIconMapperProps = {
   shortName: string
@@ -29,8 +30,9 @@ export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIcon
       GDPR: <Gdpr {...sizeProps} />,
       'CIS Benchmarks': <Cis {...sizeProps} />,
       CCM: <Ccm {...sizeProps} />,
-      HIPPA: <Hipaa {...sizeProps} />,
+      HIPAA: <Hipaa {...sizeProps} />,
       SOX: <Sox {...sizeProps} />,
+      'PCI DSS': <Pci {...sizeProps} />,
     }
     return iconMap[shortName] || <Custom {...sizeProps} />
   }, [shortName, width, height])
