@@ -53,7 +53,7 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="pt-0">
           <CardDescription className="line-clamp-3">{integration.description || 'Connect to keep your workflows connected and risks actionable.'}</CardDescription>
         </CardContent>
 

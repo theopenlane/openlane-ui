@@ -67,7 +67,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="pt-0">
         <CardDescription className="line-clamp-4">{integration.description || 'Connect to keep your workflows connected and risks actionable.'}</CardDescription>
       </CardContent>
 
