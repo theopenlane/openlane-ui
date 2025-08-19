@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
 import {
+  ExportExportFormat,
+  ExportExportType,
   GetInternalPoliciesListQueryVariables,
   InternalPolicy,
   InternalPolicyDocumentStatus,
@@ -18,9 +20,6 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
-import { exportToCSV } from '@/utils/exportToCSV'
-import { ColumnDef } from '@tanstack/react-table'
-import { formatDateTime } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
@@ -29,6 +28,8 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -39,6 +40,8 @@ export const PoliciesTable = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const { handleExport } = useFileExport()
+  /*const { data: exportData, isLoading: fetchingExport } = useGetExport('01K2FVWHSBEN7AYEZF79HSJQD2')*/
 
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
@@ -118,35 +121,17 @@ export const PoliciesTable = () => {
     router.push(`/policies/${rowData.id}/view`)
   }
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
-  }
-
-  const handleExport = () => {
-    if (!policies || policies.length === 0) return
-    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof InternalPolicy
-      const label = col.header
-
-      return {
-        label,
-        accessor: (policy: InternalPolicy) => {
-          const value = policy[key]
-
-          if (key === 'updatedAt' || key === 'createdAt') {
-            return formatDateTime(value as string)
-          }
-
-          if (key === 'summary') {
-            return (value as string) ?? ''
-          }
-
-          return typeof value === 'string' || typeof value === 'number' ? value : ''
-        },
-      }
-    })
-
-    exportToCSV(policies, exportableColumns, 'internal_policies')
+  const handleExportFile = async () => {
+    try {
+      handleExport({
+        exportType: ExportExportType.INTERNALPOLICY,
+        filters: JSON.stringify(filters),
+        fields: ['ID'],
+        format: ExportExportFormat.CSV,
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+    }
   }
 
   useEffect(() => {
@@ -192,7 +177,7 @@ export const PoliciesTable = () => {
           setSearchTerm(inputVal)
           setPagination(DEFAULT_PAGINATION)
         }}
-        handleExport={handleExport}
+        handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
