@@ -117,7 +117,7 @@ const TasksPage: React.FC = () => {
 
   const handleExportFile = async () => {
     handleExport({
-      exportType: ExportExportType.INTERNALPOLICY,
+      exportType: ExportExportType.TASK,
       filters: JSON.stringify(filters),
       fields: mappedColumns.filter(isVisibleColumn).map((item) => item.accessorKey),
       format: ExportExportFormat.CSV,

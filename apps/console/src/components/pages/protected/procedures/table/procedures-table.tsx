@@ -122,7 +122,7 @@ export const ProceduresTable = () => {
 
   const handleExportFile = () => {
     handleExport({
-      exportType: ExportExportType.INTERNALPOLICY,
+      exportType: ExportExportType.PROCEDURE,
       filters: JSON.stringify(filters),
       fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
       format: ExportExportFormat.CSV,

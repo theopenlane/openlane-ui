@@ -155,7 +155,7 @@ const ControlsTable: React.FC = () => {
 
   const handleExportFile = async () => {
     handleExport({
-      exportType: ExportExportType.INTERNALPOLICY,
+      exportType: ExportExportType.CONTROL,
       filters: JSON.stringify(filters),
       fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
       format: ExportExportFormat.CSV,
