@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Column,
   ColumnDef,
   ColumnFiltersState,
   ColumnResizeDirection,
@@ -398,7 +399,7 @@ export function DataTable<TData, TValue>({
                     </TableRow>
                   ))
                 ) : (
-                  <NoData loading={loading} colLength={columns.length} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                  <NoData loading={loading} columns={table.getAllLeafColumns()} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
                 )}
               </TableBody>
             </Table>
@@ -416,23 +417,31 @@ export function DataTable<TData, TValue>({
   )
 }
 
-interface NoDataProps {
+interface NoDataProps<TData, TValue> {
   loading: boolean
-  colLength: number
-  noDataMarkup?: ReactElement
+  columns: Column<TData, TValue>[]
+  noDataMarkup?: React.ReactElement
   noResultsText: string
 }
 
-const NoData = ({ loading, colLength, noDataMarkup, noResultsText }: NoDataProps) => {
+const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData, TValue>) => {
   if (!loading && noDataMarkup) {
     return noDataMarkup
   }
 
+  const visibleCols = columns.filter((col) => col.getIsVisible())
+
   return (
-    <TableRow variant="data">
-      <TableCell variant="data" colSpan={colLength} className="h-24 text-center">
-        {loading ? 'Loading' : noResultsText}
-      </TableCell>
-    </TableRow>
+    <>
+      {Array.from({ length: 4 }).map((_, rowIndex) => (
+        <TableRow key={rowIndex} variant="data">
+          {visibleCols.map((col, colIndex) => (
+            <TableCell key={colIndex} variant="data">
+              <div className="animate-custom-pulse bg-white/20 rounded-lg h-[10px] w-full" style={{ width: `${col.getSize()}px` }} />
+            </TableCell>
+          ))}
+        </TableRow>
+      ))}
+    </>
   )
 }

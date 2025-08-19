@@ -12,7 +12,6 @@ import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TAccessRole, TData } from '@/lib/authz/access-api'
-import Loading from '@/app/(protected)/tasks/loading'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -110,7 +109,6 @@ const TasksTable = forwardRef(
 
     const columns = useMemo(() => getTaskColumns({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks }), [userMap, convertToReadOnly, selectedTasks, setSelectedTasks])
 
-    if (fetching) return <Loading />
     if (isError) {
       return <p className="text-red-500">Error loading tasks</p>
     }
