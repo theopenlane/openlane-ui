@@ -57,7 +57,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
     setSelectedFrameworkIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
   }
   const { allControls } = useAllControlsGroupedWithListFields({ where: { ...where, ownerIDIsNil: true } as ControlWhereInput, enabled: selectedFrameworkIds.length > 0 })
-  const customControlsData = useAllControlsGroupedWithListFields({ where: { referenceFrameworkIsNil: true, ownerIDIsNil: true } })
+  const customControlsData = useAllControlsGroupedWithListFields({ where: { referenceFrameworkIsNil: true} })
   const customControls = customControlsData.allControls
   const handleCheckboxShowToggle = () => {
     setShowCheckboxes((prev) => (prev = !prev))
