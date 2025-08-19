@@ -80,7 +80,9 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
           return (
             <AccordionItem key={key} value={key}>
               <SectionTrigger label={key.charAt(0).toUpperCase() + key.slice(1)} count={connection.totalCount ?? 0} />
-              <AccordionContent>{renderTable(key, extractNodes(connection.edges))}</AccordionContent>
+              <AccordionContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+                {renderTable(key, extractNodes(connection.edges))}
+              </AccordionContent>
             </AccordionItem>
           )
         })}
