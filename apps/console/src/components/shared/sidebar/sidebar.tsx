@@ -7,8 +7,8 @@ import { SideNav } from './sidebar-nav/sidebar-nav'
 import { generateNavItems, PersonalNavItems } from '@/routes/dashboard'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useOrganizationRole } from '@/lib/authz/access-api'
-import { canEdit } from '@/lib/authz/utils'
+// import { useOrganizationRole } from '@/lib/authz/access-api'
+// import { canEdit } from '@/lib/authz/utils'
 
 interface SidebarProps {
   className?: string
@@ -19,8 +19,8 @@ export default function Sidebar({ className }: SidebarProps) {
   const { isOpen } = useSidebar()
   const { currentOrgId, allOrgs } = useOrganization()
 
-  const { data: orgPermission } = useOrganizationRole(session)
-  const editAllowed = canEdit(orgPermission?.roles)
+  // const { data: orgPermission } = useOrganizationRole(session)
+  // const editAllowed = canEdit(orgPermission?.roles)
 
   const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
 
@@ -34,7 +34,8 @@ export default function Sidebar({ className }: SidebarProps) {
     return null
   }
 
-  const navItems = generateNavItems(editAllowed)
+  const navItems = generateNavItems()
+  // editAllowed
 
   return (
     <div className={cn(nav(), className)}>
