@@ -57,3 +57,12 @@ p.red {
 .grecaptcha-badge {
   visibility: hidden;
 }
+
+.rich-text ul {
+  list-style-type: disc;
+  padding-left: 1.25rem; /* same as list-inside */
+  margin: 0.5rem 0;
+}
+.rich-text li {
+  margin-bottom: 0.25rem;
+}
