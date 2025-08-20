@@ -17,7 +17,8 @@ import {
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
-export const generateNavItems = (canEdit?: boolean): (NavItem | Separator | NavHeading)[] => [
+export const generateNavItems = () // canEdit?: boolean
+: (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Home',
     href: '/dashboard',
@@ -135,7 +136,12 @@ export const generateNavItems = (canEdit?: boolean): (NavItem | Separator | NavH
         title: 'Audit Logs',
         href: '/organization-settings/logs',
       },
-      { title: 'Integrations', href: '/organization-settings/integrations', hidden: !canEdit },
+      {
+        title: 'Integrations',
+        href: '/organization-settings/integrations',
+        // hidden: !canEdit,
+        hidden: true,
+      },
     ],
   },
   {

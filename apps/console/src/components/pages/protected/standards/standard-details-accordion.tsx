@@ -21,15 +21,10 @@ import ControlDetailsSheet from './control-details-sheet'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 const generateWhere = (id: string, searchValue: string) => ({
-  or: [
-    { referenceFrameworkIsNil: true },
+  and: [
+    { standardID: id },
     {
-      and: [
-        { standardID: id },
-        {
-          or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
-        },
-      ],
+      or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
     },
   ],
 })
