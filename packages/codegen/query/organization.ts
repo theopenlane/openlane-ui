@@ -147,7 +147,6 @@ export const GET_ORGANIZATION_BILLING_BANNER = gql`
         trialExpiresAt
         expiresAt
         stripeSubscriptionStatus
-        paymentMethodAdded
       }
     }
   }
