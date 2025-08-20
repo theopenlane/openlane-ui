@@ -79,9 +79,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
                   ) : (
                     <div key={item.id}>
                       <p className="font-medium mb-1">{item.id}</p>
-                      <p className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        {item.method.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <span key={idx}>{line.trim()}</span>)}
-                      </p>
+                      <div className="list-disc list-inside text-sm text-muted-foreground space-y-1" dangerouslySetInnerHTML={{ __html: item.method }} />
                     </div>
                   ),
                 )}
