@@ -76,7 +76,7 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
     },
     {
       accessorKey: 'subcontrols.totalCount',
-      header: '# of Sub controls',
+      header: '# of Subcontrols',
       cell: (info) => info.row.original.subcontrols.totalCount,
     },
   ]

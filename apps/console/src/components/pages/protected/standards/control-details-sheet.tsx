@@ -174,7 +174,7 @@ const ControlDetailsSheet = () => {
             <Property label="Type" value="Compliance" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="mb-1.5 text-xl">Sub Controls</p>
+            <p className="mb-1.5 text-xl">Subcontrols</p>
             {data?.control?.subcontrols?.edges?.length ? (
               <div className="flex gap-2 flex-wrap">
                 {data.control.subcontrols.edges.map((edge) => {
