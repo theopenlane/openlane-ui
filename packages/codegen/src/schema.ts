@@ -21127,14 +21127,10 @@ export interface OrgSubscription extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** whether or not a payment method has been added to the account */
-  paymentMethodAdded?: Maybe<Scalars['Boolean']['output']>
   /** the price of the product tier */
   productPrice?: Maybe<Scalars['Price']['output']>
   /** the common name of the product tier the subscription is associated with, e.g. starter tier */
   productTier?: Maybe<Scalars['String']['output']>
-  /** the customer ID the subscription is associated to */
-  stripeCustomerID?: Maybe<Scalars['String']['output']>
   /** the product id that represents the tier in stripe */
   stripeProductTierID?: Maybe<Scalars['String']['output']>
   /** the stripe subscription id */
@@ -21198,15 +21194,11 @@ export interface OrgSubscriptionHistory extends Node {
   operation: OrgSubscriptionHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
-  /** whether or not a payment method has been added to the account */
-  paymentMethodAdded?: Maybe<Scalars['Boolean']['output']>
   /** the price of the product tier */
   productPrice?: Maybe<Scalars['Price']['output']>
   /** the common name of the product tier the subscription is associated with, e.g. starter tier */
   productTier?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
-  /** the customer ID the subscription is associated to */
-  stripeCustomerID?: Maybe<Scalars['String']['output']>
   /** the product id that represents the tier in stripe */
   stripeProductTierID?: Maybe<Scalars['String']['output']>
   /** the stripe subscription id */
@@ -21375,11 +21367,6 @@ export interface OrgSubscriptionHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** payment_method_added field predicates */
-  paymentMethodAdded?: InputMaybe<Scalars['Boolean']['input']>
-  paymentMethodAddedIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  paymentMethodAddedNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  paymentMethodAddedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** product_tier field predicates */
   productTier?: InputMaybe<Scalars['String']['input']>
   productTierContains?: InputMaybe<Scalars['String']['input']>
@@ -21412,22 +21399,6 @@ export interface OrgSubscriptionHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** stripe_customer_id field predicates */
-  stripeCustomerID?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDContains?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDGT?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDGTE?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  stripeCustomerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  stripeCustomerIDLT?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDLTE?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDNEQ?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  stripeCustomerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** stripe_product_tier_id field predicates */
   stripeProductTierID?: InputMaybe<Scalars['String']['input']>
   stripeProductTierIDContains?: InputMaybe<Scalars['String']['input']>
@@ -21634,11 +21605,6 @@ export interface OrgSubscriptionWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** payment_method_added field predicates */
-  paymentMethodAdded?: InputMaybe<Scalars['Boolean']['input']>
-  paymentMethodAddedIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  paymentMethodAddedNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  paymentMethodAddedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** product_tier field predicates */
   productTier?: InputMaybe<Scalars['String']['input']>
   productTierContains?: InputMaybe<Scalars['String']['input']>
@@ -21655,22 +21621,6 @@ export interface OrgSubscriptionWhereInput {
   productTierNEQ?: InputMaybe<Scalars['String']['input']>
   productTierNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   productTierNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** stripe_customer_id field predicates */
-  stripeCustomerID?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDContains?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDGT?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDGTE?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  stripeCustomerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  stripeCustomerIDLT?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDLTE?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDNEQ?: InputMaybe<Scalars['String']['input']>
-  stripeCustomerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  stripeCustomerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** stripe_product_tier_id field predicates */
   stripeProductTierID?: InputMaybe<Scalars['String']['input']>
   stripeProductTierIDContains?: InputMaybe<Scalars['String']['input']>
@@ -21836,6 +21786,8 @@ export interface Organization extends Node {
   setting?: Maybe<OrganizationSetting>
   standardCreators: GroupConnection
   standards: StandardConnection
+  /** the stripe customer ID this organization is associated to */
+  stripeCustomerID?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
   subprocessors: SubprocessorConnection
   subscribers: SubscriberConnection
@@ -22455,6 +22407,8 @@ export interface OrganizationHistory extends Node {
   /** orgs directly associated with a user */
   personalOrg?: Maybe<Scalars['Boolean']['output']>
   ref?: Maybe<Scalars['String']['output']>
+  /** the stripe customer ID this organization is associated to */
+  stripeCustomerID?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -22745,6 +22699,8 @@ export interface OrganizationSetting extends Node {
   organization?: Maybe<Organization>
   /** the ID of the organization the settings belong to */
   organizationID?: Maybe<Scalars['ID']['output']>
+  /** whether or not a payment method has been added to the account */
+  paymentMethodAdded: Scalars['Boolean']['output']
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** Usually government-issued tax ID or business ID such as ABN in Australia */
@@ -22844,6 +22800,8 @@ export interface OrganizationSettingHistory extends Node {
   operation: OrganizationSettingHistoryOpType
   /** the ID of the organization the settings belong to */
   organizationID?: Maybe<Scalars['String']['output']>
+  /** whether or not a payment method has been added to the account */
+  paymentMethodAdded: Scalars['Boolean']['output']
   ref?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -42775,13 +42733,7 @@ export type GetOrganizationBillingBannerQuery = {
   organization: {
     __typename?: 'Organization'
     personalOrg?: boolean | null
-    orgSubscriptions?: Array<{
-      __typename?: 'OrgSubscription'
-      trialExpiresAt?: any | null
-      expiresAt?: any | null
-      stripeSubscriptionStatus?: string | null
-      paymentMethodAdded?: boolean | null
-    }> | null
+    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; trialExpiresAt?: any | null; expiresAt?: any | null; stripeSubscriptionStatus?: string | null }> | null
   }
 }
 
