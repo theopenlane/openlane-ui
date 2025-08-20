@@ -167,11 +167,11 @@ const ControlDetailsSheet = () => {
           {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string)}</div>}
           <div className="flex flex-col gap-2.5">
             <p className="mb-1.5 text-xl">Properties</p>
-            <Property label="Framework" value="SOC 2" />
-            <Property label="Category" value="Administrative" />
-            <Property label="Subcategory" value="Administrative" />
-            <Property label="Mapped categories" value="Security, Privacy" />
-            <Property label="Type" value="Compliance" />
+            <Property label="Framework" value={data?.control.referenceFramework} />
+            <Property label="Category" value={data?.control.category} />
+            <Property label="Subcategory" value={data?.control.subcategory} />
+            <Property label="Mapped categories" value={data?.control?.mappedCategories?.join(', ')} />
+            <Property label="Type" value={data?.control.controlType?.toLowerCase()} />
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="mb-1.5 text-xl">Subcontrols</p>
@@ -232,6 +232,6 @@ const Property = ({ label, value }: { label: string; value?: string | null }) =>
       <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
     </div>
-    <div className="text-sm whitespace-pre-line">{value || '-'}</div>
+    <div className="text-sm whitespace-pre-line capitalize">{value || '-'}</div>
   </div>
 )
