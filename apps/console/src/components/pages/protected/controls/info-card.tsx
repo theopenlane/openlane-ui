@@ -44,12 +44,11 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
         <div className="space-y-4">
           {implementationGuidance!.map(({ referenceId, guidance }) => (
             <div key={referenceId}>
-              <p className="font-medium mb-1">{referenceId}</p>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+              <p className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                 {guidance.map((g, i) => (
-                  <li key={i}>{g.trim()}</li>
+                  <span key={i}>{g.trim()}</span>
                 ))}
-              </ul>
+              </p>
             </div>
           ))}
         </div>
@@ -60,14 +59,14 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
       hasData: Array.isArray(exampleEvidence) ? exampleEvidence.length > 0 : !!exampleEvidence,
       render: () =>
         Array.isArray(exampleEvidence) ? (
-          <ul className="list-none text-sm text-muted-foreground space-y-3">
+          <p className="list-none text-sm text-muted-foreground space-y-3">
             {exampleEvidence.map((item, i) => (
-              <li key={i}>
+              <span key={i}>
                 <p className="font-medium">{item.documentationType}</p>
                 <p className="text-muted-foreground">{item.description}</p>
-              </li>
+              </span>
             ))}
-          </ul>
+          </p>
         ) : (
           <p className="text-sm text-muted-foreground">{typeof exampleEvidence === 'string' ? exampleEvidence : 'No example evidence provided.'}</p>
         ),
@@ -77,11 +76,11 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
       hasData: !!controlQuestions?.length,
       render: () =>
         controlQuestions?.length ? (
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+          <p className="list-disc list-inside text-sm text-muted-foreground space-y-1">
             {controlQuestions.map((q, i) => (
-              <li key={i}>{q}</li>
+              <span key={i}>{q}</span>
             ))}
-          </ul>
+          </p>
         ) : (
           <p className="text-sm text-muted-foreground">No control questions.</p>
         ),
@@ -94,15 +93,15 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
           <div className="space-y-4">
             {assessmentMethods.map((item, i) =>
               typeof item === 'string' ? (
-                <ul key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>{item}</li>
-                </ul>
+                <p key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                  <span>{item}</span>
+                </p>
               ) : (
                 <div key={item.id}>
-                  <p className="font-medium mb-1">{item.type}</p>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    {item.method.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx}>{line.trim()}</li>)}
-                  </ul>
+                  <p className="font-medium mb-1">{item.id}</p>
+                  <p className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    {item.method.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <span key={idx}>{line.trim()}</span>)}
+                  </p>
                 </div>
               ),
             )}
@@ -119,15 +118,15 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
           <div className="space-y-4">
             {assessmentObjectives.map((item, i) =>
               typeof item === 'string' ? (
-                <ul key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>{item}</li>
-                </ul>
+                <p key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                  <span>{item}</span>
+                </p>
               ) : (
                 <div key={item.id}>
                   <p className="font-medium mb-1">{item.id}</p>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    {item.objective.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx}>{line.trim()}</li>)}
-                  </ul>
+                  <p className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    {item.objective.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <span key={idx}>{line.trim()}</span>)}
+                  </p>
                 </div>
               ),
             )}
