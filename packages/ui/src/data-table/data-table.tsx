@@ -425,8 +425,16 @@ interface NoDataProps<TData, TValue> {
 }
 
 const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData, TValue>) => {
-  if (!loading && noDataMarkup) {
-    return noDataMarkup
+  if (!loading) {
+    return (
+      <>
+        <TableRow variant="data">
+          <TableCell variant="data" colSpan={100} className="p-0">
+            <div className="flex items-center justify-center w-full h-full p-5">No results</div>
+          </TableCell>
+        </TableRow>
+      </>
+    )
   }
 
   const visibleCols = columns.filter((col) => col.getIsVisible())
