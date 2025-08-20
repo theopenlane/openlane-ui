@@ -10,6 +10,7 @@ const classes: Record<string, string> = {
   HIPAA: 'text-standard-hipaa',
   SOX: 'text-standard-sox',
   'PCI DSS': 'text-standard-pci',
+  'NIST 800-171': 'text-standard-nist80053',
 }
 
 export const StandardsColorSpan = ({ shortName, children }: { shortName: string; children: React.ReactNode }) => {
