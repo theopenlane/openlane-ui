@@ -11,6 +11,7 @@ import Ccm from '@/assets/Ccm'
 import Hipaa from '@/assets/Hipaa'
 import Sox from '@/assets/Sox'
 import Pci from '@/assets/Pci'
+import Nist800171 from '@/assets/Nist800171'
 
 type TStandardsIconMapperProps = {
   shortName: string
@@ -33,6 +34,7 @@ export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIcon
       HIPAA: <Hipaa {...sizeProps} />,
       SOX: <Sox {...sizeProps} />,
       'PCI DSS': <Pci {...sizeProps} />,
+      'NIST 800-171': <Nist800171 {...sizeProps} />,
     }
     return iconMap[shortName] || <Custom {...sizeProps} />
   }, [shortName, width, height])
