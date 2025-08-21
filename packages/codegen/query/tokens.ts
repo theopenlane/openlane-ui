@@ -19,6 +19,7 @@ export const GET_PERSONAL_ACCESS_TOKENS = gql`
           name
           description
           expiresAt
+          lastUsedAt
           organizations {
             edges {
               node {
@@ -66,6 +67,7 @@ export const GET_API_TOKENS = gql`
           description
           scopes
           expiresAt
+          lastUsedAt
         }
       }
       pageInfo {

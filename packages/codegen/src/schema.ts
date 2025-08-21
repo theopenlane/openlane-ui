@@ -44582,6 +44582,7 @@ export type GetPersonalAccessTokensQuery = {
         name: string
         description?: string | null
         expiresAt?: any | null
+        lastUsedAt?: any | null
         organizations: {
           __typename?: 'OrganizationConnection'
           edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null
@@ -44616,7 +44617,7 @@ export type GetApiTokensQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null } | null
+      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null; lastUsedAt?: any | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
