@@ -77,7 +77,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                         }}
                         className={link({ isCurrent: path === child.href })}
                       >
-                        {child.icon && <child.icon className={icon({ isCurrent: path === child.href })} />}
+                        <div className="w-4 h-4 flex items-center justify-center">{child.icon && <child.icon className={cn('w-4 h-4', icon({ isCurrent: path === item.href }))} />}</div>
                         <div className={cn(linkLabel(), !isSidebarOpen && className)}>{child.title}</div>
                       </Link>
                     ))}
@@ -93,7 +93,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
               }}
               className={link({ isCurrent: path === item.href })}
             >
-              {item.icon && <item.icon className={icon({ isCurrent: path === item.href })} />}
+              <div className="w-4 h-4 flex items-center justify-center">{item.icon && <item.icon className={cn('w-4 h-4', icon({ isCurrent: path === item.href }))} />}</div>
               <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
             </Link>
           ),
