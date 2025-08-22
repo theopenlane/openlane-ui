@@ -32,7 +32,7 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import Loading from '@/app/(protected)/policies/loading'
+import Loading from '@/app/(protected)/policies/[id]/view/loading'
 
 type TViewPolicyPage = {
   policyId: string

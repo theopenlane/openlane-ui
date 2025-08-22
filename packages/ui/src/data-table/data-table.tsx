@@ -425,31 +425,29 @@ interface NoDataProps<TData, TValue> {
 }
 
 const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData, TValue>) => {
-  if (!loading) {
+  const visibleCols = columns.filter((col) => col.getIsVisible())
+
+  if (loading) {
     return (
       <>
-        <TableRow variant="data">
-          <TableCell variant="data" colSpan={100} className="p-0">
-            <div className="flex items-center justify-center w-full h-full p-5">No results</div>
-          </TableCell>
-        </TableRow>
+        {Array.from({ length: 4 }).map((_, rowIndex) => (
+          <TableRow key={rowIndex} variant="data">
+            {visibleCols.map((col, colIndex) => (
+              <TableCell key={colIndex} variant="data">
+                <div className="animate-custom-pulse bg-white/20 rounded-lg h-[10px] w-full" style={{ width: `${col.getSize()}px` }} />
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
       </>
     )
   }
 
-  const visibleCols = columns.filter((col) => col.getIsVisible())
-
   return (
-    <>
-      {Array.from({ length: 4 }).map((_, rowIndex) => (
-        <TableRow key={rowIndex} variant="data">
-          {visibleCols.map((col, colIndex) => (
-            <TableCell key={colIndex} variant="data">
-              <div className="animate-custom-pulse bg-white/20 rounded-lg h-[10px] w-full" style={{ width: `${col.getSize()}px` }} />
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </>
+    <TableRow variant="data">
+      <TableCell variant="data" colSpan={visibleCols.length || 100} className="p-0">
+        {noDataMarkup ? noDataMarkup : <div className="flex items-center justify-center w-full h-full p-5">No results</div>}
+      </TableCell>
+    </TableRow>
   )
 }

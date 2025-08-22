@@ -94,7 +94,7 @@ const ProgramsPage: React.FC = () => {
     router.push(`/programs?id=${val}`)
   }
 
-  if (isLoading) {
+  if (isBasicInfoLoading || isLoading) {
     return <Loading />
   }
   if (!data?.programs.edges?.length) {
@@ -189,9 +189,7 @@ const ProgramsPage: React.FC = () => {
 
       <div className="flex flex-col gap-7">
         <div className="flex gap-7 w-full">
-          {isBasicInfoLoading ? (
-            <Loading />
-          ) : basicInfoData?.program ? (
+          {basicInfoData?.program ? (
             <>
               <BasicInformation />
               <div className="flex flex-col gap-7 flex-1">

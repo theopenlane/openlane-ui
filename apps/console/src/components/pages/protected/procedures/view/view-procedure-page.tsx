@@ -36,7 +36,7 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import Loading from '@/app/(protected)/procedures/loading'
+import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
