@@ -8,7 +8,6 @@ import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import MembersInviteSheet from './sidebar/members-invite-sheet'
-import { Separator } from '@repo/ui/separator'
 
 type TMembersPage = {
   isMemberSheetOpen: boolean
@@ -54,7 +53,6 @@ const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) 
             </TabsList>
           </div>
         </div>
-        <Separator className="mb-5" full />
         <TabsContent value="members">
           <MembersTable />
         </TabsContent>
