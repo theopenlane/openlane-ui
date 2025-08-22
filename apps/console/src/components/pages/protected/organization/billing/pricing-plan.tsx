@@ -16,7 +16,7 @@ const PricingPlan = () => {
 
   const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
 
-  const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
+  const { expiresAt, subscriptionURL, active, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
   const { amount: price, interval: priceInterval } = productPrice
 
   const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
@@ -70,7 +70,7 @@ const PricingPlan = () => {
                 <div className="flex flex-col   ">
                   <div className="p-4">
                     <div className="flex pb-3 items-center gap-2 ">
-                      <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
+                      <p className="text-lg font-medium">{'N/A'}</p>
                       <Badge variant={badge.variant} className="text-xs font-normal text-white">
                         {badge.text}
                       </Badge>
