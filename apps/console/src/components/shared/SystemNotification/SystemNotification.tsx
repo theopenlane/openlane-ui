@@ -63,7 +63,7 @@ function BellButton({ count, state, onClick }: { count: number; state: 'idle' | 
   return (
     <button
       onClick={onClick}
-      className="relative grid h-10 w-10 place-items-center rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      className="relative grid h-7 w-7 place-items-center rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       aria-label="Notifications"
     >
       {ping && <span className={cx('absolute inset-0 rounded-full animate-ping opacity-40', halo)} />}
@@ -133,7 +133,7 @@ export default function SystemNotificationTracker() {
       <div className="relative" ref={ref}>
         <BellButton count={counts.pending + counts.running} state={bellState} onClick={() => setOpen((v) => !v)} />
         {open && (
-          <div className="absolute right-0 mt-2 w-[380px] max-w-[92vw] origin-top-right rounded-2xl border border-gray-200 bg-card shadow-xl ring-1 ring-black/5 z-50">
+          <div className="absolute right-0 mt-2 w-[380px] max-w-[92vw] origin-top-right rounded-2xl border bg-card shadow-xl ring-1 ring-black/5 z-50">
             <div className="max-h-[60vh] overflow-auto p-3">
               <div className="flex items-center gap-3 p-2">
                 <Ring size={36} width={4} progress={overall} color={bellState === 'success' ? '#22c55e' : bellState === 'error' ? '#f43f5e' : '#3b82f6'} />
