@@ -58,7 +58,8 @@ p.red {
   visibility: hidden;
 }
 
-.rich-text ul {
+.rich-text ul,
+ul.rich-text {
   list-style-type: disc;
   padding-left: 1.25rem; /* same as list-inside */
   margin: 0.5rem 0;

@@ -93,6 +93,7 @@ export const PersonalAccessTokenTable = () => {
           name: node.name || 'Unnamed Token',
           description: node.description ?? undefined,
           expiresAt: node.expiresAt,
+          lastUsedAt: node.lastUsedAt,
           scopes: node.scopes?.join(', ') || '-',
         })) || []
     : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens?.edges
@@ -103,6 +104,7 @@ export const PersonalAccessTokenTable = () => {
           name: node.name!,
           description: node.description ?? undefined,
           expiresAt: node.expiresAt,
+          lastUsedAt: node.lastUsedAt,
           organizations: node.organizations?.edges?.map((orgEdge) => orgEdge?.node).filter((org): org is { id: string; name: string } => !!org && !!org.id && !!org.name) || [],
         })) || []
 
@@ -142,16 +144,29 @@ export const PersonalAccessTokenTable = () => {
       },
     },
     {
+      accessorKey: 'lastUsedAt',
+      header: 'Last used',
+    },
+    {
       accessorKey: 'id',
       header: '',
       cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} tokenName={cell.row.original.name} />,
     },
   ]
-
+  console.log(tokens)
   return (
     <>
       <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
-      <DataTable columns={columns} data={tokens} sortFields={TOKEN_SORT_FIELDS} onSortChange={setOrderBy} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
+      <DataTable
+        loading={isFetching}
+        columns={columns}
+        data={tokens}
+        sortFields={TOKEN_SORT_FIELDS}
+        onSortChange={setOrderBy}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+      />
     </>
   )
 }
