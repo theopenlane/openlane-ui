@@ -167,6 +167,18 @@ export const generateNavItems = () // canEdit?: boolean
       // },
     ],
   },
+  {
+    title: 'Trust center',
+    href: '/trust-center',
+    icon: SettingsIcon,
+    isChildren: true,
+    children: [
+      {
+        title: 'Settings',
+        href: '/trust-center/settings',
+      },
+    ],
+  },
 ]
 
 export const PersonalNavItems: (NavItem | Separator | NavHeading)[] = [

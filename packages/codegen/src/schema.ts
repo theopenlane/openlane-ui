@@ -44681,6 +44681,48 @@ export type GetApiTokensByIdsQuery = {
   apiTokens: { __typename?: 'APITokenConnection'; edges?: Array<{ __typename?: 'APITokenEdge'; node?: { __typename?: 'APIToken'; id: string; name: string } | null } | null> | null }
 }
 
+export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetTrustCenterQuery = {
+  __typename?: 'Query'
+  trustCenters: {
+    __typename?: 'TrustCenterConnection'
+    edges?: Array<{
+      __typename?: 'TrustCenterEdge'
+      node?: {
+        __typename?: 'TrustCenter'
+        setting?: {
+          __typename?: 'TrustCenterSetting'
+          id: string
+          primaryColor?: string | null
+          themeMode?: TrustCenterSettingTrustCenterThemeMode | null
+          foregroundColor?: string | null
+          font?: string | null
+          backgroundColor?: string | null
+          accentColor?: string | null
+          overview?: string | null
+          title?: string | null
+          logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        } | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type UpdateTrustCenterSettingMutationVariables = Exact<{
+  updateTrustCenterSettingId: Scalars['ID']['input']
+  input: UpdateTrustCenterSettingInput
+  faviconFile?: InputMaybe<Scalars['Upload']['input']>
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterSettingMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterSetting: { __typename?: 'TrustCenterSettingUpdatePayload'; trustCenterSetting: { __typename?: 'TrustCenterSetting'; id: string } }
+}
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
