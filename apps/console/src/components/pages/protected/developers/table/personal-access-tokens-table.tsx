@@ -18,7 +18,7 @@ import { TokenAction } from '@/components/pages/protected/developers/actions/pat
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 
 type TokenNode = {
   id: string
@@ -147,15 +147,7 @@ export const PersonalAccessTokenTable = () => {
       accessorKey: 'lastUsedAt',
       header: 'Last used',
       cell: ({ cell }) => {
-        const now = new Date()
-        const lastUsed = cell.getValue() as string
-        const lastUsedDate = new Date(lastUsed)
-        const daysDifferenceMilliseconds = now.getTime() - lastUsedDate.getTime()
-        const daysDifference = Math.floor(daysDifferenceMilliseconds / (1000 * 60 * 60 * 24))
-        if (daysDifference <= 30) {
-          return daysDifference === 0 ? 'Today' : `${daysDifference} days ago`
-        }
-        return formatDate(lastUsed)
+        return formatTimeSince(cell.getValue() as string)
       },
     },
     {
