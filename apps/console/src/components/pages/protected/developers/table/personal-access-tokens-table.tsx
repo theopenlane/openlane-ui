@@ -146,6 +146,17 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'lastUsedAt',
       header: 'Last used',
+      cell: ({ cell }) => {
+        const now = new Date()
+        const lastUsed = cell.getValue() as string
+        const lastUsedDate = new Date(lastUsed)
+        const daysDifferenceMilliseconds = now.getTime() - lastUsedDate.getTime()
+        const daysDifference = Math.floor(daysDifferenceMilliseconds / (1000 * 60 * 60 * 24))
+        if (daysDifference <= 30) {
+          return daysDifference === 0 ? 'Today' : `${daysDifference} days ago`
+        }
+        return formatDate(lastUsed)
+      },
     },
     {
       accessorKey: 'id',
@@ -153,7 +164,7 @@ export const PersonalAccessTokenTable = () => {
       cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} tokenName={cell.row.original.name} />,
     },
   ]
-  console.log(tokens)
+
   return (
     <>
       <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
