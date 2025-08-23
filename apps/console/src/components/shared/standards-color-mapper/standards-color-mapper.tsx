@@ -1,7 +1,9 @@
 const classes: Record<string, string> = {
   'ISO 27001': 'text-standard-iso27001',
+  'ISO 27002': 'text-standard-iso27001',
   'NIST 800-53': 'text-standard-nist80053',
   'NIST CSF': 'text-standard-nistcsf',
+  'NIST 800-171': 'text-standard-nist80053',
   'SOC 2': 'text-standard-soc2',
   'NIST SSDF': 'text-standard-nistssdf',
   GDPR: 'text-standard-gdpr',
@@ -10,7 +12,14 @@ const classes: Record<string, string> = {
   HIPAA: 'text-standard-hipaa',
   SOX: 'text-standard-sox',
   'PCI DSS': 'text-standard-pci',
-  'NIST 800-171': 'text-standard-nist80053',
+  MASVS: 'text-standard-masvs',
+  ASVS: 'text-standard-masvs',
+  CCPA: 'text-standard-ccpa',
+  'NERC CIP': 'text-standard-nerc',
+  COBIT: 'text-standard-cobit',
+  'FedRAMP High': 'text-standard-fed',
+  'FedRAMP Moderate': 'text-standard-fed',
+  'FedRAMP Low': 'text-standard-fed',
 }
 
 export const StandardsColorSpan = ({ shortName, children }: { shortName: string; children: React.ReactNode }) => {
