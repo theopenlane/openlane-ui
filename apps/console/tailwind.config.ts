@@ -32,6 +32,11 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
           sox: 'var(--color-sox)',
           pci: 'var(--color-pci)',
           custom: 'var(--color-custom)',
+          masvs: 'var(--color-masvs)',
+          ccpa: 'var(--color-ccpa)',
+          nerc: 'var(--color-nerc)',
+          cobit: 'var(--color-cobit)',
+          fed: 'var(--color-fed)',
         },
       },
 
