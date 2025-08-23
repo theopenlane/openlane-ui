@@ -178,6 +178,11 @@
   --color-sox: #a42f00;
   --color-pci: #2c6f76;
   --color-custom: #d9ae40;
+  --color-masvs: #535353;
+  --color-ccpa: #003162;
+  --color-nerc: #00437a;
+  --color-cobit: #62c5ec;
+  --color-fed: #122f4f;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
