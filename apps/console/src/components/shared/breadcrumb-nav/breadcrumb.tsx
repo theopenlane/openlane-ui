@@ -29,7 +29,7 @@ export function BreadcrumbNavigation() {
                   <BreadcrumbSkeleton />
                 </div>
               )}
-              {!c.isLoading && c.href ? <BreadcrumbLink href={c.href}>{c.label ?? ''}</BreadcrumbLink> : null}
+              {!c.isLoading && c.href ? <BreadcrumbLink href={c.href}>{c.label ?? ''}</BreadcrumbLink> : <span className="font-medium text-foreground">{c.label}</span>}
             </BreadcrumbItem>
           </React.Fragment>
         ))}
