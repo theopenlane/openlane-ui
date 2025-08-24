@@ -105,6 +105,7 @@ const ControlDetailsPage: React.FC = () => {
       procedures: data?.subcontrol.procedures,
       tasks: data?.subcontrol.tasks,
       risks: data?.subcontrol.risks,
+      controls: data?.subcontrol.control,
     }
   }, [data?.subcontrol])
 
