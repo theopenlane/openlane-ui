@@ -3,17 +3,14 @@
 import React, { useState } from 'react'
 import { Group, RiskFieldsFragment, UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, Stamp, CircleArrowRight } from 'lucide-react'
+import { Stamp, CircleArrowRight } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
-import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
-import useEscapeKey from '@/hooks/useEscapeKey'
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -60,14 +57,22 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
         </div>
 
         {showEditable ? (
-          <SearchableSingleSelect
-            form={form}
-            fieldName={fieldKey}
-            options={options}
-            placeholder={`Select ${label.toLowerCase()}`}
-            onChange={(val) => handleSelect(fieldKey, val)}
-            autoFocus
-            onClose={() => setEditingField(null)}
+          <Controller
+            name={fieldKey}
+            control={form.control}
+            render={({ field }) => (
+              <SearchableSingleSelect
+                value={field.value as string}
+                options={options}
+                placeholder={`Select ${label.toLowerCase()}`}
+                autoFocus
+                onClose={() => setEditingField(null)}
+                onChange={(val) => {
+                  field.onChange(val)
+                  handleSelect(fieldKey, val)
+                }}
+              />
+            )}
           />
         ) : (
           <TooltipProvider disableHoverableContent>
@@ -104,77 +109,3 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
 }
 
 export default AuthorityCard
-
-interface SearchableSingleSelectProps {
-  fieldName: keyof EditRisksFormData
-  form: UseFormReturn<EditRisksFormData>
-  options: Option[]
-  placeholder?: string
-  onChange?: (val: string) => void
-  autoFocus?: boolean
-  onClose?: () => void
-}
-
-export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ fieldName, form, options, placeholder = 'Select an option...', onChange, autoFocus, onClose }) => {
-  const [open, setOpen] = React.useState(false)
-
-  const triggerRef = React.useRef<HTMLDivElement>(null)
-  const popoverRef = React.useRef<HTMLDivElement>(null)
-
-  useClickOutsideWithPortal(
-    () => {
-      onClose?.()
-    },
-    { refs: { triggerRef, popoverRef } },
-  )
-
-  useEscapeKey(() => {
-    onClose?.()
-  })
-
-  return (
-    <Controller
-      name={fieldName}
-      control={form.control}
-      render={({ field }) => {
-        const selected = options.find((opt) => opt.value === field.value)
-
-        return (
-          <div ref={triggerRef} className="w-[200px]">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input-background rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
-                  <span className="truncate">{selected?.label || placeholder}</span>
-                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </div>
-              </PopoverTrigger>
-              <PopoverContent ref={popoverRef} className="w-[200px] p-0 !bg-input-background border" side="bottom">
-                <Command shouldFilter autoFocus={autoFocus}>
-                  <CommandInput placeholder="Search..." />
-                  <CommandList>
-                    <CommandEmpty>No results found.</CommandEmpty>
-                    <CommandGroup>
-                      {options.map((option) => (
-                        <CommandItem
-                          key={option.value}
-                          value={option.label}
-                          onSelect={() => {
-                            field.onChange(option.value)
-                            onChange?.(option.value)
-                            setOpen(false)
-                          }}
-                        >
-                          {option.label}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )
-      }}
-    />
-  )
-}
