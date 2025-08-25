@@ -103,6 +103,7 @@ const ControlDetailsPage: React.FC = () => {
       tasks: data?.control.tasks,
       programs: data?.control.programs,
       risks: data?.control.risks,
+      subcontrols: data?.control.subcontrols,
     }
   }, [data?.control])
 
