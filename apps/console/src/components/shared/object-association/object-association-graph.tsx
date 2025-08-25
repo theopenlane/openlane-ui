@@ -110,23 +110,34 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     }
 
     if (!colorMap[centerNode.type]) colorMap[centerNode.type] = ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]?.color || '#ccc'
-
     Object.entries(sections).forEach(([sectionType, connection]) => {
-      if (!connection?.edges) return
-      if (!colorMap[sectionType]) colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]?.color || '#ccc'
-      extractNodes(connection.edges).forEach((node) => {
-        const label = node.refCode || node.name || node.title || ''
-        nodeMeta[node.id] = {
-          ...node,
-          refCode: label,
-          description: node.summary || node.description || node.details || '',
-          displayID: node.displayID || node.id,
-          link: getHrefForObjectType(sectionType, node as NormalizedObject),
-          __typename: getType(sectionType),
-        }
-        nodes.push({ id: node.id, name: label, type: sectionType })
-        links.push({ source: centerNode.node.id, target: node.id })
-      })
+      if (!connection) return
+      if (!colorMap[sectionType]) {
+        colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]?.color || '#ccc'
+      }
+      if ('edges' in connection && Array.isArray(connection.edges)) {
+        extractNodes(connection.edges).forEach((node) => {
+          const label = node.refCode || node.name || node.title || ''
+          nodeMeta[node.id] = {
+            ...node,
+            refCode: label,
+            description: node.summary || node.description || node.details || '',
+            displayID: node.displayID || node.id,
+            link: getHrefForObjectType(sectionType, node as NormalizedObject),
+            __typename: getType(sectionType),
+          }
+          nodes.push({ id: node.id, name: label, type: sectionType })
+          links.push({ source: centerNode.node.id, target: node.id })
+        })
+      } else {
+        const singleNode = connection as { id: string; name?: string; refCode?: string }
+        nodes.push({
+          id: singleNode.id,
+          name: singleNode.name || singleNode.refCode || '',
+          type: sectionType,
+        })
+        links.push({ source: centerNode.node.id, target: singleNode.id })
+      }
     })
 
     return { graphData: { nodes, links }, colorMap, nodeMeta }
@@ -271,7 +282,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
       document.body,
     )
   ) : (
-    <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[400px]'} transition-all duration-300`}>
+    <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[300px]'} transition-all duration-300`}>
       {renderGraph()}
     </div>
   )
