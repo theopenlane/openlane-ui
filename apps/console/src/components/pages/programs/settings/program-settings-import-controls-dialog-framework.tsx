@@ -57,7 +57,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
     setSelectedFrameworkIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
   }
   const { allControls } = useAllControlsGroupedWithListFields({ where: { ...where, ownerIDIsNil: true } as ControlWhereInput, enabled: selectedFrameworkIds.length > 0 })
-  const customControlsData = useAllControlsGroupedWithListFields({ where: { referenceFrameworkIsNil: true} })
+  const customControlsData = useAllControlsGroupedWithListFields({ where: { referenceFrameworkIsNil: true } })
   const customControls = customControlsData.allControls
   const handleCheckboxShowToggle = () => {
     setShowCheckboxes((prev) => (prev = !prev))
@@ -102,7 +102,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
                 <span>No data...</span>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-wrap gap-4">
                 {frameworks.map((framework) => (
                   <div key={framework.id} className="flex items-center space-x-2">
                     <Checkbox id={framework.id} checked={selectedFrameworkIds.includes(framework.id)} onCheckedChange={() => handleToggle(framework.id)} />
