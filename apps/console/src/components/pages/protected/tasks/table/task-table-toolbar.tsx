@@ -48,7 +48,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
-  const { programOptions, isSuccess } = useProgramSelect()
+  const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
 

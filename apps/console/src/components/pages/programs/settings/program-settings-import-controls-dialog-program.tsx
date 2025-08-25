@@ -17,9 +17,12 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { DataTable } from '@repo/ui/data-table'
+import { useSearchParams } from 'next/navigation'
 
 const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selectedProgramIds, setSelectedProgramIds }: TSharedImportControlsComponentsPropsPrograms) => {
-  const { programOptions } = useProgramSelect()
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
+  const { programOptions } = useProgramSelect(programId ? { where: { idNEQ: programId } } : {})
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
@@ -33,6 +36,7 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
 
   const where: ControlWhereInput = useMemo(() => {
     const initialWhereFilters: ControlWhereInput[] = [{ hasPrograms: true }]
+
     const whereFilters: ControlWhereInput[] = []
     if (selectedProgramIds.length > 0) whereFilters.push({ hasProgramsWith: [{ idIn: selectedProgramIds }] })
     if (debouncedSearchQuery) {
