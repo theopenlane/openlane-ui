@@ -7,7 +7,7 @@ import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 
 export function usePoliciesFilters(): FilterField[] | null {
-  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
+  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
 
   const [filters, setFilters] = useState<FilterField[] | null>(null)
