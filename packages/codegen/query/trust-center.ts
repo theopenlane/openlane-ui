@@ -5,6 +5,13 @@ export const GET_TRUST_CENTER = gql`
     trustCenters {
       edges {
         node {
+          customDomain {
+            dnsVerification {
+              dnsVerificationStatus
+              dnsTxtRecord
+              dnsTxtValue
+            }
+          }
           setting {
             id
             primaryColor

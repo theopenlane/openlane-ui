@@ -143,7 +143,7 @@ const ConfigureDomainSection = () => {
         {/* Info box */}
         <div className="border rounded-md p-4 space-y-2 max-w-[730px]">
           <div className="flex items-start gap-2">
-            <InfoIcon className="text-brand-100 shrink-0" size={16} />
+            <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
             <div>
               <p className="text-sm font-medium ">Default domain availability</p>
               <p className="text-sm ">

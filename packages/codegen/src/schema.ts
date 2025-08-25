@@ -44691,6 +44691,10 @@ export type GetTrustCenterQuery = {
       __typename?: 'TrustCenterEdge'
       node?: {
         __typename?: 'TrustCenter'
+        customDomain?: {
+          __typename?: 'CustomDomain'
+          dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
+        } | null
         setting?: {
           __typename?: 'TrustCenterSetting'
           id: string

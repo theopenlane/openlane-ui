@@ -7,9 +7,15 @@ import BrandSection from './brand-section'
 import ConfigureUrlSection from './configure-url-section'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Loading } from '@/components/shared/loading/loading'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const TrustCenterSettingsPage = () => {
   const { data, isLoading, error } = useGetTrustCenter()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
+
+  React.useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center Settings' }])
+  }, [setCrumbs])
 
   if (isLoading) {
     return <Loading />
