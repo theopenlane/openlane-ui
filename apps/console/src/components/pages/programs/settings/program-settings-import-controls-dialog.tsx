@@ -73,7 +73,7 @@ const ImportControlsDialog: React.FC = () => {
       <DialogTrigger asChild>
         <Button className="w-fit">Import</Button>
       </DialogTrigger>
-      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[497px]">
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-2xl ">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold leading-8">Import Controls</DialogTitle>
         </DialogHeader>

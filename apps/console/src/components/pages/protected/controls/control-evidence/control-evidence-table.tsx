@@ -9,7 +9,6 @@ import { useParams } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import { CreateButton } from '@/components/shared/create-button/create-button'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -32,14 +31,14 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <CreateButton type="evidence" href="/evidence/create" />
+          {canEdit && (
+            <EvidenceCreateFormDialog
+              createButton
+              formData={control}
+              excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
+            />
+          )}{' '}
         </div>
-        {canEdit && (
-          <EvidenceCreateFormDialog
-            formData={control}
-            excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
-          />
-        )}
       </div>
 
       <div className="rounded-md border border-border overflow-hidden bg-card">
