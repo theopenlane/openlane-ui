@@ -3,7 +3,6 @@
 import { PageHeading } from '@repo/ui/page-heading'
 import { useParams } from 'next/navigation'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
-import { Loading } from '@/components/shared/loading/loading'
 import StandardDetailsCard from '@/components/pages/protected/standards/standard-details-card'
 import StandardDetailsAccordion from '@/components/pages/protected/standards/standard-details-accordion'
 import { useEffect, useContext, useState } from 'react'
@@ -15,6 +14,7 @@ import { Button } from '@repo/ui/button'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
+import Loading from './loading'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()

@@ -3,7 +3,6 @@ import { useDeleteRisk, useGetRiskById, useUpdateRisk } from '@/lib/graphql-hook
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { Loading } from '@/components/shared/loading/loading.tsx'
 import { Form } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
@@ -29,6 +28,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Loading from '@/app/(protected)/risks/[id]/loading'
 
 type TRisksPageProps = {
   riskId: string

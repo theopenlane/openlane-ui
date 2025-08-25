@@ -17,9 +17,10 @@ type Props = {
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
+  isLoading?: boolean
 }
 
-const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta }: Props) => {
+const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading }: Props) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
   const { convertToReadOnly } = usePlateEditor()
@@ -81,8 +82,17 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       },
     },
   ]
-
-  return <DataTable onPaginationChange={onPaginationChange} pagination={pagination} paginationMeta={paginationMeta} columns={columns} data={data} wrapperClass="max-h-96 overflow-auto" />
+  return (
+    <DataTable
+      loading={isLoading}
+      onPaginationChange={onPaginationChange}
+      pagination={pagination}
+      paginationMeta={paginationMeta}
+      columns={columns}
+      data={data}
+      wrapperClass="max-h-96 overflow-auto"
+    />
+  )
 }
 
 export default ObjectAssociationTable

@@ -215,6 +215,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
               <AccordionContent>
                 <div className="">
                   <DataTable
+                    loading={allControls.isLoading}
                     columns={columns}
                     data={getPaginatedControls(category, controls)}
                     paginationMeta={{

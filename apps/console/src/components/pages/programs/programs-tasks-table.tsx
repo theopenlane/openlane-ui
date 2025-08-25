@@ -3,10 +3,8 @@
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/utils/date'
-import { Users2Icon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
-import { TableCell, TableRow } from '@repo/ui/table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
@@ -146,16 +144,6 @@ const TasksTable = () => {
         loading={isLoading}
         sortFields={TASK_SORT_FIELDS}
         onSortChange={setOrderBy}
-        noDataMarkup={
-          <TableRow>
-            <TableCell colSpan={columns.length}>
-              <div className="flex flex-col justify-center items-center py-8">
-                <Users2Icon size={89} strokeWidth={1} className="text-border mb-4" />
-                <p className="text-sm text-muted-foreground">No tasks found</p>
-              </div>
-            </TableCell>
-          </TableRow>
-        }
       />
     </div>
   )

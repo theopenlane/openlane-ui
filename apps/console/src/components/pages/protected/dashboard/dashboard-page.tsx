@@ -17,12 +17,12 @@ import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import DashboardSkeleton from '@/app/(protected)/dashboard/dashboard-skeleton.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum'
 import { ProgramCreateIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import Loading from '@/app/(protected)/dashboard/loading'
 
 const DashboardPage: React.FC = () => {
   const router = useRouter()
@@ -74,7 +74,7 @@ const DashboardPage: React.FC = () => {
   }
 
   if (isLoading) {
-    return <DashboardSkeleton />
+    return <Loading />
   }
 
   if (!data?.programs.edges?.length) {

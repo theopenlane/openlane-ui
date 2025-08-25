@@ -1,8 +1,8 @@
-import { Loading } from '@/components/shared/loading/loading'
+import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
 import React from 'react'
 
 const Loader: React.FC = () => {
-  return <Loading />
+  return <ObjectWithDetailsSkeleton />
 }
 
 export default Loader

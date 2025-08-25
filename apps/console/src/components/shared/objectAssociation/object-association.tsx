@@ -92,6 +92,7 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
       </div>
       {selectedObject ? (
         <ObjectAssociationTable
+          isLoading={isLoading}
           onPaginationChange={setPagination}
           pagination={pagination}
           paginationMeta={{ totalCount, pageInfo, isLoading }}

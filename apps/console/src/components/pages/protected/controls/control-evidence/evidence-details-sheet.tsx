@@ -25,7 +25,6 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Input, InputRow } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
-import { Loading } from '@/components/shared/loading/loading'
 import { Badge } from '@repo/ui/badge'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -61,6 +60,7 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { EvidenceDetailsSheetSkeleton } from '../../evidence/skeleton/evidence-details-skeleton'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -389,7 +389,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         }
       >
         {fetching ? (
-          <Loading />
+          <EvidenceDetailsSheetSkeleton />
         ) : (
           <>
             <Form {...form}>
