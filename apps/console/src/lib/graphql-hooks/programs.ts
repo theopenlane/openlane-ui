@@ -38,6 +38,7 @@ import {
   GetProgramGroupsQueryVariables,
   DeleteProgramMutationVariables,
   UpdateProgramMembershipMutationVariables,
+  ProgramWhereInput,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -145,8 +146,8 @@ export const useGlobalEvidenceStats = ({ enabled = true }) => {
   })
 }
 
-export const useProgramSelect = () => {
-  const { data, ...rest } = useGetAllPrograms({})
+export const useProgramSelect = ({ where }: { where?: ProgramWhereInput }) => {
+  const { data, ...rest } = useGetAllPrograms({ where })
 
   const programOptions = data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) || []
 

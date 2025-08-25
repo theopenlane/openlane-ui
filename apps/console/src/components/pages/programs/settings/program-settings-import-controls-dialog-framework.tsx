@@ -16,21 +16,9 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { Input } from '@repo/ui/input'
 import { getColumnsForImportControlsDialogFramework } from '../columns'
 import { SelectedItem, TSharedImportControlsComponentsPropsFrameworks } from '../shared/program-settings-import-controls-shared-props'
-import { useSearchParams } from 'next/navigation'
-import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 
 const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, selectedFrameworkIds, setSelectedFrameworkIds }: TSharedImportControlsComponentsPropsFrameworks) => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
-  const { data: programDetails } = useGetProgramBasicInfo(programId)
-  const { data } = useGetStandards(
-    programDetails?.program.frameworkName
-      ? {
-          enabled: !!programDetails,
-          where: { shortNameNEQ: programDetails?.program.frameworkName },
-        }
-      : {},
-  )
+  const { data } = useGetStandards({})
 
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const frameworks = [...(data?.standards?.edges?.map((edge) => edge?.node as Standard) || [])]
