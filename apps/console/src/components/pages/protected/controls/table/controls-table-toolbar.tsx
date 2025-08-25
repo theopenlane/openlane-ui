@@ -57,7 +57,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
-  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
+  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
