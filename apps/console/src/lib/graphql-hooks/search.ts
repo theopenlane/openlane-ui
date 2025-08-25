@@ -19,9 +19,7 @@ export const useSearch = (query: string) => {
     () =>
       query.length > 2
         ? (routeList.filter((r) => {
-            if (r?.hidden === true) {
-              return false
-            }
+            if (r?.hidden === true) return false
 
             const nameMatch = r.name?.toLowerCase().includes(query.toLowerCase())
             const keywordMatch = r.keywords?.some((kw: string) => kw.toLowerCase().includes(query.toLowerCase()))
@@ -31,11 +29,33 @@ export const useSearch = (query: string) => {
     [query],
   )
 
+  const filteredSubcontrols = useMemo(() => {
+    if (!queryData.data?.search?.subcontrols?.edges) return []
+    return queryData.data.search.subcontrols.edges.filter((edge) => !edge?.node?.ownerID)
+  }, [queryData.data?.search?.subcontrols?.edges])
+
+  const data = useMemo(() => {
+    if (!queryData.data) return undefined
+    return {
+      ...queryData.data,
+      search: {
+        ...queryData.data.search,
+        subcontrols: queryData.data.search?.subcontrols
+          ? {
+              ...queryData.data.search.subcontrols,
+              edges: filteredSubcontrols,
+              totalCount: filteredSubcontrols.length,
+            }
+          : null,
+      },
+    }
+  }, [queryData.data, filteredSubcontrols])
+
   const pages = queryData.isFetched ? rawPages : []
 
   return {
     ...queryData,
     pages,
-    data: query.length > 2 ? queryData.data : undefined,
+    data: query.length > 2 ? data : undefined,
   }
 }
