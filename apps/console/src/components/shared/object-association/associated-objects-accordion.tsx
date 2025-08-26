@@ -74,7 +74,6 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     <div>
       <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full">
         {Object.entries(sections).map(([key, connection]) => {
-          console.log(key)
           if (!connection?.edges?.length) {
             return null
           }
