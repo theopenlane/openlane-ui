@@ -119,7 +119,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null }>,
       ),
     }
-    console.log(itemsDictionary)
+
     return (
       <div className="flex flex-wrap gap-2">
         {Object.entries(itemsDictionary).map(([key, { id, value, controlId, details }]) => {
