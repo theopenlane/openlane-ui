@@ -2,8 +2,9 @@
 
 import React from 'react'
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbSeparator, BreadcrumbLink } from '@repo/ui/breadcrumb'
-import { ChevronRight, Loader } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { BreadcrumbSkeleton } from './breadcrumb-skeleton'
 
 export function BreadcrumbNavigation() {
   const crumbsData = React.useContext(BreadcrumbContext)
@@ -25,7 +26,7 @@ export function BreadcrumbNavigation() {
             <BreadcrumbItem>
               {c.isLoading && (
                 <div className="flex items-center gap-2">
-                  <Loader size={16} className="animate-spin" />
+                  <BreadcrumbSkeleton />
                 </div>
               )}
               {!c.isLoading && c.href ? <BreadcrumbLink href={c.href}>{c.label ?? ''}</BreadcrumbLink> : <span className="font-medium text-foreground">{c.label}</span>}

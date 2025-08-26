@@ -8,7 +8,6 @@ import { ProgramCreate } from '@/components/pages/protected/program/program-crea
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import { Loading } from '@/components/shared/loading/loading'
 import { OrderDirection, ProgramOrderField } from '@repo/codegen/src/schema'
 import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
@@ -28,6 +27,7 @@ import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import Loading from '@/app/(protected)/programs/loading'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -94,7 +94,7 @@ const ProgramsPage: React.FC = () => {
     router.push(`/programs?id=${val}`)
   }
 
-  if (isLoading) {
+  if (isBasicInfoLoading || isLoading) {
     return <Loading />
   }
   if (!data?.programs.edges?.length) {
@@ -189,9 +189,7 @@ const ProgramsPage: React.FC = () => {
 
       <div className="flex flex-col gap-7">
         <div className="flex gap-7 w-full">
-          {isBasicInfoLoading ? (
-            <Loading />
-          ) : basicInfoData?.program ? (
+          {basicInfoData?.program ? (
             <>
               <BasicInformation />
               <div className="flex flex-col gap-7 flex-1">

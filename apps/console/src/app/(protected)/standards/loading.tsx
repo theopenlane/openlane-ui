@@ -1,8 +1,8 @@
-import { Loading } from '@/components/shared/loading/loading'
+import { StandardsPageSkeleton } from '@/components/pages/protected/standards/skeleton/standards-page-skeleton'
 import React from 'react'
 
 const Loader: React.FC = () => {
-  return <Loading />
+  return <StandardsPageSkeleton />
 }
 
 export default Loader
