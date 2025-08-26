@@ -82,8 +82,8 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
                 autoFocus
                 onClose={() => setEditingField(null)}
                 onChange={(val) => {
-                  field.onChange(val)
                   handleSelect(fieldKey, val)
+                  field.onChange(val)
                 }}
               />
             )}
