@@ -42,6 +42,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import Loading from './loading.tsx'
 
 interface FormValues {
   refCode: string
@@ -102,6 +103,7 @@ const ControlDetailsPage: React.FC = () => {
       tasks: data?.control.tasks,
       programs: data?.control.programs,
       risks: data?.control.risks,
+      subcontrols: data?.control.subcontrols,
     }
   }, [data?.control])
 
@@ -219,7 +221,9 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.control, form])
 
-  if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
+  if (isLoading) {
+    return <Loading />
+  }
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control = data?.control
   const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
