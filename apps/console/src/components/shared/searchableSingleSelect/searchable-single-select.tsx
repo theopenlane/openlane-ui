@@ -13,9 +13,10 @@ interface SearchableSingleSelectProps {
   onChange?: (val: string) => void
   autoFocus?: boolean
   onClose?: () => void
+  className?: string
 }
 
-export const SearchableSingleSelect = ({ value, placeholder = 'Select an option...', options, onChange, autoFocus, onClose }: SearchableSingleSelectProps) => {
+export const SearchableSingleSelect = ({ value, placeholder = 'Select an option...', options, onChange, autoFocus, onClose, className }: SearchableSingleSelectProps) => {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -29,7 +30,7 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
   const selected = options.find((opt) => opt.value === value)
 
   return (
-    <div ref={triggerRef} className="w-[200px]">
+    <div ref={triggerRef} className={`w-[200px] ${className}`}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input-background rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
