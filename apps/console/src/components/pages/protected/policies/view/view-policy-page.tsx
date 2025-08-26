@@ -310,8 +310,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
-      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} />
-      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} />
+      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
       <HistoricalCard policy={policy} />
       <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>
