@@ -2,27 +2,30 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { BookText, Info, PencilLine, SlidersHorizontal } from 'lucide-react'
+import { Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { TaskQuery } from '@repo/codegen/src/schema'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 type RelatedObjectsProps = {
   taskData: TaskQuery['task'] | undefined
 }
 
 const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
+  const plateEditorHelper = usePlateEditor()
   const handleRelatedObjects = () => {
     const itemsDictionary: Record<string, { id: string; value: string; controlId?: string; details?: string | null }> = {
       ...taskData?.controlObjectives?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'Control objective' }
+          const details = item?.node?.desiredOutcome
+          if (key && id) acc[key] = { id, value: 'Control objective', details: details }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null }>,
       ),
 
       ...taskData?.controls?.edges?.reduce(
@@ -65,7 +68,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          const details = item?.node?.details
+          const details = item?.node?.summary
           if (key && id) acc[key] = { id, value: 'Procedure', details: details }
           return acc
         },
@@ -76,7 +79,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          const details = item?.node?.details
+          const details = item?.node?.summary
           if (key && id) acc[key] = { id, value: 'Policy', details: details }
           return acc
         },
@@ -116,7 +119,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null }>,
       ),
     }
-
+    console.log(itemsDictionary)
     return (
       <div className="flex flex-wrap gap-2">
         {Object.entries(itemsDictionary).map(([key, { id, value, controlId, details }]) => {
@@ -155,7 +158,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
                           <PencilLine size={12} />
                           <span className="font-medium">Description</span>
                         </div>
-                        <div className="max-w-xs whitespace-normal break-words text-justify">{details ? details : 'No details available'}</div>
+                        <div className="max-w-xs whitespace-normal break-words text-justify">{details ? plateEditorHelper.convertToReadOnly(details) : 'No details available'}</div>
                       </div>
                     </div>
                   </TooltipContent>
@@ -168,13 +171,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
     )
   }
 
-  return (
-    <div className="flex items-center gap-4">
-      <BookText height={16} width={16} className="text-accent-secondary" />
-      <p className="text-sm w-[120px]">Related Objects</p>
-      {handleRelatedObjects()}
-    </div>
-  )
+  return handleRelatedObjects()
 }
 
 export default RelatedObjects

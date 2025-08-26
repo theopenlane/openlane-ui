@@ -44385,11 +44385,11 @@ export type TaskQuery = {
     }
     procedures: {
       __typename?: 'ProcedureConnection'
-      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string; details?: string | null; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; details?: string | null; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
     }
     evidence: {
       __typename?: 'EvidenceConnection'
@@ -44401,7 +44401,10 @@ export type TaskQuery = {
     }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; displayID: string; id: string; name: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: { __typename?: 'ControlObjective'; displayID: string; id: string; name: string; desiredOutcome?: string | null } | null
+      } | null> | null
     }
     comments: {
       __typename?: 'NoteConnection'

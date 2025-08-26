@@ -193,6 +193,8 @@
   --color-subcontrols: #eca4fd;
   --color-control-objectives: #ffda42;
   --color-policies: #a78bfa;
+  --color-groups: #fbbf24;
+  --color-evidence: #94a3b8;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

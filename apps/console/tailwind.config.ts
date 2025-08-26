@@ -47,6 +47,8 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
           subcontrols: 'var(--color-subcontrols)',
           controlObjectives: 'var(--color-control-objectives)',
           policies: 'var(--color-policies)',
+          groups: 'var(--color-groups)',
+          evidence: 'var(--color-evidence)',
         },
       },
 

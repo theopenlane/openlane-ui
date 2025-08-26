@@ -139,8 +139,8 @@ export const TASK = gql`
           node {
             id
             displayID
-            details
             name
+            summary
           }
         }
       }
@@ -149,8 +149,8 @@ export const TASK = gql`
           node {
             id
             displayID
-            details
             name
+            summary
           }
         }
       }
@@ -183,6 +183,7 @@ export const TASK = gql`
             displayID
             id
             name
+            desiredOutcome
           }
         }
       }

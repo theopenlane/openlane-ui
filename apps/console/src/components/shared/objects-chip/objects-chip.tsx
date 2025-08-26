@@ -12,6 +12,8 @@ const borderColors: Record<string, string> = {
   Subcontrol: 'border-object-subcontrols',
   'Control objective': 'border-object-controlObjectives',
   Policy: 'border-object-policies',
+  Group: 'border-object-groups',
+  Evidence: 'border-object-evidence',
   default: 'border border',
 }
 
