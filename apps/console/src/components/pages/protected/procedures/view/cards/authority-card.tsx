@@ -32,7 +32,6 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
     label: g?.name || '',
     value: g?.id || '',
   }))
-
   const handleSelect = (field: 'approverID' | 'delegateID', value: string) => {
     const currentValue = form.getValues(field)
 
@@ -81,8 +80,8 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
                 placeholder={`Select ${label.toLowerCase()}`}
                 autoFocus
                 onChange={(val) => {
-                  field.onChange(val)
                   handleSelect(fieldKey, val)
+                  field.onChange(val)
                 }}
                 onClose={() => setEditingField(null)}
               />
