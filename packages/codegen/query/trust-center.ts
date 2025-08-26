@@ -47,3 +47,12 @@ export const UPDATE_TRUST_CENTER_SETTING = gql`
     }
   }
 `
+export const CREATE_CUSTOM_DOMAIN = gql`
+  mutation CreateCustomDomain($input: CreateCustomDomainInput!) {
+    createCustomDomain(input: $input) {
+      customDomain {
+        id
+      }
+    }
+  }
+`

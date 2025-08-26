@@ -6,7 +6,8 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Badge } from '@repo/ui/badge'
 import UrlInput from './url-input'
 import { Label } from '@repo/ui/label'
-import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { TrustCenterSetting, useCreateCustomDomain } from '@/lib/graphql-hooks/trust-center'
+import { useNotification } from '@/hooks/useNotification'
 
 type Props = {
   setting: TrustCenterSetting
@@ -18,6 +19,14 @@ const ConfigureUrlSection = ({ setting }: Props) => {
   const [primaryEditing, setPrimaryEditing] = useState(false)
   const [secondaryUrl, setSecondaryUrl] = useState('trustcenter.ai')
   const [secondaryEditing, setSecondaryEditing] = useState(false)
+
+  const { mutateAsync: createCustomDomain } = useCreateCustomDomain()
+  const { successNotification, errorNotification } = useNotification()
+
+  const handleCreateCustomDomain = () => {
+    createCustomDomain({ input: { mappableDomainID: '01K3KGV559DDFS9HWMV532M26J', cnameRecord: starterSubdomain } })
+  }
+
   return (
     <>
       <div className="grid grid-cols-[250px_auto] gap-6 items-start border-b pb-8">
@@ -34,7 +43,9 @@ const ConfigureUrlSection = ({ setting }: Props) => {
           </div>
           <div className="flex gap-3 items-center mt-2.5">
             <UrlInput value={starterSubdomain} onChange={setStarterSubdomain} />
-            <Button className="shrink-0">Set</Button>
+            <Button onClick={handleCreateCustomDomain} className="shrink-0">
+              Set
+            </Button>
           </div>
         </div>
       </div>

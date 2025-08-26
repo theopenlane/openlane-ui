@@ -1,6 +1,12 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_TRUST_CENTER, UPDATE_TRUST_CENTER_SETTING } from '@repo/codegen/query/trust-center'
-import { GetTrustCenterQuery, UpdateTrustCenterSettingMutation, UpdateTrustCenterSettingMutationVariables } from '@repo/codegen/src/schema'
+import { CREATE_CUSTOM_DOMAIN, GET_TRUST_CENTER, UPDATE_TRUST_CENTER_SETTING } from '@repo/codegen/query/trust-center'
+import {
+  CreateCustomDomainMutation,
+  CreateCustomDomainMutationVariables,
+  GetTrustCenterQuery,
+  UpdateTrustCenterSettingMutation,
+  UpdateTrustCenterSettingMutationVariables,
+} from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
@@ -35,6 +41,21 @@ export const useUpdateTrustCenterSetting = () => {
       }
 
       return client.request<UpdateTrustCenterSettingMutation, UpdateTrustCenterSettingMutationVariables>(UPDATE_TRUST_CENTER_SETTING, rest)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter'],
+      })
+    },
+  })
+}
+
+export const useCreateCustomDomain = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<CreateCustomDomainMutation, Error, CreateCustomDomainMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request<CreateCustomDomainMutation, CreateCustomDomainMutationVariables>(CREATE_CUSTOM_DOMAIN, variables)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

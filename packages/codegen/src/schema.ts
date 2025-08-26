@@ -44727,6 +44727,12 @@ export type UpdateTrustCenterSettingMutation = {
   updateTrustCenterSetting: { __typename?: 'TrustCenterSettingUpdatePayload'; trustCenterSetting: { __typename?: 'TrustCenterSetting'; id: string } }
 }
 
+export type CreateCustomDomainMutationVariables = Exact<{
+  input: CreateCustomDomainInput
+}>
+
+export type CreateCustomDomainMutation = { __typename?: 'Mutation'; createCustomDomain: { __typename?: 'CustomDomainCreatePayload'; customDomain: { __typename?: 'CustomDomain'; id: string } } }
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
