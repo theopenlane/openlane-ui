@@ -4,17 +4,17 @@ type ObjectsChipProps = {
 }
 
 const borderColors: Record<string, string> = {
-  Control: 'border-object-controls',
-  Program: 'border-object-programs',
-  Tasks: 'border-object-tasks',
-  Procedure: 'border-object-procedures',
-  Risk: 'border-object-risks',
-  Subcontrol: 'border-object-subcontrols',
-  'Control objective': 'border-object-controlObjectives',
-  Policy: 'border-object-policies',
-  Group: 'border-object-groups',
-  Evidence: 'border-object-evidence',
-  default: 'border border',
+  controls: 'border-object-controls',
+  programs: 'border-object-programs',
+  tasks: 'border-object-tasks',
+  procedures: 'border-object-procedures',
+  risks: 'border-object-risks',
+  subcontrols: 'border-object-subcontrols',
+  controlObjectives: 'border-object-controlObjectives',
+  policies: 'border-object-policies',
+  groups: 'border-object-groups',
+  evidences: 'border-object-evidence',
+  default: 'border-transparent',
 }
 
 const ObjectsChip = ({ name, objectType }: ObjectsChipProps) => {

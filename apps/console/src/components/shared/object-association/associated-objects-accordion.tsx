@@ -49,6 +49,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
         rows.map((row) => {
           return (
             <ObjectAssociationChip
+              kind={kind}
               key={row?.id}
               object={{
                 id: row.id,
@@ -73,6 +74,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     <div>
       <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full">
         {Object.entries(sections).map(([key, connection]) => {
+          console.log(key)
           if (!connection?.edges?.length) {
             return null
           }
