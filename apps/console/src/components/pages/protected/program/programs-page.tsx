@@ -8,7 +8,7 @@ import { ProgramCreate } from '@/components/pages/protected/program/program-crea
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import { OrderDirection, ProgramOrderField } from '@repo/codegen/src/schema'
+import { OrderDirection, ProgramOrderField, ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
 import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
@@ -28,15 +28,13 @@ import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-r
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import Loading from '@/app/(protected)/programs/loading'
+import { Checkbox } from '@repo/ui/checkbox'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const programId = searchParams.get('id')
-  const { data, isLoading } = useGetAllPrograms({
-    orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
-  })
 
   const [selectedProgram, setSelectedProgram] = useState<string>('')
 
@@ -46,17 +44,36 @@ const ProgramsPage: React.FC = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const [showAllPrograms, setShowAllPrograms] = useState<boolean>(false)
+  const where: ProgramWhereInput = useMemo(() => {
+    if (showAllPrograms) {
+      return {
+        statusIn: [
+          ProgramProgramStatus.ACTION_REQUIRED,
+          ProgramProgramStatus.ARCHIVED,
+          ProgramProgramStatus.COMPLETED,
+          ProgramProgramStatus.IN_PROGRESS,
+          ProgramProgramStatus.NOT_STARTED,
+          ProgramProgramStatus.READY_FOR_AUDITOR,
+        ],
+      }
+    }
+    return {
+      statusNotIn: [ProgramProgramStatus.ARCHIVED],
+    }
+  }, [showAllPrograms])
+  const { data, isLoading } = useGetAllPrograms({
+    orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
+    where,
+  })
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
     data?.programs?.edges?.forEach((edge) => {
-      if (edge?.node) {
-        map[edge.node.id] = edge.node.name
-      }
+      if (edge?.node) map[edge.node.id] = edge.node.name
     })
     return map
   }, [data])
-
   const initialData: TObjectAssociationMap = useMemo(() => {
     return {
       programIDs: programId ? [programId] : [],
@@ -83,10 +100,17 @@ const ProgramsPage: React.FC = () => {
       router.replace(`/programs?id=${firstProgram.id}`)
       setSelectedProgram(firstProgram.name)
     } else if (programId) {
-      const programName = programMap[programId] ?? 'Unknown Program'
-      setSelectedProgram(programName)
+      const program = data.programs.edges.find((edge) => edge?.node?.id === programId)?.node
+      if (program) {
+        setSelectedProgram(program.name)
+      } else {
+        if (firstProgram?.id) {
+          router.replace(`/programs?id=${firstProgram.id}`)
+          setSelectedProgram(firstProgram.name)
+        }
+      }
     }
-  }, [programId, programMap, router, data?.programs?.edges])
+  }, [programId, data?.programs?.edges, router])
 
   const handleSelectChange = (val: string) => {
     const programName = programMap[val] ?? 'Unknown Program'
@@ -170,6 +194,10 @@ const ProgramsPage: React.FC = () => {
                   })}
                 </SelectContent>
               </Select>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <Checkbox checked={showAllPrograms} onCheckedChange={(checked) => setShowAllPrograms(!!checked)} />
+                <span className="text-sm">Show all programs</span>
+              </div>
             </div>
             <div className="flex gap-2.5 items-center">
               <Menu
@@ -194,7 +222,13 @@ const ProgramsPage: React.FC = () => {
               <BasicInformation />
               <div className="flex flex-col gap-7 flex-1">
                 <TimelineReadiness />
-                <ProgramAuditor firm={basicInfoData.program.auditFirm} name={basicInfoData.program.auditor} email={basicInfoData.program.auditorEmail} isReady={basicInfoData.program.auditorReady} />
+                <ProgramAuditor
+                  programStatus={basicInfoData.program.status}
+                  firm={basicInfoData.program.auditFirm}
+                  name={basicInfoData.program.auditor}
+                  email={basicInfoData.program.auditorEmail}
+                  isReady={basicInfoData.program.auditorReady}
+                />
               </div>
             </>
           ) : (
