@@ -5,15 +5,17 @@ import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 
 interface TitleFieldProps {
   isEditing: boolean
   isEditAllowed?: boolean
   handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   initialValue: string
+  referenceFramework: string | null | undefined
 }
 
-const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue }: TitleFieldProps) => {
+const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue, referenceFramework }: TitleFieldProps) => {
   const { register, getValues, setValue } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
@@ -59,9 +61,12 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
       <Input id="refCode" {...register('refCode')} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus />
     </div>
   ) : (
-    <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-      {getValues('refCode')}
-    </h1>
+    <div className="flex gap-2 items-center">
+      {referenceFramework && <StandardsIconMapper shortName={referenceFramework} />}
+      <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+        {getValues('refCode')}
+      </h1>
+    </div>
   )
 }
 
