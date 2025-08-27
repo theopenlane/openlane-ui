@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect, useContext } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { ControlListFieldsFragment, ControlOrderField, ControlWhereInput, GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, ControlWhereInput, GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -67,6 +67,7 @@ const ControlsTable: React.FC = () => {
       if (key === 'standard') {
         return { hasStandardWith: [{ id: value }] }
       }
+
       return { [key]: value } as Partial<ControlWhereInput>
     }
 
@@ -85,6 +86,24 @@ const ControlsTable: React.FC = () => {
         Object.assign(conditions, mapCustomKey(key, value))
       }
     })
+
+    const hasStatusCondition = (obj: ControlWhereInput): boolean => {
+      if ('status' in obj || 'statusNEQ' in obj) return true
+
+      if (Array.isArray(obj.and)) {
+        if (obj.and.some(hasStatusCondition)) return true
+      }
+
+      if (Array.isArray(obj.or)) {
+        if (obj.or.some(hasStatusCondition)) return true
+      }
+
+      return false
+    }
+
+    if (!hasStatusCondition(conditions)) {
+      conditions.statusNEQ = ControlControlStatus.ARCHIVED
+    }
 
     return conditions
   }, [filters])
