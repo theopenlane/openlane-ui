@@ -84,7 +84,7 @@ const ControlDetailsPage: React.FC = () => {
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
+  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id)
   const { data: orgPermission } = useOrganizationRole(session)
 
   const { successNotification, errorNotification } = useNotification()
