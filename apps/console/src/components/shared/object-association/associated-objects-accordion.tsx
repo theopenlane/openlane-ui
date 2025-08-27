@@ -49,6 +49,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
         rows.map((row) => {
           return (
             <ObjectAssociationChip
+              kind={kind}
               key={row?.id}
               object={{
                 id: row.id,

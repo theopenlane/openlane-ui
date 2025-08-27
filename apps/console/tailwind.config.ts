@@ -38,6 +38,18 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
           cobit: 'var(--color-cobit)',
           fed: 'var(--color-fed)',
         },
+        object: {
+          procedures: 'var(--color-procedures)',
+          tasks: 'var(--color-tasks)',
+          programs: 'var(--color-programs)',
+          risks: 'var(--color-risks)',
+          controls: 'var(--color-controls)',
+          subcontrols: 'var(--color-subcontrols)',
+          controlObjectives: 'var(--color-control-objectives)',
+          policies: 'var(--color-policies)',
+          groups: 'var(--color-groups)',
+          evidence: 'var(--color-evidence)',
+        },
       },
 
       keyframes: {
