@@ -58,17 +58,20 @@ const BillingSettings: React.FC = () => {
       </div>
 
       {/* Cancel Section */}
-      <div className={cn(section())}>
-        <div className="flex gap-10 w-full items-start">
-          <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
-            <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period..</p>
-            <a href={data?.organization?.orgSubscriptions?.[0].cancellation ?? '#'} target="_blank" rel="noopener noreferrer" className="text-brand inline-flex items-center">
-              Cancel <ExternalLink size={16} className="ml-1" />
-            </a>
+      {data?.organization?.orgSubscriptions && data?.organization?.orgSubscriptions.length > 0 && (
+        <div className={cn(section())}>
+          <div className="flex gap-10 w-full items-start">
+            <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
+              <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
+              <a href={data?.organization?.orgSubscriptions?.[0].cancellation ?? '#'} target="_blank" rel="noopener noreferrer" className="text-brand inline-flex items-center">
+                {' '}
+                Cancel <ExternalLink size={16} className="ml-1" />
+              </a>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
