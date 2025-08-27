@@ -60,7 +60,6 @@ const EVIDENCE_FIELDS = gql`
     displayID
     id
     name
-    ownerID
     renewalDate
     source
     status
@@ -126,7 +125,6 @@ export const GET_RENEW_EVIDENCE = gql`
       displayID
       id
       name
-      ownerID
       renewalDate
       source
       status
@@ -359,6 +357,45 @@ export const GET_PROGRAM_EVIDENCE_TREND_DATA = gql`
       totalCount
     }
     previousWeek: evidences(where: { createdAtGTE: $previousWeekStart, createdAtLT: $previousWeekEnd, hasProgramsWith: [{ id: $programId }], status: $status }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_EVIDENCE_SUGGESTED_ACTIONS = gql`
+  query EvidenceSuggestedActions {
+    unlinked: evidences(where: { hasPrograms: false, hasControls: false, hasSubcontrols: false }) {
+      edges {
+        node {
+          id
+          name
+          status
+          updatedAt
+        }
+      }
+      totalCount
+    }
+    needingReview: evidences(where: { statusIn: [SUBMITTED, IN_REVIEW] }) {
+      edges {
+        node {
+          id
+          name
+          status
+          updatedAt
+        }
+      }
+      totalCount
+    }
+
+    needsRenewal: evidences(where: { status: NEEDS_RENEWAL }) {
+      edges {
+        node {
+          id
+          name
+          status
+          updatedAt
+        }
+      }
       totalCount
     }
   }

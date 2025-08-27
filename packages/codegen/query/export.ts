@@ -32,6 +32,7 @@ export const GET_EXPORTS = gql`
         node {
           id
           status
+          exportType
           files {
             edges {
               node {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
@@ -59,9 +59,15 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     defaultValues: defaultObject,
   })
   const { data } = useGetAllGroups({ where: {} })
-  const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
+  const groups = useMemo(() => {
+    if (!data) return
+    return data?.groups?.edges?.map((edge) => edge?.node) || []
+  }, [data])
 
-  const allOptionSelects = getAllSelectOptionsForBulkEditRisks(groups.filter(Boolean) as Group[])
+  const allOptionSelects = useMemo(() => {
+    if (!groups) return []
+    return getAllSelectOptionsForBulkEditRisks(groups?.filter(Boolean) as Group[])
+  }, [groups])
 
   const { control, handleSubmit, watch } = form
 

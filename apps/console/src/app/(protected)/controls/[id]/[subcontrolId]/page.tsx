@@ -105,6 +105,7 @@ const ControlDetailsPage: React.FC = () => {
       procedures: data?.subcontrol.procedures,
       tasks: data?.subcontrol.tasks,
       risks: data?.subcontrol.risks,
+      controls: data?.subcontrol.control,
     }
   }, [data?.subcontrol])
 
@@ -175,7 +176,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -299,17 +300,12 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <Menu
-            content={
-              <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                  <PencilIcon size={16} strokeWidth={2} />
-                  <span>Edit</span>
-                </div>
-                <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
-              </>
-            }
-          />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
+              <PencilIcon size={16} strokeWidth={2} />
+            </Button>
+            <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
+          </div>
         </div>
       )}
     </div>
@@ -324,7 +320,7 @@ const ControlDetailsPage: React.FC = () => {
           handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
           initialValue={initialValues.refCode}
         />
-        {isEditing && (
+        {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
             <InfoIcon size={14} className="mt-1 shrink-0" />
             <p>

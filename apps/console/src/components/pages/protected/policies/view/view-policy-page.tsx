@@ -1,4 +1,3 @@
-import { Loading } from '@/components/shared/loading/loading'
 import { useDeleteInternalPolicy, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import React, { useEffect, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -33,6 +32,7 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Loading from '@/app/(protected)/policies/[id]/view/loading'
 
 type TViewPolicyPage = {
   policyId: string
@@ -310,8 +310,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
-      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} />
-      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} />
+      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
       <HistoricalCard policy={policy} />
       <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>

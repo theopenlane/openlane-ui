@@ -6,10 +6,12 @@ import { FilePlus } from 'lucide-react'
 import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { CreateButton } from '@/components/shared/create-button/create-button'
 
 type TProps = {
   formData?: TFormEvidenceData
   excludeObjectTypes?: ObjectTypeObjects[]
+  createButton?: boolean
 }
 
 const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
@@ -21,6 +23,11 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
   }
 
   const config = useMemo(() => {
+    if (props.createButton)
+      return {
+        button: <CreateButton type="evidence" onClick={() => setIsOpen(true)} />,
+        title: props.formData?.displayID ? `Submit Evidence for ${props.formData?.displayID}` : '',
+      }
     if (props.formData) {
       return {
         button: (
@@ -31,6 +38,7 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
         title: `Submit Evidence for ${props.formData?.displayID}`,
       }
     }
+
     return {
       button: (
         <Button icon={<FilePlus />} iconPosition="left" onClick={() => setIsOpen(true)}>
@@ -38,7 +46,7 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
         </Button>
       ),
     }
-  }, [props.formData])
+  }, [props.formData, props.createButton])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

@@ -12,7 +12,7 @@ const Skeleton = ({ className = '', width, height, ...props }: TSkeletonProps) =
     ...(height ? { height: typeof height === 'number' ? `${height}px` : height } : {}),
   }
 
-  return <div style={style} className={`animate-custom-pulse bg-white/20 rounded ${className}`} {...props} />
+  return <div style={style} className={`animate-custom-pulse bg-white/20 ${className || 'rounded-lg'}`} {...props} />
 }
 
 export default Skeleton

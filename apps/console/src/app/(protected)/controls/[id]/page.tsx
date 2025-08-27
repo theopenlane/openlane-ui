@@ -42,6 +42,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import Loading from './loading.tsx'
 
 interface FormValues {
   refCode: string
@@ -83,7 +84,7 @@ const ControlDetailsPage: React.FC = () => {
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
+  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id)
   const { data: orgPermission } = useOrganizationRole(session)
 
   const { successNotification, errorNotification } = useNotification()
@@ -102,6 +103,7 @@ const ControlDetailsPage: React.FC = () => {
       tasks: data?.control.tasks,
       programs: data?.control.programs,
       risks: data?.control.risks,
+      subcontrols: data?.control.subcontrols,
     }
   }, [data?.control])
 
@@ -170,7 +172,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -219,7 +221,9 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.control, form])
 
-  if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
+  if (isLoading) {
+    return <Loading />
+  }
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control = data?.control
   const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
@@ -236,7 +240,7 @@ const ControlDetailsPage: React.FC = () => {
           </Button>
         </div>
       )}
-      {!isEditing && canEdit(permission?.roles) && (
+      {!isEditing && (
         <div className="flex gap-2 justify-end">
           <Menu
             trigger={CreateBtn}
@@ -301,17 +305,12 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <Menu
-            content={
-              <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                  <PencilIcon size={16} strokeWidth={2} />
-                  <span>Edit</span>
-                </div>
-                <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
-              </>
-            }
-          />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
+              <PencilIcon size={16} strokeWidth={2} />
+            </Button>
+            <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
+          </div>
         </div>
       )}
     </div>
@@ -326,7 +325,7 @@ const ControlDetailsPage: React.FC = () => {
           initialValue={initialValues.refCode}
           handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
         />
-        {isEditing && (
+        {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
             <InfoIcon size={14} className="mt-1 shrink-0" />
             <p>

@@ -130,7 +130,7 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, function Placehol
   return (
     <PlateElement className="my-1" {...props}>
       {(!loading || !isImage) && (
-        <div className={cn('flex cursor-pointer items-center rounded-sm bg-muted p-3 pr-9 select-none hover:bg-primary/10')} onClick={() => !loading && openFilePicker()} contentEditable={false}>
+        <div className={cn('flex cursor-pointer items-center rounded-xs bg-muted p-3 pr-9 select-none hover:bg-primary/10')} onClick={() => !loading && openFilePicker()} contentEditable={false}>
           <div className="relative mr-3 flex text-muted-foreground/80 [&_svg]:size-6">{currentContent.icon}</div>
           <div className="text-sm whitespace-nowrap text-muted-foreground">
             <div>{loading ? uploadingFile?.name : currentContent.content}</div>
@@ -174,7 +174,7 @@ export function ImageProgress({ className, file, imageRef, progress = 0 }: { fil
 
   return (
     <div className={cn('relative', className)} contentEditable={false}>
-      <img ref={imageRef} className="h-auto w-full rounded-sm object-cover" alt={file.name} src={objectUrl} />
+      <img ref={imageRef} className="h-auto w-full rounded-xs object-cover" alt={file.name} src={objectUrl} />
       {progress < 100 && (
         <div className="absolute right-1 bottom-1 flex items-center space-x-2 rounded-full bg-black/50 px-1 py-0.5">
           <Loader2Icon className="size-3.5 animate-spin text-muted-foreground" />

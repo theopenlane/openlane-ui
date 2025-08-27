@@ -6,24 +6,32 @@ import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteOrganization } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-const OrganizationDelete = () => {
+type OrganizationDeleteProps = {
+  onLoadingChange?: (val: boolean) => void
+}
+
+const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
   const { successNotification, errorNotification } = useNotification()
   const { push } = useRouter()
   const queryClient = useQueryClient()
-  const { mutateAsync: deleteOrganization } = useDeleteOrganization()
+  const { mutateAsync: deleteOrganization, isPending } = useDeleteOrganization()
   const { data: sessionData, update } = useSession()
   const { data } = useOrganizationRole(sessionData)
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  useEffect(() => {
+    onLoadingChange?.(isPending)
+  }, [isPending, onLoadingChange])
 
   const clickHandler = async () => {
     try {

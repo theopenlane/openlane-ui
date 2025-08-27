@@ -1,6 +1,5 @@
 'use client'
 
-import { Loading } from '@/components/shared/loading/loading'
 import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import React, { useEffect, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -37,6 +36,7 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -294,8 +294,8 @@ const ViewProcedurePage: React.FC = () => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
-      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={editAllowed} />
-      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={editAllowed} />
+      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
       <HistoricalCard procedure={procedure} />
       <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>

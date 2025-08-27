@@ -136,7 +136,7 @@ export default function Step1() {
               </button>
             </Badge>
           ))}
-          <Input id="domains" type="text" value={domainInput} onChange={(e) => setDomainInput(e.target.value)} onKeyDown={handleKeyDown} className="border-none outline-none flex-1" />
+          <Input id="domains" type="text" value={domainInput} onChange={(e) => setDomainInput(e.target.value)} onKeyDown={handleKeyDown} className="border-none outline-hidden flex-1" />
         </div>
         <Button
           onClick={(e) => {

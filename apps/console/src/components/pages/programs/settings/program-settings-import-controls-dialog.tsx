@@ -8,11 +8,11 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import ImportControlsDialogFramework from './program-settings-import-controls-dialog-framework'
 import ImportControlsDialogProgram from './program-settings-import-controls-dialog-program'
 import { SelectedItem } from '../shared/program-settings-import-controls-shared-props'
-import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useCloneControls } from '@/lib/graphql-hooks/standards'
 
 const ImportControlsDialog: React.FC = () => {
   const [open, setOpen] = useState(false)
@@ -20,28 +20,24 @@ const ImportControlsDialog: React.FC = () => {
   const [selectedProgramIds, setSelectedProgramIds] = useState<string[]>([])
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([])
   const [selectedImportControlsFrom, setSelectedImportControlsFrom] = useState<ObjectEnum>(ObjectEnum.STANDARD)
-  const { mutateAsync: updateProgram } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
-  const handleImport = async () => {
-    if (!programId) {
-      errorNotification({
-        title: 'Missing Program ID',
-        description: 'Cannot import without a valid program ID.',
-      })
-      return
-    }
+  const router = useRouter()
 
+  const { mutateAsync: cloneControls } = useCloneControls()
+
+  const handleImport = async () => {
     try {
-      await updateProgram({
-        updateProgramId: programId,
+      await cloneControls({
         input: {
-          addControlIDs: selectedItems.map((item) => item.id),
+          programID: programId,
+          controlIDs: selectedItems.map((item) => item.id),
         },
       })
-      queryClient.invalidateQueries({ queryKey: ['programs'] })
+
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
       successNotification({
         title: 'Controls Imported',
         description: `${selectedItems.length} control(s) successfully imported to the program.`,
@@ -68,12 +64,16 @@ const ImportControlsDialog: React.FC = () => {
     setOpen(false)
   }
 
+  if (!programId) {
+    router.replace('/programs')
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-fit">Import</Button>
       </DialogTrigger>
-      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[497px]">
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-2xl ">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold leading-8">Import Controls</DialogTitle>
         </DialogHeader>

@@ -46,55 +46,59 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
 
   return (
     <nav className={nav()}>
-      {items.map((item, idx) =>
-        isSeparator(item) ? (
-          <div key={`${idx}_${item.type}`} className={separator()}>
-            <Hr />
-          </div>
-        ) : isNavHeading(item) ? (
-          <div key={`${idx}_${item.type}`} className={heading()}>
-            {item.heading}
-          </div>
-        ) : item.isChildren ? (
-          <Accordion type="multiple" key={item.title} value={openItems} onValueChange={handleValueChange}>
-            <AccordionItem value={item.title} className={accordionItem()}>
-              <AccordionTrigger className={accordionTrigger()}>
-                <div>{item.icon && <item.icon className={icon()} />}</div>
-                <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
-                {item.addCount && isSidebarOpen && <div className={badgeCount({ isCurrent: path === item.href })}></div>}
-              </AccordionTrigger>
-              <AccordionContent>
-                {item.children?.map((child) => (
-                  <Link
-                    key={child.title}
-                    href={child.href}
-                    onClick={() => {
-                      if (setOpen) setOpen(false)
-                    }}
-                    className={link({ isCurrent: path === child.href })}
-                  >
-                    {child.icon && <child.icon className={icon({ isCurrent: path === child.href })} />}
-                    <div className={cn(linkLabel(), !isSidebarOpen && className)}>{child.title}</div>
-                  </Link>
-                ))}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        ) : (
-          <Link
-            key={item.title}
-            href={item.href}
-            onClick={() => {
-              if (setOpen) setOpen(false)
-            }}
-            className={link({ isCurrent: path === item.href })}
-          >
-            {item.icon && <item.icon className={icon({ isCurrent: path === item.href })} />}
-            <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
-          </Link>
-        ),
-      )}
-      <div className={clsx('flex justify-between fixed p-3 bottom-0 border-t left-0 bg-panel-bg', isSidebarOpen ? 'w-60' : 'w-[57px]')}>
+      {items
+        .filter((item) => !item.hidden)
+        .map((item, idx) =>
+          isSeparator(item) ? (
+            <div key={`${idx}_${item.type}`} className={separator()}>
+              <Hr />
+            </div>
+          ) : isNavHeading(item) ? (
+            <div key={`${idx}_${item.type}`} className={heading()}>
+              {item.heading}
+            </div>
+          ) : item.isChildren ? (
+            <Accordion type="multiple" key={item.title} value={openItems} onValueChange={handleValueChange}>
+              <AccordionItem value={item.title} className={accordionItem()}>
+                <AccordionTrigger className={accordionTrigger()}>
+                  <div>{item.icon && <item.icon className={icon()} />}</div>
+                  <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
+                  {item.addCount && isSidebarOpen && <div className={badgeCount({ isCurrent: path === item.href })}></div>}
+                </AccordionTrigger>
+                <AccordionContent>
+                  {item.children
+                    ?.filter((child) => !child.hidden)
+                    .map((child) => (
+                      <Link
+                        key={child.title}
+                        href={child.href}
+                        onClick={() => {
+                          if (setOpen) setOpen(false)
+                        }}
+                        className={link({ isCurrent: path === child.href })}
+                      >
+                        <div className="w-4 h-4 flex items-center justify-center">{child.icon && <child.icon className={cn('w-4 h-4', icon({ isCurrent: path === item.href }))} />}</div>
+                        <div className={cn(linkLabel(), !isSidebarOpen && className)}>{child.title}</div>
+                      </Link>
+                    ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          ) : (
+            <Link
+              key={item.title}
+              href={item.href}
+              onClick={() => {
+                if (setOpen) setOpen(false)
+              }}
+              className={link({ isCurrent: path === item.href })}
+            >
+              <div className="w-4 h-4 flex items-center justify-center">{item.icon && <item.icon className={cn('w-4 h-4', icon({ isCurrent: path === item.href }))} />}</div>
+              <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
+            </Link>
+          ),
+        )}
+      <div className={clsx('flex justify-between fixed p-3 bottom-0 border-t border-r left-0 bg-panel-bg', isSidebarOpen ? 'w-60' : 'w-[57px]')}>
         {isSidebarOpen ? (
           <>
             <Link href={'/dashboard'} className="">
@@ -112,7 +116,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                     href={DOCS_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1"
+                    className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded-sm hover:rounded-xs focus:text-accent-foreground p-1"
                   >
                     <BookText size={16} />
                     <p>Docs</p>
@@ -120,14 +124,19 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
 
                   <div className="border-b mb-1" />
 
-                  <a href={SUPPORT_EMAIL} className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
+                  <a href={SUPPORT_EMAIL} className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded-sm hover:rounded-xs focus:text-accent-foreground p-1">
                     <MessageSquareQuote size={16} />
                     <p>Feedback</p>
                   </a>
 
                   <div className="border-b mb-1" />
 
-                  <a href={CONTRIBUTE_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
+                  <a
+                    href={CONTRIBUTE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:bg-muted focus:rounded-sm hover:rounded-xs focus:text-accent-foreground p-1"
+                  >
                     <HandHelping size={16} />
                     <p>Contribute</p>
                   </a>

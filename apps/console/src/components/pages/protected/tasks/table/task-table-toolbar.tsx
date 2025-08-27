@@ -16,6 +16,9 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { Input } from '@repo/ui/input'
 import { TaskWhereInput } from '@repo/codegen/src/schema'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
+import { TAccessRole, TData } from '@/lib/authz/access-api'
+import { Button } from '@repo/ui/button'
+import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 
 type TProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -32,14 +35,26 @@ type TProps = {
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
   exportEnabled: boolean
+  canEdit: (accessRole: TAccessRole[]) => boolean
+  permission: TData
+  handleBulkEdit: () => void
+  selectedTasks: { id: string }[]
+  setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  showMyTasks: boolean
+  onShowMyTasksChange: (val: boolean) => void
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
-  const { programOptions, isSuccess } = useProgramSelect()
+  const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
+  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsBulkEditing(props.selectedTasks.length > 0)
+  }, [props.selectedTasks])
 
   useEffect(() => {
     if (filterFields || !orgMembers || !isSuccess) {
@@ -79,6 +94,10 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
     props.onShowCompletedTasksChange(val)
   }
 
+  const handleShowMyTasks = (val: boolean) => {
+    props.onShowMyTasksChange(val)
+  }
+
   return (
     <>
       <div className="flex items-center gap-2 my-2">
@@ -95,13 +114,35 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
             onChange={(event) => props.setSearchTerm(event.currentTarget.value)}
             variant="searchTable"
           />
-          <div className="grow flex flex-row items-center gap-2 pl-5">
-            <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
-            <p>Show completed tasks</p>
-          </div>
+          <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
+          <p>Show completed tasks</p>
+          <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
+          <p>Show my tasks</p>
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
+          {isBulkEditing ? (
+            <>
+              {props.canEdit(props.permission?.roles) && (
+                <>
+                  <BulkEditTasksDialog setIsBulkEditing={setIsBulkEditing} selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsBulkEditing(false)
+                      props.handleBulkEdit()
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
+            </>
+          )}
           <Menu
             content={
               <>

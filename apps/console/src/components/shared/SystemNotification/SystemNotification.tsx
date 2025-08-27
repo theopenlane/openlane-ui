@@ -61,14 +61,10 @@ function BellButton({ count, state, onClick }: { count: number; state: 'idle' | 
   const halo = state === 'error' ? 'bg-rose-400' : 'bg-blue-400'
   const ping = state === 'active' || state === 'error'
   return (
-    <button
-      onClick={onClick}
-      className="relative grid h-7 w-7 place-items-center rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-      aria-label="Notifications"
-    >
+    <button onClick={onClick} className="relative grid h-7 w-7 place-items-center rounded-full focus:outline-none" aria-label="Notifications">
       {ping && <span className={cx('absolute inset-0 rounded-full animate-ping opacity-40', halo)} />}
-      <Bell className="h-5 w-5 text-gray-900" />
-      <span className={cx('absolute -top-1 -right-1 grid h-5 min-w-[1.25rem] place-items-center rounded-full px-1 text-[10px] font-semibold text-white shadow-sm', badge)}>{count}</span>
+      <Bell className="h-6 w-6 " />
+      <span className={cx('absolute -top-1 -right-1 grid h-5 w-5 place-items-center rounded-full px-1 text-[10px] font-semibold text-white shadow-sm', badge)}>{count}</span>
     </button>
   )
 }
@@ -107,7 +103,7 @@ function Row({ job }: { job: TJob }) {
 }
 
 export default function SystemNotificationTracker() {
-  const { jobs, isLoading } = useTrackedExports()
+  const { jobs } = useTrackedExports()
   const [open, setOpen] = useState(false)
 
   const counts = useMemo(() => {
@@ -133,12 +129,12 @@ export default function SystemNotificationTracker() {
       <div className="relative" ref={ref}>
         <BellButton count={counts.pending + counts.running} state={bellState} onClick={() => setOpen((v) => !v)} />
         {open && (
-          <div className="absolute right-0 mt-2 w-[380px] max-w-[92vw] origin-top-right rounded-2xl border bg-card shadow-xl ring-1 ring-black/5 z-50">
+          <div className="absolute right-0 mt-2 w-[380px] max-w-[92vw] origin-top-right rounded-2xl border bg-card shadow-xl z-50">
             <div className="max-h-[60vh] overflow-auto p-3">
               <div className="flex items-center gap-3 p-2">
                 <Ring size={36} width={4} progress={overall} color={bellState === 'success' ? '#22c55e' : bellState === 'error' ? '#f43f5e' : '#3b82f6'} />
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-gray-900">{counts.total - counts.success - counts.error} in progress</div>
+                  <div className="text-sm font-semibold">{counts.total - counts.success - counts.error} in progress</div>
                   <div className="text-xs text-gray-500">{overall}% overall</div>
                 </div>
               </div>

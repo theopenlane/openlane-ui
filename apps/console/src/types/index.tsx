@@ -7,15 +7,18 @@ export interface NavItem {
   icon?: LucideIcon
   isChildren?: boolean
   children?: NavItem[]
+  hidden?: boolean
 }
 
 export interface Separator {
   type: 'separator'
+  hidden?: boolean
 }
 
 export interface NavHeading {
   type: 'heading'
   heading: string
+  hidden?: boolean
 }
 
 // Define allowed filter types

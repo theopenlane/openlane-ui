@@ -29,13 +29,16 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        {canEdit && (
-          <EvidenceCreateFormDialog
-            formData={control}
-            excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
-          />
-        )}
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-lg font-semibold">{title}</h2>
+          {canEdit && (
+            <EvidenceCreateFormDialog
+              createButton
+              formData={control}
+              excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
+            />
+          )}{' '}
+        </div>
       </div>
 
       <div className="rounded-md border border-border overflow-hidden bg-card">

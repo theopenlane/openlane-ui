@@ -11,13 +11,13 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Input } from '@repo/ui/input'
 import { FilterField } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
-import { Loading } from '@/components/shared/loading/loading'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
+import Loading from '@/app/(protected)/standards/loading'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -51,7 +51,6 @@ const StandardsPage = () => {
   }, [debouncedSearchQuery, filters])
 
   const { data, isLoading, isError } = useGetStandards({ where: whereFilter, enabled: !!filters })
-
   if (isLoading) {
     return <Loading />
   }
@@ -78,7 +77,6 @@ const StandardsPage = () => {
         </div>
       </div>
       <div id="datatable-filter-portal" />
-
       <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {data?.standards?.edges?.map((standard) => (
           <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow">
@@ -112,13 +110,13 @@ const StandardsPage = () => {
                 </Badge>
               ))}
             </div>
-            <p className="text-sm mb-4 line-clamp-3 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
+            <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`}>
               <Button className="mt-auto py-2 px-4 rounded">Details</Button>
             </Link>
           </Card>
         ))}
-        <Card className="bg-card p-28 rounded-lg shadow border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
+        <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href={INFO_EMAIL}>
             <Button variant="outline" className="!text-brand">

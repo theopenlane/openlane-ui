@@ -10,6 +10,17 @@ import Gdpr from '@/assets/Gdpr'
 import Ccm from '@/assets/Ccm'
 import Hipaa from '@/assets/Hipaa'
 import Sox from '@/assets/Sox'
+import Pci from '@/assets/Pci'
+import Nist800171 from '@/assets/Nist800171'
+import Iso27002 from '@/assets/Iso27002'
+import MASVS from '@/assets/Masvs'
+import Asvs from '@/assets/Asvs'
+import Ccpa from '@/assets/Ccpa'
+import Nerc from '@/assets/Nerc'
+import Cobit from '@/assets/Cobit'
+import FedRAMPHigh from '@/assets/FedRAMPHigh'
+import FedRAMPModerate from '@/assets/FedRAMPModerate'
+import FedRAMPLow from '@/assets/FedRAMPLow'
 
 type TStandardsIconMapperProps = {
   shortName: string
@@ -22,15 +33,26 @@ export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIcon
     const sizeProps = { height, width }
     const iconMap: Record<string, React.ReactNode> = {
       'ISO 27001': <Iso27001 {...sizeProps} />,
+      'ISO 27002': <Iso27002 {...sizeProps} />,
       'NIST 800-53': <Nist80053 {...sizeProps} />,
+      'NIST 800-171': <Nist800171 {...sizeProps} />,
       'NIST CSF': <NistCsf {...sizeProps} />,
       'SOC 2': <Soc2 {...sizeProps} />,
       'NIST SSDF': <NistSsdf {...sizeProps} />,
       GDPR: <Gdpr {...sizeProps} />,
       'CIS Benchmarks': <Cis {...sizeProps} />,
       CCM: <Ccm {...sizeProps} />,
-      HIPPA: <Hipaa {...sizeProps} />,
+      HIPAA: <Hipaa {...sizeProps} />,
       SOX: <Sox {...sizeProps} />,
+      'PCI DSS': <Pci {...sizeProps} />,
+      MASVS: <MASVS {...sizeProps} />,
+      ASVS: <Asvs {...sizeProps} />,
+      CCPA: <Ccpa {...sizeProps} />,
+      'NERC CIP': <Nerc {...sizeProps} />,
+      COBIT: <Cobit {...sizeProps} />,
+      'FedRAMP High': <FedRAMPHigh {...sizeProps} />,
+      'FedRAMP Moderate': <FedRAMPModerate {...sizeProps} />,
+      'FedRAMP Low': <FedRAMPLow {...sizeProps} />,
     }
     return iconMap[shortName] || <Custom {...sizeProps} />
   }, [shortName, width, height])

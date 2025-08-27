@@ -18,7 +18,7 @@ import { TokenAction } from '@/components/pages/protected/developers/actions/pat
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 
 type TokenNode = {
   id: string
@@ -93,6 +93,7 @@ export const PersonalAccessTokenTable = () => {
           name: node.name || 'Unnamed Token',
           description: node.description ?? undefined,
           expiresAt: node.expiresAt,
+          lastUsedAt: node.lastUsedAt,
           scopes: node.scopes?.join(', ') || '-',
         })) || []
     : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens?.edges
@@ -103,6 +104,7 @@ export const PersonalAccessTokenTable = () => {
           name: node.name!,
           description: node.description ?? undefined,
           expiresAt: node.expiresAt,
+          lastUsedAt: node.lastUsedAt,
           organizations: node.organizations?.edges?.map((orgEdge) => orgEdge?.node).filter((org): org is { id: string; name: string } => !!org && !!org.id && !!org.name) || [],
         })) || []
 
@@ -142,6 +144,13 @@ export const PersonalAccessTokenTable = () => {
       },
     },
     {
+      accessorKey: 'lastUsedAt',
+      header: 'Last used',
+      cell: ({ cell }) => {
+        return formatTimeSince(cell.getValue() as string)
+      },
+    },
+    {
       accessorKey: 'id',
       header: '',
       cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} tokenName={cell.row.original.name} />,
@@ -151,7 +160,16 @@ export const PersonalAccessTokenTable = () => {
   return (
     <>
       <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
-      <DataTable columns={columns} data={tokens} sortFields={TOKEN_SORT_FIELDS} onSortChange={setOrderBy} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
+      <DataTable
+        loading={isFetching}
+        columns={columns}
+        data={tokens}
+        sortFields={TOKEN_SORT_FIELDS}
+        onSortChange={setOrderBy}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+      />
     </>
   )
 }

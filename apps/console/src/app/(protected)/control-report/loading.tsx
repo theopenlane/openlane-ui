@@ -1,8 +1,8 @@
-import { Loading } from '@/components/shared/loading/loading'
+import { ControlReportPageSkeleton } from '@/components/pages/protected/control-report/skeleton/control-report-page-skeleton'
 import React from 'react'
 
 const Loader: React.FC = () => {
-  return <Loading />
+  return <ControlReportPageSkeleton />
 }
 
 export default Loader
