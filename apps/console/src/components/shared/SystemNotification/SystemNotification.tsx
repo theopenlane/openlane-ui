@@ -20,7 +20,15 @@ function mapStatus(status: ExportExportStatus): 'running' | 'success' | 'error' 
   }
 }
 
-function Ring({ size = 28, width = 3, progress = 0, color = '#3b82f6', bg = '#e5e7eb' }) {
+type TRingProps = {
+  size?: number
+  width?: number
+  progress?: number
+  color?: string
+  bg?: string
+}
+
+const Ring = ({ size = 28, width = 3, progress = 0, color = '#3b82f6', bg = '#e5e7eb' }: TRingProps) => {
   const p = Math.max(0, Math.min(100, progress))
   const style: React.CSSProperties = {
     width: size,
