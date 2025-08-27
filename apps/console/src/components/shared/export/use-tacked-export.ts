@@ -34,7 +34,7 @@ export function useTrackedExports() {
 
         return {
           id: node?.id,
-          title: `Export ${node?.exportType}`,
+          title: `Export ${node?.exportType.toLowerCase()}`,
           status: node?.status,
           progress,
           downloadUrl: node?.files?.edges?.[0]?.node?.presignedURL ?? null,

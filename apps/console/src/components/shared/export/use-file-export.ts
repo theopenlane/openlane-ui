@@ -1,4 +1,4 @@
-import { useCreateExport } from '@/lib/graphql-hooks/export'
+import { useCreateExport, useGetAllExports } from '@/lib/graphql-hooks/export'
 import { ExportExportFormat, ExportExportType, InputMaybe, Scalars } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -11,6 +11,7 @@ type TUseFileExportProps = {
 
 const useFileExport = () => {
   const { mutateAsync: createExport, isPending } = useCreateExport()
+  const { refetch } = useGetAllExports()
 
   const handleExport = async ({ exportType, filters, fields, format }: TUseFileExportProps) => {
     try {
@@ -22,6 +23,7 @@ const useFileExport = () => {
           format,
         },
       })
+      refetch()
 
       return data.createExport.export.id
     } catch (error) {

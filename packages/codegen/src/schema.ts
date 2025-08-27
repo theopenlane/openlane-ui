@@ -18971,6 +18971,7 @@ export interface MutationCreateInviteArgs {
 
 export interface MutationCreateJobResultArgs {
   input: CreateJobResultInput
+  jobResultFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationCreateJobRunnerArgs {
@@ -19492,6 +19493,7 @@ export interface MutationUpdateInviteArgs {
 export interface MutationUpdateJobResultArgs {
   id: Scalars['ID']['input']
   input: UpdateJobResultInput
+  jobResultFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateJobRunnerArgs {
@@ -42205,6 +42207,46 @@ export type EvidenceSuggestedActionsQuery = {
     __typename?: 'EvidenceConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null; updatedAt?: any | null } | null } | null> | null
+  }
+}
+
+export type CreateExportMutationVariables = Exact<{
+  input: CreateExportInput
+}>
+
+export type CreateExportMutation = { __typename?: 'Mutation'; createExport: { __typename?: 'ExportCreatePayload'; export: { __typename?: 'Export'; id: string; status: ExportExportStatus } } }
+
+export type GetExportQueryVariables = Exact<{
+  exportId: Scalars['ID']['input']
+}>
+
+export type GetExportQuery = {
+  __typename?: 'Query'
+  export: {
+    __typename?: 'Export'
+    status: ExportExportStatus
+    files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+  }
+}
+
+export type GetExportsQueryVariables = Exact<{
+  where?: InputMaybe<ExportWhereInput>
+}>
+
+export type GetExportsQuery = {
+  __typename?: 'Query'
+  exports: {
+    __typename?: 'ExportConnection'
+    edges?: Array<{
+      __typename?: 'ExportEdge'
+      node?: {
+        __typename?: 'Export'
+        id: string
+        status: ExportExportStatus
+        exportType: ExportExportType
+        files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
   }
 }
 
