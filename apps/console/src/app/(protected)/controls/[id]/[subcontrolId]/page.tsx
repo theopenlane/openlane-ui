@@ -41,6 +41,8 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section'
+import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section'
 
 interface FormValues {
   refCode: string
@@ -319,6 +321,7 @@ const ControlDetailsPage: React.FC = () => {
           initialValue={initialValues.refCode}
           referenceFramework={subcontrol.referenceFramework}
         />
+
         {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
             <InfoIcon size={14} className="mt-1 shrink-0" />
@@ -332,6 +335,8 @@ const ControlDetailsPage: React.FC = () => {
           </div>
         )}
       </div>
+      <ControlObjectivesSection controlObjectives={subcontrol.controlObjectives} />
+      <ControlImplementationsSection controlImplementations={subcontrol.controlImplementations} />
       <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
