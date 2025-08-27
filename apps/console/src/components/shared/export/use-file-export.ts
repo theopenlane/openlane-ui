@@ -9,13 +9,6 @@ type TUseFileExportProps = {
   format: ExportExportFormat
 }
 
-type TStorageKey = {
-  exportId: string
-  exportType: ExportExportType
-}
-
-const STORAGE_KEY = 'exports-tracking'
-
 const useFileExport = () => {
   const { mutateAsync: createExport, isPending } = useCreateExport()
 
@@ -30,13 +23,7 @@ const useFileExport = () => {
         },
       })
 
-      const exportId = data.createExport.export.id
-
-      const current: TStorageKey[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      const next: TStorageKey[] = [...current, { exportId, exportType }]
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-
-      return exportId
+      return data.createExport.export.id
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       console.error(errorMessage)

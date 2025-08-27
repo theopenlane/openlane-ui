@@ -1,12 +1,8 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient.ts'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { CreateExportMutation, CreateExportMutationVariables, ExportWhereInput, GetExportQuery, GetExportQueryVariables, GetExportsQuery } from '@repo/codegen/src/schema.ts'
+import { CreateExportMutation, CreateExportMutationVariables, GetExportQuery, GetExportQueryVariables, GetExportsQuery } from '@repo/codegen/src/schema.ts'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { CREATE_EXPORT, GET_EXPORT, GET_EXPORTS } from '@repo/codegen/query/export.ts'
-
-export enum ExportKeyEnum {
-  POLICIES = 'policies',
-}
 
 export function useCreateExport() {
   const { queryClient } = useGraphQLClient()
@@ -27,11 +23,12 @@ export const useGetExport = (exportId: string | null) => {
   })
 }
 
-export const useGetAllExports = (where?: ExportWhereInput) => {
+export const useGetAllExports = (enabled?: boolean) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetExportsQuery>({
-    queryKey: ['exports', where],
-    queryFn: async () => client.request<GetExportsQuery>(GET_EXPORTS, { where }),
+    queryKey: ['exports'],
+    queryFn: async () => client.request<GetExportsQuery>(GET_EXPORTS),
+    enabled,
   })
 }
