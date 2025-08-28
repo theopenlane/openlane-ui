@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Badge } from '@repo/ui/badge'
 import { PencilLine, SlidersHorizontal } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useRouter } from 'next/navigation'
+import ObjectsChip from '../objects-chip/objects-chip'
 
 export interface ObjectChipProps {
   object: {
@@ -16,17 +16,17 @@ export interface ObjectChipProps {
     summary?: string | null
     link: string
   }
-  className?: string
+  kind?: string
 }
 
-const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, className = '' }) => {
+const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { convertToReadOnly } = usePlateEditor()
   const router = useRouter()
 
   const displayText = object.refCode || object.name || object.title || ''
   const displayDescription = object.summary || object.description || object.details || ''
-
+  const objectKind = kind || ''
   const handleNavigate = () => {
     router.push(object.link)
   }
@@ -34,10 +34,8 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, className = 
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>
-          <Badge variant="outline" className={`bg-background-secondary flex gap-1 items-center ${className}`}>
-            <span>{displayText}</span>
-          </Badge>
+        <TooltipTrigger>
+          <ObjectsChip name={displayText} objectType={objectKind}></ObjectsChip>
         </TooltipTrigger>
 
         <TooltipContent side="top" className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]">
@@ -59,7 +57,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, className = 
                 <PencilLine size={12} />
                 <span className="font-medium">Description</span>
               </div>
-              <div className="line-clamp-4 text-justify">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
+              <div className="max-w-xs text-justify line-clamp-4">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
             </div>
           </div>
         </TooltipContent>
