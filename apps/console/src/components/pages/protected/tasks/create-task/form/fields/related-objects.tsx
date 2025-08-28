@@ -19,11 +19,12 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
   const handleRelatedObjects = () => {
     const itemsDictionary: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }> = {
       ...taskData?.controlObjectives?.edges?.reduce(
-        (acc, item) => {
+        (acc: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }>, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
           const details = item?.node?.desiredOutcome
-          if (key && id) acc[key] = { id, value: 'Control objective', details: details, kind: 'controlObjectives' }
+          const controlId = item?.node?.controls?.edges?.[0]?.node?.id
+          if (key && id) acc[key] = { id, value: 'Control objective', controlId, details: details, kind: 'controlObjectives' }
           return acc
         },
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
@@ -133,7 +134,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
             control: controlId ? { id: controlId } : undefined,
           })
 
-          const linkClass = !href ? 'pointer-events-none' : ''
+          const linkClass = !href || !controlId ? 'pointer-events-none' : ''
           return (
             <TooltipProvider key={key}>
               <Tooltip>
