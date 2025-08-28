@@ -14,7 +14,7 @@ const CommentList: React.FC<TProps> = (props: TProps) => {
   return (
     <>
       {props.comments.map((item, index) => (
-        <div className="w-full p-2 mb-2 bg-gray-950 bg-opacity-10 dark:bg-opacity-30 rounded-lg" key={`${item.userName}-${index}`}>
+        <div className="w-full p-2 mb-2 hover:bg-gray-950 hover:bg-opacity-10 dark:hover:bg-opacity-30 rounded-lg" key={`${item.userName}-${index}`}>
           <div className="flex items-start space-x-3">
             <Avatar variant="medium" className="relative flex shrink-0 overflow-hidden rounded-full p-0 h-10 w-10 mr-2">
               {item?.avatarUrl && <AvatarImage src={item.avatarUrl} />}
