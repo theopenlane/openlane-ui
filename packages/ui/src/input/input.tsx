@@ -27,6 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
   const hasPrefix = Boolean(prefix)
   const prefixRef = useRef<HTMLDivElement>(null)
   const [prefixWidth, setPrefixWidth] = useState(0)
+  const [isFocused, setIsFocused] = useState<boolean>(false)
 
   useEffect(() => {
     if (prefixRef.current) {
@@ -43,7 +44,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
       )}
       <input
         type={type}
-        className={cn(input({ hasIcon, hasPrefix, iconPosition }), className)}
+        onFocus={(e) => {
+          setIsFocused(true)
+          props.onFocus?.(e)
+        }}
+        onBlur={(e) => {
+          setIsFocused(false)
+          props.onBlur?.(e)
+        }}
+        className={cn(input({ hasIcon, hasPrefix, iconPosition }), className, isFocused && '!border-brand')}
         ref={ref}
         {...(props.value && { value: props.value || '' })}
         {...props}
