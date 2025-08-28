@@ -18971,6 +18971,7 @@ export interface MutationCreateInviteArgs {
 
 export interface MutationCreateJobResultArgs {
   input: CreateJobResultInput
+  jobResultFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationCreateJobRunnerArgs {
@@ -19492,6 +19493,7 @@ export interface MutationUpdateInviteArgs {
 export interface MutationUpdateJobResultArgs {
   id: Scalars['ID']['input']
   input: UpdateJobResultInput
+  jobResultFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateJobRunnerArgs {

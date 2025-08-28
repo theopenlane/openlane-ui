@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState, useContext } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
@@ -23,6 +23,7 @@ import { ObjectiveItem } from './objective-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ControlObjectivePage = () => {
+  const searchParams = useSearchParams()
   const params = useParams()
   const id = params?.id as string
   const subcontrolId = params?.subcontrolId as string | undefined
@@ -114,6 +115,13 @@ const ControlObjectivePage = () => {
   useEffect(() => {
     handleControlObjectivesUpdate()
   }, [handleControlObjectivesUpdate])
+
+  useEffect(() => {
+    const shouldOpen = createAllowed && searchParams.get('create') === 'true'
+    if (shouldOpen) {
+      setShowCreateSheet(true)
+    }
+  }, [createAllowed, searchParams])
 
   useEffect(() => {
     if (controlData) {
