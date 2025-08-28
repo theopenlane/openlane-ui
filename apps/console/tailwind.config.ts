@@ -1,13 +1,11 @@
-import type { Config } from 'tailwindcss'
 import sharedConfig from '@repo/tailwind-config'
 import containerQueries from '@tailwindcss/container-queries'
 
-const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'theme' | 'safelist' | 'mode' | 'plugins'> = {
-  mode: 'jit',
+const config = {
   darkMode: 'class',
   safelist: ['dark', 'bg-red-50', 'bg-green-50', 'bg-yellow-50', 'bg-red-200', 'bg-green-200', 'bg-yellow-500', 'text-red-700', 'text-green-700', 'text-slate-700'],
   content: ['./src/app/**/*.tsx', './src/components/**/*.tsx'],
-  presets: [sharedConfig as Partial<Config>],
+  presets: [sharedConfig],
   plugins: [containerQueries],
   theme: {
     extend: {
@@ -19,6 +17,7 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
           100: 'var(--color-brand-100)',
           900: 'var(--color-brand-900)',
         },
+
         standard: {
           iso27001: 'var(--color-iso27001)',
           nist80053: 'var(--color-nist80053)',
@@ -51,7 +50,6 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
           evidence: 'var(--color-evidence)',
         },
       },
-
       keyframes: {
         'accordion-down': {
           from: { height: '0' },
@@ -62,10 +60,10 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
           to: { height: '0' },
         },
       },
-    },
-    animation: {
-      'accordion-down': 'accordion-down 0.2s ease-out',
-      'accordion-up': 'accordion-up 0.2s ease-out',
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+      },
     },
   },
 }

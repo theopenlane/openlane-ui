@@ -1,29 +1,5 @@
-@layer ui_base, ui_components_utils;
+@import 'tailwindcss';
 
-@layer ui_base {
-  @import 'tailwindcss/base';
-
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  [type='text']:focus,
-  [type='password']:focus,
-  input:focus,
-  textarea:focus,
-  select:focus {
-    --tw-ring-color: var(--colors-ring);
-    border-color: var(--colors-ring);
-  }
-}
-
-@layer ui_components_utils {
-  @import 'tailwindcss/components';
-  @import 'tailwindcss/utilities';
-}
-
-/* Ensures that icons scale with font size */
 .button-icon svg {
   width: 1rem;
   height: 1rem;

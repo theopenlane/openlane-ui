@@ -72,9 +72,8 @@
   },
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o dist/index.css",
-    "lint": "eslint src/",
     "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
-    "type-check": "tsc --noEmit"
+    "lint": "eslint src/"
   },
   "peerDependencies": {
     "react": "latest"
@@ -140,6 +139,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@remixicon/react": "^4.6.0",
     "@stepperize/react": "^4.2.0",
+    "@tailwindcss/cli": "^4.1.12",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-table": "^8.20.6",
     "@types/prismjs": "^1.26.5",
@@ -200,7 +200,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.1.12",
     "typescript": "^5"
   }
 }
