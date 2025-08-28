@@ -27,7 +27,7 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
     case 'controls':
       return `/controls/${row.id}`
     case 'subcontrols':
-      return `/controls/${row.control?.id}/${row.id}`
+      return `/controls/${row.control?.id ?? row.controlId}/${row.id}`
     case 'risks':
       return `/risks/${row.id}`
     case 'tasks':

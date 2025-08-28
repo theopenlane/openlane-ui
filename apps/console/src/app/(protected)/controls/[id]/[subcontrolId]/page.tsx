@@ -43,6 +43,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section'
 import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section'
+import Loading from './loading.tsx'
 
 interface FormValues {
   refCode: string
@@ -228,7 +229,9 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.subcontrol, form])
 
-  if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
+  if (isLoading) {
+    return <Loading />
+  }
   if (isError || !data?.subcontrol) return <div className="p-4 text-red-500">Control not found</div>
   const subcontrol = data?.subcontrol
   const hasInfoData = subcontrol.implementationGuidance || subcontrol.exampleEvidence || subcontrol.controlQuestions || subcontrol.assessmentMethods || subcontrol.assessmentObjectives
