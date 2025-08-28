@@ -14,9 +14,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
-import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
-import DetailsCard from '@/components/pages/protected/controls/details'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
@@ -43,6 +41,8 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section'
+import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section'
 
 interface FormValues {
   refCode: string
@@ -319,7 +319,9 @@ const ControlDetailsPage: React.FC = () => {
           isEditing={isEditing}
           handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
           initialValue={initialValues.refCode}
+          referenceFramework={subcontrol.referenceFramework}
         />
+
         {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
             <InfoIcon size={14} className="mt-1 shrink-0" />
@@ -333,6 +335,8 @@ const ControlDetailsPage: React.FC = () => {
           </div>
         )}
       </div>
+      <ControlObjectivesSection controlObjectives={subcontrol.controlObjectives} />
+      <ControlImplementationsSection controlImplementations={subcontrol.controlImplementations} />
       <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
@@ -358,17 +362,9 @@ const ControlDetailsPage: React.FC = () => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <AuthorityCard
-        isEditAllowed={canEdit(permission?.roles)}
-        controlOwner={subcontrol.controlOwner}
-        delegate={subcontrol.delegate}
-        isEditing={isEditing}
-        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
-      />
-      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
-      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
 
-      <DetailsCard />
+      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} canEdit={canEdit(permission?.roles)} />
+      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
       {hasInfoData && (
         <InfoCardWithSheet
           implementationGuidance={subcontrol.implementationGuidance}
