@@ -198,6 +198,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
               icon={<SearchIcon size={16} />}
               iconPosition="left"
               variant="searchTable"
+              className="!border-brand"
             />
           </div>
         </div>
