@@ -1,6 +1,5 @@
 @import '@repo/ui/styles.css';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss';
 
 body {
   -webkit-font-smoothing: antialiased;
