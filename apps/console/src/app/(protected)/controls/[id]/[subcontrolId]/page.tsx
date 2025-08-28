@@ -43,6 +43,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Loading from './loading.tsx'
 
 interface FormValues {
   refCode: string
@@ -196,7 +197,7 @@ const ControlDetailsPage: React.FC = () => {
       })
     }
   }
-
+  console.log(controlData)
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -228,7 +229,9 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.subcontrol, form])
 
-  if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
+  if (isLoading) {
+    return <Loading />
+  }
   if (isError || !data?.subcontrol) return <div className="p-4 text-red-500">Control not found</div>
   const subcontrol = data?.subcontrol
   const hasInfoData = subcontrol.implementationGuidance || subcontrol.exampleEvidence || subcontrol.controlQuestions || subcontrol.assessmentMethods || subcontrol.assessmentObjectives

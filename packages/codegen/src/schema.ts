@@ -18971,6 +18971,7 @@ export interface MutationCreateInviteArgs {
 
 export interface MutationCreateJobResultArgs {
   input: CreateJobResultInput
+  jobResultFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationCreateJobRunnerArgs {
@@ -19492,6 +19493,7 @@ export interface MutationUpdateInviteArgs {
 export interface MutationUpdateJobResultArgs {
   id: Scalars['ID']['input']
   input: UpdateJobResultInput
+  jobResultFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateJobRunnerArgs {
@@ -41498,7 +41500,10 @@ export type ControlDetailsFieldsFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string; control: { __typename?: 'Control'; id: string } } | null
+    } | null> | null
   }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
@@ -41662,7 +41667,10 @@ export type GetControlByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'

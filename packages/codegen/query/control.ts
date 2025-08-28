@@ -122,6 +122,9 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           refCode
           description
           displayID
+          control {
+            id
+          }
         }
       }
     }
