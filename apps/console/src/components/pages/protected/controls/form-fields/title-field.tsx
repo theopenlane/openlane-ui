@@ -62,7 +62,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
     </div>
   ) : (
     <div className="flex gap-2 items-center">
-      {referenceFramework && <StandardsIconMapper shortName={referenceFramework} />}
+      {referenceFramework && <StandardsIconMapper height={40} width={42} shortName={referenceFramework} />}
       <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
         {getValues('refCode')}
       </h1>

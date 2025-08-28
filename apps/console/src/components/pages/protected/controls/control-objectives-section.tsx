@@ -10,9 +10,10 @@ import React from 'react'
 
 type Props = {
   controlObjectives: GetControlByIdQuery['control']['controlObjectives']
+  canEdit: boolean
 }
 
-const ControlObjectivesSection = ({ controlObjectives }: Props) => {
+const ControlObjectivesSection = ({ controlObjectives, canEdit }: Props) => {
   const { convertToReadOnly } = usePlateEditor()
   const params = useParams()
   const id = params?.id as string
@@ -35,7 +36,7 @@ const ControlObjectivesSection = ({ controlObjectives }: Props) => {
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <Label className="font-semibold text-lg">{edges.length === 1 ? 'Control Objective' : 'Control Objectives'}</Label>
-        <CreateButton type="control-objective" href={createHref} />
+        {canEdit && <CreateButton type="control-objective" href={createHref} ariaLabel="Create control objective" />}
         <Link href={controlObjectivesPath}>
           <Button type="button" className="!h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
             View

@@ -344,8 +344,8 @@ const ControlDetailsPage: React.FC = () => {
         )}
       </div>
       <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
-      <ControlObjectivesSection controlObjectives={control.controlObjectives} />
-      <ControlImplementationsSection controlImplementations={control.controlImplementations} />
+      <ControlObjectivesSection controlObjectives={control.controlObjectives} canEdit={canEdit(permission?.roles)} />
+      <ControlImplementationsSection controlImplementations={control.controlImplementations} canEdit={canEdit(permission?.roles)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
