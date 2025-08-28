@@ -44,6 +44,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
       )}
       <input
         type={type}
+        ref={ref}
+        value={props.value ?? ''}
+        {...props}
         onFocus={(e) => {
           setIsFocused(true)
           props.onFocus?.(e)
@@ -53,9 +56,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
           props.onBlur?.(e)
         }}
         className={cn(input({ hasIcon, hasPrefix, iconPosition }), className, isFocused && '!border-brand')}
-        ref={ref}
-        {...(props.value && { value: props.value || '' })}
-        {...props}
         style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }}
       />
       {icon && (
