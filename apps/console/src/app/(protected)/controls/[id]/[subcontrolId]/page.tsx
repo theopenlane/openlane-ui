@@ -197,7 +197,7 @@ const ControlDetailsPage: React.FC = () => {
       })
     }
   }
-  console.log(controlData)
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
