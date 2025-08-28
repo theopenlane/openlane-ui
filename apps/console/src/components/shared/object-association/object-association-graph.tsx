@@ -90,7 +90,9 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         return 'Unknown'
     }
   }
-
+  const resolveCssVar = (varName: string) => {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
+  }
   const extractNodes = (edges: TEdgeNode[] | null | undefined): TBaseAssociatedNode[] => (edges ?? []).map((edge) => edge?.node).filter((node): node is TBaseAssociatedNode => !!node)
 
   const { graphData, colorMap, nodeMeta } = useMemo(() => {
@@ -109,11 +111,16 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
       __typename: getType(centerNode.type),
     }
 
-    if (!colorMap[centerNode.type]) colorMap[centerNode.type] = ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]?.color || '#ccc'
+    if (!colorMap[centerNode.type])
+      colorMap[centerNode.type] = ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]
+        ? resolveCssVar(ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]!.color)
+        : '#ccc'
     Object.entries(sections).forEach(([sectionType, connection]) => {
       if (!connection) return
       if (!colorMap[sectionType]) {
-        colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]?.color || '#ccc'
+        colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]
+          ? resolveCssVar(ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]!.color)
+          : '#ccc'
       }
       if ('edges' in connection && Array.isArray(connection.edges)) {
         extractNodes(connection.edges).forEach((node) => {
