@@ -14,9 +14,9 @@ export const buttonStyles = tv({
     variant: {
       filled: 'bg-button text-button-text hover:!opacity-90',
       light: 'bg-button-light text-text-dark hover:!opacity-90',
-      outline: 'border-border border',
+      outline: 'border-border text-text-paragraph border',
       outlineLight: 'border-border-dark text-text-dark border hover:!bg-teal-400 hover:!bg-opacity-20',
-      outlineInput: 'border-border border hover:!opacity-90',
+      outlineInput: 'border-border text-text-paragraph border hover:!opacity-90',
       outlineInputPadding: 'border-border text-paragraph mx-1 border hover:!opacity-90',
       redOutline: 'border-error text-error border hover:!opacity-90 dark:border-red-500 dark:text-red-500',
       white: {},

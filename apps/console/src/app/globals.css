@@ -4,7 +4,7 @@
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  @apply font-sans bg-[var(--color-bg)];
+  @apply text-text-paragraph font-sans bg-[var(--color-bg)];
 }
 
 h4 {
@@ -13,6 +13,10 @@ h4 {
 
 h5 {
   @apply text-[1.313rem] tracking-[-0.033rem];
+}
+
+p {
+  @apply text-text-paragraph;
 }
 
 p.red {
