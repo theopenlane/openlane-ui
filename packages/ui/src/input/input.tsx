@@ -45,7 +45,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
       <input
         type={type}
         ref={ref}
-        // value={props.value ?? ''}
         {...props}
         onFocus={(e) => {
           setIsFocused(true)
