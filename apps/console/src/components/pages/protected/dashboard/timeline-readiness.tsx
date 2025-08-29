@@ -112,7 +112,15 @@ const TimelineReadiness = () => {
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold mb-4">Timeline & Readiness</h2>
             {!isEditing && (
-              <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left" onClick={() => setIsEditing(true)}>
+              <Button
+                disabled={program?.status === ProgramProgramStatus.ARCHIVED}
+                className="!h-8 !p-2"
+                variant="outline"
+                type="button"
+                icon={<Pencil />}
+                iconPosition="left"
+                onClick={() => setIsEditing(true)}
+              >
                 Edit
               </Button>
             )}
@@ -135,7 +143,7 @@ const TimelineReadiness = () => {
                 <StatusSelect />
               ) : (
                 <>
-                  <span className="block w-32 flex shrink-0">Status:</span>
+                  <span className="w-32 flex shrink-0">Status:</span>
                   {program?.status && ProgramIconMapper[program.status]}
                   <span>{program?.status ? ProgramStatusLabels[program.status] : '-'}</span>
                 </>
@@ -144,13 +152,13 @@ const TimelineReadiness = () => {
 
             {/* Start Date */}
             <div className="flex border-b pb-2.5 gap-2 items-center">
-              <span className="block w-32 flex shrink-0">Start Date:</span>
+              <span className="w-32 flex shrink-0">Start Date:</span>
               {isEditing ? <Controller control={control} name="startDate" render={({ field }) => <CalendarPopover field={field} />} /> : <span>{formattedStartDate || '—'}</span>}
             </div>
 
             {/* End Date */}
             <div className="flex pb-2.5 gap-2 items-center">
-              <span className="block w-32 flex shrink-0">End Date:</span>
+              <span className="w-32 flex shrink-0">End Date:</span>
               {isEditing ? (
                 <Controller control={control} name="endDate" render={({ field }) => <CalendarPopover field={field} />} />
               ) : (

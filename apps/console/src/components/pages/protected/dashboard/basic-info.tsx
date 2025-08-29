@@ -17,6 +17,7 @@ import { Pencil } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -119,7 +120,15 @@ const BasicInformation = () => {
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold mb-4">Basic information</h2>
             {!isEditing && (
-              <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left" onClick={() => setIsEditing(true)}>
+              <Button
+                disabled={program?.status === ProgramProgramStatus.ARCHIVED}
+                className="!h-8 !p-2"
+                variant="outline"
+                type="button"
+                icon={<Pencil />}
+                iconPosition="left"
+                onClick={() => setIsEditing(true)}
+              >
                 Edit
               </Button>
             )}

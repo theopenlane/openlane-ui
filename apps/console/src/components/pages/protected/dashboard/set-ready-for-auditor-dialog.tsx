@@ -7,8 +7,13 @@ import React, { useState } from 'react'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
+import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 
-const SetReadyForAuditorDialog: React.FC = () => {
+interface SetReadyForAuditorDialogProps {
+  programStatus: ProgramProgramStatus
+}
+
+const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ programStatus }: SetReadyForAuditorDialogProps) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: update } = useUpdateProgram()
   const searchParams = useSearchParams()
@@ -29,7 +34,7 @@ const SetReadyForAuditorDialog: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left">
+        <Button disabled={programStatus === ProgramProgramStatus.ARCHIVED} className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left">
           Ready for Auditor
         </Button>
       </DialogTrigger>
