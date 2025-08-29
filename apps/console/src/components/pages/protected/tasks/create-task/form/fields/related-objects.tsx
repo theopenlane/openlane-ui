@@ -134,7 +134,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
             control: controlId ? { id: controlId } : undefined,
           })
 
-          const linkClass = !href || !controlId ? 'pointer-events-none' : ''
+          const linkClass = !href || (value === 'Subcontrol' && !controlId) || (value === 'Control objective' && !controlId) ? 'pointer-events-none' : ''
           return (
             <TooltipProvider key={key}>
               <Tooltip>
