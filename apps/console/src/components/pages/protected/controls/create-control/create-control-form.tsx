@@ -88,7 +88,6 @@ export default function CreateControlForm() {
   })
 
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -273,7 +272,7 @@ export default function CreateControlForm() {
                 Name <span className="text-destructive">*</span>
               </Label>
               {errors?.refCode && <p className="text-destructive text-sm mt-1">{errors.refCode.message}</p>}
-              <Input {...register('refCode', { required: true })} />
+              <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input {...field} />} />
             </div>
 
             {isCreateSubcontrol && (
