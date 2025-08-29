@@ -1,6 +1,6 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
-  "include": ["src", "**/*.ts", "**/*.tsx", "vite.config.ts", "postcss.config.mjs"],
+  "include": ["src", "**/*.ts", "**/*.tsx", "vite.config.ts", "postcss.config.js"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "ES2022",
