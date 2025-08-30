@@ -102,7 +102,29 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       {!isGraphView ? (
         <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} />
       ) : (
-        <ObjectAssociationGraph closeFullScreen={() => setIsFullscreen(false)} centerNode={centerNode} sections={visibleSections} isFullscreen={isFullscreen} />
+        <ObjectAssociationGraph
+          closeFullScreen={() => setIsFullscreen(false)}
+          centerNode={centerNode}
+          sections={visibleSections}
+          isFullscreen={isFullscreen}
+          menu={
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" className="h-8 !px-2" variant="outline" onFocus={(e) => e.preventDefault()}>
+                  <StretchVertical size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="border shadow-md p-2 z-[99999]" align="start">
+                {Object.keys(sectionList).map((sectionKey) => (
+                  <div key={sectionKey} className="flex items-center gap-x-2 p-1">
+                    <Checkbox className="h-4 w-4" stroke={2} checked={!sectionList[sectionKey]?.hidden} onCheckedChange={(checked) => handleToggleSection(sectionKey, !checked)} />
+                    <span className="text-sm capitalize">{sectionKey}</span>
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
+        />
       )}
       <div className="flex items-center justify-end gap-2">
         {isGraphView && (
