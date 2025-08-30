@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
+import { ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List, StretchVertical } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal.tsx'
 import { Button } from '@repo/ui/button'
@@ -11,6 +11,8 @@ import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import Graph from '@/assets/Graph.tsx'
 import { cn } from '@repo/ui/lib/utils'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TObjectAssociationSwitchProps = {
   sections: Section
@@ -22,6 +24,15 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   const [isGraphView, setIsGraphView] = useState<boolean>(true)
   const [toggleAll, setToggleAll] = useState<boolean>(false)
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
+  const [hiddenStates, setHiddenStates] = useState<{ [key: string]: boolean }>({})
+
+  const sectionList = useMemo(() => {
+    return Object.fromEntries(Object.entries(sections).map(([key, value]) => [key, { ...value, hidden: hiddenStates[key] ?? false }]))
+  }, [sections, hiddenStates])
+
+  const visibleSections = useMemo(() => {
+    return Object.fromEntries(Object.entries(sectionList).filter(([_, value]) => value && !value.hidden))
+  }, [sectionList])
 
   const handleAssociationDialog = () => {
     if (!canEdit) {
@@ -40,6 +51,10 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       case ObjectAssociationNodeEnum.RISKS:
         return <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
     }
+  }
+
+  const handleToggleSection = (sectionKey: string, hidden: boolean) => {
+    setHiddenStates((prev) => ({ ...prev, [sectionKey]: hidden }))
   }
 
   return (
@@ -87,20 +102,68 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       {!isGraphView ? (
         <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} />
       ) : (
-        <ObjectAssociationGraph closeFullScreen={() => setIsFullscreen(false)} centerNode={centerNode} sections={sections} isFullscreen={isFullscreen} />
-      )}
-      <div className="flex items-center justify-end">
-        {isGraphView && (
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
-                  <div className="flex">{<Expand size={16} />}</div>
+        <ObjectAssociationGraph
+          closeFullScreen={() => setIsFullscreen(false)}
+          centerNode={centerNode}
+          sections={visibleSections}
+          isFullscreen={isFullscreen}
+          menu={
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" className="h-8 !px-2" variant="outline" onFocus={(e) => e.preventDefault()}>
+                  <StretchVertical size={16} />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>Fullscreen Graph View</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="border shadow-md p-2 z-[99999]" align="start">
+                {Object.keys(sectionList).map((sectionKey) => (
+                  <div key={sectionKey} className="flex items-center gap-x-2 p-1">
+                    <Checkbox className="h-4 w-4" stroke={2} checked={!sectionList[sectionKey]?.hidden} onCheckedChange={(checked) => handleToggleSection(sectionKey, !checked)} />
+                    <span className="text-sm capitalize">{sectionKey}</span>
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
+        />
+      )}
+      <div className="flex items-center justify-end gap-2">
+        {isGraphView && (
+          <>
+            <DropdownMenu>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button type="button" className="h-8 !px-2" variant="outline" onFocus={(e) => e.preventDefault()}>
+                        <StretchVertical size={16} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Show/Hide Object Associations</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <DropdownMenuContent className="border shadow-md p-2" align="start">
+                {Object.keys(sectionList).map((sectionKey) => (
+                  <div key={sectionKey} className="flex items-center gap-x-2 p-1">
+                    <Checkbox className="h-4 w-4" stroke={2} checked={!sectionList[sectionKey]?.hidden} onCheckedChange={(checked) => handleToggleSection(sectionKey, !checked)} />
+                    <span className="text-sm capitalize">{sectionKey}</span>
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
+                    <div className="flex">{<Expand size={16} />}</div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Fullscreen Graph View</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </>
         )}
       </div>
     </div>
