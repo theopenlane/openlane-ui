@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss'
-import sharedConfig from '@repo/tailwind-config'
 import tailwindAnimate from 'tailwindcss-animate'
 import typography from '@tailwindcss/typography'
 import plugin from 'tailwindcss/plugin'

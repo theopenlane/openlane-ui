@@ -6,7 +6,8 @@
     "**/*.css"
   ],
   "exports": {
-    "./styles.css": "./dist/index.css",
+    "./styles.css": "./src/styles.css",
+    "./postcss.config": "./postcss.config.mjs",
     "./alert": "./src/alert/alert.tsx",
     "./alert-dialog": "./src/alert-dialog/alert-dialog.tsx",
     "./avatar": "./src/avatar/avatar.tsx",
@@ -185,22 +186,21 @@
   "devDependencies": {
     "@headlessui/react": "latest",
     "@repo/eslint-config": "workspace:*",
-    "@repo/tailwind-config": "workspace:*",
-    "@tailwindui/react": "latest",
     "@tailwindcss/forms": "latest",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindui/react": "latest",
     "@types/eslint": "latest",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
     "eslint": "^9.28.0",
     "postcss": "^8.5.4",
     "react": "19.1.0",
     "tailwind-variants": "^0.3.1",
+    "tailwindcss": "^4.1.12",
     "tsup": "latest",
-    "@tailwindcss/postcss": "^4.1.9",
-    "@types/node": "^24.0.0",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "tailwindcss": "^4.0.0",
     "typescript": "^5"
   }
 }

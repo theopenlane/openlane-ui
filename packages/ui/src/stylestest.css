@@ -1,0 +1,433 @@
+/* ======================================
+   Tailwind core + monorepo sources
+   ====================================== */
+@import 'tailwindcss';
+
+/* Include your UI package so class usage there is scanned */
+@source "../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
+
+/* Optional: enable `dark:` class variant ergonomically */
+@custom-variant dark (&:is(.dark *));
+
+/* ======================================
+   Fonts (tokens)
+   ====================================== */
+@theme {
+  --font-sans: var(--font-outfit, var(--font-geist-sans));
+  --font-mono: var(--font-mono, var(--font-geist-mono));
+  --font-serif: var(--font-mincho, serif);
+  --font-heading: var(--font-outfit, sans-serif);
+
+  --font-weight-body: 400;
+  --font-weight-heading: 700;
+  --letter-spacing-tighter: -0.01rem;
+  --letter-spacing-heading: -0.038rem;
+}
+
+/* ======================================
+   shadcn color system in HSL (semantic)
+   ====================================== */
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(0 0% 3.9%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 3.9%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 3.9%);
+  --primary: hsl(0 0% 9%);
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: hsl(0 0% 96.1%);
+  --secondary-foreground: hsl(0 0% 9%);
+  --muted: hsl(0 0% 96.1%);
+  --muted-foreground: hsl(0 0% 45.1%);
+  --accent: hsl(0 0% 96.1%);
+  --accent-foreground: hsl(0 0% 9%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(0 0% 89.8%);
+  --input: hsl(0 0% 89.8%);
+  --ring: hsl(0 0% 3.9%);
+  --chart-1: hsl(12 76% 61%);
+  --chart-2: hsl(173 58% 39%);
+  --chart-3: hsl(197 37% 24%);
+  --chart-4: hsl(43 74% 66%);
+  --chart-5: hsl(27 87% 67%);
+  --radius: 0.6rem;
+
+  /* ===== Your legacy tokens (HEX & others) ===== */
+  /* Backgrounds */
+  --color-bg: #f9fbfc;
+  --color-bg-muted: #f5f9fa;
+  --color-bg-light: #e9f1f5;
+  --color-bg-dark: #1c2630;
+  --color-bg-primary: #2ccbab;
+  --color-bg-secondary: #ffffff;
+
+  /* Foreground / Text */
+  --color-text-paragraph: #505f6f;
+  --color-text-header: #303e4a;
+  --color-text-dark: #1c2630;
+  --color-text-light: #aabec5;
+  --color-text-dimmed: #8998a9;
+  --color-text-nav-link: #303e4a;
+  --color-text-informational: #798695;
+
+  /* Borders & Separators */
+  --color-border: #e1e9ec;
+  --color-border-light: #aabec5;
+  --color-border-dark: #303e4a;
+  --color-border-input: #cbd5e1;
+  --color-separator: #e1e9ec;
+  --color-separator-light: #b4c1d5;
+  --color-separator-dark: #273344;
+  --color-separator-edit: #bfbfbf;
+  --color-separator-edit-light: #bfbfbf;
+  --color-separator-edit-dark: #60737a;
+
+  /* Buttons */
+  --color-button: #2ccbab;
+  --color-button-muted: #75d2bf;
+  --color-button-light: #e8f9f5;
+  --color-button-text: #082930;
+  --color-button-secondary: #d9ae40;
+  --color-button-back: #e2efeb;
+
+  /* Panels & Cards */
+  --color-panel-bg: #ffffff;
+  --color-panel-text: #303e4a;
+  --color-panel-border: #e9c1bb;
+  --color-card-bg: #ffffff;
+  --color-card-text: #303e4a;
+
+  /* Tags */
+  --color-tags-bg: #d9ae40;
+  --color-tags-text: #082930;
+  --color-tags-border: #082930;
+
+  /* Checkbox + Assets */
+  --color-bg-checkbox: #ffffff;
+  --asset-color-bg: #dae3e7;
+
+  /* Popover */
+  --color-popover: #ffffff;
+
+  /* Ring */
+  --color-ring: #2ccbab;
+
+  /* Tables */
+  --color-table-bg: #ffffff;
+  --color-table-text: #303e4a;
+  --color-table-row-bg-hover: #f5f9fa;
+  --color-table-row-bg-odd: #eaf0f3;
+  --color-table-row-bg-even: #ffffff;
+  --color-table-border: #b3c8d1;
+  --color-table-border-muted: #e9f1f5;
+  --color-table-header-bg: #e4edf1;
+  --color-table-header-text: #303e4a;
+
+  /* Gradients */
+  --color-gradient-light: linear-gradient(90deg, #2ccbab 0%, #59c1bb 100%);
+  --color-gradient-dark: linear-gradient(90deg, #2ccbab 0%, #998da0 100%);
+  --bg-gradient-brand: linear-gradient(90deg, #09f1c7 0%, #59c1bb 100%);
+  --bg-gradient-dark: linear-gradient(90deg, #0d1117 0%, #161d27 100%);
+
+  /* Brand */
+  --color-brand: #2ccbab;
+  --color-brand-secondary: #59c1bb;
+  --color-brand-100: #052e2a;
+  --color-brand-900: #f0fdf9;
+
+  /* Logo */
+  --color-logo-bg: #303e4a;
+  --color-logo-text: #303e4a;
+  --color-logo-fg: #4dc6ad;
+  --color-logo-dark: #303e4a;
+  --color-logo-light: #b4c1d5;
+
+  /* Login */
+  --color-login-bg: #ffffff;
+  --color-login-text: #303e4a;
+
+  /* Status */
+  --color-status-success: #2ccbab;
+  --color-status-success-muted: #a3e3d4;
+  --color-status-warning: #f5cb5c;
+  --color-status-warning-muted: #fde0ae;
+  --color-status-error: #e05252;
+  --color-status-error-muted: #f5b8b8;
+  --color-status-info: #3498db;
+  --color-status-info-muted: #5a9bd5;
+
+  /* Alerts / Destructive */
+  --color-destructive: #dc2626;
+  --color-destructive-transparent: #dc26261a;
+  --color-destructive-border: #fecaca;
+  --color-destructive-foreground: #f0fdf9;
+
+  /* Progressbar */
+  --color-progressbar-empty: #dae3e7;
+
+  /* Inputs */
+  --color-input-background: #f9fbfc;
+  --color-input-text: #505f6f;
+
+  /* Notes & Banners */
+  --color-warning-muted-more: #fff1da;
+  --color-warning-banner: #d8ae3f;
+
+  /* Auth */
+  --color-background-auth: #eff4f7;
+
+  /* Task States */
+  --color-task-complete: #2ccbab;
+  --color-task-in-progress: #eab308;
+  --color-task-in-review: #eab308;
+  --color-task-open: #2ccbab;
+  --color-task-wont-do: #c70000;
+
+  /* Standards */
+  --color-iso27001: #4d77b0;
+  --color-nist80053: #388426;
+  --color-nistcsf: #388426;
+  --color-soc2: #4ab1bd;
+  --color-nistssdf: #388426;
+  --color-gdpr: #d9ae40;
+  --color-cis: #00549f;
+  --color-ccm: #f6a15b;
+  --color-hipaa: #3578be;
+  --color-sox: #a42f00;
+  --color-pci: #2c6f76;
+  --color-custom: #d9ae40;
+  --color-masvs: #535353;
+  --color-ccpa: #003162;
+  --color-nerc: #00437a;
+  --color-cobit: #62c5ec;
+  --color-fed: #122f4f;
+
+  /* Objects */
+  --color-procedures: #60a5fa;
+  --color-tasks: #f59e0b;
+  --color-programs: #34d399;
+  --color-risks: #f87171;
+  --color-controls: #e176ff;
+  --color-subcontrols: #eca4fd;
+  --color-control-objectives: #ffda42;
+  --color-policies: #a78bfa;
+  --color-groups: #fbbf24;
+  --color-evidence: #94a3b8;
+
+  /* Shadows */
+  --shadow-auth: 0px 8.671px 17.343px -8.671px rgba(0, 0, 0, 0.1);
+  --shadow-popover: 0px 8.671px 17.343px -8.671px rgba(0, 0, 0, 0.1);
+
+  /* Palettes */
+  --color-teal-50: #e8f9f5;
+  --color-teal-100: #d0f3ea;
+  --color-teal-200: #a3e3d4;
+  --color-teal-300: #75d2bf;
+  --color-teal-400: #4dc6ad;
+  --color-teal-500: #2ccbab;
+  --color-teal-600: #24a48b;
+  --color-teal-700: #1c8170;
+  --color-teal-800: #146355;
+  --color-teal-900: #0d4138;
+  --color-teal-950: #05211d;
+
+  --color-jade-50: #eaf9f9;
+  --color-jade-100: #d1f3f3;
+  --color-jade-200: #a8e4e4;
+  --color-jade-300: #7ad4d4;
+  --color-jade-400: #59c1bb;
+  --color-jade-500: #4aa5a0;
+  --color-jade-600: #3c8783;
+  --color-jade-700: #2f6967;
+  --color-jade-800: #244d4c;
+  --color-jade-900: #193231;
+  --color-jade-950: #0f1a19;
+
+  --color-mauve-50: #f5f2f6;
+  --color-mauve-100: #ede2f0;
+  --color-mauve-200: #d7c6e2;
+  --color-mauve-300: #b9a0cc;
+  --color-mauve-400: #998da0;
+  --color-mauve-500: #857080;
+  --color-mauve-600: #6c5865;
+  --color-mauve-700: #55434e;
+  --color-mauve-800: #3e2f3a;
+  --color-mauve-900: #271d24;
+  --color-mauve-950: #140e12;
+
+  --color-saffron-50: #fef9ed;
+  --color-saffron-100: #fef0d8;
+  --color-saffron-200: #fde0ae;
+  --color-saffron-300: #fbd079;
+  --color-saffron-400: #f5cb5c;
+  --color-saffron-500: #d9ae40;
+  --color-saffron-600: #b48f31;
+  --color-saffron-700: #8f6f26;
+  --color-saffron-800: #6a521c;
+  --color-saffron-900: #473813;
+  --color-saffron-950: #241c0a;
+
+  --color-glaucous-50: #e2e7ee;
+  --color-glaucous-100: #d1d9e5;
+  --color-glaucous-200: #b4c1d5;
+  --color-glaucous-300: #93a6c2;
+  --color-glaucous-400: #768eb2;
+  --color-glaucous-500: #5a76a0;
+  --color-glaucous-600: #4a6082;
+  --color-glaucous-700: #374862;
+  --color-glaucous-800: #273344;
+  --color-glaucous-900: #161d27;
+  --color-glaucous-950: #0d1117;
+
+  --color-oxford-blue-50: #f2f7f9;
+  --color-oxford-blue-100: #dfeaee;
+  --color-oxford-blue-200: #c2d7df;
+  --color-oxford-blue-300: #98bac8;
+  --color-oxford-blue-400: #6694aa;
+  --color-oxford-blue-500: #4b788f;
+  --color-oxford-blue-600: #416379;
+  --color-oxford-blue-700: #395365;
+  --color-oxford-blue-800: #354755;
+  --color-oxford-blue-900: #303e4a;
+  --color-oxford-blue-950: #1c2630;
+
+  --color-neutral-50: #f1f7f9;
+  --color-neutral-100: #e1ecef;
+  --color-neutral-200: #c5d7dd;
+  --color-neutral-300: #aabec5;
+  --color-neutral-400: #92a4aa;
+  --color-neutral-500: #828a8c;
+  --color-neutral-600: #6e6e6e;
+  --color-neutral-700: #575757;
+  --color-neutral-800: #3d3d3d;
+  --color-neutral-900: #242424;
+  --color-neutral-950: #1a1a1a;
+
+  /* Highlights */
+  --highlight: 210 100% 60%;
+  --highlight-foreground: 0 0% 0%;
+}
+
+/* Dark theme (shadcn semantics) */
+.dark {
+  --background: hsl(0 0% 3.9%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(0 0% 3.9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(0 0% 3.9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(0 0% 98%);
+  --primary-foreground: hsl(0 0% 9%);
+  --secondary: hsl(0 0% 14.9%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(0 0% 14.9%);
+  --muted-foreground: hsl(0 0% 63.9%);
+  --accent: hsl(0 0% 14.9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(0 0% 14.9%);
+  --input: hsl(0 0% 14.9%);
+  --ring: hsl(0 0% 83.1%);
+  --chart-1: hsl(220 70% 50%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+
+  /* Optional: override some of your legacy tokens for dark */
+  --color-bg: #1c2630;
+  --color-text-paragraph: #aabec5;
+  --color-text-header: #f0fdf9;
+  --color-ring: #59c1bb;
+}
+
+/* Map shadcn semantics to Tailwind color tokens */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Also expose a few of your legacy tokens as Tailwind colors */
+  --color-text-paragraph: var(--color-text-paragraph);
+  --color-text-header: var(--color-text-header);
+  --color-brand: var(--color-brand);
+  --color-brand-secondary: var(--color-brand-secondary);
+
+  /* Radii from shadcn */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-input-background: #f9fbfc;
+  --color-input-text: #505f6f;
+}
+
+/* ======================================
+   Base rules (matching your example)
+   ====================================== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* https://tailwindcss.com/docs/upgrade-guide#buttons-use-the-default-cursor */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* ======================================
+   Your old global element styles
+   ====================================== */
+
+/* Custom utility: hide scrollbars */
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Misc */
+.grecaptcha-badge {
+  visibility: hidden;
+}
+.rich-text ul,
+ul.rich-text {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+.rich-text li {
+  margin-bottom: 0.25rem;
+}
