@@ -4,10 +4,14 @@
    Base additions (safe alongside Tailwind’s base)
 ────────────────────────────────────────────────────────── */
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
   /* font smoothing */
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
   }
 
   /* focus ring aligns with our ring token */
@@ -23,301 +27,293 @@
 }
 
 /* ─────────────────────────────────────────────────────────
-   HSL design tokens (numbers only) — light mode
-   (space-separated H S L; no commas)
-   You can fine-tune these later; values are mapped from
-   your previous palette.
+   HSL design tokens (wrapped in hsl()) — light mode
 ────────────────────────────────────────────────────────── */
 :root {
   /* Core (used by shadcn/ui) */
-  --background: 204 43% 98%; /* #f9fbfc */
-  --foreground: 209 22% 24%; /* #303e4a */
-  --card: 0 0% 100%; /* #ffffff */
-  --card-foreground: 209 22% 24%; /* #303e4a */
-  --popover: 0 0% 100%; /* #ffffff */
-  --popover-foreground: 209 22% 24%; /* #303e4a */
-  --primary: 168 64% 49%; /* #2ccbab */
-  --primary-foreground: 191 72% 9%; /* #082930 */
-  --secondary: 45 66% 55%; /* #d9ae40 (accent) */
-  --secondary-foreground: 191 72% 9%; /* #082930 */
-  --muted: 198 39% 96%; /* #f5f9fa */
-  --muted-foreground: 208 17% 49%; /* #505f6f */
-  --accent: 45 66% 55%; /* #d9ae40 */
-  --accent-foreground: 191 72% 9%; /* #082930 */
-  --destructive: 0 69% 60%; /* #e05252 */
-  --destructive-foreground: 156 82% 98%; /* #f0fdf9 (brand-900) */
-  --border: 198 26% 89%; /* #e1e9ec */
-  --input: 204 43% 98%; /* #f9fbfc */
-  --ring: 168 64% 49%; /* #2ccbab */
+  --background: hsl(204 43% 98%); /* #f9fbfc */
+  --foreground: hsl(209 22% 24%); /* #303e4a */
+  --card: hsl(0 0% 100%); /* #ffffff */
+  --card-foreground: hsl(209 22% 24%); /* #303e4a */
+  --popover: hsl(0 0% 100%); /* #ffffff */
+  --popover-foreground: hsl(209 22% 24%); /* #303e4a */
+  --primary: hsl(168 64% 49%); /* #2ccbab */
+  --primary-foreground: hsl(191 72% 9%); /* #082930 */
+  --secondary: hsl(45 66% 55%); /* #d9ae40 */
+  --secondary-foreground: hsl(191 72% 9%); /* #082930 */
+  --muted: hsl(198 39% 96%); /* #f5f9fa */
+  --muted-foreground: hsl(208 17% 49%); /* #505f6f */
+  --accent: hsl(45 66% 55%); /* #d9ae40 */
+  --accent-foreground: hsl(191 72% 9%); /* #082930 */
+  --destructive: hsl(0 69% 60%); /* #e05252 */
+  --destructive-foreground: hsl(156 82% 98%); /* #f0fdf9 */
+  --border: hsl(198 26% 89%); /* #e1e9ec */
+  --input: hsl(204 43% 98%); /* #f9fbfc */
+  --ring: hsl(168 64% 49%); /* #2ccbab */
 
-  /* Radii (used by shadcn) */
+  /* Radii */
   --radius: 0.5rem;
 
-  /* (Optional) chart/semantic extras you may want to expose later */
-  --success: 168 64% 49%;
-  --warning: 43 89% 66%;
-  --info: 207 68% 53%;
+  /* Chart/semantic */
+  --success: hsl(168 64% 49%);
+  --warning: hsl(43 89% 66%);
+  --info: hsl(207 68% 53%);
 
-  /* ── Legacy vars kept for backwards compatibility (hex OK) ── */
-  /* Button */
-  --color-button: #2ccbab;
-  --color-button-muted: #75d2bf;
-  --color-button-light: #e8f9f5;
-  --color-button-text: #082930;
-  --color-button-secondary: #d9ae40;
-  --color-button-back: #e2efeb;
+  /* Legacy vars */
+  --color-button: hsl(168 64% 49%);
+  --color-button-muted: hsl(165 48% 65%);
+  --color-button-light: hsl(160 58% 94%);
+  --color-button-text: hsl(191 72% 9%);
+  --color-button-secondary: hsl(45 66% 55%);
+  --color-button-back: hsl(159 22% 89%);
 
-  /* Checkbox */
-  --color-bg-checkbox: #ffffff;
+  --color-bg-checkbox: hsl(0 0% 100%);
+  --asset-color-bg: hsl(199 19% 87%);
 
-  /* Assets */
-  --asset-color-bg: #dae3e7;
+  --color-bg: hsl(204 43% 98%);
+  --color-bg-dark: hsl(209 26% 15%);
+  --color-bg-light: hsl(201 30% 91%);
+  --color-bg-primary: hsl(168 64% 49%);
+  --color-bg-secondary: hsl(0 0% 100%);
+  --color-bg-muted: hsl(198 39% 96%);
 
-  /* Background */
-  --color-bg: #f9fbfc;
-  --color-bg-dark: #1c2630;
-  --color-bg-light: #e9f1f5;
-  --color-bg-primary: #2ccbab;
-  --color-bg-secondary: #ffffff;
-  --color-bg-muted: #f5f9fa;
+  --color-accent: hsl(45 66% 55%);
+  --color-accent-muted: hsl(44 94% 73%);
+  --color-accent-secondary: hsl(168 64% 49%);
+  --color-accent-secondary-muted: hsl(165 48% 65%);
 
-  /* Accent */
-  --color-accent: #d9ae40;
-  --color-accent-muted: #fbd079;
-  --color-accent-secondary: #2ccbab;
-  --color-accent-secondary-muted: #75d2bf;
+  --color-border: hsl(198 26% 89%);
+  --color-border-light: hsl(196 20% 73%);
+  --color-border-dark: hsl(209 22% 24%);
+  --color-separator: hsl(198 26% 89%);
+  --color-separator-light: hsl(213 18% 76%);
+  --color-separator-dark: hsl(211 27% 21%);
+  --color-separator-edit: hsl(0 0% 75%);
+  --color-separator-edit-light: hsl(0 0% 75%);
+  --color-separator-edit-dark: hsl(197 12% 43%);
 
-  /* Border */
-  --color-border: #e1e9ec;
-  --color-border-light: #aabec5;
-  --color-border-dark: #303e4a;
-  --color-separator: #e1e9ec;
-  --color-separator-light: #b4c1d5;
-  --color-separator-dark: #273344;
-  --color-separator-edit: #bfbfbf;
-  --color-separator-edit-light: #bfbfbf;
-  --color-separator-edit-dark: #60737a;
+  --color-text-header: hsl(209 22% 24%);
+  --color-text-paragraph: hsl(208 17% 49%);
+  --color-text-dark: hsl(209 26% 15%);
+  --color-text-light: hsl(196 20% 73%);
+  --color-text-nav-link: hsl(209 22% 24%);
+  --color-text-dimmed: hsl(210 15% 61%);
+  --color-text-informational: hsl(207 9% 53%);
 
-  /* Text */
-  --color-text-header: #303e4a;
-  --color-text-paragraph: #505f6f;
-  --color-text-dark: #1c2630;
-  --color-text-light: #aabec5;
-  --color-text-nav-link: #303e4a;
-  --color-text-dimmed: #8998a9;
-  --color-text-informational: #798695;
+  --color-panel-bg: hsl(0 0% 100%);
+  --color-panel-text: hsl(209 22% 24%);
+  --color-panel-border: hsl(8 49% 82%);
 
-  /* Panel */
-  --color-panel-bg: #ffffff;
-  --color-panel-text: #303e4a;
-  --color-panel-border: #e9c1bb;
+  --color-card-bg: hsl(0 0% 100%);
+  --color-card-text: hsl(209 22% 24%);
 
-  /* Card */
-  --color-card-bg: #ffffff;
-  --color-card-text: #303e4a;
+  --color-tags-bg: hsl(45 66% 55%);
+  --color-tags-text: hsl(191 72% 9%);
+  --color-tags-border: hsl(191 72% 9%);
 
-  /* Tags */
-  --color-tags-bg: #d9ae40;
-  --color-tags-text: #082930;
-  --color-tags-border: #082930;
+  --color-popover: hsl(0 0% 100%);
 
-  /* Popover */
-  --color-popover: #ffffff;
+  --color-ring: hsl(168 64% 49%);
 
-  /* Ring */
-  --color-ring: #2ccbab;
+  --color-table-bg: hsl(0 0% 100%);
+  --color-table-text: hsl(209 22% 24%);
+  --color-table-row-bg-hover: hsl(198 39% 96%);
+  --color-table-row-bg-odd: hsl(201 29% 92%);
+  --color-table-row-bg-even: hsl(0 0% 100%);
+  --color-table-border-muted: hsl(201 30% 91%);
+  --color-table-border: hsl(197 21% 75%);
+  --color-table-header-bg: hsl(199 26% 91%);
+  --color-table-header-text: hsl(209 22% 24%);
 
-  /* Table */
-  --color-table-bg: #ffffff;
-  --color-table-text: #303e4a;
-  --color-table-row-bg-hover: #f5f9fa;
-  --color-table-row-bg-odd: #eaf0f3;
-  --color-table-row-bg-even: #ffffff;
-  --color-table-border-muted: #e9f1f5;
-  --color-table-border: #b3c8d1;
-  --color-table-header-bg: #e4edf1;
-  --color-table-header-text: #303e4a;
+  --color-gradient-light: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(175 46% 55%) 100%);
+  --color-gradient-dark: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(283 11% 59%) 100%);
 
-  /* Gradient */
-  --color-gradient-light: linear-gradient(90deg, #2ccbab 0%, #59c1bb 100%);
-  --color-gradient-dark: linear-gradient(90deg, #2ccbab 0%, #998da0 100%);
+  --color-brand: hsl(168 64% 49%);
+  --color-brand-secondary: hsl(175 46% 55%);
+  --color-brand-100: hsl(172 79% 10%);
+  --color-brand-900: hsl(156 82% 98%);
 
-  /* Brand */
-  --color-brand: #2ccbab;
-  --color-brand-secondary: #59c1bb;
-  --color-brand-100: #052e2a;
-  --color-brand-900: #f0fdf9;
+  --color-logo-bg: hsl(209 22% 24%);
+  --color-logo-text: hsl(209 22% 24%);
+  --color-logo-fg: hsl(166 55% 53%);
+  --color-logo-dark: hsl(209 22% 24%);
+  --color-logo-light: hsl(213 18% 76%);
 
-  /* Logo */
-  --color-logo-bg: #303e4a;
-  --color-logo-text: #303e4a;
-  --color-logo-fg: #4dc6ad;
-  --color-logo-dark: #303e4a;
-  --color-logo-light: #b4c1d5;
+  --color-login-bg: hsl(0 0% 100%);
+  --color-login-text: hsl(209 22% 24%);
 
-  /* Login */
-  --color-login-bg: #ffffff;
-  --color-login-text: #303e4a;
+  --color-status-success: hsl(168 64% 49%);
+  --color-status-warning: hsl(43 89% 66%);
+  --color-status-error: hsl(0 69% 60%);
+  --color-status-info: hsl(207 68% 53%);
+  --color-status-success-muted: hsl(162 49% 74%);
+  --color-status-warning-muted: hsl(37 96% 84%);
+  --color-status-error-muted: hsl(0 75% 84%);
+  --color-status-info-muted: hsl(213 56% 60%);
 
-  /* Status */
-  --color-status-success: #2ccbab;
-  --color-status-warning: #f5cb5c;
-  --color-status-error: #e05252;
-  --color-status-info: #3498db;
-  --color-status-success-muted: #a3e3d4;
-  --color-status-warning-muted: #fde0ae;
-  --color-status-error-muted: #f5b8b8;
-  --color-status-info-muted: #5a9bd5;
+  --color-destructive: hsl(0 72% 51%);
+  --color-destructive-transparent: hsla(0 72% 51% / 0.1);
+  --color-destructive-border: hsl(0 85% 87%);
+  --color-destructive-foreground: hsl(156 82% 98%);
 
-  /* Alert */
-  --color-destructive: #dc2626;
-  --color-destructive-transparent: #dc26261a;
-  --color-destructive-border: #fecaca;
-  --color-destructive-foreground: #f0fdf9;
+  --color-progressbar-empty: hsl(199 19% 87%);
 
-  /* Progressbar */
-  --color-progressbar-empty: #dae3e7;
+  --color-input-background: hsl(204 43% 98%);
+  --color-input-text: hsl(208 17% 49%);
 
-  /* Inputs */
-  --color-input-background: #f9fbfc;
-  --color-input-text: #505f6f;
+  --color-warning-muted-more: hsl(39 100% 96%);
+  --color-warning-banner: hsl(45 66% 55%);
 
-  /* Notes */
-  --color-warning-muted-more: #fff1da;
-  --color-warning-banner: #d8ae3f;
-
-  /* Auth */
-  --color-background-auth: #eff4f7;
+  --color-background-auth: hsl(202 24% 95%);
 
   /* Standards */
-  --color-iso27001: #4d77b0;
-  --color-nist80053: #388426;
-  --color-nistcsf: #388426;
-  --color-soc2: #4ab1bd;
-  --color-nistssdf: #388426;
-  --color-gdpr: #d9ae40;
-  --color-cis: #00549f;
-  --color-ccm: #f6a15b;
-  --color-hipaa: #3578be;
-  --color-sox: #a42f00;
-  --color-pci: #2c6f76;
-  --color-custom: #d9ae40;
-  --color-masvs: #535353;
-  --color-ccpa: #003162;
-  --color-nerc: #00437a;
-  --color-cobit: #62c5ec;
-  --color-fed: #122f4f;
+  --color-iso27001: hsl(218 40% 49%);
+  --color-nist80053: hsl(115 54% 34%);
+  --color-nistcsf: hsl(115 54% 34%);
+  --color-soc2: hsl(184 46% 51%);
+  --color-nistssdf: hsl(115 54% 34%);
+  --color-gdpr: hsl(45 66% 55%);
+  --color-cis: hsl(205 100% 31%);
+  --color-ccm: hsl(27 88% 66%);
+  --color-hipaa: hsl(212 54% 47%);
+  --color-sox: hsl(18 100% 32%);
+  --color-pci: hsl(186 47% 32%);
+  --color-custom: hsl(45 66% 55%);
+  --color-masvs: hsl(0 0% 33%);
+  --color-ccpa: hsl(213 100% 19%);
+  --color-nerc: hsl(211 100% 24%);
+  --color-cobit: hsl(197 72% 65%);
+  --color-fed: hsl(214 63% 19%);
 
   /* Objects */
-  --color-procedures: #60a5fa;
-  --color-tasks: #f59e0b;
-  --color-programs: #34d399;
-  --color-risks: #f87171;
-  --color-controls: #e176ff;
-  --color-subcontrols: #eca4fd;
-  --color-control-objectives: #ffda42;
-  --color-policies: #a78bfa;
-  --color-groups: #fbbf24;
-  --color-evidence: #94a3b8;
+  --color-procedures: hsl(217 92% 67%);
+  --color-tasks: hsl(38 92% 51%);
+  --color-programs: hsl(158 64% 52%);
+  --color-risks: hsl(0 85% 69%);
+  --color-controls: hsl(288 100% 74%);
+  --color-subcontrols: hsl(294 95% 82%);
+  --color-control-objectives: hsl(50 100% 63%);
+  --color-policies: hsl(257 88% 77%);
+  --color-groups: hsl(42 96% 56%);
+  --color-evidence: hsl(215 13% 64%);
 }
 
 /* ─────────────────────────────────────────────────────────
-   Dark mode HSL tokens
+   Dark mode HSL tokens (wrapped in hsl())
 ────────────────────────────────────────────────────────── */
 .dark {
-  --background: 216 33% 9%; /* #0d1117 */
-  --foreground: 202 19% 73%; /* #aabec5 */
-  --card: 213 22% 13%; /* #161d27 */
-  --card-foreground: 202 19% 73%;
-  --popover: 209 22% 17%; /* #1c2630 */
-  --popover-foreground: 202 19% 73%;
-  --primary: 168 64% 49%; /* #2ccbab */
-  --primary-foreground: 210 40% 98%; /* near-white */
-  --secondary: 45 58% 45%; /* #b48f31 */
-  --secondary-foreground: 216 33% 9%;
-  --muted: 213 22% 13%; /* #161d27 */
-  --muted-foreground: 197 11% 53%; /* #7a8588 */
-  --accent: 45 58% 45%; /* #b48f31 */
-  --accent-foreground: 216 33% 9%;
-  --destructive: 0 84% 64%; /* #ef4444 */
-  --destructive-foreground: 156 82% 98%;
-  --border: 209 22% 17%; /* #303e4a-ish */
-  --input: 216 33% 9%; /* #0d1117 */
-  --ring: 168 64% 49%;
+  --background: hsl(216 33% 9%);
+  --foreground: hsl(196 20% 73%);
+  --card: hsl(215 28% 12%);
+  --card-foreground: hsl(196 20% 73%);
+  --popover: hsl(209 22% 17%);
+  --popover-foreground: hsl(196 20% 73%);
+  --primary: hsl(168 64% 49%);
+  --primary-foreground: hsl(210 40% 98%);
+  --secondary: hsl(45 58% 45%);
+  --secondary-foreground: hsl(216 33% 9%);
+  --muted: hsl(213 22% 13%);
+  --muted-foreground: hsl(197 11% 53%);
+  --accent: hsl(45 58% 45%);
+  --accent-foreground: hsl(216 33% 9%);
+  --destructive: hsl(0 84% 64%);
+  --destructive-foreground: hsl(156 82% 98%);
+  --border: hsl(208 21% 24%);
+  --input: hsl(216 33% 9%);
+  --ring: hsl(168 64% 49%);
 
-  /* keep legacy dark vars */
-  --color-button: #2ccbab;
-  --color-button-muted: #75d2bf;
-  --color-button-text: #082930;
-  --color-button-secondary: #b48f31;
-  --color-button-back: #96a09d;
-  --color-bg-checkbox: #1c2630;
-  --asset-color-bg: #374a52;
-  --color-bg: #0d1117;
-  --color-bg-dark: #0d1117;
-  --color-bg-muted: #161d27;
-  --color-bg-secondary: #1c2630;
-  --color-accent: #b48f31;
-  --color-accent-muted: #fbd079;
-  --color-accent-secondary: #2ccbab;
-  --color-accent-secondary-muted: #75d2bf;
-  --color-border: #303e4a;
-  --color-separator: #303e4a;
-  --color-separator-light: #b4c1d5;
-  --color-separator-dark: #273344;
-  --color-text-header: #aabec5;
-  --color-text-paragraph: #bdd9e1;
-  --color-text-nav-link: #bdd9e1;
-  --color-text-dimmed: #5c6c70;
-  --color-text-informational: #7a8588;
-  --color-panel-bg: #1c2630;
-  --color-panel-text: #aabec5;
-  --color-panel-border: #395365;
-  --color-card-bg: #161d27;
-  --color-card-text: #aabec5;
-  --color-tags-bg: #b48f31;
-  --color-tags-text: #0d1117;
-  --color-tags-border: #0d1117;
-  --color-popover: #1c2630;
-  --color-ring: #2ccbab;
-  --color-table-bg: #1c2630;
-  --color-table-text: #aabec5;
-  --color-table-row-bg-hover: #354755;
-  --color-table-row-bg-odd: #1c2630;
-  --color-table-row-bg-even: #354755;
-  --color-table-border: #998da0;
-  --color-table-border-muted: #395365;
-  --color-table-header-bg: #3b4b59;
-  --color-table-header-text: #d0f3ea;
-  --color-gradient-light: linear-gradient(90deg, #2ccbab 0%, #59c1bb 100%);
-  --color-gradient-dark: linear-gradient(90deg, #2ccbab 0%, #998da0 100%);
-  --color-brand: #2ccbab;
-  --color-brand-secondary: #59c1bb;
-  --color-brand-100: #cdfaee;
-  --color-brand-900: #144d45;
-  --color-logo-bg: #303e4a;
-  --color-logo-text: #b4c1d5;
-  --color-logo-fg: #4dc6ad;
-  --color-logo-dark: #303e4a;
-  --color-logo-light: #b4c1d5;
-  --color-status-success: #2ccbab;
-  --color-status-warning: #d9ae40;
-  --color-status-error: #b04141;
-  --color-status-info: #007bff;
-  --color-status-success-muted: #75d2bf;
-  --color-status-warning-muted: #fbd079;
-  --color-status-error-muted: #f5b8b8;
-  --color-status-info-muted: #5a9bd5;
-  --color-destructive: #ef4444;
-  --color-destructive-transparent: #ef44441a;
-  --color-destructive-border: #7f1d1d;
-  --color-destructive-foreground: #f0fdf9;
-  --color-progressbar-empty: #374a52;
-  --color-input-background: #0d1117;
-  --color-input-text: #bcd9e1;
-  --color-warning-muted-more: #514024;
-  --color-warning-banner: #d8ae3f;
-  --color-background-auth: #23282f;
+  --color-button: hsl(168 64% 49%);
+  --color-button-muted: hsl(165 48% 65%);
+  --color-button-text: hsl(191 72% 9%);
+  --color-button-secondary: hsl(45 58% 45%);
+  --color-button-back: hsl(164 6% 61%);
+
+  --color-bg-checkbox: hsl(209 22% 17%);
+  --asset-color-bg: hsl(199 20% 27%);
+
+  --color-bg: hsl(216 33% 9%);
+  --color-bg-dark: hsl(216 33% 9%);
+  --color-bg-muted: hsl(213 22% 13%);
+  --color-bg-secondary: hsl(209 22% 17%);
+
+  --color-accent: hsl(45 58% 45%);
+  --color-accent-muted: hsl(44 94% 73%);
+  --color-accent-secondary: hsl(168 64% 49%);
+  --color-accent-secondary-muted: hsl(165 48% 65%);
+
+  --color-border: hsl(208 21% 24%);
+  --color-separator: hsl(209 22% 24%);
+  --color-separator-light: hsl(213 18% 76%);
+  --color-separator-dark: hsl(211 27% 21%);
+
+  --color-text-header: hsl(196 20% 73%);
+  --color-text-paragraph: hsl(191 39% 84%);
+  --color-text-nav-link: hsl(191 39% 84%);
+  --color-text-dimmed: hsl(191 10% 40%);
+  --color-text-informational: hsl(197 11% 53%);
+
+  --color-panel-bg: hsl(209 22% 17%);
+  --color-panel-text: hsl(196 20% 73%);
+  --color-panel-border: hsl(200 29% 31%);
+
+  --color-card-bg: hsl(213 22% 13%);
+  --color-card-text: hsl(196 20% 73%);
+
+  --color-tags-bg: hsl(45 58% 45%);
+  --color-tags-text: hsl(216 33% 9%);
+  --color-tags-border: hsl(216 33% 9%);
+
+  --color-popover: hsl(209 22% 17%);
+
+  --color-ring: hsl(168 64% 49%);
+
+  --color-table-bg: hsl(209 22% 17%);
+  --color-table-text: hsl(196 20% 73%);
+  --color-table-row-bg-hover: hsl(203 22% 27%);
+  --color-table-row-bg-odd: hsl(209 22% 17%);
+  --color-table-row-bg-even: hsl(203 22% 27%);
+  --color-table-border: hsl(283 11% 59%);
+  --color-table-border-muted: hsl(200 29% 31%);
+  --color-table-header-bg: hsl(206 20% 29%);
+  --color-table-header-text: hsl(167 56% 85%);
+
+  --color-gradient-light: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(175 46% 55%) 100%);
+  --color-gradient-dark: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(283 11% 59%) 100%);
+
+  --color-brand: hsl(168 64% 49%);
+  --color-brand-secondary: hsl(175 46% 55%);
+  --color-brand-100: hsl(160 75% 90%);
+  --color-brand-900: hsl(168 58% 19%);
+
+  --color-logo-bg: hsl(209 22% 24%);
+  --color-logo-text: hsl(213 18% 76%);
+  --color-logo-fg: hsl(166 55% 53%);
+  --color-logo-dark: hsl(209 22% 24%);
+  --color-logo-light: hsl(213 18% 76%);
+
+  --color-status-success: hsl(168 64% 49%);
+  --color-status-warning: hsl(45 66% 55%);
+  --color-status-error: hsl(0 47% 47%);
+  --color-status-info: hsl(211 100% 50%);
+  --color-status-success-muted: hsl(165 48% 65%);
+  --color-status-warning-muted: hsl(44 94% 73%);
+  --color-status-error-muted: hsl(0 75% 84%);
+  --color-status-info-muted: hsl(213 56% 60%);
+
+  --color-destructive: hsl(0 84% 64%);
+  --color-destructive-transparent: hsla(0 84% 64% / 0.1);
+  --color-destructive-border: hsl(0 64% 30%);
+  --color-destructive-foreground: hsl(156 82% 98%);
+
+  --color-progressbar-empty: hsl(199 20% 27%);
+
+  --color-input-background: hsl(216 33% 9%);
+  --color-input-text: hsl(191 39% 84%);
+
+  --color-warning-muted-more: hsl(36 37% 23%);
+  --color-warning-banner: hsl(45 66% 55%);
+
+  --color-background-auth: hsl(213 14% 16%);
 
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
@@ -326,36 +322,35 @@
 
 /* ─────────────────────────────────────────────────────────
    Map tokens to Tailwind theme via @theme
-   (so you can use bg-background, text-foreground, etc.)
 ────────────────────────────────────────────────────────── */
 @theme {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
 
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   --radius: var(--radius);
 }
@@ -363,19 +358,15 @@
 /* ─────────────────────────────────────────────────────────
    Utilities/components you had before
 ────────────────────────────────────────────────────────── */
-
-/* ensures icons scale with font size */
 .button-icon svg {
   width: 1rem;
   height: 1rem;
 }
 
-/* JSON editor light background (legacy var kept) */
 .svc-json-editor-tab__content-area {
   background-color: var(--color-bg);
 }
 
-/* custom pulse */
 @keyframes custom-pulse {
   50% {
     opacity: 0.5;
