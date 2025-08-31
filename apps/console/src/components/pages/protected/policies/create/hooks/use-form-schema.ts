@@ -48,49 +48,25 @@ const useFormSchema = () => {
         tags: [],
         policyType: '',
         details: `
-            <div class="slate-editor" data-slate-editor="true" data-slate-node="value">
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:18px" data-slate-font-size="18px">
-                    <span data-slate-string="true">Purpose and Scope</span>
-                  </span>
-                </span>
-              </div>
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:12px" data-slate-font-size="12px">
-                    <span data-slate-string="true">< Why the policy exists and the scope it covers >  </span>
-                  </span>
-                </span>
-              </div>
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:18px" data-slate-font-size="18px">
-                    <span data-slate-string="true">Background</span>
-                  </span>
-                </span>
-              </div>
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:12px" data-slate-font-size="12px">
-                    <span data-slate-string="true">< Any relevant background of the policy >     </span>
-                  </span>
-                </span>
-              </div>
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:18px" data-slate-font-size="18px">
-                    <span data-slate-string="true">Policy</span>
-                  </span>
-                </span>
-              </div>
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:12px" data-slate-font-size="12px">
-                    <span data-slate-string="true">< Details of the policy >  </span>
-                  </span>
-                </span>
-              </div>
+            <div class="slate-editor group/editor relative w-full cursor-text overflow-x-hidden break-words whitespace-pre-wrap select-text rounded-md ring-offset-background focus-visible:outline-hidden placeholder:text-muted-foreground/80 [&_strong]:font-bold">
+              <h2 class="slate-h2 relative mb-1 mt-[1.4em] pb-px font-heading text-2xl font-semibold tracking-tight">
+                Purpose and Scope
+              </h2>
+              <em class="slate-italic">
+                Explain why this policy exists (the business or security need it addresses) and who/what it applies to (e.g., employees, contractors, systems, environments).
+              </em>
+              <h2 class="slate-h2 relative mb-1 mt-[1.4em] pb-px font-heading text-2xl font-semibold tracking-tight">
+                Background
+              </h2>
+              <em class="slate-italic">
+                Provide any context that helps readers understand the policy’s importance, for example, regulatory requirements, past incidents, or industry standards that influenced it.
+              </em>
+              <h2 class="slate-h2 relative mb-1 mt-[1.4em] pb-px font-heading text-2xl font-semibold tracking-tight">
+                Policy
+              </h2>
+              <em class="slate-italic">
+                State the actual rules and expectations clearly. Use simple, enforceable language (e.g., “must,” “required,” “prohibited”) rather than vague terms. If the policy has multiple points, break them into short numbered or bulleted items.
+              </em>
             </div>
           `,
       },

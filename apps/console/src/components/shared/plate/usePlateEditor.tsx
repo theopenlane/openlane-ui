@@ -5,7 +5,7 @@ import { createSlateEditor, PlateStatic, serializeHtml, Value } from 'platejs'
 
 type Detected = 'markdown' | 'html' | 'slate-json' | 'text'
 
-function detectFormat(input: unknown): Detected {
+export function detectFormat(input: unknown): Detected {
   if (typeof input !== 'string') return 'text'
   const s = input.trim()
 
@@ -46,11 +46,18 @@ const usePlateEditor = () => {
         value: data,
       })
 
-      return await serializeHtml(editor, {
-        editorComponent: EditorStatic,
-        stripClassNames: false,
-        stripDataAttributes: false,
-      })
+      const fmt = detectFormat(data)
+
+      switch (fmt) {
+        case 'markdown':
+          return await editor.api.markdown?.serialize?.()
+        default:
+          return await serializeHtml(editor, {
+            editorComponent: EditorStatic,
+            stripClassNames: false,
+            stripDataAttributes: false,
+          })
+      }
     },
     // Converts html data into deserializable PlateJs value, and rendering read only static view
     convertToReadOnly: (data: string, padding: number = 0, style?: React.CSSProperties) => {
@@ -65,14 +72,8 @@ const usePlateEditor = () => {
         case 'markdown':
           nodes = editor.api.markdown?.deserialize?.(data)
           break
-        case 'html':
-          nodes = editor.api.html?.deserialize?.({ element: data })
-          break
-        case 'slate-json':
-          nodes = JSON.parse(data as string)
-          break
         default:
-          nodes = [{ type: 'p', children: [{ text: String(data ?? '') }] }]
+          nodes = editor.api.html?.deserialize?.({ element: data })
       }
 
       editor.children = nodes as Value
