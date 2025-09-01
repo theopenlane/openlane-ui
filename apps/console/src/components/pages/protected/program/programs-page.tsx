@@ -13,7 +13,7 @@ import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
-import { ArrowRight, ShieldCheck } from 'lucide-react'
+import { ArrowRight, InfoIcon, ShieldCheck } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
@@ -29,6 +29,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import Loading from '@/app/(protected)/programs/loading'
 import { Checkbox } from '@repo/ui/checkbox'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -58,9 +59,7 @@ const ProgramsPage: React.FC = () => {
         ],
       }
     }
-    return {
-      statusNotIn: [ProgramProgramStatus.ARCHIVED],
-    }
+    return {}
   }, [showAllPrograms])
   const { data, isLoading } = useGetAllPrograms({
     orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
@@ -196,7 +195,16 @@ const ProgramsPage: React.FC = () => {
               </Select>
               <div className="flex items-center gap-2 whitespace-nowrap">
                 <Checkbox checked={showAllPrograms} onCheckedChange={(checked) => setShowAllPrograms(!!checked)} />
-                <span className="text-sm">Show all programs</span>
+                <span className="text-sm">Include archived</span>
+                <SystemTooltip
+                  icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                  content={
+                    <p>
+                      Archived programs are not included by default. Check this box to include archived programs in the drop down. These will be read-only, unless the program is unarchived from
+                      program settings.
+                    </p>
+                  }
+                />
               </div>
             </div>
             <div className="flex gap-2.5 items-center">

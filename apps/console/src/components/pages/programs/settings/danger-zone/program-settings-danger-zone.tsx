@@ -126,7 +126,7 @@ export const ProgramSettingsDangerZone = () => {
             This will archive <b>{program?.name}</b>.
           </>
         }
-        confirmationText="Delete"
+        confirmationText="Archive"
         confirmationTextVariant="destructive"
       />
       <ConfirmationDialog
@@ -139,8 +139,8 @@ export const ProgramSettingsDangerZone = () => {
             This will unarchive <b>{program?.name}</b>.
           </>
         }
-        confirmationText="Delete"
-        confirmationTextVariant="destructive"
+        confirmationText="Unarchive"
+        confirmationTextVariant="filled"
       />
       <section className="flex gap-14 border-t pt-6">
         <div className="w-48 shrink-0">
@@ -161,7 +161,7 @@ export const ProgramSettingsDangerZone = () => {
             <>
               <div className="space-y-2">
                 <p className="text-base">
-                  Archiving a program will make it <strong>read-only</strong>.
+                  Archiving will lock this program so it&#39;s <strong>read-only</strong>. Don&#39;t worry - you can always unarchive it to make updates.
                 </p>
                 <Button variant="destructive" className="w-fit" onClick={() => setIsArchiveDialogOpen(true)} disabled={isPending}>
                   {isArchivePending ? 'Archiving... ' : 'Archive'}
