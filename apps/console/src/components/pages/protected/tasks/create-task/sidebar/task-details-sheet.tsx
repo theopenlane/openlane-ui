@@ -198,7 +198,7 @@ const TaskDetailsSheet = () => {
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK]}
+                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP]}
                     />
                   </Panel>
                 )}

@@ -10579,7 +10579,7 @@ export enum ExportExportStatus {
 export enum ExportExportType {
   CONTROL = 'CONTROL',
   EVIDENCE = 'EVIDENCE',
-  INTERNALPOLICY = 'INTERNALPOLICY',
+  INTERNAL_POLICY = 'INTERNAL_POLICY',
   PROCEDURE = 'PROCEDURE',
   RISK = 'RISK',
   SUBSCRIBER = 'SUBSCRIBER',
@@ -44405,7 +44405,14 @@ export type TaskQuery = {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
         __typename?: 'ControlObjectiveEdge'
-        node?: { __typename?: 'ControlObjective'; displayID: string; id: string; name: string; desiredOutcome?: string | null } | null
+        node?: {
+          __typename?: 'ControlObjective'
+          displayID: string
+          id: string
+          name: string
+          desiredOutcome?: string | null
+          controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+        } | null
       } | null> | null
     }
     comments: {

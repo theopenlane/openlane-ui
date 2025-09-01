@@ -39,7 +39,6 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
   const { convertToHtml } = usePlateEditor()
   const { form } = useFormSchema()
   const {
-    register,
     handleSubmit,
     control,
     reset,
@@ -167,7 +166,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
             Name <span className="text-red-500">*</span>
           </Label>
           <div className="flex flex-col">
-            <Input {...register('name')} />
+            <Controller name="name" control={control} render={({ field }) => <Input {...field} />} />
             {errors.name && <p className="text-red-500 mt-1 text-xs">{errors.name.message}</p>}
           </div>
         </div>
@@ -225,19 +224,19 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
         <div className="border-b flex items-center py-2.5">
           <Label className="min-w-36">Type</Label>
           <div>
-            <Input className="w-60" {...register('controlObjectiveType')} />
+            <Controller name="controlObjectiveType" control={control} render={({ field }) => <Input className="w-60" {...field} />} />
             <p className="text-xs mt-2">For example: compliance, financial, operational</p>
           </div>
         </div>
 
         <div className="border-b flex items-center py-2.5">
           <Label className="min-w-36">Category</Label>
-          <Input className="w-60" {...register('category')} />
+          <Controller name="category" control={control} render={({ field }) => <Input className="w-60" {...field} />} />
         </div>
 
         <div className="border-b flex items-center py-2.5">
           <Label className="min-w-36">Subcategory</Label>
-          <Input className="w-60" {...register('subcategory')} />
+          <Controller name="subcategory" control={control} render={({ field }) => <Input className="w-60" {...field} />} />
         </div>
 
         {isEditing ? (

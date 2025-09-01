@@ -168,7 +168,7 @@ const Risks = () => {
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-center py-16">
-                <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
+                <AlertTriangle height={45} width={45} strokeWidth={1} className="text-border mb-4" />
                 <h2 className="text-lg font-semibold">You have no risks</h2>
                 <Link href={risksRedirectURL} className="mt-4">
                   <Button variant="outline">Take me there</Button>

@@ -29,13 +29,14 @@ type TObjectAssociationGraphProps = {
   sections: Section
   isFullscreen: boolean
   closeFullScreen: () => void
+  menu?: React.ReactNode
 }
 
 const NODE_RADIUS = 7
 const FONT_SIZE = 12
 const LABEL_PADDING = 4
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, menu }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
@@ -274,13 +275,16 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   return showFullscreen ? (
     ReactDOM.createPortal(
       <div
-        className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
         onClick={closeFullScreen}
+        className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
-          <button onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+        <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
+          <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
             <X size={20} />
           </button>
+
+          {menu && <div className="absolute top-2 left-2 z-[99999]">{menu}</div>}
+
           <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[400px]'} transition-all duration-300`}>
             {renderGraph()}
           </div>

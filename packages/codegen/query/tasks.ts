@@ -184,6 +184,13 @@ export const TASK = gql`
             id
             name
             desiredOutcome
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
       }
