@@ -5772,6 +5772,7 @@ export interface CreateInternalPolicyInput {
   /** tag suggestions dismissed by the user for the policy */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the policy */
@@ -5797,6 +5798,8 @@ export interface CreateInternalPolicyInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** This will contain the url used to create/update the policy */
+  url?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -6199,6 +6202,7 @@ export interface CreateProcedureInput {
   /** tag suggestions dismissed by the user for the procedure */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -6224,6 +6228,8 @@ export interface CreateProcedureInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** This will contain the url used to create/update the procedure */
+  url?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -6609,6 +6615,14 @@ export interface CreateTrustCenterComplianceInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
+}
+
+/** Input for createTrustCenterDomain mutation */
+export interface CreateTrustCenterDomainInput {
+  /** the name of the custom domain */
+  cnameRecord: Scalars['String']['input']
+  /** trust center ID */
+  trustCenterID: Scalars['ID']['input']
 }
 
 /**
@@ -14386,6 +14400,9 @@ export interface InternalPolicy extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
+  file?: Maybe<File>
+  /** This will contain the most recent file id if this policy was created from a file */
+  fileID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
   /** suggested improvements for the policy */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -14417,6 +14434,8 @@ export interface InternalPolicy extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** This will contain the url used to create/update the policy */
+  url?: Maybe<Scalars['String']['output']>
 }
 
 export interface InternalPolicyBlockedGroupsArgs {
@@ -14607,6 +14626,8 @@ export interface InternalPolicyHistory extends Node {
   dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** This will contain the most recent file id if this policy was created from a file */
+  fileID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** suggested improvements for the policy */
@@ -14634,6 +14655,8 @@ export interface InternalPolicyHistory extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** This will contain the url used to create/update the policy */
+  url?: Maybe<Scalars['String']['output']>
 }
 
 /** A connection to a list of items. */
@@ -14800,6 +14823,22 @@ export interface InternalPolicyHistoryWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** file_id field predicates */
+  fileID?: InputMaybe<Scalars['String']['input']>
+  fileIDContains?: InputMaybe<Scalars['String']['input']>
+  fileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  fileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  fileIDGT?: InputMaybe<Scalars['String']['input']>
+  fileIDGTE?: InputMaybe<Scalars['String']['input']>
+  fileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  fileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  fileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fileIDLT?: InputMaybe<Scalars['String']['input']>
+  fileIDLTE?: InputMaybe<Scalars['String']['input']>
+  fileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  fileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -14957,6 +14996,22 @@ export interface InternalPolicyHistoryWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** url field predicates */
+  url?: InputMaybe<Scalars['String']['input']>
+  urlContains?: InputMaybe<Scalars['String']['input']>
+  urlContainsFold?: InputMaybe<Scalars['String']['input']>
+  urlEqualFold?: InputMaybe<Scalars['String']['input']>
+  urlGT?: InputMaybe<Scalars['String']['input']>
+  urlGTE?: InputMaybe<Scalars['String']['input']>
+  urlHasPrefix?: InputMaybe<Scalars['String']['input']>
+  urlHasSuffix?: InputMaybe<Scalars['String']['input']>
+  urlIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  urlLT?: InputMaybe<Scalars['String']['input']>
+  urlLTE?: InputMaybe<Scalars['String']['input']>
+  urlNEQ?: InputMaybe<Scalars['String']['input']>
+  urlNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Ordering options for InternalPolicy connections */
@@ -15085,6 +15140,22 @@ export interface InternalPolicyWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** file_id field predicates */
+  fileID?: InputMaybe<Scalars['ID']['input']>
+  fileIDContains?: InputMaybe<Scalars['ID']['input']>
+  fileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDGT?: InputMaybe<Scalars['ID']['input']>
+  fileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  fileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fileIDLT?: InputMaybe<Scalars['ID']['input']>
+  fileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  fileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** approver edge predicates */
   hasApprover?: InputMaybe<Scalars['Boolean']['input']>
   hasApproverWith?: InputMaybe<Array<GroupWhereInput>>
@@ -15106,6 +15177,9 @@ export interface InternalPolicyWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** file edge predicates */
+  hasFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasFileWith?: InputMaybe<Array<FileWhereInput>>
   /** narratives edge predicates */
   hasNarratives?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativesWith?: InputMaybe<Array<NarrativeWhereInput>>
@@ -15254,6 +15328,22 @@ export interface InternalPolicyWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** url field predicates */
+  url?: InputMaybe<Scalars['String']['input']>
+  urlContains?: InputMaybe<Scalars['String']['input']>
+  urlContainsFold?: InputMaybe<Scalars['String']['input']>
+  urlEqualFold?: InputMaybe<Scalars['String']['input']>
+  urlGT?: InputMaybe<Scalars['String']['input']>
+  urlGTE?: InputMaybe<Scalars['String']['input']>
+  urlHasPrefix?: InputMaybe<Scalars['String']['input']>
+  urlHasSuffix?: InputMaybe<Scalars['String']['input']>
+  urlIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  urlLT?: InputMaybe<Scalars['String']['input']>
+  urlLTE?: InputMaybe<Scalars['String']['input']>
+  urlNEQ?: InputMaybe<Scalars['String']['input']>
+  urlNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface Invite extends Node {
@@ -18307,9 +18397,15 @@ export interface Mutation {
   /** Create a new trustCenterCompliance */
   createTrustCenterCompliance: TrustCenterComplianceCreatePayload
   /** Create a new trustCenterSetting */
+  createTrustCenterDomain: TrustCenterDomainCreatePayload
+  /** Create a new trustCenterSetting */
   createTrustCenterSetting: TrustCenterSettingCreatePayload
   /** Create a new trustCenterSubprocessor */
   createTrustCenterSubprocessor: TrustCenterSubprocessorCreatePayload
+  /** Create a new internalPolicy via file upload */
+  createUploadInternalPolicy: InternalPolicyCreatePayload
+  /** Create a new procedure via file upload */
+  createUploadProcedure: ProcedureCreatePayload
   /** Create a new user */
   createUser: UserCreatePayload
   /** Create a new userSetting */
@@ -19098,6 +19194,10 @@ export interface MutationCreateTrustCenterComplianceArgs {
   input: CreateTrustCenterComplianceInput
 }
 
+export interface MutationCreateTrustCenterDomainArgs {
+  input: CreateTrustCenterDomainInput
+}
+
 export interface MutationCreateTrustCenterSettingArgs {
   faviconFile?: InputMaybe<Scalars['Upload']['input']>
   input: CreateTrustCenterSettingInput
@@ -19106,6 +19206,16 @@ export interface MutationCreateTrustCenterSettingArgs {
 
 export interface MutationCreateTrustCenterSubprocessorArgs {
   input: CreateTrustCenterSubprocessorInput
+}
+
+export interface MutationCreateUploadInternalPolicyArgs {
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  policyFile: Scalars['Upload']['input']
+}
+
+export interface MutationCreateUploadProcedureArgs {
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  procedureFile: Scalars['Upload']['input']
 }
 
 export interface MutationCreateUserArgs {
@@ -24108,6 +24218,9 @@ export interface Procedure extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
+  file?: Maybe<File>
+  /** This will contain the most recent file id if this procedure was created from a file */
+  fileID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
   /** suggested improvements for the procedure */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -24139,6 +24252,8 @@ export interface Procedure extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** This will contain the url used to create/update the procedure */
+  url?: Maybe<Scalars['String']['output']>
 }
 
 export interface ProcedureBlockedGroupsArgs {
@@ -24311,6 +24426,8 @@ export interface ProcedureHistory extends Node {
   dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** This will contain the most recent file id if this procedure was created from a file */
+  fileID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** suggested improvements for the procedure */
@@ -24338,6 +24455,8 @@ export interface ProcedureHistory extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** This will contain the url used to create/update the procedure */
+  url?: Maybe<Scalars['String']['output']>
 }
 
 /** A connection to a list of items. */
@@ -24504,6 +24623,22 @@ export interface ProcedureHistoryWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** file_id field predicates */
+  fileID?: InputMaybe<Scalars['String']['input']>
+  fileIDContains?: InputMaybe<Scalars['String']['input']>
+  fileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  fileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  fileIDGT?: InputMaybe<Scalars['String']['input']>
+  fileIDGTE?: InputMaybe<Scalars['String']['input']>
+  fileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  fileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  fileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fileIDLT?: InputMaybe<Scalars['String']['input']>
+  fileIDLTE?: InputMaybe<Scalars['String']['input']>
+  fileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  fileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -24661,6 +24796,22 @@ export interface ProcedureHistoryWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** url field predicates */
+  url?: InputMaybe<Scalars['String']['input']>
+  urlContains?: InputMaybe<Scalars['String']['input']>
+  urlContainsFold?: InputMaybe<Scalars['String']['input']>
+  urlEqualFold?: InputMaybe<Scalars['String']['input']>
+  urlGT?: InputMaybe<Scalars['String']['input']>
+  urlGTE?: InputMaybe<Scalars['String']['input']>
+  urlHasPrefix?: InputMaybe<Scalars['String']['input']>
+  urlHasSuffix?: InputMaybe<Scalars['String']['input']>
+  urlIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  urlLT?: InputMaybe<Scalars['String']['input']>
+  urlLTE?: InputMaybe<Scalars['String']['input']>
+  urlNEQ?: InputMaybe<Scalars['String']['input']>
+  urlNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Ordering options for Procedure connections */
@@ -24789,6 +24940,22 @@ export interface ProcedureWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** file_id field predicates */
+  fileID?: InputMaybe<Scalars['ID']['input']>
+  fileIDContains?: InputMaybe<Scalars['ID']['input']>
+  fileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDGT?: InputMaybe<Scalars['ID']['input']>
+  fileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  fileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fileIDLT?: InputMaybe<Scalars['ID']['input']>
+  fileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  fileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** approver edge predicates */
   hasApprover?: InputMaybe<Scalars['Boolean']['input']>
   hasApproverWith?: InputMaybe<Array<GroupWhereInput>>
@@ -24804,6 +24971,9 @@ export interface ProcedureWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** file edge predicates */
+  hasFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasFileWith?: InputMaybe<Array<FileWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -24952,6 +25122,22 @@ export interface ProcedureWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** url field predicates */
+  url?: InputMaybe<Scalars['String']['input']>
+  urlContains?: InputMaybe<Scalars['String']['input']>
+  urlContainsFold?: InputMaybe<Scalars['String']['input']>
+  urlEqualFold?: InputMaybe<Scalars['String']['input']>
+  urlGT?: InputMaybe<Scalars['String']['input']>
+  urlGTE?: InputMaybe<Scalars['String']['input']>
+  urlHasPrefix?: InputMaybe<Scalars['String']['input']>
+  urlHasSuffix?: InputMaybe<Scalars['String']['input']>
+  urlIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  urlLT?: InputMaybe<Scalars['String']['input']>
+  urlLTE?: InputMaybe<Scalars['String']['input']>
+  urlNEQ?: InputMaybe<Scalars['String']['input']>
+  urlNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  urlNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface Program extends Node {
@@ -35528,6 +35714,12 @@ export interface TrustCenterDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** Return response for createTrustCenterDomain mutation */
+export interface TrustCenterDomainCreatePayload {
+  __typename?: 'TrustCenterDomainCreatePayload'
+  customDomain: CustomDomain
+}
+
 /** An edge in a connection. */
 export interface TrustCenterEdge {
   __typename?: 'TrustCenterEdge'
@@ -38152,6 +38344,7 @@ export interface UpdateInternalPolicyInput {
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
@@ -38167,6 +38360,7 @@ export interface UpdateInternalPolicyInput {
   clearTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  clearURL?: InputMaybe<Scalars['Boolean']['input']>
   /** proposed controls referenced in the policy */
   controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -38178,6 +38372,7 @@ export interface UpdateInternalPolicyInput {
   dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tag suggestions dismissed by the user for the policy */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the policy */
@@ -38208,6 +38403,8 @@ export interface UpdateInternalPolicyInput {
   tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** This will contain the url used to create/update the policy */
+  url?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -38818,6 +39015,7 @@ export interface UpdateProcedureInput {
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
@@ -38833,6 +39031,7 @@ export interface UpdateProcedureInput {
   clearTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  clearURL?: InputMaybe<Scalars['Boolean']['input']>
   /** proposed controls referenced in the procedure */
   controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -38844,6 +39043,7 @@ export interface UpdateProcedureInput {
   dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tag suggestions dismissed by the user for the procedure */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the procedure */
@@ -38872,6 +39072,8 @@ export interface UpdateProcedureInput {
   tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** This will contain the url used to create/update the procedure */
+  url?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -42806,6 +43008,11 @@ export type GetOrganizationSettingQuery = {
       geoLocation?: OrganizationSettingRegion | null
       billingNotificationsEnabled: boolean
       allowedEmailDomains?: Array<string> | null
+      identityProvider?: OrganizationSettingSsoProvider | null
+      identityProviderClientID?: string | null
+      identityProviderClientSecret?: string | null
+      oidcDiscoveryEndpoint?: string | null
+      identityProviderLoginEnforced: boolean
     } | null
   }
 }
