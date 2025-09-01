@@ -36,6 +36,10 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
       return `/programs?id=${row.id}`
     case 'groups':
       return `/groups?id=${row.id}`
+    case 'evidences':
+      return `/evidence?id=${row.id}`
+    case 'controlObjectives':
+      return `/controls/${row.control?.id ?? row.controlId}/control-objectives`
     default:
       return ''
   }

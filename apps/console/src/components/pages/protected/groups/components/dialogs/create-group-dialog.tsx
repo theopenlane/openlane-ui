@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -52,6 +52,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
     handleSubmit,
     setValue,
     formState: { errors },
+    control,
     reset,
   } = useForm<CreateGroupFormData>({
     resolver: zodResolver(CreateGroupSchema),
@@ -138,7 +139,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
             <Label className="text-sm font-medium" htmlFor="groupName">
               Group name:
             </Label>
-            <Input id="groupName" placeholder="Group name" {...register('groupName')} />
+            <Controller name="groupName" control={control} render={({ field }) => <Input placeholder="Group name" {...field} />} />
             {errors.groupName && <p className="text-red-500 text-sm">{errors.groupName.message}</p>}
           </div>
 
