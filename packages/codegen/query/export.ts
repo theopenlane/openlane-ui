@@ -33,6 +33,7 @@ export const GET_EXPORTS = gql`
           id
           status
           exportType
+          errorMessage
           files {
             edges {
               node {

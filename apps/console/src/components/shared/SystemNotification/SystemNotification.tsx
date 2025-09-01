@@ -1,8 +1,9 @@
 'use client'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Bell, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
-import { TJob, useTrackedExports } from '@/components/shared/export/use-tacked-export'
+import { Bell, CheckCircle2, XCircle, Loader2, AlertTriangle, HelpCircle } from 'lucide-react'
+import { TJob, useTrackedExports } from '@/components/shared/export/use-tracked-export.ts'
 import { ExportExportStatus } from '@repo/codegen/src/schema'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 const cx = (...xs: Array<string | false | null | undefined>) => xs.filter(Boolean).join(' ')
 
@@ -11,6 +12,7 @@ const STATUS_COLORS = {
   success: '#22c55e',
   error: '#f43f5e',
   pending: '#fbbf24',
+  warning: '#f97316',
   bell: {
     idle: '#9ca3af',
     active: '#3b82f6',
@@ -25,15 +27,16 @@ const STATUS_COLORS = {
   },
 }
 
-function mapStatus(status: ExportExportStatus): 'running' | 'success' | 'error' | 'pending' {
+function mapStatus(status: ExportExportStatus): 'running' | 'success' | 'error' | 'pending' | 'warning' {
   switch (status) {
     case ExportExportStatus.PENDING:
       return 'running'
     case ExportExportStatus.READY:
       return 'success'
     case ExportExportStatus.FAILED:
-    case ExportExportStatus.NODATA:
       return 'error'
+    case ExportExportStatus.NODATA:
+      return 'warning'
     default:
       return 'pending'
   }
@@ -42,13 +45,13 @@ function mapStatus(status: ExportExportStatus): 'running' | 'success' | 'error' 
 type MultiRingProps = {
   size?: number
   width?: number
-  counts: { running: number; success: number; error: number; pending?: number }
+  counts: { running: number; success: number; error: number; pending?: number; warning: number }
   colors?: typeof STATUS_COLORS
   animate?: boolean
 }
 
 const MultiRing = ({ size = 36, width = 4, counts, colors = STATUS_COLORS, animate = true }: MultiRingProps) => {
-  const total = counts.running + counts.success + counts.error + (counts.pending || 0)
+  const total = counts.running + counts.success + counts.error + counts.warning + (counts.pending || 0)
   if (total === 0) return <span className="inline-block w-9 h-9 rounded-full bg-gray-100" />
 
   const segments: { color: string; percentage: number }[] = [
@@ -57,6 +60,7 @@ const MultiRing = ({ size = 36, width = 4, counts, colors = STATUS_COLORS, anima
     { color: colors.running, percentage: counts.running / total },
   ]
   if (counts.pending) segments.push({ color: colors.pending, percentage: counts.pending / total })
+  if (counts.warning) segments.push({ color: colors.warning, percentage: counts.warning / total })
 
   let degStart = 0
   const gradient = segments
@@ -158,6 +162,7 @@ function Row({ job }: { job: TJob }) {
             running: uiStatus === 'running' ? job.progress : 0,
             success: uiStatus === 'success' ? 1 : 0,
             error: uiStatus === 'error' ? 1 : 0,
+            warning: uiStatus === 'warning' ? 1 : 0,
           }}
           animate
         />
@@ -178,7 +183,30 @@ function Row({ job }: { job: TJob }) {
       </div>
       <div>
         {uiStatus === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-        {uiStatus === 'error' && <XCircle className="h-5 w-5 text-rose-500" />}
+        {uiStatus === 'error' && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <XCircle className="h-5 w-5 text-rose-500 cursor-pointer" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[450px]">
+                <p>{job.errorMessage}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        {uiStatus === 'warning' && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <AlertTriangle className="h-5 w-5 text-orange-500 cursor-pointer" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>No data available for export.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
     </div>
   )
@@ -194,6 +222,7 @@ export default function SystemNotificationTracker() {
       pending: mapped.filter((s) => s === 'pending').length,
       running: mapped.filter((s) => s === 'running').length,
       success: mapped.filter((s) => s === 'success').length,
+      warning: mapped.filter((s) => s === 'warning').length,
       error: mapped.filter((s) => s === 'error').length,
       total: mapped.length,
     }
@@ -215,7 +244,7 @@ export default function SystemNotificationTracker() {
         >
           <div className="max-h-[60vh] overflow-auto p-3">
             <div className="flex items-center gap-3 p-2">
-              <MultiRing size={36} width={4} counts={{ running: counts.running, success: counts.success, error: counts.error, pending: counts.pending }} animate />
+              <MultiRing size={36} width={4} counts={{ running: counts.running, success: counts.success, error: counts.error, pending: counts.pending, warning: counts.warning }} animate />
               <div className="flex-1">
                 <div className="text-sm font-semibold">{counts.total - counts.success - counts.error} in progress</div>
                 <div className="text-xs text-gray-500">

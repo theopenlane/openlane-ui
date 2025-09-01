@@ -125,7 +125,7 @@ export const PoliciesTable = () => {
 
   const handleExportFile = async () => {
     handleExport({
-      exportType: ExportExportType.INTERNALPOLICY,
+      exportType: ExportExportType.INTERNAL_POLICY,
       filters: JSON.stringify(filters),
       fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
       format: ExportExportFormat.CSV,

@@ -6,13 +6,14 @@ export type TJob = {
   id: string
   title: string
   status: ExportExportStatus
+  errorMessage: string
   progress: number
   downloadUrl: string | null
 }
 
 export function useTrackedExports() {
   const [enabled, setEnabled] = useState(true)
-  //@todo Once get new notifications, dynamically render hook
+  // TODO: Once we get new notifications, dynamically enable/disable the hook
   const { data, isLoading, refetch } = useGetAllExports(enabled)
 
   const jobs: TJob[] = useMemo(() => {
@@ -34,8 +35,9 @@ export function useTrackedExports() {
 
         return {
           id: node?.id,
-          title: `Export ${node?.exportType.toLowerCase()}`,
+          title: `Export ${node?.exportType.split('_').join(' ').toLowerCase()}`,
           status: node?.status,
+          errorMessage: node?.errorMessage,
           progress,
           downloadUrl: node?.files?.edges?.[0]?.node?.presignedURL ?? null,
         } as TJob
