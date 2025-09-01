@@ -22,9 +22,44 @@ export function detectFormat(input: unknown): Detected {
   }
 
   // Quick HTML vs MD heuristics
-  const mdScore = (/^#{1,6}\s/m.test(s) ? 1 : 0) + (/^\s{0,3}[-*+]\s+/m.test(s) ? 1 : 0) + (/^\s{0,3}\d+\.\s+/m.test(s) ? 1 : 0) + (/```[\s\S]*?```/m.test(s) ? 1 : 0)
-  const htmlScore = (/<\/?(?:p|div|span|ul|ol|li|h[1-6]|table|tr|td|a|strong|em|br|hr|img)\b/i.test(s) ? 2 : 0) + (/<\/\w+>/.test(s) ? 1 : 0)
+  // Markdown regex patterns
+  const MD_HEADING_RE = /^#{1,6}\s/m;
+  const MD_ULIST_RE = /^\s{0,3}[-*+]\s+/m;
+  const MD_OLIST_RE = /^\s{0,3}\d+\.\s+/m;
+  const MD_CODEBLOCK_RE = /```[\s\S]*?```/m;
 
+  // HTML regex patterns
+  const HTML_TAGS_RE = /<\/?(?:p|div|span|ul|ol|li|h[1-6]|table|tr|td|a|strong|em|br|hr|img)\b/i;
+  const HTML_GENERIC_CLOSE_RE = /<\/\w+>/;
+
+  function hasMarkdownHeading(str: string): boolean {
+    return MD_HEADING_RE.test(str);
+  }
+  function hasMarkdownUList(str: string): boolean {
+    return MD_ULIST_RE.test(str);
+  }
+  function hasMarkdownOList(str: string): boolean {
+    return MD_OLIST_RE.test(str);
+  }
+  function hasMarkdownCodeBlock(str: string): boolean {
+    return MD_CODEBLOCK_RE.test(str);
+  }
+  function hasHtmlTags(str: string): boolean {
+    return HTML_TAGS_RE.test(str);
+  }
+  function hasHtmlGenericClose(str: string): boolean {
+    return HTML_GENERIC_CLOSE_RE.test(str);
+  }
+
+  const mdScore =
+    (hasMarkdownHeading(s) ? 1 : 0) +
+    (hasMarkdownUList(s) ? 1 : 0) +
+    (hasMarkdownOList(s) ? 1 : 0) +
+    (hasMarkdownCodeBlock(s) ? 1 : 0);
+
+  const htmlScore =
+    (hasHtmlTags(s) ? 2 : 0) +
+    (hasHtmlGenericClose(s) ? 1 : 0);
   if (mdScore >= 2 && mdScore >= htmlScore) return 'markdown'
   if (htmlScore >= 2 && htmlScore > mdScore) return 'html'
   if (mdScore === 1 && htmlScore === 0) return 'markdown'
