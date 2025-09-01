@@ -41,8 +41,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       let slateNodes
 
       switch (fmt) {
-        case 'markdown':
-          slateNodes = plateEditor.api.markdown?.deserialize?.(initialValue || '') as Value
+          slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
           break
         default:
           slateNodes = Array.isArray(initialValue)
