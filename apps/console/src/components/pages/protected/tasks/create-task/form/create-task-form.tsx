@@ -25,6 +25,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { Value } from 'platejs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Link from 'next/link'
 
 type TProps = {
   onSuccess: () => void
@@ -73,11 +74,18 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         },
       }
 
-      await createTask(formData)
+      const res = await createTask(formData)
 
       successNotification({
         title: 'Task Created',
-        description: 'Task has been successfully created',
+        description: (
+          <>
+            Task has been successfully created.{' '}
+            <Link href={`/tasks?id=${res.createTask.task.id}`} className="text-blue-600 underline">
+              View Task
+            </Link>
+          </>
+        ),
       })
 
       form.reset()

@@ -102,7 +102,7 @@ const PendingActions = () => {
         <CardContent>
           {noData ? (
             <div className="flex flex-col items-center justify-center text-center">
-              <Inbox size={89} strokeWidth={1} className="text-border" />
+              <Inbox width={45} height={45} strokeWidth={1} className="text-border" />
               <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
               <p className="text-sm text-muted-foreground mt-1">Maybe it&apos;s time to review some policies and procedures that haven&apos;t been updated in a while?</p>
               <Link href={policiesRedirectURL} className="mt-4">

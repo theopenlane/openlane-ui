@@ -18,7 +18,9 @@ export type TConnectionLike = {
   [key: string]: unknown
 }
 
-export type Section = { [key: string]: TConnectionLike | undefined }
+export type Section = {
+  [key: string]: (TConnectionLike & { hidden?: boolean }) | undefined
+}
 
 export type TCenterNode = {
   type: ObjectAssociationNodeEnum

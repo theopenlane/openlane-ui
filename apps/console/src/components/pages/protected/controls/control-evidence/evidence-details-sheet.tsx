@@ -79,6 +79,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { selectedControlEvidence, setSelectedControlEvidence, isEditPreset, setIsEditPreset } = useControlEvidenceStore()
   const searchParams = useSearchParams()
   const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
+  const id = searchParams.get('id')
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -86,7 +87,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
-  const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
+  const { data, isLoading: fetching } = useGetEvidenceById(id as string)
   const { data: session } = useSession()
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
@@ -190,11 +191,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const handleCloseParams = () => {
-    setSelectedControlEvidence(null)
     setIsEditing(false)
 
     const newSearchParams = new URLSearchParams(searchParams.toString())
     newSearchParams.delete('controlEvidenceId')
+    newSearchParams.delete('id')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
@@ -330,7 +331,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   return (
-    <Sheet open={!!selectedControlEvidence} onOpenChange={handleSheetClose}>
+    <Sheet open={!!id} onOpenChange={handleSheetClose}>
       <SheetContent
         onEscapeKeyDown={(e) => {
           if (editField) {
