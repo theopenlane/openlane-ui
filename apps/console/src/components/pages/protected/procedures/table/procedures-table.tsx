@@ -121,6 +121,10 @@ export const ProceduresTable = () => {
   }
 
   const handleExportFile = () => {
+    if (!procedures || procedures.length === 0) {
+      return
+    }
+
     handleExport({
       exportType: ExportExportType.PROCEDURE,
       filters: JSON.stringify(filters),

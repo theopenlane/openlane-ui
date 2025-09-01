@@ -182,6 +182,10 @@ const ControlsTable: React.FC = () => {
   }
 
   const handleExportFile = async () => {
+    if (!controls || controls.length === 0) {
+      return
+    }
+
     handleExport({
       exportType: ExportExportType.CONTROL,
       filters: JSON.stringify(filters),

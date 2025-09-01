@@ -127,6 +127,10 @@ const RiskTable: React.FC = () => {
   }
 
   const handleExportFile = () => {
+    if (!risks || risks.length === 0) {
+      return
+    }
+
     handleExport({
       exportType: ExportExportType.RISK,
       filters: JSON.stringify(filters),

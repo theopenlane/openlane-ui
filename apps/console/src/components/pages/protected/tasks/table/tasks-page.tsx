@@ -6,11 +6,9 @@ import { ExportExportFormat, ExportExportType, OrderDirection, Task, TaskOrderFi
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { exportToCSV } from '@/utils/exportToCSV'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
-import { formatDate } from '@/utils/date'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -141,6 +139,10 @@ const TasksPage: React.FC = () => {
   }
 
   const handleExportFile = async () => {
+    if (!hasTasks) {
+      return
+    }
+
     handleExport({
       exportType: ExportExportType.TASK,
       filters: JSON.stringify(filters),

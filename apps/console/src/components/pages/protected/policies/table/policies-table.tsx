@@ -124,6 +124,10 @@ export const PoliciesTable = () => {
   }
 
   const handleExportFile = async () => {
+    if (!policies || policies.length === 0) {
+      return
+    }
+
     handleExport({
       exportType: ExportExportType.INTERNAL_POLICY,
       filters: JSON.stringify(filters),
