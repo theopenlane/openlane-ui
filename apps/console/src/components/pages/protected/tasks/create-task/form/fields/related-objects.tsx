@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
 import { Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { TaskQuery } from '@repo/codegen/src/schema'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { useRouter } from 'next/navigation'
 
 type RelatedObjectsProps = {
   taskData: TaskQuery['task'] | undefined
@@ -15,6 +15,7 @@ type RelatedObjectsProps = {
 
 const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
   const plateEditorHelper = usePlateEditor()
+  const router = useRouter()
   const handleRelatedObjects = () => {
     const itemsDictionary: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }> = {
       ...taskData?.controlObjectives?.edges?.reduce(
@@ -120,49 +121,52 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
       ),
     }
 
+    const handleNavigate = (href: string) => {
+      router.push(href)
+    }
+
     return (
       <div className="flex flex-wrap gap-2">
         {Object.entries(itemsDictionary).map(([key, { id, value, controlId, details, kind }]) => {
-          const href = getHrefForObjectType(value, {
+          const href = getHrefForObjectType(kind, {
             id,
             control: controlId ? { id: controlId } : undefined,
           })
 
           const linkClass = !href ? 'pointer-events-none' : ''
-
           return (
             <TooltipProvider key={key}>
               <Tooltip>
-                <TooltipTrigger>
-                  <Link className={linkClass} href={href} key={key}>
-                    <ObjectsChip name={key} objectType={kind}></ObjectsChip>
-                  </Link>
-                  <TooltipContent>
-                    <div>
-                      <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">
-                        <div className="flex items-center gap-1">
-                          <SlidersHorizontal size={12} />
-                          <span className="font-medium">Name</span>
-                        </div>
-                        <span className="cursor-pointer break-words">{key}</span>
-                      </div>
-                      <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">
-                        <div className="flex items-center gap-1">
-                          <Info size={12} />
-                          <span className="font-medium">Type</span>
-                        </div>
-                        <span className="cursor-pointer break-words">{value}</span>
-                      </div>
-                      <div className="flex flex-col pt-2">
-                        <div className="flex items-center gap-1">
-                          <PencilLine size={12} />
-                          <span className="font-medium">Description</span>
-                        </div>
-                        <div className="max-w-xs text-justify line-clamp-4">{details ? plateEditorHelper.convertToReadOnly(details) : 'No details available'}</div>
-                      </div>
-                    </div>
-                  </TooltipContent>
+                <TooltipTrigger onClick={(e) => e.preventDefault()}>
+                  <ObjectsChip name={key} objectType={kind} />
                 </TooltipTrigger>
+                <TooltipContent>
+                  <div>
+                    <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">
+                      <div className="flex items-center gap-1">
+                        <SlidersHorizontal size={12} />
+                        <span className="font-medium">Name</span>
+                      </div>
+                      <span className={`text-brand pl-3 cursor-pointer ${linkClass}`} onClick={() => handleNavigate(href)}>
+                        {key}
+                      </span>
+                    </div>
+                    <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">
+                      <div className="flex items-center gap-1">
+                        <Info size={12} />
+                        <span className="font-medium">Type</span>
+                      </div>
+                      <span className="cursor-pointer break-words">{value}</span>
+                    </div>
+                    <div className="flex flex-col pt-2">
+                      <div className="flex items-center gap-1">
+                        <PencilLine size={12} />
+                        <span className="font-medium">Description</span>
+                      </div>
+                      <div className="max-w-xs text-justify line-clamp-4">{details ? plateEditorHelper.convertToReadOnly(details) : 'No details available'}</div>
+                    </div>
+                  </div>
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )

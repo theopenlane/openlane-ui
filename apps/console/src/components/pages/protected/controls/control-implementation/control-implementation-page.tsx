@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
@@ -22,6 +22,8 @@ import { ImplementationItem } from './implementation-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ControlImplementationPage = () => {
+  const searchParams = useSearchParams()
+
   const params = useParams()
   const id = params?.id as string
   const subcontrolId = params?.subcontrolId as string | undefined
@@ -106,6 +108,13 @@ const ControlImplementationPage = () => {
   useEffect(() => {
     handleImplementationsUpdate()
   }, [handleImplementationsUpdate])
+
+  useEffect(() => {
+    const shouldOpen = createAllowed && searchParams.get('create') === 'true'
+    if (shouldOpen) {
+      setShowCreateSheet(true)
+    }
+  }, [createAllowed, searchParams])
 
   useEffect(() => {
     if (controlData) {
