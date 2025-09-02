@@ -169,6 +169,7 @@ export const generateNavItems = () // canEdit?: boolean
   },
   {
     title: 'Trust center',
+    hidden: true,
     href: '/trust-center',
     icon: SettingsIcon,
     isChildren: true,
