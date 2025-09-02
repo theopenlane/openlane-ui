@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { DnsVerificationDnsVerificationStatus, GetTrustCenterQuery } from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { cname as CNAME_VARIABLE } from '@repo/dally/auth'
 
 type DnsRecord = {
   type: string
@@ -29,6 +30,7 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
 
   const cnameRecord = trustCenter?.node?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.')[0] : ''
+  const cnameValue = CNAME_VARIABLE
 
   const handleCopy = async (text: string) => {
     try {
@@ -94,7 +96,7 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
     {
       type: 'CNAME',
       name: cnameName,
-      value: 'cname.theopenlane-dns.io',
+      value: cnameValue || '',
       status: dnsVerification?.dnsVerificationStatus,
     },
     ...(dnsVerification
