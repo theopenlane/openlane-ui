@@ -98,51 +98,56 @@ const BrandSection = ({ setting }: Props) => {
       <h1 className="text-xl text-text-header font-medium">Brand</h1>
 
       <div className="flex flex-col">
-        <p className="mb-2 font-medium">Logo</p>
-        <div className="flex gap-7 border-b pb-8">
-          <div>
-            <Label className="mb-2 block text-sm">Preview</Label>
-            <div className="flex h-[150px] w-[150px] items-center justify-center rounded-md border">
-              {logoPreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={normalizeUrl(logoPreview)!} alt="Logo preview" className="max-h-28 object-contain" />
-              ) : (
-                <Eye className="h-6 w-6" />
-              )}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-1 mb-2">
-              <Label className="block text-sm">Upload</Label>
-              <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Recommended: PNG, JPG, SVG (max 5 MB)</p>} />
-            </div>
-            <div className="w-[417px]">
-              <FileUpload
-                acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
-                onFileUpload={handleLogoUpload}
-                acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
-                maxFileSizeInMb={5}
-                multipleFiles={false}
-              />
-            </div>
-            <Button onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3">
-              {logoPending ? 'Saving…' : 'Save Logo'}
-            </Button>
-
-            <div className="grid gap-2 mt-6">
-              <Label>Logo link</Label>
-              <div className="flex items-center gap-1">
-                <Label className="text-sm">URL</Label>
-                <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>When the logo is clicked, users will be redirected here.</p>} />
+        <div className="flex flex-col">
+          <p className="mb-2 font-medium">Logo</p>
+          <div className="flex-col gap-7 border-b pb-8">
+            <div className="flex gap-7">
+              <div>
+                <Label className="mb-2 block text-sm">Preview</Label>
+                <div className="flex h-[150px] w-[150px] items-center justify-center rounded-md border">
+                  {logoPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={normalizeUrl(logoPreview)!} alt="Logo preview" className="max-h-28 object-contain" />
+                  ) : (
+                    <Eye className="h-6 w-6" />
+                  )}
+                </div>
               </div>
-              <div className="flex gap-3 items-center mt-2.5">
-                <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
-                <Button className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
-                  {logoLinkPending ? 'Saving…' : 'Save'}
+
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="block text-sm">Upload</Label>
+                  <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Recommended: PNG, JPG, SVG (max 5 MB)</p>} />
+                </div>
+                <div className="w-[417px]">
+                  <FileUpload
+                    acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
+                    onFileUpload={handleLogoUpload}
+                    acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
+                    maxFileSizeInMb={5}
+                    multipleFiles={false}
+                  />
+                </div>
+                <Button onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3">
+                  {logoPending ? 'Saving…' : 'Save Logo'}
                 </Button>
               </div>
-              <p className="text-xs text-text-informational -mt-0.5">When the logo in your trust center is clicked, it will link to this url</p>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <Label className="mr-28">Logo link</Label>
+              <div>
+                <div className="flex items-center gap-1">
+                  <Label className="text-sm">URL</Label>
+                  <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>When the logo is clicked, users will be redirected here.</p>} />
+                </div>
+                <div className="flex gap-3 items-center mt-1">
+                  <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
+                  <Button className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
+                    {logoLinkPending ? 'Saving…' : 'Save'}
+                  </Button>
+                </div>
+                <p className="text-xs text-text-informational mt-0.5">When the logo in your trust center is clicked, it will link to this url</p>
+              </div>
             </div>
           </div>
         </div>
