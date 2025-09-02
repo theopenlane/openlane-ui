@@ -3,9 +3,11 @@
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@repo/ui/button'
-import { Copy, Download } from 'lucide-react'
+import { Copy, Download, PanelRightClose, RefreshCcw } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { DnsVerificationDnsVerificationStatus, GetTrustCenterQuery } from '@repo/codegen/src/schema'
+import { useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '@/hooks/useNotification'
 
 type DnsRecord = {
   type: string
@@ -14,53 +16,6 @@ type DnsRecord = {
   status: DnsVerificationDnsVerificationStatus | null | undefined
 }
 
-const dnsColumns: ColumnDef<DnsRecord>[] = [
-  {
-    header: 'Type',
-    accessorKey: 'type',
-  },
-  {
-    header: 'Name',
-    accessorKey: 'name',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1">
-        <span>{row.original.name}</span>
-        <Copy className="cursor-pointer" onClick={() => navigator.clipboard.writeText(row.original.name)} size={14} />
-      </div>
-    ),
-  },
-  {
-    header: 'Value',
-    accessorKey: 'value',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1 max-w-[300px] truncate">
-        <span>{row.original.value}</span>
-        <Copy className="cursor-pointer" onClick={() => navigator.clipboard.writeText(row.original.value)} size={14} />
-      </div>
-    ),
-  },
-  {
-    header: 'Status',
-    accessorKey: 'status',
-    cell: ({ row }) => {
-      const status = row.original.status === DnsVerificationDnsVerificationStatus.active ? 'Verified' : 'Pending'
-      let dotColor = 'bg-gray-400'
-      if (row.original.status === DnsVerificationDnsVerificationStatus.active) {
-        dotColor = 'bg-green-500'
-      } else {
-        dotColor = 'bg-yellow-500'
-      }
-
-      return (
-        <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full ${dotColor}`} />
-          <span>{status}</span>
-        </div>
-      )
-    },
-  },
-]
-
 type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -68,10 +23,72 @@ type Props = {
 }
 
 export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
+  const { errorNotification, successNotification } = useNotification()
+  const queryClient = useQueryClient()
   const dnsVerification = trustCenter?.node?.customDomain?.dnsVerification
 
   const cnameRecord = trustCenter?.node?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.')[0] : ''
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      successNotification({
+        title: 'Copied!',
+      })
+    } catch {
+      errorNotification({
+        title: 'Copy failed',
+      })
+    }
+  }
+
+  const dnsColumns: ColumnDef<DnsRecord>[] = [
+    {
+      header: 'Type',
+      accessorKey: 'type',
+    },
+    {
+      header: 'Name',
+      accessorKey: 'name',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <span>{row.original.name}</span>
+          <Copy className="cursor-pointer" onClick={() => handleCopy(row.original.name)} size={14} />
+        </div>
+      ),
+    },
+    {
+      header: 'Value',
+      accessorKey: 'value',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1 max-w-[300px] truncate">
+          <span>{row.original.value}</span>
+          <Copy className="cursor-pointer" onClick={() => handleCopy(row.original.value)} size={14} />
+        </div>
+      ),
+    },
+    {
+      header: 'Status',
+      accessorKey: 'status',
+      cell: ({ row }) => {
+        const status = row.original.status === DnsVerificationDnsVerificationStatus.active ? 'Verified' : 'Pending'
+        let dotColor = 'bg-gray-400'
+        if (row.original.status === DnsVerificationDnsVerificationStatus.active) {
+          dotColor = 'bg-green-500'
+        } else {
+          dotColor = 'bg-yellow-500'
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${dotColor}`} />
+            <span>{status}</span>
+          </div>
+        )
+      },
+    },
+  ]
 
   const tableData: DnsRecord[] = [
     {
@@ -104,15 +121,39 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
     URL.revokeObjectURL(url)
   }
 
+  const handleRefreshData = () => {
+    queryClient
+      .invalidateQueries({ queryKey: ['trustCenter'] })
+      .then(() => {
+        successNotification({
+          title: 'Refreshed!',
+          description: 'DNS records have been refreshed.',
+        })
+      })
+      .catch(() =>
+        errorNotification({
+          title: 'Refresh failed',
+          description: 'Could not refresh DNS records.',
+        }),
+      )
+  }
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-4xl">
         <SheetHeader className="flex flex-row justify-between items-start">
-          <SheetTitle className="text-lg font-semibold">DNS records</SheetTitle>
-          <Button icon={<Download />} iconPosition="left" className="h-8 p-2" variant="outline" onClick={handleDownload}>
-            Download settings
-          </Button>
+          <PanelRightClose aria-label="Close sheet" size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
+
+          <div className="flex gap-2">
+            <Button icon={<Download />} iconPosition="left" className="h-8 p-2" variant="outline" onClick={handleDownload}>
+              Download settings
+            </Button>
+            <Button icon={<RefreshCcw />} iconPosition="left" className="h-8 p-2" variant="outline" onClick={handleRefreshData}>
+              Refresh
+            </Button>
+          </div>
         </SheetHeader>
+        <SheetTitle className="text-lg font-semibold">DNS records</SheetTitle>
 
         <div className="grid grid-cols-2 gap-10 text-sm text-text-informational mt-6">
           <div>

@@ -25,6 +25,11 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
 
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
 
+  const handleCancel = () => {
+    setEditing(false)
+    setInputValue(trustCenter?.node?.customDomain?.cnameRecord || '')
+  }
+
   const handleCreateCustomDomain = async () => {
     if (!trustCenter?.node?.id) return
     try {
@@ -84,7 +89,7 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
 
   const handleUpdateCustomDomain = async () => {
     try {
-      if (!trustCenter?.node?.customDomain?.id || !trustCenter?.node?.id || inputValue) {
+      if (!trustCenter?.node?.customDomain?.id || !trustCenter?.node?.id || !inputValue) {
         errorNotification({
           title: 'Update failed',
           description: 'No custom domain found to update.',
@@ -151,9 +156,14 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
             <div className="flex items-center gap-2 mt-1">
               <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={trustCenter.node.customDomain.dnsVerification?.dnsVerificationStatus || null} />
               {editing ? (
-                <Button onClick={handleUpdateCustomDomain} className="gap-1 p-2" icon={<Save size={16} />} iconPosition="left">
-                  Save
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={handleUpdateCustomDomain} className="gap-1 p-2" icon={<Save size={16} />} iconPosition="left">
+                    Save
+                  </Button>
+                  <Button onClick={handleCancel} className="gap-1 p-2" icon={<Save size={16} />} iconPosition="left">
+                    Cancel
+                  </Button>
+                </div>
               ) : (
                 <>
                   <Button className="gap-1 p-2" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>

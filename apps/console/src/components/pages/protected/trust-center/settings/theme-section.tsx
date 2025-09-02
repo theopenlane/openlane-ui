@@ -51,7 +51,6 @@ const ThemeSection = ({ setting }: Props) => {
       <h1 className="text-xl text-text-header font-medium">Theme</h1>
       <div className="space-y-6">
         <RadioGroup value={themeMode} onValueChange={(val) => setThemeMode(val as TrustCenterSettingTrustCenterThemeMode)} className="space-y-6">
-          {' '}
           <div className="flex items-start gap-3">
             <RadioGroupItem value={TrustCenterSettingTrustCenterThemeMode.EASY} id="easy" className="mt-1" />
             <div className="space-y-2">
