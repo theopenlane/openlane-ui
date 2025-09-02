@@ -192,7 +192,7 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
                 <p className="text-sm ">
                   Even if you set up a vanity domain, your default domain will remain accessible. Vanity domains let you host your Trust Center on your company&apos;s root domain—for example,
                   <span className="mx-1 font-medium text-text-header">trust.yourcompany.com</span>
-                  instead of yourcompany.theopenlane.net.
+                  instead of trust.theopenlane.net/yourcompany{' '}
                 </p>
               </div>
             </div>
