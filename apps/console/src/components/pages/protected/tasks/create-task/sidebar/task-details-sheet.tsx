@@ -124,7 +124,7 @@ const TaskDetailsSheet = () => {
   }
 
   const handleUpdateField = async (input: UpdateTaskInput) => {
-    if (!id) {
+    if (!id || isEditing) {
       return
     }
     try {
