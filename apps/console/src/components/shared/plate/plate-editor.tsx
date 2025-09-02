@@ -7,6 +7,7 @@ import { Value, TElement } from 'platejs'
 import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
+import { detectFormat } from './usePlateEditor'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
@@ -35,11 +36,21 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
   useEffect(() => {
     if (plateEditor && !initialValueSet) {
       setInitialValueSet(true)
-      const slateNodes = Array.isArray(initialValue)
-        ? initialValue
-        : (plateEditor.api.html.deserialize({
-            element: initialValue || '',
-          }) as Value)
+
+      const fmt = detectFormat(initialValue)
+      let slateNodes
+
+      switch (fmt) {
+        case 'markdown':
+          slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
+          break
+        default:
+          slateNodes = Array.isArray(initialValue)
+            ? initialValue
+            : (plateEditor.api.html.deserialize({
+                element: initialValue || '',
+              }) as Value)
+      }
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
         editor.children = [

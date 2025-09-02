@@ -13,18 +13,17 @@ import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
 import { getEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
-import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
-  const { setSelectedControlEvidence } = useControlEvidenceStore()
   const programId = searchParams.get('programId')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useState('')
-
+  const { replace } = useSmartRouter()
   const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>([
     {
       field: EvidenceOrderField.name,
@@ -93,7 +92,7 @@ export const EvidenceTable = () => {
   }, [setCrumbs])
 
   const handleRowClick = (rowData: Evidence) => {
-    setSelectedControlEvidence(rowData.id)
+    replace({ id: rowData.id })
   }
 
   return (

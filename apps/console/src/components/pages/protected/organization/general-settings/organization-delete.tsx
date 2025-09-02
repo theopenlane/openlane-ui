@@ -12,6 +12,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { switchOrganization } from '@/lib/user'
 
 type OrganizationDeleteProps = {
   onLoadingChange?: (val: boolean) => void
@@ -40,15 +41,23 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
       })
 
       if (response.extensions && sessionData) {
-        await update({
-          ...sessionData,
-          user: {
-            ...sessionData.user,
-            accessToken: response.extensions.auth.access_token,
-            organization: response.extensions.auth.authorized_organization,
-            refreshToken: response.extensions.auth.refresh_token,
-          },
+        // there will always be one org id at the very minimum
+        const orgID = allOrgs.filter((org) => org?.node?.id !== currentOrganization?.id)[0]?.node?.id as string
+
+        const switchResponse = await switchOrganization({
+          target_organization_id: orgID,
         })
+        if (switchResponse) {
+          await update({
+            ...sessionData,
+            user: {
+              ...sessionData.user,
+              accessToken: switchResponse.access_token,
+              organization: orgID,
+              refreshToken: switchResponse.refresh_token,
+            },
+          })
+        }
       }
 
       successNotification({
