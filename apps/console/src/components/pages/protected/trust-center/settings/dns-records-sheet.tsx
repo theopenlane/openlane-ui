@@ -30,7 +30,6 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
 
   const cnameRecord = trustCenter?.node?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.')[0] : ''
-  const cnameValue = CNAME_VARIABLE
 
   const handleCopy = async (text: string) => {
     try {
@@ -96,7 +95,7 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
     {
       type: 'CNAME',
       name: cnameName,
-      value: cnameValue || '',
+      value: CNAME_VARIABLE || '',
       status: dnsVerification?.dnsVerificationStatus,
     },
     ...(dnsVerification
