@@ -144,7 +144,6 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="mt-8">
           <DataTable columns={dnsColumns} data={tableData} pagination={undefined} />
         </div>

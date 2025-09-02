@@ -25,9 +25,28 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
 
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
 
-  const handleCreateCustomDomain = () => {
-    if (trustCenter?.node?.id) {
-      createCustomDomain({ input: { trustCenterID: trustCenter.node.id, cnameRecord: inputValue } })
+  const handleCreateCustomDomain = async () => {
+    if (!trustCenter?.node?.id) return
+    try {
+      await createCustomDomain({
+        input: {
+          trustCenterID: trustCenter.node.id,
+          cnameRecord: inputValue,
+        },
+      })
+
+      successNotification({
+        title: 'Custom domain set!',
+        description: 'Your custom domain was successfully created.',
+      })
+
+      setEditing(false)
+    } catch (err) {
+      errorNotification({
+        title: 'Creation failed',
+        description: 'We could not create the custom domain. Please try again.',
+      })
+      console.error(err)
     }
   }
 

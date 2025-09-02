@@ -16,23 +16,19 @@ type Props = {
 }
 
 const BrandSection = ({ setting }: Props) => {
-  // Logo
   const [logoPreview, setLogoPreview] = useState<string | null>(setting?.logoFile?.presignedURL || setting?.logoRemoteURL || null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoLink, setLogoLink] = useState(setting?.logoRemoteURL ?? '')
 
-  // Favicon
   const [faviconPreview, setFaviconPreview] = useState<string | null>(setting?.faviconFile?.presignedURL ?? null)
   const [faviconFile, setFaviconFile] = useState<File | null>(null)
 
   const { updateTrustCenterSetting } = useHandleUpdateSetting()
 
-  // Local pending states
   const [logoPending, setLogoPending] = useState(false)
   const [faviconPending, setFaviconPending] = useState(false)
   const [logoLinkPending, setLogoLinkPending] = useState(false)
 
-  // Handlers
   const handleLogoUpload = (uploadedFile: TUploadedFile) => {
     if (!uploadedFile.file) return
     setLogoFile(uploadedFile.file)
@@ -102,7 +98,6 @@ const BrandSection = ({ setting }: Props) => {
       <h1 className="text-xl text-text-header font-medium">Brand</h1>
 
       <div className="flex flex-col">
-        {/* Logo */}
         <p className="mb-2 font-medium">Logo</p>
         <div className="flex gap-7 border-b pb-8">
           <div>
