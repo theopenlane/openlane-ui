@@ -1,5 +1,5 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_CUSTOM_DOMAIN, GET_TRUST_CENTER, UPDATE_TRUST_CENTER_SETTING } from '@repo/codegen/query/trust-center'
+import { CREATE_CUSTOM_DOMAIN, DELETE_CUSTOM_DOMAIN, GET_TRUST_CENTER, UPDATE_TRUST_CENTER_SETTING } from '@repo/codegen/query/trust-center'
 import {
   CreateCustomDomainMutation,
   CreateCustomDomainMutationVariables,
@@ -56,6 +56,21 @@ export const useCreateCustomDomain = () => {
   return useMutation<CreateCustomDomainMutation, Error, CreateCustomDomainMutationVariables>({
     mutationFn: async (variables) => {
       return client.request<CreateCustomDomainMutation, CreateCustomDomainMutationVariables>(CREATE_CUSTOM_DOMAIN, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter'],
+      })
+    },
+  })
+}
+
+export function useDeleteCustomDomain() {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: async (variables: { deleteCustomDomainId: string }) => {
+      return await client.request(DELETE_CUSTOM_DOMAIN, variables)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

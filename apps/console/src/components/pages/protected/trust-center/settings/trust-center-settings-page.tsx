@@ -33,9 +33,9 @@ const TrustCenterSettingsPage = () => {
 
   return (
     <div className="space-y-8 p-6">
-      <ConfigureUrlSection setting={setting} />
-      <BrandSection setting={setting} />
+      <ConfigureUrlSection trustCenter={data.trustCenters.edges?.[0] || undefined} />
       <ThemeSection setting={setting} />
+      <BrandSection setting={setting} />
     </div>
   )
 }

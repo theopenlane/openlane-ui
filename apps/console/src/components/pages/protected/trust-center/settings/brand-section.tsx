@@ -98,7 +98,7 @@ const BrandSection = ({ setting }: Props) => {
   }
 
   return (
-    <div className="grid grid-cols-[250px_auto] gap-6 items-start">
+    <div className="grid grid-cols-[250px_auto] gap-6 items-start ">
       <h1 className="text-xl text-text-header font-medium">Brand</h1>
 
       <div className="flex flex-col">
