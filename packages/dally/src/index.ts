@@ -29,4 +29,4 @@ export const chatAppId = process.env.NEXT_PUBLIC_CHAT_APP_ID
 
 export const enableDevrevChat = process.env.NEXT_PUBLIC_ENABLE_DEVREV_CHAT
 
-export const cname = process.env.NEXT_PUBLIC_CNAME
+export const cname = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME
