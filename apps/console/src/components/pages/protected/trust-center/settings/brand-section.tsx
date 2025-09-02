@@ -235,7 +235,7 @@ const BrandSection = ({ setting }: Props) => {
                   <div className="flex flex-col gap-2 mt-6">
                     <div className="flex items-center gap-1">
                       <Label className="text-sm">URL</Label>
-                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>When the favicon is clicked, users will be redirected here.</p>} />
+                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Location of hosted favicon file. It must link to a image file that contains a png, jpg, or ico image</p>} />
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={faviconLink} onChange={setFaviconLink} />
