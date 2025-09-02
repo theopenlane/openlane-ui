@@ -6,9 +6,9 @@ import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef } from '@tanstack/react-table'
-import { useGetProgramGroups, useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo, useGetProgramGroups, useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { Group as GroupType, UpdateProgramInput } from '@repo/codegen/src/schema'
+import { Group as GroupType, ProgramProgramStatus, UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import { ProgramSettingsAssignGroupDialog } from './program-settings-assign-groups-dialog'
 import { useQueryClient } from '@tanstack/react-query'
@@ -49,7 +49,7 @@ export const ProgramSettingsGroups = () => {
   const { data, isLoading } = useGetProgramGroups({
     programId: programId ?? null,
   })
-
+  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const groups: GroupRow[] = useMemo(() => {
     const viewers = data?.program?.viewers?.edges ?? []
     const editors = data?.program?.editors?.edges ?? []
@@ -240,7 +240,7 @@ export const ProgramSettingsGroups = () => {
         <div className="space-y-2 w-full max-w-[847px]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg">Assigned groups</h2>
-            <ProgramSettingsAssignGroupDialog />
+            {basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignGroupDialog />}
           </div>
 
           <DataTable columns={groupColumns} data={paginatedGroups} loading={isLoading} />

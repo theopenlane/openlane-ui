@@ -7,9 +7,9 @@ import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef } from '@tanstack/react-table'
-import { useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo, useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
+import { ProgramMembershipRole, ProgramProgramStatus, User } from '@repo/codegen/src/schema'
 import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -52,7 +52,7 @@ export const ProgramSettingsUsers = () => {
     where,
     enabled: !!programId,
   })
-
+  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const { mutateAsync: updateProgramMembership } = useUpdateProgramMembership()
 
   const handleRemove = async () => {
@@ -214,7 +214,7 @@ export const ProgramSettingsUsers = () => {
         <div className="space-y-2 w-full max-w-[847px]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg">Assigned users</h2>
-            <ProgramSettingsAssignUserDialog />
+            {basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignUserDialog />}
           </div>
 
           <DataTable
