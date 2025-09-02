@@ -142,7 +142,7 @@ const BrandSection = ({ setting }: Props) => {
                   {logoLinkPending ? 'Saving…' : 'Save'}
                 </Button>
               </div>
-              <p className="text-xs text-text-informational -mt-0.5">When logo clicked, it&apos;ll link to this</p>
+              <p className="text-xs text-text-informational -mt-0.5">When the logo in your trust center is clicked, it will link to this url</p>
             </div>
           </div>
         </div>
