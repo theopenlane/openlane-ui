@@ -116,8 +116,10 @@ export const useAccountRole = (session: Session | null, objectType: ObjectEnum, 
     },
   })
 
+  const safeData: TData = data ?? { success: false, organization_id: undefined, roles: [] }
+
   return {
-    data,
+    data: safeData,
     isLoading: isValidating,
     error,
     refetch: mutate,

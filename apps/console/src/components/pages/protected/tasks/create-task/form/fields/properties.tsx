@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
-import { CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
+import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
 
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -296,7 +296,14 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       </div>
 
       {/* Related Objects */}
-      {!isEditing && <RelatedObjects taskData={taskData} />}
+
+      {!isEditing && (
+        <div className="flex items-center gap-4">
+          <BookText className="text-accent-secondary w-[16px] h-[16px] shrink-0" />
+          <p className="text-sm w-[120px]">Related Objects</p>
+          <RelatedObjects taskData={taskData} />
+        </div>
+      )}
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
+import { useParams } from 'next/navigation'
 
 interface DescriptionFieldProps {
   isEditing: boolean
@@ -13,14 +14,19 @@ interface DescriptionFieldProps {
 }
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, isEditAllowed }) => {
+  const { subcontrolId } = useParams<{ subcontrolId: string | undefined; id: string }>()
   const { control } = useFormContext()
   const plateEditorHelper = usePlateEditor()
 
+  const label = (
+    <label htmlFor="description" className="block text-lg my-1 font-semibold">
+      {subcontrolId ? 'Subcontrol Description' : 'Control Description'}
+    </label>
+  )
+
   return isEditAllowed && isEditing ? (
     <div className="w-full">
-      <label htmlFor="description" className="block text-sm font-medium text-muted-foreground mb-1">
-        Description
-      </label>
+      {label}
       <Controller
         control={control}
         name="description"
@@ -36,7 +42,10 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       />
     </div>
   ) : (
-    <div className={'min-h-[20px]'}>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
+    <div className="w-full">
+      {label}
+      <div className={'min-h-[20px]'}>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
+    </div>
   )
 }
 

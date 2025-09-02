@@ -44570,21 +44570,52 @@ export type TaskQuery = {
     assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; displayName: string; id: string } | null
     subcontrols: {
       __typename?: 'SubcontrolConnection'
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string; description?: string | null; displayID: string } | null
+      } | null> | null
     }
-    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
-    risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
-    programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null }
-    procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string } | null } | null> | null }
+    controls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; details?: string | null; displayID: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; description?: string | null; name: string } | null } | null> | null
+    }
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
+    }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
     }
-    evidence: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; id: string } | null } | null> | null }
-    groups: { __typename?: 'GroupConnection'; edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; displayID: string; id: string } | null } | null> | null }
+    evidence: {
+      __typename?: 'EvidenceConnection'
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; id: string; description?: string | null; name: string } | null } | null> | null
+    }
+    groups: {
+      __typename?: 'GroupConnection'
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; displayID: string; id: string; description?: string | null; name: string } | null } | null> | null
+    }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; displayID: string; id: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: {
+          __typename?: 'ControlObjective'
+          displayID: string
+          id: string
+          name: string
+          desiredOutcome?: string | null
+          controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+        } | null
+      } | null> | null
     }
     comments: {
       __typename?: 'NoteConnection'

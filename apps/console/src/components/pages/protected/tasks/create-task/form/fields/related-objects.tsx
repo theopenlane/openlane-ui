@@ -1,140 +1,182 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
-import { Badge } from '@repo/ui/badge'
-import { BookText } from 'lucide-react'
+import { Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { TaskQuery } from '@repo/codegen/src/schema'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { useRouter } from 'next/navigation'
 
 type RelatedObjectsProps = {
   taskData: TaskQuery['task'] | undefined
 }
 
 const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
+  const plateEditorHelper = usePlateEditor()
+  const router = useRouter()
   const handleRelatedObjects = () => {
-    const itemsDictionary: Record<string, { id: string; value: string; controlId?: string }> = {
+    const itemsDictionary: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }> = {
       ...taskData?.controlObjectives?.edges?.reduce(
-        (acc, item) => {
-          const key = item?.node?.displayID
+        (acc: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }>, item) => {
+          const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'controlObjectives' }
+          const details = item?.node?.desiredOutcome
+          const controlId = item?.node?.controls?.edges?.[0]?.node?.id
+          if (key && id) acc[key] = { id, value: 'Control objective', controlId, details: details, kind: 'controlObjectives' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.controls?.edges?.reduce(
         (acc, item) => {
-          const key = item?.node?.refCode
+          const key = item?.node?.refCode || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'controls' }
+          const details = item?.node?.description
+          if (key && id) acc[key] = { id, value: 'Control', details: details, kind: 'controls' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.subcontrols?.edges?.reduce(
-        (acc: Record<string, { id: string; value: string; controlId?: string }>, item) => {
-          const key = item?.node?.refCode
+        (acc: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }>, item) => {
+          const key = item?.node?.refCode || item?.node?.displayID
           const id = item?.node?.id
           const controlId = item?.node?.controlID
+          const details = item?.node?.description
           if (key && id) {
-            acc[key] = { id, value: 'subcontrols', controlId }
+            acc[key] = { id, value: 'Subcontrol', controlId, details: details, kind: 'subcontrols' }
           }
           return acc
         },
-        {} as Record<string, { id: string; value: string; controlId?: string }>,
+        {} as Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.programs?.edges?.reduce(
         (acc, item) => {
-          const key = item?.node?.displayID
+          const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'programs' }
+          const details = item?.node?.description
+          if (key && id) acc[key] = { id, value: 'Program', details: details, kind: 'programs' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.procedures?.edges?.reduce(
         (acc, item) => {
-          const key = item?.node?.displayID
+          const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'procedures' }
+          const details = item?.node?.summary
+          if (key && id) acc[key] = { id, value: 'Procedure', details: details, kind: 'procedures' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.internalPolicies?.edges?.reduce(
         (acc, item) => {
-          const key = item?.node?.displayID
+          const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'policies' }
+          const details = item?.node?.summary
+          if (key && id) acc[key] = { id, value: 'Policy', details: details, kind: 'policies' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.evidence?.edges?.reduce(
         (acc, item) => {
-          const key = item?.node?.displayID
+          const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'evidence' }
+          const details = item?.node?.description
+          if (key && id) acc[key] = { id, value: 'Evidence', details: details, kind: 'evidences' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.groups?.edges?.reduce(
         (acc, item) => {
-          const key = item?.node?.displayID
+          const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'groups' }
+          const details = item?.node?.description
+          if (key && id) acc[key] = { id, value: 'Group', details: details, kind: 'groups' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
       ...taskData?.risks?.edges?.reduce(
         (acc, item) => {
-          const key = item?.node?.name
+          const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
-          if (key && id) acc[key] = { id, value: 'risks' }
+          const details = item?.node?.details
+          if (key && id) acc[key] = { id, value: 'Risk', details: details, kind: 'risks' }
           return acc
         },
-        {} as Record<string, { id: string; value: string }>,
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
+    }
+
+    const handleNavigate = (href: string) => {
+      router.push(href)
     }
 
     return (
       <div className="flex flex-wrap gap-2">
-        {Object.entries(itemsDictionary).map(([key, { id, value, controlId }]) => {
-          const href = getHrefForObjectType(value, {
+        {Object.entries(itemsDictionary).map(([key, { id, value, controlId, details, kind }]) => {
+          const href = getHrefForObjectType(kind, {
             id,
             control: controlId ? { id: controlId } : undefined,
           })
 
-          const linkClass = !href ? 'pointer-events-none' : ''
-
+          const linkClass = !href || (value === 'Subcontrol' && !controlId) || (value === 'Control objective' && !controlId) ? 'pointer-events-none' : ''
           return (
-            <Link className={linkClass} href={href} key={key}>
-              <Badge variant="outline">{key}</Badge>
-            </Link>
+            <TooltipProvider key={key}>
+              <Tooltip>
+                <TooltipTrigger onClick={(e) => e.preventDefault()}>
+                  <ObjectsChip name={key} objectType={kind} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div>
+                    <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">
+                      <div className="flex items-center gap-1">
+                        <SlidersHorizontal size={12} />
+                        <span className="font-medium">Name</span>
+                      </div>
+                      <span className={`text-brand pl-3 cursor-pointer ${linkClass}`} onClick={() => handleNavigate(href)}>
+                        {key}
+                      </span>
+                    </div>
+                    <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">
+                      <div className="flex items-center gap-1">
+                        <Info size={12} />
+                        <span className="font-medium">Type</span>
+                      </div>
+                      <span className="cursor-pointer break-words">{value}</span>
+                    </div>
+                    <div className="flex flex-col pt-2">
+                      <div className="flex items-center gap-1">
+                        <PencilLine size={12} />
+                        <span className="font-medium">Description</span>
+                      </div>
+                      <div className="max-w-xs text-justify line-clamp-4">{details ? plateEditorHelper.convertToReadOnly(details) : 'No details available'}</div>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )
         })}
       </div>
     )
   }
 
-  return (
-    <div className="flex items-center gap-4">
-      <BookText height={16} width={16} className="text-accent-secondary" />
-      <p className="text-sm w-[120px]">Related Objects</p>
-      {handleRelatedObjects()}
-    </div>
-  )
+  return handleRelatedObjects()
 }
 
 export default RelatedObjects

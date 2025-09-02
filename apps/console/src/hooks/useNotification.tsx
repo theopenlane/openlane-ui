@@ -1,9 +1,10 @@
 import { GqlError } from '@/types'
 import { useToast } from '@repo/ui/use-toast'
+import React from 'react'
 
 type TSuccessProps = {
   title?: string
-  description?: string
+  description?: string | React.ReactNode
   variant?: 'default' | 'destructive' | 'success'
 }
 
@@ -43,7 +44,7 @@ export function useNotification() {
     handleShowNotification(props.title, description, 'destructive')
   }
 
-  const handleShowNotification = (title?: string, description?: string, variant: 'default' | 'destructive' | 'success' = 'default') => {
+  const handleShowNotification = (title?: string, description?: string | React.ReactNode, variant: 'default' | 'destructive' | 'success' = 'default') => {
     toast({
       variant: variant,
       ...(title ? { title } : {}),

@@ -98,7 +98,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
 
   return (
     <div className="p-2 w-full mt-5">
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-end mb-2">
         <p className="text-lg">Conversation</p>
         <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
           {commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-accent-secondary" />}

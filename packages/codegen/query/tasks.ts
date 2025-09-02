@@ -99,6 +99,8 @@ export const TASK = gql`
             id
             refCode
             controlID
+            description
+            displayID
           }
         }
       }
@@ -107,6 +109,8 @@ export const TASK = gql`
           node {
             id
             refCode
+            description
+            displayID
           }
         }
       }
@@ -115,6 +119,8 @@ export const TASK = gql`
           node {
             id
             name
+            details
+            displayID
           }
         }
       }
@@ -123,6 +129,8 @@ export const TASK = gql`
           node {
             id
             displayID
+            description
+            name
           }
         }
       }
@@ -131,6 +139,8 @@ export const TASK = gql`
           node {
             id
             displayID
+            name
+            summary
           }
         }
       }
@@ -139,6 +149,8 @@ export const TASK = gql`
           node {
             id
             displayID
+            name
+            summary
           }
         }
       }
@@ -147,6 +159,8 @@ export const TASK = gql`
           node {
             displayID
             id
+            description
+            name
           }
         }
       }
@@ -155,6 +169,8 @@ export const TASK = gql`
           node {
             displayID
             id
+            description
+            name
           }
         }
       }
@@ -166,6 +182,15 @@ export const TASK = gql`
           node {
             displayID
             id
+            name
+            desiredOutcome
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
       }

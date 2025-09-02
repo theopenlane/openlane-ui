@@ -7,7 +7,6 @@ import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
@@ -89,7 +88,6 @@ export default function CreateControlForm() {
   })
 
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -274,7 +272,7 @@ export default function CreateControlForm() {
                 Name <span className="text-destructive">*</span>
               </Label>
               {errors?.refCode && <p className="text-destructive text-sm mt-1">{errors.refCode.message}</p>}
-              <Input {...register('refCode', { required: true })} />
+              <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input {...field} />} />
             </div>
 
             {isCreateSubcontrol && (
@@ -399,8 +397,7 @@ export default function CreateControlForm() {
 
           {/* Authority & Properties Grid */}
           <div className="w-[45%] flex flex-col gap-5">
-            <AuthorityCard isEditing isEditAllowed />
-            <PropertiesCard isEditing />
+            <PropertiesCard isEditing canEdit />
             <Card className="p-4">
               <h3 className="text-lg font-medium mb-2">Create associations</h3>
               <div className="flex flex-col gap-4"></div>

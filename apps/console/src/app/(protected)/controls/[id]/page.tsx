@@ -10,9 +10,7 @@ import { Button } from '@repo/ui/button'
 import { CirclePlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
-import AuthorityCard from '../../../../components/pages/protected/controls/authority-card.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
-import DetailsCard from '../../../../components/pages/protected/controls/details.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
@@ -43,6 +41,8 @@ import ObjectAssociationSwitch from '@/components/shared/object-association/obje
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Loading from './loading.tsx'
+import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section.tsx'
+import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
 
 interface FormValues {
   refCode: string
@@ -84,7 +84,7 @@ const ControlDetailsPage: React.FC = () => {
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
+  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id)
   const { data: orgPermission } = useOrganizationRole(session)
 
   const { successNotification, errorNotification } = useNotification()
@@ -324,6 +324,7 @@ const ControlDetailsPage: React.FC = () => {
           isEditing={isEditing}
           initialValue={initialValues.refCode}
           handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+          referenceFramework={control.referenceFramework}
         />
         {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
@@ -343,6 +344,8 @@ const ControlDetailsPage: React.FC = () => {
         )}
       </div>
       <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
+      <ControlObjectivesSection controlObjectives={control.controlObjectives} />
+      <ControlImplementationsSection controlImplementations={control.controlImplementations} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
@@ -372,17 +375,9 @@ const ControlDetailsPage: React.FC = () => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <AuthorityCard
-        isEditAllowed={canEdit(permission?.roles)}
-        controlOwner={control.controlOwner}
-        delegate={control.delegate}
-        isEditing={isEditing}
-        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
-      />
-      <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
 
+      <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} canEdit={canEdit(permission?.roles)} />
       <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
-      <DetailsCard />
       {hasInfoData && (
         <InfoCard
           implementationGuidance={control.implementationGuidance}

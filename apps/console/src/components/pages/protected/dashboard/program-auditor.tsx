@@ -16,12 +16,14 @@ import { useSearchParams } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 
 interface ProgramAuditorProps {
   firm?: string | null
   name?: string | null
   email?: string | null
   isReady?: boolean
+  programStatus: ProgramProgramStatus
 }
 
 const setAuditorSchema = z.object({
@@ -35,7 +37,7 @@ const setAuditorSchema = z.object({
 
 type SetAuditorFormValues = z.infer<typeof setAuditorSchema>
 
-const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => {
+const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAuditorProps) => {
   const hasAuditor = !!(firm || name || email)
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
@@ -124,9 +126,17 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
           <div className="flex justify-between items-center gap-4 mb-4">
             <h2 className="text-lg font-semibold">Auditor of this program</h2>
             <div className="flex gap-2">
-              {!isEditing && isEligibleForAuditorSet && <SetReadyForAuditorDialog />}
+              {!isEditing && isEligibleForAuditorSet && <SetReadyForAuditorDialog programStatus={programStatus} />}
               {hasAuditor && !isEditing && (
-                <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left" onClick={() => setIsEditing(true)}>
+                <Button
+                  disabled={programStatus === ProgramProgramStatus.ARCHIVED}
+                  className="!h-8 !p-2"
+                  variant="outline"
+                  type="button"
+                  icon={<Pencil />}
+                  iconPosition="left"
+                  onClick={() => setIsEditing(true)}
+                >
                   Edit
                 </Button>
               )}
@@ -174,14 +184,14 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
           ) : hasAuditor && isEditing ? (
             <div className="space-y-3 text-sm">
               <div className="flex border-b pb-2.5 gap-2 items-center">
-                <span className="block w-32 flex shrink-0">Firm:</span>
+                <span className="w-32 flex shrink-0">Firm:</span>
                 <div className="flex flex-col gap-1.5">
                   {isEditing && <Controller control={control} name="auditFirm" render={({ field }) => <Input {...field} className="w-[180px]" placeholder="SecureSphere Compliance" />}></Controller>}
                   {form.formState.errors.auditFirm && <p className="text-red-500 text-sm">{form.formState.errors.auditFirm.message}</p>}
                 </div>
               </div>
               <div className="flex border-b pb-2.5 gap-2 items-center">
-                <span className="block w-32 flex shrink-0">Name:</span>
+                <span className="w-32 flex shrink-0">Name:</span>
                 <div className="flex flex-col gap-1.5">
                   {isEditing && (
                     <Controller
@@ -194,7 +204,7 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
                 </div>
               </div>
               <div className="flex border-b pb-2.5 gap-2 items-center">
-                <span className="block w-32 flex shrink-0">Email:</span>
+                <span className="w-32 flex shrink-0">Email:</span>
                 <div className="flex flex-col gap-1.5">
                   {isEditing && (
                     <Controller
@@ -210,7 +220,8 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
           ) : (
             <div className="flex flex-col gap-4">
               <p className="text-muted-foreground text-sm">No auditor assigned yet.</p>
-              <SetAuditorDialog />
+
+              {programStatus !== ProgramProgramStatus.ARCHIVED && <SetAuditorDialog />}
             </div>
           )}
         </form>
