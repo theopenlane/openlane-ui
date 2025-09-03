@@ -8,12 +8,21 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useSession } from 'next-auth/react'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canDelete, canEdit } from '@/lib/authz/utils'
 
 export const ProgramSettingsDangerZone = () => {
-  const [isDeleting, setIsDeleting] = useState<boolean>(false)
-  const router = useRouter()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.PROGRAM, programId)
+  const editAllowed = canEdit(permission.roles)
+  const deleteAllowed = canDelete(permission.roles)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const router = useRouter()
+
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false)
   const [isUnArchiveDialogOpen, setIsUnArchiveDialogOpen] = useState(false)
@@ -116,19 +125,21 @@ export const ProgramSettingsDangerZone = () => {
         confirmationTextVariant="destructive"
         showInput={true}
       />
-      <ConfirmationDialog
-        open={isArchiveDialogOpen}
-        onOpenChange={setIsArchiveDialogOpen}
-        onConfirm={handleArchive}
-        title={`Archive Program ${program?.name}?`}
-        description={
-          <>
-            This will archive <b>{program?.name}</b>.
-          </>
-        }
-        confirmationText="Archive"
-        confirmationTextVariant="destructive"
-      />
+      {
+        <ConfirmationDialog
+          open={isArchiveDialogOpen}
+          onOpenChange={setIsArchiveDialogOpen}
+          onConfirm={handleArchive}
+          title={`Archive Program ${program?.name}?`}
+          description={
+            <>
+              This will archive <b>{program?.name}</b>.
+            </>
+          }
+          confirmationText="Archive"
+          confirmationTextVariant="destructive"
+        />
+      }
       <ConfirmationDialog
         open={isUnArchiveDialogOpen}
         onOpenChange={setIsUnArchiveDialogOpen}
@@ -142,44 +153,50 @@ export const ProgramSettingsDangerZone = () => {
         confirmationText="Unarchive"
         confirmationTextVariant="filled"
       />
-      <section className="flex gap-14 border-t pt-6">
-        <div className="w-48 shrink-0">
-          <h3 className="font-normal text-xl mb-2">Danger Zone</h3>
-        </div>
+      {(editAllowed || deleteAllowed) && (
+        <section className="flex gap-14 border-t pt-6">
+          <div className="w-48 shrink-0">
+            <h3 className="font-normal text-xl mb-2">Danger Zone</h3>
+          </div>
 
-        <div className="space-y-6 w-full">
-          {program?.status === ProgramProgramStatus.ARCHIVED ? (
-            <>
-              <div className="space-y-2">
-                <p className="text-base">Unarchive a program</p>
-                <Button variant="destructive" className="w-fit" onClick={() => setIsUnArchiveDialogOpen(true)} disabled={isPending}>
-                  {isArchivePending ? 'Unarchiving... ' : 'Unarchive'}
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
+          <div className="space-y-6 w-full">
+            {editAllowed && program?.status === ProgramProgramStatus.ARCHIVED ? (
+              <>
+                <div className="space-y-2">
+                  <p className="text-base">Unarchive a program</p>
+                  <Button variant="destructive" className="w-fit" onClick={() => setIsUnArchiveDialogOpen(true)} disabled={isPending}>
+                    {isArchivePending ? 'Unarchiving... ' : 'Unarchive'}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                {editAllowed && (
+                  <div className="space-y-2">
+                    <p className="text-base">
+                      Archiving will lock this program so it&#39;s <strong>read-only</strong>. Don&#39;t worry - you can always unarchive it to make updates.
+                    </p>
+                    <Button variant="destructive" className="w-fit" onClick={() => setIsArchiveDialogOpen(true)} disabled={isPending}>
+                      {isArchivePending ? 'Archiving... ' : 'Archive'}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {deleteAllowed && (
               <div className="space-y-2">
                 <p className="text-base">
-                  Archiving will lock this program so it&#39;s <strong>read-only</strong>. Don&#39;t worry - you can always unarchive it to make updates.
+                  Proceed with caution, deleting a program is <strong>permanent and irreversible</strong>.
                 </p>
-                <Button variant="destructive" className="w-fit" onClick={() => setIsArchiveDialogOpen(true)} disabled={isPending}>
-                  {isArchivePending ? 'Archiving... ' : 'Archive'}
+                <Button variant="destructive" className="w-fit" onClick={() => setDialogOpen(true)} disabled={isPending}>
+                  {isPending ? 'Deleting... ' : 'Delete'}
                 </Button>
               </div>
-            </>
-          )}
-
-          <div className="space-y-2">
-            <p className="text-base">
-              Proceed with caution, deleting a program is <strong>permanent and irreversible</strong>.
-            </p>
-            <Button variant="destructive" className="w-fit" onClick={() => setDialogOpen(true)} disabled={isPending}>
-              {isPending ? 'Deleting... ' : 'Delete'}
-            </Button>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   )
 }
