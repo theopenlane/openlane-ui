@@ -19,8 +19,6 @@ export default function EvidenceSuggestedActions() {
   const needingReview = data?.needingReview?.edges?.map((e) => e?.node) ?? []
   const needsRenewal = data?.needsRenewal?.edges?.map((e) => e?.node) ?? []
 
-  console.log('needingReview', needingReview)
-
   const badgeCount = unlinked.length + needingReview.length + needsRenewal.length
 
   if (badgeCount === 0) {
