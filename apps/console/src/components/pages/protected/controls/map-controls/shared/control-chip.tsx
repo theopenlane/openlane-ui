@@ -95,7 +95,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>{!disableHref && clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
         {tooltipOpen && (
-          <TooltipContent side="top">
+          <TooltipContent side="top" collisionPadding={64}>
             <ControlTooltipContent control={control} disableHref={disableHref} />
           </TooltipContent>
         )}
