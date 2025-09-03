@@ -305,17 +305,16 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          {canEdit(permission?.roles) ||
-            (canDelete(permission?.roles) && (
-              <div className="flex gap-2">
-                {canEdit(permission?.roles) && (
-                  <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
-                    <PencilIcon size={16} strokeWidth={2} />
-                  </Button>
-                )}
-                {canDelete(permission?.roles) && <DeleteControlDialog controlId={control.id} refCode={control.refCode} />}
-              </div>
-            ))}
+          {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
+            <div className="flex gap-2">
+              {canEdit(permission?.roles) && (
+                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
+                  <PencilIcon size={16} strokeWidth={2} />
+                </Button>
+              )}
+              {canDelete(permission?.roles) && <DeleteControlDialog controlId={control.id} refCode={control.refCode} />}
+            </div>
+          )}
         </div>
       )}
     </div>
