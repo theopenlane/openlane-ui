@@ -305,12 +305,14 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
-              <PencilIcon size={16} strokeWidth={2} />
-            </Button>
-            <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
-          </div>
+          {canEdit(permission?.roles) && (
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
+                <PencilIcon size={16} strokeWidth={2} />
+              </Button>
+              <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
+            </div>
+          )}
         </div>
       )}
     </div>
