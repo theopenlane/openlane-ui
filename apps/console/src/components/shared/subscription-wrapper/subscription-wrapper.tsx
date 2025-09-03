@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import RequiredSubscription from '@/components/pages/protected/subscription/required-subscription'
-import { GraphQLErrorResponse, hasModuleError } from '@/types/graphql-error'
+import { SubscriptionStateModuleEnum } from '@/providers/SubscriptionContext.tsx'
+import { GraphQLResponse, hasModuleError } from '@/utils/graphQlErrorMatcher.ts'
 
 interface SubscriptionWrapperProps {
   children: React.ReactNode
-  module: string
+  module: SubscriptionStateModuleEnum
   moduleDescription: string
-  error?: GraphQLErrorResponse | null
+  error?: GraphQLResponse | unknown
 }
 
 const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children, module, moduleDescription, error }) => {

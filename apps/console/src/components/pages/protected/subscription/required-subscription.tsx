@@ -3,13 +3,17 @@
 import Diamond from '@/assets/Diamond'
 import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
+import { SubscriptionStateModuleEnum } from '@/providers/SubscriptionContext.tsx'
 
 type TRequiredSubscriptionProps = {
-  module?: string
+  module?: SubscriptionStateModuleEnum
   moduleDescription?: string
 }
 
-const RequiredSubscription = ({ module = 'Security', moduleDescription = 'This module offers in-depth security measures. Ready to dive deeper?' }: TRequiredSubscriptionProps) => {
+const RequiredSubscription = ({
+  module = SubscriptionStateModuleEnum.SECURITY,
+  moduleDescription = 'This module offers in-depth security measures. Ready to dive deeper?',
+}: TRequiredSubscriptionProps) => {
   const router = useRouter()
   return (
     <div className="flex flex-col items-center justify-center gap-6 text-center px-8">

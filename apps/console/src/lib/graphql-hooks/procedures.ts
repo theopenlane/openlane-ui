@@ -62,8 +62,6 @@ export const useProcedures = ({ where, orderBy, pagination, enabled = true }: Us
     enabled,
   })
 
-  console.log('PROCEDURE', queryResult.data, queryResult.error)
-
   const procedures = (queryResult.data?.procedures?.edges ?? []).map((edge) => edge?.node) as Procedure[]
 
   const paginationMeta = {

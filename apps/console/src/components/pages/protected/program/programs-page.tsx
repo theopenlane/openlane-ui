@@ -30,6 +30,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import SubscriptionWrapper from '@/components/shared/subscription-wrapper/subscription-wrapper'
 import Link from 'next/link'
+import { SubscriptionStateModuleEnum } from '@/providers/SubscriptionContext.tsx'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -99,7 +100,7 @@ const ProgramsPage: React.FC = () => {
 
   return (
     <SubscriptionWrapper
-      module="Compliance Management"
+      module={SubscriptionStateModuleEnum.COMPLIANCE_MANAGEMENT}
       moduleDescription="Advanced compliance and program management features require a premium subscription. Ready to enhance your compliance workflow?"
       error={error}
     >

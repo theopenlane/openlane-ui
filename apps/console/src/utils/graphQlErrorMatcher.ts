@@ -38,13 +38,44 @@ export const extractGraphQlResponseError = async (response: Response): Promise<G
   return null
 }
 
-export const parseErrorMessage = (error: unknown): string => {
-  if (Array.isArray(error) && error[0]?.extensions?.code) {
-    const code = error[0].extensions.code as string
-    const message = error[0].message as string
-    if (message === 'organization already exists') return errorCodeMessages['ORG_ALREADY_EXISTS']
-    return errorCodeMessages[code]
+type TParseError = {
+  code: string
+  message: string
+}
+
+const parseError = (error: unknown): TParseError | undefined => {
+  if (Array.isArray(error)) {
+    return {
+      code: error[0].extensions.code as string,
+      message: error[0].message as string,
+    }
   }
 
-  return 'Something went wrong. Please try again.'
+  return undefined
+}
+
+export const parseErrorMessage = (error: unknown): string => {
+  const unknownMessage = 'Something went wrong. Please try again.'
+  const parsed = parseError(error)
+
+  if (parsed) {
+    const { code, message } = parsed
+    if (message === 'organization already exists') {
+      return errorCodeMessages['ORG_ALREADY_EXISTS']
+    }
+
+    return errorCodeMessages[code] ?? unknownMessage
+  }
+
+  return unknownMessage
+}
+
+export const hasModuleError = (error: unknown): boolean => {
+  const parsed = parseError(error)
+  if (!parsed) {
+    return false
+  }
+
+  const { code } = parsed
+  return code === 'MODULE_NO_ACCESS'
 }
