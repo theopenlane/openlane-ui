@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Bell, CheckCircle2, XCircle, Loader2, AlertTriangle, HelpCircle } from 'lucide-react'
+import { Bell, CheckCircle2, XCircle, Loader2, AlertTriangle, CheckCheck, Download } from 'lucide-react'
 import { TJob, useTrackedExports } from '@/components/shared/export/use-tracked-export.ts'
 import { ExportExportStatus } from '@repo/codegen/src/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -111,39 +111,16 @@ function useOutside<T extends HTMLElement>(onOutside: () => void) {
   return ref
 }
 
-function BellButton({ count, state, onClick }: { count: number; state: 'idle' | 'active' | 'success' | 'error'; onClick: () => void }) {
-  const notificationBgColor = () => {
-    switch (state) {
-      case 'error':
-        return STATUS_COLORS.bell.error
-      case 'active':
-        return STATUS_COLORS.bell.active
-      case 'idle':
-        return STATUS_COLORS.bell.idle
-      case 'success':
-        return STATUS_COLORS.bell.success
-    }
-  }
-  const notificationBadgeColor = () => {
-    switch (state) {
-      case 'error':
-        return STATUS_COLORS.bellBadge.error
-      case 'active':
-        return STATUS_COLORS.bellBadge.active
-      case 'idle':
-        return STATUS_COLORS.bellBadge.idle
-      case 'success':
-        return STATUS_COLORS.bellBadge.success
-    }
-  }
-
+function BellButton({ count, onClick, isOpen }: { count: number; onClick: () => void; isOpen: boolean }) {
   return (
-    <button onClick={onClick} className="relative grid h-7 w-7 place-items-center rounded-full focus:outline-none" aria-label="Notifications">
-      <span className={cx('absolute inset-0 rounded-full animate-ping opacity-40')} style={{ backgroundColor: notificationBgColor() }} />
+    <button
+      onClick={onClick}
+      className={`relative grid h-7 w-7 place-items-center rounded-md focus:outline-none transition-colors hover:bg-table-row-bg-hover ${isOpen ? 'bg-table-row-bg-hover' : ''}`}
+      aria-label="Notifications"
+    >
+      <span className={cx('absolute inset-0 rounded-full animate-ping opacity-40')} />
       <Bell className="h-6 w-6 " />
-      <span className="absolute -top-1 -right-1 grid h-5 w-5 place-items-center rounded-full px-1 text-[10px] font-semibold text-white shadow-sm" style={{ backgroundColor: notificationBadgeColor() }}>
-        {count}
-      </span>
+      {count > 0 && <span className="absolute top-[3px] right-[5px] grid h-2 w-2 place-items-center rounded-full px-1 text-[10px] font-semibold bg-orange-500 shadow-sm"></span>}
     </button>
   )
 }
@@ -169,20 +146,22 @@ function Row({ job }: { job: TJob }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium ">{job.title}</div>
-        <div className="truncate text-xs capitalize">{uiStatus === 'running' ? `${job.progress}%` : uiStatus}</div>
-        {uiStatus === 'success' && job.downloadUrl && (
-          <a href={job.downloadUrl} target="_blank" rel="noreferrer" className="truncate text-xs text-blue-600 hover:underline">
-            Download File
-          </a>
-        )}
-        {uiStatus === 'running' && (
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-            <div className="h-full bg-blue-500 transition-all" style={{ width: `${job.progress}%` }} />
-          </div>
-        )}
+        <div className="truncate text-xs capitalize">{uiStatus}</div>
       </div>
       <div>
-        {uiStatus === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+        {uiStatus === 'success' && !job.downloadUrl && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+        {uiStatus === 'success' && job.downloadUrl && (
+          <a
+            href={job.downloadUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="hover:bg-table-row-bg-hover inline-flex items-center gap-2 text-sm bg-panel-bg rounded-md border px-2 py-1 font-bold hover:bg-panel-bg/80 transition"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download</span>
+          </a>
+        )}
+
         {uiStatus === 'error' && (
           <TooltipProvider>
             <Tooltip>
@@ -228,31 +207,32 @@ export default function SystemNotificationTracker() {
     }
   }, [jobs])
 
-  const bellState: 'idle' | 'active' | 'success' | 'error' =
-    counts.error > 0 ? 'error' : counts.success === counts.total && counts.total > 0 ? 'success' : counts.pending + counts.running > 0 ? 'active' : 'idle'
-
   const ref = useOutside<HTMLDivElement>(() => setOpen(false))
 
   return (
     <div className="mx-auto max-w-3xl">
       <div className="relative" ref={ref}>
-        <BellButton count={counts.pending + counts.running} state={bellState} onClick={() => setOpen((v) => !v)} />
+        <BellButton count={counts.total} onClick={() => setOpen((v) => !v)} isOpen={open} />
         <div
           className={`absolute right-0 mt-2 w-[380px] max-w-[92vw] origin-top-right rounded-2xl border bg-card shadow-xl z-50
           transition-all duration-200 ease-out
           ${open ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 -translate-y-2 invisible'}`}
         >
           <div className="max-h-[60vh] overflow-auto p-3">
-            <div className="flex items-center gap-3 p-2">
-              <MultiRing size={36} width={4} counts={{ running: counts.running, success: counts.success, error: counts.error, pending: counts.pending, warning: counts.warning }} animate />
-              <div className="flex-1">
-                <div className="text-sm font-semibold">{counts.total - counts.success - counts.error} in progress</div>
-                <div className="text-xs text-gray-500">
-                  {counts.total === 0 ? 'No notifications yet :)' : `${Math.round(((counts.success + counts.error + counts.running) / counts.total) * 100)}% overall`}
-                </div>
+            <div className="flex items-center justify-between p-2">
+              <div className="flex items-center gap-2">
+                <div className="text-md font-semibold">Notifications</div>
+                <div className="text-sm bg-panel-bg rounded-md border px-1 font-bold">{counts.total}</div>
+              </div>
+
+              <div className="relative flex items-center gap-1 text-sm font-semibold cursor-pointer text-normal dark:text-button group">
+                <CheckCheck className="w-4 h-4" />
+                <span>Mark all as read</span>
+                <span className="absolute bottom-0 left-0 h-[1px] w-full scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 origin-left"></span>
               </div>
             </div>
-            <div className="my-2 h-px w-full bg-gray-100" />
+
+            <div className="my-1 h-px w-full bg-border" />
             <div className="divide-y divide-gray-100">
               {jobs.map((j) => (
                 <div key={j.id} className="px-2">
