@@ -75,8 +75,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Status Required */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2 w-[200px] items-center">
+      <div className="flex items-center gap-1">
+        <div className="flex gap-2 min-w-[160px] items-center">
           <Binoculars size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
@@ -93,7 +93,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div ref={triggerRef} className="w-[200px]">
+        <div ref={triggerRef} className="min-w-[160px]">
           {isEditing || editingField === 'status' ? (
             <Controller
               name="status"
@@ -134,8 +134,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
       </div>
 
       {/* Version (read-only) */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2 w-[200px] items-center">
+      <div className="flex items-center gap-1">
+        <div className="flex gap-2 min-w-[160px] items-center">
           <FileStack size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
@@ -151,14 +151,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="w-[200px] cursor-not-allowed">
+        <div className="min-w-[160px] cursor-not-allowed">
           <span>{policy?.revision ?? '0.0.0'}</span>
         </div>
       </div>
 
       {/* Policy Type */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2 w-[200px] items-center">
+      <div className="flex items-center gap-1">
+        <div className="flex gap-2 min-w-[160px] items-center">
           <ScrollText size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
@@ -175,7 +175,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div className="w-[200px]">
+        <div className="min-w-[160px]">
           {isEditing || editingField === 'policyType' ? (
             <FormField
               control={form.control}
@@ -213,8 +213,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
       </div>
 
       {/* Review Date */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2 w-[200px] items-center">
+      <div className="flex items-center gap-1">
+        <div className="flex gap-2 min-w-[160px] items-center">
           <Calendar size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
@@ -231,7 +231,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div ref={reviewTriggerRef} className="w-[200px]">
+        <div ref={reviewTriggerRef} className="min-w-[160px]">
           {isEditing || editingField === 'reviewDue' ? (
             <Controller
               name="reviewDue"

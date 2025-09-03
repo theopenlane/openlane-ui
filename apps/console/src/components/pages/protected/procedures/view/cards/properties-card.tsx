@@ -70,7 +70,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Status Required */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center gap-1">
         <div className="flex gap-2 min-w-[160px] items-center">
           <Binoculars size={16} className="text-brand" />
           <TooltipProvider>
@@ -130,7 +130,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       </div>
 
       {/* Version (read-only) */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center gap-1">
         <div className="flex gap-2 min-w-[160px] items-center">
           <FileStack size={16} className="text-brand" />
           <TooltipProvider>
@@ -155,7 +155,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       </div>
 
       {/* Procedure Type */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center gap-1">
         <div className="flex gap-2 min-w-[160px] items-center">
           <ScrollText size={16} className="text-brand" />
           <TooltipProvider>
@@ -212,7 +212,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       </div>
 
       {/* Review date */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center gap-1">
         <div className="flex gap-2 min-w-[160px] items-center">
           <Calendar size={16} className="text-brand" />
           <TooltipProvider>
