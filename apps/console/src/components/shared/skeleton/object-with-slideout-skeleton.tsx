@@ -17,7 +17,7 @@ export const ObjectWithDetailsSkeleton = () => (
       </div>
     </div>
 
-    <div className="fixed right-0 w-[400px] bottom-0 border-l shadow-xl transition-transform duration-300 z-20 bg-background h-full p-6">
+    <div className="fixed right-0 w-[430px] bottom-0 border-l shadow-xl transition-transform duration-300 z-20 bg-background h-full p-6">
       <div className="flex flex-col gap-4 mt-12">
         <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4 flex flex-col gap-4">
           <div className="flex gap-4">
