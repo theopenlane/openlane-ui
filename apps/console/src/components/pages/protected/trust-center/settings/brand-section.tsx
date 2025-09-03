@@ -19,15 +19,19 @@ const BrandSection = ({ setting }: Props) => {
   const [logoPreview, setLogoPreview] = useState<string | null>(setting?.logoFile?.presignedURL || setting?.logoRemoteURL || null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoLink, setLogoLink] = useState(setting?.logoRemoteURL ?? '')
+  const [showLogoLinkInput, setShowLogoLinkInput] = useState(false)
 
-  const [faviconPreview, setFaviconPreview] = useState<string | null>(setting?.faviconFile?.presignedURL ?? null)
+  const [faviconPreview, setFaviconPreview] = useState<string | null>(setting?.faviconFile?.presignedURL || setting?.faviconRemoteURL || null)
   const [faviconFile, setFaviconFile] = useState<File | null>(null)
+  const [faviconLink, setFaviconLink] = useState(setting?.faviconRemoteURL ?? '')
+  const [showFaviconLinkInput, setShowFaviconLinkInput] = useState(false)
 
   const { updateTrustCenterSetting } = useHandleUpdateSetting()
 
   const [logoPending, setLogoPending] = useState(false)
   const [faviconPending, setFaviconPending] = useState(false)
   const [logoLinkPending, setLogoLinkPending] = useState(false)
+  const [faviconLinkPending, setFaviconLinkPending] = useState(false)
 
   const handleLogoUpload = (uploadedFile: TUploadedFile) => {
     if (!uploadedFile.file) return
@@ -85,6 +89,22 @@ const BrandSection = ({ setting }: Props) => {
     }
   }
 
+  const handleSaveFaviconLink = async () => {
+    if (!faviconLink) return
+    try {
+      setFaviconLinkPending(true)
+      await updateTrustCenterSetting({
+        id: setting?.id,
+        input: {
+          faviconRemoteURL: faviconLink,
+          clearFaviconFile: true,
+        },
+      })
+    } finally {
+      setFaviconLinkPending(false)
+    }
+  }
+
   const normalizeUrl = (url?: string | null) => {
     if (!url) return null
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
@@ -94,10 +114,11 @@ const BrandSection = ({ setting }: Props) => {
   }
 
   return (
-    <div className="grid grid-cols-[250px_auto] gap-6 items-start ">
+    <div className="grid grid-cols-[250px_auto] gap-6 items-start">
       <h1 className="text-xl text-text-header font-medium">Brand</h1>
 
       <div className="flex flex-col">
+        {/* Logo */}
         <div className="flex flex-col">
           <p className="mb-2 font-medium">Logo</p>
           <div className="flex-col gap-7 border-b pb-8">
@@ -115,76 +136,122 @@ const BrandSection = ({ setting }: Props) => {
               </div>
 
               <div>
-                <div className="flex items-center gap-1 mb-2">
-                  <Label className="block text-sm">Upload</Label>
-                  <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Recommended: PNG, JPG, SVG (max 5 MB)</p>} />
-                </div>
-                <div className="w-[417px]">
-                  <FileUpload
-                    acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
-                    onFileUpload={handleLogoUpload}
-                    acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
-                    maxFileSizeInMb={5}
-                    multipleFiles={false}
-                  />
-                </div>
-                <Button onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3">
-                  {logoPending ? 'Saving…' : 'Save Logo'}
-                </Button>
-              </div>
-            </div>
-            <div className="flex gap-2 mt-6">
-              <Label className="mr-28">Logo link</Label>
-              <div>
-                <div className="flex items-center gap-1">
-                  <Label className="text-sm">URL</Label>
-                  <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>When the logo is clicked, users will be redirected here.</p>} />
-                </div>
-                <div className="flex gap-3 items-center mt-1">
-                  <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
-                  <Button className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
-                    {logoLinkPending ? 'Saving…' : 'Save'}
-                  </Button>
-                </div>
-                <p className="text-xs text-text-informational mt-0.5">When the logo in your trust center is clicked, it will link to this url</p>
+                {!showLogoLinkInput && (
+                  <>
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="block text-sm">Upload</Label>
+                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Recommended: PNG, JPG, SVG (max 5 MB)</p>} />
+                    </div>
+                    <div className="w-[417px]">
+                      <FileUpload
+                        acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
+                        onFileUpload={handleLogoUpload}
+                        acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
+                        maxFileSizeInMb={5}
+                        multipleFiles={false}
+                      />
+                    </div>
+                    <Button onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3 block">
+                      {logoPending || logoLinkPending ? 'Saving…' : 'Save'}
+                    </Button>
+                  </>
+                )}
+
+                {!showLogoLinkInput && (
+                  <button type="button" onClick={() => setShowLogoLinkInput(true)} className="mt-1 text-xs text-blue-500">
+                    or enter URL
+                  </button>
+                )}
+
+                {showLogoLinkInput && (
+                  <div className="flex  flex-col gap-2 mt-6">
+                    <div className="flex items-center gap-1">
+                      <Label className="text-sm">URL</Label>
+                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Location of hosted Logo file. It must link to a image file that contains a png, jpg, or svg image</p>} />
+                    </div>
+                    <div className="flex gap-3 items-center mt-1">
+                      <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
+                      <Button className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
+                        {logoLinkPending ? 'Saving…' : 'Save'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {showLogoLinkInput && (
+                  <button type="button" onClick={() => setShowLogoLinkInput(false)} className="mt-1 text-xs text-blue-500">
+                    or upload file
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Favicon */}
         <div className="flex flex-col mt-8">
           <p className="mb-2 font-medium">Favicon</p>
-          <div className="flex gap-7">
-            <div>
-              <Label className="mb-2 block text-sm">Preview</Label>
-              <div className="flex h-[150px] w-[150px] items-center justify-center rounded-md border">
-                {faviconPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={normalizeUrl(faviconPreview)!} alt="Favicon preview" className="max-h-28 object-contain" />
-                ) : (
-                  <Eye className="h-6 w-6" />
+          <div className="flex-col gap-7">
+            <div className="flex gap-7">
+              <div>
+                <Label className="mb-2 block text-sm">Preview</Label>
+                <div className="flex h-[150px] w-[150px] items-center justify-center rounded-md border">
+                  {faviconPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={normalizeUrl(faviconPreview)!} alt="Favicon preview" className="max-h-28 object-contain" />
+                  ) : (
+                    <Eye className="h-6 w-6" />
+                  )}
+                </div>
+              </div>
+
+              <div>
+                {!showFaviconLinkInput && (
+                  <>
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="block text-sm">Upload</Label>
+                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Recommended size: 32x32px or 48x48px (max 1 MB)</p>} />
+                    </div>
+                    <div className="w-[417px]">
+                      <FileUpload
+                        acceptedFileTypes={['image/x-icon', 'image/png', 'image/jpeg']}
+                        onFileUpload={handleFaviconUpload}
+                        acceptedFileTypesShort={['ICO', 'PNG', 'JPG']}
+                        maxFileSizeInMb={1}
+                        multipleFiles={false}
+                      />
+                    </div>
+                    <Button onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3 block">
+                      {faviconPending || faviconLinkPending ? 'Saving…' : 'Save'}
+                    </Button>
+                  </>
+                )}
+
+                {!showFaviconLinkInput && (
+                  <button type="button" onClick={() => setShowFaviconLinkInput(true)} className="mt-1 text-xs text-blue-500">
+                    or enter URL
+                  </button>
+                )}
+
+                {showFaviconLinkInput && (
+                  <div className="flex flex-col gap-2 mt-6">
+                    <div className="flex items-center gap-1">
+                      <Label className="text-sm">URL</Label>
+                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Location of hosted favicon file. It must link to a image file that contains a png, jpg, or ico image</p>} />
+                    </div>
+                    <div className="flex gap-3 items-center mt-1">
+                      <UrlInput className="w-full" value={faviconLink} onChange={setFaviconLink} />
+                      <Button className="w-auto" onClick={handleSaveFaviconLink} disabled={faviconLinkPending}>
+                        {faviconLinkPending ? 'Saving…' : 'Save'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {showFaviconLinkInput && (
+                  <button type="button" onClick={() => setShowFaviconLinkInput(false)} className="mt-1 text-xs text-blue-500">
+                    or upload file
+                  </button>
                 )}
               </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-1 mb-2">
-                <Label className="block text-sm">Upload</Label>
-                <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Recommended size: 32×32px or 48×48px (max 1 MB)</p>} />
-              </div>
-              <div className="w-[417px]">
-                <FileUpload
-                  acceptedFileTypes={['image/x-icon', 'image/png', 'image/jpeg']}
-                  onFileUpload={handleFaviconUpload}
-                  acceptedFileTypesShort={['ICO', 'PNG', 'JPG']}
-                  maxFileSizeInMb={1}
-                  multipleFiles={false}
-                />
-              </div>
-              <Button onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3">
-                {faviconPending ? 'Saving…' : 'Save Favicon'}
-              </Button>
             </div>
           </div>
         </div>

@@ -44943,6 +44943,7 @@ export type GetTrustCenterQuery = {
           font?: string | null
           backgroundColor?: string | null
           accentColor?: string | null
+          faviconRemoteURL?: string | null
           overview?: string | null
           title?: string | null
           logoRemoteURL?: string | null
