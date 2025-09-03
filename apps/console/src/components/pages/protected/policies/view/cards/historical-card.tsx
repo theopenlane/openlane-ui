@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { ApiToken, InternalPolicyByIdFragment, User } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
 import { CalendarCheck2, CalendarClock, KeyRound, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatTimeSince } from '@/utils/date'
@@ -42,62 +41,59 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
   }
 
   return (
-    <Card className="p-4">
-      <h3 className="text-lg font-medium mb-2">Historical</h3>
-      <div className="flex flex-col gap-4">
-        {/* Created By */}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2 w-[160px] items-center">
-            <UserRoundCheck size={16} className="text-brand" />
-            <span>Created By</span>
-          </div>
-
-          <div className="w-[220px]">
-            <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(createdByToken, createdByUser)}</div>
-          </div>
+    <div className="flex flex-col gap-4 pb-4">
+      {/* Created By */}
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 min-w-[160px] items-center">
+          <UserRoundCheck size={16} className="text-brand" />
+          <span>Created By</span>
         </div>
 
-        {/* Created At */}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2 w-[160px] items-center">
-            <CalendarCheck2 size={16} className="text-brand" />
-            <span>Created At</span>
-          </div>
+        <div className="w-full">
+          <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(createdByToken, createdByUser)}</div>
+        </div>
+      </div>
 
-          <div className="w-[220px]">
-            <div className="flex gap-2 cursor-not-allowed">
-              <span>{formatTimeSince(policy.createdAt)}</span>
-            </div>
-          </div>
+      {/* Created At */}
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 min-w-[160px] items-center">
+          <CalendarCheck2 size={16} className="text-brand" />
+          <span>Created At</span>
         </div>
 
-        {/* Updated By */}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2 w-[160px] items-center">
-            <UserRoundPen size={16} className="text-brand" />
-            <span>Updated By</span>
-          </div>
-
-          <div className="w-[220px]">
-            <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
-          </div>
-        </div>
-
-        {/* Updated At */}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2 w-[160px] items-center">
-            <CalendarClock size={16} className="text-brand" />
-            <span>Updated At</span>
-          </div>
-
-          <div className="w-[220px]">
-            <div className="flex gap-2 cursor-not-allowed">
-              <span>{formatTimeSince(policy.updatedAt)}</span>
-            </div>
+        <div className="w-full">
+          <div className="flex gap-2 cursor-not-allowed">
+            <span>{formatTimeSince(policy.createdAt)}</span>
           </div>
         </div>
       </div>
-    </Card>
+
+      {/* Updated By */}
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 min-w-[160px] items-center">
+          <UserRoundPen size={16} className="text-brand" />
+          <span>Updated By</span>
+        </div>
+
+        <div className="w-full">
+          <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
+        </div>
+      </div>
+
+      {/* Updated At */}
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 min-w-[160px] items-center">
+          <CalendarClock size={16} className="text-brand" />
+          <span>Updated At</span>
+        </div>
+
+        <div className="w-full">
+          <div className="flex gap-2 cursor-not-allowed">
+            <span>{formatTimeSince(policy.updatedAt)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
