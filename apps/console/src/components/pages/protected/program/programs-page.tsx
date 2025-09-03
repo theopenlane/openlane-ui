@@ -31,7 +31,6 @@ import Loading from '@/app/(protected)/programs/loading'
 import { Checkbox } from '@repo/ui/checkbox'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import SubscriptionWrapper from '@/components/shared/subscription-wrapper/subscription-wrapper'
-import Link from 'next/link'
 import { SubscriptionStateModuleEnum } from '@/providers/SubscriptionContext.tsx'
 
 const ProgramsPage: React.FC = () => {
