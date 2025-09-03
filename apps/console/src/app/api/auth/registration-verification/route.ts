@@ -6,7 +6,9 @@ export async function POST(request: Request) {
   const bodyData = await request.json()
   const cookies = request.headers.get('cookie')
 
-  const headers: HeadersInit = {}
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
 
   if (cookies) {
     headers['cookie'] = cookies

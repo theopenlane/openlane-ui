@@ -8,13 +8,12 @@ import { ProgramCreate } from '@/components/pages/protected/program/program-crea
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import { Loading } from '@/components/shared/loading/loading'
-import { OrderDirection, ProgramOrderField } from '@repo/codegen/src/schema'
+import { OrderDirection, ProgramOrderField, ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
 import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
-import { ArrowRight, ShieldCheck } from 'lucide-react'
+import { ArrowRight, InfoIcon, ShieldCheck } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
@@ -28,6 +27,9 @@ import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import Loading from '@/app/(protected)/programs/loading'
+import { Checkbox } from '@repo/ui/checkbox'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import SubscriptionWrapper from '@/components/shared/subscription-wrapper/subscription-wrapper'
 import Link from 'next/link'
 import { SubscriptionStateModuleEnum } from '@/providers/SubscriptionContext.tsx'
@@ -38,10 +40,6 @@ const ProgramsPage: React.FC = () => {
 
   const programId = searchParams.get('id')
 
-  const { data, isLoading, error } = useGetAllPrograms({
-    orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
-  })
-
   const [selectedProgram, setSelectedProgram] = useState<string>('')
 
   const { data: basicInfoData, isLoading: isBasicInfoLoading } = useGetProgramBasicInfo(programId)
@@ -50,17 +48,34 @@ const ProgramsPage: React.FC = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const [showAllPrograms, setShowAllPrograms] = useState<boolean>(false)
+  const where: ProgramWhereInput = useMemo(() => {
+    if (showAllPrograms) {
+      return {
+        statusIn: [
+          ProgramProgramStatus.ACTION_REQUIRED,
+          ProgramProgramStatus.ARCHIVED,
+          ProgramProgramStatus.COMPLETED,
+          ProgramProgramStatus.IN_PROGRESS,
+          ProgramProgramStatus.NOT_STARTED,
+          ProgramProgramStatus.READY_FOR_AUDITOR,
+        ],
+      }
+    }
+    return {}
+  }, [showAllPrograms])
+  const { data, isLoading, error } = useGetAllPrograms({
+    orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
+    where,
+  })
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
     data?.programs?.edges?.forEach((edge) => {
-      if (edge?.node) {
-        map[edge.node.id] = edge.node.name
-      }
+      if (edge?.node) map[edge.node.id] = edge.node.name
     })
     return map
   }, [data])
-
   const initialData: TObjectAssociationMap = useMemo(() => {
     return {
       programIDs: programId ? [programId] : [],
@@ -87,10 +102,17 @@ const ProgramsPage: React.FC = () => {
       router.replace(`/programs?id=${firstProgram.id}`)
       setSelectedProgram(firstProgram.name)
     } else if (programId) {
-      const programName = programMap[programId] ?? 'Unknown Program'
-      setSelectedProgram(programName)
+      const program = data.programs.edges.find((edge) => edge?.node?.id === programId)?.node
+      if (program) {
+        setSelectedProgram(program.name)
+      } else {
+        if (firstProgram?.id) {
+          router.replace(`/programs?id=${firstProgram.id}`)
+          setSelectedProgram(firstProgram.name)
+        }
+      }
     }
-  }, [programId, programMap, router, data?.programs?.edges])
+  }, [programId, data?.programs?.edges, router])
 
   const handleSelectChange = (val: string) => {
     const programName = programMap[val] ?? 'Unknown Program'
@@ -105,7 +127,7 @@ const ProgramsPage: React.FC = () => {
       error={error}
     >
       {(() => {
-        if (isLoading) {
+        if (isBasicInfoLoading || isLoading) {
           return <Loading />
         }
         if (!data?.programs.edges?.length) {
@@ -127,9 +149,9 @@ const ProgramsPage: React.FC = () => {
                         Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a
                         significant body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and
                         can encompass work across different teams.
-                        <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
+                        <a href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
                           See docs to learn more.
-                        </Link>
+                        </a>
                       </p>
                     </div>
                   </div>
@@ -181,6 +203,19 @@ const ProgramsPage: React.FC = () => {
                         })}
                       </SelectContent>
                     </Select>
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      <Checkbox checked={showAllPrograms} onCheckedChange={(checked) => setShowAllPrograms(!!checked)} />
+                      <span className="text-sm">Include archived</span>
+                      <SystemTooltip
+                        icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                        content={
+                          <p>
+                            Archived programs are not included by default. Check this box to include archived programs in the drop down. These will be read-only, unless the program is unarchived from
+                            program settings.
+                          </p>
+                        }
+                      />
+                    </div>
                   </div>
                   <div className="flex gap-2.5 items-center">
                     <Menu
@@ -200,14 +235,13 @@ const ProgramsPage: React.FC = () => {
 
             <div className="flex flex-col gap-7">
               <div className="flex gap-7 w-full">
-                {isBasicInfoLoading ? (
-                  <Loading />
-                ) : basicInfoData?.program ? (
+                {basicInfoData?.program ? (
                   <>
                     <BasicInformation />
                     <div className="flex flex-col gap-7 flex-1">
                       <TimelineReadiness />
                       <ProgramAuditor
+                        programStatus={basicInfoData.program.status}
                         firm={basicInfoData.program.auditFirm}
                         name={basicInfoData.program.auditor}
                         email={basicInfoData.program.auditorEmail}

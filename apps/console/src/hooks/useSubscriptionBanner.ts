@@ -7,7 +7,7 @@ export function useSubscriptionBanner() {
   const { data } = useGetBillingBanner(currentOrgId)
 
   const subscription = data?.organization?.orgSubscriptions?.[0]
-  const { expiresAt, trialExpiresAt, stripeSubscriptionStatus: stripeStatus, paymentMethodAdded } = subscription || {}
+  const { expiresAt, trialExpiresAt, stripeSubscriptionStatus: stripeStatus } = subscription || {}
 
   const safeParseDate = (date?: string) => (date && isValid(parseISO(date)) ? parseISO(date) : null)
 
@@ -17,7 +17,7 @@ export function useSubscriptionBanner() {
 
   const isTrial = stripeStatus === 'trialing'
   const isExpiringSoon = daysLeft !== null && daysLeft <= 7 && daysLeft >= 0
-  const trialExpiringSoon = trialDaysLeft !== null && trialDaysLeft <= 7 && trialDaysLeft >= 0
+  // const trialExpiringSoon = trialDaysLeft !== null && trialDaysLeft <= 7 && trialDaysLeft >= 0
 
   const trialEnded = (trialDaysLeft && trialDaysLeft < 0) || false
   const subEnded = (daysLeft && daysLeft < 0) || false
@@ -28,9 +28,11 @@ export function useSubscriptionBanner() {
       return `Your subscription ends in ${daysLeft} days, update your plan to avoid losing access`
     }
 
-    if (!paymentMethodAdded && isTrial && trialExpiringSoon) {
-      return `Your trial ends in ${trialDaysLeft} days, and there is no payment method on file`
-    }
+    // paymentMethodAdded has been removed from backend and GET_ORGANIZATION_BILLING_BANNER query.
+
+    // if (!paymentMethodAdded && isTrial && trialExpiringSoon) {
+    //   return `Your trial ends in ${trialDaysLeft} days, and there is no payment method on file`
+    // }
 
     if (subEnded) {
       return 'Your subscription has expired. Update your plan now to avoid losing access.'

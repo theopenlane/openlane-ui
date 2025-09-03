@@ -3,17 +3,14 @@
 import React, { useState } from 'react'
 import { Group, ProcedureByIdFragment, UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, Stamp, CircleArrowRight, HelpCircle } from 'lucide-react'
+import { Stamp, CircleArrowRight, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
-import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
-import useEscapeKey from '@/hooks/useEscapeKey'
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -35,7 +32,6 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
     label: g?.name || '',
     value: g?.id || '',
   }))
-
   const handleSelect = (field: 'approverID' | 'delegateID', value: string) => {
     const currentValue = form.getValues(field)
 
@@ -74,14 +70,22 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
         </div>
 
         {showEditable ? (
-          <SearchableSingleSelect
-            form={form}
-            fieldName={fieldKey}
-            placeholder={`Select ${label.toLowerCase()}`}
-            options={options}
-            autoFocus
-            onChange={(val) => handleSelect(fieldKey, val)}
-            onClose={() => setEditingField(null)}
+          <Controller
+            name={fieldKey}
+            control={form.control}
+            render={({ field }) => (
+              <SearchableSingleSelect
+                value={field.value}
+                options={options}
+                placeholder={`Select ${label.toLowerCase()}`}
+                autoFocus
+                onChange={(val) => {
+                  handleSelect(fieldKey, val)
+                  field.onChange(val)
+                }}
+                onClose={() => setEditingField(null)}
+              />
+            )}
           />
         ) : (
           <TooltipProvider disableHoverableContent>
@@ -120,78 +124,3 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
 }
 
 export default AuthorityCard
-
-interface SearchableSingleSelectProps {
-  fieldName: keyof EditProcedureMetadataFormData
-  placeholder?: string
-  form: UseFormReturn<EditProcedureMetadataFormData>
-  options: Option[]
-  onChange?: (val: string) => void
-  autoFocus?: boolean
-  onClose?: () => void
-}
-
-export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ fieldName, form, placeholder = 'Select an option...', options, onChange, autoFocus, onClose }) => {
-  const [open, setOpen] = React.useState(false)
-  const triggerRef = React.useRef<HTMLDivElement>(null)
-  const popoverRef = React.useRef<HTMLDivElement>(null)
-
-  useClickOutsideWithPortal(
-    () => {
-      onClose?.()
-    },
-    {
-      refs: { triggerRef, popoverRef },
-    },
-  )
-
-  useEscapeKey(() => {
-    onClose?.()
-  })
-
-  return (
-    <Controller
-      name={fieldName}
-      control={form.control}
-      render={({ field }) => {
-        const selected = options.find((opt) => opt.value === field.value)
-
-        return (
-          <div ref={triggerRef} className="w-[200px]">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input-background rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
-                  <span className="truncate">{selected?.label || placeholder}</span>
-                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </div>
-              </PopoverTrigger>
-              <PopoverContent ref={popoverRef} className="w-[200px] p-0 !bg-input-background border" side="bottom">
-                <Command shouldFilter autoFocus={autoFocus}>
-                  <CommandInput placeholder="Search..." />
-                  <CommandList>
-                    <CommandEmpty>No results found.</CommandEmpty>
-                    <CommandGroup>
-                      {options.map((option) => (
-                        <CommandItem
-                          key={option.value}
-                          value={option.label}
-                          onSelect={() => {
-                            onChange?.(option.value)
-                            field.onChange(option.value)
-                            setOpen(false)
-                          }}
-                        >
-                          {option.label}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )
-      }}
-    />
-  )
-}

@@ -128,7 +128,6 @@ export const GET_ORGANIZATION_BILLING = gql`
         expiresAt
         subscriptionURL
         stripeSubscriptionStatus
-        productTier
         productPrice
         features
         managePaymentMethods
@@ -147,7 +146,6 @@ export const GET_ORGANIZATION_BILLING_BANNER = gql`
         trialExpiresAt
         expiresAt
         stripeSubscriptionStatus
-        paymentMethodAdded
       }
     }
   }

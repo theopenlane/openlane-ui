@@ -12,7 +12,9 @@ const SystemTooltip: React.FC<TProps> = (props: TProps) => {
     <TooltipProvider disableHoverableContent={props.disableHoverableContent === undefined ? true : props.disableHoverableContent}>
       <Tooltip>
         <TooltipTrigger type="button">{props.icon}</TooltipTrigger>
-        <TooltipContent side="right">{typeof props.content === 'string' ? <p>{props.content}</p> : props.content}</TooltipContent>
+        <TooltipContent className="max-w-xs whitespace-normal break-words" align="start" side="bottom">
+          {typeof props.content === 'string' ? <p>{props.content}</p> : props.content}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )

@@ -1,24 +1,29 @@
 'use client'
 
 import React, { useCallback, useEffect, useState, useContext } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronRight, ChevronsDownUp, CirclePlus, List, Pencil, Settings2 } from 'lucide-react'
+import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
-import { ControlObjectiveCard } from './control-objective-card'
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion'
+import { Accordion } from '@radix-ui/react-accordion'
 import { Checkbox } from '@repo/ui/checkbox'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { ObjectiveItem } from './objective-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ControlObjectivePage = () => {
+  const searchParams = useSearchParams()
   const params = useParams()
   const id = params?.id as string
   const subcontrolId = params?.subcontrolId as string | undefined
@@ -34,6 +39,11 @@ const ControlObjectivePage = () => {
   const isSubControl = !!subcontrolId
   const { data: controlData, isLoading: isControlLoading } = useGetControlById(isControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isSubcontrolLoading } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
+
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRole(session)
+
+  const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
 
   const { data, isLoading } = useGetAllControlObjectives({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
@@ -107,6 +117,13 @@ const ControlObjectivePage = () => {
   }, [handleControlObjectivesUpdate])
 
   useEffect(() => {
+    const shouldOpen = createAllowed && searchParams.get('create') === 'true'
+    if (shouldOpen) {
+      setShowCreateSheet(true)
+    }
+  }, [createAllowed, searchParams])
+
+  useEffect(() => {
     if (controlData) {
       setCrumbs([
         { label: 'Home', href: '/dashboard' },
@@ -135,9 +152,11 @@ const ControlObjectivePage = () => {
         <CreateControlObjectiveSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
         <div className="flex justify-between items-center">
           <PageHeading heading="Control Objectives" />
-          <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-            Create
-          </Button>
+          {createAllowed && (
+            <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+              Create
+            </Button>
+          )}
         </div>
         <div className="flex gap-4 items-center">
           <div className="flex gap-2 items-center">
@@ -154,12 +173,14 @@ const ControlObjectivePage = () => {
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
           <p className="mb-2 text-sm">No Objective found for this Control.</p>
-          <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
-            <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
-              Create a new one
-            </p>{' '}
-            <ArrowRight className="mt-0.5" size={16} />
-          </div>
+          {createAllowed && (
+            <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
+              <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
+                Create a new one
+              </p>{' '}
+              <ArrowRight className="mt-0.5" size={16} />
+            </div>
+          )}
         </div>
       </>
     )
@@ -177,9 +198,11 @@ const ControlObjectivePage = () => {
       />
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Objectives" />
-        <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-          Create
-        </Button>
+        {createAllowed && (
+          <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+            Create
+          </Button>
+        )}
       </div>
       <div className="flex gap-4 items-center">
         <div className="flex gap-2 items-center">
@@ -194,44 +217,16 @@ const ControlObjectivePage = () => {
       </div>
       <div className="space-y-4 mt-6">
         <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full mt-6">
-          {edges.map((edge) => (
-            <AccordionItem key={edge.node.id} value={edge.node.id}>
-              <div className="flex justify-between items-center my-2">
-                <AccordionTrigger className="group flex items-center px-2 py-2 bg-background">
-                  <ChevronRight size={22} className="mr-2 text-brand transition-transform group-data-[state=open]:rotate-90" />
-                  <span className="text-base font-medium ">{edge.node.name}</span>
-                </AccordionTrigger>
-                {edge.node.status === ControlObjectiveObjectiveStatus.ARCHIVED ? (
-                  <Button
-                    className="h-8 !px-2"
-                    variant="outline"
-                    icon={<Pencil />}
-                    iconPosition="left"
-                    onClick={() => {
-                      handleUnarchinve(edge.node)
-                    }}
-                  >
-                    Unarchive
-                  </Button>
-                ) : (
-                  <Button
-                    className="h-8 !px-2"
-                    variant="outline"
-                    icon={<Pencil />}
-                    iconPosition="left"
-                    onClick={() => {
-                      setEditData(edge.node)
-                      setShowCreateSheet(true)
-                    }}
-                  >
-                    Edit
-                  </Button>
-                )}
-              </div>
-              <AccordionContent>
-                <ControlObjectiveCard obj={edge.node} />
-              </AccordionContent>
-            </AccordionItem>
+          {edges.map(({ node }) => (
+            <ObjectiveItem
+              key={node.id}
+              node={node}
+              onEdit={(n) => {
+                setEditData(n)
+                setShowCreateSheet(true)
+              }}
+              onUnarchive={handleUnarchinve} // (maybe rename to handleUnarchive)
+            />
           ))}
         </Accordion>
       </div>

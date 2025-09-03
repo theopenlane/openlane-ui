@@ -29,24 +29,32 @@ type TObjectAssociationGraphProps = {
   sections: Section
   isFullscreen: boolean
   closeFullScreen: () => void
+  menu?: React.ReactNode
 }
 
 const NODE_RADIUS = 7
 const FONT_SIZE = 12
 const LABEL_PADDING = 4
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, menu }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
   const [hoverNode, setHoverNode] = useState<NodeObject<IGraphNode> | null>(null)
   const { resolvedTheme } = useTheme()
+  const [showFullscreen, setShowFullscreen] = useState(false)
 
   useEffect(() => {
-    if (!containerRef.current) {
-      return
+    if (isFullscreen) {
+      setShowFullscreen(true)
+    } else {
+      const timeout = setTimeout(() => setShowFullscreen(false), 300)
+      return () => clearTimeout(timeout)
     }
+  }, [isFullscreen])
 
+  useEffect(() => {
+    if (!containerRef.current) return
     const updateSize = () => {
       const { width, height } = containerRef.current!.getBoundingClientRect()
       setDimensions({ width, height })
@@ -55,7 +63,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     const resizeObserver = new ResizeObserver(updateSize)
     resizeObserver.observe(containerRef.current)
     window.addEventListener('resize', updateSize)
-
     return () => {
       resizeObserver.disconnect()
       window.removeEventListener('resize', updateSize)
@@ -84,7 +91,9 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         return 'Unknown'
     }
   }
-
+  const resolveCssVar = (varName: string) => {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
+  }
   const extractNodes = (edges: TEdgeNode[] | null | undefined): TBaseAssociatedNode[] => (edges ?? []).map((edge) => edge?.node).filter((node): node is TBaseAssociatedNode => !!node)
 
   const { graphData, colorMap, nodeMeta } = useMemo(() => {
@@ -103,37 +112,47 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
       __typename: getType(centerNode.type),
     }
 
-    if (!colorMap[centerNode.type]) {
-      colorMap[centerNode.type] = ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]?.color || '#ccc'
-    }
-
+    if (!colorMap[centerNode.type])
+      colorMap[centerNode.type] = ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]
+        ? resolveCssVar(ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]!.color)
+        : '#ccc'
     Object.entries(sections).forEach(([sectionType, connection]) => {
-      if (!connection?.edges) return
+      if (!connection) return
       if (!colorMap[sectionType]) {
-        colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]?.color || '#ccc'
+        colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]
+          ? resolveCssVar(ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]!.color)
+          : '#ccc'
       }
-      extractNodes(connection.edges).forEach((node) => {
-        const label = node.refCode || node.name || node.title || ''
-        nodeMeta[node.id] = {
-          ...node,
-          refCode: label,
-          description: node.summary || node.description || node.details || '',
-          displayID: node.displayID || node.id,
-          link: getHrefForObjectType(sectionType, node as NormalizedObject),
-          __typename: getType(sectionType),
-        }
-        nodes.push({ id: node.id, name: label, type: sectionType })
-        links.push({ source: centerNode.node.id, target: node.id })
-      })
+      if ('edges' in connection && Array.isArray(connection.edges)) {
+        extractNodes(connection.edges).forEach((node) => {
+          const label = node.refCode || node.name || node.title || ''
+          nodeMeta[node.id] = {
+            ...node,
+            refCode: label,
+            description: node.summary || node.description || node.details || '',
+            displayID: node.displayID || node.id,
+            link: getHrefForObjectType(sectionType, node as NormalizedObject),
+            __typename: getType(sectionType),
+          }
+          nodes.push({ id: node.id, name: label, type: sectionType })
+          links.push({ source: centerNode.node.id, target: node.id })
+        })
+      } else {
+        const singleNode = connection as { id: string; name?: string; refCode?: string }
+        nodes.push({
+          id: singleNode.id,
+          name: singleNode.name || singleNode.refCode || '',
+          type: sectionType,
+        })
+        links.push({ source: centerNode.node.id, target: singleNode.id })
+      }
     })
 
     return { graphData: { nodes, links }, colorMap, nodeMeta }
   }, [centerNode, sections])
 
   useEffect(() => {
-    if (!fgRef.current) {
-      return
-    }
+    if (!fgRef.current) return
     const fg = fgRef.current
     fg.d3Force('link')?.distance(50)
     fg.d3Force('collide', forceCollide(() => NODE_RADIUS + FONT_SIZE + LABEL_PADDING).iterations(4))
@@ -143,7 +162,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     const scale = Math.min(edgeCount / maxPeripherals, 1)
     const minR = NODE_RADIUS * 4
     const R = Math.max(minR, baseR * scale)
-
     fg.d3Force('radial', forceRadial((d) => ((d as IGraphNode).type === centerNode.type ? 0 : R), 0, 0).strength(0.8))
   }, [centerNode.type, dimensions, graphData])
 
@@ -151,7 +169,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     const { convertToReadOnly } = usePlateEditor()
     const displayText = node.refCode || node.name || node.title || ''
     const displayDescription = node.summary || node.description || node.details || ''
-
     return (
       <div>
         <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
@@ -211,85 +228,75 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         }}
         onNodeClick={(node) => {
           const meta = nodeMeta[node!.id as string]
-          if (meta?.link) {
-            window.open(meta.link, '_blank')
-          }
+          if (meta?.link) window.open(meta.link, '_blank')
         }}
         nodeCanvasObject={(node, ctx, globalScale) => {
           const label = node!.name
           const fontSize = FONT_SIZE / globalScale
-
           ctx.beginPath()
           ctx.fillStyle = colorMap[node!.type] || '#ccc'
           ctx.arc(node!.x!, node!.y!, NODE_RADIUS, 0, 2 * Math.PI)
           ctx.fill()
-
           const iconImg = iconImages[node!.type]
           if (iconImg?.complete) {
             const size = NODE_RADIUS
             ctx.drawImage(iconImg, node!.x! - size / 2, node!.y! - size / 2, size, size)
           }
-
-          if (hoverNode?.id === node!.id) {
-            ctx.lineWidth = 1
-            ctx.stroke()
-          }
-
-          if (!centerNode || node!.id !== centerNode.node.id) {
-            ctx.font = `${fontSize}px Sans-Serif`
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'top'
-            ctx.fillStyle = resolvedTheme === 'dark' ? '#bdd9e1' : '#505f6f'
-            ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + LABEL_PADDING)
-          }
+          ctx.font = `${fontSize}px sans-serif`
+          ctx.fillStyle = resolvedTheme === 'dark' ? '#bdd9e1' : '#505f6f'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'top'
+          ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + 4)
         }}
       />
-
-      {hoverNode?.id &&
-        nodeMeta[hoverNode.id] &&
-        (() => {
-          const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!)
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                left: x,
-                top: y,
-                transform: 'translate(-50%, -100%)',
-                zIndex: 99999,
-                pointerEvents: 'none',
-              }}
-              className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]"
-            >
-              <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
-            </div>
-          )
-        })()}
+      {hoverNode?.id && nodeMeta[hoverNode.id] && (
+        <div
+          style={{
+            position: 'absolute',
+            left: getTooltipPosition(hoverNode.x!, hoverNode.y!).x + 10,
+            top: getTooltipPosition(hoverNode.x!, hoverNode.y!).y + 10,
+            pointerEvents: 'none',
+            background: resolvedTheme === 'dark' ? '#1f2937' : 'white',
+            color: resolvedTheme === 'dark' ? 'white' : 'black',
+            border: '1px solid #ccc',
+            padding: '8px',
+            borderRadius: '4px',
+            zIndex: 9999,
+            maxWidth: 300,
+          }}
+          className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]"
+        >
+          <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
+        </div>
+      )}
     </>
   )
 
-  const graphContent = (
-    <>
-      {isFullscreen && (
-        <div className="fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center" onClick={closeFullScreen}>
-          <div ref={containerRef} onClick={(e) => e.stopPropagation()} className="relative bg-card w-[75vw] h-[75vh] rounded-md shadow-lg">
-            <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
-              <X size={20} />
-            </button>
+  return showFullscreen ? (
+    ReactDOM.createPortal(
+      <div
+        onClick={closeFullScreen}
+        className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
+      >
+        <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
+          <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
+            <X size={20} />
+          </button>
 
+          {menu && <div className="absolute top-2 left-2 z-[99999]">{menu}</div>}
+
+          <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[400px]'} transition-all duration-300`}>
             {renderGraph()}
           </div>
         </div>
-      )}
-
-      {!isFullscreen && (
-        <div ref={containerRef} className="relative" style={{ width: '100%', height: '300px' }}>
-          {renderGraph()}
-        </div>
-      )}
-    </>
+      </div>,
+      document.body,
+    )
+  ) : (
+    <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[300px]'} transition-all duration-300`}>
+      {renderGraph()}
+    </div>
   )
-  return <>{isFullscreen ? ReactDOM.createPortal(graphContent, document.body) : graphContent}</>
 }
 
 export default ObjectAssociationGraph

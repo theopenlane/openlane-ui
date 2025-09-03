@@ -57,7 +57,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
-  const { programOptions, isSuccess } = useProgramSelect()
+  const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
 

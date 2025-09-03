@@ -5,7 +5,6 @@ import { dashboardStyles } from './dashboard.styles'
 import Sidebar from '@/components/shared/sidebar/sidebar'
 import ChatBot from '@/components/shared/chat/chat'
 import { CommandMenu } from '@/components/shared/search/command'
-import { NavItems } from '@/routes/dashboard'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner'
 import { CreditCard } from 'lucide-react'
 import Link from 'next/link'
@@ -15,6 +14,7 @@ import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { generateNavItems } from '@/routes/dashboard'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -27,6 +27,9 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
   const { setCrumbs } = useContext(BreadcrumbContext)
+
+  const navItems = generateNavItems()
+
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
   }, [setCrumbs])
@@ -70,7 +73,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
         {!!bannerText && (
           <div className="bg-note text-sm text-input-text flex justify-center items-center px-4 py-1 w-full">
             <span>{bannerText}</span>
-            <Link href="/organization-settings/billing" className="ml-4 bg-banner text-black font-medium px-3 py-1 rounded transition-colors duration-200 flex items-center gap-2">
+            <Link href="/organization-settings/billing" className="ml-4 bg-banner text-black font-medium px-3 py-1 rounded-sm transition-colors duration-200 flex items-center gap-2">
               <CreditCard size={9} />
               <span className="text-xs">Manage billing</span>
             </Link>
@@ -81,7 +84,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
           <Sidebar />
           <main className={main()}>{error ?? children}</main>
           <ChatBot />
-          <CommandMenu items={NavItems} />
+          <CommandMenu items={navItems} />
         </div>
       </div>
     </>

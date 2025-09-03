@@ -10,6 +10,7 @@ import { canDelete } from '@/lib/authz/utils.ts'
 import { useDeleteControl } from '@/lib/graphql-hooks/controls.ts'
 import { useRouter } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Button } from '@repo/ui/button'
 
 const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({ controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
@@ -43,10 +44,10 @@ const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({
 
   return (
     <>
-      <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsOpen(true)}>
+      <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsOpen(true)} aria-label="Delete control">
         <Trash2 size={16} strokeWidth={2} />
-        <span>Delete</span>
-      </div>
+      </Button>
+
       <ConfirmationDialog
         open={isOpen}
         onOpenChange={setIsOpen}

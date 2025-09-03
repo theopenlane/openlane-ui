@@ -37,7 +37,6 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
         name: evidence.name,
         description: evidence.description ?? '',
         tags: evidence.tags ?? [],
-        ownerID: evidence.ownerID,
         collectionProcedure: evidence.collectionProcedure ?? '',
         source: evidence.source ?? '',
         ...(evidence.url ? { url: evidence.url } : {}),
@@ -89,7 +88,7 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<RefreshCw />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+        <Button variant="outline" className="h-8 p-2" icon={<RefreshCw />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
           Renew
         </Button>
       </DialogTrigger>
@@ -149,7 +148,7 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
 
         <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={100} multipleFiles={true} />
         {evidenceFiles.map((file, index) => (
-          <div key={index} className="border rounded p-3 mt-4 flex items-center justify-between bg-gray-100 dark:bg-glaucous-900">
+          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-gray-100 dark:bg-glaucous-900">
             <div className="flex items-center">
               <div className="mr-2">
                 <FileUp className="w-8 h-8" />

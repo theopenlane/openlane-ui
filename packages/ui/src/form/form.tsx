@@ -87,7 +87,11 @@ const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttribu
 })
 FormDescription.displayName = 'FormDescription'
 
-const FormMessage = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, children, ...props }, ref) => {
+interface FormMessageProps extends React.HTMLAttributes<HTMLDivElement> {
+  reserveSpace?: boolean
+}
+
+const FormMessage = React.forwardRef<HTMLDivElement, FormMessageProps>(({ className, children, reserveSpace = true, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
 
   let body: React.ReactNode = null
@@ -99,7 +103,7 @@ const FormMessage = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
       body = String(error?.message)
     }
   } else {
-    body = children || <span style={{ visibility: 'hidden' }}>Placeholder</span>
+    body = children || (reserveSpace ? <span style={{ visibility: 'hidden' }}>Placeholder</span> : null)
   }
 
   return (

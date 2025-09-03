@@ -12,10 +12,12 @@ import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-inf
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { formatDate } from '@/utils/date'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canEdit } from '@/lib/authz/utils.ts'
 import { Loading } from '@/components/shared/loading/loading'
 
 const TasksPage: React.FC = () => {
@@ -24,9 +26,11 @@ const TasksPage: React.FC = () => {
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
+  const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
@@ -38,7 +42,7 @@ const TasksPage: React.FC = () => {
   ])
   const allStatuses = useMemo(() => [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
   const statusesWithoutComplete = useMemo(() => [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW], [])
-
+  const { data: permission } = useOrganizationRole(session)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     createdAt: false,
     createdBy: false,
@@ -51,18 +55,20 @@ const TasksPage: React.FC = () => {
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
   const [hasTasks, setHasTasks] = useState(false)
+  const [selectedTasks, setSelectedTasks] = useState<{ id: string }[]>([])
   const whereFilter = useMemo(() => {
     if (!filters) {
       return null
     }
     const conditions = {
+      ...(showMyTasks && { assigneeID: session?.user?.userId }),
       ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
       ...filters,
       ...{ titleContainsFold: debouncedSearch },
     }
 
     return conditions
-  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch])
+  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch, session, showMyTasks])
 
   useEffect(() => {
     setCrumbs([
@@ -75,6 +81,11 @@ const TasksPage: React.FC = () => {
     const taskId = searchParams.get('id')
     if (taskId) {
       setSelectedTask(taskId)
+    }
+    const myTasks = searchParams.get('showMyTasks')
+    if (myTasks) {
+      const doShowMyTasks = myTasks === 'true'
+      setShowMyTasks(doShowMyTasks)
     }
   }, [searchParams, setSelectedTask])
 
@@ -102,12 +113,26 @@ const TasksPage: React.FC = () => {
     setShowCompletedTasks(val)
   }
 
+  const handleShowMyTasks = (val: boolean) => {
+    setShowMyTasks(val)
+
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (val) {
+      params.set('showMyTasks', 'true')
+    } else {
+      params.delete('showMyTasks')
+    }
+
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }
+
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
   const emptyUserMap = {}
-  const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap })
+  const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
     .map((column) => ({
       accessorKey: column.accessorKey,
@@ -118,7 +143,7 @@ const TasksPage: React.FC = () => {
     if (!hasTasks) return
     const tasks = tableRef.current?.exportData?.() ?? []
 
-    const exportableColumns = getTaskColumns({ userMap: emptyUserMap })
+    const exportableColumns = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
       .filter(isVisibleColumn)
       .map((col) => {
         const key = col.accessorKey as keyof Task
@@ -149,6 +174,10 @@ const TasksPage: React.FC = () => {
     exportToCSV(tasks, exportableColumns, 'task_list')
   }
 
+  const handleBulkEdit = () => {
+    setSelectedTasks([])
+  }
+
   if (isMembersLoading) {
     return <Loading />
   }
@@ -158,6 +187,7 @@ const TasksPage: React.FC = () => {
       <TaskTableToolbar
         onFilterChange={setFilters}
         onTabChange={handleTabChange}
+        handleBulkEdit={handleBulkEdit}
         onShowCompletedTasksChange={handleShowCompletedTasks}
         handleExport={handleExport}
         mappedColumns={mappedColumns}
@@ -170,6 +200,12 @@ const TasksPage: React.FC = () => {
         }}
         searching={searching}
         exportEnabled={hasTasks}
+        canEdit={canEdit}
+        permission={permission}
+        selectedTasks={selectedTasks}
+        setSelectedTasks={setSelectedTasks}
+        showMyTasks={showMyTasks}
+        onShowMyTasksChange={handleShowMyTasks}
       />
       {activeTab === 'table' ? (
         <TasksTable
@@ -182,6 +218,10 @@ const TasksPage: React.FC = () => {
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           onHasTasksChange={setHasTasks}
+          selectedTasks={selectedTasks}
+          setSelectedTasks={setSelectedTasks}
+          canEdit={canEdit}
+          permission={permission}
         />
       ) : (
         <TaskInfiniteCards ref={tableRef} whereFilter={whereFilter} orderByFilter={orderByFilter} />

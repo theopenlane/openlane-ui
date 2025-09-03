@@ -28,6 +28,10 @@ export type TAccessRole =
   | 'owner'
   | 'access'
   | 'can_invite_admins'
+  | 'can_create_job_template'
+  | 'can_manage_groups'
+  | 'can_create_scheduled_job'
+  | 'can_create_mapped_control'
 
 export type TData = {
   success?: boolean
@@ -78,7 +82,7 @@ export const useAccessPermission = (session: Session | null, relation: RelationE
   }
 }
 
-export const useAccountRole = (session: Session | null, objectType: ObjectEnum, objectID: string | number | null) => {
+export const useAccountRole = (session: Session | null, objectType: ObjectEnum, objectID: string | number | null | undefined) => {
   const accessToken = session?.user?.accessToken
 
   const headers: HeadersInit = {
@@ -112,8 +116,10 @@ export const useAccountRole = (session: Session | null, objectType: ObjectEnum, 
     },
   })
 
+  const safeData: TData = data ?? { success: false, organization_id: undefined, roles: [] }
+
   return {
-    data,
+    data: safeData,
     isLoading: isValidating,
     error,
     refetch: mutate,

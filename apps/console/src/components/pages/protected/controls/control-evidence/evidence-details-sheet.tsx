@@ -16,7 +16,7 @@ import {
   Link,
   LinkIcon,
   PanelRightClose,
-  Pencil,
+  PencilIcon,
   Tag,
   Trash2,
   UserRoundCheck,
@@ -25,7 +25,6 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Input, InputRow } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
-import { Loading } from '@/components/shared/loading/loading'
 import { Badge } from '@repo/ui/badge'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -55,11 +54,13 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
-import { useOrganizationRole } from '@/lib/authz/access-api'
+import { useAccountRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { EvidenceDetailsSheetSkeleton } from '../../evidence/skeleton/evidence-details-skeleton'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -68,15 +69,17 @@ type TEvidenceDetailsSheet = {
 type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
+  const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<Option[]>([])
 
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
-  const { selectedControlEvidence, setSelectedControlEvidence } = useControlEvidenceStore()
+  const { selectedControlEvidence, setSelectedControlEvidence, isEditPreset, setIsEditPreset } = useControlEvidenceStore()
   const searchParams = useSearchParams()
   const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
+  const id = searchParams.get('id')
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -84,12 +87,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
-  const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
+  const { data, isLoading: fetching } = useGetEvidenceById(id as string)
   const { data: session } = useSession()
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
 
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useAccountRole(session, ObjectEnum.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles)
 
@@ -188,11 +191,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const handleCloseParams = () => {
-    setSelectedControlEvidence(null)
     setIsEditing(false)
 
     const newSearchParams = new URLSearchParams(searchParams.toString())
     newSearchParams.delete('controlEvidenceId')
+    newSearchParams.delete('id')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
@@ -306,6 +309,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
+  useEffect(() => {
+    if (isEditPreset) {
+      setIsEditing(true)
+      setIsEditPreset(false)
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          objectAssociationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        })
+      }, 500)
+    }
+  }, [isEditPreset, setIsEditPreset, setIsEditing])
+
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {
       return <span className="text-gray-500">no tags provided</span>
@@ -316,7 +331,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   return (
-    <Sheet open={!!selectedControlEvidence} onOpenChange={handleSheetClose}>
+    <Sheet open={!!id} onOpenChange={handleSheetClose}>
       <SheetContent
         onEscapeKeyDown={(e) => {
           if (editField) {
@@ -331,32 +346,33 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           <SheetHeader>
             <div className="flex items-center justify-between">
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
-              <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+              <div className="flex justify-end gap-2 items-center">
+                <Button className="h-8 p-2" icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link
                 </Button>
+                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 {isEditing ? (
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                    <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                    <Button className="h-8 p-2" onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
                       Save
                     </Button>
                   </div>
                 ) : (
                   <>
                     {editAllowed && (
-                      <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                        Edit
+                      <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
+                        <PencilIcon size={16} strokeWidth={2} />
                       </Button>
                     )}
                   </>
                 )}
-                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
-                <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
-                  Delete
+                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                  <Trash2 size={16} strokeWidth={2} />
                 </Button>
+
                 <ConfirmationDialog
                   open={deleteDialogIsOpen}
                   onOpenChange={setDeleteDialogIsOpen}
@@ -374,7 +390,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         }
       >
         {fetching ? (
-          <Loading />
+          <EvidenceDetailsSheetSkeleton />
         ) : (
           <>
             <Form {...form}>
@@ -742,17 +758,19 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 </div>
               </form>
               {isEditing && (
-                <Panel className="mt-5">
-                  <PanelHeader heading="Object association" noBorder />
-                  <p>Associating objects will allow users with access to the object to see the created evidence.</p>
-                  <ObjectAssociation
-                    initialData={initialAssociations}
-                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                    excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
-                  />
-                </Panel>
+                <div ref={objectAssociationRef}>
+                  <Panel className="mt-5">
+                    <PanelHeader heading="Object association" noBorder />
+                    <p>Associating objects will allow users with access to the object to see the created evidence.</p>
+                    <ObjectAssociation
+                      initialData={initialAssociations}
+                      onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
+                    />
+                  </Panel>
+                </div>
               )}
-              {selectedControlEvidence && <ControlEvidenceFiles controlEvidenceID={selectedControlEvidence} />}
+              {selectedControlEvidence && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={selectedControlEvidence} />}
             </Form>
           </>
         )}

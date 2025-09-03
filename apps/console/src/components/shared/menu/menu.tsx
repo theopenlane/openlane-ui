@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { EllipsisVertical } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import cn from 'classnames'
 
 interface MenuProps {
   trigger?: React.ReactNode
@@ -9,9 +10,10 @@ interface MenuProps {
   extraContent?: React.ReactNode | ((close: () => void) => React.ReactNode)
   align?: 'start' | 'center' | 'end'
   closeOnSelect?: boolean
+  className?: string
 }
 
-const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, closeOnSelect }) => {
+const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, closeOnSelect, className }) => {
   const [open, setOpen] = useState(false)
 
   const handleClose = () => {
@@ -27,7 +29,7 @@ const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, clos
       <DropdownMenuTrigger asChild>
         {trigger ?? <Button descriptiveTooltipText="Action" variant="outline" className="h-8 !px-2 !pl-0 bg-card" icon={<EllipsisVertical size={16} />} />}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="border shadow-md p-0" align={align ?? 'end'}>
+      <DropdownMenuContent className={cn('border shadow-md p-0', className)} align={align ?? 'end'}>
         <div className="flex flex-col space-y-2 px-3 py-3">{renderContent(content)}</div>
         {extraContent && (
           <>

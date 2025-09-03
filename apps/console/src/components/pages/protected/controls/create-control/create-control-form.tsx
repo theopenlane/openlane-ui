@@ -7,7 +7,6 @@ import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
@@ -36,7 +35,17 @@ import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { useSession } from 'next-auth/react'
+import { canCreate } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
+import { Loading } from '@/components/shared/loading/loading'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Card } from '@repo/ui/cardpanel'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -56,25 +65,29 @@ export default function CreateControlForm() {
   const [clearData, setClearData] = useState<boolean>(false)
   const [createObjective, setCreateObjective] = useState(false)
   const [createImplementation, setCreateImplementation] = useState(false)
+  const { data: sessionData } = useSession()
 
+  const { data: permission, isLoading: permissionsLoading } = useOrganizationRole(sessionData)
+  const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
+
+  const [associations, setAssociations] = useState<TObjectAssociationMap>(() => ({}))
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
   const { mutateAsync: createMappedControl } = useCreateMappedControl()
-
   const dropdownRef = useClickOutside(() => setOpen(false))
   const searchRef = useRef(null)
 
+  const initialValues = {
+    status: ControlControlStatus.NOT_IMPLEMENTED,
+    refCode: '',
+  }
+
   const form = useForm<ControlFormData>({
     resolver: zodResolver(createControlFormSchema(isCreateSubcontrol)),
-    defaultValues: {
-      status: ControlControlStatus.NOT_IMPLEMENTED,
-      category: '',
-      subcategory: '',
-    },
+    defaultValues: initialValues,
   })
 
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -92,10 +105,15 @@ export default function CreateControlForm() {
 
   const { convertToHtml } = usePlateEditor()
 
-  const resetForm = () => {
+  const resetAllExcept = (fieldsToKeep: keyof ControlFormData | (keyof ControlFormData)[]) => {
     setClearData(true)
+    const keepArray = Array.isArray(fieldsToKeep) ? fieldsToKeep : [fieldsToKeep]
+    const preservedValues = keepArray.reduce((acc, key) => {
+      acc[key] = form.getValues(key)
+      return acc
+    }, {} as Partial<ControlFormData>)
     const controlID = form.getValues('controlID')
-    reset({ controlID })
+    reset({ controlID, ...initialValues, ...preservedValues })
   }
 
   const onSubmit = async (formData: ControlFormData) => {
@@ -110,6 +128,7 @@ export default function CreateControlForm() {
         description,
         referenceID: data.referenceID || undefined,
         auditorReferenceID: data.auditorReferenceID || undefined,
+        ...associations,
       }
 
       if (isCreateSubcontrol) {
@@ -159,7 +178,7 @@ export default function CreateControlForm() {
       }
 
       if (createMultiple) {
-        resetForm()
+        resetAllExcept(['controlOwnerID', 'delegateID', 'category', 'subcategory', 'controlType', 'source'])
         successNotification({ title: 'Control created successfully' })
       } else if (newId && isCreateSubcontrol) {
         successNotification({ title: 'Control created successfully, redirecting...' })
@@ -232,20 +251,28 @@ export default function CreateControlForm() {
     reset()
   }
 
+  if (!permissionsLoading && createAllowed === false) {
+    return <ProtectedArea />
+  }
+
+  if (permissionsLoading) {
+    return <Loading />
+  }
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="text-2xl font-semibold">{isCreateSubcontrol ? 'Create Subcontrol' : 'Create Control'}</div>
 
         <div className="flex gap-12">
-          <div className="flex-1">
+          <div className="w-[55%]">
             {/* Name */}
             <div>
               <Label>
                 Name <span className="text-destructive">*</span>
               </Label>
               {errors?.refCode && <p className="text-destructive text-sm mt-1">{errors.refCode.message}</p>}
-              <Input {...register('refCode', { required: true })} />
+              <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input {...field} />} />
             </div>
 
             {isCreateSubcontrol && (
@@ -369,9 +396,26 @@ export default function CreateControlForm() {
           </div>
 
           {/* Authority & Properties Grid */}
-          <div className="flex flex-col gap-5 min-w-[336px]">
-            <AuthorityCard isEditing isEditAllowed />
-            <PropertiesCard isEditing />
+          <div className="w-[45%] flex flex-col gap-5">
+            <PropertiesCard isEditing canEdit />
+            <Card className="p-4">
+              <h3 className="text-lg font-medium mb-2">Create associations</h3>
+              <div className="flex flex-col gap-4"></div>
+              <ObjectAssociation
+                onIdChange={(updatedMap) => {
+                  setAssociations((prev) => {
+                    const prevKeys = Object.keys(prev)
+                    const updatedKeys = Object.keys(updatedMap)
+                    if (prevKeys.length === updatedKeys.length && prevKeys.every((k) => prev[k] === updatedMap[k])) {
+                      return prev
+                    }
+                    return updatedMap
+                  })
+                }}
+                initialData={associations}
+                excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
+              />
+            </Card>
           </div>
         </div>
       </form>

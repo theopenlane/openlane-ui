@@ -6,7 +6,6 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
-import { Loading } from '@/components/shared/loading/loading'
 import { Form } from '@repo/ui/form'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
@@ -30,6 +29,7 @@ import TasksSheetHeader from '../form/fields/header'
 import { buildTaskPayload, generateEvidenceFormData } from '../utils'
 import MarkAsComplete from '../form/fields/mark-as-complete'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { TasksDetailsSheetSkeleton } from '../../skeleton/tasks-details-sheet-skeleton'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -125,7 +125,7 @@ const TaskDetailsSheet = () => {
   }
 
   const handleUpdateField = async (input: UpdateTaskInput) => {
-    if (!id) {
+    if (!id || isEditing) {
       return
     }
     try {
@@ -159,7 +159,7 @@ const TaskDetailsSheet = () => {
         header={<TasksSheetHeader close={handleSheetClose} isEditing={isEditing} isPending={isPending} setIsEditing={setIsEditing} displayID={taskData?.displayID} isEditAllowed={isEditAllowed} />}
       >
         {fetching ? (
-          <Loading />
+          <TasksDetailsSheetSkeleton />
         ) : (
           <>
             <Form {...form}>
@@ -199,7 +199,7 @@ const TaskDetailsSheet = () => {
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK]}
+                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP]}
                     />
                   </Panel>
                 )}
@@ -207,7 +207,6 @@ const TaskDetailsSheet = () => {
             </Form>
           </>
         )}
-
         <Conversation isEditing={isEditing} taskData={taskData} />
         <CancelDialog
           isOpen={isDiscardDialogOpen}

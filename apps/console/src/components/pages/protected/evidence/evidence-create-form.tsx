@@ -12,7 +12,6 @@ import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 
 import { CreateEvidenceInput } from '@repo/codegen/src/schema'
-import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
@@ -28,11 +27,6 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { canCreate } from '@/lib/authz/utils'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
-import { useOrganizationRole } from '@/lib/authz/access-api'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { Loading } from '@/components/shared/loading/loading'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -47,17 +41,12 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
-  const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
-
-  const { data: permission, isLoading: permissionsLoading } = useOrganizationRole(sessionData)
-
-  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const formData = {
@@ -67,10 +56,12 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
         tags: data.tags,
         creationDate: data.creationDate,
         renewalDate: data.renewalDate,
-        ownerID: sessionData?.user.userId,
         collectionProcedure: data.collectionProcedure,
         source: data.source,
         fileIDs: data.fileIDs,
+        controlIDs: data.controlIDs,
+        taskIDs: data.taskIDs,
+        subcontrolIDs: data.subcontrolIDs,
         ...(programId ? { programIDs: [programId] } : {}),
         ...(data.url ? { url: data.url } : {}),
         ...evidenceObjectTypes,
@@ -147,14 +138,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
 
   const handleResetEvidenceFiles = () => {
     setResetEvidenceFiles(false)
-  }
-
-  if (!permissionsLoading && createAllowed === false) {
-    return <ProtectedArea />
-  }
-
-  if (permissionsLoading) {
-    return <Loading />
   }
 
   return (

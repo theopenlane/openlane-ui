@@ -174,9 +174,27 @@
   --color-gdpr: #d9ae40;
   --color-cis: #00549f;
   --color-ccm: #f6a15b;
-  --color-hippa: #3578be;
+  --color-hipaa: #3578be;
   --color-sox: #a42f00;
+  --color-pci: #2c6f76;
   --color-custom: #d9ae40;
+  --color-masvs: #535353;
+  --color-ccpa: #003162;
+  --color-nerc: #00437a;
+  --color-cobit: #62c5ec;
+  --color-fed: #122f4f;
+
+  /*objects*/
+  --color-procedures: #60a5fa;
+  --color-tasks: #f59e0b;
+  --color-programs: #34d399;
+  --color-risks: #f87171;
+  --color-controls: #e176ff;
+  --color-subcontrols: #eca4fd;
+  --color-control-objectives: #ffda42;
+  --color-policies: #a78bfa;
+  --color-groups: #fbbf24;
+  --color-evidence: #94a3b8;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

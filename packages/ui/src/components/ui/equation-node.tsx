@@ -42,7 +42,7 @@ export function EquationElement(props: PlateElementProps<TEquationElement>) {
         <PopoverTrigger asChild>
           <div
             className={cn(
-              'group flex cursor-pointer items-center justify-center rounded-sm select-none hover:bg-primary/10 data-[selected=true]:bg-primary/10',
+              'group flex cursor-pointer items-center justify-center rounded-xs select-none hover:bg-primary/10 data-[selected=true]:bg-primary/10',
               props.element.texExpression.length === 0 ? 'bg-muted p-3 pr-9' : 'px-2 py-1',
             )}
             data-selected={selected}
@@ -103,12 +103,12 @@ export function InlineEquationElement(props: PlateElementProps<TEquationElement>
   })
 
   return (
-    <PlateElement {...props} className={cn('mx-1 inline-block rounded-sm select-none [&_.katex-display]:my-0!')}>
+    <PlateElement {...props} className={cn('mx-1 inline-block rounded-xs select-none [&_.katex-display]:my-0!')}>
       <Popover open={open} onOpenChange={setOpen} modal={false}>
         <PopoverTrigger asChild>
           <div
             className={cn(
-              'after:absolute after:inset-0 after:-top-0.5 after:-left-1 after:z-1 after:h-[calc(100%)+4px] after:w-[calc(100%+8px)] after:rounded-sm after:content-[""]',
+              'after:absolute after:inset-0 after:-top-0.5 after:-left-1 after:z-1 after:h-[calc(100%)+4px] after:w-[calc(100%+8px)] after:rounded-xs after:content-[""]',
               'h-6',
               ((element.texExpression.length > 0 && open) || selected) && 'after:bg-brand/15',
               element.texExpression.length === 0 && 'text-muted-foreground after:bg-neutral-500/10',

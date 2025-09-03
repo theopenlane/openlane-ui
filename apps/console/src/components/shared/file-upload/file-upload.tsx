@@ -69,7 +69,7 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
     <React.Fragment>
       <div
         {...getRootProps()}
-        className={cn('relative rounded border-dashed border border-teal-800/40 py-5 px-[110px] text-center h-[200px] flex items-center justify-center transition ease-in', {
+        className={cn('relative rounded-sm border-dashed border border-teal-800/40 py-5 px-[110px] text-center h-[200px] flex items-center justify-center transition ease-in', {
           'border-teal-800': isDragActive,
         })}
       >
@@ -102,7 +102,7 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
           )}
         </div>
       </div>
-      <div className={props.acceptedFilesClass ?? 'mt-4 flex justify-between text-sm'}>
+      <div className={props.acceptedFilesClass ?? 'mt-2 flex justify-between text-xs text-text-light'}>
         <div>{props.acceptedFileTypesShort.join(', ')}</div>
         <div>Maximum size: {MAX_FILE_SIZE_IN_MB} MB / file</div>
       </div>

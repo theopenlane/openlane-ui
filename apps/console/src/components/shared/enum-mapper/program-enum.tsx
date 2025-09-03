@@ -9,6 +9,7 @@ export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = 
   [ProgramProgramStatus.IN_PROGRESS]: <FolderClock height={16} width={16} />,
   [ProgramProgramStatus.NOT_STARTED]: <Folder height={16} width={16} />,
   [ProgramProgramStatus.READY_FOR_AUDITOR]: <FolderOutput height={16} width={16} />,
+  [ProgramProgramStatus.ARCHIVED]: <FolderOutput height={16} width={16} />,
 }
 
 export const ProgramStatusLabels: Record<ProgramProgramStatus, string> = {
@@ -17,6 +18,7 @@ export const ProgramStatusLabels: Record<ProgramProgramStatus, string> = {
   [ProgramProgramStatus.IN_PROGRESS]: 'In Progress',
   [ProgramProgramStatus.NOT_STARTED]: 'Not Started',
   [ProgramProgramStatus.READY_FOR_AUDITOR]: 'Ready for Auditor',
+  [ProgramProgramStatus.ARCHIVED]: 'Archived',
 }
 
 export const ProgramTypeLabels: Record<ProgramProgramType, string> = {

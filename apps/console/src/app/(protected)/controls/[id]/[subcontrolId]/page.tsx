@@ -14,9 +14,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
-import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
-import DetailsCard from '@/components/pages/protected/controls/details'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
@@ -36,12 +34,16 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api'
+import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { canEdit } from '@/lib/authz/utils'
+import { canCreate, canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section'
+import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section'
+import Loading from './loading.tsx'
 
 interface FormValues {
   refCode: string
@@ -96,6 +98,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
+  const { data: orgPermission } = useOrganizationRole(session)
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
     return {
@@ -103,6 +106,7 @@ const ControlDetailsPage: React.FC = () => {
       procedures: data?.subcontrol.procedures,
       tasks: data?.subcontrol.tasks,
       risks: data?.subcontrol.risks,
+      controls: data?.subcontrol.control,
     }
   }, [data?.subcontrol])
 
@@ -173,7 +177,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -225,7 +229,9 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.subcontrol, form])
 
-  if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
+  if (isLoading) {
+    return <Loading />
+  }
   if (isError || !data?.subcontrol) return <div className="p-4 text-red-500">Control not found</div>
   const subcontrol = data?.subcontrol
   const hasInfoData = subcontrol.implementationGuidance || subcontrol.exampleEvidence || subcontrol.controlQuestions || subcontrol.assessmentMethods || subcontrol.assessmentObjectives
@@ -247,26 +253,34 @@ const ControlDetailsPage: React.FC = () => {
             trigger={CreateBtn}
             content={
               <>
-                <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Control Implementation</span>
-                </div>
-                <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Control Objective</span>
-                </div>
-                <CreateControlObjectiveSheet
-                  open={showCreateObjectiveSheet}
-                  onOpenChange={(open) => {
-                    setShowCreateObjectiveSheet(open)
-                  }}
-                />
-                <CreateControlImplementationSheet
-                  open={showCreateImplementationSheet}
-                  onOpenChange={(open) => {
-                    setShowCreateImplementationSheet(open)
-                  }}
-                />
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
+                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Control Implementation</span>
+                  </div>
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
+                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Control Objective</span>
+                  </div>
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
+                  <CreateControlObjectiveSheet
+                    open={showCreateObjectiveSheet}
+                    onOpenChange={(open) => {
+                      setShowCreateObjectiveSheet(open)
+                    }}
+                  />
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
+                  <CreateControlImplementationSheet
+                    open={showCreateImplementationSheet}
+                    onOpenChange={(open) => {
+                      setShowCreateImplementationSheet(open)
+                    }}
+                  />
+                )}
                 <CreateTaskDialog
                   trigger={TaskIconBtn}
                   defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
@@ -278,26 +292,23 @@ const ControlDetailsPage: React.FC = () => {
                     subcontrolIDs: [subcontrolId],
                   }}
                 />
-                <Link href={`/controls/${id}/${subcontrolId}/map-control`}>
-                  <div className="flex items-center space-x-2 hover:bg-muted">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Map Control</span>
-                  </div>
-                </Link>
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
+                  <Link href={`/controls/${id}/${subcontrolId}/map-control`}>
+                    <div className="flex items-center space-x-2 hover:bg-muted">
+                      <CirclePlus size={16} strokeWidth={2} />
+                      <span>Map Control</span>
+                    </div>
+                  </Link>
+                )}
               </>
             }
           />
-          <Menu
-            content={
-              <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                  <PencilIcon size={16} strokeWidth={2} />
-                  <span>Edit</span>
-                </div>
-                <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
-              </>
-            }
-          />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
+              <PencilIcon size={16} strokeWidth={2} />
+            </Button>
+            <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
+          </div>
         </div>
       )}
     </div>
@@ -311,8 +322,10 @@ const ControlDetailsPage: React.FC = () => {
           isEditing={isEditing}
           handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
           initialValue={initialValues.refCode}
+          referenceFramework={subcontrol.referenceFramework}
         />
-        {isEditing && (
+
+        {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
             <InfoIcon size={14} className="mt-1 shrink-0" />
             <p>
@@ -326,6 +339,8 @@ const ControlDetailsPage: React.FC = () => {
         )}
       </div>
       <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
+      <ControlObjectivesSection controlObjectives={subcontrol.controlObjectives} />
+      <ControlImplementationsSection controlImplementations={subcontrol.controlImplementations} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
@@ -350,17 +365,9 @@ const ControlDetailsPage: React.FC = () => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <AuthorityCard
-        isEditAllowed={canEdit(permission?.roles)}
-        controlOwner={subcontrol.controlOwner}
-        delegate={subcontrol.delegate}
-        isEditing={isEditing}
-        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
-      />
-      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
-      <RelatedControls />
 
-      <DetailsCard />
+      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} canEdit={canEdit(permission?.roles)} />
+      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
       {hasInfoData && (
         <InfoCardWithSheet
           implementationGuidance={subcontrol.implementationGuidance}

@@ -15,6 +15,7 @@ import { getYear } from 'date-fns'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { ProgramTypeOptions, ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 
 const currentYear = getYear(new Date())
 
@@ -244,12 +245,17 @@ const FrameworkSelect = () => {
     trigger,
   } = useFormContext<InitProgramValues>()
 
-  const { inputRow } = wizardStyles()
   const { data } = useGetStandards({})
   const currentYear = new Date().getFullYear()
   const programType = useWatch({ control, name: 'programType' })
   const [selectedFrameworkData, setSelectedFrameworkData] = useState<{ shortName: string; description: string } | null>(null)
+
   const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
+
+  const options = frameworks.map((framework) => ({
+    label: `${framework.shortName}${framework.version ? ` (${framework.version})` : ''}`,
+    value: framework.shortName ?? '',
+  }))
 
   return (
     <FormField
@@ -271,33 +277,29 @@ const FrameworkSelect = () => {
             </TooltipProvider>
           </FormLabel>
           <FormControl>
-            <Select
+            <SearchableSingleSelect
+              className="w-full"
               value={field.value}
-              onValueChange={(value) => {
+              options={options}
+              placeholder="Select a framework"
+              onChange={(value) => {
                 const selectedFramework = frameworks.find((f) => f.shortName === value)
-                setSelectedFrameworkData({ shortName: selectedFramework?.shortName ?? '', description: selectedFramework?.description ?? '' })
+                setSelectedFrameworkData({
+                  shortName: selectedFramework?.shortName ?? '',
+                  description: selectedFramework?.description ?? '',
+                })
                 field.onChange(value)
+
                 const getLabelNameForGapAnalysis = () => {
                   const selectedLabel = ProgramTypeOptions.find((type) => type.value === programType)?.label
                   return `${selectedLabel} - ${value} - ${currentYear}`
                 }
+
                 setValue('name', programType === ProgramProgramType.GAP_ANALYSIS ? getLabelNameForGapAnalysis() : `${value} - ${currentYear}`)
                 setValue('standardID', selectedFramework?.id ?? '')
                 trigger('name')
               }}
-              required
-            >
-              <SelectTrigger className={inputRow()}>
-                <SelectValue placeholder="Select a framework" />
-              </SelectTrigger>
-              <SelectContent>
-                {frameworks.map((framework) => (
-                  <SelectItem key={framework.id} value={framework?.shortName ?? ''}>
-                    {framework.shortName} {framework.version ? `(${framework.version})` : ''}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </FormControl>
           {errors.framework && <FormMessage>{errors.framework.message}</FormMessage>}
         </FormItem>

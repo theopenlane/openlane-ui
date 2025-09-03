@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
-
+import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK, BULK_EDIT_TASK } from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -16,6 +15,8 @@ import {
   CreateBulkCsvTaskMutation,
   CreateBulkCsvTaskMutationVariables,
   Task,
+  UpdateBulkTaskMutation,
+  UpdateBulkTaskMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -139,6 +140,17 @@ export const useCreateBulkCSVTask = () => {
 
   return useMutation<CreateBulkCsvTaskMutation, unknown, CreateBulkCsvTaskMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_TASK, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    },
+  })
+}
+
+export const useBulkEditTask = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkTaskMutation, unknown, UpdateBulkTaskMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_TASK, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
     },

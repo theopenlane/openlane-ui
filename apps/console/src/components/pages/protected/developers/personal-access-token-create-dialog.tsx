@@ -8,7 +8,6 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { AlertTriangleIcon, CirclePlusIcon, CopyIcon } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -33,7 +32,6 @@ enum STEP {
 const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
-  const { data: sessionData } = useSession()
   const { allOrgs: orgs } = useOrganization()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { mutateAsync: createPersonalAccessToken } = useCreatePersonalAccessToken()
@@ -101,7 +99,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           description: values.description,
           expiresAt: values.noExpire ? null : values.expiryDate,
           scopes: values.scopes,
-          ownerID: sessionData?.user.userId,
         }
 
         const response = await createApiToken({
@@ -190,7 +187,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                     <FormControl>
                       <Input placeholder="Enter token name" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage reserveSpace={false} />
                   </FormItem>
                 )}
               />
@@ -204,7 +201,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                     <FormControl>
                       <Input placeholder="Enter a description (optional)" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage reserveSpace={false} />
                   </FormItem>
                 )}
               />
@@ -247,7 +244,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage reserveSpace={false} />
                     </FormItem>
                   )}
                 />
@@ -269,7 +266,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                             onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage reserveSpace={false} />
                       </>
                     )}
                   </FormItem>

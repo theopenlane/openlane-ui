@@ -364,7 +364,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
           renderResults({
             close,
             searchType: 'Subcontrols',
-            nodes: (search.subcontrols.edges ?? []).filter((edge) => !edge?.node?.ownerID).map((edge) => edge?.node),
+            nodes: (search.subcontrols.edges ?? []).map((edge) => edge?.node),
           })}
         {/* /* Risks */}
         {shouldRenderSection('Risks') &&

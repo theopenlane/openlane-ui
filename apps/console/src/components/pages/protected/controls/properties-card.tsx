@@ -5,7 +5,7 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
-import { FolderIcon, BinocularsIcon, CopyIcon, PlusIcon, ChevronDown, FileBadge2, Settings2, FolderSymlink, ArrowUpFromDot, Shapes, HelpCircle } from 'lucide-react'
+import { FolderIcon, BinocularsIcon, CopyIcon, PlusIcon, ChevronDown, FileBadge2, Settings2, FolderSymlink, ArrowUpFromDot, Shapes, HelpCircle, CircleUser, CircleArrowRight } from 'lucide-react'
 import { Control, ControlControlSource, ControlControlStatus, ControlControlType, Subcontrol, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
@@ -18,11 +18,17 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import StandardChip from '../standards/shared/standard-chip'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { Group } from '@repo/codegen/src/schema'
+import { Option } from '@repo/ui/multiple-selector'
+import { Avatar } from '@/components/shared/avatar/avatar'
+import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 
 interface PropertiesCardProps {
   isEditing: boolean
   data?: Control | Subcontrol
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  canEdit: boolean
 }
 
 const sourceLabels: Record<ControlControlSource, string> = {
@@ -50,14 +56,51 @@ export const controlIconsMap: Record<string, React.ReactNode> = {
   Type: <Shapes size={16} className="text-brand" />,
 }
 
-const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handleUpdate }) => {
+const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handleUpdate, canEdit }) => {
   const isSourceFramework = data?.source === ControlControlSource.FRAMEWORK
-  const isEditAllowed = !isSourceFramework
+  const isEditAllowed = !isSourceFramework && canEdit
+  const authorityEditAllowed = canEdit
+
+  const [editingField, setEditingField] = useState<'owner' | 'delegate' | null>(null)
+  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
+  const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
+
+  const options: Option[] = groups.map((g) => ({
+    label: g?.name || '',
+    value: g?.id || '',
+  }))
 
   return (
-    <Card className="p-4 bg-muted rounded-xl shadow-sm">
+    <Card className="p-4 bg-muted rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
+        <AuthorityField
+          label="Owner"
+          fieldKey="controlOwnerID"
+          icon={<CircleUser size={16} className="text-brand" />}
+          value={data?.controlOwner as Group}
+          editingKey="owner"
+          isEditing={isEditing}
+          isEditAllowed={authorityEditAllowed}
+          editingField={editingField}
+          setEditingField={setEditingField}
+          options={options}
+          handleUpdate={handleUpdate}
+        />
+        <AuthorityField
+          label="Delegate"
+          fieldKey="delegateID"
+          icon={<CircleArrowRight size={16} className="text-brand" />}
+          value={data?.delegate as Group}
+          editingKey="delegate"
+          isEditing={isEditing}
+          isEditAllowed={authorityEditAllowed}
+          editingField={editingField}
+          setEditingField={setEditingField}
+          options={options}
+          handleUpdate={handleUpdate}
+        />
+
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
         {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={controlIconsMap.Control} />}
         <EditableSelectFromQuery label="Category" name="category" isEditAllowed={isEditAllowed} isEditing={isEditing} icon={controlIconsMap.Category} handleUpdate={handleUpdate} />
@@ -608,6 +651,86 @@ const MappedCategories = ({ isEditing, data }: { isEditing: boolean; data?: Cont
   return (
     <div onDoubleClick={handleClick} className="cursor-pointer ">
       <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} />
+    </div>
+  )
+}
+
+const AuthorityField = ({
+  label,
+  fieldKey,
+  icon,
+  value,
+  editingKey,
+  isEditing,
+  isEditAllowed,
+  editingField,
+  setEditingField,
+  options,
+  handleUpdate,
+}: {
+  label: string
+  fieldKey: 'controlOwnerID' | 'delegateID'
+  icon: React.ReactNode
+  value: Group | undefined
+  editingKey: 'owner' | 'delegate'
+  isEditing: boolean
+  isEditAllowed: boolean
+  editingField: 'owner' | 'delegate' | null
+  setEditingField: React.Dispatch<React.SetStateAction<'owner' | 'delegate' | null>>
+  options: Option[]
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+}) => {
+  const { control, getValues } = useFormContext()
+
+  const displayName = value?.displayName || `No ${label}`
+  const showEditable = isEditAllowed && (isEditing || editingField === editingKey)
+
+  return (
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3">
+      <div className="flex items-start gap-2">
+        <div className="pt-0.5">{icon}</div>
+        <div className="text-sm">{label}</div>
+      </div>
+
+      {showEditable ? (
+        <Controller
+          control={control}
+          name={fieldKey}
+          render={({ field }) => (
+            <SearchableSingleSelect
+              value={getValues(fieldKey) || value?.id}
+              options={options}
+              placeholder={`Select ${label.toLowerCase()}`}
+              onChange={(val) => {
+                if (!isEditing) handleUpdate?.({ [fieldKey]: val })
+                setEditingField(null)
+                field.onChange(val)
+              }}
+              onClose={() => setEditingField(null)}
+              autoFocus
+              className="w-full"
+            />
+          )}
+        />
+      ) : (
+        <TooltipProvider disableHoverableContent>
+          <Tooltip>
+            <TooltipTrigger
+              type="button"
+              className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} `}
+              onDoubleClick={() => {
+                if (!isEditing && isEditAllowed) setEditingField(editingKey)
+              }}
+            >
+              <div className="flex gap-2 items-center">
+                <Avatar entity={value as Group} variant="small" />
+                <span className="truncate">{displayName}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{displayName}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   )
 }

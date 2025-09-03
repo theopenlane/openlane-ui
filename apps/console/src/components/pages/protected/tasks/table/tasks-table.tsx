@@ -11,6 +11,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { TAccessRole, TData } from '@/lib/authz/access-api'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -19,90 +20,121 @@ type TTasksTableProps = {
   whereFilter: TaskWhereInput | null
   orderByFilter: TaskOrder[] | TaskOrder | undefined
   columnVisibility?: VisibilityState
-  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
   onHasTasksChange?: (hasTasks: boolean) => void
+  selectedTasks: { id: string }[]
+  setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  canEdit: (accessRole: TAccessRole[]) => boolean
+  permission: TData
 }
 
-const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter, columnVisibility, setColumnVisibility, onHasTasksChange }: TTasksTableProps, ref) => {
-  const { replace } = useSmartRouter()
-  const {
-    tasks,
-    isLoading: fetching,
-    data,
-    isFetching,
-    isError,
-  } = useTasksWithFilter({
-    where: whereFilter,
-    orderBy: orderByFilter,
-    pagination,
-    enabled: !!whereFilter,
-  })
-
-  const { convertToReadOnly } = usePlateEditor()
-
-  const userIds = useMemo(() => {
-    if (!tasks) return []
-    const ids = new Set<string>()
-    tasks.forEach((task) => {
-      if (task.createdBy) ids.add(task.createdBy)
-      if (task.updatedBy) ids.add(task.updatedBy)
+const TasksTable = forwardRef(
+  (
+    {
+      onSortChange,
+      pagination,
+      onPaginationChange,
+      whereFilter,
+      orderByFilter,
+      columnVisibility,
+      setColumnVisibility,
+      onHasTasksChange,
+      selectedTasks,
+      setSelectedTasks,
+      canEdit,
+      permission,
+    }: TTasksTableProps,
+    ref,
+  ) => {
+    const { replace } = useSmartRouter()
+    const {
+      tasks,
+      isLoading: fetching,
+      data,
+      isFetching,
+      isError,
+    } = useTasksWithFilter({
+      where: whereFilter,
+      orderBy: orderByFilter,
+      pagination,
+      enabled: !!whereFilter,
     })
-    return Array.from(ids)
-  }, [tasks])
 
-  const hasTasks = useMemo(() => {
-    return tasks && tasks.length > 0
-  }, [tasks])
+    const { convertToReadOnly } = usePlateEditor()
 
-  useEffect(() => {
-    if (onHasTasksChange) {
-      onHasTasksChange(hasTasks)
+    const userIds = useMemo(() => {
+      if (!tasks) return []
+      const ids = new Set<string>()
+      tasks.forEach((task) => {
+        if (task.createdBy) ids.add(task.createdBy)
+        if (task.updatedBy) ids.add(task.updatedBy)
+      })
+      return Array.from(ids)
+    }, [tasks])
+
+    const hasTasks = useMemo(() => {
+      return tasks && tasks.length > 0
+    }, [tasks])
+
+    useEffect(() => {
+      if (onHasTasksChange) {
+        onHasTasksChange(hasTasks)
+      }
+    }, [hasTasks, onHasTasksChange])
+
+    useEffect(() => {
+      if (permission?.roles) {
+        setColumnVisibility((prev) => ({
+          ...prev,
+          select: canEdit(permission.roles),
+        }))
+      }
+    }, [permission?.roles, setColumnVisibility, canEdit])
+
+    const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+      where: { hasUserWith: [{ idIn: userIds }] },
+    })
+
+    const userMap = useMemo(() => {
+      const map: Record<string, (typeof users)[0]> = {}
+      users?.forEach((u) => {
+        map[u.id] = u
+      })
+      return map
+    }, [users])
+
+    useImperativeHandle(ref, () => ({
+      exportData: () => tasks,
+    }))
+
+    const columns = useMemo(() => getTaskColumns({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks }), [userMap, convertToReadOnly, selectedTasks, setSelectedTasks])
+
+    if (isError) {
+      return <p className="text-red-500">Error loading tasks</p>
     }
-  }, [hasTasks, onHasTasksChange])
-
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  useImperativeHandle(ref, () => ({
-    exportData: () => tasks,
-  }))
-
-  const columns = useMemo(() => getTaskColumns({ userMap, convertToReadOnly }), [userMap, convertToReadOnly])
-
-  if (isError) {
-    return <p className="text-red-500">Error loading tasks</p>
-  }
-  return (
-    <DataTable
-      columns={columns}
-      sortFields={TASK_SORT_FIELDS}
-      onSortChange={onSortChange}
-      data={tasks}
-      loading={fetching || fetchingUsers}
-      onRowClick={(task) => {
-        replace({ id: task.id })
-      }}
-      pagination={pagination}
-      onPaginationChange={onPaginationChange}
-      paginationMeta={{
-        totalCount: data?.tasks.totalCount,
-        pageInfo: data?.tasks?.pageInfo,
-        isLoading: isFetching,
-      }}
-      columnVisibility={columnVisibility}
-      setColumnVisibility={setColumnVisibility}
-    />
-  )
-})
+    return (
+      <DataTable
+        columns={columns}
+        sortFields={TASK_SORT_FIELDS}
+        onSortChange={onSortChange}
+        data={tasks}
+        loading={fetching || fetchingUsers}
+        onRowClick={(task) => {
+          replace({ id: task.id })
+        }}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        paginationMeta={{
+          totalCount: data?.tasks.totalCount,
+          pageInfo: data?.tasks?.pageInfo,
+          isLoading: isFetching,
+        }}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+      />
+    )
+  },
+)
 
 TasksTable.displayName = 'TasksTable'
 export default TasksTable

@@ -38,7 +38,7 @@ export const ImageElement = withHOC(ResizableProvider, function ImageElement(pro
             <ResizeHandle className={mediaResizeHandleVariants({ direction: 'left' })} options={{ direction: 'left' }} />
             <Image
               ref={handleRef}
-              className={cn('block w-full max-w-full cursor-pointer object-cover px-0', 'rounded-sm', focused && selected && 'ring-2 ring-ring ring-offset-2', isDragging && 'opacity-50')}
+              className={cn('block w-full max-w-full cursor-pointer object-cover px-0', 'rounded-xs', focused && selected && 'ring-2 ring-ring ring-offset-2', isDragging && 'opacity-50')}
               alt={props.attributes.alt as string | undefined}
             />
             <ResizeHandle

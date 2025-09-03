@@ -20,36 +20,38 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
         {
           label: 'Implementation guidance',
           hasData: !!implementationGuidance?.length,
-          render: () => (
-            <div className="space-y-4">
-              {implementationGuidance!.map(({ referenceId, guidance }) => (
-                <div key={referenceId}>
-                  <p className="font-medium mb-1">{referenceId}</p>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    {guidance.map((g, i) => (
-                      <li key={i}>{g.trim()}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          ),
+          render: () =>
+            implementationGuidance?.length ? (
+              <div className="space-y-4">
+                {implementationGuidance.map(({ referenceId, guidance }) => (
+                  <div key={referenceId} className="rich-text text-sm text-muted-foreground">
+                    <ul>
+                      {guidance.map((g, i) => (
+                        <li key={i} dangerouslySetInnerHTML={{ __html: g.trim() }} />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No implementation guidance provided.</p>
+            ),
         },
         {
           label: 'Example evidence',
           hasData: Array.isArray(exampleEvidence) ? exampleEvidence.length > 0 : !!exampleEvidence,
           render: () =>
             Array.isArray(exampleEvidence) ? (
-              <ul className="list-none text-sm text-muted-foreground space-y-3">
+              <ul className="rich-text text-sm text-muted-foreground">
                 {exampleEvidence.map((item, i) => (
                   <li key={i}>
                     <p className="font-medium">{item.documentationType}</p>
-                    <p className="text-muted-foreground">{item.description}</p>
+                    <div className="rich-text" dangerouslySetInnerHTML={{ __html: item.description }} />
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">{typeof exampleEvidence === 'string' ? exampleEvidence : 'No example evidence provided.'}</p>
+              <div className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: String(exampleEvidence) }} />
             ),
         },
         {
@@ -57,9 +59,9 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
           hasData: !!controlQuestions?.length,
           render: () =>
             controlQuestions?.length ? (
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+              <ul className="rich-text text-sm text-muted-foreground">
                 {controlQuestions.map((q, i) => (
-                  <li key={i}>{q}</li>
+                  <li key={i} dangerouslySetInnerHTML={{ __html: q }} />
                 ))}
               </ul>
             ) : (
@@ -74,21 +76,17 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
               <div className="space-y-4">
                 {assessmentMethods.map((item, i) =>
                   typeof item === 'string' ? (
-                    <ul key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      <li>{item}</li>
-                    </ul>
+                    <div key={i} className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item }} />
                   ) : (
                     <div key={item.id}>
-                      <p className="font-medium mb-1">{item.type}</p>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        {item.method.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx}>{line.trim()}</li>)}
-                      </ul>
+                      <p className="font-medium mb-1">{item.id}</p>
+                      <div className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item.method }} />
                     </div>
                   ),
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{assessmentMethods || 'No assessment methods provided.'}</p>
+              <p className="text-sm text-muted-foreground">No assessment methods provided.</p>
             ),
         },
         {
@@ -99,21 +97,19 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
               <div className="space-y-4">
                 {assessmentObjectives.map((item, i) =>
                   typeof item === 'string' ? (
-                    <ul key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      <li>{item}</li>
-                    </ul>
+                    <div key={i} className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item }} />
                   ) : (
                     <div key={item.id}>
                       <p className="font-medium mb-1">{item.id}</p>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        {item.objective.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx}>{line.trim()}</li>)}
+                      <ul className="rich-text text-sm text-muted-foreground">
+                        {item.objective.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx} dangerouslySetInnerHTML={{ __html: line.trim() }} />)}
                       </ul>
                     </div>
                   ),
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{assessmentObjectives || 'No assessment objectives provided.'}</p>
+              <p className="text-sm text-muted-foreground">No assessment objectives provided.</p>
             ),
         },
       ].filter((item) => item.hasData),

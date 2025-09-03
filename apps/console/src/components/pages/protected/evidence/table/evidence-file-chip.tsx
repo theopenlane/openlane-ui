@@ -17,7 +17,7 @@ const EvidenceFileChip: React.FC<TEvidenceFileChipProps> = ({ evidenceName, evid
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <p className="text-brand font-bold">{evidenceName}</p>
+          <p className="text-m font-bold">{evidenceName}</p>
         </TooltipTrigger>
 
         {tooltipOpen && (
