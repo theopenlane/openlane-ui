@@ -33,6 +33,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
+import { Card } from '@repo/ui/cardpanel'
 
 type TViewPolicyPage = {
   policyId: string
@@ -310,10 +311,14 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
-      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
-      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
-      <HistoricalCard policy={policy} />
-      <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      <Card className="p-4">
+        <h3 className="text-lg font-medium mb-2">Properties</h3>
+
+        <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+        <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+        <HistoricalCard policy={policy} />
+        <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      </Card>
     </>
   )
 
@@ -322,7 +327,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Internal Policies - ${policy.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={425}>
             {mainContent}
           </SlideBarLayout>
         </form>
