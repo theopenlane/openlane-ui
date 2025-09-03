@@ -28,6 +28,7 @@ export const GET_TRUST_CENTER = gql`
               id
               presignedURL
             }
+            faviconRemoteURL
             faviconFile {
               id
               presignedURL
