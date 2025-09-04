@@ -37,6 +37,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
+import { Card } from '@repo/ui/cardpanel'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -294,10 +295,13 @@ const ViewProcedurePage: React.FC = () => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
-      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
-      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
-      <HistoricalCard procedure={procedure} />
-      <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      <Card className="p-4">
+        <h3 className="text-lg font-medium mb-2">Properties</h3>
+        <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+        <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+        <HistoricalCard procedure={procedure} />
+        <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      </Card>
     </>
   )
 

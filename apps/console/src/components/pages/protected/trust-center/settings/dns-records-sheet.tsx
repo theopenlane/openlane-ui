@@ -29,8 +29,7 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
   const dnsVerification = trustCenter?.node?.customDomain?.dnsVerification
 
   const cnameRecord = trustCenter?.node?.customDomain?.cnameRecord
-  const cnameName = cnameRecord ? cnameRecord.split('.')[0] : ''
-
+  const cnameName = cnameRecord ? cnameRecord.split('.').slice(0, -2).join('.') : ''
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
