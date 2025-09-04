@@ -196,7 +196,23 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     )
   }
 
-  const getTooltipPosition = (x: number, y: number) => (fgRef.current ? fgRef.current.graph2ScreenCoords(x, y) : { x: 0, y: 0 })
+  const getTooltipPosition = (x: number, y: number) => {
+    if (!fgRef.current) return { x: 0, y: 0 }
+
+    const pos = fgRef.current.graph2ScreenCoords(x, y)
+
+    const tooltipWidth = 300
+    const padding = 8
+    const offsetY = 30
+    const offsetX = 100
+
+    const top = pos.y - offsetY
+    let left = pos.x - offsetX
+
+    left = Math.max(padding + tooltipWidth / 2, Math.min(left, window.innerWidth - tooltipWidth / 2 - padding))
+
+    return { x: left, y: top }
+  }
 
   const iconImages = useMemo(() => {
     const icons: Record<string, HTMLImageElement> = {}
@@ -253,8 +269,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         <div
           style={{
             position: 'absolute',
-            left: getTooltipPosition(hoverNode.x!, hoverNode.y!).x + 10,
-            top: getTooltipPosition(hoverNode.x!, hoverNode.y!).y + 10,
+            top: getTooltipPosition(hoverNode.x!, hoverNode.y!).y,
+            left: getTooltipPosition(hoverNode.x!, hoverNode.y!).x,
             pointerEvents: 'none',
             background: resolvedTheme === 'dark' ? '#1f2937' : 'white',
             color: resolvedTheme === 'dark' ? 'white' : 'black',
@@ -263,6 +279,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             borderRadius: '4px',
             zIndex: 9999,
             maxWidth: 300,
+            transform: 'translateX(-50%)',
           }}
           className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]"
         >
