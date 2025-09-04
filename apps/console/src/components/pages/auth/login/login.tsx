@@ -7,7 +7,7 @@ import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Separator } from '@repo/ui/separator'
 import { loginStyles } from './login.styles'
 import { GoogleIcon } from '@repo/ui/icons/google'
@@ -31,10 +31,120 @@ export const LoginPage = () => {
   const [signInLoading, setSignInLoading] = useState(false)
   const showLoginError = !signInLoading && signInError
   const [email, setEmail] = useState('')
+  const [webfingerResponse, setWebfingerResponse] = useState<{
+    success: boolean
+    enforced: boolean
+    provider: string
+    discovery_url?: string
+    organization_id?: string
+  } | null>(null)
+  const [webfingerLoading, setWebfingerLoading] = useState(false)
   const { errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
   const redirect = searchParams?.get('redirect')
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const shouldShowPasswordField = (): boolean => {
+    if (!webfingerResponse || !webfingerResponse.success) {
+      return false
+    }
+
+    return webfingerResponse.provider === 'NONE' || (webfingerResponse.provider !== 'NONE' && !webfingerResponse.enforced)
+  }
+
+  const shouldShowSSOButton = (): boolean => {
+    if (!webfingerResponse) {
+      return false
+    }
+
+    return webfingerResponse.success && webfingerResponse.provider !== 'NONE' && webfingerResponse.enforced && !!webfingerResponse.organization_id
+  }
+
+  const handleSSOLogin = async () => {
+    if (!webfingerResponse?.organization_id) {
+      return
+    }
+
+    // store organization_id for use in callback
+    localStorage.setItem('sso_organization_id', webfingerResponse.organization_id)
+
+    try {
+      const response = await fetch('/api/auth/sso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organization_id: webfingerResponse.organization_id,
+          return: 'http://localhost:3001/login/sso',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success && data.redirect_uri) {
+        window.location.href = data.redirect_uri
+        return
+      }
+
+      if (!data.success) {
+        errorNotification({ title: data.message || 'SSO login failed' })
+        return
+      }
+
+      console.error('SSO login failed:', data)
+      setSignInError(true)
+      setSignInErrorMessage('SSO login failed. Please try again.')
+    } catch (error) {
+      console.error('SSO login error:', error)
+      setSignInError(true)
+      setSignInErrorMessage('An error occurred during SSO login.')
+    }
+  }
+
+  const checkLoginMethods = async (email: string) => {
+    if (!isValidEmail(email)) {
+      return
+    }
+
+    try {
+      setWebfingerLoading(true)
+      const response = await fetch(`/api/auth/webfinger?email=${encodeURIComponent(email)}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      const data = await response.json()
+      console.log(data)
+      setWebfingerResponse(data)
+    } catch (error) {
+      console.error('Error fetching webfinger:', error)
+      setWebfingerResponse(null)
+    } finally {
+      setWebfingerLoading(false)
+    }
+  }
+
+  const debouncedCheckLoginMethods = (email: string) => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => checkLoginMethods(email), 500)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current)
+      }
+    }
+  }, [])
 
   const redirectUrl = useMemo(() => {
     if (token) {
@@ -206,13 +316,32 @@ export const LoginPage = () => {
           }}
           onChange={(e: { username: string }) => {
             setEmail(e.username)
+            if (e.username && isValidEmail(e.username)) {
+              debouncedCheckLoginMethods(e.username)
+            } else {
+              setWebfingerResponse(null)
+            }
           }}
         >
           <div className={input()}>
             <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent !text-text" />
           </div>
 
-          {email && (
+          {shouldShowSSOButton() && (
+            <div className="flex flex-col">
+              <button
+                className="p-4 text-button-text bg-brand justify-center items-center rounded-md text-sm h-10 font-bold flex mt-2 hover:opacity-90 transition"
+                type="button"
+                onClick={handleSSOLogin}
+                disabled={signInLoading || webfingerLoading}
+              >
+                <span>Continue with SSO</span>
+                <ArrowRightCircle size={16} className="ml-2" />
+              </button>
+            </div>
+          )}
+
+          {shouldShowPasswordField() && (
             <>
               <div className="flex flex-col">
                 {

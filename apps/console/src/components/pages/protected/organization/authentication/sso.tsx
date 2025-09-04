@@ -30,22 +30,15 @@ const SSOOverview = ({
   onRemove,
   showRemoveDialog,
   setShowRemoveDialog,
+  getProviderDisplayName,
 }: {
   setting: OrganizationSetting | undefined
   onEdit: () => void
   onRemove: () => void
   showRemoveDialog: boolean
   setShowRemoveDialog: (show: boolean) => void
+  getProviderDisplayName: (provider: string) => string
 }) => {
-  const getProviderDisplayName = (provider: string): string => {
-    return provider
-      .replace(/([A-Z][a-z]+)/g, '$1 ')
-      .trim()
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ')
-  }
-
   const isSSOConfigured = setting?.identityProvider && setting.identityProvider !== 'NONE'
 
   return (
@@ -118,6 +111,15 @@ const SSOPage = () => {
   const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
 
   const identityProviderOptions = useMemo(() => Object.values(OrganizationSettingSsoProvider).filter((provider) => provider !== 'NONE'), [])
+
+  const getProviderDisplayName = (provider: string): string => {
+    return provider
+      .replace(/([A-Z][a-z]+)/g, '$1 ')
+      .trim()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+  }
 
   const formSchema = useMemo(
     () =>
@@ -267,7 +269,14 @@ const SSOPage = () => {
           noBorder
         />
         {viewMode === 'overview' ? (
-          <SSOOverview setting={currentSetting} onEdit={handleEdit} onRemove={handleRemoveSSO} showRemoveDialog={showRemoveDialog} setShowRemoveDialog={setShowRemoveDialog} />
+          <SSOOverview
+            setting={currentSetting}
+            onEdit={handleEdit}
+            onRemove={handleRemoveSSO}
+            showRemoveDialog={showRemoveDialog}
+            setShowRemoveDialog={setShowRemoveDialog}
+            getProviderDisplayName={getProviderDisplayName}
+          />
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
