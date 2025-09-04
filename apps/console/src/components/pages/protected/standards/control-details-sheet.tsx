@@ -94,7 +94,7 @@ const ControlDetailsSheet = () => {
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
-                  controlId: e.node.control.id,
+                  controlId: e.node.controlID,
                   mappingType: node.mappingType,
                   relation: node.relation,
                 }
@@ -126,7 +126,7 @@ const ControlDetailsSheet = () => {
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
-                  controlId: e.node.control.id,
+                  controlId: e.node.controlID,
                   mappingType: node.mappingType,
                   relation: node.relation,
                 }
