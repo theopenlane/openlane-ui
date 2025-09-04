@@ -84,7 +84,7 @@ const RelatedControls = ({ canCreate }: Props) => {
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
-                  controlId: e.node.control.id,
+                  controlId: e.node.controlID,
                   mappingType: node.mappingType,
                   relation: node.relation,
                 }
@@ -116,7 +116,7 @@ const RelatedControls = ({ canCreate }: Props) => {
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
-                  controlId: e.node.control.id,
+                  controlId: e.node.controlID,
                   mappingType: node.mappingType,
                   relation: node.relation,
                 }
