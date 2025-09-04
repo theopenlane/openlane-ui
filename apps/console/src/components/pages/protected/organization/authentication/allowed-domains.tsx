@@ -4,6 +4,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { CirclePlus, X } from 'lucide-react'
+import { Panel, PanelHeader } from '@repo/ui/panel'
 
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
@@ -93,11 +94,8 @@ const AllowedDomains = () => {
   if (isLoading) return <p className="text-sm text-muted">Loading allowed domains...</p>
 
   return (
-    <div className="grid grid-cols-[165px_1fr] gap-20">
-      <div>
-        <h3 className="text-xl">Allowed domains</h3>
-        <p className="text-sm">Restrict user logins to the organization by email domain</p>
-      </div>
+    <Panel>
+      <PanelHeader heading="Allowed domains" subheading="Restrict user logins to the organization by email domain" noBorder />
 
       <div>
         <div className="flex flex-col gap-4 mb-2">
@@ -134,7 +132,7 @@ const AllowedDomains = () => {
           Save
         </Button>
       </div>
-    </div>
+    </Panel>
   )
 }
 
