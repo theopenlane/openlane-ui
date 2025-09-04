@@ -197,35 +197,34 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   }
 
   const getTooltipPosition = (x: number, y: number, tooltipEl: HTMLDivElement) => {
-    if (!fgRef.current || !tooltipEl) return { x: 0, y: 0 }
+    if (!fgRef.current || !tooltipEl || !containerRef.current) return { x: 0, y: 0 }
 
     const pos = fgRef.current.graph2ScreenCoords(x, y)
+    const containerRect = containerRef.current.getBoundingClientRect()
     const tooltipRect = tooltipEl.getBoundingClientRect()
     const tooltipWidth = tooltipRect.width
     const tooltipHeight = tooltipRect.height
     const offset = 8
-    const padding = 4
+    const padding = 8
 
-    const canvasWidth = dimensions.width
-    const canvasHeight = dimensions.height
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
 
-    let top = pos.y - tooltipHeight - offset
-    let left = pos.x - tooltipWidth / 2
+    let left = containerRect.left + pos.x - tooltipWidth / 2
+    let top = containerRect.top + pos.y - tooltipHeight - offset
 
     if (top < padding) {
-      top = pos.y + offset
-    } else if (top + tooltipHeight > canvasHeight - padding) {
-      top = pos.y - tooltipHeight - offset
+      top = containerRect.top + pos.y + offset
     }
 
     if (left < padding) {
-      left = pos.x + offset
-    } else if (left + tooltipWidth > canvasWidth - padding) {
-      left = pos.x - tooltipWidth - offset
+      left = containerRect.left + pos.x + offset
+    } else if (left + tooltipWidth > viewportWidth - padding) {
+      left = containerRect.left + pos.x - tooltipWidth - offset
     }
 
-    left = Math.max(padding, Math.min(left, canvasWidth - tooltipWidth - padding))
-    top = Math.max(padding, Math.min(top, canvasHeight - tooltipHeight - padding))
+    left = Math.max(padding, Math.min(left, viewportWidth - tooltipWidth - padding))
+    top = Math.max(padding, Math.min(top, viewportHeight - tooltipHeight - padding))
 
     return { x: left, y: top }
   }
@@ -285,32 +284,35 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         }}
       />
 
-      {hoverNode?.id && nodeMeta[hoverNode.id] && (
-        <div
-          ref={(el) => {
-            if (!el) return
-            const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!, el)
-            el.style.left = `${x}px`
-            el.style.top = `${y}px`
-          }}
-          style={{
-            position: 'absolute',
-            pointerEvents: 'none',
-            background: resolvedTheme === 'dark' ? '#1f2937' : 'white',
-            color: resolvedTheme === 'dark' ? 'white' : 'black',
-            border: '1px solid #ccc',
-            padding: '8px',
-            borderRadius: '4px',
-            zIndex: 9999,
-            maxWidth: 300,
-            fontSize: '0.75rem',
-            lineHeight: '1rem',
-            whiteSpace: 'pre-wrap',
-          }}
-        >
-          <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
-        </div>
-      )}
+      {hoverNode?.id &&
+        nodeMeta[hoverNode.id] &&
+        ReactDOM.createPortal(
+          <div
+            ref={(el) => {
+              if (!el) return
+              const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!, el)
+              el.style.left = `${x}px`
+              el.style.top = `${y}px`
+            }}
+            style={{
+              position: 'fixed',
+              pointerEvents: 'none',
+              background: resolvedTheme === 'dark' ? '#1f2937' : 'white',
+              color: resolvedTheme === 'dark' ? 'white' : 'black',
+              border: '1px solid #ccc',
+              padding: '8px',
+              borderRadius: '4px',
+              zIndex: 11000,
+              maxWidth: 300,
+              fontSize: '0.75rem',
+              lineHeight: '1rem',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
+          </div>,
+          document.body,
+        )}
     </>
   )
 
