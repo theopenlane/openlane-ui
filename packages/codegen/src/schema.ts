@@ -42628,6 +42628,18 @@ export type CreateMappedControlMutationVariables = Exact<{
 
 export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
 
+export type MappedSubcontrolsFragmentFragment = {
+  __typename: 'Subcontrol'
+  id: string
+  refCode: string
+  referenceFramework?: string | null
+  controlID: string
+  category?: string | null
+  subcategory?: string | null
+}
+
+export type MappedControlsFragmentFragment = { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null }
+
 export type GetMappedControlsQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
 }>
@@ -42648,23 +42660,29 @@ export type GetMappedControlsQuery = {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
             __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
           } | null> | null
         }
         toSubcontrols: {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
             __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
           } | null> | null
         }
         fromControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
         }
         toControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
         }
       } | null
     } | null> | null
