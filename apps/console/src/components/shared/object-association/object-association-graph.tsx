@@ -196,20 +196,36 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     )
   }
 
-  const getTooltipPosition = (x: number, y: number) => {
-    if (!fgRef.current) return { x: 0, y: 0 }
+  const getTooltipPosition = (x: number, y: number, tooltipEl: HTMLDivElement) => {
+    if (!fgRef.current || !tooltipEl) return { x: 0, y: 0 }
 
     const pos = fgRef.current.graph2ScreenCoords(x, y)
+    const tooltipRect = tooltipEl.getBoundingClientRect()
+    const tooltipWidth = tooltipRect.width
+    const tooltipHeight = tooltipRect.height
+    const offset = 8
+    const padding = 4
 
-    const tooltipWidth = 300
-    const padding = 8
-    const offsetY = 30
-    const offsetX = 100
+    const canvasWidth = dimensions.width
+    const canvasHeight = dimensions.height
 
-    const top = pos.y - offsetY
-    let left = pos.x - offsetX
+    let top = pos.y - tooltipHeight - offset
+    let left = pos.x - tooltipWidth / 2
 
-    left = Math.max(padding + tooltipWidth / 2, Math.min(left, window.innerWidth - tooltipWidth / 2 - padding))
+    if (top < padding) {
+      top = pos.y + offset
+    } else if (top + tooltipHeight > canvasHeight - padding) {
+      top = pos.y - tooltipHeight - offset
+    }
+
+    if (left < padding) {
+      left = pos.x + offset
+    } else if (left + tooltipWidth > canvasWidth - padding) {
+      left = pos.x - tooltipWidth - offset
+    }
+
+    left = Math.max(padding, Math.min(left, canvasWidth - tooltipWidth - padding))
+    top = Math.max(padding, Math.min(top, canvasHeight - tooltipHeight - padding))
 
     return { x: left, y: top }
   }
@@ -249,15 +265,18 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         nodeCanvasObject={(node, ctx, globalScale) => {
           const label = node!.name
           const fontSize = FONT_SIZE / globalScale
+
           ctx.beginPath()
           ctx.fillStyle = colorMap[node!.type] || '#ccc'
           ctx.arc(node!.x!, node!.y!, NODE_RADIUS, 0, 2 * Math.PI)
           ctx.fill()
+
           const iconImg = iconImages[node!.type]
           if (iconImg?.complete) {
             const size = NODE_RADIUS
             ctx.drawImage(iconImg, node!.x! - size / 2, node!.y! - size / 2, size, size)
           }
+
           ctx.font = `${fontSize}px sans-serif`
           ctx.fillStyle = resolvedTheme === 'dark' ? '#bdd9e1' : '#505f6f'
           ctx.textAlign = 'center'
@@ -265,12 +284,17 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + 4)
         }}
       />
+
       {hoverNode?.id && nodeMeta[hoverNode.id] && (
         <div
+          ref={(el) => {
+            if (!el) return
+            const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!, el)
+            el.style.left = `${x}px`
+            el.style.top = `${y}px`
+          }}
           style={{
             position: 'absolute',
-            top: getTooltipPosition(hoverNode.x!, hoverNode.y!).y,
-            left: getTooltipPosition(hoverNode.x!, hoverNode.y!).x,
             pointerEvents: 'none',
             background: resolvedTheme === 'dark' ? '#1f2937' : 'white',
             color: resolvedTheme === 'dark' ? 'white' : 'black',
@@ -279,9 +303,10 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             borderRadius: '4px',
             zIndex: 9999,
             maxWidth: 300,
-            transform: 'translateX(-50%)',
+            fontSize: '0.75rem',
+            lineHeight: '1rem',
+            whiteSpace: 'pre-wrap',
           }}
-          className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]"
         >
           <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
         </div>
