@@ -167,7 +167,10 @@ const BrandSection = ({ setting }: Props) => {
                   <div className="flex  flex-col gap-2 mt-6">
                     <div className="flex items-center gap-1">
                       <Label className="text-sm">URL</Label>
-                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Location of hosted Logo file. It must link to a image file that contains a png, jpg, or svg image</p>} />
+                      <SystemTooltip
+                        icon={<InfoIcon className="text-brand-100" size={14} />}
+                        content={<p>Location of hosted Logo file. It must link to a image file that contains a png, jpg, or svg image</p>}
+                      />
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
@@ -212,7 +215,7 @@ const BrandSection = ({ setting }: Props) => {
                     </div>
                     <div className="w-[417px]">
                       <FileUpload
-                        acceptedFileTypes={['image/x-icon', 'image/png', 'image/jpeg']}
+                        acceptedFileTypes={['image/x-icon', 'image/png', 'image/jpeg', 'image/vnd.microsoft.icon']}
                         onFileUpload={handleFaviconUpload}
                         acceptedFileTypesShort={['ICO', 'PNG', 'JPG']}
                         maxFileSizeInMb={1}
@@ -235,7 +238,10 @@ const BrandSection = ({ setting }: Props) => {
                   <div className="flex flex-col gap-2 mt-6">
                     <div className="flex items-center gap-1">
                       <Label className="text-sm">URL</Label>
-                      <SystemTooltip icon={<InfoIcon className="text-brand-100" size={14} />} content={<p>Location of hosted favicon file. It must link to a image file that contains a png, jpg, or ico image</p>} />
+                      <SystemTooltip
+                        icon={<InfoIcon className="text-brand-100" size={14} />}
+                        content={<p>Location of hosted favicon file. It must link to a image file that contains a png, jpg, or ico image</p>}
+                      />
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={faviconLink} onChange={setFaviconLink} />
