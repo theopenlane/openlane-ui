@@ -15,12 +15,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui
 import { Checkbox } from '@repo/ui/checkbox'
 
 type TObjectAssociationSwitchProps = {
+  controlId?: string
   sections: Section
   centerNode: TCenterNode
   canEdit: boolean
 }
 
-const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sections, centerNode, canEdit }) => {
+const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sections, centerNode, canEdit, controlId }) => {
   const [isGraphView, setIsGraphView] = useState<boolean>(true)
   const [toggleAll, setToggleAll] = useState<boolean>(false)
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
@@ -31,7 +32,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   }, [sections, hiddenStates])
 
   const visibleSections = useMemo(() => {
-    return Object.fromEntries(Object.entries(sectionList).filter(([_, value]) => value && !value.hidden))
+    return Object.fromEntries(Object.entries(sectionList).filter(([, value]) => value && !value.hidden))
   }, [sectionList])
 
   const handleAssociationDialog = () => {
@@ -103,6 +104,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
         <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} />
       ) : (
         <ObjectAssociationGraph
+          controlId={controlId}
           closeFullScreen={() => setIsFullscreen(false)}
           centerNode={centerNode}
           sections={visibleSections}
