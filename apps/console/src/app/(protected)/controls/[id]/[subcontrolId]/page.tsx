@@ -36,7 +36,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useSession } from 'next-auth/react'
 import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { canCreate, canEdit } from '@/lib/authz/utils'
+import { canCreate, canDelete, canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -303,12 +303,16 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
-              <PencilIcon size={16} strokeWidth={2} />
-            </Button>
-            <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
-          </div>
+          {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
+            <div className="flex gap-2">
+              {canEdit(permission?.roles) && (
+                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
+                  <PencilIcon size={16} strokeWidth={2} />
+                </Button>
+              )}
+              {canDelete(permission?.roles) && <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />}
+            </div>
+          )}
         </div>
       )}
     </div>

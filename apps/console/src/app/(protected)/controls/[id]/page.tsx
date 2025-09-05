@@ -20,7 +20,7 @@ import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-
 import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
-import { canCreate, canEdit } from '@/lib/authz/utils.ts'
+import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
@@ -305,12 +305,16 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
-              <PencilIcon size={16} strokeWidth={2} />
-            </Button>
-            <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
-          </div>
+          {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
+            <div className="flex gap-2">
+              {canEdit(permission?.roles) && (
+                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
+                  <PencilIcon size={16} strokeWidth={2} />
+                </Button>
+              )}
+              {canDelete(permission?.roles) && <DeleteControlDialog controlId={control.id} refCode={control.refCode} />}
+            </div>
+          )}
         </div>
       )}
     </div>
