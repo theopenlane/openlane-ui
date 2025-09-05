@@ -4,7 +4,7 @@ import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { Button } from '@repo/ui/button'
 import { PanelRightOpen } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { MappedControlMappingType } from '@repo/codegen/src/schema'
+import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import MappedRelationsSheet from './mapped-relationships-sheet'
 import { RelatedControlChip } from './shared/related-control-chip'
 import Link from 'next/link'
@@ -18,6 +18,7 @@ export type RelatedNode = {
   controlId?: string
   mappingType: MappedControlMappingType
   relation?: string | null
+  source: MappedControlMappingSource
 }
 
 export type GroupedControls = Record<string, RelatedNode[]>
@@ -72,6 +73,7 @@ const RelatedControls = ({ canCreate }: Props) => {
                   referenceFramework: e.node.referenceFramework,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -87,6 +89,7 @@ const RelatedControls = ({ canCreate }: Props) => {
                   controlId: e.node.control.id,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -104,6 +107,7 @@ const RelatedControls = ({ canCreate }: Props) => {
                   referenceFramework: e.node.referenceFramework,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -119,6 +123,7 @@ const RelatedControls = ({ canCreate }: Props) => {
                   controlId: e.node.control.id,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -171,7 +176,7 @@ const RelatedControls = ({ canCreate }: Props) => {
           <div className="flex gap-2.5 flex-wrap">
             {nodes.map((node) => {
               const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-              return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} />
+              return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
             })}
           </div>
         </div>

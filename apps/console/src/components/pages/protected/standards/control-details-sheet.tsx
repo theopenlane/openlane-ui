@@ -82,6 +82,7 @@ const ControlDetailsSheet = () => {
                   referenceFramework: e.node.referenceFramework,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -97,6 +98,7 @@ const ControlDetailsSheet = () => {
                   controlId: e.node.control.id,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -114,6 +116,7 @@ const ControlDetailsSheet = () => {
                   referenceFramework: e.node.referenceFramework,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -129,6 +132,7 @@ const ControlDetailsSheet = () => {
                   controlId: e.node.control.id,
                   mappingType: node.mappingType,
                   relation: node.relation,
+                  source: node.source,
                 }
               : null,
           )
@@ -199,7 +203,7 @@ const ControlDetailsSheet = () => {
                   <div className="flex gap-2.5 flex-wrap">
                     {nodes.map((node) => {
                       const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-                      return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} />
+                      return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
                     })}
                   </div>
                 </div>
