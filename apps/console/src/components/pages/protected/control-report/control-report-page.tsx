@@ -219,7 +219,7 @@ const ControlReportPage = () => {
           <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
             {data?.map(({ category, controls }) => {
               const controlsByStatus = groupControlsByStatus(controls)
-
+              if (controls.length === 0) return null
               return (
                 <AccordionItem className="mt-4" key={category} value={category}>
                   <div className="flex justify-between items-center">
