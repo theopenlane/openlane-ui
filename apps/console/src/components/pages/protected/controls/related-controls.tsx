@@ -46,6 +46,8 @@ const RelatedControls = ({ canCreate }: Props) => {
 
   const { data } = useGetMappedControls({ where, enabled: !!where })
 
+  const hasData = data?.mappedControls?.edges?.some((e) => e?.node?.source !== MappedControlMappingSource.SUGGESTED)
+
   const grouped: GroupedControls = {}
 
   data?.mappedControls?.edges?.forEach((edge) => {
@@ -153,7 +155,7 @@ const RelatedControls = ({ canCreate }: Props) => {
     <Card className="p-4">
       <div className="flex justify-between items-center mb-5">
         <p className="text-lg">Related Controls</p>
-        {Object.keys(grouped).length > 0 ? (
+        {hasData ? (
           <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
             View
           </Button>
@@ -182,7 +184,7 @@ const RelatedControls = ({ canCreate }: Props) => {
         </div>
       ))}
 
-      <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />
+      {hasData && <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />}
     </Card>
   )
 }

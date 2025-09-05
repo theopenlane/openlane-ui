@@ -13,6 +13,7 @@ import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { GroupedControls, RelatedNode } from '../controls/related-controls'
 import { RelatedControlChip } from '../controls/shared/related-control-chip'
 import AccordionInfo from './control-details-accordion-info'
+import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -25,8 +26,8 @@ const ControlDetailsSheet = () => {
 
   const { data } = useGetControlById(controlId)
 
-  const where = {
-    or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }],
+  const where: MappedControlWhereInput = {
+    and: [{ sourceNEQ: MappedControlMappingSource.SUGGESTED }, { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] }],
   }
 
   const { data: mappedControlsData } = useGetMappedControls({ where, enabled: !!controlId })
