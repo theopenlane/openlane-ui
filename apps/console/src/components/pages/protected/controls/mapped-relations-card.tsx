@@ -1,6 +1,5 @@
-import { MappedControlMappingType } from '@repo/codegen/src/schema'
+import { MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
 import { usePathname } from 'next/navigation'
-import { RelatedControlChip } from './shared/related-control-chip'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import Link from 'next/link'
 import { Pencil, Trash2 } from 'lucide-react'
@@ -11,19 +10,20 @@ import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import StandardChip from '../standards/shared/standard-chip'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import ControlChip from './map-controls/shared/control-chip'
 
-const RelationCard = ({
-  data,
-}: {
+type RelationCardProps = {
   data: {
-    from: Record<string, string[]>
-    to: Record<string, string[]>
+    from: Record<string, (MappedControlsFragmentFragment | MappedSubcontrolsFragmentFragment)[]>
+    to: Record<string, (MappedControlsFragmentFragment | MappedSubcontrolsFragmentFragment)[]>
     type: MappedControlMappingType
     confidence: number
     relation: string
     id: string
   }
-}) => {
+}
+
+const RelationCard = ({ data }: RelationCardProps) => {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
@@ -67,12 +67,12 @@ const RelationCard = ({
                 <label className="text-sm">From</label>
               </div>
               <div className="flex flex-col gap-2">
-                {Object.entries(data.from).map(([framework, codes], index, array) => (
+                {Object.entries(data.from).map(([framework, controls], index, array) => (
                   <div key={framework} className={`flex gap-2 w-full pb-2 ${index < array.length - 1 ? 'border-b border-dotted' : ''}`}>
                     <StandardChip referenceFramework={framework ?? ''} />
                     <div className="flex flex-wrap gap-2">
-                      {codes.map((code) => (
-                        <RelatedControlChip key={code} refCode={code} href="#" mappingType={data.type} relation={data.relation} />
+                      {controls.map((control) => (
+                        <ControlChip key={control.id} control={control} hideStandard hideHexagon />
                       ))}
                     </div>
                   </div>
@@ -86,12 +86,12 @@ const RelationCard = ({
                 <label className="text-sm">To</label>
               </div>
               <div className="flex flex-col gap-2">
-                {Object.entries(data.to).map(([framework, codes], index, array) => (
+                {Object.entries(data.to).map(([framework, controls], index, array) => (
                   <div key={framework} className={`flex gap-2 w-full pb-2 ${index < array.length - 1 ? 'border-b border-dotted' : ''}`}>
                     <StandardChip referenceFramework={framework ?? ''} />
                     <div className="flex flex-wrap gap-2">
-                      {codes.map((code) => (
-                        <RelatedControlChip key={code} refCode={code} href="#" mappingType={data.type} relation={data.relation} />
+                      {controls.map((control) => (
+                        <ControlChip key={control.id} control={control} hideStandard hideHexagon />
                       ))}
                     </div>
                   </div>

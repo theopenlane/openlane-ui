@@ -26,6 +26,7 @@ export interface ControlChipProps {
   hideStandard?: boolean
   clickable?: boolean
   disableHref?: boolean
+  hideHexagon?: boolean
 }
 
 const ControlChip: React.FC<ControlChipProps> = ({
@@ -42,6 +43,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   hideStandard,
   clickable = true,
   disableHref,
+  hideHexagon,
 }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
@@ -68,7 +70,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
       }}
     >
       {draggable && <Drag strokeWidth={1} className="text-border" />}
-      <StandardsHexagon shortName={control.referenceFramework ?? ''} />
+      {!hideHexagon && <StandardsHexagon shortName={control.referenceFramework ?? ''} />}
       {!hideStandard && (
         <>
           <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
