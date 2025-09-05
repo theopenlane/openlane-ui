@@ -1,6 +1,6 @@
 import React from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { GetMappedControlsQuery, MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
+import { GetMappedControlsQuery, MappedControlMappingSource, MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
 import RelationCard from './mapped-relations-card'
 
 type MappedRelationsSheetProps = {
@@ -10,7 +10,8 @@ type MappedRelationsSheetProps = {
 }
 
 const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpenChange, queryData }) => {
-  const mappings = queryData?.mappedControls?.edges?.map((e) => e?.node).filter(Boolean)
+  const mappings = queryData?.mappedControls?.edges?.filter((e) => e?.node?.source !== MappedControlMappingSource.SUGGESTED).map((e) => e?.node)
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
