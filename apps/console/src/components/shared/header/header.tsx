@@ -6,11 +6,12 @@ import { OrganizationSelector } from '@/components/shared/organization-selector/
 import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcrumb'
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { GlobalSearch } from '../search/search'
 import NavTriangle from '@/assets/NavTriangle'
+import SystemNotificationTracker from '@/components/shared/SystemNotification/SystemNotification.tsx'
 
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
@@ -67,6 +68,7 @@ export default function Header() {
 
           <div className={userNav()}>
             <GlobalSearch />
+            <SystemNotificationTracker />
             <UserMenu />
           </div>
         </nav>

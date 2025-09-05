@@ -42412,6 +42412,47 @@ export type EvidenceSuggestedActionsQuery = {
   }
 }
 
+export type CreateExportMutationVariables = Exact<{
+  input: CreateExportInput
+}>
+
+export type CreateExportMutation = { __typename?: 'Mutation'; createExport: { __typename?: 'ExportCreatePayload'; export: { __typename?: 'Export'; id: string; status: ExportExportStatus } } }
+
+export type GetExportQueryVariables = Exact<{
+  exportId: Scalars['ID']['input']
+}>
+
+export type GetExportQuery = {
+  __typename?: 'Query'
+  export: {
+    __typename?: 'Export'
+    status: ExportExportStatus
+    files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+  }
+}
+
+export type GetExportsQueryVariables = Exact<{
+  where?: InputMaybe<ExportWhereInput>
+}>
+
+export type GetExportsQuery = {
+  __typename?: 'Query'
+  exports: {
+    __typename?: 'ExportConnection'
+    edges?: Array<{
+      __typename?: 'ExportEdge'
+      node?: {
+        __typename?: 'Export'
+        id: string
+        status: ExportExportStatus
+        exportType: ExportExportType
+        errorMessage?: string | null
+        files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
