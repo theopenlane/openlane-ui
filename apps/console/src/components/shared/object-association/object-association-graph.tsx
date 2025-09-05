@@ -25,6 +25,7 @@ type TCenterNode = {
 }
 
 type TObjectAssociationGraphProps = {
+  controlId?: string
   centerNode: TCenterNode
   sections: Section
   isFullscreen: boolean
@@ -36,7 +37,7 @@ const NODE_RADIUS = 7
 const FONT_SIZE = 12
 const LABEL_PADDING = 4
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, menu }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, menu, controlId }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
@@ -131,7 +132,10 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             refCode: label,
             description: node.summary || node.description || node.details || '',
             displayID: node.displayID || node.id,
-            link: getHrefForObjectType(sectionType, node as NormalizedObject),
+            link:
+              sectionType === 'subcontrols' && controlId
+                ? getHrefForObjectType(sectionType, { ...node, controlId: controlId } as NormalizedObject)
+                : getHrefForObjectType(sectionType, node as NormalizedObject),
             __typename: getType(sectionType),
           }
           nodes.push({ id: node.id, name: label, type: sectionType })
@@ -149,7 +153,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     })
 
     return { graphData: { nodes, links }, colorMap, nodeMeta }
-  }, [centerNode, sections])
+  }, [centerNode, sections, controlId])
 
   useEffect(() => {
     if (!fgRef.current) return
