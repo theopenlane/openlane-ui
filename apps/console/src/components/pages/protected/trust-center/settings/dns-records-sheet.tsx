@@ -8,7 +8,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { DnsVerificationDnsVerificationStatus, GetTrustCenterQuery } from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { cname as CNAME_VARIABLE } from '@repo/dally/auth'
 
 type DnsRecord = {
   type: string
@@ -30,6 +29,7 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
 
   const cnameRecord = trustCenter?.node?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.').slice(0, -2).join('.') : ''
+  const cnameTarget = trustCenter?.node?.customDomain?.mappableDomain?.name || "UNKNOWN";
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -94,18 +94,18 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
     {
       type: 'CNAME',
       name: cnameName,
-      value: CNAME_VARIABLE || '',
+      value: cnameTarget,
       status: dnsVerification?.dnsVerificationStatus,
     },
     ...(dnsVerification
       ? [
-          {
-            type: 'TXT',
-            name: dnsVerification.dnsTxtRecord ?? '',
-            value: dnsVerification.dnsTxtValue ?? '',
-            status: dnsVerification.dnsVerificationStatus,
-          },
-        ]
+        {
+          type: 'TXT',
+          name: dnsVerification.dnsTxtRecord ?? '',
+          value: dnsVerification.dnsTxtValue ?? '',
+          status: dnsVerification.dnsVerificationStatus,
+        },
+      ]
       : []),
   ]
 
