@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 tasks:
   codegen:
@@ -9,7 +9,9 @@ tasks:
 
   generate:
     desc: run generate
-    cmd: bun run codegen --verbose
+    cmds:
+      - bun run codegen --verbose
+      - bun run prettier --write src/schema.ts
 
   clean:
     # See https://github.com/dotansimha/graphql-code-generator-community/issues/501
