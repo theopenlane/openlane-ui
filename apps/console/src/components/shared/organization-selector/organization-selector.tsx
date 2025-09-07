@@ -96,10 +96,6 @@ export const OrganizationSelector = () => {
   }
   if (!orgs) return <Loading />
 
-  if (orgs.length < 2) {
-    return null
-  }
-
   return (
     <div className={container()}>
       <div>

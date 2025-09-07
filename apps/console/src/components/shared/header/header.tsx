@@ -34,9 +34,7 @@ export default function Header() {
     return (
       <div className={header()}>
         <nav className={nav()}>
-          <div className="flex justify-start items-center">
-            <OrganizationSelector />
-          </div>
+          <div className="flex justify-start items-center"></div>
           <div className={userNav()}>
             <UserMenu />
           </div>
