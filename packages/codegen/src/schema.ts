@@ -44999,6 +44999,7 @@ export type GetTrustCenterQuery = {
           id: string
           cnameRecord: string
           dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
+          mappableDomain: { __typename?: 'MappableDomain'; name: string }
         } | null
         setting?: {
           __typename?: 'TrustCenterSetting'
