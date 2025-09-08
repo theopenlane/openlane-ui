@@ -288,6 +288,9 @@ export const GET_PROGRAM_GROUPS = gql`
             id
             gravatarLogoURL
             logoURL
+            members {
+              totalCount
+            }
           }
         }
       }
@@ -299,6 +302,9 @@ export const GET_PROGRAM_GROUPS = gql`
             id
             gravatarLogoURL
             logoURL
+            members {
+              totalCount
+            }
           }
         }
       }
