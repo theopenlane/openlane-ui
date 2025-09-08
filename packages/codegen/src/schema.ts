@@ -43845,12 +43845,32 @@ export type GetProgramGroupsQuery = {
     viewers: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          name: string
+          id: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+        } | null
+      } | null> | null
     }
     editors: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          name: string
+          id: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+        } | null
+      } | null> | null
     }
   }
 }

@@ -65,14 +65,14 @@ export const ProgramSettingsGroups = () => {
       ...((viewers.map((edge) => ({
         id: edge?.node?.id,
         name: edge?.node?.name,
-        membersCount: data?.program?.viewers.totalCount,
+        membersCount: edge?.node?.members.totalCount,
         role: 'Viewer',
         group: edge?.node,
       })) as GroupRow[]) || []),
       ...((editors.map((edge) => ({
         id: edge?.node?.id,
         name: edge?.node?.name,
-        membersCount: data?.program?.editors.totalCount,
+        membersCount: edge?.node?.members.totalCount,
         role: 'Editor',
         group: edge?.node,
       })) as GroupRow[]) || []),
