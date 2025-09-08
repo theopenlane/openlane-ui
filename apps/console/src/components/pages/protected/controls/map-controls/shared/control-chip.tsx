@@ -125,7 +125,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
   if (!details) return <p className="text-xs">No details available.</p>
 
   return (
-    <div className="bg-background-secondary p-3 rounded-md text-xs min-w-[240px]">
+    <div className="bg-background-secondary p-3 rounded-md text-xs min-w-[240px] max-w-[320px]">
       <div className="grid grid-cols-[auto_1fr] gap-y-2">
         <div className="flex items-center gap-1 border-b pb-2">
           <SlidersHorizontal size={12} />
@@ -166,12 +166,12 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
         <span className="flex pl-3 gap-1 border-b pb-2">{details.subcategory || '-'}</span>
       </div>
 
-      <div className="flex flex-col pt-2 max-w-[240px]">
+      <div className="flex flex-col pt-2 max-w-full">
         <div className="flex items-center gap-1">
           <PencilLine size={12} />
           <span className="font-medium">Description</span>
         </div>
-        <div className="line-clamp-4 text-justify">{convertToReadOnly(details.description || '')}</div>
+        <div className="line-clamp-4 text-justify break-words">{convertToReadOnly(details.description || '')}</div>
       </div>
     </div>
   )
