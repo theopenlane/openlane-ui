@@ -26,7 +26,7 @@ export type GroupedControls = Record<string, RelatedNode[]>
 type Props = {
   canCreate: boolean
   refCode: string
-  sourceFramework: string
+  sourceFramework: string | null | undefined
 }
 
 const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
@@ -38,11 +38,9 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
 
   // fetch suggested mapped controls, which are the ones created by the system based on control references
   // we cannot use the control ID because this is unique to the control and not the refCode for the control within the organization
+  const withFilter = { refCode: refCode, referenceFramework: sourceFramework }
   const suggestedControlWhere = {
-    and: [
-      { source: MappedControlMappingSource.SUGGESTED },
-      subcontrolId ? { hasFromSubcontrolsWith: [{ refCode: refCode, referenceFramework: sourceFramework }] } : { hasFromControlsWith: [{ refCode: refCode, referenceFramework: sourceFramework }] },
-    ],
+    and: [{ source: MappedControlMappingSource.SUGGESTED }, subcontrolId ? { hasFromSubcontrolsWith: [withFilter] } : { hasFromControlsWith: [withFilter] }],
   }
   const where = subcontrolId
     ? {
