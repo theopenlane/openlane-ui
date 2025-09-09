@@ -204,7 +204,7 @@ const ControlDetailsSheet = () => {
                   <div className="flex gap-2.5 flex-wrap">
                     {nodes.map((node) => {
                       const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-                      return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
+                      return <RelatedControlChip key={node.id} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
                     })}
                   </div>
                 </div>
