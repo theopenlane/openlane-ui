@@ -21,11 +21,9 @@ export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType
   const config = useMemo(() => {
     if (source === MappedControlMappingSource.SUGGESTED) {
       return { icon: <Zap className="mt-0.5" size={10} />, text: 'Suggested by Openlane' }
-    }
-    if (source === MappedControlMappingSource.MANUAL) {
+    } else {
       return { icon: <Pencil className="mt-0.5" size={10} />, text: 'Added manually by you' }
     }
-    return null
   }, [source])
 
   const chip = (

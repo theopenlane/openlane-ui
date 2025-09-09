@@ -182,7 +182,7 @@ export const SignupPage = () => {
         Google Privacy Policy and Terms of Service apply.
       </p>
 
-      {showError && <MessageBox className="p-4 ml-1" message={registrationErrorMessage} />}
+      {showError && <MessageBox maxWidth={320} className="p-4 ml-1" message={registrationErrorMessage} />}
     </div>
   )
 }

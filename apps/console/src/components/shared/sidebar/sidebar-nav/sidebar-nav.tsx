@@ -54,9 +54,13 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
               <Hr />
             </div>
           ) : isNavHeading(item) ? (
-            <div key={`${idx}_${item.type}`} className={heading()}>
-              {item.heading}
-            </div>
+            isSidebarOpen ? (
+              <div key={`${idx}_${item.type}`} className={heading()}>
+                {item.heading}
+              </div>
+            ) : (
+              <div key={`${idx}_${item.type}`} className="h-3" aria-hidden />
+            )
           ) : item.isChildren ? (
             <Accordion type="multiple" key={item.title} value={openItems} onValueChange={handleValueChange}>
               <AccordionItem value={item.title} className={accordionItem()}>
