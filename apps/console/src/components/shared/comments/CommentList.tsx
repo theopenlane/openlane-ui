@@ -11,7 +11,6 @@ import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { Value } from 'platejs'
 import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/tasks'
 import { useSearchParams } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -28,7 +27,6 @@ const CommentList: React.FC<TProps> = ({ comments }) => {
 
   const { mutateAsync: updateTask } = useUpdateTask()
   const { mutateAsync: updateTaskComment } = useUpdateTaskComment()
-  const queryClient = useQueryClient()
   const { errorNotification, successNotification } = useNotification()
 
   const [isEditingItemId, setIsEditingItemId] = useState<string | null>(null)
@@ -57,7 +55,6 @@ const CommentList: React.FC<TProps> = ({ comments }) => {
       })
       setIsEditingItemId(null)
       setDraftValue(null)
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
 
       successNotification({
         title: 'Comment updated',
@@ -78,7 +75,6 @@ const CommentList: React.FC<TProps> = ({ comments }) => {
       })
       setDeleteDialogOpen(false)
       setCommentToDelete(null)
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
 
       successNotification({
         title: 'Comment deleted',
