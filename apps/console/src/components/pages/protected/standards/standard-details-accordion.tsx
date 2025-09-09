@@ -22,6 +22,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
+    { ownerIDIsNil: true },
     { standardID: id },
     {
       or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],

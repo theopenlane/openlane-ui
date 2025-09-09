@@ -371,7 +371,7 @@ const ControlDetailsPage: React.FC = () => {
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
 
       <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} canEdit={canEdit(permission?.roles)} />
-      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
+      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} refCode={subcontrol.refCode} sourceFramework={subcontrol.referenceFramework} />
       {hasInfoData && (
         <InfoCardWithSheet
           implementationGuidance={subcontrol.implementationGuidance}
