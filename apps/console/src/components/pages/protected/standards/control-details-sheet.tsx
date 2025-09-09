@@ -27,7 +27,7 @@ const ControlDetailsSheet = () => {
   const { data } = useGetControlById(controlId)
 
   const where: MappedControlWhereInput = {
-    and: [{ sourceNEQ: MappedControlMappingSource.SUGGESTED }, { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] }],
+    and: [{ source: MappedControlMappingSource.SUGGESTED }, { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] }],
   }
 
   const { data: mappedControlsData } = useGetMappedControls({ where, enabled: !!controlId })
