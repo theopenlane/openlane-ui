@@ -13,8 +13,8 @@ import {
   Download,
   Eye,
   InfoIcon,
-  Link,
   LinkIcon,
+  Link,
   PanelRightClose,
   PencilIcon,
   Tag,
@@ -61,6 +61,8 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { EvidenceDetailsSheetSkeleton } from '../../evidence/skeleton/evidence-details-skeleton'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import NextLink from 'next/link'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -509,7 +511,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <LinkIcon size={16} className="text-accent-secondary" />
                         URL
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+
+                      <div className="text-sm text-left w-[200px] min-w-0">
                         {isEditing || editField === 'url' ? (
                           <InputRow className="w-full">
                             <FormField
@@ -526,9 +529,20 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
-                            {evidence?.url || <span className="text-gray-500">no url provided</span>}
-                          </p>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className={`flex items-center w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
+                                  <span className="truncate overflow-hidden whitespace-nowrap">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <NextLink href={evidence?.url ?? '#'} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                  {evidence?.url}
+                                </NextLink>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>
