@@ -8,7 +8,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { useParams } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import { useRouter } from 'next/navigation'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -20,10 +20,10 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   const { subcontrolId } = useParams()
   const isSubcontrol = !!subcontrolId
   const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
-  const router = useRouter()
+  const router = useSmartRouter()
 
   const evidenceSheetHandler = (controlEvidenceID: string) => {
-    if (controlEvidenceID) router.push(`/evidence?id=${controlEvidenceID}`)
+    if (controlEvidenceID) router.replace({ controlEvidenceId: controlEvidenceID })
   }
 
   return (
