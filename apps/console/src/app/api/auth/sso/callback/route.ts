@@ -16,20 +16,16 @@ export async function POST(request: NextRequest) {
     }
 
     const cookies = request.headers.get('cookie')
+    console.log('Incoming cookies:', cookies)
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
+      ...(cookies ? { cookie: cookies } : {}),
     }
 
-    if (cookies) {
-      headers['cookie'] = cookies
-    }
-
-    console.log('cookies', cookies)
-
-    // Call the backend to complete SSO authentication
     const ssoCallbackData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/callback`, {
       method: 'POST',
+      headers,
       body: JSON.stringify({
         code: body.code,
         state: body.state,

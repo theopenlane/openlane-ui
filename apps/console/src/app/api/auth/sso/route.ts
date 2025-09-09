@@ -14,11 +14,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'organization_id is required' }, { status: 400 })
     }
 
+    const cookies = request.headers.get('cookie')
+    console.log('Incoming cookies for SSO login:', cookies)
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...(cookies ? { cookie: cookies } : {}),
+    }
+
     const ssoData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         organization_id: body.organization_id,
         return: body.return,
@@ -44,6 +50,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(fetchedData, { status: ssoData.status })
   } catch (error) {
     console.error('SSO login error:', error)
-    return NextResponse.json({ status: false, message: 'Could not login with SSO' }, { status: 500 })
+    return NextResponse.json({ success: false, message: 'Could not login with SSO' }, { status: 500 })
   }
 }
