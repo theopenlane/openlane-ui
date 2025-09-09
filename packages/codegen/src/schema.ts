@@ -44709,6 +44709,7 @@ export type TaskQuery = {
         __typename?: 'NoteEdge'
         node?: {
           __typename?: 'Note'
+          id: string
           createdAt?: any | null
           createdBy?: string | null
           text: string
@@ -44743,6 +44744,13 @@ export type UpdateBulkTaskMutationVariables = Exact<{
 }>
 
 export type UpdateBulkTaskMutation = { __typename?: 'Mutation'; updateBulkTask: { __typename?: 'TaskBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type UpdateTaskCommentMutationVariables = Exact<{
+  updateTaskCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTaskCommentMutation = { __typename?: 'Mutation'; updateTaskComment: { __typename?: 'TaskUpdatePayload'; task: { __typename?: 'Task'; id: string } } }
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
