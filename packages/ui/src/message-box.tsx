@@ -1,9 +1,9 @@
 import React from 'react'
 import { clsx } from 'clsx'
 
-export const MessageBox: React.FC<any> = ({ message, className }) => {
+export const MessageBox: React.FC<any> = ({ message, className, maxWidth }) => {
   return (
-    <div className={clsx('max-w-[320px] my-2.5 p-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-sm relative', className)} role="alert">
+    <div className={clsx('my-2.5 p-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-sm relative', className)} style={maxWidth != null ? { maxWidth } : undefined} role="alert">
       <span className="block sm:inline">{message}</span>
     </div>
   )
