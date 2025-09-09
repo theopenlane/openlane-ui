@@ -4,7 +4,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { CircleQuestionMark, Fingerprint, Folder } from 'lucide-react'
 import Link from 'next/link'
-import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { TChardData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
 import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum.tsx'
 
@@ -43,7 +42,6 @@ type TEvidenceTooltipContentProps = {
 
 const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ programId, evidenceData }) => {
   const { data, isLoading } = useGetFirstFiveEvidencesByStatus(evidenceData.status, programId)
-  const { setSelectedControlEvidence } = useControlEvidenceStore()
 
   if (isLoading) {
     return <p className="text-xs">Loading details…</p>
@@ -100,7 +98,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
         {evidences.length > 0 && (
           <div className={`grid gap-2 pl-3 ${columnClass}`}>
             {evidences.map((item, index) => (
-              <span key={index} className="pr-1 text-brand text-xs hover:underline cursor-pointer" onClick={() => setSelectedControlEvidence(item?.node?.id ?? null)}>
+              <span key={index} className="pr-1 text-brand text-xs hover:underline cursor-pointer" onClick={() => console.log(item?.node?.id ?? null)}>
                 {item?.node?.displayID}
               </span>
             ))}
