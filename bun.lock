@@ -75,9 +75,9 @@
         "react-dropzone": "^14.2.3",
         "react-easy-crop": "^5.0.7",
         "react-force-graph-2d": "^1.28.0",
-        "survey-creator-core": "1.12.39",
-        "survey-creator-react": "1.12.39",
-        "survey-react-ui": "1.12.39",
+        "survey-creator-core": "1.12.53",
+        "survey-creator-react": "1.12.53",
+        "survey-react-ui": "1.12.53",
         "swr": "^2.3.3",
         "zustand": "^5.0.0",
       },
@@ -658,7 +658,7 @@
 
     "@eslint/eslintrc": ["@eslint/eslintrc@3.3.1", "", { "dependencies": { "ajv": "^6.12.4", "debug": "^4.3.2", "espree": "^10.0.1", "globals": "^14.0.0", "ignore": "^5.2.0", "import-fresh": "^3.2.1", "js-yaml": "^4.1.0", "minimatch": "^3.1.2", "strip-json-comments": "^3.1.1" } }, "sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ=="],
 
-    "@eslint/js": ["@eslint/js@9.32.0", "", {}, "sha512-BBpRFZK3eX6uMLKz8WxFOBIFFcGFJ/g8XuwjTHCqHROSIsopI+ddn/d5Cfh36+7+e5edVS8dbSHnBNhrLEX0zg=="],
+    "@eslint/js": ["@eslint/js@9.35.0", "", {}, "sha512-30iXE9whjlILfWobBkNerJo+TXYsgVM5ERQwMcMKCHckHflCmf7wXDAHlARoWnh0s1U72WqlbeyE7iAcCzuCPw=="],
 
     "@eslint/object-schema": ["@eslint/object-schema@2.1.6", "", {}, "sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA=="],
 
@@ -3624,11 +3624,11 @@
 
     "survey-core": ["survey-core@1.12.39", "", {}, "sha512-9S8p0vFgG8/Gy4N+P2+jygWCsYWelrapQJ4ewHCJIwW9jR6ZGiuzES7k70p1nEzs+a2ZzVUoH4Q1Urs4k84YQw=="],
 
-    "survey-creator-core": ["survey-creator-core@1.12.39", "", { "peerDependencies": { "ace-builds": "^1.4.12", "survey-core": "1.12.39" }, "optionalPeers": ["ace-builds"] }, "sha512-lYcaWEmBmCntYxJ1k3uAqExIk/V9BK9zVbIJm/9DuefpC8pLrx1D0we7EZLn0ahv9Yj3Y9z7x8flMtjUFYY+qg=="],
+    "survey-creator-core": ["survey-creator-core@1.12.53", "", { "peerDependencies": { "ace-builds": "^1.4.12", "survey-core": "1.12.53" }, "optionalPeers": ["ace-builds"] }, "sha512-s3EBYcNh3pXiLqxH9tGwe04SoNSvRRnWQTDzuPuM1OVYh9E1A5k4viYmf6/lnBYMbS67K095w3goVRbCEtGycw=="],
 
-    "survey-creator-react": ["survey-creator-react@1.12.39", "", { "peerDependencies": { "ace-builds": "^1.4.12", "react": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "survey-core": "1.12.39", "survey-creator-core": "1.12.39", "survey-react-ui": "1.12.39" }, "optionalPeers": ["ace-builds"] }, "sha512-DSSS0yFqKkdPtUkUpJz7663Da0y73fdXAPOG/NfhrSHxMQk8lyHpeQrIAynxSbn/Tz4vNJLYfFDi5Rm6hk3xhw=="],
+    "survey-creator-react": ["survey-creator-react@1.12.53", "", { "peerDependencies": { "ace-builds": "^1.4.12", "react": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "survey-core": "1.12.53", "survey-creator-core": "1.12.53", "survey-react-ui": "1.12.53" }, "optionalPeers": ["ace-builds"] }, "sha512-+s9kdrg6T0AxGpiampXNvGjJjrCcQ3WDBvlv+9Qbb19RLt4P9YbC7QLBw5wICZ/quJFBgFKsVsXsZc/TzCH/kQ=="],
 
-    "survey-react-ui": ["survey-react-ui@1.12.39", "", { "peerDependencies": { "react": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "survey-core": "1.12.39" } }, "sha512-Q7rxgnB1qzZaZpAm9zCSFlS+RwqZVV+9mRnZlm2p73vdy7GmXdHUfVl3JMTBFa/FR9/k2mNOmYeIwK2auc74GA=="],
+    "survey-react-ui": ["survey-react-ui@1.12.53", "", { "peerDependencies": { "react": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "survey-core": "1.12.53" } }, "sha512-RnnyddApy78xjaB4RzMRJFx6JZFFN491XkPUN4y3QQz/KJ3b88+BsoYrHxTuu8P/UE7rS/Q3JHbjj00GpRC1Zw=="],
 
     "svg-arc-to-cubic-bezier": ["svg-arc-to-cubic-bezier@3.2.0", "", {}, "sha512-djbJ/vZKZO+gPoSDThGNpKDO+o+bAeA4XQKovvkNCqnIS2t+S4qnLAGQhyyrulhCFRl1WWzAp0wUDV8PpTVU3g=="],
 
@@ -4301,8 +4301,6 @@
     "engine.io-client/ws": ["ws@8.17.1", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ=="],
 
     "error-ex/is-arrayish": ["is-arrayish@0.2.1", "", {}, "sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg=="],
-
-    "eslint/@eslint/js": ["@eslint/js@9.35.0", "", {}, "sha512-30iXE9whjlILfWobBkNerJo+TXYsgVM5ERQwMcMKCHckHflCmf7wXDAHlARoWnh0s1U72WqlbeyE7iAcCzuCPw=="],
 
     "eslint/ignore": ["ignore@5.3.2", "", {}, "sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g=="],
 
