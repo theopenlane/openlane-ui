@@ -89,7 +89,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
-  const { data, isLoading: fetching } = useGetEvidenceById(id as string)
+
+  const config = useMemo(() => {
+    if (controlEvidenceIdParam) {
+      return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
+    }
+    return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
+  }, [controlEvidenceIdParam, id])
+
+  const { data, isLoading: fetching } = useGetEvidenceById(config.id)
   const { data: session } = useSession()
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
@@ -130,13 +138,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }),
     [evidence],
   )
-
-  const config = useMemo(() => {
-    if (controlEvidenceIdParam) {
-      return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
-    }
-    return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
-  }, [controlEvidenceIdParam, id])
 
   useEffect(() => {
     if (evidence) {
