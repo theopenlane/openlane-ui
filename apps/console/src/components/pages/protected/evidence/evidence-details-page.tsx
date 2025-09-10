@@ -63,6 +63,14 @@ const EvidenceDetailsPage = () => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
+  useEffect(() => {
+    if (programId && programMap[programId]) {
+      setSelectedProgram(programMap[programId])
+    } else {
+      setSelectedProgram('All Programs')
+    }
+  }, [programId, programMap])
+
   const handleSelectChange = (val: string) => {
     if (val === 'all') {
       setSelectedProgram('All programs')
