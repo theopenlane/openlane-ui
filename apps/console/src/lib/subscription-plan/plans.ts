@@ -32,8 +32,6 @@ export const featureUtil = {
   vulnerabilityManagementModule: () => [...featureUtil.baseModule()],
   getPlanFeatures: (plan: PlanEnum) => {
     switch (plan) {
-      case PlanEnum.BASE_MODULE:
-        return featureUtil.baseModule()
       case PlanEnum.TRUST_CENTER_MODULE:
         return featureUtil.trustCenterModule()
       case PlanEnum.ENTITY_MANAGEMENT_MODULE:
@@ -42,6 +40,8 @@ export const featureUtil = {
         return featureUtil.vulnerabilityManagementModule()
       case PlanEnum.COMPLIANCE_MODULE:
         return featureUtil.complianceModule()
+      default:
+        return featureUtil.baseModule()
     }
   },
   getPlanDescription: (plan: PlanEnum) => {
