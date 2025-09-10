@@ -10,7 +10,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-
+import { useRouter } from 'next/navigation'
 import { CreateEvidenceInput } from '@repo/codegen/src/schema'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
@@ -47,6 +47,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const formData = {
@@ -70,7 +71,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     }
 
     try {
-      await createEvidence(formData)
+      const res = await createEvidence(formData)
       successNotification({
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
@@ -85,17 +86,19 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       if (onEvidenceCreateSuccess) {
         onEvidenceCreateSuccess()
       }
+      if (res.createEvidence.evidence.id) router.push(`/evidence?id=${res.createEvidence.evidence.id}`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
         description: errorMessage,
       })
+    } finally {
+      form.reset()
+      setTagValues([])
+      setResetEvidenceFiles(true)
+      setAssociationResetTrigger((prev) => prev + 1)
     }
-    form.reset()
-    setTagValues([])
-    setResetEvidenceFiles(true)
-    setAssociationResetTrigger((prev) => prev + 1)
   }
 
   useEffect(() => {
