@@ -93,7 +93,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
 
         <div className="flex items-center gap-1">
           <Fingerprint size={12} />
-          <span className="font-medium">Evidences</span>
+          <span className="font-medium">Evidence</span>
         </div>
 
         {evidences.length === 0 && <span className="pl-3 text-brand text-xs">No evidence available.</span>}

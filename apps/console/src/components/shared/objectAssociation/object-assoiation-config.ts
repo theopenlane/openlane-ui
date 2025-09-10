@@ -155,7 +155,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   [ObjectTypeObjects.EVIDENCE]: {
     responseObjectKey: 'evidences',
     inputName: 'evidenceIDs',
-    placeholder: 'Search evidences',
+    placeholder: 'Search evidence',
     queryDocument: GET_ALL_EVIDENCES,
     objectName: 'name',
   },
