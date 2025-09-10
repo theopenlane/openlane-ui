@@ -30,8 +30,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 import Loading from '@/app/(protected)/programs/loading'
 import { Checkbox } from '@repo/ui/checkbox'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import SubscriptionWrapper from '@/components/shared/subscription-wrapper/subscription-wrapper'
-import { SubscriptionStateModuleEnum } from '@/providers/SubscriptionContext.tsx'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -119,148 +117,139 @@ const ProgramsPage: React.FC = () => {
     router.push(`/programs?id=${val}`)
   }
 
-  return (
-    <SubscriptionWrapper
-      module={SubscriptionStateModuleEnum.COMPLIANCE_MANAGEMENT}
-      moduleDescription="Advanced compliance and program management features require a premium subscription. Ready to enhance your compliance workflow?"
-      error={error}
-    >
-      {(() => {
-        if (isBasicInfoLoading || isLoading) {
-          return <Loading />
-        }
-        if (!data?.programs.edges?.length) {
-          return (
-            <>
-              <PageHeading heading="Programs" />
-              <div className="flex flex-col items-center justify-center mt-16 gap-6">
-                <div className="max-w-3xl p-4 border rounded-lg  text-sm text-muted-foreground">
-                  <div className="flex items-start gap-2">
-                    <span className="text-primary">
-                      <svg width="20" height="20" fill="currentColor">
-                        <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-                        <circle cx="10" cy="10" r="1.5" />
-                      </svg>
-                    </span>
-                    <div>
-                      <p className="text-base">What are Programs?</p>
-                      <p className="mt-2 text-sm">
-                        Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a
-                        significant body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and
-                        can encompass work across different teams.
-                        <a href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
-                          See docs to learn more.
-                        </a>
-                      </p>
+  if (isBasicInfoLoading || isLoading) {
+    return <Loading />
+  }
+
+  if (!data?.programs.edges?.length) {
+    return (
+      <>
+        <PageHeading heading="Programs" />
+        <div className="flex flex-col items-center justify-center mt-16 gap-6">
+          <div className="max-w-3xl p-4 border rounded-lg  text-sm text-muted-foreground">
+            <div className="flex items-start gap-2">
+              <span className="text-primary">
+                <svg width="20" height="20" fill="currentColor">
+                  <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+                  <circle cx="10" cy="10" r="1.5" />
+                </svg>
+              </span>
+              <div>
+                <p className="text-base">What are Programs?</p>
+                <p className="mt-2 text-sm">
+                  Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a
+                  significant body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can
+                  encompass work across different teams.
+                  <a href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
+                    See docs to learn more.
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <ShieldCheck className="text-border" size={89} strokeWidth={1} />
+
+            <p className="text-sm text-muted-foreground">No programs found</p>
+            {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
+              <>
+                <p className="text-sm text-muted-foreground">Ready to get started?</p>
+                <ProgramCreate
+                  trigger={
+                    <div className="text-blue-500 flex items-center gap-1">
+                      <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
                     </div>
-                  </div>
-                </div>
+                  }
+                />
+              </>
+            )}
+          </div>
+        </div>
+      </>
+    )
+  }
 
-                <div className="flex flex-col items-center gap-2">
-                  <ShieldCheck className="text-border" size={89} strokeWidth={1} />
+  return (
+    <>
+      <PageHeading
+        heading={
+          <div className="flex justify-between items-center">
+            <div className="flex gap-4 items-center">
+              <h1>Overview</h1>
+              <Select onValueChange={handleSelectChange} value={programId ?? ''}>
+                <SelectTrigger className="max-w-64 min-w-48 border rounded-md px-3 py-2 flex items-center justify-between">
+                  <div className="truncate">{selectedProgram || 'Select a program'}</div>
+                </SelectTrigger>
+                <SelectContent className="border rounded-md shadow-md">
+                  {data?.programs?.edges?.map((edge) => {
+                    const program = edge?.node
+                    if (!program) return null
 
-                  <p className="text-sm text-muted-foreground">No programs found</p>
-                  {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
-                    <>
-                      <p className="text-sm text-muted-foreground">Ready to get started?</p>
-                      <ProgramCreate
-                        trigger={
-                          <div className="text-blue-500 flex items-center gap-1">
-                            <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
-                          </div>
-                        }
-                      />
-                    </>
-                  )}
-                </div>
+                    return (
+                      <SelectItem key={program.id} value={program.id}>
+                        {program.name}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <Checkbox checked={showAllPrograms} onCheckedChange={(checked) => setShowAllPrograms(!!checked)} />
+                <span className="text-sm">Include archived</span>
+                <SystemTooltip
+                  icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                  content={
+                    <p>
+                      Archived programs are not included by default. Check this box to include archived programs in the drop down. These will be read-only, unless the program is unarchived from
+                      program settings.
+                    </p>
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex gap-2.5 items-center">
+              <Menu
+                trigger={CreateBtn}
+                content={
+                  <>
+                    <ProgramCreate trigger={ProgramCreateIconBtn} />
+                    <CreateTaskDialog initialData={initialData} objectAssociationsDisplayIDs={basicInfoData?.program.displayID ? [basicInfoData?.program.displayID] : []} trigger={TaskIconBtn} />
+                  </>
+                }
+              />
+              <Menu content={<ProgramSettingsIconBtn programId={programId!} />} />
+            </div>
+          </div>
+        }
+      />
+
+      <div className="flex flex-col gap-7">
+        <div className="flex gap-7 w-full">
+          {basicInfoData?.program ? (
+            <>
+              <BasicInformation />
+              <div className="flex flex-col gap-7 flex-1">
+                <TimelineReadiness />
+                <ProgramAuditor
+                  programStatus={basicInfoData.program.status}
+                  firm={basicInfoData.program.auditFirm}
+                  name={basicInfoData.program.auditor}
+                  email={basicInfoData.program.auditorEmail}
+                  isReady={basicInfoData.program.auditorReady}
+                />
               </div>
             </>
-          )
-        }
+          ) : (
+            <div>No program info available</div>
+          )}
+        </div>
 
-        return (
-          <>
-            <PageHeading
-              heading={
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-4 items-center">
-                    <h1>Overview</h1>
-                    <Select onValueChange={handleSelectChange} value={programId ?? ''}>
-                      <SelectTrigger className="max-w-64 min-w-48 border rounded-md px-3 py-2 flex items-center justify-between">
-                        <div className="truncate">{selectedProgram || 'Select a program'}</div>
-                      </SelectTrigger>
-                      <SelectContent className="border rounded-md shadow-md">
-                        {data?.programs?.edges?.map((edge) => {
-                          const program = edge?.node
-                          if (!program) return null
-
-                          return (
-                            <SelectItem key={program.id} value={program.id}>
-                              {program.name}
-                            </SelectItem>
-                          )
-                        })}
-                      </SelectContent>
-                    </Select>
-                    <div className="flex items-center gap-2 whitespace-nowrap">
-                      <Checkbox checked={showAllPrograms} onCheckedChange={(checked) => setShowAllPrograms(!!checked)} />
-                      <span className="text-sm">Include archived</span>
-                      <SystemTooltip
-                        icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                        content={
-                          <p>
-                            Archived programs are not included by default. Check this box to include archived programs in the drop down. These will be read-only, unless the program is unarchived from
-                            program settings.
-                          </p>
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-2.5 items-center">
-                    <Menu
-                      trigger={CreateBtn}
-                      content={
-                        <>
-                          <ProgramCreate trigger={ProgramCreateIconBtn} />
-                          <CreateTaskDialog initialData={initialData} objectAssociationsDisplayIDs={basicInfoData?.program.displayID ? [basicInfoData?.program.displayID] : []} trigger={TaskIconBtn} />
-                        </>
-                      }
-                    />
-                    <Menu content={<ProgramSettingsIconBtn programId={programId!} />} />
-                  </div>
-                </div>
-              }
-            />
-
-            <div className="flex flex-col gap-7">
-              <div className="flex gap-7 w-full">
-                {basicInfoData?.program ? (
-                  <>
-                    <BasicInformation />
-                    <div className="flex flex-col gap-7 flex-1">
-                      <TimelineReadiness />
-                      <ProgramAuditor
-                        programStatus={basicInfoData.program.status}
-                        firm={basicInfoData.program.auditFirm}
-                        name={basicInfoData.program.auditor}
-                        email={basicInfoData.program.auditorEmail}
-                        isReady={basicInfoData.program.auditorReady}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div>No program info available</div>
-                )}
-              </div>
-
-              <StatsCards />
-              <ProgramsTaskTable />
-              <ControlsSummaryCard />
-            </div>
-          </>
-        )
-      })()}
-    </SubscriptionWrapper>
+        <StatsCards />
+        <ProgramsTaskTable />
+        <ControlsSummaryCard />
+      </div>
+    </>
   )
 }
 

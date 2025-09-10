@@ -15,6 +15,18 @@ import { passKeyProvider } from './providers/passkey'
 import { skipCSRFCheck } from '@auth/core'
 
 import { CredentialsSignin } from 'next-auth'
+import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { featureUtil } from '@/lib/subscription-plan/plans.ts'
+import { JWT } from '@auth/core/jwt'
+
+interface SessionJWT extends JWT {
+  modules?: PlanEnum[]
+  accessToken?: string
+  refreshToken?: string
+  isTfaEnabled?: boolean
+  isOnboarding?: boolean
+  expiresAt?: number
+}
 
 export class InvalidLoginError extends CredentialsSignin {
   code = 'Invalid login'
@@ -157,6 +169,7 @@ export const config = {
     async session({ session, token }) {
       try {
         const decodedToken = typeof token.accessToken === 'string' ? jwtDecode<JwtPayload>(token.accessToken) : {}
+        const features = (decodedToken.modules ?? []).flatMap((m: PlanEnum) => featureUtil.getPlanFeatures(m)).filter((f: string, i: number, arr: string[]) => arr.indexOf(f) === i)
 
         session.user = {
           ...session.user,
@@ -166,6 +179,8 @@ export const config = {
           userId: decodedToken?.user_id ?? null,
           isTfaEnabled: token.isTfaEnabled ?? false,
           isOnboarding: token.isOnboarding ?? false,
+          modules: decodedToken?.modules ?? [],
+          features,
         }
       } catch (error) {
         console.error('JWT decoding error in session callback:', error)

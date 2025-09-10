@@ -8,14 +8,23 @@ import ConfigureUrlSection from './configure-url-section'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { FeatureEnum } from '@/lib/subscription-plan/feature-enum.ts'
+import RequiredSubscription from '@/components/pages/protected/subscription/RequiredSubscription.tsx'
+import { useAccessControl } from '@/lib/subscription-plan/hooks/use-access-control.ts'
+import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 
 const TrustCenterSettingsPage = () => {
   const { data, isLoading, error } = useGetTrustCenter()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { hasFeature } = useAccessControl()
 
   React.useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center Settings' }])
   }, [setCrumbs])
+
+  if (!hasFeature(FeatureEnum.TRUST_CENTER)) {
+    return <RequiredSubscription module={PlanEnum.TRUST_CENTER_MODULE} />
+  }
 
   if (isLoading) {
     return <Loading />

@@ -3,18 +3,17 @@
 import Diamond from '@/assets/Diamond'
 import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
-import { SubscriptionStateModuleEnum } from '@/providers/SubscriptionContext.tsx'
+import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 
 type TRequiredSubscriptionProps = {
-  module?: SubscriptionStateModuleEnum
-  moduleDescription?: string
+  module: PlanEnum
 }
 
-const RequiredSubscription = ({
-  module = SubscriptionStateModuleEnum.SECURITY,
-  moduleDescription = 'This module offers in-depth security measures. Ready to dive deeper?',
-}: TRequiredSubscriptionProps) => {
+const RequiredSubscription: React.FC<TRequiredSubscriptionProps> = ({ module }: TRequiredSubscriptionProps) => {
   const router = useRouter()
+  const moduleDescription = featureUtil.getPlanDescription(module)
+
   return (
     <div className="flex flex-col items-center justify-center gap-6 text-center px-8">
       <div className="mb-2">
