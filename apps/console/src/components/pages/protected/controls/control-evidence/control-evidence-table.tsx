@@ -36,6 +36,7 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
               createButton
               formData={control}
               excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
+              defaultSelectedObject={isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
             />
           )}{' '}
         </div>
