@@ -178,6 +178,7 @@ const TaskDetailsSheet = () => {
                       <EvidenceCreateFormDialog
                         formData={evidenceFormData}
                         excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
+                        defaultSelectedObject={ObjectTypeObjects.TASK}
                       />
                     )}
                     <MarkAsComplete taskData={taskData} />

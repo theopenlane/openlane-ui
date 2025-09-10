@@ -349,10 +349,8 @@ const ControlDetailsPage: React.FC = () => {
         canEdit={canEdit(permission?.roles)}
         control={{
           displayID: subcontrol?.refCode,
-          tags: subcontrol.tags ?? [],
           objectAssociations: {
-            controlIDs: [subcontrol?.id],
-            taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            subcontrolIDs: [subcontrol?.id],
             controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [
