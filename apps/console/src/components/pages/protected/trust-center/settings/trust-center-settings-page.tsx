@@ -9,7 +9,7 @@ import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { FeatureEnum } from '@/lib/subscription-plan/feature-enum.ts'
-import RequiredSubscription from '@/components/pages/protected/subscription/RequiredSubscription.tsx'
+import RequiredSubscription from '@/components/pages/protected/subscription/required-subscription.tsx'
 import { useAccessControl } from '@/lib/subscription-plan/hooks/use-access-control.ts'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 
