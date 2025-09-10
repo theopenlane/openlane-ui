@@ -9,7 +9,7 @@ import { MappedControlMappingSource, MappedControlMappingType } from '@repo/code
 
 type Props = {
   refCode: string
-  href: string
+  href?: string
   mappingType?: MappedControlMappingType
   relation?: string | null
   source?: MappedControlMappingSource
@@ -26,13 +26,24 @@ export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType
     }
   }, [source])
 
-  const chip = (
+  const chipContent = (
+    <div
+      className={`
+      flex gap-1 border rounded-full px-2.5 py-0.5
+      ${href ? 'cursor-pointer hover:text-brand' : ''}
+    `}
+    >
+      {config?.icon || null}
+      <span className="text-xs">{refCode}</span>
+    </div>
+  )
+
+  const chip = href ? (
     <Link href={href} onClick={(e) => e.stopPropagation()}>
-      <div className=" flex gap-1  border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">
-        {config?.icon || null}
-        <span className="text-xs"> {refCode}</span>
-      </div>
+      {chipContent}
     </Link>
+  ) : (
+    chipContent
   )
 
   if (tooltipDisabled) {
