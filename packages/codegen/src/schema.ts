@@ -6595,6 +6595,8 @@ export interface CreateTemplateInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the jsonschema object of the template */
   jsonconfig: Scalars['Map']['input']
+  /** the kind of template, e.g. questionnaire */
+  kind?: InputMaybe<TemplateTemplateKind>
   /** the name of the template */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -34794,6 +34796,8 @@ export interface Template extends Node {
   id: Scalars['ID']['output']
   /** the jsonschema object of the template */
   jsonconfig: Scalars['Map']['output']
+  /** the kind of template, e.g. questionnaire */
+  kind?: Maybe<TemplateTemplateKind>
   /** the name of the template */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
@@ -34884,6 +34888,8 @@ export interface TemplateHistory extends Node {
   id: Scalars['ID']['output']
   /** the jsonschema object of the template */
   jsonconfig: Scalars['Map']['output']
+  /** the kind of template, e.g. questionnaire */
+  kind?: Maybe<TemplateHistoryTemplateKind>
   /** the name of the template */
   name: Scalars['String']['output']
   operation: TemplateHistoryOpType
@@ -34943,11 +34949,17 @@ export interface TemplateHistoryOrder {
 
 /** Properties by which TemplateHistory connections can be ordered. */
 export enum TemplateHistoryOrderField {
+  KIND = 'KIND',
   TEMPLATE_TYPE = 'TEMPLATE_TYPE',
   created_at = 'created_at',
   history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at',
+}
+
+/** TemplateHistoryTemplateKind is enum for the field kind */
+export enum TemplateHistoryTemplateKind {
+  QUESTIONNAIRE = 'QUESTIONNAIRE',
 }
 
 /**
@@ -35019,6 +35031,13 @@ export interface TemplateHistoryWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** kind field predicates */
+  kind?: InputMaybe<TemplateHistoryTemplateKind>
+  kindIn?: InputMaybe<Array<TemplateHistoryTemplateKind>>
+  kindIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  kindNEQ?: InputMaybe<TemplateHistoryTemplateKind>
+  kindNotIn?: InputMaybe<Array<TemplateHistoryTemplateKind>>
+  kindNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -35116,10 +35135,16 @@ export interface TemplateOrder {
 
 /** Properties by which Template connections can be ordered. */
 export enum TemplateOrderField {
+  KIND = 'KIND',
   TEMPLATE_TYPE = 'TEMPLATE_TYPE',
   created_at = 'created_at',
   name = 'name',
   updated_at = 'updated_at',
+}
+
+/** TemplateTemplateKind is enum for the field kind */
+export enum TemplateTemplateKind {
+  QUESTIONNAIRE = 'QUESTIONNAIRE',
 }
 
 /** Return response for updateTemplate mutation */
@@ -35198,6 +35223,13 @@ export interface TemplateWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** kind field predicates */
+  kind?: InputMaybe<TemplateTemplateKind>
+  kindIn?: InputMaybe<Array<TemplateTemplateKind>>
+  kindIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  kindNEQ?: InputMaybe<TemplateTemplateKind>
+  kindNotIn?: InputMaybe<Array<TemplateTemplateKind>>
+  kindNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -39646,6 +39678,7 @@ export interface UpdateTemplateInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearKind?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
@@ -39653,6 +39686,8 @@ export interface UpdateTemplateInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the template */
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
+  /** the kind of template, e.g. questionnaire */
+  kind?: InputMaybe<TemplateTemplateKind>
   /** the name of the template */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -42103,12 +42138,19 @@ export type CreateEvidenceMutationVariables = Exact<{
 
 export type CreateEvidenceMutation = { __typename?: 'Mutation'; createEvidence: { __typename?: 'EvidenceCreatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
 
-export type GetEvidenceFilesQueryVariables = Exact<{ [key: string]: never }>
+export type GetEvidenceFilesQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
 
 export type GetEvidenceFilesQuery = {
   __typename?: 'Query'
   files: {
     __typename?: 'FileConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     edges?: Array<{
       __typename?: 'FileEdge'
       node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null; providedFileExtension: string; categoryType?: string | null; createdAt?: any | null } | null

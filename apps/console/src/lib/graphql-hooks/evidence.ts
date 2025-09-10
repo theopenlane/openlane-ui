@@ -57,22 +57,57 @@ export function useCreateEvidence() {
   })
 }
 
-export function useGetEvidenceFiles() {
+type TEvidenceFilesProps = {
+  pagination?: TPagination
+}
+
+export function useGetEvidenceFiles({ pagination }: TEvidenceFilesProps) {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetEvidenceFilesQuery>({
-    queryKey: ['getEvidenceFiles'],
-    queryFn: async () => client.request<GetEvidenceFilesQuery>(GET_EVIDENCE_FILES),
+  const queryResult = useQuery<GetEvidenceFilesQuery>({
+    queryKey: ['getEvidenceFiles', pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request<GetEvidenceFilesQuery>(GET_EVIDENCE_FILES, {
+        ...pagination?.query,
+      }),
   })
+
+  const files = queryResult.data?.files?.edges?.map((edge) => edge?.node) ?? []
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.files?.totalCount ?? 0,
+    pageInfo: queryResult.data?.files?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    files,
+    paginationMeta,
+  }
 }
 
 export const useGetAllEvidences = (where?: EvidenceWhereInput) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetAllEvidencesQuery>({
+  const queryResult = useQuery<GetAllEvidencesQuery>({
     queryKey: ['evidences', where],
     queryFn: async () => client.request<GetAllEvidencesQuery>(GET_ALL_EVIDENCES, { where }),
   })
+
+  const files = queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.evidences?.totalCount ?? 0,
+    pageInfo: queryResult.data?.evidences?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    files,
+    paginationMeta,
+  }
 }
 
 export const useGetEvidenceById = (evidenceId?: string | null) => {
