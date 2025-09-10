@@ -58,6 +58,20 @@ export const featureUtil = {
         return 'Automate evidence collection and task tracking to simplify SOC 2, ISO 27001, and other certification workflows.'
     }
   },
+  getPlanName: (plan: PlanEnum) => {
+    switch (plan) {
+      case PlanEnum.BASE_MODULE:
+        return 'Base'
+      case PlanEnum.TRUST_CENTER_MODULE:
+        return 'Trust Center'
+      case PlanEnum.ENTITY_MANAGEMENT_MODULE:
+        return 'Entity Management'
+      case PlanEnum.VULNERABILITY_MANAGEMENT_MODULE:
+        return 'Vulnerability Management'
+      case PlanEnum.COMPLIANCE_MODULE:
+        return 'Compliance'
+    }
+  },
   planHasFeature: (plan: PlanEnum, feature: FeatureEnum) => {
     return featureUtil.getPlanFeatures(plan).includes(feature)
   },
