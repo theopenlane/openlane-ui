@@ -78,7 +78,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
-  const { selectedControlEvidence, setSelectedControlEvidence, isEditPreset, setIsEditPreset } = useControlEvidenceStore()
+  const { isEditPreset, setIsEditPreset } = useControlEvidenceStore()
   const searchParams = useSearchParams()
   const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
   const id = searchParams.get('id')
@@ -89,7 +89,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
-  const { data, isLoading: fetching } = useGetEvidenceById(id as string)
+
+  const config = useMemo(() => {
+    if (controlEvidenceIdParam) {
+      return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
+    }
+    return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
+  }, [controlEvidenceIdParam, id])
+
+  const { data, isLoading: fetching } = useGetEvidenceById(config.id)
   const { data: session } = useSession()
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
@@ -132,12 +140,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   )
 
   useEffect(() => {
-    if (controlEvidenceIdParam) {
-      setSelectedControlEvidence(controlEvidenceIdParam)
-    }
-  }, [controlEvidenceIdParam, setSelectedControlEvidence])
-
-  useEffect(() => {
     if (evidence) {
       form.reset({
         name: evidence.name ?? '',
@@ -164,13 +166,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }, [evidence, form])
 
   const handleCopyLink = () => {
-    if (!selectedControlEvidence) {
+    if (!config.id) {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?controlEvidenceId=${selectedControlEvidence}`
     navigator.clipboard
-      .writeText(url)
+      .writeText(config?.link)
       .then(() => {
         successNotification({
           title: 'Link copied to clipboard',
@@ -206,7 +207,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     try {
       await updateEvidence({
-        updateEvidenceId: selectedControlEvidence as string,
+        updateEvidenceId: config.id as string,
         input: {
           ...formData,
           ...associationInputs,
@@ -231,12 +232,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleDelete = async () => {
     try {
-      await deleteEvidence({ deleteEvidenceId: selectedControlEvidence as string })
+      await deleteEvidence({ deleteEvidenceId: id as string })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       }
-      setSelectedControlEvidence(null)
+
+      handleCloseParams()
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -252,7 +254,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const handleUpdateField = async () => {
-    if (!editAllowed || !editField) return
+    if (!editAllowed || !editField || !config.id) return
 
     const oldValue = evidence?.[editField]
     const newValue = form.getValues(editField)
@@ -270,7 +272,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
 
     await updateEvidence({
-      updateEvidenceId: selectedControlEvidence as string,
+      updateEvidenceId: config.id,
       input: {
         [editField]: form.getValues(editField),
       },
@@ -333,7 +335,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   return (
-    <Sheet open={!!id} onOpenChange={handleSheetClose}>
+    <Sheet open={!!id || !!controlEvidenceIdParam} onOpenChange={handleSheetClose}>
       <SheetContent
         onEscapeKeyDown={(e) => {
           if (editField) {
@@ -784,7 +786,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </Panel>
                 </div>
               )}
-              {selectedControlEvidence && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={selectedControlEvidence} />}
+              {controlEvidenceIdParam && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={controlEvidenceIdParam} />}
             </Form>
           </>
         )}
