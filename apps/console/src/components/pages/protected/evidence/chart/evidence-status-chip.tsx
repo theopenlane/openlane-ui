@@ -4,9 +4,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { CircleQuestionMark, Fingerprint, Folder } from 'lucide-react'
 import Link from 'next/link'
-import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { TChardData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
 import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum.tsx'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TEvidenceStatusChipProps = {
   data: TChardData
@@ -43,7 +43,7 @@ type TEvidenceTooltipContentProps = {
 
 const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ programId, evidenceData }) => {
   const { data, isLoading } = useGetFirstFiveEvidencesByStatus(evidenceData.status, programId)
-  const { setSelectedControlEvidence } = useControlEvidenceStore()
+  const { replace } = useSmartRouter()
 
   if (isLoading) {
     return <p className="text-xs">Loading details…</p>
@@ -93,14 +93,14 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
 
         <div className="flex items-center gap-1">
           <Fingerprint size={12} />
-          <span className="font-medium">Evidences</span>
+          <span className="font-medium">Evidence</span>
         </div>
 
         {evidences.length === 0 && <span className="pl-3 text-brand text-xs">No evidence available.</span>}
         {evidences.length > 0 && (
           <div className={`grid gap-2 pl-3 ${columnClass}`}>
             {evidences.map((item, index) => (
-              <span key={index} className="pr-1 text-brand text-xs hover:underline cursor-pointer" onClick={() => setSelectedControlEvidence(item?.node?.id ?? null)}>
+              <span key={index} className="pr-1 text-brand text-xs hover:underline cursor-pointer" onClick={() => replace({ id: item?.node?.id || '' })}>
                 {item?.node?.displayID}
               </span>
             ))}
