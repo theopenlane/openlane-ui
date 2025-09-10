@@ -42,7 +42,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
-  const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
@@ -93,11 +92,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
         title: 'Error',
         description: errorMessage,
       })
-    } finally {
-      form.reset()
-      setTagValues([])
-      setResetEvidenceFiles(true)
-      setAssociationResetTrigger((prev) => prev + 1)
     }
   }
 
@@ -332,7 +326,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                   />
                 )}
                 <ObjectAssociation
-                  key={associationResetTrigger}
                   onIdChange={handleEvidenceObjectIdsChange}
                   excludeObjectTypes={excludeObjectTypes || []}
                   initialData={formData?.objectAssociations}
