@@ -17,16 +17,6 @@ import { skipCSRFCheck } from '@auth/core'
 import { CredentialsSignin } from 'next-auth'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { featureUtil } from '@/lib/subscription-plan/plans.ts'
-import { JWT } from '@auth/core/jwt'
-
-interface SessionJWT extends JWT {
-  modules?: PlanEnum[]
-  accessToken?: string
-  refreshToken?: string
-  isTfaEnabled?: boolean
-  isOnboarding?: boolean
-  expiresAt?: number
-}
 
 export class InvalidLoginError extends CredentialsSignin {
   code = 'Invalid login'
