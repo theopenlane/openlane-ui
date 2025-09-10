@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Edit, Send, Trash2 } from 'lucide-react'
+import { Edit, Trash2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useDeleteTemplate } from '@/lib/graphql-hooks/templates'
@@ -77,9 +77,9 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
+            {/* <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
               Send
-            </Button>
+            </Button> */}
 
             {editAllowed && (
               <>

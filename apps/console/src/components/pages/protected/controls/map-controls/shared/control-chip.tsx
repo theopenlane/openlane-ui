@@ -26,6 +26,7 @@ export interface ControlChipProps {
   hideStandard?: boolean
   clickable?: boolean
   disableHref?: boolean
+  hideHexagon?: boolean
 }
 
 const ControlChip: React.FC<ControlChipProps> = ({
@@ -42,6 +43,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   hideStandard,
   clickable = true,
   disableHref,
+  hideHexagon,
 }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
@@ -68,7 +70,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
       }}
     >
       {draggable && <Drag strokeWidth={1} className="text-border" />}
-      <StandardsHexagon shortName={control.referenceFramework ?? ''} />
+      {!hideHexagon && <StandardsHexagon shortName={control.referenceFramework ?? ''} />}
       {!hideStandard && (
         <>
           <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
@@ -95,7 +97,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>{!disableHref && clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
         {tooltipOpen && (
-          <TooltipContent side="top">
+          <TooltipContent side="top" collisionPadding={64}>
             <ControlTooltipContent control={control} disableHref={disableHref} />
           </TooltipContent>
         )}
@@ -123,7 +125,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
   if (!details) return <p className="text-xs">No details available.</p>
 
   return (
-    <div className="bg-background-secondary p-3 rounded-md text-xs min-w-[240px]">
+    <div className="bg-background-secondary p-3 rounded-md text-xs min-w-[240px] max-w-[320px]">
       <div className="grid grid-cols-[auto_1fr] gap-y-2">
         <div className="flex items-center gap-1 border-b pb-2">
           <SlidersHorizontal size={12} />
@@ -164,12 +166,12 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
         <span className="flex pl-3 gap-1 border-b pb-2">{details.subcategory || '-'}</span>
       </div>
 
-      <div className="flex flex-col pt-2 max-w-[240px]">
+      <div className="flex flex-col pt-2 max-w-full">
         <div className="flex items-center gap-1">
           <PencilLine size={12} />
           <span className="font-medium">Description</span>
         </div>
-        <div className="line-clamp-4 text-justify">{convertToReadOnly(details.description || '')}</div>
+        <div className="line-clamp-4 text-justify break-words">{convertToReadOnly(details.description || '')}</div>
       </div>
     </div>
   )

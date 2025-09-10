@@ -15,6 +15,9 @@ export const GET_TRUST_CENTER = gql`
               dnsTxtRecord
               dnsTxtValue
             }
+            mappableDomain {
+              name
+            }
           }
           setting {
             id
@@ -28,6 +31,7 @@ export const GET_TRUST_CENTER = gql`
               id
               presignedURL
             }
+            faviconRemoteURL
             faviconFile {
               id
               presignedURL

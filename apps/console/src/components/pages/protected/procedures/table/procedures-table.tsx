@@ -3,7 +3,18 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { GetProceduresListQueryVariables, Maybe, OrderDirection, OrgMembershipWhereInput, Procedure, ProcedureDocumentStatus, ProcedureOrderField, ProcedureWhereInput } from '@repo/codegen/src/schema'
+import {
+  ExportExportFormat,
+  ExportExportType,
+  GetProceduresListQueryVariables,
+  Maybe,
+  OrderDirection,
+  OrgMembershipWhereInput,
+  Procedure,
+  ProcedureDocumentStatus,
+  ProcedureOrderField,
+  ProcedureWhereInput,
+} from '@repo/codegen/src/schema'
 import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
@@ -12,8 +23,6 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedures'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ColumnDef } from '@tanstack/react-table'
-import { exportToCSV } from '@/utils/exportToCSV'
-import { formatDateTime } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { VisibilityState } from '@tanstack/react-table'
@@ -21,6 +30,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -31,6 +41,7 @@ export const ProceduresTable = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
       field: ProcedureOrderField.name,
@@ -109,31 +120,17 @@ export const ProceduresTable = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const handleExport = () => {
-    if (!procedures || procedures.length === 0) return
-    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof Procedure
-      const label = col.header
+  const handleExportFile = () => {
+    if (!procedures || procedures.length === 0) {
+      return
+    }
 
-      return {
-        label,
-        accessor: (procedure: Procedure) => {
-          const value = procedure[key]
-
-          if ((key === 'updatedAt' || key === 'createdAt') && value) {
-            return formatDateTime(value as string)
-          }
-
-          if (key === 'summary') {
-            return (value as string) ?? ''
-          }
-
-          return typeof value === 'string' || typeof value === 'number' ? value : ''
-        },
-      }
+    handleExport({
+      exportType: ExportExportType.PROCEDURE,
+      filters: JSON.stringify(filters),
+      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      format: ExportExportFormat.CSV,
     })
-
-    exportToCSV(procedures, exportableColumns, 'procedures')
   }
 
   useEffect(() => {
@@ -175,7 +172,7 @@ export const ProceduresTable = () => {
           setSearchTerm(inputVal)
           setPagination(DEFAULT_PAGINATION)
         }}
-        handleExport={handleExport}
+        handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

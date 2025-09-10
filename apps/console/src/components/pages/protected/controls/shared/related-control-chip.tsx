@@ -1,25 +1,37 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ChevronsLeftRightEllipsis, PencilLine } from 'lucide-react'
+import { ChevronsLeftRightEllipsis, Pencil, PencilLine, Zap } from 'lucide-react'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
-import { MappedControlMappingType } from '@repo/codegen/src/schema'
+import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 
 type Props = {
   refCode: string
   href: string
   mappingType?: MappedControlMappingType
   relation?: string | null
+  source?: MappedControlMappingSource
 }
 
-export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType, relation }) => {
+export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType, relation, source }) => {
   const tooltipDisabled = !relation && !mappingType
+
+  const config = useMemo(() => {
+    if (source === MappedControlMappingSource.SUGGESTED) {
+      return { icon: <Zap className="mt-0.5" size={10} />, text: 'Suggested by Openlane' }
+    } else {
+      return { icon: <Pencil className="mt-0.5" size={10} />, text: 'Added manually by you' }
+    }
+  }, [source])
 
   const chip = (
     <Link href={href} onClick={(e) => e.stopPropagation()}>
-      <span className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">{refCode}</span>
+      <div className=" flex gap-1  border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">
+        {config?.icon || null}
+        <span className="text-xs"> {refCode}</span>
+      </div>
     </Link>
   )
 
@@ -33,6 +45,11 @@ export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType
         <TooltipTrigger asChild>{chip}</TooltipTrigger>
         <TooltipContent side="top" className="text-xs">
           <div className="flex flex-col gap-1">
+            {config?.text && (
+              <div className="flex gap-1 items-center border-b">
+                <p className="text-xs text-text-informational italic">{config.text}</p>
+              </div>
+            )}
             {mappingType && (
               <div className="flex gap-1 items-center border-b">
                 <ChevronsLeftRightEllipsis size={12} />

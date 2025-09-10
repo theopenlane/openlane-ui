@@ -34,7 +34,7 @@ const DashboardPage: React.FC = () => {
 
   const { data, isLoading } = useGetAllPrograms({
     where: {
-      statusNEQ: ProgramProgramStatus.COMPLETED,
+      statusNotIn: [ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED],
     },
   })
 

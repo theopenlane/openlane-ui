@@ -43,29 +43,17 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
-      if (!id) {
-        return
-      }
-
+      if (!id) return
       try {
         const comment = await plateEditorHelper.convertToHtml(data.comment)
-
         await updateTask({
           updateTaskId: id,
-          input: {
-            addComment: {
-              text: comment,
-            },
-          },
+          input: { addComment: { text: comment } },
         })
-
         queryClient.invalidateQueries({ queryKey: ['tasks'] })
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
-        errorNotification({
-          title: 'Error',
-          description: errorMessage,
-        })
+        errorNotification({ title: 'Error', description: errorMessage })
       }
     },
     [id, plateEditorHelper, updateTask, queryClient, errorNotification],
@@ -84,9 +72,11 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
         const avatarUrl = user!.avatarFile?.presignedURL || user?.avatarRemoteURL
         return {
           comment: item?.node?.text,
-          avatarUrl: avatarUrl,
+          avatarUrl,
           createdAt: item?.node?.createdAt,
           userName: user?.displayName,
+          createdBy: item?.node?.createdBy,
+          id: item?.node?.id || '',
         } as TCommentData
       })
       const sortedComments = comments?.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
@@ -105,6 +95,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
           <p className="text-sm">Newest at bottom</p>
         </div>
       </div>
+
       <CommentList comments={comments} />
       <AddComment onSuccess={handleSendComment} />
     </div>

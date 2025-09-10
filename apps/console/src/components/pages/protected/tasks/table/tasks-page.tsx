@@ -2,15 +2,13 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { useTaskStore, TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { exportToCSV } from '@/utils/exportToCSV'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
-import { formatDate } from '@/utils/date'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -18,6 +16,7 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils.ts'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { Loading } from '@/components/shared/loading/loading'
 
 const TasksPage: React.FC = () => {
@@ -34,6 +33,7 @@ const TasksPage: React.FC = () => {
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
       field: TaskOrderField.due,
@@ -127,10 +127,6 @@ const TasksPage: React.FC = () => {
     router.replace(`?${params.toString()}`, { scroll: false })
   }
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
-  }
-
   const emptyUserMap = {}
   const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
@@ -139,39 +135,21 @@ const TasksPage: React.FC = () => {
       header: column.header,
     }))
 
-  const handleExport = () => {
-    if (!hasTasks) return
-    const tasks = tableRef.current?.exportData?.() ?? []
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
 
-    const exportableColumns = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
-      .filter(isVisibleColumn)
-      .map((col) => {
-        const key = col.accessorKey as keyof Task
-        const label = col.header
+  const handleExportFile = async () => {
+    if (!hasTasks) {
+      return
+    }
 
-        return {
-          label,
-          accessor: (task: Task) => {
-            const value = task[key]
-
-            if (key === 'due' && value) {
-              return formatDate(value)
-            }
-
-            if (key === 'assignee') {
-              return task.assignee?.displayName || '-'
-            }
-
-            if (key === 'assigner') {
-              return task.assigner?.displayName
-            }
-
-            return typeof value === 'string' || typeof value === 'number' ? value : ''
-          },
-        }
-      })
-
-    exportToCSV(tasks, exportableColumns, 'task_list')
+    handleExport({
+      exportType: ExportExportType.TASK,
+      filters: JSON.stringify(filters),
+      fields: mappedColumns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      format: ExportExportFormat.CSV,
+    })
   }
 
   const handleBulkEdit = () => {
@@ -189,7 +167,7 @@ const TasksPage: React.FC = () => {
         onTabChange={handleTabChange}
         handleBulkEdit={handleBulkEdit}
         onShowCompletedTasksChange={handleShowCompletedTasks}
-        handleExport={handleExport}
+        handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

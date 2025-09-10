@@ -42412,6 +42412,47 @@ export type EvidenceSuggestedActionsQuery = {
   }
 }
 
+export type CreateExportMutationVariables = Exact<{
+  input: CreateExportInput
+}>
+
+export type CreateExportMutation = { __typename?: 'Mutation'; createExport: { __typename?: 'ExportCreatePayload'; export: { __typename?: 'Export'; id: string; status: ExportExportStatus } } }
+
+export type GetExportQueryVariables = Exact<{
+  exportId: Scalars['ID']['input']
+}>
+
+export type GetExportQuery = {
+  __typename?: 'Query'
+  export: {
+    __typename?: 'Export'
+    status: ExportExportStatus
+    files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+  }
+}
+
+export type GetExportsQueryVariables = Exact<{
+  where?: InputMaybe<ExportWhereInput>
+}>
+
+export type GetExportsQuery = {
+  __typename?: 'Query'
+  exports: {
+    __typename?: 'ExportConnection'
+    edges?: Array<{
+      __typename?: 'ExportEdge'
+      node?: {
+        __typename?: 'Export'
+        id: string
+        status: ExportExportStatus
+        exportType: ExportExportType
+        errorMessage?: string | null
+        files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
@@ -42628,6 +42669,18 @@ export type CreateMappedControlMutationVariables = Exact<{
 
 export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
 
+export type MappedSubcontrolsFragmentFragment = {
+  __typename: 'Subcontrol'
+  id: string
+  refCode: string
+  referenceFramework?: string | null
+  controlID: string
+  category?: string | null
+  subcategory?: string | null
+}
+
+export type MappedControlsFragmentFragment = { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null }
+
 export type GetMappedControlsQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
 }>
@@ -42644,27 +42697,34 @@ export type GetMappedControlsQuery = {
         relation?: string | null
         confidence?: number | null
         mappingType: MappedControlMappingType
+        source?: MappedControlMappingSource | null
         fromSubcontrols: {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
             __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
           } | null> | null
         }
         toSubcontrols: {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
             __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
           } | null> | null
         }
         fromControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
         }
         toControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
         }
       } | null
     } | null> | null
@@ -43198,7 +43258,10 @@ export type InternalPolicyByIdFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   programs: {
@@ -43263,7 +43326,10 @@ export type GetInternalPolicyDetailsByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
+      } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
@@ -43779,12 +43845,32 @@ export type GetProgramGroupsQuery = {
     viewers: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          name: string
+          id: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+        } | null
+      } | null> | null
     }
     editors: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          name: string
+          id: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+        } | null
+      } | null> | null
     }
   }
 }
@@ -43863,7 +43949,7 @@ export type RiskFieldsFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   programs: {
@@ -43949,7 +44035,7 @@ export type GetRiskByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
@@ -44026,7 +44112,7 @@ export type GetAllRisksQuery = {
         subcontrols: {
           __typename?: 'SubcontrolConnection'
           totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
           pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
         }
         programs: {
@@ -44623,6 +44709,7 @@ export type TaskQuery = {
         __typename?: 'NoteEdge'
         node?: {
           __typename?: 'Note'
+          id: string
           createdAt?: any | null
           createdBy?: string | null
           text: string
@@ -44657,6 +44744,13 @@ export type UpdateBulkTaskMutationVariables = Exact<{
 }>
 
 export type UpdateBulkTaskMutation = { __typename?: 'Mutation'; updateBulkTask: { __typename?: 'TaskBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type UpdateTaskCommentMutationVariables = Exact<{
+  updateTaskCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTaskCommentMutation = { __typename?: 'Mutation'; updateTaskComment: { __typename?: 'TaskUpdatePayload'; task: { __typename?: 'Task'; id: string } } }
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
@@ -44933,6 +45027,7 @@ export type GetTrustCenterQuery = {
           id: string
           cnameRecord: string
           dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
+          mappableDomain: { __typename?: 'MappableDomain'; name: string }
         } | null
         setting?: {
           __typename?: 'TrustCenterSetting'
@@ -44943,6 +45038,7 @@ export type GetTrustCenterQuery = {
           font?: string | null
           backgroundColor?: string | null
           accentColor?: string | null
+          faviconRemoteURL?: string | null
           overview?: string | null
           title?: string | null
           logoRemoteURL?: string | null

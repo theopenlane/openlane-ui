@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { Group, InternalPolicyByIdFragment, UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
 import { Stamp, CircleArrowRight, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
@@ -48,8 +47,8 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
     const showEditable = editAllowed && (isEditing || editingField === editingKey)
 
     return (
-      <div className="flex justify-between items-center">
-        <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''} `}>
+      <div className="flex items-center ">
+        <div className={`flex gap-2 min-w-[160px] items-center ${inputClassName ?? ''} `}>
           {icon}
           <TooltipProvider>
             <Tooltip>
@@ -93,7 +92,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
             <Tooltip>
               <TooltipTrigger
                 type="button"
-                className={`w-[200px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                className={`min-w-[160px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) {
                     setEditingField(editingKey)
@@ -114,13 +113,10 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
   }
 
   return (
-    <Card className="p-4">
-      <h3 className="text-lg font-medium mb-2">Authority</h3>
-      <div className="flex flex-col gap-4">
-        {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
-        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
-      </div>
-    </Card>
+    <div className="flex flex-col gap-4 pb-4">
+      {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
+      {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
+    </div>
   )
 }
 

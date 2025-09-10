@@ -1,6 +1,6 @@
 import React from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { GetMappedControlsQuery, MappedControlMappingType } from '@repo/codegen/src/schema'
+import { GetMappedControlsQuery, MappedControlMappingSource, MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
 import RelationCard from './mapped-relations-card'
 
 type MappedRelationsSheetProps = {
@@ -10,7 +10,7 @@ type MappedRelationsSheetProps = {
 }
 
 const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpenChange, queryData }) => {
-  const mappings = queryData?.mappedControls?.edges?.map((e) => e?.node).filter(Boolean)
+  const mappings = queryData?.mappedControls?.edges?.filter((e) => e?.node?.source !== MappedControlMappingSource.SUGGESTED).map((e) => e?.node)
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -25,28 +25,34 @@ const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpe
         {(!mappings || mappings.length === 0) && <p className="text-sm mt-4">No mapping data available.</p>}
 
         {mappings?.map((mapping, i) => {
-          const from: Record<string, string[]> = {}
-          const to: Record<string, string[]> = {}
+          const from: Record<string, (MappedControlsFragmentFragment | MappedSubcontrolsFragmentFragment)[]> = {}
+          const to: Record<string, (MappedControlsFragmentFragment | MappedSubcontrolsFragmentFragment)[]> = {}
 
-          const addToMap = (map: Record<string, string[]>, framework: string, refCode: string) => {
+          const addToMap = (
+            map: Record<string, (MappedControlsFragmentFragment | MappedSubcontrolsFragmentFragment)[]>,
+            framework: string,
+            node: MappedControlsFragmentFragment | MappedSubcontrolsFragmentFragment,
+          ) => {
+            if (!node) return
             if (!map[framework]) map[framework] = []
-            if (!map[framework].includes(refCode)) map[framework].push(refCode)
+            if (!map[framework].some((n) => n.id === node.id)) {
+              map[framework].push(node)
+            }
           }
 
           const allFrom = [...(mapping?.fromControls?.edges || []), ...(mapping?.fromSubcontrols?.edges || [])]
           const allTo = [...(mapping?.toControls?.edges || []), ...(mapping?.toSubcontrols?.edges || [])]
-
           allFrom.forEach((e) => {
             if (e?.node) {
               const framework = e.node.referenceFramework || 'CUSTOM'
-              addToMap(from, framework, e.node.refCode)
+              addToMap(from, framework, e.node)
             }
           })
 
           allTo.forEach((e) => {
             if (e?.node) {
               const framework = e.node.referenceFramework || 'CUSTOM'
-              addToMap(to, framework, e.node.refCode)
+              addToMap(to, framework, e.node)
             }
           })
 
