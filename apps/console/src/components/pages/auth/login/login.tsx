@@ -50,12 +50,16 @@ export const LoginPage = () => {
   }
 
   const shouldShowPasswordField = useCallback((): boolean => {
-    if (webfingerLoading || !webfingerResponse || !webfingerResponse.success) {
+    if (!webfingerResponse) {
       return false
     }
 
-    return webfingerResponse.provider === 'NONE' || (webfingerResponse.provider !== 'NONE' && !webfingerResponse.enforced)
-  }, [webfingerLoading, webfingerResponse])
+    if (!webfingerResponse.success) {
+      return true
+    }
+
+    return webfingerResponse.provider === 'NONE' || !webfingerResponse.enforced
+  }, [webfingerResponse])
 
   const shouldShowSSOButton = useCallback((): boolean => {
     if (!webfingerResponse) {
