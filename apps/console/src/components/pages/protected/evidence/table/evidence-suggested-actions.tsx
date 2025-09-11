@@ -38,14 +38,14 @@ export default function EvidenceSuggestedActions() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" sideOffset={12} className="w-[380px] rounded-2xl border-muted-foreground/10 bg-popover p-0 shadow-xl">
+      <PopoverContent align="end" sideOffset={12} className="w-[380px] rounded-2xl border-muted-foreground/10 bg-popover p-0 shadow-xl z-30">
         <div className="flex items-center justify-between gap-2 rounded-t-2xl px-5 pt-4 pb-1">
           <h3 className="text-lg font-semibold">Suggested Actions</h3>
           <X className="h-4 w-4 cursor-pointer" aria-label="Close" onClick={() => setOpen(false)} />
         </div>
 
-        <div className="max-h-[360px] px-5 pt-1">
-          <div className="divide-y">
+        <div className="px-5 pt-1">
+          <div className="divide-y max-h-[360px] overflow-y-auto">
             {needsRenewal.map((ev) => (
               <div key={`renew-${ev?.id}`} className="group flex items-center gap-3 py-4">
                 <AlertCircle className="h-4 w-4" />
