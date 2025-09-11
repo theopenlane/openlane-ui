@@ -44,15 +44,12 @@ const SSOCallbackPage: React.FC = () => {
         const data = await response.json()
 
         if (response.ok && data.success) {
-          // Clear stored organization_id after successful SSO
-          localStorage.removeItem('sso_organization_id')
-
-          // Sign in with NextAuth using the SSO provider
           const signInResult = await signIn('credentials', {
-            callbackUrl: data.redirect_url || '/',
-            redirect: false, // Prevent automatic redirect
-            // You might need to adjust this based on your NextAuth setup
-            // The backend should return appropriate session data
+            accessToken: data.access_token,
+            refreshToken: data.refresh_token,
+            session: data.session,
+            redirect: false,
+            type: 'oidc',
           })
 
           if (signInResult && !signInResult.error) {
@@ -61,18 +58,14 @@ const SSOCallbackPage: React.FC = () => {
             router.push('/login?error=sso_signin_failed')
           }
         } else {
-          // Clear stored organization_id on failure
-          localStorage.removeItem('sso_organization_id')
-
           console.error('SSO callback failed:', data)
           router.push('/login?error=sso_callback_failed')
         }
       } catch (error) {
-        // Clear stored organization_id on error
-        localStorage.removeItem('sso_organization_id')
-
         console.error('SSO callback error:', error)
         router.push('/login?error=sso_callback_error')
+      } finally {
+        localStorage.removeItem('sso_organization_id')
       }
     }
 

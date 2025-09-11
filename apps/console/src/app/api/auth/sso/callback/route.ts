@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
     }
 
     const cookies = request.headers.get('cookie')
-    console.log('Incoming cookies:', cookies)
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -35,15 +34,25 @@ export async function POST(request: NextRequest) {
 
     const callbackResponse = await ssoCallbackData.json()
 
-    if (ssoCallbackData.ok) {
-      return NextResponse.json(
-        {
-          success: true,
-          redirect_url: callbackResponse.redirect_url || '/',
-          ...callbackResponse,
-        },
-        { status: 200 },
-      )
+    if (ssoCallbackData.ok && callbackResponse.success) {
+      try {
+        return NextResponse.json(
+          {
+            success: true,
+            ...callbackResponse,
+          },
+          { status: 200 },
+        )
+      } catch (error) {
+        console.error('error processing SSO authentication:', error)
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Failed to complete SSO authentication',
+          },
+          { status: 500 },
+        )
+      }
     }
 
     return NextResponse.json(

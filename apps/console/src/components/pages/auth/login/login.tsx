@@ -46,12 +46,11 @@ export const LoginPage = () => {
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
+    return /\S+@\S+\.\S+/.test(email)
   }
 
   const shouldShowPasswordField = (): boolean => {
-    if (!webfingerResponse || !webfingerResponse.success) {
+    if (webfingerLoading || !webfingerResponse || !webfingerResponse.success) {
       return false
     }
 
@@ -68,10 +67,9 @@ export const LoginPage = () => {
 
   const handleSSOLogin = async () => {
     if (!webfingerResponse?.organization_id) {
-      return
+      return false
     }
 
-    // store organization_id for use in callback
     localStorage.setItem('sso_organization_id', webfingerResponse.organization_id)
 
     try {
@@ -82,7 +80,6 @@ export const LoginPage = () => {
         },
         body: JSON.stringify({
           organization_id: webfingerResponse.organization_id,
-          return: 'http://localhost:3001/login/sso',
         }),
       })
 
@@ -90,21 +87,23 @@ export const LoginPage = () => {
 
       if (response.ok && data.success && data.redirect_uri) {
         window.location.href = data.redirect_uri
-        return
+        return true
       }
 
       if (!data.success) {
         errorNotification({ title: data.message || 'SSO login failed' })
-        return
+        return false
       }
 
       console.error('SSO login failed:', data)
       setSignInError(true)
       setSignInErrorMessage('SSO login failed. Please try again.')
+      return false
     } catch (error) {
       console.error('SSO login error:', error)
       setSignInError(true)
       setSignInErrorMessage('An error occurred during SSO login.')
+      return false
     }
   }
 
@@ -162,6 +161,10 @@ export const LoginPage = () => {
     setSignInError(false)
 
     try {
+      if (shouldShowSSOButton()) {
+        return
+      }
+
       if (recaptchaSiteKey) {
         const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
 
@@ -203,14 +206,14 @@ export const LoginPage = () => {
         }
 
         setSignInErrorMessage(errMsg)
-        setSignInLoading(false)
         setSignInError(true)
       }
     } catch (error) {
       console.error('Login error:', error)
       setSignInErrorMessage('An unexpected error occurred.')
-      setSignInLoading(false)
       setSignInError(true)
+    } finally {
+      setSignInLoading(false)
     }
   }
 

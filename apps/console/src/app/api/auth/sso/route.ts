@@ -14,12 +14,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'organization_id is required' }, { status: 400 })
     }
 
-    const cookies = request.headers.get('cookie')
-    console.log('Incoming cookies for SSO login:', cookies)
-
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      ...(cookies ? { cookie: cookies } : {}),
     }
 
     const ssoData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/login`, {
@@ -34,7 +30,28 @@ export async function POST(request: NextRequest) {
     const fetchedData = await ssoData.json()
 
     if (ssoData.ok && fetchedData.success) {
-      return NextResponse.json(fetchedData, { status: 200 })
+      const response = NextResponse.json(fetchedData, { status: ssoData.status })
+
+      const responseCookies = ssoData.headers.get('set-cookie')
+      if (responseCookies) {
+        const cookieStrings = responseCookies.split(/,(?=\s*[a-zA-Z0-9_-]+=)/)
+
+        for (const cookieString of cookieStrings) {
+          const cookieParts = cookieString.trim().split(';')[0]?.split('=')
+          if (cookieParts && cookieParts.length === 2) {
+            const [name, value] = cookieParts
+            response.cookies.set(name, value, {
+              httpOnly: true,
+              secure: true,
+              sameSite: 'lax',
+              path: '/',
+              maxAge: 60,
+            })
+          }
+        }
+      }
+
+      return response
     }
 
     if (ssoData.ok && fetchedData.success === false) {
