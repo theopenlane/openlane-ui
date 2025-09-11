@@ -12,8 +12,15 @@ export const CREATE_EVIDENCE = gql`
 `
 
 export const GET_EVIDENCE_FILES = gql`
-  query GetEvidenceFiles {
-    files {
+  query GetEvidenceFiles($first: Int, $last: Int, $before: Cursor, $after: Cursor) {
+    files(first: $first, last: $last, before: $before, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
       edges {
         node {
           id
