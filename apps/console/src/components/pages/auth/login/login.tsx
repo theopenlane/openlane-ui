@@ -7,7 +7,7 @@ import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Separator } from '@repo/ui/separator'
 import { loginStyles } from './login.styles'
 import { GoogleIcon } from '@repo/ui/icons/google'
@@ -49,23 +49,23 @@ export const LoginPage = () => {
     return /\S+@\S+\.\S+/.test(email)
   }
 
-  const shouldShowPasswordField = (): boolean => {
+  const shouldShowPasswordField = useCallback((): boolean => {
     if (webfingerLoading || !webfingerResponse || !webfingerResponse.success) {
       return false
     }
 
     return webfingerResponse.provider === 'NONE' || (webfingerResponse.provider !== 'NONE' && !webfingerResponse.enforced)
-  }
+  }, [webfingerLoading, webfingerResponse])
 
-  const shouldShowSSOButton = (): boolean => {
+  const shouldShowSSOButton = useCallback((): boolean => {
     if (!webfingerResponse) {
       return false
     }
 
     return webfingerResponse.success && webfingerResponse.provider !== 'NONE' && webfingerResponse.enforced && !!webfingerResponse.organization_id
-  }
+  }, [webfingerResponse])
 
-  const handleSSOLogin = async () => {
+  const handleSSOLogin = useCallback(async () => {
     if (!webfingerResponse?.organization_id) {
       return false
     }
@@ -105,9 +105,9 @@ export const LoginPage = () => {
       setSignInErrorMessage('An error occurred during SSO login.')
       return false
     }
-  }
+  }, [webfingerResponse, errorNotification])
 
-  const checkLoginMethods = async (email: string) => {
+  const checkLoginMethods = useCallback(async (email: string) => {
     if (!isValidEmail(email)) {
       return
     }
@@ -128,14 +128,17 @@ export const LoginPage = () => {
     } finally {
       setWebfingerLoading(false)
     }
-  }
+  }, [])
 
-  const debouncedCheckLoginMethods = (email: string) => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current)
-    }
-    debounceTimeout.current = setTimeout(() => checkLoginMethods(email), 500)
-  }
+  const debouncedCheckLoginMethods = useCallback(
+    (email: string) => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current)
+      }
+      debounceTimeout.current = setTimeout(() => checkLoginMethods(email), 500)
+    },
+    [checkLoginMethods],
+  )
 
   useEffect(() => {
     return () => {
@@ -317,11 +320,15 @@ export const LoginPage = () => {
           onSubmit={(e: LoginUser) => {
             submit(e)
           }}
-          onChange={(e: { username: string }) => {
-            setEmail(e.username)
-            if (e.username && isValidEmail(e.username)) {
-              debouncedCheckLoginMethods(e.username)
-            } else {
+          onChange={(e: { username: string; password?: string }) => {
+            if (e.username !== undefined && e.username !== email) {
+              setEmail(e.username)
+
+              if (e.username && isValidEmail(e.username)) {
+                debouncedCheckLoginMethods(e.username)
+                return
+              }
+
               setWebfingerResponse(null)
             }
           }}
