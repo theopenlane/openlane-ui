@@ -42,10 +42,9 @@ import { EvidenceStatusMapper } from '@/components/pages/protected/evidence/util
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useQueryClient } from '@tanstack/react-query'
 import { Textarea } from '@repo/ui/textarea'
-import ControlEvidenceFiles from '@/components/pages/protected/controls/control-evidence/control-evidence-files.tsx'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
+import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -60,9 +59,10 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { EvidenceDetailsSheetSkeleton } from '../../evidence/skeleton/evidence-details-skeleton'
+import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import NextLink from 'next/link'
+import EvidenceFiles from './evidence-files'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -354,7 +354,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 <Button className="h-8 p-2" icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link
                 </Button>
-                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
+                {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 {isEditing ? (
                   <div className="flex gap-2">
                     <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
@@ -786,7 +786,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </Panel>
                 </div>
               )}
-              {controlEvidenceIdParam && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={controlEvidenceIdParam} />}
+              {config.id && <EvidenceFiles editAllowed={editAllowed} evidenceID={config.id} />}
             </Form>
           </>
         )}
