@@ -42379,8 +42379,7 @@ export type GetEvidenceCountsByStatusAllProgramsQuery = {
 }
 
 export type GetEvidencesByStatusQueryVariables = Exact<{
-  status: EvidenceEvidenceStatus
-  programId: Scalars['ID']['input']
+  where?: InputMaybe<EvidenceWhereInput>
 }>
 
 export type GetEvidencesByStatusQuery = {
