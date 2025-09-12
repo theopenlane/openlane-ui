@@ -1,4 +1,5 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 export function useProductsQuery() {
@@ -96,6 +97,31 @@ export function useCancelSubscriptionMutation(customerId?: string | null) {
       if (customerId) {
         queryClient.invalidateQueries({ queryKey: ['stripe-schedules', customerId] })
       }
+    },
+  })
+}
+
+export function useOpenlaneProductsQuery() {
+  const { client } = useGraphQLClient()
+
+  return useQuery({
+    queryKey: ['openlane-products'],
+    queryFn: async () => {
+      const res = await fetch(`${openlaneAPIUrl}/v1/products?include_beta=true&include_private=true`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // 👇 if you need auth, you can attach your token here
+          // Authorization: `Bearer ${yourAccessToken}`,
+        },
+      })
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}))
+        throw new Error(error.error || 'Failed to fetch Openlane products')
+      }
+
+      return res.json()
     },
   })
 }

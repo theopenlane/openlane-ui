@@ -9,7 +9,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 import { OrgSubscription } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
-import { useProductsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
+import { useOpenlaneProductsQuery, useProductsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
 import { formatDate } from '@/utils/date'
 
 export type StripePrice = {
@@ -45,12 +45,14 @@ const PricingPlan = () => {
   const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, new Date()) : false
 
   const { data: products = [], isLoading: productsLoading } = useProductsQuery()
+  const { data: openlaneProducts = [] } = useOpenlaneProductsQuery()
   const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
   const { mutate: updateSchedule, isPending: updating } = useUpdateScheduleMutation()
   const { mutate: switchInterval, isPending: switching } = useSwitchIntervalMutation()
 
   console.log('products', products)
   console.log('schedules', schedules)
+  console.log('openlaneProducts', openlaneProducts)
 
   const badge: { text: string; variant: 'default' | 'secondary' | 'outline' | 'gold' | 'destructive' } = useMemo(() => {
     if (stripeSubscriptionStatus === 'trialing') return { variant: 'gold', text: 'Trial' }
