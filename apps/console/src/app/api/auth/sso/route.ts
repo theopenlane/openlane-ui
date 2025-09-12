@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
           const cookieParts = cookieString.trim().split(';')[0]?.split('=')
           if (cookieParts && cookieParts.length === 2) {
             const [name, value] = cookieParts
+
+            // ignore other cookies
+            // old csrf token was being stored again in csrf cookies
+            // thus making secureFetch in sso/callback/route ignore fetching a new one
+            if (name != 'state' && name !== 'nonce') {
+              continue
+            }
+
             response.cookies.set(name, value, {
               httpOnly: true,
               secure: true,
