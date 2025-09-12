@@ -22907,10 +22907,10 @@ export enum OrganizationSettingHistoryRegion {
 /** OrganizationSettingHistorySSOProvider is enum for the field identity_provider */
 export enum OrganizationSettingHistorySsoProvider {
   GITHUB = 'GITHUB',
-  GOOGLEWORKSPACE = 'GOOGLEWORKSPACE',
+  GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
   NONE = 'NONE',
   OKTA = 'OKTA',
-  ONELOGIN = 'ONELOGIN',
+  ONE_LOGIN = 'ONE_LOGIN',
   SLACK = 'SLACK',
 }
 
@@ -23239,10 +23239,10 @@ export enum OrganizationSettingRegion {
 /** OrganizationSettingSSOProvider is enum for the field identity_provider */
 export enum OrganizationSettingSsoProvider {
   GITHUB = 'GITHUB',
-  GOOGLEWORKSPACE = 'GOOGLEWORKSPACE',
+  GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
   NONE = 'NONE',
   OKTA = 'OKTA',
-  ONELOGIN = 'ONELOGIN',
+  ONE_LOGIN = 'ONE_LOGIN',
   SLACK = 'SLACK',
 }
 
