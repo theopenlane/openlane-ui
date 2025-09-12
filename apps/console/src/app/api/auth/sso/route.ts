@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
             // ignore other cookies
             // old csrf token was being stored again in csrf cookies
             // thus making secureFetch in sso/callback/route ignore fetching a new one
-            if (name != 'state' && name !== 'nonce') {
+            if (name !== 'state' && name !== 'nonce') {
               continue
             }
 
