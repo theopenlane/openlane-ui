@@ -6,16 +6,26 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
 import { useGetOrganizationBilling, useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
-import { ExternalLink } from 'lucide-react'
+import { useCancelSubscriptionMutation, useSchedulesQuery } from '@/lib/query-hooks/stripe'
+import { Button } from '@repo/ui/button'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, text } = billingSettingsStyles()
-  const { currentOrgId } = useOrganization()
+  const { currentOrgId, getOrganizationByID } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: settingData } = useGetOrganizationSetting(currentOrgId)
   const billingAddress = settingData?.organization.setting?.billingAddress
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
+  const { mutate: cancelSubscription, isPending: canceling } = useCancelSubscriptionMutation(currentOrgId)
+
+  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
+  const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
+
+  const handleCancelSub = () => {
+    cancelSubscription({ scheduleId: schedules[0].id })
+  }
 
   return (
     <div className={cn(panel())}>
@@ -64,10 +74,9 @@ const BillingSettings: React.FC = () => {
             <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
               <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
-              <a href={data?.organization?.orgSubscriptions?.[0].cancellation ?? '#'} target="_blank" rel="noopener noreferrer" className="text-brand inline-flex items-center">
-                {' '}
-                Cancel <ExternalLink size={16} className="ml-1" />
-              </a>
+              <Button variant="destructive" disabled={canceling} onClick={handleCancelSub}>
+                {canceling ? 'Cancelling…' : 'Cancel Subscription'}
+              </Button>
             </div>
           </div>
         </div>

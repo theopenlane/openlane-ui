@@ -20,7 +20,8 @@
         "AWS_REGION",
         "OPENLANE_API_WRITE_TOKEN",
         "NOVU_API_KEY",
-        "DEVREV_AAT"
+        "DEVREV_AAT",
+        "STRIPE_SECRET_KEY"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },
