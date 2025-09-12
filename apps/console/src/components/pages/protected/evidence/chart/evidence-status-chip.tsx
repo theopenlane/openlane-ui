@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { TChardData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
 import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum.tsx'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { EvidenceWhereInput } from '@repo/codegen/src/schema'
 
 type TEvidenceStatusChipProps = {
   data: TChardData
@@ -42,7 +43,12 @@ type TEvidenceTooltipContentProps = {
 }
 
 const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ programId, evidenceData }) => {
-  const { data, isLoading } = useGetFirstFiveEvidencesByStatus(evidenceData.status, programId)
+  const where: EvidenceWhereInput = {
+    hasProgramsWith: programId ? [{ id: programId }] : undefined,
+    status: evidenceData.status,
+  }
+
+  const { data, isLoading } = useGetFirstFiveEvidencesByStatus({ where })
   const { replace } = useSmartRouter()
 
   if (isLoading) {

@@ -349,13 +349,16 @@ export const useRejectedEvidenceTrend = (programId?: string | null) => {
   return useEvidenceTrend(programId, EvidenceEvidenceStatus.REJECTED)
 }
 
-export const useGetFirstFiveEvidencesByStatus = (status: EvidenceEvidenceStatus, programId?: string | null) => {
+type TGetFirstFiveEvidenceByStatusProps = {
+  where?: EvidenceWhereInput
+}
+
+export const useGetFirstFiveEvidencesByStatus = ({ where }: TGetFirstFiveEvidenceByStatusProps) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetEvidencesByStatusQuery, unknown>({
-    queryKey: ['evidences', 'statuses', programId, status],
-    queryFn: async () => client.request(GET_FIRST_FIVE_EVIDENCES_BY_STATUS, { status, programId }),
-    enabled: !!programId,
+    queryKey: ['evidences', where],
+    queryFn: async () => client.request(GET_FIRST_FIVE_EVIDENCES_BY_STATUS, { where }),
   })
 }
 
