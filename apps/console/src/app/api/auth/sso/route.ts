@@ -3,7 +3,6 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 interface SSOLoginRequest {
   organization_id: string
-  return: string
 }
 
 export async function POST(request: NextRequest) {
@@ -14,16 +13,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'organization_id is required' }, { status: 400 })
     }
 
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    }
-
     const ssoData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/login`, {
       method: 'POST',
-      headers,
       body: JSON.stringify({
         organization_id: body.organization_id,
-        return: body.return,
       }),
     })
 

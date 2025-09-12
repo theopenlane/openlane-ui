@@ -124,7 +124,6 @@ export const LoginPage = () => {
       })
 
       const data = await response.json()
-      console.log(data)
       setWebfingerResponse(data)
     } catch (error) {
       console.error('Error fetching webfinger:', error)

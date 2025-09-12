@@ -279,44 +279,32 @@ const SSOPage = () => {
           />
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
                 control={form.control}
                 name="identityProvider"
                 render={({ field }) => (
-                  <FormItem className="max-w-sm">
-                    <Label htmlFor="identityProvider">Identity Provider</Label>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an identity provider" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {identityProviderOptions.map((provider) => (
-                          <SelectItem key={provider} value={provider}>
-                            {getProviderDisplayName(provider)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="identityProviderLoginEnforced"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="identityProviderLoginEnforced">Enforce SSO</Label>
-                      <p className="text-sm text-muted-foreground">Enforce single sign-on for all members of the organization.</p>
+                  <FormItem className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="identityProvider" className="text-sm font-medium w-48 shrink-0">
+                        Identity Provider
+                      </Label>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select an identity provider" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {identityProviderOptions.map((provider) => (
+                            <SelectItem key={provider} value={provider}>
+                              {getProviderDisplayName(provider)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -325,11 +313,15 @@ const SSOPage = () => {
                 control={form.control}
                 name="identityProviderClientID"
                 render={({ field }) => (
-                  <FormItem>
-                    <Label htmlFor="identityProviderClientID">Client ID</Label>
-                    <FormControl>
-                      <Input variant="medium" {...field} placeholder="Enter client ID" />
-                    </FormControl>
+                  <FormItem className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="identityProviderClientID" className="text-sm font-medium w-48 shrink-0">
+                        Client ID
+                      </Label>
+                      <FormControl className="flex-1">
+                        <Input variant="medium" {...field} placeholder="Enter client ID" />
+                      </FormControl>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -339,11 +331,15 @@ const SSOPage = () => {
                 control={form.control}
                 name="identityProviderClientSecret"
                 render={({ field }) => (
-                  <FormItem>
-                    <Label htmlFor="identityProviderClientSecret">Client Secret</Label>
-                    <FormControl>
-                      <Input variant="medium" type="password" {...field} placeholder="Enter client secret" />
-                    </FormControl>
+                  <FormItem className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="identityProviderClientSecret" className="text-sm font-medium w-48 shrink-0">
+                        Client Secret
+                      </Label>
+                      <FormControl className="flex-1">
+                        <Input variant="medium" type="password" {...field} placeholder="Enter client secret" />
+                      </FormControl>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -353,11 +349,36 @@ const SSOPage = () => {
                 control={form.control}
                 name="oidcDiscoveryEndpoint"
                 render={({ field }) => (
-                  <FormItem>
-                    <Label htmlFor="oidcDiscoveryEndpoint">OIDC Discovery Endpoint</Label>
-                    <FormControl>
-                      <Input variant="medium" {...field} placeholder="https://your-provider.com/.well-known/openid_configuration" />
-                    </FormControl>
+                  <FormItem className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="oidcDiscoveryEndpoint" className="text-sm font-medium w-48 shrink-0">
+                        OIDC Discovery Endpoint
+                      </Label>
+                      <FormControl className="flex-1">
+                        <Input variant="medium" {...field} placeholder="https://your-provider.com/.well-known/openid_configuration" />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="identityProviderLoginEnforced"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="identityProviderLoginEnforced" className="text-sm font-medium">
+                          Enforce SSO
+                        </Label>
+                        <p className="text-sm text-muted-foreground">Enforce single sign-on for all members of the organization.</p>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

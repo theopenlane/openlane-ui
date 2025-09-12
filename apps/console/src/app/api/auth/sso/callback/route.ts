@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
     const cookies = request.headers.get('cookie')
 
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
       ...(cookies ? { cookie: cookies } : {}),
     }
 
