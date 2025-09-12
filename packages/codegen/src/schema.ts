@@ -43109,6 +43109,11 @@ export type GetOrganizationSettingQuery = {
       geoLocation?: OrganizationSettingRegion | null
       billingNotificationsEnabled: boolean
       allowedEmailDomains?: Array<string> | null
+      identityProvider?: OrganizationSettingSsoProvider | null
+      identityProviderClientID?: string | null
+      identityProviderClientSecret?: string | null
+      oidcDiscoveryEndpoint?: string | null
+      identityProviderLoginEnforced: boolean
     } | null
   }
 }
