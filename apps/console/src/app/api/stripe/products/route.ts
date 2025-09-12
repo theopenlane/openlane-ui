@@ -4,12 +4,9 @@ import { stripe } from '@/lib/stripe'
 
 export async function GET() {
   try {
-    // Get all products
-    const products = await stripe.products.list({ active: true })
-    // Get all prices
-    const prices = await stripe.prices.list({ active: true })
+    const products = await stripe.products.list({ active: true, limit: 100 })
+    const prices = await stripe.prices.list({ active: true, limit: 100 })
 
-    // Attach prices to the right product
     const productsWithPrices = products.data.map((product) => ({
       ...product,
       prices: prices.data.filter((price) => price.product === product.id),

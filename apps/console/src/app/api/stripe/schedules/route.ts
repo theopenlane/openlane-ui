@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    // For now: fetch all schedules (test mode by default)
-    const schedules = await stripe.subscriptionSchedules.list({
-      limit: 10,
-      expand: ['data.subscription'], // expand to see linked subscriptions
-    })
+    const { searchParams } = new URL(req.url)
+    const customerId = searchParams.get('customerId')
 
-    console.log('✅ Subscription Schedules:', schedules.data)
+    if (!customerId) {
+      return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
+    }
+
+    const schedules = await stripe.subscriptionSchedules.list({
+      customer: customerId,
+      limit: 10,
+      expand: ['data.subscription'],
+    })
 
     return NextResponse.json(schedules.data)
   } catch (err: any) {
