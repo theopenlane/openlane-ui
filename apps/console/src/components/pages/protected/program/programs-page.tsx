@@ -61,7 +61,7 @@ const ProgramsPage: React.FC = () => {
     }
     return {}
   }, [showAllPrograms])
-  const { data, isLoading } = useGetAllPrograms({
+  const { data, isLoading, error } = useGetAllPrograms({
     orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
     where,
   })
@@ -120,6 +120,7 @@ const ProgramsPage: React.FC = () => {
   if (isBasicInfoLoading || isLoading) {
     return <Loading />
   }
+
   if (!data?.programs.edges?.length) {
     return (
       <>
