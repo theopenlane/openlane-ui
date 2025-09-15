@@ -1,21 +1,9 @@
-import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { OpenlaneProductsResponse, SubscriptionSchedulesResponse } from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
-import { useMutation, useQuery } from '@tanstack/react-query'
-
-export function useProductsQuery() {
-  const { client, queryClient } = useGraphQLClient()
-  return useQuery({
-    queryKey: ['stripe-products'],
-    queryFn: async () => {
-      const res = await fetch('/api/stripe/products')
-      if (!res.ok) throw new Error('Failed to fetch products')
-      return res.json()
-    },
-  })
-}
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export function useSchedulesQuery(customerId?: string | null) {
-  return useQuery({
+  return useQuery<SubscriptionSchedulesResponse>({
     queryKey: ['stripe-schedules', customerId],
     queryFn: async () => {
       if (!customerId) return []
@@ -27,11 +15,10 @@ export function useSchedulesQuery(customerId?: string | null) {
   })
 }
 
-export function useUpdateScheduleMutation(customerId?: string | null) {
-  const { queryClient } = useGraphQLClient()
-
+export function useUpdateScheduleMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ scheduleId, priceId, quantity = 1, action = 'add' }: { scheduleId: string; priceId: string; quantity?: number; action?: 'add' | 'remove' }) => {
+    mutationFn: async ({ scheduleId, priceId, quantity = 1, action = 'subscribe' }: { scheduleId: string; priceId: string; quantity?: number; action?: 'subscribe' | 'unsubscribe' }) => {
       const res = await fetch('/api/stripe/schedules/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,17 +31,15 @@ export function useUpdateScheduleMutation(customerId?: string | null) {
       return res.json()
     },
     onSuccess: () => {
-      if (customerId) {
-        queryClient.invalidateQueries({
-          queryKey: ['stripe-schedules', customerId],
-        })
-      }
+      queryClient.invalidateQueries({
+        queryKey: ['stripe-schedules'],
+      })
     },
   })
 }
 
-export function useSwitchIntervalMutation(customerId?: string | null) {
-  const { queryClient } = useGraphQLClient()
+export function useSwitchIntervalMutation() {
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({ scheduleId, swaps }: { scheduleId: string; swaps: { from: string; to: string }[] }) => {
@@ -70,15 +55,13 @@ export function useSwitchIntervalMutation(customerId?: string | null) {
       return data
     },
     onSuccess: () => {
-      if (customerId) {
-        queryClient.invalidateQueries({ queryKey: ['stripe-schedules', customerId] })
-      }
+      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
     },
   })
 }
 
-export function useCancelSubscriptionMutation(customerId?: string | null) {
-  const { queryClient } = useGraphQLClient()
+export function useCancelSubscriptionMutation() {
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({ scheduleId }: { scheduleId: string }) => {
@@ -94,25 +77,19 @@ export function useCancelSubscriptionMutation(customerId?: string | null) {
       return res.json()
     },
     onSuccess: () => {
-      if (customerId) {
-        queryClient.invalidateQueries({ queryKey: ['stripe-schedules', customerId] })
-      }
+      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
     },
   })
 }
 
 export function useOpenlaneProductsQuery() {
-  const { client } = useGraphQLClient()
-
-  return useQuery({
-    queryKey: ['openlane-products'],
+  return useQuery<OpenlaneProductsResponse>({
+    queryKey: ['products'],
     queryFn: async () => {
-      const res = await fetch(`${openlaneAPIUrl}/v1/products?include_beta=true&include_private=true`, {
+      const res = await fetch(`${openlaneAPIUrl}/v1/products`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // 👇 if you need auth, you can attach your token here
-          // Authorization: `Bearer ${yourAccessToken}`,
         },
       })
 
@@ -121,7 +98,7 @@ export function useOpenlaneProductsQuery() {
         throw new Error(error.error || 'Failed to fetch Openlane products')
       }
 
-      return res.json()
+      return res.json() as Promise<OpenlaneProductsResponse>
     },
   })
 }

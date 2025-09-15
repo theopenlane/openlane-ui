@@ -17,14 +17,17 @@ const BillingSettings: React.FC = () => {
   const billingAddress = settingData?.organization.setting?.billingAddress
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
-  const { mutate: cancelSubscription, isPending: canceling } = useCancelSubscriptionMutation(currentOrgId)
+  const { mutateAsync: cancelSubscription, isPending: canceling } = useCancelSubscriptionMutation()
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
   const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
+  const schedule = schedules?.[0]
+  const isCanceledBySchedule = schedule?.end_behavior === 'cancel'
 
-  const handleCancelSub = () => {
-    cancelSubscription({ scheduleId: schedules[0].id })
+  const handleCancelSub = async () => {
+    if (!schedule) return
+    await cancelSubscription({ scheduleId: schedule.id })
   }
 
   return (
@@ -74,8 +77,9 @@ const BillingSettings: React.FC = () => {
             <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
               <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
-              <Button variant="destructive" disabled={canceling} onClick={handleCancelSub}>
-                {canceling ? 'Cancelling…' : 'Cancel Subscription'}
+
+              <Button variant="destructive" disabled={canceling || schedulesLoading || !schedule || isCanceledBySchedule} onClick={handleCancelSub}>
+                {canceling ? 'Cancelling…' : isCanceledBySchedule ? 'Cancellation scheduled' : 'Cancel Subscription'}
               </Button>
             </div>
           </div>
