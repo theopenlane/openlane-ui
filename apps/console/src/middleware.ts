@@ -37,7 +37,6 @@ export default auth(async (req) => {
 
   if (isPublicPage) {
     // allow /login/sso to proceed if the user is testing the SSO flow
-    console.log(req.cookies.get('is_test'))
     if (path === '/login/sso' && req.cookies.get('is_test')) {
       return NextResponse.next()
     }
