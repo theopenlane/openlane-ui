@@ -17,8 +17,11 @@ export async function GET(req: Request) {
     })
 
     return NextResponse.json(subs.data[0] ?? null)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('❌ Stripe error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+
+    const message = err instanceof Error ? err.message : 'An unknown error occurred while fetching subscription'
+
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

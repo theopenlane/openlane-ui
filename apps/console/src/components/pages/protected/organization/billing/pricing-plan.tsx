@@ -1,5 +1,5 @@
 'use client'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
@@ -53,7 +53,6 @@ const PricingPlan = () => {
     }
   }, [expiresAt, stripeSubscriptionStatus, trialExpiresAt, trialEnded])
 
-  // Collect active price IDs from subscription
   const activePriceIds = useMemo(() => {
     if (!schedules?.length) return new Set<string>()
     const sub = schedules[0].subscription
@@ -67,7 +66,6 @@ const PricingPlan = () => {
     return firstItem?.price?.recurring?.interval ?? null
   }, [schedules])
 
-  // Find prices ending next phase
   const endingPriceIds = useMemo(() => {
     if (!schedules?.length) return new Set<string>()
 
@@ -83,9 +81,37 @@ const PricingPlan = () => {
 
   const nextPhaseStart = schedules?.[0]?.phases?.[1]?.start_date ? new Date(schedules[0].phases[1].start_date * 1000) : null
 
-  // Extract modules & addons from Openlane
   const modules = Object.values(openlaneProducts?.modules || {})
   const addons = Object.values(openlaneProducts?.addons || {})
+
+  type Product = {
+    billing: {
+      prices: {
+        interval: 'month' | 'year'
+        price_id: string
+      }[]
+    }
+  }
+
+  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: 'month' | 'year') => {
+    const allProducts = [...modules, ...addons]
+
+    return allProducts
+      .map((p) => {
+        const monthly = p.billing.prices.find((pr) => pr.interval === 'month')
+        const yearly = p.billing.prices.find((pr) => pr.interval === 'year')
+
+        if (!monthly || !yearly) return null
+
+        return currentInterval === 'month' ? { from: monthly.price_id, to: yearly.price_id } : { from: yearly.price_id, to: monthly.price_id }
+      })
+      .filter((swap): swap is { from: string; to: string } => swap !== null)
+  }, [])
+
+  const swaps = useMemo(() => {
+    if (!currentInterval) return []
+    return buildSwaps(modules, addons, currentInterval as 'month' | 'year')
+  }, [modules, addons, currentInterval, buildSwaps])
 
   return (
     <div className="min-w-[500px]">
@@ -109,7 +135,7 @@ const PricingPlan = () => {
           disabled={updating}
           onClick={() =>
             switchInterval(
-              { scheduleId: schedules[0].id, swaps: [] }, // TODO: update swaps mapping
+              { scheduleId: schedules[0].id, swaps },
               {
                 onSuccess: (data) => console.log('✅ Response:', data),
                 onError: (err) => console.error('❌ Switch error:', err),
@@ -121,7 +147,7 @@ const PricingPlan = () => {
         </Button>
       )}
       {currentInterval === 'year' && (
-        <Button disabled={updating} onClick={() => switchInterval({ scheduleId: schedules[0].id, swaps: [] })}>
+        <Button disabled={updating} onClick={() => switchInterval({ scheduleId: schedules[0].id, swaps })}>
           Switch to monthly
         </Button>
       )}
