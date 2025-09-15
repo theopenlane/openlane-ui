@@ -1,11 +1,11 @@
-// app/api/stripe/products/route.ts
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import Stripe from 'stripe'
 
 export async function GET() {
   try {
-    const products = await stripe.products.list({ active: true, limit: 100 })
-    const prices = await stripe.prices.list({ active: true, limit: 100 })
+    const products: Stripe.ApiList<Stripe.Product> = await stripe.products.list({ active: true, limit: 100 })
+    const prices: Stripe.ApiList<Stripe.Price> = await stripe.prices.list({ active: true, limit: 100 })
 
     const productsWithPrices = products.data.map((product) => ({
       ...product,
@@ -13,7 +13,8 @@ export async function GET() {
     }))
 
     return NextResponse.json(productsWithPrices)
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to fetch products'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

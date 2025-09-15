@@ -1,22 +1,23 @@
-// app/api/stripe/schedules/cancel/route.ts
 import { stripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
+import Stripe from 'stripe'
 
 export async function POST(req: Request) {
   try {
-    const { scheduleId } = await req.json()
+    const { scheduleId } = (await req.json()) as { scheduleId?: string }
 
     if (!scheduleId) {
       return NextResponse.json({ error: 'scheduleId required' }, { status: 400 })
     }
 
-    const updated = await stripe.subscriptionSchedules.update(scheduleId, {
+    const updated: Stripe.SubscriptionSchedule = await stripe.subscriptionSchedules.update(scheduleId, {
       end_behavior: 'cancel',
     })
 
     return NextResponse.json(updated)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('❌ Cancel subscription failed:', err)
-    return NextResponse.json({ error: err.message ?? 'Cancel failed' }, { status: 500 })
+    const message = err instanceof Error ? err.message : 'Cancel failed'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

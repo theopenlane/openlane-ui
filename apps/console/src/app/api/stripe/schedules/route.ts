@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import Stripe from 'stripe'
 
 export async function GET(req: Request) {
   try {
@@ -10,15 +11,16 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
     }
 
-    const schedules = await stripe.subscriptionSchedules.list({
+    const schedules: Stripe.ApiList<Stripe.SubscriptionSchedule> = await stripe.subscriptionSchedules.list({
       customer: customerId,
       limit: 10,
       expand: ['data.subscription'],
     })
 
     return NextResponse.json(schedules.data)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('❌ Error fetching subscription schedules:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    const message = err instanceof Error ? err.message : 'Failed to fetch subscription schedules'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
