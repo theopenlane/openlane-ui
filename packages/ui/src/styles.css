@@ -29,17 +29,17 @@
 /* ─────────────────────────────────────────────────────────
    HSL design tokens (wrapped in hsl()) — light mode
 ────────────────────────────────────────────────────────── */
-:root {
+@theme {
   /* Core (used by shadcn/ui) */
-  --background: hsl(204 43% 98%); /* #f9fbfc */
-  --foreground: hsl(209 22% 24%); /* #303e4a */
-  --card: hsl(0 0% 100%); /* #ffffff */
+  --background: #EFF4F5; /* #f9fbfc */
+  --foreground: #09151D; /* #303e4a */
+  --card: #F4F9FA; /* #ffffff */
   --card-foreground: hsl(209 22% 24%); /* #303e4a */
   --popover: hsl(0 0% 100%); /* #ffffff */
   --popover-foreground: hsl(209 22% 24%); /* #303e4a */
   --primary: hsl(168 64% 49%); /* #2ccbab */
   --primary-foreground: hsl(191 72% 9%); /* #082930 */
-  --secondary: hsl(45 66% 55%); /* #d9ae40 */
+  --secondary: #FFFFFF; /* #d9ae40 */
   --secondary-foreground: hsl(191 72% 9%); /* #082930 */
   --muted: hsl(198 39% 96%); /* #f5f9fa */
   --muted-foreground: hsl(208 17% 49%); /* #505f6f */
@@ -74,7 +74,7 @@
   --color-bg-dark: hsl(209 26% 15%);
   --color-bg-light: hsl(201 30% 91%);
   --color-bg-primary: hsl(168 64% 49%);
-  --color-bg-secondary: hsl(0 0% 100%);
+  --color-bg-secondary: #162431;
   --color-bg-muted: hsl(198 39% 96%);
 
   --color-accent: hsl(45 66% 55%);
@@ -202,15 +202,15 @@
    Dark mode HSL tokens (wrapped in hsl())
 ────────────────────────────────────────────────────────── */
 .dark {
-  --background: hsl(216 33% 9%);
-  --foreground: hsl(196 20% 73%);
-  --card: hsl(215 28% 12%);
+  --background: #09151D;
+  --foreground: #FFFFFF;
+  --card: #233440;
   --card-foreground: hsl(196 20% 73%);
   --popover: hsl(209 22% 17%);
   --popover-foreground: hsl(196 20% 73%);
   --primary: hsl(168 64% 49%);
   --primary-foreground: hsl(210 40% 98%);
-  --secondary: hsl(45 58% 45%);
+  --secondary: #162431;
   --secondary-foreground: hsl(216 33% 9%);
   --muted: hsl(213 22% 13%);
   --muted-foreground: hsl(197 11% 53%);
@@ -234,7 +234,7 @@
   --color-bg: hsl(216 33% 9%);
   --color-bg-dark: hsl(216 33% 9%);
   --color-bg-muted: hsl(213 22% 13%);
-  --color-bg-secondary: hsl(209 22% 17%);
+  --color-bg-secondary: #FFFFFF;
 
   --color-accent: hsl(45 58% 45%);
   --color-accent-muted: hsl(44 94% 73%);

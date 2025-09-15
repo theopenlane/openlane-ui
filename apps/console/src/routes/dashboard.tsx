@@ -17,8 +17,7 @@ import {
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
-export const generateNavItems = () // canEdit?: boolean
-: (NavItem | Separator | NavHeading)[] => [
+export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Home',
     href: '/dashboard',
@@ -30,51 +29,55 @@ export const generateNavItems = () // canEdit?: boolean
     icon: ListChecks,
   },
   {
-    type: 'separator',
+    title: 'Home',
+    href: '/dashboard',
+    icon: CircleGaugeIcon,
   },
   {
-    title: 'Programs',
-    href: '/programs',
+    title: 'Compliance',
     icon: ShieldCheck,
-  },
-  {
-    title: 'Risks',
-    href: '/risks',
-    icon: AlertTriangle,
-  },
-  {
-    title: 'Controls',
-    href: '/control-report',
-    icon: Settings2,
-  },
-  {
-    title: 'Evidence',
-    href: '/evidence',
-    icon: Fingerprint,
-  },
-  {
-    title: 'Policies',
-    href: '/policies',
-    icon: ScrollText,
-  },
-  {
-    title: 'Procedures',
-    href: '/procedures',
-    icon: Workflow,
-  },
-  {
-    title: 'Questionnaires',
-    href: '/questionnaires',
-    icon: NotebookPen,
-  },
-  {
-    title: 'Standards',
-    href: '/standards',
-    icon: FileBadge2,
-  },
-
-  {
-    type: 'separator',
+    children: [
+      {
+        title: 'Programs',
+        href: '/programs',
+        icon: ShieldCheck,
+      },
+      {
+        title: 'Controls',
+        href: '/control-report',
+        icon: Settings2,
+      },
+      {
+        title: 'Evidence',
+        href: '/evidence',
+        icon: Fingerprint,
+      },
+      {
+        title: 'Policies',
+        href: '/policies',
+        icon: ScrollText,
+      },
+      {
+        title: 'Procedures',
+        href: '/procedures',
+        icon: Workflow,
+      },
+      {
+        title: 'Standards Catalog',
+        href: '/standards',
+        icon: FileBadge2,
+      },
+      {
+        title: 'Questionnaires',
+        href: '/questionnaires',
+        icon: NotebookPen,
+      },
+      {
+        title: 'Risks',
+        href: '/risks',
+        icon: AlertTriangle,
+      },
+    ],
   },
   {
     title: 'Groups',
@@ -100,13 +103,9 @@ export const generateNavItems = () // canEdit?: boolean
   //   icon: LineChart,
   // },
   {
-    type: 'separator',
-  },
-  {
     title: 'Organization settings',
     href: '/organization-settings',
     icon: SettingsIcon,
-    isChildren: true,
     children: [
       {
         title: 'General Settings',
@@ -145,13 +144,9 @@ export const generateNavItems = () // canEdit?: boolean
     ],
   },
   {
-    type: 'separator',
-  },
-  {
     title: 'User settings',
     href: '/organization-settings',
     icon: UserRoundCogIcon,
-    isChildren: true,
     children: [
       {
         title: 'Profile',

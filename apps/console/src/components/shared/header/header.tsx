@@ -49,16 +49,7 @@ export default function Header() {
       <div className={header()}>
         <nav className={nav()}>
           <div className={expandNav({ isOpen: !isOpen })}>
-            <OrganizationSelector />
-            <NavTriangle size={31} className="text-border -ml-5" />
-
-            <PanelLeft height={16} width={16} onClick={handleToggle} className="cursor-pointer" />
-            <div className="border-l h-4" />
             <div className="flex justify-start items-center">
-              <div className={mobileSidebar()}>
-                <>MobileSidebar</>
-              </div>
-
               <div className="pl-2.5">
                 <BreadcrumbNavigation />
               </div>
@@ -66,7 +57,6 @@ export default function Header() {
           </div>
 
           <div className={userNav()}>
-            <GlobalSearch />
             <UserMenu />
           </div>
         </nav>
