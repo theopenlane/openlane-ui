@@ -175,6 +175,7 @@ export const GET_ORGANIZATION_SETTING = gql`
         identityProviderClientSecret
         oidcDiscoveryEndpoint
         identityProviderLoginEnforced
+        identityProviderAuthTested
       }
     }
   }

@@ -3,6 +3,7 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 interface SSOLoginRequest {
   organization_id: string
+  is_test?: boolean
 }
 
 export async function POST(request: NextRequest) {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     const ssoData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/login`, {
       method: 'POST',
       body: JSON.stringify({
-        organization_id: body.organization_id,
+        ...body,
       }),
     })
 
@@ -37,7 +38,9 @@ export async function POST(request: NextRequest) {
             // ignore other cookies
             // old csrf token was being stored again in csrf cookies
             // thus making secureFetch in sso/callback/route ignore fetching a new one
-            if (name !== 'state' && name !== 'nonce') {
+            //
+            // is_test cookie is for sso being tested before enforcement
+            if (name !== 'state' && name !== 'nonce' && name != 'is_test') {
               continue
             }
 

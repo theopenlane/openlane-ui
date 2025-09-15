@@ -1,6 +1,7 @@
 'use client'
 
 import { Panel, PanelHeader } from '@repo/ui/panel'
+import { useSearchParams } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,6 +22,8 @@ import { OrganizationSettingSsoProvider, OrganizationSetting, UpdateOrganization
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Alert, AlertDescription } from '@repo/ui/alert'
+import { X } from 'lucide-react'
 
 type viewMode = 'overview' | 'edit'
 
@@ -31,6 +34,8 @@ const SSOOverview = ({
   showRemoveDialog,
   setShowRemoveDialog,
   getProviderDisplayName,
+  onTestSSO,
+  isTestingSSO,
 }: {
   setting: OrganizationSetting | undefined
   onEdit: () => void
@@ -38,6 +43,8 @@ const SSOOverview = ({
   showRemoveDialog: boolean
   setShowRemoveDialog: (show: boolean) => void
   getProviderDisplayName: (provider: string) => string
+  onTestSSO: () => void
+  isTestingSSO: boolean
 }) => {
   const isSSOConfigured = setting?.identityProvider && setting.identityProvider !== 'NONE'
 
@@ -49,6 +56,11 @@ const SSOOverview = ({
           <p className="text-sm text-muted-foreground">{isSSOConfigured ? 'Single Sign-On is configured for your organization' : 'No SSO provider configured yet'}</p>
         </div>
         <div className="flex gap-2">
+          {isSSOConfigured && !setting?.identityProviderAuthTested && (
+            <Button variant="filled" size="sm" onClick={onTestSSO} loading={isTestingSSO} disabled={isTestingSSO} className="bg-orange-600 hover:bg-orange-700 text-white">
+              {isTestingSSO ? 'Testing...' : 'Verify SSO connection'}
+            </Button>
+          )}
           {isSSOConfigured && (
             <Button variant="destructive" size="sm" onClick={() => setShowRemoveDialog(true)}>
               Remove SSO
@@ -80,6 +92,11 @@ const SSOOverview = ({
                 <span className="text-sm font-medium text-muted-foreground">SSO Enforcement</span>
                 <Badge variant={setting.identityProviderLoginEnforced ? 'default' : 'destructive'}>{setting.identityProviderLoginEnforced ? 'Enforced for all members' : 'Not enforced'}</Badge>
               </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Authentication Status</span>
+                <Badge variant={setting.identityProviderAuthTested ? 'default' : 'secondary'}>{setting.identityProviderAuthTested ? 'Tested' : 'Not tested'}</Badge>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -102,6 +119,11 @@ const SSOPage = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const [viewMode, setViewMode] = useState<viewMode>('overview')
   const [showRemoveDialog, setShowRemoveDialog] = useState(false)
+  const [isTestingSSO, setIsTestingSSO] = useState(false)
+  const [showSSOTestedAlert, setShowSSOTestedAlert] = useState(false)
+  const [showSSOErrorAlert, setShowSSOErrorAlert] = useState(false)
+  const [ssoErrorMessage, setSSOErrorMessage] = useState('')
+  const searchParams = useSearchParams()
   const { isPending, mutateAsync: updateOrgSetting } = useUpdateOrganizationSetting()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -247,6 +269,58 @@ const SSOPage = () => {
     }
   }
 
+  const handleTestSSO = async () => {
+    if (!currentOrgId || !currentSetting?.id) {
+      return
+    }
+
+    setIsTestingSSO(true)
+
+    try {
+      localStorage.setItem('sso_organization_id', currentOrgId)
+      localStorage.setItem('testing_sso', 'true')
+
+      const response = await fetch('/api/auth/sso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organization_id: currentOrgId,
+          is_test: true,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success && data.redirect_uri) {
+        window.location.href = data.redirect_uri
+        return
+      }
+
+      if (!data.success) {
+        errorNotification({
+          title: 'SSO test failed',
+          description: data.message || 'Failed to initiate SSO test',
+        })
+        return
+      }
+
+      errorNotification({
+        title: 'SSO test failed',
+        description: 'Failed to initiate SSO test. Please check your configuration.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'SSO test failed',
+        description: errorMessage,
+      })
+    } finally {
+      setIsTestingSSO(false)
+    }
+  }
+
   useEffect(() => {
     if (isSuccess) {
       const timer = setTimeout(() => {
@@ -255,6 +329,26 @@ const SSOPage = () => {
       return () => clearTimeout(timer)
     }
   }, [isSuccess])
+
+  useEffect(() => {
+    const ssoTested = searchParams?.get('ssotested')
+    const error = searchParams?.get('error')
+
+    if (ssoTested === '1') {
+      setShowSSOTestedAlert(true)
+      return
+    }
+
+    setShowSSOErrorAlert(true)
+
+    const errorMessagesMap = {
+      sso_signin_failed: 'SSO sign-in failed',
+      sso_callback_failed: 'SSO callback failed',
+      sso_callback_error: 'SSO callback error occurred',
+    }
+
+    setSSOErrorMessage(errorMessagesMap[error as keyof typeof errorMessagesMap] || 'SSO test failed')
+  }, [searchParams])
 
   return (
     <>
@@ -268,6 +362,33 @@ const SSOPage = () => {
           }
           noBorder
         />
+
+        {showSSOTestedAlert && (
+          <Alert className="mb-4 border-green-200 bg-green-50">
+            <AlertDescription className="text-green-800">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">SSO connection tested and verified successfully!</span>
+                <Button variant="outline" size="sm" onClick={() => setShowSSOTestedAlert(false)} className="text-green-600 hover:text-green-800 h-6 w-6 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {showSSOErrorAlert && (
+          <Alert className="mb-4 border-red-200 bg-red-50">
+            <AlertDescription className="text-red-800">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">SSO verification failed: {ssoErrorMessage}</span>
+                <Button variant="outline" size="sm" onClick={() => setShowSSOErrorAlert(false)} className="text-red-600 hover:text-red-800 h-6 w-6 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {viewMode === 'overview' ? (
           <SSOOverview
             setting={currentSetting}
@@ -276,6 +397,8 @@ const SSOPage = () => {
             showRemoveDialog={showRemoveDialog}
             setShowRemoveDialog={setShowRemoveDialog}
             getProviderDisplayName={getProviderDisplayName}
+            onTestSSO={handleTestSSO}
+            isTestingSSO={isTestingSSO}
           />
         ) : (
           <Form {...form}>
@@ -376,7 +499,7 @@ const SSOPage = () => {
                         <p className="text-sm text-muted-foreground">Enforce single sign-on for all members of the organization.</p>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={!currentSetting?.identityProviderAuthTested} />
                       </FormControl>
                     </div>
                     <FormMessage />
