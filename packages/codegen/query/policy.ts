@@ -178,6 +178,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
           displayID
           refCode
           description
+          controlId: controlID
         }
       }
       pageInfo {

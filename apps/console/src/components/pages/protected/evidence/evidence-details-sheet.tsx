@@ -13,8 +13,8 @@ import {
   Download,
   Eye,
   InfoIcon,
-  Link,
   LinkIcon,
+  Link,
   PanelRightClose,
   PencilIcon,
   Tag,
@@ -42,10 +42,9 @@ import { EvidenceStatusMapper } from '@/components/pages/protected/evidence/util
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useQueryClient } from '@tanstack/react-query'
 import { Textarea } from '@repo/ui/textarea'
-import ControlEvidenceFiles from '@/components/pages/protected/controls/control-evidence/control-evidence-files.tsx'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
+import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -60,7 +59,10 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { EvidenceDetailsSheetSkeleton } from '../../evidence/skeleton/evidence-details-skeleton'
+import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import NextLink from 'next/link'
+import EvidenceFiles from './evidence-files'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -76,7 +78,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
-  const { selectedControlEvidence, setSelectedControlEvidence, isEditPreset, setIsEditPreset } = useControlEvidenceStore()
+  const { isEditPreset, setIsEditPreset } = useControlEvidenceStore()
   const searchParams = useSearchParams()
   const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
   const id = searchParams.get('id')
@@ -87,7 +89,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
-  const { data, isLoading: fetching } = useGetEvidenceById(id as string)
+
+  const config = useMemo(() => {
+    if (controlEvidenceIdParam) {
+      return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
+    }
+    return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
+  }, [controlEvidenceIdParam, id])
+
+  const { data, isLoading: fetching } = useGetEvidenceById(config.id)
   const { data: session } = useSession()
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
@@ -130,12 +140,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   )
 
   useEffect(() => {
-    if (controlEvidenceIdParam) {
-      setSelectedControlEvidence(controlEvidenceIdParam)
-    }
-  }, [controlEvidenceIdParam, setSelectedControlEvidence])
-
-  useEffect(() => {
     if (evidence) {
       form.reset({
         name: evidence.name ?? '',
@@ -162,13 +166,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }, [evidence, form])
 
   const handleCopyLink = () => {
-    if (!selectedControlEvidence) {
+    if (!config.id) {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?controlEvidenceId=${selectedControlEvidence}`
     navigator.clipboard
-      .writeText(url)
+      .writeText(config?.link)
       .then(() => {
         successNotification({
           title: 'Link copied to clipboard',
@@ -204,7 +207,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     try {
       await updateEvidence({
-        updateEvidenceId: selectedControlEvidence as string,
+        updateEvidenceId: config.id as string,
         input: {
           ...formData,
           ...associationInputs,
@@ -229,12 +232,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleDelete = async () => {
     try {
-      await deleteEvidence({ deleteEvidenceId: selectedControlEvidence as string })
+      await deleteEvidence({ deleteEvidenceId: id as string })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       }
-      setSelectedControlEvidence(null)
+
+      handleCloseParams()
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -250,7 +254,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const handleUpdateField = async () => {
-    if (!editAllowed || !editField) return
+    if (!editAllowed || !editField || !config.id) return
 
     const oldValue = evidence?.[editField]
     const newValue = form.getValues(editField)
@@ -268,7 +272,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
 
     await updateEvidence({
-      updateEvidenceId: selectedControlEvidence as string,
+      updateEvidenceId: config.id,
       input: {
         [editField]: form.getValues(editField),
       },
@@ -331,7 +335,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   return (
-    <Sheet open={!!id} onOpenChange={handleSheetClose}>
+    <Sheet open={!!id || !!controlEvidenceIdParam} onOpenChange={handleSheetClose}>
       <SheetContent
         onEscapeKeyDown={(e) => {
           if (editField) {
@@ -350,7 +354,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 <Button className="h-8 p-2" icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link
                 </Button>
-                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
+                {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 {isEditing ? (
                   <div className="flex gap-2">
                     <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
@@ -509,7 +513,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <LinkIcon size={16} className="text-accent-secondary" />
                         URL
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+
+                      <div className="text-sm text-left w-[200px] min-w-0">
                         {isEditing || editField === 'url' ? (
                           <InputRow className="w-full">
                             <FormField
@@ -526,9 +531,20 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
-                            {evidence?.url || <span className="text-gray-500">no url provided</span>}
-                          </p>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className={`flex items-center w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
+                                  <span className="truncate overflow-hidden whitespace-nowrap">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <NextLink href={evidence?.url ?? '#'} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                  {evidence?.url}
+                                </NextLink>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>
@@ -770,7 +786,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </Panel>
                 </div>
               )}
-              {selectedControlEvidence && <ControlEvidenceFiles editAllowed={editAllowed} controlEvidenceID={selectedControlEvidence} />}
+              {config.id && <EvidenceFiles editAllowed={editAllowed} evidenceID={config.id} />}
             </Form>
           </>
         )}

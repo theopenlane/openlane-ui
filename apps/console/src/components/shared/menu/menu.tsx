@@ -17,6 +17,7 @@ const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, clos
   const [open, setOpen] = useState(false)
 
   const handleClose = () => {
+    console.log(closeOnSelect)
     if (closeOnSelect) setOpen(false)
   }
 

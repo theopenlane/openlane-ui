@@ -4,7 +4,16 @@ import React, { useMemo, useState, useEffect, useContext } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, ControlWhereInput, GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+import {
+  ControlControlStatus,
+  ControlListFieldsFragment,
+  ControlOrderField,
+  ControlWhereInput,
+  ExportExportFormat,
+  ExportExportType,
+  GetAllControlsQueryVariables,
+  OrderDirection,
+} from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -13,12 +22,12 @@ import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
-import { exportToCSV } from '@/utils/exportToCSV'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
@@ -27,6 +36,7 @@ const ControlsTable: React.FC = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
       field: ControlOrderField.ref_code,
@@ -170,23 +180,17 @@ const ControlsTable: React.FC = () => {
     push(`/controls/${row.id}`)
   }
 
-  const handleExport = () => {
-    if (!controls || controls.length === 0) return
-    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof ControlListFieldsFragment
-      const label = col.header
+  const handleExportFile = async () => {
+    if (!controls || controls.length === 0) {
+      return
+    }
 
-      return {
-        label,
-        accessor: (control: ControlListFieldsFragment) => {
-          const value = control[key]
-
-          return typeof value === 'string' || typeof value === 'number' ? value : ''
-        },
-      }
+    handleExport({
+      exportType: ExportExportType.CONTROL,
+      filters: JSON.stringify(filters),
+      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      format: ExportExportFormat.CSV,
     })
-
-    exportToCSV(controls, exportableColumns, 'controls_list')
   }
 
   const handleBulkEdit = () => {
@@ -198,7 +202,7 @@ const ControlsTable: React.FC = () => {
   return (
     <div>
       <ControlsTableToolbar
-        handleExport={handleExport}
+        handleExport={handleExportFile}
         handleBulkEdit={handleBulkEdit}
         onFilterChange={setFilters}
         searchTerm={searchTerm}

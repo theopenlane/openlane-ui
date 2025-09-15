@@ -15,6 +15,9 @@ export const GET_TRUST_CENTER = gql`
               dnsTxtRecord
               dnsTxtValue
             }
+            mappableDomain {
+              name
+            }
           }
           setting {
             id

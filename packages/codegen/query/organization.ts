@@ -171,6 +171,11 @@ export const GET_ORGANIZATION_SETTING = gql`
         geoLocation
         billingNotificationsEnabled
         allowedEmailDomains
+        identityProvider
+        identityProviderClientID
+        identityProviderClientSecret
+        oidcDiscoveryEndpoint
+        identityProviderLoginEnforced
       }
     }
   }

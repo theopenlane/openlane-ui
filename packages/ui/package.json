@@ -157,7 +157,7 @@
     "input-otp": "^1.4.2",
     "lodash": "^4.17.21",
     "lowlight": "^3.3.0",
-    "lucide-react": "^0.525.0",
+    "lucide-react": "^0.544.0",
     "next": "15.4.7",
     "pdf-lib": "^1.17.1",
     "platejs": "^49.1.5",
@@ -180,7 +180,7 @@
     "tailwind-merge": "^3.0.2",
     "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss-animate": "^1.0.7",
-    "uploadthing": "7.7.3",
+    "uploadthing": "7.7.4",
     "use-file-picker": "2.1.2",
     "zod": "^3.24.2"
   },

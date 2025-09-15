@@ -8,14 +8,14 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { acceptedFileTypes, acceptedFileTypesShort } from '@/components/pages/protected/evidence/upload/evidence-upload-config.ts'
 import { useUploadEvidenceFiles } from '@/lib/graphql-hooks/evidence.ts'
-import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TControlEvidenceUploadDialog = {
-  controlEvidenceID: string
+  evidenceID: string
 }
 
-const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ controlEvidenceID }) => {
+const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ evidenceID }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateEvidence, isPending: isSubmitting } = useUploadEvidenceFiles()
@@ -27,7 +27,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ c
     }
 
     const formData = {
-      updateEvidenceId: controlEvidenceID,
+      updateEvidenceId: evidenceID,
       input: {},
       evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
     }

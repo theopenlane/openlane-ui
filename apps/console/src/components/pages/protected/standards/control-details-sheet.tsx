@@ -13,6 +13,7 @@ import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { GroupedControls, RelatedNode } from '../controls/related-controls'
 import { RelatedControlChip } from '../controls/shared/related-control-chip'
 import AccordionInfo from './control-details-accordion-info'
+import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -25,8 +26,8 @@ const ControlDetailsSheet = () => {
 
   const { data } = useGetControlById(controlId)
 
-  const where = {
-    or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }],
+  const where: MappedControlWhereInput = {
+    and: [{ source: MappedControlMappingSource.SUGGESTED }, { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] }],
   }
 
   const { data: mappedControlsData } = useGetMappedControls({ where, enabled: !!controlId })
@@ -202,8 +203,7 @@ const ControlDetailsSheet = () => {
                   <h3 className="font-semibold min-w-24 text-text-informational text-xs">{framework}</h3>
                   <div className="flex gap-2.5 flex-wrap">
                     {nodes.map((node) => {
-                      const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-                      return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
+                      return <RelatedControlChip key={node.id} refCode={node.refCode} mappingType={node.mappingType} relation={node.relation} source={node.source} />
                     })}
                   </div>
                 </div>

@@ -16,8 +16,8 @@ import TitleField from '@/components/pages/protected/controls/form-fields/title-
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
-import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
-import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import Menu from '@/components/shared/menu/menu'
@@ -36,7 +36,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useSession } from 'next-auth/react'
 import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { canCreate, canEdit } from '@/lib/authz/utils'
+import { canCreate, canDelete, canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -303,12 +303,16 @@ const ControlDetailsPage: React.FC = () => {
               </>
             }
           />
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
-              <PencilIcon size={16} strokeWidth={2} />
-            </Button>
-            <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
-          </div>
+          {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
+            <div className="flex gap-2">
+              {canEdit(permission?.roles) && (
+                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
+                  <PencilIcon size={16} strokeWidth={2} />
+                </Button>
+              )}
+              {canDelete(permission?.roles) && <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -345,10 +349,8 @@ const ControlDetailsPage: React.FC = () => {
         canEdit={canEdit(permission?.roles)}
         control={{
           displayID: subcontrol?.refCode,
-          tags: subcontrol.tags ?? [],
           objectAssociations: {
-            controlIDs: [subcontrol?.id],
-            taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            subcontrolIDs: [subcontrol?.id],
             controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [
@@ -367,7 +369,7 @@ const ControlDetailsPage: React.FC = () => {
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
 
       <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} canEdit={canEdit(permission?.roles)} />
-      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
+      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} refCode={subcontrol.refCode} sourceFramework={subcontrol.referenceFramework} />
       {hasInfoData && (
         <InfoCardWithSheet
           implementationGuidance={subcontrol.implementationGuidance}

@@ -6,7 +6,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
 import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/controls/control-evidence-files/table/table-config.ts'
-import { ControlEvidenceUploadDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-upload-dialog.tsx'
+import { ControlEvidenceUploadDialog } from '@/components/pages/protected/evidence/evidence-upload-dialog'
 import { Download, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { fileDownload } from '@/components/shared/lib/export.ts'
@@ -18,12 +18,11 @@ import type { Row } from '@tanstack/react-table'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TControlEvidenceFiles = {
-  controlEvidenceID: string
-  controlEvidencename?: string
+  evidenceID: string
   editAllowed: boolean
 }
 
-const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID, editAllowed }) => {
+const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowed }) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
@@ -38,7 +37,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
       direction: OrderDirection.ASC,
     },
   ])
-  const { files, isLoading: fetching, isError, pageInfo, totalCount } = useGetEvidenceWithFilesPaginated({ evidenceId: controlEvidenceID, orderBy: orderBy, pagination: pagination })
+  const { files, isLoading: fetching, isError, pageInfo, totalCount } = useGetEvidenceWithFilesPaginated({ evidenceId: evidenceID, orderBy: orderBy, pagination: pagination })
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
 
   const handleDownloadAll = async () => {
@@ -56,7 +55,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
 
     try {
       await updateEvidence({
-        updateEvidenceId: controlEvidenceID,
+        updateEvidenceId: evidenceID,
         input: {
           removeFileIDs: [deleteFileInfo.id],
         },
@@ -126,7 +125,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
       <div className="flex items-center justify-between mb-3">
         <p className="text-lg">Provided files</p>
         <div className="flex items-center gap-2">
-          {editAllowed && <ControlEvidenceUploadDialog controlEvidenceID={controlEvidenceID} />}
+          {editAllowed && <ControlEvidenceUploadDialog evidenceID={evidenceID} />}
           <Button icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
             Download All
           </Button>
@@ -159,4 +158,4 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
   )
 }
 
-export default ControlEvidenceFiles
+export default EvidenceFiles

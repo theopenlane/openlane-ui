@@ -25,26 +25,55 @@ export type GroupedControls = Record<string, RelatedNode[]>
 
 type Props = {
   canCreate: boolean
+  refCode: string
+  sourceFramework: string | null | undefined
 }
 
-const RelatedControls = ({ canCreate }: Props) => {
+const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const [sheetOpen, setSheetOpen] = useState(false)
   const searchParams = useSearchParams()
   const openRelationsParam = searchParams.get('openRelations') === 'true'
   const path = usePathname()
 
+  // fetch suggested mapped controls, which are the ones created by the system based on control references
+  // we cannot use the control ID because this is unique to the control and not the refCode for the control within the organization
+  const withFilter = { refCode: refCode, referenceFramework: sourceFramework }
+  const suggestedControlWhere = {
+    and: [
+      { source: MappedControlMappingSource.SUGGESTED },
+      subcontrolId
+        ? {
+            or: [{ hasFromSubcontrolsWith: [withFilter] }, { hasToSubcontrolsWith: [withFilter] }],
+          }
+        : {
+            or: [{ hasFromControlsWith: [withFilter] }, { hasToControlsWith: [withFilter] }],
+          },
+    ],
+  }
   const where = subcontrolId
     ? {
-        or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }],
+        or: [
+          suggestedControlWhere,
+          {
+            or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }],
+          },
+        ],
       }
     : id
     ? {
-        or: [{ hasFromControlsWith: [{ id }] }, { hasToControlsWith: [{ id }] }],
+        or: [
+          suggestedControlWhere,
+          {
+            or: [{ hasFromControlsWith: [{ id }] }, { hasToControlsWith: [{ id }] }],
+          },
+        ],
       }
     : undefined
 
   const { data } = useGetMappedControls({ where, enabled: !!where })
+
+  const hasData = data?.mappedControls?.edges?.some((e) => e?.node?.source !== MappedControlMappingSource.SUGGESTED)
 
   const grouped: GroupedControls = {}
 
@@ -52,12 +81,10 @@ const RelatedControls = ({ canCreate }: Props) => {
     const node = edge?.node
     if (!node) return
 
-    const currentId = subcontrolId ? subcontrolId : id
-
-    const isFromControl = node?.fromControls?.edges?.some((e) => e?.node?.id === currentId)
-    const isFromSub = node?.fromSubcontrols?.edges?.some((e) => e?.node?.id === currentId)
-    const isToControl = node?.toControls?.edges?.some((e) => e?.node?.id === currentId)
-    const isToSub = node?.toSubcontrols?.edges?.some((e) => e?.node?.id === currentId)
+    const isFromControl = node?.fromControls?.edges?.some((e) => e?.node?.refCode === refCode)
+    const isFromSub = node?.fromSubcontrols?.edges?.some((e) => e?.node?.refCode === refCode)
+    const isToControl = node?.toControls?.edges?.some((e) => e?.node?.refCode === refCode)
+    const isToSub = node?.toSubcontrols?.edges?.some((e) => e?.node?.refCode === refCode)
 
     const oppositeNodes: RelatedNode[] = []
 
@@ -153,7 +180,7 @@ const RelatedControls = ({ canCreate }: Props) => {
     <Card className="p-4">
       <div className="flex justify-between items-center mb-5">
         <p className="text-lg">Related Controls</p>
-        {Object.keys(grouped).length > 0 ? (
+        {hasData ? (
           <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
             View
           </Button>
@@ -182,7 +209,7 @@ const RelatedControls = ({ canCreate }: Props) => {
         </div>
       ))}
 
-      <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />
+      {hasData && <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />}
     </Card>
   )
 }

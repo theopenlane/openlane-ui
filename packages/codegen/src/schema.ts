@@ -6595,6 +6595,8 @@ export interface CreateTemplateInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the jsonschema object of the template */
   jsonconfig: Scalars['Map']['input']
+  /** the kind of template, e.g. questionnaire */
+  kind?: InputMaybe<TemplateTemplateKind>
   /** the name of the template */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -22905,10 +22907,10 @@ export enum OrganizationSettingHistoryRegion {
 /** OrganizationSettingHistorySSOProvider is enum for the field identity_provider */
 export enum OrganizationSettingHistorySsoProvider {
   GITHUB = 'GITHUB',
-  GOOGLEWORKSPACE = 'GOOGLEWORKSPACE',
+  GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
   NONE = 'NONE',
   OKTA = 'OKTA',
-  ONELOGIN = 'ONELOGIN',
+  ONE_LOGIN = 'ONE_LOGIN',
   SLACK = 'SLACK',
 }
 
@@ -23237,10 +23239,10 @@ export enum OrganizationSettingRegion {
 /** OrganizationSettingSSOProvider is enum for the field identity_provider */
 export enum OrganizationSettingSsoProvider {
   GITHUB = 'GITHUB',
-  GOOGLEWORKSPACE = 'GOOGLEWORKSPACE',
+  GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
   NONE = 'NONE',
   OKTA = 'OKTA',
-  ONELOGIN = 'ONELOGIN',
+  ONE_LOGIN = 'ONE_LOGIN',
   SLACK = 'SLACK',
 }
 
@@ -34794,6 +34796,8 @@ export interface Template extends Node {
   id: Scalars['ID']['output']
   /** the jsonschema object of the template */
   jsonconfig: Scalars['Map']['output']
+  /** the kind of template, e.g. questionnaire */
+  kind?: Maybe<TemplateTemplateKind>
   /** the name of the template */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
@@ -34884,6 +34888,8 @@ export interface TemplateHistory extends Node {
   id: Scalars['ID']['output']
   /** the jsonschema object of the template */
   jsonconfig: Scalars['Map']['output']
+  /** the kind of template, e.g. questionnaire */
+  kind?: Maybe<TemplateHistoryTemplateKind>
   /** the name of the template */
   name: Scalars['String']['output']
   operation: TemplateHistoryOpType
@@ -34943,11 +34949,17 @@ export interface TemplateHistoryOrder {
 
 /** Properties by which TemplateHistory connections can be ordered. */
 export enum TemplateHistoryOrderField {
+  KIND = 'KIND',
   TEMPLATE_TYPE = 'TEMPLATE_TYPE',
   created_at = 'created_at',
   history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at',
+}
+
+/** TemplateHistoryTemplateKind is enum for the field kind */
+export enum TemplateHistoryTemplateKind {
+  QUESTIONNAIRE = 'QUESTIONNAIRE',
 }
 
 /**
@@ -35019,6 +35031,13 @@ export interface TemplateHistoryWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** kind field predicates */
+  kind?: InputMaybe<TemplateHistoryTemplateKind>
+  kindIn?: InputMaybe<Array<TemplateHistoryTemplateKind>>
+  kindIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  kindNEQ?: InputMaybe<TemplateHistoryTemplateKind>
+  kindNotIn?: InputMaybe<Array<TemplateHistoryTemplateKind>>
+  kindNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -35116,10 +35135,16 @@ export interface TemplateOrder {
 
 /** Properties by which Template connections can be ordered. */
 export enum TemplateOrderField {
+  KIND = 'KIND',
   TEMPLATE_TYPE = 'TEMPLATE_TYPE',
   created_at = 'created_at',
   name = 'name',
   updated_at = 'updated_at',
+}
+
+/** TemplateTemplateKind is enum for the field kind */
+export enum TemplateTemplateKind {
+  QUESTIONNAIRE = 'QUESTIONNAIRE',
 }
 
 /** Return response for updateTemplate mutation */
@@ -35198,6 +35223,13 @@ export interface TemplateWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** kind field predicates */
+  kind?: InputMaybe<TemplateTemplateKind>
+  kindIn?: InputMaybe<Array<TemplateTemplateKind>>
+  kindIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  kindNEQ?: InputMaybe<TemplateTemplateKind>
+  kindNotIn?: InputMaybe<Array<TemplateTemplateKind>>
+  kindNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -39646,6 +39678,7 @@ export interface UpdateTemplateInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearKind?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
@@ -39653,6 +39686,8 @@ export interface UpdateTemplateInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the template */
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
+  /** the kind of template, e.g. questionnaire */
+  kind?: InputMaybe<TemplateTemplateKind>
   /** the name of the template */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -42103,12 +42138,19 @@ export type CreateEvidenceMutationVariables = Exact<{
 
 export type CreateEvidenceMutation = { __typename?: 'Mutation'; createEvidence: { __typename?: 'EvidenceCreatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
 
-export type GetEvidenceFilesQueryVariables = Exact<{ [key: string]: never }>
+export type GetEvidenceFilesQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
 
 export type GetEvidenceFilesQuery = {
   __typename?: 'Query'
   files: {
     __typename?: 'FileConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     edges?: Array<{
       __typename?: 'FileEdge'
       node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null; providedFileExtension: string; categoryType?: string | null; createdAt?: any | null } | null
@@ -42337,8 +42379,7 @@ export type GetEvidenceCountsByStatusAllProgramsQuery = {
 }
 
 export type GetEvidencesByStatusQueryVariables = Exact<{
-  status: EvidenceEvidenceStatus
-  programId: Scalars['ID']['input']
+  where?: InputMaybe<EvidenceWhereInput>
 }>
 
 export type GetEvidencesByStatusQuery = {
@@ -42409,6 +42450,47 @@ export type EvidenceSuggestedActionsQuery = {
     __typename?: 'EvidenceConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null; updatedAt?: any | null } | null } | null> | null
+  }
+}
+
+export type CreateExportMutationVariables = Exact<{
+  input: CreateExportInput
+}>
+
+export type CreateExportMutation = { __typename?: 'Mutation'; createExport: { __typename?: 'ExportCreatePayload'; export: { __typename?: 'Export'; id: string; status: ExportExportStatus } } }
+
+export type GetExportQueryVariables = Exact<{
+  exportId: Scalars['ID']['input']
+}>
+
+export type GetExportQuery = {
+  __typename?: 'Query'
+  export: {
+    __typename?: 'Export'
+    status: ExportExportStatus
+    files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+  }
+}
+
+export type GetExportsQueryVariables = Exact<{
+  where?: InputMaybe<ExportWhereInput>
+}>
+
+export type GetExportsQuery = {
+  __typename?: 'Query'
+  exports: {
+    __typename?: 'ExportConnection'
+    edges?: Array<{
+      __typename?: 'ExportEdge'
+      node?: {
+        __typename?: 'Export'
+        id: string
+        status: ExportExportStatus
+        exportType: ExportExportType
+        errorMessage?: string | null
+        files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
   }
 }
 
@@ -43028,6 +43110,11 @@ export type GetOrganizationSettingQuery = {
       geoLocation?: OrganizationSettingRegion | null
       billingNotificationsEnabled: boolean
       allowedEmailDomains?: Array<string> | null
+      identityProvider?: OrganizationSettingSsoProvider | null
+      identityProviderClientID?: string | null
+      identityProviderClientSecret?: string | null
+      oidcDiscoveryEndpoint?: string | null
+      identityProviderLoginEnforced: boolean
     } | null
   }
 }
@@ -43218,7 +43305,10 @@ export type InternalPolicyByIdFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   programs: {
@@ -43283,7 +43373,10 @@ export type GetInternalPolicyDetailsByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
+      } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
@@ -43799,12 +43892,32 @@ export type GetProgramGroupsQuery = {
     viewers: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          name: string
+          id: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+        } | null
+      } | null> | null
     }
     editors: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          name: string
+          id: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+        } | null
+      } | null> | null
     }
   }
 }
@@ -43883,7 +43996,7 @@ export type RiskFieldsFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   programs: {
@@ -43969,7 +44082,7 @@ export type GetRiskByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
@@ -44046,7 +44159,7 @@ export type GetAllRisksQuery = {
         subcontrols: {
           __typename?: 'SubcontrolConnection'
           totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
           pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
         }
         programs: {
@@ -44643,6 +44756,7 @@ export type TaskQuery = {
         __typename?: 'NoteEdge'
         node?: {
           __typename?: 'Note'
+          id: string
           createdAt?: any | null
           createdBy?: string | null
           text: string
@@ -44677,6 +44791,13 @@ export type UpdateBulkTaskMutationVariables = Exact<{
 }>
 
 export type UpdateBulkTaskMutation = { __typename?: 'Mutation'; updateBulkTask: { __typename?: 'TaskBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type UpdateTaskCommentMutationVariables = Exact<{
+  updateTaskCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTaskCommentMutation = { __typename?: 'Mutation'; updateTaskComment: { __typename?: 'TaskUpdatePayload'; task: { __typename?: 'Task'; id: string } } }
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
@@ -44953,6 +45074,7 @@ export type GetTrustCenterQuery = {
           id: string
           cnameRecord: string
           dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
+          mappableDomain: { __typename?: 'MappableDomain'; name: string }
         } | null
         setting?: {
           __typename?: 'TrustCenterSetting'

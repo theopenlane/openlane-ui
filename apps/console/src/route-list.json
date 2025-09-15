@@ -198,5 +198,9 @@
   {
     "route": "/organization-settings/integrations",
     "name": "Integrations"
+  },
+  {
+    "route": "/trust-center/settings",
+    "name": "Settings"
   }
 ]

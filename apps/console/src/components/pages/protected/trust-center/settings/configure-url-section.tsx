@@ -21,7 +21,9 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
   const [editing, setEditing] = useState(false)
   const [open, setOpen] = useState(false)
 
-  const defaultDomain = trustCenter?.node?.slug ? `https://trust.theopenlane.net/${trustCenter?.node?.slug}` : ''
+  const trustCenterDefaultDomain = trustCenter?.node?.slug ? `https://trust.theopenlane.net/${trustCenter?.node?.slug}` : '';
+  const customDomain = trustCenter?.node?.customDomain?.cnameRecord;
+  const defaultDomain = customDomain ? `https://${customDomain}` : trustCenterDefaultDomain;
 
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
 
@@ -122,7 +124,7 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
 
   useEffect(() => {
     setInputValue(trustCenter?.node?.customDomain?.cnameRecord || '')
-    return () => {}
+    return () => { }
   }, [trustCenter])
 
   const renderContent = () => {
