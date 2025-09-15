@@ -72,9 +72,7 @@
     "./infinite-scroll": "./src/infinite-scroll/infinite-scroll.tsx"
   },
   "scripts": {
-    "build": "tailwindcss -i ./src/styles.css -o dist/index.css",
     "lint": "eslint src/",
-    "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -187,7 +185,7 @@
     "@headlessui/react": "latest",
     "@repo/eslint-config": "workspace:*",
     "@tailwindcss/forms": "latest",
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/postcss": "^4.1.13",
     "@tailwindui/react": "latest",
     "@types/eslint": "latest",
     "@types/node": "^24.0.0",
@@ -196,10 +194,10 @@
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
     "eslint": "^9.28.0",
-    "postcss": "^8.5.4",
+    "postcss": "^8.5.6",
     "react": "19.1.0",
     "tailwind-variants": "^0.3.1",
-    "tailwindcss": "^4.1.12",
+    "tailwindcss": "^4.1.13",
     "tsup": "latest",
     "typescript": "^5"
   }

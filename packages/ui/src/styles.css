@@ -7,14 +7,13 @@
   * {
     @apply border-border outline-ring/50;
   }
-  /* font smoothing */
+
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     @apply bg-background text-foreground;
   }
 
-  /* focus ring aligns with our ring token */
   [type='text']:focus,
   [type='password']:focus,
   input:focus,
@@ -27,183 +26,42 @@
 }
 
 /* ─────────────────────────────────────────────────────────
-   HSL design tokens (wrapped in hsl()) — light mode
+   Light mode HSL tokens
 ────────────────────────────────────────────────────────── */
 @theme {
-  /* Core (used by shadcn/ui) */
-  --background: #EFF4F5; /* #f9fbfc */
-  --foreground: #09151D; /* #303e4a */
-  --card: #F4F9FA; /* #ffffff */
-  --card-foreground: hsl(209 22% 24%); /* #303e4a */
-  --popover: hsl(0 0% 100%); /* #ffffff */
-  --popover-foreground: hsl(209 22% 24%); /* #303e4a */
-  --primary: hsl(168 64% 49%); /* #2ccbab */
-  --primary-foreground: hsl(191 72% 9%); /* #082930 */
-  --secondary: #FFFFFF; /* #d9ae40 */
-  --secondary-foreground: hsl(191 72% 9%); /* #082930 */
-  --muted: hsl(198 39% 96%); /* #f5f9fa */
-  --muted-foreground: hsl(208 17% 49%); /* #505f6f */
-  --accent: hsl(45 66% 55%); /* #d9ae40 */
-  --accent-foreground: hsl(191 72% 9%); /* #082930 */
-  --destructive: hsl(0 69% 60%); /* #e05252 */
-  --destructive-foreground: hsl(156 82% 98%); /* #f0fdf9 */
-  --border: hsl(198 26% 89%); /* #e1e9ec */
-  --input: hsl(204 43% 98%); /* #f9fbfc */
-  --ring: hsl(168 64% 49%); /* #2ccbab */
-
-  /* Radii */
+  --background: #eff4f5;
+  --foreground: #09151d;
+  --card: #f4f9fa;
+  --card-foreground: hsl(209 22% 24%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(209 22% 24%);
+  --primary: hsl(168 64% 49%);
+  --primary-foreground: hsl(191 72% 9%);
+  --secondary: #ffffff;
+  --secondary-foreground: hsl(191 72% 9%);
+  --muted: hsl(198 39% 96%);
+  --muted-foreground: hsl(208 17% 49%);
+  --accent: hsl(45 66% 55%);
+  --accent-foreground: hsl(191 72% 9%);
+  --destructive: hsl(0 69% 60%);
+  --destructive-foreground: hsl(156 82% 98%);
+  --border: hsl(198 26% 89%);
+  --input: hsl(204 43% 98%);
+  --ring: hsl(168 64% 49%);
   --radius: 0.5rem;
 
-  /* Chart/semantic */
+  /* Optional semantic colors */
   --success: hsl(168 64% 49%);
   --warning: hsl(43 89% 66%);
   --info: hsl(207 68% 53%);
-
-  /* Legacy vars */
-  --color-button: hsl(168 64% 49%);
-  --color-button-muted: hsl(165 48% 65%);
-  --color-button-light: hsl(160 58% 94%);
-  --color-button-text: hsl(191 72% 9%);
-  --color-button-secondary: hsl(45 66% 55%);
-  --color-button-back: hsl(159 22% 89%);
-
-  --color-bg-checkbox: hsl(0 0% 100%);
-  --asset-color-bg: hsl(199 19% 87%);
-
-  --color-bg: hsl(204 43% 98%);
-  --color-bg-dark: hsl(209 26% 15%);
-  --color-bg-light: hsl(201 30% 91%);
-  --color-bg-primary: hsl(168 64% 49%);
-  --color-bg-secondary: #162431;
-  --color-bg-muted: hsl(198 39% 96%);
-
-  --color-accent: hsl(45 66% 55%);
-  --color-accent-muted: hsl(44 94% 73%);
-  --color-accent-secondary: hsl(168 64% 49%);
-  --color-accent-secondary-muted: hsl(165 48% 65%);
-
-  --color-border: hsl(198 26% 89%);
-  --color-border-light: hsl(196 20% 73%);
-  --color-border-dark: hsl(209 22% 24%);
-  --color-separator: hsl(198 26% 89%);
-  --color-separator-light: hsl(213 18% 76%);
-  --color-separator-dark: hsl(211 27% 21%);
-  --color-separator-edit: hsl(0 0% 75%);
-  --color-separator-edit-light: hsl(0 0% 75%);
-  --color-separator-edit-dark: hsl(197 12% 43%);
-
-  --color-text-header: hsl(209 22% 24%);
-  --color-text-paragraph: hsl(208 17% 49%);
-  --color-text-dark: hsl(209 26% 15%);
-  --color-text-light: hsl(196 20% 73%);
-  --color-text-nav-link: hsl(209 22% 24%);
-  --color-text-dimmed: hsl(210 15% 61%);
-  --color-text-informational: hsl(207 9% 53%);
-
-  --color-panel-bg: hsl(0 0% 100%);
-  --color-panel-text: hsl(209 22% 24%);
-  --color-panel-border: hsl(8 49% 82%);
-
-  --color-card-bg: hsl(0 0% 100%);
-  --color-card-text: hsl(209 22% 24%);
-
-  --color-tags-bg: hsl(45 66% 55%);
-  --color-tags-text: hsl(191 72% 9%);
-  --color-tags-border: hsl(191 72% 9%);
-
-  --color-popover: hsl(0 0% 100%);
-
-  --color-ring: hsl(168 64% 49%);
-
-  --color-table-bg: hsl(0 0% 100%);
-  --color-table-text: hsl(209 22% 24%);
-  --color-table-row-bg-hover: hsl(198 39% 96%);
-  --color-table-row-bg-odd: hsl(201 29% 92%);
-  --color-table-row-bg-even: hsl(0 0% 100%);
-  --color-table-border-muted: hsl(201 30% 91%);
-  --color-table-border: hsl(197 21% 75%);
-  --color-table-header-bg: hsl(199 26% 91%);
-  --color-table-header-text: hsl(209 22% 24%);
-
-  --color-gradient-light: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(175 46% 55%) 100%);
-  --color-gradient-dark: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(283 11% 59%) 100%);
-
-  --color-brand: hsl(168 64% 49%);
-  --color-brand-secondary: hsl(175 46% 55%);
-  --color-brand-100: hsl(172 79% 10%);
-  --color-brand-900: hsl(156 82% 98%);
-
-  --color-logo-bg: hsl(209 22% 24%);
-  --color-logo-text: hsl(209 22% 24%);
-  --color-logo-fg: hsl(166 55% 53%);
-  --color-logo-dark: hsl(209 22% 24%);
-  --color-logo-light: hsl(213 18% 76%);
-
-  --color-login-bg: hsl(0 0% 100%);
-  --color-login-text: hsl(209 22% 24%);
-
-  --color-status-success: hsl(168 64% 49%);
-  --color-status-warning: hsl(43 89% 66%);
-  --color-status-error: hsl(0 69% 60%);
-  --color-status-info: hsl(207 68% 53%);
-  --color-status-success-muted: hsl(162 49% 74%);
-  --color-status-warning-muted: hsl(37 96% 84%);
-  --color-status-error-muted: hsl(0 75% 84%);
-  --color-status-info-muted: hsl(213 56% 60%);
-
-  --color-destructive: hsl(0 72% 51%);
-  --color-destructive-transparent: hsla(0 72% 51% / 0.1);
-  --color-destructive-border: hsl(0 85% 87%);
-  --color-destructive-foreground: hsl(156 82% 98%);
-
-  --color-progressbar-empty: hsl(199 19% 87%);
-
-  --color-input-background: hsl(204 43% 98%);
-  --color-input-text: hsl(208 17% 49%);
-
-  --color-warning-muted-more: hsl(39 100% 96%);
-  --color-warning-banner: hsl(45 66% 55%);
-
-  --color-background-auth: hsl(202 24% 95%);
-
-  /* Standards */
-  --color-iso27001: hsl(218 40% 49%);
-  --color-nist80053: hsl(115 54% 34%);
-  --color-nistcsf: hsl(115 54% 34%);
-  --color-soc2: hsl(184 46% 51%);
-  --color-nistssdf: hsl(115 54% 34%);
-  --color-gdpr: hsl(45 66% 55%);
-  --color-cis: hsl(205 100% 31%);
-  --color-ccm: hsl(27 88% 66%);
-  --color-hipaa: hsl(212 54% 47%);
-  --color-sox: hsl(18 100% 32%);
-  --color-pci: hsl(186 47% 32%);
-  --color-custom: hsl(45 66% 55%);
-  --color-masvs: hsl(0 0% 33%);
-  --color-ccpa: hsl(213 100% 19%);
-  --color-nerc: hsl(211 100% 24%);
-  --color-cobit: hsl(197 72% 65%);
-  --color-fed: hsl(214 63% 19%);
-
-  /* Objects */
-  --color-procedures: hsl(217 92% 67%);
-  --color-tasks: hsl(38 92% 51%);
-  --color-programs: hsl(158 64% 52%);
-  --color-risks: hsl(0 85% 69%);
-  --color-controls: hsl(288 100% 74%);
-  --color-subcontrols: hsl(294 95% 82%);
-  --color-control-objectives: hsl(50 100% 63%);
-  --color-policies: hsl(257 88% 77%);
-  --color-groups: hsl(42 96% 56%);
-  --color-evidence: hsl(215 13% 64%);
 }
 
 /* ─────────────────────────────────────────────────────────
-   Dark mode HSL tokens (wrapped in hsl())
+   Dark mode overrides
 ────────────────────────────────────────────────────────── */
 .dark {
-  --background: #09151D;
-  --foreground: #FFFFFF;
+  --background: #09151d;
+  --foreground: #ffffff;
   --card: #233440;
   --card-foreground: hsl(196 20% 73%);
   --popover: hsl(209 22% 17%);
@@ -221,152 +79,168 @@
   --border: hsl(208 21% 24%);
   --input: hsl(216 33% 9%);
   --ring: hsl(168 64% 49%);
-
-  --color-button: hsl(168 64% 49%);
-  --color-button-muted: hsl(165 48% 65%);
-  --color-button-text: hsl(191 72% 9%);
-  --color-button-secondary: hsl(45 58% 45%);
-  --color-button-back: hsl(164 6% 61%);
-
-  --color-bg-checkbox: hsl(209 22% 17%);
-  --asset-color-bg: hsl(199 20% 27%);
-
-  --color-bg: hsl(216 33% 9%);
-  --color-bg-dark: hsl(216 33% 9%);
-  --color-bg-muted: hsl(213 22% 13%);
-  --color-bg-secondary: #FFFFFF;
-
-  --color-accent: hsl(45 58% 45%);
-  --color-accent-muted: hsl(44 94% 73%);
-  --color-accent-secondary: hsl(168 64% 49%);
-  --color-accent-secondary-muted: hsl(165 48% 65%);
-
-  --color-border: hsl(208 21% 24%);
-  --color-separator: hsl(209 22% 24%);
-  --color-separator-light: hsl(213 18% 76%);
-  --color-separator-dark: hsl(211 27% 21%);
-
-  --color-text-header: hsl(196 20% 73%);
-  --color-text-paragraph: hsl(191 39% 84%);
-  --color-text-nav-link: hsl(191 39% 84%);
-  --color-text-dimmed: hsl(191 10% 40%);
-  --color-text-informational: hsl(197 11% 53%);
-
-  --color-panel-bg: hsl(209 22% 17%);
-  --color-panel-text: hsl(196 20% 73%);
-  --color-panel-border: hsl(200 29% 31%);
-
-  --color-card-bg: hsl(213 22% 13%);
-  --color-card-text: hsl(196 20% 73%);
-
-  --color-tags-bg: hsl(45 58% 45%);
-  --color-tags-text: hsl(216 33% 9%);
-  --color-tags-border: hsl(216 33% 9%);
-
-  --color-popover: hsl(209 22% 17%);
-
-  --color-ring: hsl(168 64% 49%);
-
-  --color-table-bg: hsl(209 22% 17%);
-  --color-table-text: hsl(196 20% 73%);
-  --color-table-row-bg-hover: hsl(203 22% 27%);
-  --color-table-row-bg-odd: hsl(209 22% 17%);
-  --color-table-row-bg-even: hsl(203 22% 27%);
-  --color-table-border: hsl(283 11% 59%);
-  --color-table-border-muted: hsl(200 29% 31%);
-  --color-table-header-bg: hsl(206 20% 29%);
-  --color-table-header-text: hsl(167 56% 85%);
-
-  --color-gradient-light: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(175 46% 55%) 100%);
-  --color-gradient-dark: linear-gradient(90deg, hsl(168 64% 49%) 0%, hsl(283 11% 59%) 100%);
-
-  --color-brand: hsl(168 64% 49%);
-  --color-brand-secondary: hsl(175 46% 55%);
-  --color-brand-100: hsl(160 75% 90%);
-  --color-brand-900: hsl(168 58% 19%);
-
-  --color-logo-bg: hsl(209 22% 24%);
-  --color-logo-text: hsl(213 18% 76%);
-  --color-logo-fg: hsl(166 55% 53%);
-  --color-logo-dark: hsl(209 22% 24%);
-  --color-logo-light: hsl(213 18% 76%);
-
-  --color-status-success: hsl(168 64% 49%);
-  --color-status-warning: hsl(45 66% 55%);
-  --color-status-error: hsl(0 47% 47%);
-  --color-status-info: hsl(211 100% 50%);
-  --color-status-success-muted: hsl(165 48% 65%);
-  --color-status-warning-muted: hsl(44 94% 73%);
-  --color-status-error-muted: hsl(0 75% 84%);
-  --color-status-info-muted: hsl(213 56% 60%);
-
-  --color-destructive: hsl(0 84% 64%);
-  --color-destructive-transparent: hsla(0 84% 64% / 0.1);
-  --color-destructive-border: hsl(0 64% 30%);
-  --color-destructive-foreground: hsl(156 82% 98%);
-
-  --color-progressbar-empty: hsl(199 20% 27%);
-
-  --color-input-background: hsl(216 33% 9%);
-  --color-input-text: hsl(191 39% 84%);
-
-  --color-warning-muted-more: hsl(36 37% 23%);
-  --color-warning-banner: hsl(45 66% 55%);
-
-  --color-background-auth: hsl(213 14% 16%);
-
-  .svc-json-editor-tab__content-area {
-    background-color: var(--color-bg);
-  }
 }
 
 /* ─────────────────────────────────────────────────────────
-   Map tokens to Tailwind theme via @theme
+   Map tokens to Tailwind theme
 ────────────────────────────────────────────────────────── */
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
   --radius: var(--radius);
+  --color-panel-bg: var(--card);
+  --color-panel-text: var(--card-foreground);
+  --color-panel-border: var(--border);
 }
 
 /* ─────────────────────────────────────────────────────────
-   Utilities/components you had before
+   Radix / shadcn animations
+────────────────────────────────────────────────────────── */
+@utility animate-in {
+  animation: in 150ms ease-out;
+}
+@utility animate-out {
+  animation: out 150ms ease-in forwards;
+}
+@utility fade-in {
+  animation: fadeIn 150ms ease-out;
+}
+@utility fade-out {
+  animation: fadeOut 150ms ease-in forwards;
+}
+@utility zoom-in {
+  animation: zoomIn 150ms ease-out;
+}
+@utility zoom-out {
+  animation: zoomOut 150ms ease-in forwards;
+}
+@utility slide-in-from-top {
+  animation: slideInFromTop 200ms ease-out;
+}
+@utility slide-out-to-top {
+  animation: slideOutToTop 200ms ease-in forwards;
+}
+@utility slide-in-from-left {
+  animation: slideInFromLeft 200ms ease-out;
+}
+@utility slide-out-to-left {
+  animation: slideOutToLeft 200ms ease-in forwards;
+}
+@utility bg-panel {
+  background-color: var(--color-panel-bg);
+}
+@utility text-panel {
+  color: var(--color-panel-text);
+}
+@utility border-panel {
+  border-color: var(--color-panel-border);
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes zoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slideOutToTop {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+}
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slideOutToLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Extra utilities
 ────────────────────────────────────────────────────────── */
 .button-icon svg {
   width: 1rem;
   height: 1rem;
 }
-
 .svc-json-editor-tab__content-area {
   background-color: var(--color-bg);
 }
-
 @keyframes custom-pulse {
   50% {
     opacity: 0.5;
