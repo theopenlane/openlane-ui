@@ -157,66 +157,68 @@ const PricingPlan = () => {
       {productsLoading ? (
         <p>Loading modules…</p>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6 mt-4">
-          {modules.map((p) => {
-            const priceForCurrentInterval = p.billing.prices.find((pr) => pr.interval === currentInterval)
-            if (!priceForCurrentInterval) return null
+        <div className="flex flex-wrap gap-6 mt-4">
+          {modules
+            .filter((m) => m.display_name !== 'Base Module')
+            .map((p) => {
+              const priceForCurrentInterval = p.billing.prices.find((pr) => pr.interval === currentInterval)
+              if (!priceForCurrentInterval) return null
 
-            const alreadySubscribed = activePriceIds.has(priceForCurrentInterval.price_id)
+              const alreadySubscribed = activePriceIds.has(priceForCurrentInterval.price_id)
 
-            return (
-              <Card key={p.product_id} className="p-6 flex flex-col justify-between">
-                <div className="flex flex-col justify-between flex-1">
-                  <div>
-                    <p className="text-xl font-medium mb-2">{p.display_name}</p>
-                    {(p.marketing_description ?? p.description) && <p className="text-sm ">{p.marketing_description || p.description}</p>}
-                    <div className="mt-2 flex flex-col gap-1 text-sm ">
-                      {p.billing.prices.map((pr) => (
-                        <span key={pr.price_id}>
-                          ${pr.unit_amount / 100} / {pr.interval}
-                        </span>
-                      ))}
+              return (
+                <Card key={p.product_id} className="p-6 flex flex-col justify-between max-w-[300px]">
+                  <div className="flex flex-col justify-between flex-1">
+                    <div>
+                      <p className="text-xl font-medium mb-2">{p.display_name}</p>
+                      {(p.marketing_description ?? p.description) && <p className="text-sm ">{p.marketing_description || p.description}</p>}
+                      <div className="mt-2 flex flex-col gap-1 text-sm ">
+                        {p.billing.prices.map((pr) => (
+                          <span key={pr.price_id}>
+                            ${pr.unit_amount / 100} / {pr.interval}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mt-3 flex justify-center">
-                    {alreadySubscribed ? (
-                      endingPriceIds.has(priceForCurrentInterval.price_id) ? (
-                        <Button disabled>Ends at {formatDate(nextPhaseStart?.toISOString())}</Button>
+                    <div className="mt-3 flex justify-center">
+                      {alreadySubscribed ? (
+                        endingPriceIds.has(priceForCurrentInterval.price_id) ? (
+                          <Button disabled>Ends at {formatDate(nextPhaseStart?.toISOString())}</Button>
+                        ) : (
+                          <Button
+                            variant="destructive"
+                            disabled={updating}
+                            onClick={() =>
+                              updateSchedule({
+                                scheduleId: schedules[0].id,
+                                priceId: priceForCurrentInterval.price_id,
+                                action: 'unsubscribe',
+                              })
+                            }
+                          >
+                            Cancel
+                          </Button>
+                        )
                       ) : (
                         <Button
-                          variant="destructive"
                           disabled={updating}
                           onClick={() =>
                             updateSchedule({
                               scheduleId: schedules[0].id,
                               priceId: priceForCurrentInterval.price_id,
-                              action: 'unsubscribe',
+                              action: 'subscribe',
                             })
                           }
                         >
-                          Cancel
+                          Subscribe
                         </Button>
-                      )
-                    ) : (
-                      <Button
-                        disabled={updating}
-                        onClick={() =>
-                          updateSchedule({
-                            scheduleId: schedules[0].id,
-                            priceId: priceForCurrentInterval.price_id,
-                            action: 'subscribe',
-                          })
-                        }
-                      >
-                        Subscribe
-                      </Button>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            )
-          })}
+                </Card>
+              )
+            })}
         </div>
       )}
 
@@ -225,7 +227,7 @@ const PricingPlan = () => {
       {productsLoading ? (
         <p>Loading add-ons…</p>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6 mt-4">
+        <div className="flex flex-wrap gap-6 mt-4">
           {addons.map((p) => {
             const priceForCurrentInterval = p.billing.prices.find((pr) => pr.interval === currentInterval)
             if (!priceForCurrentInterval) return null
@@ -233,7 +235,7 @@ const PricingPlan = () => {
             const alreadySubscribed = activePriceIds.has(priceForCurrentInterval.price_id)
 
             return (
-              <Card key={p.product_id} className="p-6 flex flex-col justify-between">
+              <Card key={p.product_id} className="p-6 flex flex-col justify-between max-w-[300px]">
                 <div className="flex flex-col justify-between flex-1">
                   <div>
                     <p className="text-xl font-medium mb-2">{p.display_name}</p>
