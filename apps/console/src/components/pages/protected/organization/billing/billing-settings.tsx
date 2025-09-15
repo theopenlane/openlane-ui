@@ -32,7 +32,29 @@ const BillingSettings: React.FC = () => {
 
   return (
     <div className={cn(panel())}>
-      <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
+      <div className="flex justify-between">
+        <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
+        <Button
+          className="h-8 p-2"
+          variant="outline"
+          onClick={async () => {
+            const res = await fetch('/api/stripe/create-portal-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ customerId: stripeCustomerId }),
+            })
+
+            const data = await res.json()
+            if (data.url) {
+              window.location.href = data.url
+            } else {
+              console.error('❌ Portal error:', data.error)
+            }
+          }}
+        >
+          Manage Payment Details
+        </Button>
+      </div>
 
       {/* Billing Address Section */}
       <div className={cn(section())}>

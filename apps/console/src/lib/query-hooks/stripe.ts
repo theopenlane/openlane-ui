@@ -102,3 +102,29 @@ export function useOpenlaneProductsQuery() {
     },
   })
 }
+
+import { PaymentMethodsResponse } from '@/types/stripe'
+
+export function usePaymentMethodsQuery(customerId?: string | null) {
+  return useQuery<PaymentMethodsResponse>({
+    queryKey: ['stripe-payment-methods', customerId],
+    queryFn: async () => {
+      if (!customerId) {
+        return {
+          hasPaymentMethod: false,
+          defaultPaymentMethod: null,
+          paymentMethods: [],
+        }
+      }
+
+      const res = await fetch(`/api/stripe/payment-methods?customerId=${customerId}`)
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}))
+        throw new Error(error.error || 'Failed to fetch payment methods')
+      }
+
+      return res.json() as Promise<PaymentMethodsResponse>
+    },
+    enabled: !!customerId,
+  })
+}

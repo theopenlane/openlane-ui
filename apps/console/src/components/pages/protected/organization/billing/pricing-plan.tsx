@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
@@ -7,13 +7,17 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { Card } from '@repo/ui/cardpanel'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 import { OrgSubscription } from '@repo/codegen/src/schema'
-import { useOpenlaneProductsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
-import { formatDate } from '@/utils/date'
+import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
+import { ProductCard } from './product-card'
+import { useNotification } from '@/hooks/useNotification'
+import { useSearchParams } from 'next/navigation'
 
 const PricingPlan = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const { errorNotification, successNotification } = useNotification()
+  const searchParams = useSearchParams()
 
   const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
 
@@ -28,6 +32,8 @@ const PricingPlan = () => {
   const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
   const { mutateAsync: updateSchedule, isPending: updating } = useUpdateScheduleMutation()
   const { mutateAsync: switchInterval } = useSwitchIntervalMutation()
+
+  const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
 
   const badge = useMemo(() => {
     if (stripeSubscriptionStatus === 'trialing') return { variant: 'gold', text: 'Trial' } as const
@@ -113,41 +119,103 @@ const PricingPlan = () => {
     return buildSwaps(modules, addons, currentInterval as 'month' | 'year')
   }, [modules, addons, currentInterval, buildSwaps])
 
+  const handleSubscribe = async (priceId: string) => {
+    if (!paymentData?.hasPaymentMethod) {
+      errorNotification({
+        title: 'Payment method required',
+        description: 'Please add a payment method before subscribing.',
+      })
+      return
+    }
+
+    try {
+      await updateSchedule({
+        scheduleId: schedules[0].id,
+        priceId,
+        action: 'subscribe',
+      })
+      successNotification({
+        title: 'Subscribed successfully',
+        description: 'Your subscription has been updated.',
+      })
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unable to subscribe to this plan.'
+      errorNotification({
+        title: 'Subscription failed',
+        description: error,
+      })
+    }
+  }
+
+  const handleUnsubscribe = async (priceId: string) => {
+    try {
+      await updateSchedule({
+        scheduleId: schedules[0].id,
+        priceId,
+        action: 'unsubscribe',
+      })
+      successNotification({
+        title: 'Unsubscribed successfully',
+        description: 'Your subscription has been updated.',
+      })
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unable to unsubscribe from this plan.'
+      errorNotification({
+        title: 'Unsubscribe failed',
+        description: error,
+      })
+    }
+  }
+
+  const handleSwitchInterval = async () => {
+    try {
+      await switchInterval({ scheduleId: schedules[0].id, swaps })
+      successNotification({
+        title: 'Interval switched',
+        description: 'Your billing interval has been updated.',
+      })
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unable to switch billing interval.'
+      errorNotification({
+        title: 'Switch failed',
+        description: error,
+      })
+    }
+  }
+
+  useEffect(() => {
+    const paymentUpdate = searchParams.get('paymentUpdate')
+
+    if (paymentUpdate === 'success') {
+      successNotification({
+        title: 'Payment method updated',
+        description: 'Your payment method was successfully added.',
+      })
+    }
+  }, [searchParams, successNotification])
+
   return (
     <div className="min-w-[500px]">
       <h2 className="text-2xl">Pricing Plan</h2>
-
       {/* Current subscription summary */}
       <Card className="my-4 shadow-md p-4 max-w-[350px]">
         <div className="flex justify-between items-center">
           <div>
             <p className="text-lg font-medium">Current Plan</p>
-            {price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
+            {!!price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
             <p className="text-sm">{formattedExpiresDate}</p>
           </div>
           <Badge variant={badge.variant}>{badge.text}</Badge>
         </div>
       </Card>
-
       {/* Switch billing interval */}
       {currentInterval === 'month' && (
-        <Button
-          disabled={updating}
-          onClick={() =>
-            switchInterval(
-              { scheduleId: schedules[0].id, swaps },
-              {
-                onSuccess: (data) => console.log('✅ Response:', data),
-                onError: (err) => console.error('❌ Switch error:', err),
-              },
-            )
-          }
-        >
+        <Button disabled={updating} onClick={handleSwitchInterval}>
           Switch to annual
         </Button>
       )}
       {currentInterval === 'year' && (
-        <Button disabled={updating} onClick={() => switchInterval({ scheduleId: schedules[0].id, swaps })}>
+        <Button disabled={updating} onClick={handleSwitchInterval}>
           Switch to monthly
         </Button>
       )}
@@ -160,133 +228,40 @@ const PricingPlan = () => {
         <div className="flex flex-wrap gap-6 mt-4">
           {modules
             .filter((m) => m.display_name !== 'Base Module')
-            .map((p) => {
-              const priceForCurrentInterval = p.billing.prices.find((pr) => pr.interval === currentInterval)
-              if (!priceForCurrentInterval) return null
-
-              const alreadySubscribed = activePriceIds.has(priceForCurrentInterval.price_id)
-
-              return (
-                <Card key={p.product_id} className="p-6 flex flex-col justify-between max-w-[300px]">
-                  <div className="flex flex-col justify-between flex-1">
-                    <div>
-                      <p className="text-xl font-medium mb-2">{p.display_name}</p>
-                      {(p.marketing_description ?? p.description) && <p className="text-sm ">{p.marketing_description || p.description}</p>}
-                      <div className="mt-2 flex flex-col gap-1 text-sm ">
-                        {p.billing.prices.map((pr) => (
-                          <span key={pr.price_id}>
-                            ${pr.unit_amount / 100} / {pr.interval}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="mt-3 flex justify-center">
-                      {alreadySubscribed ? (
-                        endingPriceIds.has(priceForCurrentInterval.price_id) ? (
-                          <Button disabled>Ends at {formatDate(nextPhaseStart?.toISOString())}</Button>
-                        ) : (
-                          <Button
-                            variant="destructive"
-                            disabled={updating}
-                            onClick={() =>
-                              updateSchedule({
-                                scheduleId: schedules[0].id,
-                                priceId: priceForCurrentInterval.price_id,
-                                action: 'unsubscribe',
-                              })
-                            }
-                          >
-                            Cancel
-                          </Button>
-                        )
-                      ) : (
-                        <Button
-                          disabled={updating}
-                          onClick={() =>
-                            updateSchedule({
-                              scheduleId: schedules[0].id,
-                              priceId: priceForCurrentInterval.price_id,
-                              action: 'subscribe',
-                            })
-                          }
-                        >
-                          Subscribe
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
+            .map((p) => (
+              <ProductCard
+                key={p.product_id}
+                product={p}
+                currentInterval={currentInterval}
+                activePriceIds={activePriceIds}
+                endingPriceIds={endingPriceIds}
+                nextPhaseStart={nextPhaseStart}
+                updating={updating}
+                onSubscribe={handleSubscribe}
+                onUnsubscribe={handleUnsubscribe}
+              />
+            ))}
         </div>
       )}
-
       {/* Available Add-ons */}
       <h3 className="mt-8 text-lg font-semibold">Available Add-ons</h3>
       {productsLoading ? (
         <p>Loading add-ons…</p>
       ) : (
         <div className="flex flex-wrap gap-6 mt-4">
-          {addons.map((p) => {
-            const priceForCurrentInterval = p.billing.prices.find((pr) => pr.interval === currentInterval)
-            if (!priceForCurrentInterval) return null
-
-            const alreadySubscribed = activePriceIds.has(priceForCurrentInterval.price_id)
-
-            return (
-              <Card key={p.product_id} className="p-6 flex flex-col justify-between max-w-[300px]">
-                <div className="flex flex-col justify-between flex-1">
-                  <div>
-                    <p className="text-xl font-medium mb-2">{p.display_name}</p>
-                    {(p.marketing_description ?? p.description) && <p className="text-sm ">{p.marketing_description || p.description}</p>}
-                    <div className="mt-2 flex flex-col gap-1 text-sm ">
-                      {p.billing.prices.map((pr) => (
-                        <span key={pr.price_id}>
-                          ${pr.unit_amount / 100} / {pr.interval}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex justify-center">
-                    {alreadySubscribed ? (
-                      endingPriceIds.has(priceForCurrentInterval.price_id) ? (
-                        <Button disabled>Ends at {formatDate(nextPhaseStart?.toISOString())}</Button>
-                      ) : (
-                        <Button
-                          variant="destructive"
-                          disabled={updating}
-                          onClick={() =>
-                            updateSchedule({
-                              scheduleId: schedules[0].id,
-                              priceId: priceForCurrentInterval.price_id,
-                              action: 'unsubscribe',
-                            })
-                          }
-                        >
-                          Cancel
-                        </Button>
-                      )
-                    ) : (
-                      <Button
-                        disabled={updating}
-                        onClick={() =>
-                          updateSchedule({
-                            scheduleId: schedules[0].id,
-                            priceId: priceForCurrentInterval.price_id,
-                            action: 'subscribe',
-                          })
-                        }
-                      >
-                        Subscribe
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            )
-          })}
+          {addons.map((p) => (
+            <ProductCard
+              key={p.product_id}
+              product={p}
+              currentInterval={currentInterval}
+              activePriceIds={activePriceIds}
+              endingPriceIds={endingPriceIds}
+              nextPhaseStart={nextPhaseStart}
+              updating={updating}
+              onSubscribe={handleSubscribe}
+              onUnsubscribe={handleUnsubscribe}
+            />
+          ))}
         </div>
       )}
     </div>

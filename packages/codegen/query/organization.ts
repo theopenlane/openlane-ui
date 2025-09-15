@@ -134,6 +134,12 @@ export const GET_ORGANIZATION_BILLING = gql`
         managePaymentMethods
         cancellation
         trialExpiresAt
+        owner {
+          id
+          setting {
+            paymentMethodAdded
+          }
+        }
       }
     }
   }
