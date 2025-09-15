@@ -339,15 +339,20 @@ const SSOPage = () => {
       return
     }
 
-    setShowSSOErrorAlert(true)
-
     const errorMessagesMap = {
       sso_signin_failed: 'SSO sign-in failed',
       sso_callback_failed: 'SSO callback failed',
       sso_callback_error: 'SSO callback error occurred',
     }
 
-    setSSOErrorMessage(errorMessagesMap[error as keyof typeof errorMessagesMap] || 'SSO test failed')
+    const errorMessage = errorMessagesMap[error as keyof typeof errorMessagesMap]
+    if (!errorMessage) {
+      setShowSSOErrorAlert(false)
+      return
+    }
+
+    setShowSSOErrorAlert(true)
+    setSSOErrorMessage(errorMessage)
   }, [searchParams])
 
   return (
