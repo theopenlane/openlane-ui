@@ -11,20 +11,16 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
     }
 
-    // Dohvati customer record
     const customer = await stripe.customers.retrieve(customerId, {
       expand: ['invoice_settings.default_payment_method'],
     })
 
-    // Stripe može vratiti "deleted" customer ako je obrisan
     if (customer.deleted) {
       return NextResponse.json({ error: 'Customer deleted' }, { status: 404 })
     }
 
-    // Provjeri default payment method
     const defaultPM = (customer as Stripe.Customer).invoice_settings.default_payment_method
 
-    // Dohvati sve kartice za svaki slučaj
     const paymentMethods = await stripe.paymentMethods.list({
       customer: customerId,
       type: 'card',

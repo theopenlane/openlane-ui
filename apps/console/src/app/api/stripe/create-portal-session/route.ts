@@ -1,5 +1,6 @@
 import { stripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
 
 export async function POST(req: Request) {
   try {
@@ -9,15 +10,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
     }
 
+    // ✅ Derive base URL dynamically
+    const headersList = await headers()
+    const protocol = headersList.get('x-forwarded-proto') ?? 'http'
+    const host = headersList.get('x-forwarded-host') ?? headersList.get('host')
+    const baseUrl = `${protocol}://${host}`
+
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: 'http://localhost:3001/organization-settings/billing',
+      return_url: `${baseUrl}/organization-settings/billing`,
       flow_data: {
         type: 'payment_method_update',
         after_completion: {
           type: 'redirect',
           redirect: {
-            return_url: 'http://localhost:3001/organization-settings/billing?paymentUpdate=success',
+            return_url: `${baseUrl}/organization-settings/billing?paymentUpdate=success`,
           },
         },
       },
@@ -27,7 +34,6 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     console.error('❌ Stripe portal error:', err)
     const message = err instanceof Error ? err.message : 'Unknown error'
-    // In dev, return full error message for debugging
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

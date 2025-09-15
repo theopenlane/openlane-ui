@@ -183,16 +183,16 @@ const PricingPlan = () => {
     }
   }
 
-  useEffect(() => {
-    const paymentUpdate = searchParams.get('paymentUpdate')
+  const paymentUpdate = searchParams.get('paymentUpdate')
 
+  useEffect(() => {
     if (paymentUpdate === 'success') {
       successNotification({
         title: 'Payment method updated',
         description: 'Your payment method was successfully added.',
       })
     }
-  }, [searchParams, successNotification])
+  }, [paymentUpdate, successNotification])
 
   return (
     <div className="min-w-[500px]">
