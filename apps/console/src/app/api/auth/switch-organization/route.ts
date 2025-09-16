@@ -5,8 +5,6 @@ import { csrfHeader } from '@repo/dally/auth'
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 
-const ssoOnlyTokens = new Set(['state', 'nonce', 'switch_org'])
-
 export async function POST(request: Request) {
   const bodyData = await request.json()
   const cookies = request.headers.get('cookie')
@@ -43,7 +41,7 @@ export async function POST(request: Request) {
 
     const responseCookies = fData.headers.get('set-cookie')
     if (responseCookies) {
-      parseAndSetResponseCookies(response, responseCookies, ssoOnlyTokens)
+      parseAndSetResponseCookies(response, responseCookies)
     }
 
     return response

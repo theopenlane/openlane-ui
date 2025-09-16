@@ -200,7 +200,7 @@ export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
 // The response from switchOrganization or similar auth functions
 //
 // organizationId The target organization ID to store in localStorage
-export function handleSSORedirect(response: { needs_sso?: string; redirect_uri?: string }, organizationId: string): boolean {
+export function handleSSORedirect(response: { needs_sso?: boolean; redirect_uri?: string }, organizationId: string): boolean {
   if (response?.needs_sso && response?.redirect_uri) {
     localStorage.setItem('sso_organization_id', organizationId)
 

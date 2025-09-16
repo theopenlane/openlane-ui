@@ -8,7 +8,6 @@ interface SSOLoginRequest {
 }
 
 // is_test cookie is for sso being tested before enforcement
-const ssoOnlyTokens = new Set(['state', 'nonce', 'is_test'])
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,7 +34,7 @@ export async function POST(request: NextRequest) {
         // ignore other cookies
         // old csrf token was being stored again in csrf cookies
         // thus making secureFetch in sso/callback/route ignore fetching a new one
-        parseAndSetResponseCookies(response, responseCookies, ssoOnlyTokens)
+        parseAndSetResponseCookies(response, responseCookies)
       }
 
       return response

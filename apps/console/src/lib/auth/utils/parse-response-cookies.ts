@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+const ssoOnlyCookieTokens = new Set(['state', 'nonce', 'user_sso'])
+
 /**
  * parses response cookies and sets them on the NextResponse object
  *  sets cookies that are in the allowedTokens set
@@ -8,7 +10,7 @@ import { NextResponse } from 'next/server'
  * @param responseCookies - The raw cookie string from the response headers
  * @param allowedTokens - Set of token names that are allowed to be set as cookies
  */
-export function parseAndSetResponseCookies(response: NextResponse, responseCookies: string, allowedTokens: Set<string>) {
+export function parseAndSetResponseCookies(response: NextResponse, responseCookies: string) {
   const options = {
     httpOnly: true,
     secure: true,
@@ -25,7 +27,7 @@ export function parseAndSetResponseCookies(response: NextResponse, responseCooki
       const [name, value] = cookieParts
 
       // set cookies that are in the allowedTokens set
-      if (!allowedTokens.has(name)) {
+      if (!ssoOnlyCookieTokens.has(name)) {
         continue
       }
 
