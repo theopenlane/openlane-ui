@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-const ssoOnlyCookieTokens = new Set(['state', 'nonce', 'user_sso'])
+const ssoOnlyCookieTokens = new Set(['state', 'nonce', 'user_sso', 'token_id', 'token_type', 'organization_id'])
 
 /**
  * parses response cookies and sets them on the NextResponse object

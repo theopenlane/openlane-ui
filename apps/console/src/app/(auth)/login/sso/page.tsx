@@ -14,6 +14,7 @@ const SSOCallbackPage: React.FC = () => {
   useEffect(() => {
     const handleSSOCallback = async () => {
       const isTesting = localStorage.getItem('testing_sso')
+      const apiTokenData = localStorage.getItem('api_token')
 
       try {
         const state = searchParams?.get('state')
@@ -21,7 +22,15 @@ const SSOCallbackPage: React.FC = () => {
 
         if (!code || !state) {
           console.error('Missing required OAuth parameters')
-          const redirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=missing_oauth_params` : `${LOGIN_URL}?error=missing_oauth_params`
+          let redirectUrl: string
+          if (isTesting) {
+            redirectUrl = `${ORG_SETTINGS_URL}?ssotested=0&error=missing_oauth_params`
+          } else if (apiTokenData) {
+            const tokenInfo = JSON.parse(apiTokenData)
+            redirectUrl = tokenInfo.isOrg ? '/organization-settings/developers?error=missing_oauth_params' : '/user-settings/developers?error=missing_oauth_params'
+          } else {
+            redirectUrl = `${LOGIN_URL}?error=missing_oauth_params`
+          }
           router.push(redirectUrl)
           return
         }
@@ -30,7 +39,15 @@ const SSOCallbackPage: React.FC = () => {
 
         if (!organizationId) {
           console.error('No organization_id found in localStorage')
-          const redirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=missing_organization_id` : `${LOGIN_URL}?error=missing_organization_id`
+          let redirectUrl: string
+          if (isTesting) {
+            redirectUrl = `${ORG_SETTINGS_URL}?ssotested=0&error=missing_organization_id`
+          } else if (apiTokenData) {
+            const tokenInfo = JSON.parse(apiTokenData)
+            redirectUrl = tokenInfo.isOrg ? '/organization-settings/developers?error=missing_organization_id' : '/user-settings/developers?error=missing_organization_id'
+          } else {
+            redirectUrl = `${LOGIN_URL}?error=missing_organization_id`
+          }
           router.push(redirectUrl)
           return
         }
@@ -60,25 +77,60 @@ const SSOCallbackPage: React.FC = () => {
           })
 
           if (signInResult && !signInResult.error) {
-            const redirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=1` : data.redirect_url || '/'
+            let redirectUrl: string
+
+            if (isTesting) {
+              redirectUrl = `${ORG_SETTINGS_URL}?ssotested=1`
+            } else if (apiTokenData) {
+              const tokenInfo = JSON.parse(apiTokenData)
+              redirectUrl = tokenInfo.isOrg ? '/organization-settings/developers?token_authorized=1' : '/user-settings/developers?token_authorized=1'
+            } else {
+              redirectUrl = data.redirect_url || '/'
+            }
+
             router.push(redirectUrl)
             return
           }
 
-          const errorRedirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=sso_signin_failed` : `${LOGIN_URL}?error=sso_signin_failed`
+          let errorRedirectUrl: string
+          if (isTesting) {
+            errorRedirectUrl = `${ORG_SETTINGS_URL}?ssotested=0&error=sso_signin_failed`
+          } else if (apiTokenData) {
+            const tokenInfo = JSON.parse(apiTokenData)
+            errorRedirectUrl = tokenInfo.isOrg ? '/organization-settings/developers?error=sso_signin_failed' : '/user-settings/developers?error=sso_signin_failed'
+          } else {
+            errorRedirectUrl = `${LOGIN_URL}?error=sso_signin_failed`
+          }
           router.push(errorRedirectUrl)
         } else {
           console.error('SSO callback failed:', data)
-          const errorRedirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=sso_callback_failed` : `${LOGIN_URL}?error=sso_callback_failed`
+          let errorRedirectUrl: string
+          if (isTesting) {
+            errorRedirectUrl = `${ORG_SETTINGS_URL}?ssotested=0&error=sso_callback_failed`
+          } else if (apiTokenData) {
+            const tokenInfo = JSON.parse(apiTokenData)
+            errorRedirectUrl = tokenInfo.isOrg ? '/organization-settings/developers?error=sso_callback_failed' : '/user-settings/developers?error=sso_callback_failed'
+          } else {
+            errorRedirectUrl = `${LOGIN_URL}?error=sso_callback_failed`
+          }
           router.push(errorRedirectUrl)
         }
       } catch (error) {
         console.error('SSO callback error:', error)
-        const errorRedirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=sso_callback_error` : `${LOGIN_URL}?error=sso_callback_error`
+        let errorRedirectUrl: string
+        if (isTesting) {
+          errorRedirectUrl = `${ORG_SETTINGS_URL}?ssotested=0&error=sso_callback_error`
+        } else if (apiTokenData) {
+          const tokenInfo = JSON.parse(apiTokenData)
+          errorRedirectUrl = tokenInfo.isOrg ? '/organization-settings/developers?error=sso_callback_error' : '/user-settings/developers?error=sso_callback_error'
+        } else {
+          errorRedirectUrl = `${LOGIN_URL}?error=sso_callback_error`
+        }
         router.push(errorRedirectUrl)
       } finally {
         localStorage.removeItem('sso_organization_id')
         localStorage.removeItem('testing_sso')
+        localStorage.removeItem('api_token')
       }
     }
 

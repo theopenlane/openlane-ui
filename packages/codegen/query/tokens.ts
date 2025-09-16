@@ -4,6 +4,7 @@ export const CREATE_PERSONAL_ACCESS_TOKEN = gql`
   mutation CreatePersonalAccessToken($input: CreatePersonalAccessTokenInput!) {
     createPersonalAccessToken(input: $input) {
       personalAccessToken {
+        id
         token
       }
     }
@@ -51,6 +52,7 @@ export const CREATE_API_TOKEN = gql`
   mutation CreateAPIToken($input: CreateAPITokenInput!) {
     createAPIToken(input: $input) {
       apiToken {
+        id
         token
       }
     }
