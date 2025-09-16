@@ -18399,12 +18399,6 @@ export interface MappedControlWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export interface ModuleBillingUrl {
-  __typename?: 'ModuleBillingURL'
-  module: Scalars['String']['output']
-  url: Scalars['String']['output']
-}
-
 export interface Mutation {
   __typename?: 'Mutation'
   /** Create a new apiToken */
@@ -21520,7 +21514,6 @@ export interface OrgSubscription extends Node {
   features?: Maybe<Array<Scalars['String']['output']>>
   id: Scalars['ID']['output']
   managePaymentMethods?: Maybe<Scalars['String']['output']>
-  moduleBillingURLs?: Maybe<Array<ModuleBillingUrl>>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -21530,7 +21523,6 @@ export interface OrgSubscription extends Node {
   stripeSubscriptionID?: Maybe<Scalars['String']['output']>
   /** the status of the subscription in stripe -- see https://docs.stripe.com/api/subscriptions/object#subscription_object-status */
   stripeSubscriptionStatus?: Maybe<Scalars['String']['output']>
-  subscriptionURL?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the time the trial is set to expire */
@@ -43371,14 +43363,12 @@ export type GetOrganizationBillingQuery = {
       __typename?: 'OrgSubscription'
       active: boolean
       expiresAt?: any | null
-      subscriptionURL?: string | null
       stripeSubscriptionStatus?: string | null
       productPrice?: any | null
       features?: Array<string> | null
       managePaymentMethods?: string | null
       cancellation?: string | null
       trialExpiresAt?: any | null
-      owner?: { __typename?: 'Organization'; id: string; setting?: { __typename?: 'OrganizationSetting'; paymentMethodAdded: boolean } | null } | null
     }> | null
   }
 }

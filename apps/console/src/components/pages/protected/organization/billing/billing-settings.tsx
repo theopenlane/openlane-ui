@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -8,6 +8,8 @@ import { cn } from '@repo/ui/lib/utils'
 import { useGetOrganizationBilling, useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useCancelSubscriptionMutation, useSchedulesQuery } from '@/lib/query-hooks/stripe'
 import { Button } from '@repo/ui/button'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { formatDate } from '@/utils/date'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, text } = billingSettingsStyles()
@@ -18,6 +20,7 @@ const BillingSettings: React.FC = () => {
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
   const { mutateAsync: cancelSubscription, isPending: canceling } = useCancelSubscriptionMutation()
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
@@ -100,13 +103,34 @@ const BillingSettings: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
               <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
 
-              <Button variant="destructive" disabled={canceling || schedulesLoading || !schedule || isCanceledBySchedule} onClick={handleCancelSub}>
+              <Button variant="destructive" disabled={canceling || schedulesLoading || !schedule || isCanceledBySchedule} onClick={() => setConfirmCancelOpen(true)}>
                 {canceling ? 'Cancelling…' : isCanceledBySchedule ? 'Cancellation scheduled' : 'Cancel Subscription'}
               </Button>
             </div>
           </div>
         </div>
       )}
+      {/* Cancel subscription confirmation */}
+      <ConfirmationDialog
+        open={confirmCancelOpen}
+        onOpenChange={setConfirmCancelOpen}
+        onConfirm={async () => {
+          setConfirmCancelOpen(false)
+          await handleCancelSub()
+        }}
+        title="Cancel subscription?"
+        description={
+          <>
+            <p>
+              Your subscription will be cancelled at the end of your current billing cycle on{' '}
+              <b>{schedule?.current_phase?.end_date ? formatDate(new Date(schedule.current_phase.end_date * 1000).toISOString()) : 'the end date'}</b>.
+            </p>
+            <p>Until then, you’ll continue to have full access.</p>
+          </>
+        }
+        confirmationText="Confirm"
+        confirmationTextVariant="destructive"
+      />
     </div>
   )
 }

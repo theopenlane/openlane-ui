@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
@@ -11,6 +11,7 @@ import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, us
 import { ProductCard } from './product-card'
 import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const PricingPlan = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
@@ -34,6 +35,7 @@ const PricingPlan = () => {
   const { mutateAsync: switchInterval } = useSwitchIntervalMutation()
 
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
+  const [confirmSwitchOpen, setConfirmSwitchOpen] = useState(false)
 
   const badge = useMemo(() => {
     if (stripeSubscriptionStatus === 'trialing') return { variant: 'gold', text: 'Trial' } as const
@@ -88,6 +90,18 @@ const PricingPlan = () => {
   const nextPhaseStart = schedules?.[0]?.phases?.[1]?.start_date ? new Date(schedules[0].phases[1].start_date * 1000) : null
 
   const modules = Object.values(openlaneProducts?.modules || {})
+  const modulesWithoutBase = modules.filter((m) => m.display_name !== 'Base Module')
+
+  const activeModulesNumber = useMemo(() => {
+    if (!currentInterval) return 0
+
+    return modulesWithoutBase.filter((m) => {
+      const priceForInterval = m.billing.prices.find((p) => p.interval === currentInterval)
+      if (!priceForInterval) return false
+      return activePriceIds.has(priceForInterval.price_id)
+    }).length
+  }, [modulesWithoutBase, activePriceIds, currentInterval])
+
   const addons = Object.values(openlaneProducts?.addons || {})
 
   type Product = {
@@ -210,12 +224,12 @@ const PricingPlan = () => {
       </Card>
       {/* Switch billing interval */}
       {currentInterval === 'month' && (
-        <Button disabled={updating} onClick={handleSwitchInterval}>
+        <Button disabled={updating} onClick={() => setConfirmSwitchOpen(true)}>
           Switch to annual
         </Button>
       )}
       {currentInterval === 'year' && (
-        <Button disabled={updating} onClick={handleSwitchInterval}>
+        <Button disabled={updating} onClick={() => setConfirmSwitchOpen(true)}>
           Switch to monthly
         </Button>
       )}
@@ -226,21 +240,20 @@ const PricingPlan = () => {
         <p>Loading modules…</p>
       ) : (
         <div className="flex flex-wrap gap-6 mt-4">
-          {modules
-            .filter((m) => m.display_name !== 'Base Module')
-            .map((p) => (
-              <ProductCard
-                key={p.product_id}
-                product={p}
-                currentInterval={currentInterval}
-                activePriceIds={activePriceIds}
-                endingPriceIds={endingPriceIds}
-                nextPhaseStart={nextPhaseStart}
-                updating={updating}
-                onSubscribe={handleSubscribe}
-                onUnsubscribe={handleUnsubscribe}
-              />
-            ))}
+          {modulesWithoutBase.map((p) => (
+            <ProductCard
+              key={p.product_id}
+              product={p}
+              currentInterval={currentInterval}
+              activePriceIds={activePriceIds}
+              endingPriceIds={endingPriceIds}
+              nextPhaseStart={nextPhaseStart}
+              updating={updating}
+              onSubscribe={handleSubscribe}
+              onUnsubscribe={handleUnsubscribe}
+              isOnlyActiveModule={activeModulesNumber === 1}
+            />
+          ))}
         </div>
       )}
       {/* Available Add-ons */}
@@ -264,6 +277,35 @@ const PricingPlan = () => {
           ))}
         </div>
       )}
+      {/* Switch confirmation */}
+      <ConfirmationDialog
+        open={confirmSwitchOpen}
+        onOpenChange={setConfirmSwitchOpen}
+        onConfirm={() => {
+          setConfirmSwitchOpen(false)
+          handleSwitchInterval()
+        }}
+        title={currentInterval === 'month' ? 'Switch to annual billing?' : 'Switch to monthly billing?'}
+        description={
+          currentInterval === 'month' ? (
+            <>
+              <p>
+                Your subscription will switch from <strong>monthly</strong> to <strong>annual</strong> billing.
+              </p>
+              <p>The change takes effect immediately, and your payment will be prorated for the remainder of the current billing cycle.</p>
+            </>
+          ) : (
+            <>
+              <p>
+                Your subscription will switch from <strong>annual</strong> to <strong>monthly</strong> billing.
+              </p>
+              <p>The change takes effect immediately, and your payment will be prorated for the remainder of the current billing cycle.</p>
+            </>
+          )
+        }
+        confirmationText="Confirm"
+        confirmationTextVariant="success"
+      />
     </div>
   )
 }
