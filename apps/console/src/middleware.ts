@@ -36,6 +36,10 @@ export default auth(async (req) => {
   }
 
   if (isPublicPage) {
+    if (req.cookies.get('switch_org')) {
+      return NextResponse.next()
+    }
+
     // allow /login/sso to proceed if the user is testing the SSO flow
     if (path === '/login/sso' && req.cookies.get('is_test')) {
       return NextResponse.next()

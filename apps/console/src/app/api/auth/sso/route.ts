@@ -1,10 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 
 interface SSOLoginRequest {
   organization_id: string
   is_test?: boolean
 }
+
+// is_test cookie is for sso being tested before enforcement
+const ssoOnlyTokens = new Set(['state', 'nonce', 'is_test'])
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,31 +32,10 @@ export async function POST(request: NextRequest) {
 
       const responseCookies = ssoData.headers.get('set-cookie')
       if (responseCookies) {
-        const cookieStrings = responseCookies.split(/,(?=\s*[a-zA-Z0-9_-]+=)/)
-
-        for (const cookieString of cookieStrings) {
-          const cookieParts = cookieString.trim().split(';')[0]?.split('=')
-          if (cookieParts && cookieParts.length === 2) {
-            const [name, value] = cookieParts
-
-            // ignore other cookies
-            // old csrf token was being stored again in csrf cookies
-            // thus making secureFetch in sso/callback/route ignore fetching a new one
-            //
-            // is_test cookie is for sso being tested before enforcement
-            if (name !== 'state' && name !== 'nonce' && name != 'is_test') {
-              continue
-            }
-
-            response.cookies.set(name, value, {
-              httpOnly: true,
-              secure: true,
-              sameSite: 'lax',
-              path: '/',
-              maxAge: 60,
-            })
-          }
-        }
+        // ignore other cookies
+        // old csrf token was being stored again in csrf cookies
+        // thus making secureFetch in sso/callback/route ignore fetching a new one
+        parseAndSetResponseCookies(response, responseCookies, ssoOnlyTokens)
       }
 
       return response
