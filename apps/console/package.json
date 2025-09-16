@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev -p 3001 --turbopack",
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "eslint .",
@@ -27,7 +27,7 @@
     "@simplewebauthn/server": "^11.0.0",
     "@simplewebauthn/types": "^12.0.0",
     "@stepperize/react": "^5.0.0",
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/postcss": "^4.1.13",
     "@tanstack/react-query": "^5.66.9",
     "@types/d3-force": "^3.0.10",
     "@types/jest": "^29.5.14",
@@ -71,7 +71,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.1.13",
     "typescript": "^5"
   }
 }

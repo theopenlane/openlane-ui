@@ -36,6 +36,7 @@ export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Compliance',
     icon: ShieldCheck,
+    href: '/',
     children: [
       {
         title: 'Programs',
