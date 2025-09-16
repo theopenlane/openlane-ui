@@ -9,7 +9,7 @@ import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { switchOrganization } from '@/lib/user'
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
@@ -72,6 +72,14 @@ export const OrganizationSelector = () => {
   const handleOrganizationSwitch = async (orgId?: string) => {
     if (orgId && orgId !== currentOrgId) {
       const response = await switchOrganization({ target_organization_id: orgId })
+
+      console.log('RESP', response)
+      if (handleSSORedirect(response, orgId)) {
+        console.log('redirecting')
+        return
+      }
+
+      console.log('not redirecting')
 
       if (sessionData && response) {
         await updateSession({

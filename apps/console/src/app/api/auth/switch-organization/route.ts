@@ -3,6 +3,9 @@ import { auth } from '@/lib/auth/auth'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { csrfHeader } from '@repo/dally/auth'
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
+import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
+
+const ssoOnlyTokens = new Set(['state', 'nonce', 'switch_org'])
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
@@ -36,7 +39,14 @@ export async function POST(request: Request) {
   if (fData.ok) {
     setSessionCookie(fetchedData.session)
 
-    return NextResponse.json(fetchedData, { status: 200 })
+    const response = NextResponse.json(fetchedData, { status: 200 })
+
+    const responseCookies = fData.headers.get('set-cookie')
+    if (responseCookies) {
+      parseAndSetResponseCookies(response, responseCookies, ssoOnlyTokens)
+    }
+
+    return response
   }
 
   if (fData.status !== 201) {
