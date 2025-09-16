@@ -9,6 +9,8 @@ import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 import { formatDateSince } from '@/utils/date'
 import { TUploadedFile } from './types/TUploadedFile'
 import { TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 type TProps = {
   evidenceFiles: TUploadedFile[]
@@ -17,7 +19,14 @@ type TProps = {
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
-  const { data, isLoading } = useGetEvidenceFiles()
+  const [pagination, setPagination] = useState<TPagination>({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    page: 1,
+    query: { first: 5 },
+  })
+  const { data, isLoading, paginationMeta } = useGetEvidenceFiles({ pagination })
+
   const [files, setFiles] = useState<TEvidenceFilesColumn[]>([])
 
   useEffect(() => {
@@ -81,7 +90,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
   return (
     <TabsContent value="existingFiles">
-      <DataTable columns={columns} data={files} />
+      <DataTable columns={columns} data={files} pagination={pagination} onPaginationChange={(pagination: TPagination) => setPagination(pagination)} paginationMeta={paginationMeta} />
     </TabsContent>
   )
 }

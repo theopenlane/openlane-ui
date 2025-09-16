@@ -1,7 +1,6 @@
 'use client'
 
 import React, { Fragment, useMemo, useState } from 'react'
-import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
@@ -61,68 +60,68 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
   )
 
   return (
-    <Card className="p-4">
-      <div className="flex flex-col gap-4">
-        {/* Tags */}
+    <div className={`flex justify-between gap-1 items-start ${isEditing || internalEditing ? 'flex-col items-start' : ''}`}>
+      <div className="min-w-[160px]">
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
             <Tag size={16} className="text-brand" />
             <span>Tags</span>
           </div>
         </div>
+      </div>
 
-        <div className="grid w-full items-center gap-2">
-          <div className="flex gap-2 items-center flex-wrap" ref={wrapperRef}>
-            {isEditing || internalEditing ? (
-              <InputRow className="w-full">
-                <FormField
-                  control={form.control}
-                  name="tags"
-                  render={({ field }) => (
-                    <>
-                      <FormControl>
-                        <MultipleSelector
-                          className="w-full"
-                          placeholder="Add tag..."
-                          creatable
-                          value={tagOptions}
-                          onChange={(selectedOptions) => {
-                            const newTags = selectedOptions.map((opt) => opt.value)
-                            field.onChange(newTags)
-                          }}
-                        />
-                      </FormControl>
-                      {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
-                    </>
-                  )}
-                />
-              </InputRow>
-            ) : (
-              <div
-                className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onDoubleClick={() => {
-                  if (!isEditing && editAllowed) {
-                    setInternalEditing(true)
-                  }
-                }}
-              >
-                {procedure.tags?.length ? (
-                  procedure.tags.map((item, index) => (
-                    <Fragment key={index}>
-                      <Badge className="bg-background-secondary mr-1" variant="outline">
-                        {item}
-                      </Badge>
-                    </Fragment>
-                  ))
-                ) : (
-                  <span className="text-muted-foreground text-sm italic">No tags</span>
+      <div className="grid w-full items-center gap-2">
+        <div className="flex gap-2 items-center flex-wrap" ref={wrapperRef}>
+          {isEditing || internalEditing ? (
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <>
+                    <FormControl>
+                      <MultipleSelector
+                        hideClearAllButton
+                        className="w-full"
+                        placeholder="Add tag..."
+                        creatable
+                        value={tagOptions}
+                        onChange={(selectedOptions) => {
+                          const newTags = selectedOptions.map((opt) => opt.value)
+                          field.onChange(newTags)
+                        }}
+                      />
+                    </FormControl>
+                    {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                  </>
                 )}
-              </div>
-            )}
-          </div>
+              />
+            </InputRow>
+          ) : (
+            <div
+              className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              onDoubleClick={() => {
+                if (!isEditing && editAllowed) {
+                  setInternalEditing(true)
+                }
+              }}
+            >
+              {procedure.tags?.length ? (
+                procedure.tags.map((item, index) => (
+                  <Fragment key={index}>
+                    <Badge className="bg-background-secondary mr-1" variant="outline">
+                      {item}
+                    </Badge>
+                  </Fragment>
+                ))
+              ) : (
+                <span className="text-muted-foreground text-sm italic">No tags</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
 

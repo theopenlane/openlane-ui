@@ -10,7 +10,7 @@ import { useOrganization } from '@/hooks/useOrganization.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
-import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
@@ -62,6 +62,14 @@ const EvidenceDetailsPage = () => {
   useEffect(() => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
+
+  useEffect(() => {
+    if (programId && programMap[programId]) {
+      setSelectedProgram(programMap[programId])
+    } else {
+      setSelectedProgram('All Programs')
+    }
+  }, [programId, programMap])
 
   const handleSelectChange = (val: string) => {
     if (val === 'all') {

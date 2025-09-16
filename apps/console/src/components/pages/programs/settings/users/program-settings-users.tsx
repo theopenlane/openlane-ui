@@ -7,9 +7,9 @@ import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef } from '@tanstack/react-table'
-import { useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo, useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
+import { ProgramMembershipRole, ProgramProgramStatus, User } from '@repo/codegen/src/schema'
 import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -19,6 +19,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 type MemberRow = {
   id: string
@@ -32,6 +35,10 @@ export const ProgramSettingsUsers = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
+
+  const { data: permission } = useAccountRole(session, ObjectEnum.PROGRAM, programId)
+
+  const editAllowed = canEdit(permission.roles)
 
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,
@@ -52,7 +59,7 @@ export const ProgramSettingsUsers = () => {
     where,
     enabled: !!programId,
   })
-
+  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const { mutateAsync: updateProgramMembership } = useUpdateProgramMembership()
 
   const handleRemove = async () => {
@@ -214,7 +221,7 @@ export const ProgramSettingsUsers = () => {
         <div className="space-y-2 w-full max-w-[847px]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg">Assigned users</h2>
-            <ProgramSettingsAssignUserDialog />
+            {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignUserDialog />}
           </div>
 
           <DataTable

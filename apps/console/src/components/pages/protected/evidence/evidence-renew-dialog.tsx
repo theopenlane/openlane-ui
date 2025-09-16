@@ -14,15 +14,15 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InputRow } from '@repo/ui/input'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
-import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-type TControlEvidenceRenewDialog = {
+type TEvidenceRenewDialog = {
   controlId?: string
   evidenceId: string
 }
 
-const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evidenceId, controlId }) => {
+const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, controlId }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const queryClient = useQueryClient()
   const { form } = useFormSchema()
@@ -174,4 +174,4 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
   )
 }
 
-export { ControlEvidenceRenewDialog }
+export { EvidenceRenewDialog }

@@ -124,7 +124,7 @@ const TaskDetailsSheet = () => {
   }
 
   const handleUpdateField = async (input: UpdateTaskInput) => {
-    if (!id) {
+    if (!id || isEditing) {
       return
     }
     try {
@@ -178,6 +178,7 @@ const TaskDetailsSheet = () => {
                       <EvidenceCreateFormDialog
                         formData={evidenceFormData}
                         excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
+                        defaultSelectedObject={ObjectTypeObjects.TASK}
                       />
                     )}
                     <MarkAsComplete taskData={taskData} />
@@ -198,7 +199,7 @@ const TaskDetailsSheet = () => {
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK]}
+                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP]}
                     />
                   </Panel>
                 )}

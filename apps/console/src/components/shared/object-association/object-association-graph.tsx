@@ -25,17 +25,19 @@ type TCenterNode = {
 }
 
 type TObjectAssociationGraphProps = {
+  controlId?: string
   centerNode: TCenterNode
   sections: Section
   isFullscreen: boolean
   closeFullScreen: () => void
+  menu?: React.ReactNode
 }
 
 const NODE_RADIUS = 7
 const FONT_SIZE = 12
 const LABEL_PADDING = 4
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, menu, controlId }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
@@ -130,7 +132,10 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             refCode: label,
             description: node.summary || node.description || node.details || '',
             displayID: node.displayID || node.id,
-            link: getHrefForObjectType(sectionType, node as NormalizedObject),
+            link:
+              sectionType === 'subcontrols' && controlId
+                ? getHrefForObjectType(sectionType, { ...node, controlId: controlId } as NormalizedObject)
+                : getHrefForObjectType(sectionType, node as NormalizedObject),
             __typename: getType(sectionType),
           }
           nodes.push({ id: node.id, name: label, type: sectionType })
@@ -148,7 +153,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     })
 
     return { graphData: { nodes, links }, colorMap, nodeMeta }
-  }, [centerNode, sections])
+  }, [centerNode, sections, controlId])
 
   useEffect(() => {
     if (!fgRef.current) return
@@ -195,7 +200,38 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     )
   }
 
-  const getTooltipPosition = (x: number, y: number) => (fgRef.current ? fgRef.current.graph2ScreenCoords(x, y) : { x: 0, y: 0 })
+  const getTooltipPosition = (x: number, y: number, tooltipEl: HTMLDivElement) => {
+    if (!fgRef.current || !tooltipEl || !containerRef.current) return { x: 0, y: 0 }
+
+    const pos = fgRef.current.graph2ScreenCoords(x, y)
+    const containerRect = containerRef.current.getBoundingClientRect()
+    const tooltipRect = tooltipEl.getBoundingClientRect()
+    const tooltipWidth = tooltipRect.width
+    const tooltipHeight = tooltipRect.height
+    const offset = 8
+    const padding = 8
+
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
+    let left = containerRect.left + pos.x - tooltipWidth / 2
+    let top = containerRect.top + pos.y - tooltipHeight - offset
+
+    if (top < padding) {
+      top = containerRect.top + pos.y + offset
+    }
+
+    if (left < padding) {
+      left = containerRect.left + pos.x + offset
+    } else if (left + tooltipWidth > viewportWidth - padding) {
+      left = containerRect.left + pos.x - tooltipWidth - offset
+    }
+
+    left = Math.max(padding, Math.min(left, viewportWidth - tooltipWidth - padding))
+    top = Math.max(padding, Math.min(top, viewportHeight - tooltipHeight - padding))
+
+    return { x: left, y: top }
+  }
 
   const iconImages = useMemo(() => {
     const icons: Record<string, HTMLImageElement> = {}
@@ -232,15 +268,18 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         nodeCanvasObject={(node, ctx, globalScale) => {
           const label = node!.name
           const fontSize = FONT_SIZE / globalScale
+
           ctx.beginPath()
           ctx.fillStyle = colorMap[node!.type] || '#ccc'
           ctx.arc(node!.x!, node!.y!, NODE_RADIUS, 0, 2 * Math.PI)
           ctx.fill()
+
           const iconImg = iconImages[node!.type]
           if (iconImg?.complete) {
             const size = NODE_RADIUS
             ctx.drawImage(iconImg, node!.x! - size / 2, node!.y! - size / 2, size, size)
           }
+
           ctx.font = `${fontSize}px sans-serif`
           ctx.fillStyle = resolvedTheme === 'dark' ? '#bdd9e1' : '#505f6f'
           ctx.textAlign = 'center'
@@ -248,39 +287,52 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + 4)
         }}
       />
-      {hoverNode?.id && nodeMeta[hoverNode.id] && (
-        <div
-          style={{
-            position: 'absolute',
-            left: getTooltipPosition(hoverNode.x!, hoverNode.y!).x + 10,
-            top: getTooltipPosition(hoverNode.x!, hoverNode.y!).y + 10,
-            pointerEvents: 'none',
-            background: resolvedTheme === 'dark' ? '#1f2937' : 'white',
-            color: resolvedTheme === 'dark' ? 'white' : 'black',
-            border: '1px solid #ccc',
-            padding: '8px',
-            borderRadius: '4px',
-            zIndex: 9999,
-            maxWidth: 300,
-          }}
-          className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]"
-        >
-          <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
-        </div>
-      )}
+
+      {hoverNode?.id &&
+        nodeMeta[hoverNode.id] &&
+        ReactDOM.createPortal(
+          <div
+            ref={(el) => {
+              if (!el) return
+              const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!, el)
+              el.style.left = `${x}px`
+              el.style.top = `${y}px`
+            }}
+            style={{
+              position: 'fixed',
+              pointerEvents: 'none',
+              background: resolvedTheme === 'dark' ? '#1f2937' : 'white',
+              color: resolvedTheme === 'dark' ? 'white' : 'black',
+              border: '1px solid #ccc',
+              padding: '8px',
+              borderRadius: '4px',
+              zIndex: 11000,
+              maxWidth: 300,
+              fontSize: '0.75rem',
+              lineHeight: '1rem',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
+          </div>,
+          document.body,
+        )}
     </>
   )
 
   return showFullscreen ? (
     ReactDOM.createPortal(
       <div
-        className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
         onClick={closeFullScreen}
+        className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
-          <button onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+        <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
+          <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
             <X size={20} />
           </button>
+
+          {menu && <div className="absolute top-2 left-2 z-[99999]">{menu}</div>}
+
           <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[400px]'} transition-all duration-300`}>
             {renderGraph()}
           </div>

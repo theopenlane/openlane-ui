@@ -75,6 +75,7 @@ const RISK_FIELDS = gql`
           id
           displayID
           refCode
+          controlId: controlID
         }
       }
       pageInfo {

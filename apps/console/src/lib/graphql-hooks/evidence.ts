@@ -57,22 +57,57 @@ export function useCreateEvidence() {
   })
 }
 
-export function useGetEvidenceFiles() {
+type TEvidenceFilesProps = {
+  pagination?: TPagination
+}
+
+export function useGetEvidenceFiles({ pagination }: TEvidenceFilesProps) {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetEvidenceFilesQuery>({
-    queryKey: ['getEvidenceFiles'],
-    queryFn: async () => client.request<GetEvidenceFilesQuery>(GET_EVIDENCE_FILES),
+  const queryResult = useQuery<GetEvidenceFilesQuery>({
+    queryKey: ['getEvidenceFiles', pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request<GetEvidenceFilesQuery>(GET_EVIDENCE_FILES, {
+        ...pagination?.query,
+      }),
   })
+
+  const files = queryResult.data?.files?.edges?.map((edge) => edge?.node) ?? []
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.files?.totalCount ?? 0,
+    pageInfo: queryResult.data?.files?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    files,
+    paginationMeta,
+  }
 }
 
 export const useGetAllEvidences = (where?: EvidenceWhereInput) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetAllEvidencesQuery>({
+  const queryResult = useQuery<GetAllEvidencesQuery>({
     queryKey: ['evidences', where],
     queryFn: async () => client.request<GetAllEvidencesQuery>(GET_ALL_EVIDENCES, { where }),
   })
+
+  const files = queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.evidences?.totalCount ?? 0,
+    pageInfo: queryResult.data?.evidences?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    files,
+    paginationMeta,
+  }
 }
 
 export const useGetEvidenceById = (evidenceId?: string | null) => {
@@ -314,13 +349,16 @@ export const useRejectedEvidenceTrend = (programId?: string | null) => {
   return useEvidenceTrend(programId, EvidenceEvidenceStatus.REJECTED)
 }
 
-export const useGetFirstFiveEvidencesByStatus = (status: EvidenceEvidenceStatus, programId?: string | null) => {
+type TGetFirstFiveEvidenceByStatusProps = {
+  where?: EvidenceWhereInput
+}
+
+export const useGetFirstFiveEvidencesByStatus = ({ where }: TGetFirstFiveEvidenceByStatusProps) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetEvidencesByStatusQuery, unknown>({
-    queryKey: ['evidences', 'statuses', programId, status],
-    queryFn: async () => client.request(GET_FIRST_FIVE_EVIDENCES_BY_STATUS, { status, programId }),
-    enabled: !!programId,
+    queryKey: ['evidences', where],
+    queryFn: async () => client.request(GET_FIRST_FIVE_EVIDENCES_BY_STATUS, { where }),
   })
 }
 

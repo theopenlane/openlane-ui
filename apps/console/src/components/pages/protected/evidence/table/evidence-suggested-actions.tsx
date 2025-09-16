@@ -6,12 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover
 import { Button } from '@repo/ui/button'
 import { useEvidenceSuggestedActions } from '@/lib/graphql-hooks/evidence'
 import { useControlEvidenceStore } from '../../controls/hooks/useControlEvidenceStore'
+import { useRouter } from 'next/navigation'
 
 export default function EvidenceSuggestedActions() {
+  const router = useRouter()
   const [open, setOpen] = React.useState(false)
-  const { setSelectedControlEvidence, setIsEditPreset } = useControlEvidenceStore()
 
   const { data } = useEvidenceSuggestedActions()
+  const { setIsEditPreset } = useControlEvidenceStore()
 
   const unlinked = data?.unlinked?.edges?.map((e) => e?.node) ?? []
   const needingReview = data?.needingReview?.edges?.map((e) => e?.node) ?? []
@@ -36,21 +38,29 @@ export default function EvidenceSuggestedActions() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" sideOffset={12} className="w-[380px] rounded-2xl border-muted-foreground/10 bg-popover p-0 shadow-xl">
+      <PopoverContent align="end" sideOffset={12} className="w-[380px] rounded-2xl border-muted-foreground/10 bg-popover p-0 shadow-xl z-30">
         <div className="flex items-center justify-between gap-2 rounded-t-2xl px-5 pt-4 pb-1">
           <h3 className="text-lg font-semibold">Suggested Actions</h3>
           <X className="h-4 w-4 cursor-pointer" aria-label="Close" onClick={() => setOpen(false)} />
         </div>
 
-        <div className="max-h-[360px] px-5 pt-1">
-          <div className="divide-y">
+        <div className="px-5 pt-1">
+          <div className="divide-y max-h-[360px] overflow-y-auto">
             {needsRenewal.map((ev) => (
               <div key={`renew-${ev?.id}`} className="group flex items-center gap-3 py-4">
                 <AlertCircle className="h-4 w-4" />
                 <p className="flex-1 text-sm tracking-normal">
                   <strong>{ev?.name}</strong> needs renewal. Update this evidence to stay current.
                 </p>
-                <Button size="sm" variant="outline" className="h-8 p-2" onClick={() => setSelectedControlEvidence(ev?.id || '')} aria-label="Renew evidence">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 p-2"
+                  onClick={() => {
+                    if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
+                  }}
+                  aria-label="Renew evidence"
+                >
                   Renew
                 </Button>
               </div>
@@ -62,7 +72,15 @@ export default function EvidenceSuggestedActions() {
                 <p className="flex-1 text-sm tracking-normal">
                   <strong>{ev?.name}</strong> was submitted and is pending review.
                 </p>
-                <Button size="sm" variant="outline" className="h-8 p-2" onClick={() => setSelectedControlEvidence(ev?.id || '')} aria-label="Review evidence">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 p-2"
+                  onClick={() => {
+                    if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
+                  }}
+                  aria-label="Review evidence"
+                >
                   Review
                 </Button>
               </div>
@@ -80,7 +98,7 @@ export default function EvidenceSuggestedActions() {
                   className="h-8 p-2"
                   aria-label="Add evidence"
                   onClick={() => {
-                    setSelectedControlEvidence(ev?.id || '')
+                    if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
                     setIsEditPreset(true)
                   }}
                 >

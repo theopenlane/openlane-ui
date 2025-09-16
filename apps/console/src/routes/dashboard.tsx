@@ -115,6 +115,7 @@ export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
       {
         title: 'Authentication',
         href: '/organization-settings/authentication',
+        hidden: true, // the only thing here is domain restricted which currently has a bug
       },
       {
         title: 'Members',
@@ -161,6 +162,20 @@ export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
       //   title: 'Alerts & Preferences',
       //   href: '/user-settings/alerts-preferences',
       // },
+    ],
+  },
+  {
+    title: 'Trust center',
+    hidden: true,
+    href: '/trust-center',
+    icon: SettingsIcon,
+    isChildren: true,
+    children: [
+      {
+        title: 'Settings',
+        hidden: true,
+        href: '/trust-center/settings',
+      },
     ],
   },
 ]

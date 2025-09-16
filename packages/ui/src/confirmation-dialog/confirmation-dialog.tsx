@@ -39,7 +39,7 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogOverlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs" />
-      <AlertDialogContent className="z-50">
+      <AlertDialogContent className="z-50 max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>{title || 'Are you absolutely sure?'}</AlertDialogTitle>
           <AlertDialogDescription>{description || 'This action cannot be undone.'}</AlertDialogDescription>

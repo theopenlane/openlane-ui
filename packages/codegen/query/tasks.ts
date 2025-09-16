@@ -184,12 +184,20 @@ export const TASK = gql`
             id
             name
             desiredOutcome
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
       }
       comments {
         edges {
           node {
+            id
             createdAt
             createdBy
             owner {
@@ -236,6 +244,16 @@ export const BULK_EDIT_TASK = gql`
   mutation UpdateBulkTask($ids: [ID!]!, $input: UpdateTaskInput!) {
     updateBulkTask(ids: $ids, input: $input) {
       updatedIDs
+    }
+  }
+`
+
+export const UPDATE_TASK_COMMENT = gql`
+  mutation UpdateTaskComment($updateTaskCommentId: ID!, $input: UpdateNoteInput!) {
+    updateTaskComment(id: $updateTaskCommentId, input: $input) {
+      task {
+        id
+      }
     }
   }
 `

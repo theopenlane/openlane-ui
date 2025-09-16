@@ -3,4 +3,6 @@ export type TCommentData = {
   createdAt: string
   avatarUrl?: string
   comment: string
+  createdBy: string
+  id: string
 }

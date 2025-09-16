@@ -13,6 +13,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCloneControls } from '@/lib/graphql-hooks/standards'
+import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
+import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 
 const ImportControlsDialog: React.FC = () => {
   const [open, setOpen] = useState(false)
@@ -27,7 +29,7 @@ const ImportControlsDialog: React.FC = () => {
   const router = useRouter()
 
   const { mutateAsync: cloneControls } = useCloneControls()
-
+  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const handleImport = async () => {
     try {
       await cloneControls({
@@ -70,9 +72,7 @@ const ImportControlsDialog: React.FC = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="w-fit">Import</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <Button className="w-fit">Import</Button>}</DialogTrigger>
       <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-2xl ">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold leading-8">Import Controls</DialogTitle>
@@ -88,16 +88,18 @@ const ImportControlsDialog: React.FC = () => {
           </SelectContent>
         </Select>
         <p className="text-sm font-medium leading-5">Type</p>
-        {selectedImportControlsFrom === ObjectEnum.STANDARD ? (
-          <ImportControlsDialogFramework
-            setSelectedItems={setSelectedItems}
-            selectedItems={selectedItems}
-            selectedFrameworkIds={selectedFrameworkIds}
-            setSelectedFrameworkIds={setSelectedFrameworkIds}
-          />
-        ) : (
-          <ImportControlsDialogProgram setSelectedItems={setSelectedItems} selectedItems={selectedItems} selectedProgramIds={selectedProgramIds} setSelectedProgramIds={setSelectedProgramIds} />
-        )}
+        {basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED &&
+          (selectedImportControlsFrom === ObjectEnum.STANDARD ? (
+            <ImportControlsDialogFramework
+              setSelectedItems={setSelectedItems}
+              selectedItems={selectedItems}
+              selectedFrameworkIds={selectedFrameworkIds}
+              setSelectedFrameworkIds={setSelectedFrameworkIds}
+            />
+          ) : (
+            <ImportControlsDialogProgram setSelectedItems={setSelectedItems} selectedItems={selectedItems} selectedProgramIds={selectedProgramIds} setSelectedProgramIds={setSelectedProgramIds} />
+          ))}
+
         <DialogFooter className="mt-6 flex gap-2">
           <Button onClick={handleImport} disabled={selectedItems.length === 0}>
             {selectedItems.length === 0 ? 'Import' : `Import (${selectedItems.length})`}

@@ -6,9 +6,9 @@ import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef } from '@tanstack/react-table'
-import { useGetProgramGroups, useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo, useGetProgramGroups, useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { Group as GroupType, UpdateProgramInput } from '@repo/codegen/src/schema'
+import { Group as GroupType, ProgramProgramStatus, UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import { ProgramSettingsAssignGroupDialog } from './program-settings-assign-groups-dialog'
 import { useQueryClient } from '@tanstack/react-query'
@@ -19,6 +19,10 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Pagination from '@repo/ui/pagination'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { useSession } from 'next-auth/react'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 type GroupRow = {
   id: string
@@ -31,6 +35,9 @@ type GroupRow = {
 export const ProgramSettingsGroups = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.PROGRAM, programId)
+  const editAllowed = canEdit(permission.roles)
   const queryClient = useQueryClient()
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,
@@ -49,7 +56,7 @@ export const ProgramSettingsGroups = () => {
   const { data, isLoading } = useGetProgramGroups({
     programId: programId ?? null,
   })
-
+  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const groups: GroupRow[] = useMemo(() => {
     const viewers = data?.program?.viewers?.edges ?? []
     const editors = data?.program?.editors?.edges ?? []
@@ -58,14 +65,14 @@ export const ProgramSettingsGroups = () => {
       ...((viewers.map((edge) => ({
         id: edge?.node?.id,
         name: edge?.node?.name,
-        membersCount: data?.program?.viewers.totalCount,
+        membersCount: edge?.node?.members.totalCount,
         role: 'Viewer',
         group: edge?.node,
       })) as GroupRow[]) || []),
       ...((editors.map((edge) => ({
         id: edge?.node?.id,
         name: edge?.node?.name,
-        membersCount: data?.program?.editors.totalCount,
+        membersCount: edge?.node?.members.totalCount,
         role: 'Editor',
         group: edge?.node,
       })) as GroupRow[]) || []),
@@ -240,7 +247,7 @@ export const ProgramSettingsGroups = () => {
         <div className="space-y-2 w-full max-w-[847px]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg">Assigned groups</h2>
-            <ProgramSettingsAssignGroupDialog />
+            {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignGroupDialog />}
           </div>
 
           <DataTable columns={groupColumns} data={paginatedGroups} loading={isLoading} />

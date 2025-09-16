@@ -22,6 +22,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
+    { ownerIDIsNil: true },
     { standardID: id },
     {
       or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
@@ -198,7 +199,6 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
               icon={<SearchIcon size={16} />}
               iconPosition="left"
               variant="searchTable"
-              className="!border-brand"
             />
           </div>
         </div>

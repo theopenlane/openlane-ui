@@ -10,6 +10,29 @@ export const CREATE_MAPPED_CONTROL = gql`
   }
 `
 
+export const MAPPED_SUBCONTROLS_FRAGMENT = gql`
+  fragment MappedSubcontrolsFragment on Subcontrol {
+    __typename
+    id
+    refCode
+    referenceFramework
+    controlID
+    category
+    subcategory
+  }
+`
+
+export const MAPPED_CONTROLS_FRAGMENT = gql`
+  fragment MappedControlsFragment on Control {
+    __typename
+    id
+    refCode
+    referenceFramework
+    category
+    subcategory
+  }
+`
+
 export const GET_MAPPED_CONTROLS = gql`
   query GetMappedControls($where: MappedControlWhereInput) {
     mappedControls(where: $where) {
@@ -19,45 +42,32 @@ export const GET_MAPPED_CONTROLS = gql`
           relation
           confidence
           mappingType
+          source
           fromSubcontrols {
             edges {
               node {
-                id
-                refCode
-                referenceFramework
-                control {
-                  id
-                }
+                ...MappedSubcontrolsFragment
               }
             }
           }
           toSubcontrols {
             edges {
               node {
-                id
-                refCode
-                referenceFramework
-                control {
-                  id
-                }
+                ...MappedSubcontrolsFragment
               }
             }
           }
           fromControls {
             edges {
               node {
-                id
-                refCode
-                referenceFramework
+                ...MappedControlsFragment
               }
             }
           }
           toControls {
             edges {
               node {
-                id
-                refCode
-                referenceFramework
+                ...MappedControlsFragment
               }
             }
           }
@@ -65,6 +75,9 @@ export const GET_MAPPED_CONTROLS = gql`
       }
     }
   }
+
+  ${MAPPED_SUBCONTROLS_FRAGMENT}
+  ${MAPPED_CONTROLS_FRAGMENT}
 `
 
 export const GET_MAPPED_CONTROL_BY_ID = gql`

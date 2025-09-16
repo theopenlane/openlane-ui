@@ -1,9 +1,10 @@
 import { GqlError } from '@/types'
 import { useToast } from '@repo/ui/use-toast'
+import React, { useCallback } from 'react'
 
 type TSuccessProps = {
   title?: string
-  description?: string
+  description?: string | React.ReactNode
   variant?: 'default' | 'destructive' | 'success'
 }
 
@@ -17,42 +18,51 @@ type TErrorProps = {
 export function useNotification() {
   const { toast } = useToast()
 
-  const handleSuccess = (props: TSuccessProps) => {
-    handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'success')
-  }
+  const handleShowNotification = useCallback(
+    (title?: string, description?: string | React.ReactNode, variant: 'default' | 'destructive' | 'success' = 'default') => {
+      toast({
+        variant,
+        ...(title ? { title } : {}),
+        ...(description ? { description } : {}),
+      })
+    },
+    [toast],
+  )
 
-  const handleError = (props: TErrorProps) => {
-    let description = props.description ?? ''
-    if (props.gqlError) {
-      const messages: string[] = []
+  const handleSuccess = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'success')
+    },
+    [handleShowNotification],
+  )
 
-      if (props.gqlError.graphQLErrors) {
-        props.gqlError.graphQLErrors.forEach((graphQLError) => {
-          const path = graphQLError.path?.join('.') ?? ''
-          messages.push(path + ' ' + graphQLError.message)
-        })
+  const handleError = useCallback(
+    (props: TErrorProps) => {
+      let description = props.description ?? ''
+      if (props.gqlError) {
+        const messages: string[] = []
+
+        if (props.gqlError.graphQLErrors) {
+          props.gqlError.graphQLErrors.forEach((graphQLError) => {
+            const path = graphQLError.path?.join('.') ?? ''
+            messages.push(path + ' ' + graphQLError.message)
+          })
+        }
+
+        if (props.gqlError.networkError) {
+          messages.push(props.gqlError.networkError.message)
+        }
+
+        description = messages.join('\n')
       }
 
-      if (props.gqlError.networkError) {
-        messages.push(props.gqlError.networkError.message)
-      }
-
-      description = messages.join('\n')
-    }
-
-    handleShowNotification(props.title, description, 'destructive')
-  }
-
-  const handleShowNotification = (title?: string, description?: string, variant: 'default' | 'destructive' | 'success' = 'default') => {
-    toast({
-      variant: variant,
-      ...(title ? { title } : {}),
-      ...(description ? { description } : {}),
-    })
-  }
+      handleShowNotification(props.title, description, 'destructive')
+    },
+    [handleShowNotification],
+  )
 
   return {
-    successNotification: (props: TSuccessProps) => handleSuccess(props),
-    errorNotification: (props: TErrorProps) => handleError(props),
+    successNotification: handleSuccess,
+    errorNotification: handleError,
   }
 }

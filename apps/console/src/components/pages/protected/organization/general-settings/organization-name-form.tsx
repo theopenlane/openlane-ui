@@ -1,6 +1,6 @@
 'use client'
 import { File } from '@repo/codegen/src/schema'
-import { Input, InputRow } from '@repo/ui/input'
+import { Input } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -121,23 +121,24 @@ const OrganizationNameForm = () => {
         />
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <InputRow>
-              <FormField
-                control={form.control}
-                name="displayName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input variant="medium" {...field} />
+            <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <div className="flex gap-4">
+                    <FormControl className="flex-1">
+                      <Input {...field} variant="medium" className="rounded-r-none h-10" />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isPending}>
-                {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-              </Button>
-            </InputRow>
+
+                    <Button type="submit" variant={isSuccess ? 'success' : 'filled'} loading={isPending}>
+                      {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+                    </Button>
+                  </div>
+                  <FormMessage className="mt-1 text-sm text-error" />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
       </Panel>
