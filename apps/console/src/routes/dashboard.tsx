@@ -14,14 +14,33 @@ import {
   Workflow,
   NotebookPen,
   FileBadge2,
+  Search,
+  Plus,
+  House,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
 export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
   {
+    type: 'separator',
+  },
+  {
     title: 'Home',
     href: '/dashboard',
-    icon: CircleGaugeIcon,
+    icon: Plus,
+  },
+  {
+    title: 'Home',
+    href: '/dashboard',
+    icon: Search,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    title: 'Home',
+    href: '/dashboard',
+    icon: House,
   },
   {
     title: 'Tasks',

@@ -59,6 +59,8 @@
   --success: hsl(168 64% 49%);
   --warning: hsl(43 89% 66%);
   --info: hsl(207 68% 53%);
+  --color-separator: #E1E7EA;
+  --color-border: #E1E7EA;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -84,6 +86,8 @@
   --border: hsl(208 21% 24%);
   --input: hsl(216 33% 9%);
   --ring: hsl(168 64% 49%);
+  --color-separator: #394B58;
+  --color-border: #394B58;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -113,6 +117,15 @@
   --color-panel-bg: var(--card);
   --color-panel-text: var(--card-foreground);
   --color-panel-border: var(--border);
+}
+
+@theme inline {
+  /* Logo */
+  --color-logo-bg: #303e4a;
+  --color-logo-text: #303e4a;
+  --color-logo-fg: #4dc6ad;
+  --color-logo-dark: #303e4a;
+  --color-logo-light: #b4c1d5;
 }
 
 /* ─────────────────────────────────────────────────────────

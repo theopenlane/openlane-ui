@@ -126,7 +126,6 @@ export const GET_ORGANIZATION_BILLING = gql`
       orgSubscriptions {
         active
         expiresAt
-        subscriptionURL
         stripeSubscriptionStatus
         productPrice
         features

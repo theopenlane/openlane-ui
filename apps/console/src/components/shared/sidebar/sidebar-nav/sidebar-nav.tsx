@@ -3,7 +3,9 @@
 import React from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
-import { LogIn, Plus, Search, Home, ListChecks, ShieldCheck, Building2, BookOpen, MessageSquare, Github, MessageCircle, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
+import { LogIn, Plus, Search, Home, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
+import { Logo } from '@repo/ui/logo'
+import { Separator as Hr } from '@repo/ui/separator'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
@@ -27,8 +29,10 @@ export default function SideNav({ navItems, openPanel, expanded, onToggle, onExp
     <>
       <aside className="fixed left-0 top-0 z-40 h-screen w-[50px] flex flex-col justify-between items-center py-3">
         <div className="flex flex-col items-center gap-3">
+          <Logo asIcon width={28} />
+
           {navItems.map((item, idx) => {
-            if ('type' in item && (item.type === 'separator' || item.type === 'heading')) return null
+            if ('type' in item && (item.type === 'separator' || item.type === 'heading')) return <Hr />
             if ('icon' in item && item.icon) {
               const Icon = item.icon
               const isExpandable = !!item.children
