@@ -73,13 +73,9 @@ export const OrganizationSelector = () => {
     if (orgId && orgId !== currentOrgId) {
       const response = await switchOrganization({ target_organization_id: orgId })
 
-      console.log('RESP', response)
       if (handleSSORedirect(response, orgId)) {
-        console.log('redirecting')
         return
       }
-
-      console.log('not redirecting')
 
       if (sessionData && response) {
         await updateSession({
