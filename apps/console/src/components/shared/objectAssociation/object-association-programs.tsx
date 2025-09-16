@@ -1,18 +1,16 @@
-'use client'
-
 import React, { useState } from 'react'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
+import { ProgramSelectionDialog } from './object-association-programs-dialog'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
-import { ControlSelectionDialog } from './object-association-control-dialog'
 
-type ObjectAssociationControlsProps = {
+type ObjectAssociationProgramsProps = {
   onIdChange?: (updatedMap: TObjectAssociationMap) => void
   initialData?: TObjectAssociationMap
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ObjectAssociationControls = ({ onIdChange, initialData, open, setOpen }: ObjectAssociationControlsProps) => {
+const ObjectAssociationPrograms: React.FC<ObjectAssociationProgramsProps> = ({ onIdChange, initialData, open, setOpen }: ObjectAssociationProgramsProps) => {
   const [idsMap, setIdsMap] = useState<TObjectAssociationMap>(initialData?.controlIDs ? { controlIDs: [...initialData.controlIDs] } : { controlIDs: [] })
   const [refMap, setRefMap] = useState<TObjectAssociationMap>(initialData?.controlRefCodes ? { controlIDs: [...initialData.controlRefCodes] } : { controlIDs: [] })
   const handleSave = (newIds: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => {
@@ -55,9 +53,9 @@ const ObjectAssociationControls = ({ onIdChange, initialData, open, setOpen }: O
         ))}
       </div>
 
-      <ControlSelectionDialog open={open} onClose={() => setOpen(false)} initialData={idsMap} initialRefCodes={refMap} onSave={handleSave} />
+      <ProgramSelectionDialog open={open} onClose={() => setOpen(false)} initialData={idsMap} initialRefCodes={refMap} onSave={handleSave} />
     </div>
   )
 }
 
-export default ObjectAssociationControls
+export default ObjectAssociationPrograms

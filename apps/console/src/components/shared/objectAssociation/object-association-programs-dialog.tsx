@@ -1,21 +1,19 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
-import { useGetAllControls } from '@/lib/graphql-hooks/controls'
-import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
-import { ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+import { Program, ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
+import { useGetAllProgramsPaginated } from '@/lib/graphql-hooks/programs'
 
-type ControlSelectionDialogProps = {
+type ProgramSelectionDialogProps = {
   open: boolean
   onClose: () => void
   initialData?: TObjectAssociationMap
@@ -23,12 +21,10 @@ type ControlSelectionDialogProps = {
   onSave: (idsMap: TObjectAssociationMap, refCodesMap: TObjectAssociationMap, frameworks: string[]) => void
 }
 
-export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ open, onClose, initialData, initialRefCodes, onSave }: ControlSelectionDialogProps) => {
+export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ open, onClose, initialData, initialRefCodes, onSave }: ProgramSelectionDialogProps) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
   const [frameworks, setFrameworks] = useState<string[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const debouncedSearch = useDebounce(searchTerm, 300)
   const { convertToReadOnly } = usePlateEditor()
 
   const [pagination, setPagination] = useState<TPagination>({
@@ -38,18 +34,27 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
     query: { first: 5 },
   })
 
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
-
   useEffect(() => {
     if (open) {
       setSelectedIdsMap(initialData?.controlIDs ? { controlIDs: [...initialData.controlIDs] } : { controlIDs: [] })
       setSelectedRefCodeMap(initialRefCodes?.controlIDs ? { controlIDs: [...initialRefCodes.controlIDs] } : { controlIDs: [] })
     }
   }, [open, initialData, initialRefCodes])
+  const where: ProgramWhereInput = useMemo(() => {
+    return {
+      statusIn: [
+        ProgramProgramStatus.ACTION_REQUIRED,
+        ProgramProgramStatus.ARCHIVED,
+        ProgramProgramStatus.COMPLETED,
+        ProgramProgramStatus.IN_PROGRESS,
+        ProgramProgramStatus.NOT_STARTED,
+        ProgramProgramStatus.READY_FOR_AUDITOR,
+      ],
+    }
+  }, [])
 
-  const { controls, paginationMeta, isLoading, isFetching } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
-    orderBy,
+  const { programs, paginationMeta, isLoading, isFetching } = useGetAllProgramsPaginated({
+    where,
     pagination,
   })
 
@@ -65,18 +70,18 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
     setFrameworks(newFrameworks)
   }
 
-  const columns: ColumnDef<ControlListFieldsFragment>[] = [
+  const columns: ColumnDef<Program>[] = [
     {
       accessorKey: 'name',
       header: 'Control',
       cell: ({ row }) => {
-        const { id, refCode } = row.original
+        const { id, displayID } = row.original
         const checked = selectedIdsMap.controlIDs?.includes(id) ?? false
 
         return (
           <div className="flex items-center gap-2">
-            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, refCode, val === true)} />
-            <span>{refCode}</span>
+            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, displayID, val === true)} />
+            <span>{displayID}</span>
           </div>
         )
       },
@@ -97,20 +102,9 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Select Controls</DialogTitle>
+          <DialogTitle>Select Programs</DialogTitle>
         </DialogHeader>
-
-        <Input placeholder="Search controls" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="mb-2" />
-
-        <DataTable
-          columns={columns}
-          data={controls}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          paginationMeta={paginationMeta}
-          onSortChange={setOrderBy}
-          loading={isLoading || isFetching}
-        />
+        <DataTable columns={columns} data={programs || []} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} loading={isLoading || isFetching} />
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

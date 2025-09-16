@@ -30,8 +30,9 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import ObjectAssociationControls from '@/components/shared/objectAssociation/object-association-controls'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import ObjectAssociationPrograms from '@/components/shared/objectAssociation/object-association-programs'
 
-type TProps = {
+type EvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
   excludeObjectTypes?: ObjectTypeObjects[]
@@ -40,27 +41,28 @@ type TProps = {
   onOpenChange: (open: boolean) => void
 }
 
-const EvidenceCreateSheet: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes, defaultSelectedObject, open, onOpenChange }: TProps) => {
+const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes, defaultSelectedObject, open, onOpenChange }: EvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const [controlObjectTypes, setControlObjectTypes] = useState<TObjectAssociationMap>({})
-  // const [programObjectTypes, setProgramObjectTypes] = useState<TObjectAssociationMap>({})
+  const [programObjectTypes, setProgramObjectTypes] = useState<TObjectAssociationMap>({})
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
   const router = useRouter()
-  const [openDialog, setOpenDialog] = useState(false)
+  const [openControlsDialog, setOpenControlsDialog] = useState(false)
+  const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const mergedEvidenceObjectTypes: TObjectAssociationMap = Object.fromEntries(
       Object.entries({
         controlIDs: controlObjectTypes.controlIDs,
-        // programIDs: programObjectTypes.programIDs,
+        programIDs: programObjectTypes.programIDs,
         subcontrolIDs: evidenceObjectTypes?.subcontrolIDs,
         taskIDs: evidenceObjectTypes?.taskIDs,
         controlObjectiveIDs: evidenceObjectTypes?.controlObjectiveIDs,
@@ -148,10 +150,10 @@ const EvidenceCreateSheet: React.FC<TProps> = ({ formData, onEvidenceCreateSucce
     setControlObjectTypes(updatedMap)
   }, [])
 
-  // const handleProgramIdsChange = useCallback((updatedMap: TObjectAssociationMap) => {
-  //   // console.log('updatedMapPrograms', updatedMap)
-  //   setProgramObjectTypes(updatedMap)
-  // }, [])
+  const handleProgramIdsChange = useCallback((updatedMap: TObjectAssociationMap) => {
+    // console.log('updatedMapPrograms', updatedMap)
+    setProgramObjectTypes(updatedMap)
+  }, [])
 
   const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
     const evidenceFilesFiltered = evidenceFiles?.filter((item) => item.type === 'file')
@@ -355,7 +357,7 @@ const EvidenceCreateSheet: React.FC<TProps> = ({ formData, onEvidenceCreateSucce
                         className="py-5"
                         onClick={(e) => {
                           e.stopPropagation()
-                          setOpenDialog(true)
+                          setOpenControlsDialog(true)
                         }}
                         icon={<Plus />}
                         iconPosition="left"
@@ -365,43 +367,80 @@ const EvidenceCreateSheet: React.FC<TProps> = ({ formData, onEvidenceCreateSucce
                     </div>
 
                     <AccordionContent>
-                      <ObjectAssociationControls open={openDialog} setOpen={setOpenDialog} onIdChange={handleControlIdsChange} initialData={formData?.objectAssociations} />
+                      <ObjectAssociationControls open={openControlsDialog} setOpen={setOpenControlsDialog} onIdChange={handleControlIdsChange} initialData={formData?.objectAssociations} />
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
               </Panel>
             </GridCell>
           </GridRow>
-          {/* <GridRow columns={1}>
+          <GridRow columns={1}>
             <GridCell>
               <Panel>
-                <ObjectAssociationWithChips
-                  onIdChange={handleProgramIdsChange}
-                  excludeObjectTypes={excludeAllExceptProgram}
-                  initialData={formData?.objectAssociations}
-                  defaultSelectedObject={ObjectTypeObjects.PROGRAM}
-                />
+                <Accordion type="single" collapsible value={undefined} className="w-full">
+                  <AccordionItem value="TITLE">
+                    <div className="flex items-center justify-between w-full">
+                      <AccordionTrigger asChild>
+                        <button className="group flex items-center gap-2 text-sm font-medium">
+                          <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                          Linked Program(s)
+                        </button>
+                      </AccordionTrigger>
+                      <Button
+                        variant="outline"
+                        className="py-5"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setOpenProgramsDialog(true)
+                        }}
+                        icon={<Plus />}
+                        iconPosition="left"
+                      >
+                        Add Programs
+                      </Button>
+                    </div>
+
+                    <AccordionContent>
+                      <ObjectAssociationPrograms open={openProgramsDialog} setOpen={setOpenProgramsDialog} onIdChange={handleProgramIdsChange} initialData={formData?.objectAssociations} />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </Panel>
             </GridCell>
-          </GridRow> */}
+          </GridRow>
           {/* Object Association Panel */}
           <GridRow columns={1}>
             <GridCell>
               <Panel>
-                <PanelHeader heading="Object association" noBorder />
-                {formData?.objectAssociationsDisplayIDs && (
-                  <HeadsUpDisplay
-                    accordionLabel="Show objects linked to this evidence"
-                    descriptionText="This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below."
-                    displayIDs={formData.objectAssociationsDisplayIDs}
-                  />
-                )}
-                <ObjectAssociation
-                  onIdChange={handleEvidenceObjectIdsChange}
-                  excludeObjectTypes={excludeObjectTypes || []}
-                  initialData={formData?.objectAssociations}
-                  defaultSelectedObject={defaultSelectedObject}
-                />
+                <Accordion type="single" collapsible value={undefined} className="w-full">
+                  <AccordionItem value="TITLE">
+                    <div className="flex items-center justify-between w-full">
+                      <AccordionTrigger asChild>
+                        <button className="group flex items-center gap-2 text-sm font-medium">
+                          <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                          Object associations
+                        </button>
+                      </AccordionTrigger>
+                    </div>
+
+                    <AccordionContent className="mt-2 flex flex-col gap-4">
+                      <PanelHeader heading="Object association" noBorder />
+                      {formData?.objectAssociationsDisplayIDs && (
+                        <HeadsUpDisplay
+                          accordionLabel="Show objects linked to this evidence"
+                          descriptionText="This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below."
+                          displayIDs={formData.objectAssociationsDisplayIDs}
+                        />
+                      )}
+                      <ObjectAssociation
+                        onIdChange={handleEvidenceObjectIdsChange}
+                        excludeObjectTypes={excludeObjectTypes || []}
+                        initialData={formData?.objectAssociations}
+                        defaultSelectedObject={defaultSelectedObject}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </Panel>
             </GridCell>
           </GridRow>
