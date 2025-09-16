@@ -4,6 +4,9 @@ import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 
+const ORG_SETTINGS_URL = '/organization-settings/authentication'
+const LOGIN_URL = '/login'
+
 const SSOCallbackPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -18,7 +21,7 @@ const SSOCallbackPage: React.FC = () => {
 
         if (!code || !state) {
           console.error('Missing required OAuth parameters')
-          const redirectUrl = isTesting ? '/organization-settings/authentication?ssotested=0&error=missing_oauth_params' : '/login?error=missing_oauth_params'
+          const redirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=missing_oauth_params` : `${LOGIN_URL}?error=missing_oauth_params`
           router.push(redirectUrl)
           return
         }
@@ -27,7 +30,7 @@ const SSOCallbackPage: React.FC = () => {
 
         if (!organizationId) {
           console.error('No organization_id found in localStorage')
-          const redirectUrl = isTesting ? '/organization-settings/authentication?ssotested=0&error=missing_organization_id' : '/login?error=missing_organization_id'
+          const redirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=missing_organization_id` : `${LOGIN_URL}?error=missing_organization_id`
           router.push(redirectUrl)
           return
         }
@@ -57,21 +60,21 @@ const SSOCallbackPage: React.FC = () => {
           })
 
           if (signInResult && !signInResult.error) {
-            const redirectUrl = isTesting ? '/organization-settings/authentication?ssotested=1' : data.redirect_url || '/'
+            const redirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=1` : data.redirect_url || '/'
             router.push(redirectUrl)
             return
           }
 
-          const errorRedirectUrl = isTesting ? '/organization-settings/authentication?ssotested=0&error=sso_signin_failed' : '/login?error=sso_signin_failed'
+          const errorRedirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=sso_signin_failed` : `${LOGIN_URL}?error=sso_signin_failed`
           router.push(errorRedirectUrl)
         } else {
           console.error('SSO callback failed:', data)
-          const errorRedirectUrl = isTesting ? '/organization-settings/authentication?ssotested=0&error=sso_callback_failed' : '/login?error=sso_callback_failed'
+          const errorRedirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=sso_callback_failed` : `${LOGIN_URL}?error=sso_callback_failed`
           router.push(errorRedirectUrl)
         }
       } catch (error) {
         console.error('SSO callback error:', error)
-        const errorRedirectUrl = isTesting ? '/organization-settings/authentication?ssotested=0&error=sso_callback_error' : '/login?error=sso_callback_error'
+        const errorRedirectUrl = isTesting ? `${ORG_SETTINGS_URL}?ssotested=0&error=sso_callback_error` : `${LOGIN_URL}?error=sso_callback_error`
         router.push(errorRedirectUrl)
       } finally {
         localStorage.removeItem('sso_organization_id')
