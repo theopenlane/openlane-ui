@@ -12,7 +12,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { switchOrganization } from '@/lib/user'
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
 
 type OrganizationDeleteProps = {
   onLoadingChange?: (val: boolean) => void
@@ -47,6 +47,11 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
         const switchResponse = await switchOrganization({
           target_organization_id: orgID,
         })
+
+        if (handleSSORedirect(switchResponse, orgID)) {
+          return
+        }
+
         if (switchResponse) {
           await update({
             ...sessionData,
