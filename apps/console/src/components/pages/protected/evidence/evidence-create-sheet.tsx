@@ -56,6 +56,11 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const queryClient = useQueryClient()
   const router = useRouter()
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
+
+  const [associationControlsIdsMap, setAssociationControlsIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
+  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<TObjectAssociationMap>({ controlRefCodes: [] })
+  const [associationProgramsIdsMap, setAssociationProgramsIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
+  const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<TObjectAssociationMap>({ programDisplayIDs: [] })
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -132,8 +137,28 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
         })
         setTagValues(tags)
       }
+      if (formData?.objectAssociations) {
+        console.log('formData.objectAssociations', formData.objectAssociations)
+        setAssociationControlsIdsMap(formData.objectAssociations.controlIDs ? { controlIDs: [...formData.objectAssociations.controlIDs] } : { controlIDs: [] })
+        setAssociationControlsRefMap(formData.objectAssociations.controlRefCodes ? { controlRefCodes: [...formData.objectAssociations.controlRefCodes] } : { controlRefCodes: [] })
+        setAssociationProgramsIdsMap(formData.objectAssociations.programIDs ? { programIDs: [...formData.objectAssociations.programIDs] } : { programIDs: [] })
+        setAssociationProgramsRefMap(formData.objectAssociations.programDisplayIDs ? { programDisplayIDs: [...formData.objectAssociations.programDisplayIDs] } : { programDisplayIDs: [] })
+      }
     }
   }, [form, formData])
+
+  useEffect(() => {
+    if (!open) {
+      setControlObjectTypes({})
+      setProgramObjectTypes({})
+      setAssociationControlsIdsMap(formData?.objectAssociations ?? { controlIDs: [] })
+      setAssociationControlsRefMap(formData?.objectAssociations?.controlRefCodes ? { controlRefCodes: [...formData.objectAssociations.controlRefCodes] } : { controlRefCodes: [] })
+      setAssociationProgramsIdsMap(formData?.objectAssociations ?? { programIDs: [] })
+      setAssociationProgramsRefMap(formData?.objectAssociations?.programDisplayIDs ? { programDisplayIDs: [...formData.objectAssociations.programDisplayIDs] } : { programDisplayIDs: [] })
+      setOpenControlsDialog(false)
+      setOpenProgramsDialog(false)
+    }
+  }, [open, formData])
 
   useEffect(() => {
     setCrumbs([
@@ -367,7 +392,15 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                     </div>
 
                     <AccordionContent>
-                      <ObjectAssociationControls open={openControlsDialog} setOpen={setOpenControlsDialog} onIdChange={handleControlIdsChange} initialData={formData?.objectAssociations} />
+                      <ObjectAssociationControls
+                        open={openControlsDialog}
+                        setOpen={setOpenControlsDialog}
+                        onIdChange={handleControlIdsChange}
+                        idsMap={associationControlsIdsMap}
+                        setIdsMap={setAssociationControlsIdsMap}
+                        refMap={associationControlsRefMap}
+                        setRefMap={setAssociationControlsRefMap}
+                      />
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -401,7 +434,15 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                     </div>
 
                     <AccordionContent>
-                      <ObjectAssociationPrograms open={openProgramsDialog} setOpen={setOpenProgramsDialog} onIdChange={handleProgramIdsChange} initialData={formData?.objectAssociations} />
+                      <ObjectAssociationPrograms
+                        open={openProgramsDialog}
+                        setOpen={setOpenProgramsDialog}
+                        onIdChange={handleProgramIdsChange}
+                        idsMap={associationProgramsIdsMap}
+                        setIdsMap={setAssociationProgramsIdsMap}
+                        refMap={associationProgramsRefMap}
+                        setRefMap={setAssociationProgramsRefMap}
+                      />
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

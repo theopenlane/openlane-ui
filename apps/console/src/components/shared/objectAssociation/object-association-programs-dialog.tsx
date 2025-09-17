@@ -36,10 +36,11 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
 
   useEffect(() => {
     if (open) {
-      setSelectedIdsMap(initialData?.programIDs ? { programIDs: [...initialData.programIDs] } : { controlIDs: [] })
-      setSelectedRefCodeMap(initialRefCodes?.programIDs ? { programIDs: [...initialRefCodes.programIDs] } : { controlIDs: [] })
+      setSelectedIdsMap(initialData?.programIDs ? { programIDs: [...initialData.programIDs] } : { programIDs: [] })
+      setSelectedRefCodeMap(initialRefCodes?.programIDs ? { programIDs: [...initialRefCodes.programIDs] } : { programIDs: [] })
     }
   }, [open, initialData, initialRefCodes])
+
   const where: ProgramWhereInput = useMemo(() => {
     return {
       statusIn: [
@@ -94,6 +95,7 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
   ]
 
   const handleSave = () => {
+    console.log('selectedRefCodeMap', selectedRefCodeMap)
     onSave(selectedIdsMap, selectedRefCodeMap, frameworks)
     onClose()
   }

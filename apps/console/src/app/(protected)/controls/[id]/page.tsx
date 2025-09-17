@@ -356,7 +356,9 @@ const ControlDetailsPage: React.FC = () => {
           displayID: control?.refCode,
           objectAssociations: {
             controlIDs: [control?.id],
+            controlRefCodes: [control?.refCode],
             programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            programDisplayIDs: (control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
             controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [

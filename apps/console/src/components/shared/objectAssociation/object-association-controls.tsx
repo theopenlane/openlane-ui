@@ -1,23 +1,24 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
 import { ControlSelectionDialog } from './object-association-control-dialog'
 
 type ObjectAssociationControlsProps = {
   onIdChange?: (updatedMap: TObjectAssociationMap) => void
-  initialData?: TObjectAssociationMap
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  idsMap: TObjectAssociationMap
+  setIdsMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
+  refMap: TObjectAssociationMap
+  setRefMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
 }
 
-const ObjectAssociationControls = ({ onIdChange, initialData, open, setOpen }: ObjectAssociationControlsProps) => {
-  const [idsMap, setIdsMap] = useState<TObjectAssociationMap>(initialData?.controlIDs ? { controlIDs: [...initialData.controlIDs] } : { controlIDs: [] })
-  const [refMap, setRefMap] = useState<TObjectAssociationMap>(initialData?.controlRefCodes ? { controlIDs: [...initialData.controlRefCodes] } : { controlIDs: [] })
+const ObjectAssociationControls = ({ onIdChange, open, setOpen, idsMap, setIdsMap, refMap, setRefMap }: ObjectAssociationControlsProps) => {
   const handleSave = (newIds: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => {
     setIdsMap(newIds)
-    setRefMap(newRefCodes)
+    setRefMap({ controlRefCodes: newRefCodes.controlIDs })
     if (onIdChange) {
       onIdChange(newIds)
     }
@@ -28,10 +29,10 @@ const ObjectAssociationControls = ({ onIdChange, initialData, open, setOpen }: O
     if (idx === undefined || idx === -1) return
 
     const newIds = idsMap.controlIDs?.filter((x) => x !== id) || []
-    const newRefCodes = refMap.controlIDs?.filter((_, i) => i !== idx) || []
+    const newRefCodes = refMap.controlRefCodes?.filter((_, i) => i !== idx) || []
 
     setIdsMap({ controlIDs: newIds })
-    setRefMap({ controlIDs: newRefCodes })
+    setRefMap({ controlRefCodes: newRefCodes })
 
     if (onIdChange) {
       onIdChange({ controlIDs: newIds })
@@ -46,7 +47,7 @@ const ObjectAssociationControls = ({ onIdChange, initialData, open, setOpen }: O
             key={id}
             control={{
               id,
-              refCode: refMap.controlIDs?.[i] || id,
+              refCode: refMap.controlRefCodes?.[i] || id,
             }}
             hideStandard
             removable
