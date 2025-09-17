@@ -22999,6 +22999,8 @@ export interface OrganizationSetting extends Node {
   id: Scalars['ID']['output']
   /** SSO provider type for the organization */
   identityProvider?: Maybe<OrganizationSettingSsoProvider>
+  /** has this sso configuration been tested to verify it works? SSO cannot be enforced unless this is done */
+  identityProviderAuthTested: Scalars['Boolean']['output']
   /** client ID for SSO integration */
   identityProviderClientID?: Maybe<Scalars['String']['output']>
   /** client secret for SSO integration */
@@ -23100,6 +23102,8 @@ export interface OrganizationSettingHistory extends Node {
   id: Scalars['ID']['output']
   /** SSO provider type for the organization */
   identityProvider?: Maybe<OrganizationSettingHistorySsoProvider>
+  /** has this sso configuration been tested to verify it works? SSO cannot be enforced unless this is done */
+  identityProviderAuthTested: Scalars['Boolean']['output']
   /** client ID for SSO integration */
   identityProviderClientID?: Maybe<Scalars['String']['output']>
   /** client secret for SSO integration */
@@ -23314,6 +23318,9 @@ export interface OrganizationSettingHistoryWhereInput {
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   /** identity_provider field predicates */
   identityProvider?: InputMaybe<OrganizationSettingHistorySsoProvider>
+  /** identity_provider_auth_tested field predicates */
+  identityProviderAuthTested?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderAuthTestedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** identity_provider_client_id field predicates */
   identityProviderClientID?: InputMaybe<Scalars['String']['input']>
   identityProviderClientIDContains?: InputMaybe<Scalars['String']['input']>
@@ -23650,6 +23657,9 @@ export interface OrganizationSettingWhereInput {
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   /** identity_provider field predicates */
   identityProvider?: InputMaybe<OrganizationSettingSsoProvider>
+  /** identity_provider_auth_tested field predicates */
+  identityProviderAuthTested?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderAuthTestedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** identity_provider_client_id field predicates */
   identityProviderClientID?: InputMaybe<Scalars['String']['input']>
   identityProviderClientIDContains?: InputMaybe<Scalars['String']['input']>
@@ -43416,6 +43426,7 @@ export type GetOrganizationSettingQuery = {
       identityProviderClientSecret?: string | null
       oidcDiscoveryEndpoint?: string | null
       identityProviderLoginEnforced: boolean
+      identityProviderAuthTested: boolean
     } | null
   }
 }
@@ -45280,7 +45291,7 @@ export type CreatePersonalAccessTokenMutationVariables = Exact<{
 
 export type CreatePersonalAccessTokenMutation = {
   __typename?: 'Mutation'
-  createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
+  createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string; token: string } }
 }
 
 export type GetPersonalAccessTokensQueryVariables = Exact<{
@@ -45322,7 +45333,7 @@ export type CreateApiTokenMutationVariables = Exact<{
   input: CreateApiTokenInput
 }>
 
-export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
+export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; id: string; token: string } } }
 
 export type GetApiTokensQueryVariables = Exact<{
   where?: InputMaybe<ApiTokenWhereInput>

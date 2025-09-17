@@ -16,9 +16,10 @@ import { z, infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { usePathname } from 'next/navigation'
 import { useCreateAPIToken, useCreatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
-import { CreateApiTokenInput, Organization } from '@repo/codegen/src/schema'
+import { CreateApiTokenInput, Organization, OrganizationSetting } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 
 type PersonalApiKeyDialogProps = {
   triggerText?: boolean
@@ -38,10 +39,18 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const { mutateAsync: createApiToken } = useCreateAPIToken()
   const { successNotification, errorNotification } = useNotification()
 
+  const { currentOrgId } = useOrganization()
+
+  const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
+
+  const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
+
   const [step, setStep] = useState<STEP>(STEP.CREATE)
 
   const [confirmationChecked, setConfirmationChecked] = useState<boolean>(false)
   const [token, setToken] = useState<string>('')
+  const [tokenId, setTokenId] = useState<string>('')
+  const [isAuthorizingSSO, setIsAuthorizingSSO] = useState<boolean>(false)
 
   const formSchema = z
     .object({
@@ -91,9 +100,9 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
       setIsSubmitting(true)
 
       let createdToken: string | undefined = undefined
+      let createdTokenId: string | undefined = undefined
 
       if (isOrg) {
-        // Call createApiToken when isOrg is true
         const apiTokenInput: CreateApiTokenInput = {
           name: values.name,
           description: values.description,
@@ -106,6 +115,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
         })
 
         createdToken = response?.createAPIToken?.apiToken.token
+        createdTokenId = response?.createAPIToken?.apiToken.id
       } else {
         const response = await createPersonalAccessToken({
           input: {
@@ -117,10 +127,12 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
         })
 
         createdToken = response?.createPersonalAccessToken?.personalAccessToken?.token
+        createdTokenId = response?.createPersonalAccessToken?.personalAccessToken?.id
       }
 
-      if (createdToken) {
+      if (createdToken && createdTokenId) {
         setToken(createdToken)
+        setTokenId(createdTokenId)
         successNotification({
           title: 'Token created successfully!',
           description: 'Copy your token now, as you will not be able to see it again.',
@@ -140,10 +152,56 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
     }
   }
 
+  const handleSSOAuthorize = async () => {
+    try {
+      setIsAuthorizingSSO(true)
+
+      localStorage.setItem('sso_organization_id', currentOrgId || '')
+      localStorage.setItem(
+        'api_token',
+        JSON.stringify({
+          tokenType: isOrg ? 'api' : 'personal',
+          isOrg,
+        }),
+      )
+
+      const response = await fetch('/api/auth/sso/authorize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          organization_id: currentOrgId,
+          token_id: tokenId,
+          token_type: isOrg ? 'api' : 'personal',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success && data.redirect_uri) {
+        window.location.href = data.redirect_uri
+      } else {
+        throw new Error(data.error || 'SSO authorization failed')
+      }
+    } catch (error) {
+      console.error('SSO authorization error:', error)
+      errorNotification({
+        title: 'SSO Authorization Failed',
+        description: error instanceof Error ? error.message : 'An error occurred during SSO authorization',
+      })
+    } finally {
+      setIsAuthorizingSSO(false)
+    }
+  }
+
   const resetDataToDefault = () => {
     setStep(STEP.CREATE)
     setConfirmationChecked(false)
     setToken('')
+    setTokenId('')
+    setIsAuthorizingSSO(false)
     form.reset()
   }
 
@@ -361,7 +419,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           </Form>
         </DialogContent>
       ) : (
-        <DialogContent isClosable={confirmationChecked} className="sm:max-w-[455px]">
+        <DialogContent isClosable={confirmationChecked && !isAuthorizingSSO} className="sm:max-w-[455px]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Token created</DialogTitle>
             <div className="flex gap-3 p-4 border rounded-md">
@@ -381,9 +439,14 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
               I have copied the access token and put it in a safe place
             </Label>
           </div>
-          <DialogClose asChild disabled={!confirmationChecked}>
-            <div className="flex">
-              <Button disabled={!confirmationChecked} variant="filled">
+          <DialogClose asChild disabled={!confirmationChecked || isAuthorizingSSO}>
+            <div className="flex gap-3">
+              {currentSetting?.identityProviderLoginEnforced && (
+                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize}>
+                  {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
+                </Button>
+              )}
+              <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="filled">
                 Close
               </Button>
             </div>
