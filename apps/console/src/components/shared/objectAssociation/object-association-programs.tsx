@@ -9,15 +9,14 @@ type ObjectAssociationProgramsProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   idsMap: TObjectAssociationMap
   setIdsMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
-  refMap: TObjectAssociationMap
-  setRefMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
+  refMap: string[]
+  setRefMap: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const ObjectAssociationPrograms: React.FC<ObjectAssociationProgramsProps> = ({ onIdChange, open, setOpen, idsMap, setIdsMap, refMap, setRefMap }: ObjectAssociationProgramsProps) => {
-  const handleSave = (newIds: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => {
-    console.log('obj', { newIds: newIds, newRefCodes: newRefCodes })
+  const handleSave = (newIds: TObjectAssociationMap, newRefCodes: string[]) => {
     setIdsMap(newIds)
-    setRefMap({ programDisplayIDs: newRefCodes.programIDs })
+    setRefMap(newRefCodes || [])
     if (onIdChange) {
       onIdChange(newIds)
     }
@@ -28,10 +27,10 @@ const ObjectAssociationPrograms: React.FC<ObjectAssociationProgramsProps> = ({ o
     if (idx === undefined || idx === -1) return
 
     const newIds = idsMap.programIDs?.filter((x) => x !== id) || []
-    const newRefCodes = refMap.programDisplayIDs?.filter((_, i) => i !== idx) || []
+    const newRefCodes = refMap.filter((_, i) => i !== idx) || []
 
     setIdsMap({ programIDs: newIds })
-    setRefMap({ programDisplayIDs: newRefCodes })
+    setRefMap(newRefCodes)
 
     if (onIdChange) {
       onIdChange({ programIDs: newIds })
@@ -41,7 +40,7 @@ const ObjectAssociationPrograms: React.FC<ObjectAssociationProgramsProps> = ({ o
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
-        {idsMap.programIDs?.map((id, i) => <ControlChip key={id} control={{ id, refCode: refMap.programDisplayIDs?.[i] ?? id }} hideStandard removable onRemove={() => handleRemove(id)} />)}
+        {idsMap.programIDs?.map((id, i) => <ControlChip key={id} control={{ id, refCode: refMap[i] ?? id }} hideStandard removable onRemove={() => handleRemove(id)} />)}
       </div>
 
       <ProgramSelectionDialog open={open} onClose={() => setOpen(false)} initialData={idsMap} initialRefCodes={refMap} onSave={handleSave} />

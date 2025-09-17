@@ -19,13 +19,13 @@ type ControlSelectionDialogProps = {
   open: boolean
   onClose: () => void
   initialData?: TObjectAssociationMap
-  initialRefCodes?: TObjectAssociationMap
-  onSave: (idsMap: TObjectAssociationMap, refCodesMap: TObjectAssociationMap, frameworks: string[]) => void
+  initialRefCodes?: string[]
+  onSave: (idsMap: TObjectAssociationMap, refCodesMap: string[], frameworks: string[]) => void
 }
 
 export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ open, onClose, initialData, initialRefCodes, onSave }: ControlSelectionDialogProps) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
+  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
   const [frameworks, setFrameworks] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -43,7 +43,7 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
   useEffect(() => {
     if (open) {
       setSelectedIdsMap(initialData?.controlIDs ? { controlIDs: [...initialData.controlIDs] } : { controlIDs: [] })
-      setSelectedRefCodeMap(initialRefCodes?.controlIDs ? { controlIDs: [...initialRefCodes.controlIDs] } : { controlIDs: [] })
+      setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
     }
   }, [open, initialData, initialRefCodes])
 
@@ -56,12 +56,12 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
   const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
     const newIds = isChecked ? [...new Set([...(selectedIdsMap.controlIDs || []), id])] : selectedIdsMap.controlIDs?.filter((v) => v !== id)
 
-    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap.controlIDs || []), refCode])] : selectedRefCodeMap.controlIDs?.filter((v) => v !== refCode)
+    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
 
     const newFrameworks = isChecked ? [...new Set([...frameworks, referenceFramework || ''])] : frameworks.filter((f) => f !== referenceFramework)
 
     setSelectedIdsMap({ controlIDs: newIds })
-    setSelectedRefCodeMap({ controlIDs: newRefCodes })
+    setSelectedRefCodeMap(newRefCodes)
     setFrameworks(newFrameworks)
   }
 

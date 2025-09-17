@@ -17,13 +17,13 @@ type ProgramSelectionDialogProps = {
   open: boolean
   onClose: () => void
   initialData?: TObjectAssociationMap
-  initialRefCodes?: TObjectAssociationMap
-  onSave: (idsMap: TObjectAssociationMap, refCodesMap: TObjectAssociationMap, frameworks: string[]) => void
+  initialRefCodes?: string[]
+  onSave: (idsMap: TObjectAssociationMap, refCodesMap: string[], frameworks: string[]) => void
 }
 
 export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ open, onClose, initialData, initialRefCodes, onSave }: ProgramSelectionDialogProps) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({ programIDs: [] })
+  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
   const [frameworks, setFrameworks] = useState<string[]>([])
   const { convertToReadOnly } = usePlateEditor()
 
@@ -37,7 +37,7 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
   useEffect(() => {
     if (open) {
       setSelectedIdsMap(initialData?.programIDs ? { programIDs: [...initialData.programIDs] } : { programIDs: [] })
-      setSelectedRefCodeMap(initialRefCodes?.programIDs ? { programIDs: [...initialRefCodes.programIDs] } : { programIDs: [] })
+      setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
     }
   }, [open, initialData, initialRefCodes])
 
@@ -62,12 +62,12 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
   const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
     const newIds = isChecked ? [...new Set([...(selectedIdsMap.programIDs || []), id])] : selectedIdsMap.programIDs?.filter((v) => v !== id)
 
-    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap.programIDs || []), refCode])] : selectedRefCodeMap.programIDs?.filter((v) => v !== refCode)
+    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
 
     const newFrameworks = isChecked ? [...new Set([...frameworks, referenceFramework || ''])] : frameworks.filter((f) => f !== referenceFramework)
 
     setSelectedIdsMap({ programIDs: newIds })
-    setSelectedRefCodeMap({ programIDs: newRefCodes })
+    setSelectedRefCodeMap(newRefCodes)
     setFrameworks(newFrameworks)
   }
 
@@ -95,7 +95,6 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
   ]
 
   const handleSave = () => {
-    console.log('selectedRefCodeMap', selectedRefCodeMap)
     onSave(selectedIdsMap, selectedRefCodeMap, frameworks)
     onClose()
   }

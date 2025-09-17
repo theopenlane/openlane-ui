@@ -11,14 +11,14 @@ type ObjectAssociationControlsProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   idsMap: TObjectAssociationMap
   setIdsMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
-  refMap: TObjectAssociationMap
-  setRefMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
+  refMap: string[]
+  setRefMap: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const ObjectAssociationControls = ({ onIdChange, open, setOpen, idsMap, setIdsMap, refMap, setRefMap }: ObjectAssociationControlsProps) => {
-  const handleSave = (newIds: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => {
+  const handleSave = (newIds: TObjectAssociationMap, newRefCodes: string[]) => {
     setIdsMap(newIds)
-    setRefMap({ controlRefCodes: newRefCodes.controlIDs })
+    setRefMap(newRefCodes || [])
     if (onIdChange) {
       onIdChange(newIds)
     }
@@ -29,10 +29,10 @@ const ObjectAssociationControls = ({ onIdChange, open, setOpen, idsMap, setIdsMa
     if (idx === undefined || idx === -1) return
 
     const newIds = idsMap.controlIDs?.filter((x) => x !== id) || []
-    const newRefCodes = refMap.controlRefCodes?.filter((_, i) => i !== idx) || []
+    const newRefCodes = refMap?.filter((_, i) => i !== idx) || []
 
     setIdsMap({ controlIDs: newIds })
-    setRefMap({ controlRefCodes: newRefCodes })
+    setRefMap(newRefCodes)
 
     if (onIdChange) {
       onIdChange({ controlIDs: newIds })
@@ -47,7 +47,7 @@ const ObjectAssociationControls = ({ onIdChange, open, setOpen, idsMap, setIdsMa
             key={id}
             control={{
               id,
-              refCode: refMap.controlRefCodes?.[i] || id,
+              refCode: refMap[i] || id,
             }}
             hideStandard
             removable

@@ -58,9 +58,9 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
   const [associationControlsIdsMap, setAssociationControlsIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
-  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<TObjectAssociationMap>({ controlRefCodes: [] })
+  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
   const [associationProgramsIdsMap, setAssociationProgramsIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
-  const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<TObjectAssociationMap>({ programDisplayIDs: [] })
+  const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -137,12 +137,11 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
         })
         setTagValues(tags)
       }
-      if (formData?.objectAssociations) {
-        console.log('formData.objectAssociations', formData.objectAssociations)
+      if (formData && formData.objectAssociations) {
         setAssociationControlsIdsMap(formData.objectAssociations.controlIDs ? { controlIDs: [...formData.objectAssociations.controlIDs] } : { controlIDs: [] })
-        setAssociationControlsRefMap(formData.objectAssociations.controlRefCodes ? { controlRefCodes: [...formData.objectAssociations.controlRefCodes] } : { controlRefCodes: [] })
+        setAssociationControlsRefMap(formData.controlRefCodes ? [...formData.controlRefCodes] : [])
         setAssociationProgramsIdsMap(formData.objectAssociations.programIDs ? { programIDs: [...formData.objectAssociations.programIDs] } : { programIDs: [] })
-        setAssociationProgramsRefMap(formData.objectAssociations.programDisplayIDs ? { programDisplayIDs: [...formData.objectAssociations.programDisplayIDs] } : { programDisplayIDs: [] })
+        setAssociationProgramsRefMap(formData.programDisplayIDs ? [...formData.programDisplayIDs] : [])
       }
     }
   }, [form, formData])
@@ -152,9 +151,9 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
       setControlObjectTypes({})
       setProgramObjectTypes({})
       setAssociationControlsIdsMap(formData?.objectAssociations ?? { controlIDs: [] })
-      setAssociationControlsRefMap(formData?.objectAssociations?.controlRefCodes ? { controlRefCodes: [...formData.objectAssociations.controlRefCodes] } : { controlRefCodes: [] })
+      setAssociationControlsRefMap(formData?.controlRefCodes ? [...formData.controlRefCodes] : [])
       setAssociationProgramsIdsMap(formData?.objectAssociations ?? { programIDs: [] })
-      setAssociationProgramsRefMap(formData?.objectAssociations?.programDisplayIDs ? { programDisplayIDs: [...formData.objectAssociations.programDisplayIDs] } : { programDisplayIDs: [] })
+      setAssociationProgramsRefMap(formData?.programDisplayIDs ? [...formData.programDisplayIDs] : [])
       setOpenControlsDialog(false)
       setOpenProgramsDialog(false)
     }
@@ -176,7 +175,6 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   }, [])
 
   const handleProgramIdsChange = useCallback((updatedMap: TObjectAssociationMap) => {
-    // console.log('updatedMapPrograms', updatedMap)
     setProgramObjectTypes(updatedMap)
   }, [])
 
@@ -392,15 +390,17 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                     </div>
 
                     <AccordionContent>
-                      <ObjectAssociationControls
-                        open={openControlsDialog}
-                        setOpen={setOpenControlsDialog}
-                        onIdChange={handleControlIdsChange}
-                        idsMap={associationControlsIdsMap}
-                        setIdsMap={setAssociationControlsIdsMap}
-                        refMap={associationControlsRefMap}
-                        setRefMap={setAssociationControlsRefMap}
-                      />
+                      <div className="mt-5 flex flex-col gap-5">
+                        <ObjectAssociationControls
+                          open={openControlsDialog}
+                          setOpen={setOpenControlsDialog}
+                          onIdChange={handleControlIdsChange}
+                          idsMap={associationControlsIdsMap}
+                          setIdsMap={setAssociationControlsIdsMap}
+                          refMap={associationControlsRefMap}
+                          setRefMap={setAssociationControlsRefMap}
+                        />
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -434,15 +434,17 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                     </div>
 
                     <AccordionContent>
-                      <ObjectAssociationPrograms
-                        open={openProgramsDialog}
-                        setOpen={setOpenProgramsDialog}
-                        onIdChange={handleProgramIdsChange}
-                        idsMap={associationProgramsIdsMap}
-                        setIdsMap={setAssociationProgramsIdsMap}
-                        refMap={associationProgramsRefMap}
-                        setRefMap={setAssociationProgramsRefMap}
-                      />
+                      <div className="mt-5 flex flex-col gap-5">
+                        <ObjectAssociationPrograms
+                          open={openProgramsDialog}
+                          setOpen={setOpenProgramsDialog}
+                          onIdChange={handleProgramIdsChange}
+                          idsMap={associationProgramsIdsMap}
+                          setIdsMap={setAssociationProgramsIdsMap}
+                          refMap={associationProgramsRefMap}
+                          setRefMap={setAssociationProgramsRefMap}
+                        />
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
