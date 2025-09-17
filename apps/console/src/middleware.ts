@@ -36,6 +36,10 @@ export default auth(async (req) => {
   }
 
   if (isPublicPage) {
+    if (req.cookies.get('user_sso')) {
+      return NextResponse.next()
+    }
+
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 

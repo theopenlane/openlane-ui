@@ -126,7 +126,6 @@ export const GET_ORGANIZATION_BILLING = gql`
       orgSubscriptions {
         active
         expiresAt
-        subscriptionURL
         stripeSubscriptionStatus
         productPrice
         features
@@ -175,6 +174,7 @@ export const GET_ORGANIZATION_SETTING = gql`
         identityProviderClientSecret
         oidcDiscoveryEndpoint
         identityProviderLoginEnforced
+        identityProviderAuthTested
       }
     }
   }
