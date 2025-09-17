@@ -57,7 +57,7 @@ export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined
       controlRefCodes: taskData?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
       subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-      programDisplayIDs: taskData?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+      programDisplayIDs: taskData?.programs?.edges?.map((item) => item?.node?.name).filter((id): id is string => !!id) || [],
       taskIDs: taskData.id ? [taskData.id] : [],
     },
     objectAssociationsDisplayIDs: [

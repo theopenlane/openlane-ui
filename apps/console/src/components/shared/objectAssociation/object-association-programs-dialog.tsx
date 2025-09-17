@@ -22,8 +22,8 @@ type ProgramSelectionDialogProps = {
 }
 
 export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ open, onClose, initialData, initialRefCodes, onSave }: ProgramSelectionDialogProps) => {
-  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
+  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
+  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({ programIDs: [] })
   const [frameworks, setFrameworks] = useState<string[]>([])
   const { convertToReadOnly } = usePlateEditor()
 
@@ -36,8 +36,8 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
 
   useEffect(() => {
     if (open) {
-      setSelectedIdsMap(initialData?.controlIDs ? { controlIDs: [...initialData.controlIDs] } : { controlIDs: [] })
-      setSelectedRefCodeMap(initialRefCodes?.controlIDs ? { controlIDs: [...initialRefCodes.controlIDs] } : { controlIDs: [] })
+      setSelectedIdsMap(initialData?.programIDs ? { programIDs: [...initialData.programIDs] } : { controlIDs: [] })
+      setSelectedRefCodeMap(initialRefCodes?.programIDs ? { programIDs: [...initialRefCodes.programIDs] } : { controlIDs: [] })
     }
   }, [open, initialData, initialRefCodes])
   const where: ProgramWhereInput = useMemo(() => {
@@ -59,29 +59,29 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
   })
 
   const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
-    const newIds = isChecked ? [...new Set([...(selectedIdsMap.controlIDs || []), id])] : selectedIdsMap.controlIDs?.filter((v) => v !== id)
+    const newIds = isChecked ? [...new Set([...(selectedIdsMap.programIDs || []), id])] : selectedIdsMap.programIDs?.filter((v) => v !== id)
 
-    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap.controlIDs || []), refCode])] : selectedRefCodeMap.controlIDs?.filter((v) => v !== refCode)
+    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap.programIDs || []), refCode])] : selectedRefCodeMap.programIDs?.filter((v) => v !== refCode)
 
     const newFrameworks = isChecked ? [...new Set([...frameworks, referenceFramework || ''])] : frameworks.filter((f) => f !== referenceFramework)
 
-    setSelectedIdsMap({ controlIDs: newIds })
-    setSelectedRefCodeMap({ controlIDs: newRefCodes })
+    setSelectedIdsMap({ programIDs: newIds })
+    setSelectedRefCodeMap({ programIDs: newRefCodes })
     setFrameworks(newFrameworks)
   }
 
   const columns: ColumnDef<Program>[] = [
     {
       accessorKey: 'name',
-      header: 'Control',
+      header: 'Program',
       cell: ({ row }) => {
-        const { id, displayID } = row.original
-        const checked = selectedIdsMap.controlIDs?.includes(id) ?? false
+        const { id, name } = row.original
+        const checked = selectedIdsMap.programIDs?.includes(id) ?? false
 
         return (
           <div className="flex items-center gap-2">
-            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, displayID, val === true)} />
-            <span>{displayID}</span>
+            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, name, val === true)} />
+            <span>{name}</span>
           </div>
         )
       },
