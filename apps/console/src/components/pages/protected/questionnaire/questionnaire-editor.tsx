@@ -132,7 +132,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   }
 
   return (
-    <Panel className="flex h-full bg-panel-bg border-oxford-blue-100 dark:border-oxford-blue-900 p-0">
+    <Panel className="flex h-full bg-card border-oxford-blue-100 dark:border-oxford-blue-900 p-0">
       <SurveyCreatorComponent creator={creator} />
     </Panel>
   )
