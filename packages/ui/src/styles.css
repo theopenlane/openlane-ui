@@ -6,13 +6,13 @@
 ────────────────────────────────────────────────────────── */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-normal;
   }
 
   [type='text']:focus,
@@ -30,10 +30,12 @@
   }
 }
 
+
 /* ─────────────────────────────────────────────────────────
    Light mode HSL tokens
 ────────────────────────────────────────────────────────── */
 @theme {
+  --font-sans: "outfit", "outfit Fallback";
   --background: #eff4f5;
   --foreground: #09151d;
   --card: #f4f9fa;
@@ -45,7 +47,7 @@
   --secondary: #ffffff;
   --secondary-foreground: hsl(191 72% 9%);
   --muted: hsl(198 39% 96%);
-  --muted-foreground: hsl(208 17% 49%);
+  --muted-foreground: #6B7682;
   --accent: hsl(45 66% 55%);
   --accent-foreground: hsl(191 72% 9%);
   --destructive: hsl(0 69% 60%);
@@ -54,6 +56,8 @@
   --input: hsl(204 43% 98%);
   --ring: hsl(168 64% 49%);
   --radius: 0.5rem;
+  --color-brand: #9AF5DC;
+  --color-button-text: #052E2A;
 
   /* Optional semantic colors */
   --success: hsl(168 64% 49%);
@@ -78,7 +82,7 @@
   --secondary: #162431;
   --secondary-foreground: hsl(216 33% 9%);
   --muted: hsl(213 22% 13%);
-  --muted-foreground: hsl(197 11% 53%);
+  --muted-foreground: #9AA5B0;
   --accent: hsl(45 58% 45%);
   --accent-foreground: hsl(216 33% 9%);
   --destructive: hsl(0 84% 64%);
@@ -88,6 +92,9 @@
   --ring: hsl(168 64% 49%);
   --color-separator: #394B58;
   --color-border: #394B58;
+  --color-text-paragraph: #ffffff;
+  --color-brand: #60E8C9;
+  --color-button-text: #052E2A;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -126,6 +133,16 @@
   --color-logo-fg: #4dc6ad;
   --color-logo-dark: #303e4a;
   --color-logo-light: #b4c1d5;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Custom Classes
+────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .text-paragraph {
+    color: var(--color-text-paragraph);
+  }
 }
 
 /* ─────────────────────────────────────────────────────────
