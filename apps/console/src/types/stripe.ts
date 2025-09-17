@@ -12,7 +12,7 @@ type Billing = {
   prices: BillingPrice[]
 }
 
-interface Module {
+export interface Module {
   display_name: string
   lookup_key: string
   description: string
@@ -27,7 +27,7 @@ interface Module {
   }
 }
 
-interface Addon {
+export interface Addon {
   display_name: string
   lookup_key: string
   description: string

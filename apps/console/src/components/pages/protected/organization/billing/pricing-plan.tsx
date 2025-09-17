@@ -1,65 +1,27 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
-import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
+import React, { useEffect, useMemo } from 'react'
+
 import { useOrganization } from '@/hooks/useOrganization'
-import { Card } from '@repo/ui/cardpanel'
-import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-import { OrgSubscription } from '@repo/codegen/src/schema'
-import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
+import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
 import { ProductCard } from './product-card'
 import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import BillingSummary from './billing-summary'
+import BillingSettings from './billing-settings'
 
 const PricingPlan = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const { data } = useGetOrganizationBilling(currentOrgId)
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { errorNotification, successNotification } = useNotification()
   const searchParams = useSearchParams()
 
   const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
 
-  const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
-  const { expiresAt, active, stripeSubscriptionStatus, trialExpiresAt, productPrice = {} } = subscription
-  const { amount: price, interval: priceInterval } = productPrice
-
-  const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
-  const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, new Date()) : false
-
   const { data: openlaneProducts, isLoading: productsLoading } = useOpenlaneProductsQuery()
   const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
   const { mutateAsync: updateSchedule, isPending: updating } = useUpdateScheduleMutation()
-  const { mutateAsync: switchInterval } = useSwitchIntervalMutation()
 
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
-  const [confirmSwitchOpen, setConfirmSwitchOpen] = useState(false)
-
-  const badge = useMemo(() => {
-    if (stripeSubscriptionStatus === 'trialing') return { variant: 'gold', text: 'Trial' } as const
-    if (active) return { variant: 'default', text: 'Active' } as const
-    if (!active) return { variant: 'destructive', text: 'Expired' } as const
-    return { variant: 'destructive', text: 'Unknown' } as const
-  }, [stripeSubscriptionStatus, active])
-
-  const formattedExpiresDate = useMemo(() => {
-    try {
-      if (stripeSubscriptionStatus === 'trialing') {
-        const expirationDate = parseISO(trialExpiresAt)
-        return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
-      }
-      if (!expiresAt && trialEnded) return 'Expired'
-
-      const expirationDate = parseISO(expiresAt)
-      if (isBefore(expirationDate, new Date())) return 'Expired'
-
-      return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
-    } catch {
-      return 'N/A'
-    }
-  }, [expiresAt, stripeSubscriptionStatus, trialExpiresAt, trialEnded])
 
   const activePriceIds = useMemo(() => {
     if (!schedules?.length) return new Set<string>()
@@ -103,35 +65,6 @@ const PricingPlan = () => {
   }, [modulesWithoutBase, activePriceIds, currentInterval])
 
   const addons = Object.values(openlaneProducts?.addons || {})
-
-  type Product = {
-    billing: {
-      prices: {
-        interval: 'month' | 'year'
-        price_id: string
-      }[]
-    }
-  }
-
-  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: 'month' | 'year') => {
-    const allProducts = [...modules, ...addons]
-
-    return allProducts
-      .map((p) => {
-        const monthly = p.billing.prices.find((pr) => pr.interval === 'month')
-        const yearly = p.billing.prices.find((pr) => pr.interval === 'year')
-
-        if (!monthly || !yearly) return null
-
-        return currentInterval === 'month' ? { from: monthly.price_id, to: yearly.price_id } : { from: yearly.price_id, to: monthly.price_id }
-      })
-      .filter((swap): swap is { from: string; to: string } => swap !== null)
-  }, [])
-
-  const swaps = useMemo(() => {
-    if (!currentInterval) return []
-    return buildSwaps(modules, addons, currentInterval as 'month' | 'year')
-  }, [modules, addons, currentInterval, buildSwaps])
 
   const handleSubscribe = async (priceId: string) => {
     if (!paymentData?.hasPaymentMethod) {
@@ -181,22 +114,6 @@ const PricingPlan = () => {
     }
   }
 
-  const handleSwitchInterval = async () => {
-    try {
-      await switchInterval({ scheduleId: schedules[0].id, swaps })
-      successNotification({
-        title: 'Interval switched',
-        description: 'Your billing interval has been updated.',
-      })
-    } catch (err) {
-      const error = err instanceof Error ? err.message : 'Unable to switch billing interval.'
-      errorNotification({
-        title: 'Switch failed',
-        description: error,
-      })
-    }
-  }
-
   const paymentUpdate = searchParams.get('paymentUpdate')
 
   useEffect(() => {
@@ -209,103 +126,58 @@ const PricingPlan = () => {
   }, [paymentUpdate, successNotification])
 
   return (
-    <div className="min-w-[500px]">
-      <h2 className="text-2xl">Pricing Plan</h2>
-      {/* Current subscription summary */}
-      <Card className="my-4 shadow-md p-4 max-w-[350px]">
-        <div className="flex justify-between items-center">
+    <div className="max-w-[1000px] mx-auto">
+      <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} />
+      <>
+        {!!schedules[0] && (
           <div>
-            <p className="text-lg font-medium">Current Plan</p>
-            {!!price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
-            <p className="text-sm">{formattedExpiresDate}</p>
+            {/* Available Modules */}
+            <h3 className="mt-8 text-3xl font-semibold">Modules</h3>
+            {productsLoading ? (
+              <p>Loading modules…</p>
+            ) : (
+              <div className="flex flex-col mt-4 w-full">
+                {modulesWithoutBase.map((p) => (
+                  <ProductCard
+                    key={p.product_id}
+                    product={p}
+                    currentInterval={currentInterval}
+                    activePriceIds={activePriceIds}
+                    endingPriceIds={endingPriceIds}
+                    nextPhaseStart={nextPhaseStart}
+                    updating={updating}
+                    onSubscribe={handleSubscribe}
+                    onUnsubscribe={handleUnsubscribe}
+                    isOnlyActiveModule={activeModulesNumber === 1}
+                  />
+                ))}
+              </div>
+            )}
+            {/* Available Add-ons */}
+            <h3 className="mt-8 text-3xl font-semibold"> Add-ons</h3>
+            {productsLoading ? (
+              <p>Loading add-ons…</p>
+            ) : (
+              <div className="flex flex-col mt-4 w-full">
+                {addons.map((p) => (
+                  <ProductCard
+                    key={p.product_id}
+                    product={p}
+                    currentInterval={currentInterval}
+                    activePriceIds={activePriceIds}
+                    endingPriceIds={endingPriceIds}
+                    nextPhaseStart={nextPhaseStart}
+                    updating={updating}
+                    onSubscribe={handleSubscribe}
+                    onUnsubscribe={handleUnsubscribe}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <Badge variant={badge.variant}>{badge.text}</Badge>
-        </div>
-      </Card>
-      {/* Switch billing interval */}
-      {currentInterval === 'month' && (
-        <Button disabled={updating} onClick={() => setConfirmSwitchOpen(true)}>
-          Switch to annual
-        </Button>
-      )}
-      {currentInterval === 'year' && (
-        <Button disabled={updating} onClick={() => setConfirmSwitchOpen(true)}>
-          Switch to monthly
-        </Button>
-      )}
-
-      {/* Available Modules */}
-      <h3 className="mt-8 text-lg font-semibold">Available Modules</h3>
-      {productsLoading ? (
-        <p>Loading modules…</p>
-      ) : (
-        <div className="flex flex-wrap gap-6 mt-4">
-          {modulesWithoutBase.map((p) => (
-            <ProductCard
-              key={p.product_id}
-              product={p}
-              currentInterval={currentInterval}
-              activePriceIds={activePriceIds}
-              endingPriceIds={endingPriceIds}
-              nextPhaseStart={nextPhaseStart}
-              updating={updating}
-              onSubscribe={handleSubscribe}
-              onUnsubscribe={handleUnsubscribe}
-              isOnlyActiveModule={activeModulesNumber === 1}
-            />
-          ))}
-        </div>
-      )}
-      {/* Available Add-ons */}
-      <h3 className="mt-8 text-lg font-semibold">Available Add-ons</h3>
-      {productsLoading ? (
-        <p>Loading add-ons…</p>
-      ) : (
-        <div className="flex flex-wrap gap-6 mt-4">
-          {addons.map((p) => (
-            <ProductCard
-              key={p.product_id}
-              product={p}
-              currentInterval={currentInterval}
-              activePriceIds={activePriceIds}
-              endingPriceIds={endingPriceIds}
-              nextPhaseStart={nextPhaseStart}
-              updating={updating}
-              onSubscribe={handleSubscribe}
-              onUnsubscribe={handleUnsubscribe}
-            />
-          ))}
-        </div>
-      )}
-      {/* Switch confirmation */}
-      <ConfirmationDialog
-        open={confirmSwitchOpen}
-        onOpenChange={setConfirmSwitchOpen}
-        onConfirm={() => {
-          setConfirmSwitchOpen(false)
-          handleSwitchInterval()
-        }}
-        title={currentInterval === 'month' ? 'Switch to annual billing?' : 'Switch to monthly billing?'}
-        description={
-          currentInterval === 'month' ? (
-            <>
-              <p>
-                Your subscription will switch from <strong>monthly</strong> to <strong>annual</strong> billing.
-              </p>
-              <p>The change takes effect immediately, and your payment will be prorated for the remainder of the current billing cycle.</p>
-            </>
-          ) : (
-            <>
-              <p>
-                Your subscription will switch from <strong>annual</strong> to <strong>monthly</strong> billing.
-              </p>
-              <p>The change takes effect immediately, and your payment will be prorated for the remainder of the current billing cycle.</p>
-            </>
-          )
-        }
-        confirmationText="Confirm"
-        confirmationTextVariant="success"
-      />
+        )}
+      </>
+      <BillingSettings />
     </div>
   )
 }
