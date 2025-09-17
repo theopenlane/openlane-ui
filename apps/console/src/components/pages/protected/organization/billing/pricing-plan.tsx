@@ -16,7 +16,7 @@ const PricingPlan = () => {
 
   const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
 
-  const { expiresAt, subscriptionURL, active, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
+  const { expiresAt, active, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
   const { amount: price, interval: priceInterval } = productPrice
 
   const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
@@ -83,12 +83,7 @@ const PricingPlan = () => {
                 <div className="p-4 flex justify-center">
                   {' '}
                   <div className="p-4 flex flex items-center gap-3">
-                    <Button
-                      className="flex items-center gap-2 max-w-60"
-                      icon={<ExternalLink />}
-                      onClick={() => window.open(subscriptionURL ?? undefined, '_blank', 'noopener,noreferrer')}
-                      disabled={!subscriptionURL}
-                    >
+                    <Button className="flex items-center gap-2 max-w-60" icon={<ExternalLink />} disabled={true}>
                       Change Subscription
                     </Button>
 
