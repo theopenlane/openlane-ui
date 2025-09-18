@@ -126,7 +126,7 @@ const PricingPlan = () => {
   }, [paymentUpdate, successNotification])
 
   return (
-    <div className="max-w-[1000px] mx-auto">
+    <div className="max-w-[1000px]">
       <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} />
       <>
         {!!schedules[0] && (

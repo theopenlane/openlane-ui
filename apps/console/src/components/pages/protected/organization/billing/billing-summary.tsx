@@ -141,11 +141,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
           <Badge variant={badge.variant}>{badge.text}</Badge>
         </div>
         {/* Switch billing interval */}
-        {currentInterval && (
-          <Button className="h-8 p-2 mt-4" disabled={updating} onClick={() => setConfirmSwitchOpen(true)}>
-            {currentInterval === 'month' ? 'Switch to annual' : 'Switch to monthly'}
-          </Button>
-        )}
+
         {/* Active Modules */}
         {modulesWithoutBase.length > 0 && (
           <div className="mt-4 flex gap-2 items-center">
@@ -183,17 +179,24 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
             </div>
           </div>
         )}
-        {trialExpiresAt ? (
-          <div className="mt-4 flex items-center gap-2">
-            <p className=" text-sm font-medium">Trial status:</p>
-            <p className="text-xs text-text-informational mt-1">{formattedExpiresDate}</p>
-          </div>
-        ) : (
-          <div className="mt-4 flex items-center gap-2">
-            <p className=" text-sm font-medium">Next billing:</p>
-            <p className="text-xs text-text-informational mt-1">{nextPhaseStart ? formatDate(nextPhaseStart.toISOString()) : 'N/A'}</p>
-          </div>
-        )}
+        <div className="flex gap-3 items-center">
+          {trialExpiresAt ? (
+            <div className="mt-4 flex items-center gap-2">
+              <p className=" text-sm font-medium">Trial status:</p>
+              <p className="text-xs text-text-informational mt-1">{formattedExpiresDate}</p>
+            </div>
+          ) : (
+            <div className="mt-4 flex items-center gap-2">
+              <p className=" text-sm font-medium">Next billing:</p>
+              <p className="text-xs text-text-informational mt-1">{nextPhaseStart ? formatDate(nextPhaseStart.toISOString()) : 'N/A'}</p>
+            </div>
+          )}
+          {currentInterval && (
+            <Button className="h-7 p-2 mt-4" disabled={updating} onClick={() => setConfirmSwitchOpen(true)}>
+              {currentInterval === 'month' ? 'Switch to annual' : 'Switch to monthly'}
+            </Button>
+          )}
+        </div>
       </div>
       <ConfirmationDialog
         open={confirmSwitchOpen}

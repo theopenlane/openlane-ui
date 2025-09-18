@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { InfoIcon } from 'lucide-react'
+import { ExternalLink, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 
@@ -49,19 +49,24 @@ export function ProductCard({ product, currentInterval, activePriceIds, endingPr
     const monthly = prices.find((pr) => pr.interval === 'month')
     const yearly = prices.find((pr) => pr.interval === 'year')
 
-    if (monthly && yearly) {
-      const monthlyTotal = monthly.unit_amount * 12
-      const savingPct = Math.round(((monthlyTotal - yearly.unit_amount) / monthlyTotal) * 100)
+    if (!monthly && !yearly) return null
 
-      return (
-        <div className="flex flex-col text-text-paragraph">
-          <span>Monthly: ${monthly.unit_amount / 100}</span>
+    return (
+      <div className="flex flex-col text-text-paragraph">
+        {monthly && <span>Monthly: ${monthly.unit_amount / 100}</span>}
+        {yearly && (
           <span>
-            Annual: ${yearly.unit_amount / 100} {savingPct > 0 && <span className="text-brand">(save {savingPct}%)</span>}
+            Annual: ${yearly.unit_amount / 100}
+            {monthly &&
+              (() => {
+                const monthlyTotal = monthly.unit_amount * 12
+                const savingPct = Math.round(((monthlyTotal - yearly.unit_amount) / monthlyTotal) * 100)
+                return savingPct > 0 ? <span className="text-brand"> (save {savingPct}%)</span> : null
+              })()}
           </span>
-        </div>
-      )
-    }
+        )}
+      </div>
+    )
   }
 
   return (
@@ -98,8 +103,9 @@ export function ProductCard({ product, currentInterval, activePriceIds, endingPr
                 Subscribe
               </Button>
             )}
-            <a href={`${OPENLANE_WEBSITE_URL}/pricing`} target="_blank" rel="noopener noreferrer" className="text-brand text-lg font-medium">
-              Learn more
+            <a href={`${OPENLANE_WEBSITE_URL}/pricing`} target="_blank" rel="noopener noreferrer" className="text-brand text-sm font-medium flex gap-1 items-center">
+              <ExternalLink size={16} />
+              <span>Learn more</span>
             </a>
           </div>
         </div>

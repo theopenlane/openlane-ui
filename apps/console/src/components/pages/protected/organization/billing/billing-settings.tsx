@@ -11,6 +11,7 @@ import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
 import { SUPPORT_EMAIL } from '@/constants'
+import Invoices from './invoices'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, text } = billingSettingsStyles()
@@ -61,7 +62,6 @@ const BillingSettings: React.FC = () => {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex justify-between">
             <h3 className={cn(sectionTitle())}>Billing Address</h3>
-            <BillingContactDialog />
           </div>
           <div className={cn(sectionContent())}>
             <div>
@@ -76,6 +76,7 @@ const BillingSettings: React.FC = () => {
                 <p className="italic">No billing address provided, please update to continue your subscription</p>
               )}
             </div>
+            <BillingContactDialog />
           </div>
         </div>
       </div>
@@ -85,21 +86,21 @@ const BillingSettings: React.FC = () => {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex justify-between">
             <h3 className={cn(sectionTitle())}>Billing Email</h3>
-            <BillingEmailDialog />
           </div>
           <div className={cn(sectionContent())}>
             <div>
               <p className={cn(text())}>The email we will use to send billing account updates and subscription information.</p>
               {email ? <p className={cn(emailText())}>{email}</p> : <p className="italic">No billing email provided, please update to continue your subscription</p>}
             </div>
+            <BillingEmailDialog />
           </div>
         </div>
       </div>
 
       {/* Payment Method Section */}
-      <div className={cn(section())}>
-        <div>
-          <h3 className={cn(sectionTitle())}>Payment Method</h3>
+      <h2 className="text-3xl font-semibold mt-8 mb-4">Payment Method</h2>
+      <div className={cn(section(), 'border-t')}>
+        <div className="">
           {paymentData?.defaultPaymentMethod?.card ? (
             <p className="text-lg flex gap-1">
               <span>{paymentData.defaultPaymentMethod.card.brand.charAt(0).toUpperCase() + paymentData.defaultPaymentMethod.card.brand.slice(1)} </span>
@@ -113,32 +114,36 @@ const BillingSettings: React.FC = () => {
             <p className="text-sm text-text-informational">No payment method on file</p>
           )}
         </div>
-        <Button className="h-8 p-2" onClick={handleManagePayment}>
+        <Button className="h-8 p-2 self-end" onClick={handleManagePayment}>
           Manage
         </Button>
       </div>
 
+      {/* Invoices Section */}
+      <Invoices stripeCustomerId={stripeCustomerId} />
+
       {/* Cancel Section */}
+      <h2 className="text-3xl font-semibold mt-8 mb-4">Cancel</h2>
+
       {data?.organization?.orgSubscriptions && data?.organization?.orgSubscriptions.length > 0 && (
-        <div className={cn(section())}>
-          <div className="flex gap-10 w-full items-start">
-            <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>
+        <div className={cn(section(), 'border-t')}>
+          <div className="">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
               <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
-
-              {schedule ? (
-                <Button variant="destructive" disabled={canceling || schedulesLoading || !schedule || isCanceledBySchedule} onClick={() => setConfirmCancelOpen(true)}>
-                  {canceling ? 'Cancelling…' : isCanceledBySchedule ? 'Cancellation scheduled' : 'Cancel Subscription'}
-                </Button>
-              ) : (
-                <a href={SUPPORT_EMAIL} className="underline text-sm text-blue-500">
-                  Reach out to support
-                </a>
-              )}
             </div>
           </div>
+          {schedule ? (
+            <Button className="self-end" variant="destructive" disabled={canceling || schedulesLoading || !schedule || isCanceledBySchedule} onClick={() => setConfirmCancelOpen(true)}>
+              {canceling ? 'Cancelling…' : isCanceledBySchedule ? 'Cancellation scheduled' : 'Cancel Subscription'}
+            </Button>
+          ) : (
+            <a href={SUPPORT_EMAIL} className="text-sm text-blue-500">
+              Reach out to support
+            </a>
+          )}
         </div>
       )}
+
       {/* Cancel subscription confirmation */}
       <ConfirmationDialog
         open={confirmCancelOpen}

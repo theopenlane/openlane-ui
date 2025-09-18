@@ -348,3 +348,20 @@ export type PaymentMethodsResponse = {
   defaultPaymentMethod: StripePaymentMethod | null
   paymentMethods: StripePaymentMethod[]
 }
+
+// INVOICES
+
+export interface Invoice {
+  id: string
+  number: string | null
+  status: 'draft' | 'open' | 'paid' | 'uncollectible' | 'void' | 'overdue'
+  amount_paid: number
+  amount_due: number
+  hosted_invoice_url: string | null
+  invoice_pdf: string | null
+  created: number // Unix timestamp
+}
+
+export interface InvoicesResponse {
+  invoices: Invoice[]
+}
