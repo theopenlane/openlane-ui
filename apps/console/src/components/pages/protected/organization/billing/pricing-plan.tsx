@@ -36,6 +36,13 @@ const PricingPlan = () => {
     return firstItem?.price?.recurring?.interval ?? null
   }, [schedules])
 
+  const nextOrCurrentPhase = schedules?.[0]?.phases?.[1] || schedules?.[0]?.phases?.[0] || null
+
+  const nextPhaseActivePriceIds = useMemo(() => {
+    if (!nextOrCurrentPhase) return new Set<string>()
+    return new Set(nextOrCurrentPhase.items.map((i) => i.price))
+  }, [nextOrCurrentPhase])
+
   const endingPriceIds = useMemo(() => {
     if (!schedules?.length) return new Set<string>()
 
@@ -55,15 +62,15 @@ const PricingPlan = () => {
   const modules = Object.values(openlaneProducts?.modules || {})
   const modulesWithoutBase = modules.filter((m) => m.display_name !== 'Base Module')
 
-  const activeModulesNumber = useMemo(() => {
-    if (!currentInterval) return 0
+  const nextPhaseModulesNumber = useMemo(() => {
+    if (!nextOrCurrentPhase || !currentInterval) return 0
 
     return modulesWithoutBase.filter((m) => {
       const priceForInterval = m.billing.prices.find((p) => p.interval === currentInterval)
       if (!priceForInterval) return false
-      return activePriceIds.has(priceForInterval.price_id)
+      return nextPhaseActivePriceIds.has(priceForInterval.price_id)
     }).length
-  }, [modulesWithoutBase, activePriceIds, currentInterval])
+  }, [modulesWithoutBase, nextOrCurrentPhase, nextPhaseActivePriceIds, currentInterval])
 
   const addons = Object.values(openlaneProducts?.addons || {})
 
@@ -149,7 +156,7 @@ const PricingPlan = () => {
                     updating={updating}
                     onSubscribe={handleSubscribe}
                     onUnsubscribe={handleUnsubscribe}
-                    isOnlyActiveModule={activeModulesNumber === 1}
+                    isOnlyActiveModule={nextPhaseModulesNumber === 1}
                     isSubscriptionCanceled={isSubscriptionCanceled}
                   />
                 ))}
