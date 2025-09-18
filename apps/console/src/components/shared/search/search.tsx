@@ -146,8 +146,7 @@ export const GlobalSearch = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTitle />
-      <DialogTrigger className={`btn-secondary p-1 rounded-md`}>
+      <DialogTrigger className={`p-1 rounded-md`}>
         <Search
           size={18}
           onClick={() => {

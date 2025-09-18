@@ -122,7 +122,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
               content={
                 <>
                   {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+                    <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Risk</span>
                     </div>
@@ -136,7 +136,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
               content={(close) => (
                 <>
                   <div
-                    className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    className={`flex items-center space-x-2  cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                     onClick={() => {
                       handleExport()
                       close()
@@ -148,7 +148,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
                   {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
                     <BulkCSVCreateRiskDialog
                       trigger={
-                        <div className="flex items-center space-x-2 hover:bg-muted">
+                        <div className="flex items-center space-x-2 ">
                           <Upload size={16} strokeWidth={2} />
                           <span>Bulk Upload</span>
                         </div>

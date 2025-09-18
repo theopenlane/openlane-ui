@@ -1,4 +1,4 @@
-import { CirclePlus, Cog, Folder, FolderCheck, FolderClock, FolderInput, FolderOutput } from 'lucide-react'
+import { CirclePlus, Cog, FilePlus, Folder, FolderCheck, FolderClock, FolderInput, FolderOutput } from 'lucide-react'
 import { ProgramProgramStatus, ProgramProgramType } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import Link from 'next/link'
@@ -52,6 +52,13 @@ export const ProgramCreateIconBtn = (
   <div className="flex items-center space-x-2">
     <CirclePlus size={16} strokeWidth={2} />
     <span>Program</span>
+  </div>
+)
+
+export const ProgramCreatePrefixIconBtn = (
+  <div className="flex items-center space-x-2">
+    <FilePlus size={16} strokeWidth={2} />
+    <span>Create Program</span>
   </div>
 )
 

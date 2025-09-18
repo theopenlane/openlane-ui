@@ -7,7 +7,7 @@ export const tableStyles = tv({
     tableHeader: '[&_tr]:border-b [&_tr]:sticky [&_tr]:top-0 [&_tr]:z-10',
     tableBody: '[&_tr:last-child]:border-0',
     tableFooter: 'border-t bg-muted/50 font-medium [&>tr]:last:border-b-0',
-    tableRow: 'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
+    tableRow: 'border-b transition-colors /50 data-[state=selected]:bg-muted',
     tableHead: 'h-12 px-4 text-left align-middle text-muted-foreground bg-table-header-bg [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
     tableCell: 'p-4 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
     tableCaption: 'mt-4 text-sm text-muted-foreground',

@@ -7,7 +7,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { dialogStyles } from './dialog.styles'
 import React, { useRef, useState } from 'react'
 
-const ProgramCreate = ({ trigger }: { trigger?: React.ReactElement }) => {
+type TProgramCreateProps = {
+  className?: string
+  trigger?: React.ReactElement
+}
+
+const ProgramCreate: React.FC<TProgramCreateProps> = ({ trigger, className }: TProgramCreateProps) => {
   const [open, setOpen] = useState(false)
   const pendingCloseRef = useRef<() => void>(null)
 
@@ -25,9 +30,9 @@ const ProgramCreate = ({ trigger }: { trigger?: React.ReactElement }) => {
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         {trigger ? (
-          <DialogTrigger>{trigger}</DialogTrigger>
+          <DialogTrigger className={className ?? ''}>{trigger}</DialogTrigger>
         ) : (
-          <DialogTrigger className={dialogTrigger()}>
+          <DialogTrigger className={className ?? dialogTrigger()}>
             <ShieldPlus size={16} strokeWidth={2} />
             Create Program
           </DialogTrigger>

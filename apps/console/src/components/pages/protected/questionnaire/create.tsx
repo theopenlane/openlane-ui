@@ -23,7 +23,7 @@ export const CreateDropdown = () => {
     <div className={buttons()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+          <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
             <CirclePlus size={16} strokeWidth={2} />
             <span>Questionnaire</span>
           </div>

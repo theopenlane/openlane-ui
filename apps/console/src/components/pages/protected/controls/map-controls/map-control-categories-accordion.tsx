@@ -128,7 +128,7 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
 
       {contextMenu && (
         <ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => setContextMenu(null)}>
-          <button className="px-4 py-2 hover:bg-muted w-full text-left" onClick={() => handleAddToMapping(setDroppedControls)}>
+          <button className="px-4 py-2  w-full text-left" onClick={() => handleAddToMapping(setDroppedControls)}>
             Add to Mapping
           </button>
         </ContextMenu>

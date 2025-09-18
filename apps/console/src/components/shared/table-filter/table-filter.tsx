@@ -568,7 +568,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                     {filterFields?.map((filterField, index) => (
                       <span
                         key={index}
-                        className="text-sm cursor-pointer hover:bg-muted"
+                        className="text-sm cursor-pointer "
                         onClick={() => {
                           handleAddAppliedFilter(false, filterField)
                           close()
@@ -581,7 +581,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                 )}
                 extraContent={(close) => (
                   <div
-                    className="flex items-center justify-between cursor-pointer hover:bg-muted"
+                    className="flex items-center justify-between cursor-pointer "
                     onClick={() => {
                       handleAddAppliedFilter(true)
                       close()

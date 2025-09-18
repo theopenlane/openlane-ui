@@ -247,13 +247,13 @@ const ControlDetailsPage: React.FC = () => {
             content={
               <>
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
-                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2  cursor-pointer">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Implementation</span>
                   </div>
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
-                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2  cursor-pointer">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Objective</span>
                   </div>
@@ -276,7 +276,7 @@ const ControlDetailsPage: React.FC = () => {
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) && (
                   <Link href={`/controls/${id}/create-subcontrol`}>
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <div className="flex items-center space-x-2 ">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Subcontrol</span>
                     </div>
@@ -296,7 +296,7 @@ const ControlDetailsPage: React.FC = () => {
                 />
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
                   <Link href={`/controls/${id}/map-control`}>
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <div className="flex items-center space-x-2 ">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Map Control</span>
                     </div>

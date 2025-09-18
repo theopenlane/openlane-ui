@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
-import { LogIn, Plus, Search, Home, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 import { Logo } from '@repo/ui/logo'
 import { Separator as Hr } from '@repo/ui/separator'
 import { GlobalSearch } from '@/components/shared/search/search.tsx'
@@ -11,6 +11,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { bottomNavigationItems } from '@/routes/dashboard.tsx'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector.tsx'
 import Github from '@/assets/Github.tsx'
+import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum.tsx'
+import { ProgramCreate } from '@/components/pages/protected/program/program-create.tsx'
+import { ProgramCreateIconBtn, ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum.tsx'
+import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
+import { TaskIconBtn, TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
+import Menu from '@/components/shared/menu/menu.tsx'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
@@ -56,8 +62,21 @@ export default function SideNav({ navItems, openPanel, expanded, onToggle, onExp
     <>
       <aside className="fixed left-0 top-0 z-40 h-screen w-[50px] flex flex-col justify-between items-center py-3">
         <div className="flex flex-col items-center gap-3">
-          <Logo asIcon width={28} />
+          <a href="https://www.theopenlane.io/" target="_blank" rel="noreferrer">
+            <Logo asIcon width={28} />
+          </a>
           <Hr />
+          <Menu
+            trigger={CreateBtnIcon}
+            side="right"
+            align="start"
+            content={
+              <>
+                <ProgramCreate trigger={ProgramCreatePrefixIconBtn} className="bg-transparent px-1" />
+                <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
+              </>
+            }
+          />
           <GlobalSearch />
 
           {navItems.map((item, idx) => {

@@ -153,7 +153,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     <>
                       {createControlAllowed && (
                         <Link href="/controls/create-control">
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center space-x-2 ">
                             <CirclePlus size={16} strokeWidth={2} />
                             <span>Control</span>
                           </div>
@@ -161,7 +161,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       )}
                       {createSubcontrolAllowed && (
                         <Link href="/controls/create-subcontrol">
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center space-x-2 ">
                             <CirclePlus size={16} strokeWidth={2} />
                             <span>Subcontrol</span>
                           </div>
@@ -176,7 +176,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                 content={(close) => (
                   <>
                     <div
-                      className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      className={`flex items-center space-x-2  cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()
@@ -187,7 +187,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     </div>
                     <BulkCSVCreateControlDialog
                       trigger={
-                        <div className="flex items-center space-x-2 hover:bg-muted">
+                        <div className="flex items-center space-x-2 ">
                           <Upload size={16} strokeWidth={2} />
                           <span>Bulk Upload</span>
                         </div>

@@ -28,7 +28,7 @@ const EditableTextarea = React.forwardRef<HTMLTextAreaElement, EditableTextareaP
   }
 
   return (
-    <p onClick={() => setEditing(true)} className={`hover:bg-muted hover:cursor-pointer whitespace-pre-line ${!props.value && '!text-neutral-400'}`}>
+    <p onClick={() => setEditing(true)} className={` hover:cursor-pointer whitespace-pre-line ${!props.value && '!text-neutral-400'}`}>
       {props.value || props.placeholder}
     </p>
   )
