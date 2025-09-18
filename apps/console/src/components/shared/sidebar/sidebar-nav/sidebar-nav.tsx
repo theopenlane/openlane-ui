@@ -23,7 +23,6 @@ export type PanelKey = 'compliance' | 'trust' | null
 type TSidebarChildLinkProps = {
   child: NavItem
   expanded: boolean
-  onExpandToggle: () => void
 }
 
 type TSideNavProps = {
@@ -89,7 +88,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
     })
   }
 
-  const SidebarChildLink: React.FC<TSidebarChildLinkProps> = ({ child, expanded, onExpandToggle }) => {
+  const SidebarChildLink: React.FC<TSidebarChildLinkProps> = ({ child, expanded }) => {
     const pathname = usePathname()
     const isActive = child.href === pathname
 
@@ -106,9 +105,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
     return !expanded ? (
       <TooltipProvider delayDuration={100}>
         <Tooltip>
-          <TooltipTrigger asChild onClick={onExpandToggle}>
-            {link}
-          </TooltipTrigger>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
           <TooltipContent side="right">
             <p>{child.title}</p>
           </TooltipContent>
@@ -185,7 +182,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
                   item.children ? (
                     <div key={item.title} className="flex flex-col">
                       {item.children.map((child, index) => (
-                        <SidebarChildLink key={index} child={child} expanded={expanded} onExpandToggle={onExpandToggleAction} />
+                        <SidebarChildLink key={index} child={child} expanded={expanded} />
                       ))}
                     </div>
                   ) : null,
