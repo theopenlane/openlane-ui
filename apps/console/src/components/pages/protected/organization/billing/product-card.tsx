@@ -146,7 +146,11 @@ export function ProductCard({ product, currentInterval, activePriceIds, endingPr
             <span>
               <strong>{product.display_name}</strong> will be added to your account. The change takes effect immediately.
             </span>
-            <span>Your payment will be prorated for the remainder of the current billing cycle.</span>
+            <span>
+              {' '}
+              <br />
+              Your payment will be prorated for the remainder of the current billing cycle.
+            </span>
           </div>
         }
         confirmationText="Confirm"
