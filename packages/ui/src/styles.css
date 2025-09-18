@@ -24,12 +24,58 @@
     border-color: var(--color-ring);
     outline: none;
   }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-}
 
+  /* Primary Button */
+  button {
+    background-color: var(--color-btn-primary);
+    color: var(--color-btn-primary-text);
+    transition: all 0.5s ease;
+  }
+  button:hover,
+  button.is-active {
+    background-color: var(--color-btn-primary-hover);
+    border-radius: 6px;
+    border-color: var(--color-border);
+  }
+  button:disabled {
+    cursor: not-allowed;
+    color: var(--color-btn-primary-text-disabled);
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    background-color: var(--color-btn-secondary);
+    color: var(--color-btn-secondary-text);
+    transition: all 0.5s ease;
+  }
+  .btn-secondary:hover {
+    background-color: var(--color-btn-secondary-hover);
+    border-color: var(--color-border);
+  }
+  .btn-secondary:disabled {
+    color: var(--color-btn-secondary-text-disabled);
+  }
+
+  /* Transparent Button */
+  button.bg-transparent {
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.5s ease;
+  }
+
+  button.bg-transparent:hover,
+  button.bg-transparent.is-active {
+    background-color: var(--color-btn-primary-hover) !important;
+    border-radius: 6px;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text-paragraph) !important;
+  }
+}
 
 /* ─────────────────────────────────────────────────────────
    Light mode HSL tokens
@@ -56,8 +102,17 @@
   --input: hsl(204 43% 98%);
   --ring: hsl(168 64% 49%);
   --radius: 0.5rem;
-  --color-brand: #9AF5DC;
-  --color-button-text: #052E2A;
+  --color-unset: transparent;
+
+  --color-btn-secondary: #9AF5DC;
+  --color-btn-secondary-text: #052E2A;
+  --color-btn-secondary-text-disabled: #052E2A70;
+  --color-btn-secondary-hover: #60E8C8;
+
+  --color-btn-primary: #FFFFFF;
+  --color-btn-primary-hover: #FFFFFF;
+  --color-btn-primary-text: #09151D;
+  --color-btn-primary-text-disabled: #09151D70;
 
   /* Optional semantic colors */
   --success: hsl(168 64% 49%);
@@ -93,8 +148,16 @@
   --color-separator: #394B58;
   --color-border: #394B58;
   --color-text-paragraph: #ffffff;
-  --color-brand: #60E8C9;
-  --color-button-text: #052E2A;
+
+  --color-btn-secondary: #60E8C9;
+  --color-btn-secondary-hover: #9AF5DD;
+  --color-btn-secondary-text: #052E2A;
+  --color-btn-secondary-text-disabled: #052E2A70;
+
+  --color-btn-primary: #394B58;
+  --color-btn-primary-hover: #4C5E69;
+  --color-btn-primary-text: #FFFFFF;
+  --color-btn-primary-text-disabled:#FFFFFF70;
 }
 
 /* ─────────────────────────────────────────────────────────

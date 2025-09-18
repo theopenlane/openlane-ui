@@ -9,7 +9,7 @@ export interface SeparatorProps extends SeparatorVariants, HTMLAttributes<HTMLDi
 
 export const Separator = ({ label, programStep, full, className, login, ...rest }: SeparatorProps) => {
   // Apply variants to the styles
-  const { base, line, text } = separatorStyles({ programStep, full, login })
+  const { base, vertical, line, text } = separatorStyles({ programStep, full, login })
 
   if (label) {
     return (
@@ -23,7 +23,7 @@ export const Separator = ({ label, programStep, full, className, login, ...rest 
 
   return (
     <div className={cn(base(), className)} {...rest}>
-      <div className={line()}></div>
+      <div className={vertical()}></div>
     </div>
   )
 }

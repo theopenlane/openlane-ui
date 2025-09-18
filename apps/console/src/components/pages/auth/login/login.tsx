@@ -337,7 +337,7 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent !text-text" />
+            <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent" />
           </div>
 
           {shouldShowSSOButton() && (
@@ -362,10 +362,10 @@ export const LoginPage = () => {
                     <div className={input()}>
                       <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <Link href="/forgot-password" className=" text-base text-xs text-blue-500 mt-1 mb-1 text-right  hover:opacity-80 transition">
+                    <Link href="/forgot-password" className="text-base text-xs text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition">
                       Forgot password?
                     </Link>
-                    <button className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
+                    <button className="p-4 btn-secondary justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
                       <span>Login</span>
                       <ArrowRightCircle size={16} />
                     </button>

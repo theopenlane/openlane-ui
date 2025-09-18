@@ -56,7 +56,6 @@ export default function Header() {
           </div>
 
           <div className={userNav()}>
-            <GlobalSearch />
             <SystemNotificationTracker />
             <UserMenu />
           </div>

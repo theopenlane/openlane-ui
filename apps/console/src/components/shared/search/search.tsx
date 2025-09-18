@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 import { searchStyles } from './search.styles'
 import { Command, CommandEmpty, CommandItem, CommandList } from '@repo/ui/command'
 import { Input } from '@repo/ui/input'
-import { Clock8, LoaderCircle, SearchIcon } from 'lucide-react'
+import { Clock8, LoaderCircle, Search, SearchIcon } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
 import { Organization, SearchQuery } from '@repo/codegen/src/schema'
@@ -19,6 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
 import { useQueryClient } from '@tanstack/react-query'
+import { PanelKey } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav.tsx'
+import { Button } from '@repo/ui/button'
 
 type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
 
@@ -143,88 +145,81 @@ export const GlobalSearch = () => {
   }
 
   return (
-    <div className="relative w-72">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTitle />
-        <DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTitle />
+      <DialogTrigger className={`btn-secondary p-1 rounded-md`}>
+        <Search
+          size={18}
+          onClick={() => {
+            setOpen(true)
+          }}
+        />
+      </DialogTrigger>
+      <DialogContent className="p-0 max-w-[573px]" autoFocus>
+        <div className="mt-1.5">
           <Input
+            ref={inputRef}
             placeholder="Search..."
-            icon={<SearchIcon size={16} />}
-            onClick={() => {
-              setOpen(true)
-            }}
-            className="!border-none !h-9 pr-14 cursor-pointer"
+            icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            value={query}
+            onChange={(e) => setQuery(e.currentTarget.value)}
+            className="!border-none !h-9 pr-14 cursor-pointer bg-transparent"
             iconPosition="left"
-            suffix={fullSuffix}
-            readOnly
+            onKeyDown={relayInputKeyDownToCommand}
           />
-        </DialogTrigger>
-        <DialogContent className="p-0 max-w-[573px]" autoFocus>
-          <div className="mt-1.5">
-            <Input
-              ref={inputRef}
-              placeholder="Search..."
-              icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-              value={query}
-              onChange={(e) => setQuery(e.currentTarget.value)}
-              className="!border-none !h-9 pr-14 cursor-pointer bg-transparent"
-              iconPosition="left"
-              onKeyDown={relayInputKeyDownToCommand}
-            />
-          </div>
-          <div className="flex px-4">
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-[176px] shrink-0">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {selectOptionsWithCounts.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
+        </div>
+        <div className="flex px-4">
+          <Select value={selectedType} onValueChange={setSelectedType}>
+            <SelectTrigger className="w-[176px] shrink-0">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {selectOptionsWithCounts.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="border-r mx-3" />
+          <Clock8 size={16} className="self-center shrink-0" />
+          {/* history dropdown/list */}
+          <div className="overflow-hidden w-80">
+            {searchHistory.length > 0 && (
+              <div className="p-2 w-100 flex w-full gap-1 ">
+                {searchHistory.map((term) => (
+                  <div
+                    key={term}
+                    className="px-2.5 py-1 cursor-pointer bg-card rounded-xl text-xs"
+                    onClick={() => {
+                      setQuery(term)
+                    }}
+                  >
+                    {term}
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-            <div className="border-r mx-3" />
-            <Clock8 size={16} className="self-center shrink-0" />
-            {/* history dropdown/list */}
-            <div className="overflow-hidden w-80">
-              {searchHistory.length > 0 && (
-                <div className="p-2 w-100 flex w-full gap-1 ">
-                  {searchHistory.map((term) => (
-                    <div
-                      key={term}
-                      className="px-2.5 py-1 cursor-pointer bg-card rounded-xl text-xs"
-                      onClick={() => {
-                        setQuery(term)
-                      }}
-                    >
-                      {term}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-          {/* Replace this with your custom search results UI */}
-          <Command className="bg-panel">
-            {/* Optional: hidden element to capture key events */}
-            <div className="hidden" />
-            {selectedCount === 0
-              ? renderNoResults()
-              : renderSearchResults({
-                  data,
-                  handleOrganizationSwitch,
-                  setQuery,
-                  query,
-                  selectedType,
-                  pages,
-                  close,
-                })}
-          </Command>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+        {/* Replace this with your custom search results UI */}
+        <Command className="bg-panel">
+          {/* Optional: hidden element to capture key events */}
+          <div className="hidden" />
+          {selectedCount === 0
+            ? renderNoResults()
+            : renderSearchResults({
+                data,
+                handleOrganizationSwitch,
+                setQuery,
+                query,
+                selectedType,
+                pages,
+                close,
+              })}
+        </Command>
+      </DialogContent>
+    </Dialog>
   )
 }
 

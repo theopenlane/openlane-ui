@@ -13,7 +13,7 @@ import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { generateNavItems } from '@/routes/dashboard'
+import { topNavigationItems } from '@/routes/dashboard'
 import Sidebar, { PANEL_WIDTH_PX, type PanelKey } from '@/components/shared/sidebar/sidebar'
 
 export interface DashboardLayoutProps {
@@ -28,7 +28,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { data: sessionData } = useSession()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
-  const navItems = generateNavItems()
+  const navItems = topNavigationItems()
 
   // Panel state lives here so we can push content
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
 import { Button } from '@repo/ui/button'
 import { BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
@@ -17,6 +17,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useParams, usePathname, useRouter } from 'next/navigation'
+import OrganizationSwitch from '@/assets/OrganizationSwitch.tsx'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -101,11 +102,7 @@ export const OrganizationSelector = () => {
       <div>
         <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
           <PopoverTrigger>
-            <div className={organizationDropdown()}>
-              <Avatar entity={currentOrg as Organization} />
-              <span>{currentOrg?.displayName}</span>
-              <ChevronsUpDown className="shrink-0" size={12} />
-            </div>
+            <OrganizationSwitch />
           </PopoverTrigger>
           <PopoverContent align="start" className={popoverContent()}>
             <div className={searchWrapper()}>

@@ -20,7 +20,9 @@ export default function Sidebar({ navItems, openPanel, expanded, onToggle, onExp
 
   const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
 
-  if (session?.user?.isOnboarding) return null
+  if (session?.user?.isOnboarding) {
+    return null
+  }
 
   return <SideNav navItems={navItems} openPanel={openPanel} expanded={expanded} onToggle={onToggle} onExpandToggle={onExpandToggle} />
 }

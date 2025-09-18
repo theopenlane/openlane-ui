@@ -14,26 +14,18 @@ import {
   Workflow,
   NotebookPen,
   FileBadge2,
-  Search,
-  Plus,
   House,
+  UserCog,
+  KeyRound,
+  UserRoundPlus,
+  GlobeLock,
+  MailCheck,
+  History,
+  DollarSign,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
-export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
-  {
-    type: 'separator',
-  },
-  {
-    title: 'Home',
-    href: '/dashboard',
-    icon: Plus,
-  },
-  {
-    title: 'Home',
-    href: '/dashboard',
-    icon: Search,
-  },
+export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
     type: 'separator',
   },
@@ -46,11 +38,6 @@ export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
     title: 'Tasks',
     href: '/tasks',
     icon: ListChecks,
-  },
-  {
-    title: 'Home',
-    href: '/dashboard',
-    icon: CircleGaugeIcon,
   },
   {
     title: 'Compliance',
@@ -100,28 +87,22 @@ export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
     ],
   },
   {
-    title: 'Groups',
-    href: '/groups',
-    icon: UsersRoundIcon,
+    title: 'Trust center',
+    hidden: true,
+    href: '/trust-center',
+    icon: SettingsIcon,
+    isChildren: true,
+    children: [
+      {
+        title: 'Settings',
+        hidden: true,
+        href: '/trust-center/settings',
+      },
+    ],
   },
-  // {
-  //   title: 'Entities',
-  //   href: '/entities',
-  //   icon: Building,
-  // },
-  // {
-  //   title: 'Assets',
-  //   href: '/assets',
-  //   icon: ShapesIcon,
-  // },
-  // {
-  //   type: 'separator',
-  // },
-  // {
-  //   title: 'Reporting',
-  //   href: '/reporting',
-  //   icon: LineChart,
-  // },
+]
+
+export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Organization settings',
     href: '/organization-settings',
@@ -130,37 +111,50 @@ export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
       {
         title: 'General Settings',
         href: '/organization-settings/general-settings',
+        icon: SettingsIcon,
       },
       {
         title: 'Authentication',
         href: '/organization-settings/authentication',
         hidden: true, // the only thing here is domain restricted which currently has a bug
+        icon: GlobeLock,
       },
       {
         title: 'Members',
         href: '/organization-settings/members',
+        icon: UserRoundPlus,
       },
       {
         title: 'Subscribers',
         href: '/organization-settings/subscribers',
+        icon: MailCheck,
       },
       {
         title: 'Billing',
         href: '/organization-settings/billing',
+        icon: DollarSign,
       },
       {
         title: 'Developers',
         href: '/organization-settings/developers',
+        icon: KeyRound,
       },
       {
         title: 'Audit Logs',
         href: '/organization-settings/logs',
+        icon: History,
+      },
+      {
+        title: 'Groups',
+        href: '/groups',
+        icon: Users,
       },
       {
         title: 'Integrations',
         href: '/organization-settings/integrations',
         // hidden: !canEdit,
         hidden: true,
+        icon: Workflow,
       },
     ],
   },
@@ -172,28 +166,12 @@ export const generateNavItems = (): (NavItem | Separator | NavHeading)[] => [
       {
         title: 'Profile',
         href: '/user-settings/profile',
+        icon: UserCog,
       },
       {
         title: 'Developers',
         href: '/user-settings/developers',
-      },
-      // {
-      //   title: 'Alerts & Preferences',
-      //   href: '/user-settings/alerts-preferences',
-      // },
-    ],
-  },
-  {
-    title: 'Trust center',
-    hidden: true,
-    href: '/trust-center',
-    icon: SettingsIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'Settings',
-        hidden: true,
-        href: '/trust-center/settings',
+        icon: KeyRound,
       },
     ],
   },
