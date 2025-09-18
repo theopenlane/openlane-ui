@@ -20,26 +20,26 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 
 export type PanelKey = 'compliance' | 'trust' | null
 
-interface SidebarChildLinkProps {
+type TSidebarChildLinkProps = {
   child: NavItem
   expanded: boolean
   onExpandToggle: () => void
 }
 
-interface SideNavProps {
+type TSideNavProps = {
   navItems: (NavItem | Separator | NavHeading)[]
   footerNavItems: (NavItem | Separator | NavHeading)[]
   openPanel: PanelKey
   expanded: boolean
-  onToggle: (panel: PanelKey) => void
-  onExpandToggle: () => void
+  onToggleAction: (panel: PanelKey) => void
+  onExpandToggleAction: () => void
 }
 
 const PANEL_WIDTH = 240
 
 export const PANEL_WIDTH_PX = PANEL_WIDTH
 
-export default function SideNav({ navItems, footerNavItems, openPanel, expanded, onToggle, onExpandToggle }: SideNavProps) {
+export default function SideNav({ navItems, footerNavItems, openPanel, expanded, onToggleAction, onExpandToggleAction }: TSideNavProps) {
   const panelWidth = expanded ? PANEL_WIDTH : null
   const pathname = usePathname()
   const router = useRouter()
@@ -47,11 +47,11 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
 
   const handleNavigate = (href: string) => {
     router.push(href)
-    onToggle(null)
+    onToggleAction(null)
   }
 
   const handleToggle = (isActive: boolean, item: NavItem) => {
-    onToggle(isActive ? openPanel : (item.title.toLowerCase() as PanelKey))
+    onToggleAction(isActive ? openPanel : (item.title.toLowerCase() as PanelKey))
   }
 
   const displayMenu = (navItems: (NavItem | Separator | NavHeading)[]) => {
@@ -89,7 +89,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
     })
   }
 
-  const SidebarChildLink: React.FC<SidebarChildLinkProps> = ({ child, expanded, onExpandToggle }) => {
+  const SidebarChildLink: React.FC<TSidebarChildLinkProps> = ({ child, expanded, onExpandToggle }) => {
     const pathname = usePathname()
     const isActive = child.href === pathname
 
@@ -163,12 +163,12 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
                 {expanded ? (
                   <>
                     <span className="text-sm font-medium capitalize">{openPanel}</span>
-                    <button onClick={onExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
+                    <button onClick={onExpandToggleAction} className="bg-transparent text-muted-foreground hover:bg-card">
                       <PanelLeftClose size={18} />
                     </button>
                   </>
                 ) : (
-                  <button onClick={onExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
+                  <button onClick={onExpandToggleAction} className="bg-transparent text-muted-foreground hover:bg-card">
                     <PanelLeftOpen size={18} />
                   </button>
                 )}
@@ -185,7 +185,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
                   item.children ? (
                     <div key={item.title} className="flex flex-col">
                       {item.children.map((child, index) => (
-                        <SidebarChildLink key={index} child={child} expanded={expanded} onExpandToggle={onExpandToggle} />
+                        <SidebarChildLink key={index} child={child} expanded={expanded} onExpandToggle={onExpandToggleAction} />
                       ))}
                     </div>
                   ) : null,

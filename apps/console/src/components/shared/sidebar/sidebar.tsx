@@ -25,7 +25,7 @@ export default function Sidebar({ navItems, footerNavItems, openPanel, expanded,
     return null
   }
 
-  return <SideNav navItems={navItems} footerNavItems={footerNavItems} openPanel={openPanel} expanded={expanded} onToggle={onToggle} onExpandToggle={onExpandToggle} />
+  return <SideNav navItems={navItems} footerNavItems={footerNavItems} openPanel={openPanel} expanded={expanded} onToggleAction={onToggle} onExpandToggleAction={onExpandToggle} />
 }
 
 export { PANEL_WIDTH_PX }
