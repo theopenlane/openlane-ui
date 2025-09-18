@@ -43255,6 +43255,7 @@ export type GetAllOrganizationsQuery = {
         displayName: string
         avatarRemoteURL?: string | null
         personalOrg?: boolean | null
+        stripeCustomerID?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
       } | null
     } | null> | null

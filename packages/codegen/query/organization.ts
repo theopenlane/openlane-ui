@@ -14,6 +14,7 @@ export const GET_ALL_ORGANIZATIONS = gql`
             id
             presignedURL
           }
+          stripeCustomerID
         }
       }
     }

@@ -2,7 +2,6 @@
 import React, { Suspense, useContext, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import PricingPlan from '@/components/pages/protected/organization/billing/pricing-plan'
-import BillingSettings from '@/components/pages/protected/organization/billing/billing-settings'
 import { useOrganization } from '@/hooks/useOrganization'
 import { LoaderCircle } from 'lucide-react'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
@@ -63,9 +62,8 @@ const OrganizationContent = () => {
           </h2>
         </div>
       ) : (
-        <div className={` flex w-full`}>
+        <div className={` flex flex-col w-full`}>
           <PricingPlan />
-          <BillingSettings />
         </div>
       )}
     </>

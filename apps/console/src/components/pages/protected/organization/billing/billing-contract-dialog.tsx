@@ -136,7 +136,7 @@ const BillingContactDialog = () => {
     <Dialog aria-describedby={undefined}>
       <DialogDescription />
       <DialogTrigger asChild>
-        <h1 className="text-brand text-lg font-medium cursor-pointer">Edit</h1>
+        <h1 className="text-brand text-sm font-medium cursor-pointer self-end">Edit</h1>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[455px]">
         <DialogHeader>
