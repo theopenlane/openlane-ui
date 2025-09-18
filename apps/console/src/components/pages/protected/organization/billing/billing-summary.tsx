@@ -30,6 +30,8 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
   const { errorNotification, successNotification } = useNotification()
   const { data: openlaneProducts } = useOpenlaneProductsQuery()
 
+  const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
+
   const currentInterval = useMemo(() => {
     if (!schedules?.length) return null
     const firstItem = schedules[0].subscription?.items?.data?.[0]
@@ -192,7 +194,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
             </div>
           )}
           {currentInterval && (
-            <Button className="h-7 p-2 mt-4" disabled={updating} onClick={() => setConfirmSwitchOpen(true)}>
+            <Button className="h-7 p-2 mt-4" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSwitchOpen(true)}>
               {currentInterval === 'month' ? 'Switch to annual' : 'Switch to monthly'}
             </Button>
           )}

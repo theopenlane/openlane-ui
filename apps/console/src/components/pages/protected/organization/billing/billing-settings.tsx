@@ -6,7 +6,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
 import { useGetOrganizationBilling, useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
-import { useCancelSubscriptionMutation, usePaymentMethodsQuery, useSchedulesQuery } from '@/lib/query-hooks/stripe'
+import { useCancelSubscriptionMutation, usePaymentMethodsQuery, useRenewSubscriptionMutation, useSchedulesQuery } from '@/lib/query-hooks/stripe'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
@@ -22,6 +22,8 @@ const BillingSettings: React.FC = () => {
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
   const { mutateAsync: cancelSubscription, isPending: canceling } = useCancelSubscriptionMutation()
+  const { mutateAsync: renewSubscription } = useRenewSubscriptionMutation()
+
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
@@ -31,9 +33,14 @@ const BillingSettings: React.FC = () => {
   const isCanceledBySchedule = schedule?.end_behavior === 'cancel'
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
 
-  const handleCancelSub = async () => {
+  const handleConfirm = async () => {
+    setConfirmCancelOpen(false)
     if (!schedule) return
-    await cancelSubscription({ scheduleId: schedule.id })
+    if (isCanceledBySchedule) {
+      await renewSubscription({ scheduleId: schedule.id })
+    } else {
+      await cancelSubscription({ scheduleId: schedule.id })
+    }
   }
 
   const handleManagePayment = async () => {
@@ -133,11 +140,11 @@ const BillingSettings: React.FC = () => {
             </div>
           </div>
           {schedule ? (
-            <Button className="self-end" variant="destructive" disabled={canceling || schedulesLoading || !schedule || isCanceledBySchedule} onClick={() => setConfirmCancelOpen(true)}>
-              {canceling ? 'Cancelling…' : isCanceledBySchedule ? 'Cancellation scheduled' : 'Cancel Subscription'}
+            <Button className="self-end h-8 p-2" variant={isCanceledBySchedule ? 'filled' : 'destructive'} disabled={canceling || schedulesLoading} onClick={() => setConfirmCancelOpen(true)}>
+              {canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
             </Button>
           ) : (
-            <a href={SUPPORT_EMAIL} className="text-sm text-blue-500">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm text-blue-500">
               Reach out to support
             </a>
           )}
@@ -148,22 +155,23 @@ const BillingSettings: React.FC = () => {
       <ConfirmationDialog
         open={confirmCancelOpen}
         onOpenChange={setConfirmCancelOpen}
-        onConfirm={async () => {
-          setConfirmCancelOpen(false)
-          await handleCancelSub()
-        }}
-        title="Cancel subscription?"
+        onConfirm={handleConfirm}
+        title={isCanceledBySchedule ? 'Renew subscription?' : 'Cancel subscription?'}
         description={
-          <>
-            <p>
-              Your subscription will be cancelled at the end of your current billing cycle on{' '}
-              <b>{schedule?.current_phase?.end_date ? formatDate(new Date(schedule.current_phase.end_date * 1000).toISOString()) : 'the end date'}</b>.
-            </p>
-            <p>Until then, you&apos;ll continue to have full access.</p>
-          </>
+          !isCanceledBySchedule ? (
+            <>
+              <p>
+                Your subscription will be cancelled at the end of your current billing cycle on{' '}
+                <b>{schedule?.current_phase?.end_date ? formatDate(new Date(schedule.current_phase.end_date * 1000).toISOString()) : 'the end date'}</b>.
+              </p>
+              <p>Until then, you&apos;ll continue to have full access.</p>
+            </>
+          ) : (
+            <p>Your subscription will be renewed starting today.</p>
+          )
         }
-        confirmationText="Confirm"
-        confirmationTextVariant="destructive"
+        confirmationText={isCanceledBySchedule ? 'Renew' : 'Confirm'}
+        confirmationTextVariant={isCanceledBySchedule ? 'success' : 'destructive'}
       />
     </div>
   )

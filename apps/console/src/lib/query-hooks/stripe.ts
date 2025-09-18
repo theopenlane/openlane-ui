@@ -82,6 +82,28 @@ export function useCancelSubscriptionMutation() {
   })
 }
 
+export function useRenewSubscriptionMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ scheduleId }: { scheduleId: string }) => {
+      const res = await fetch('/api/stripe/schedules/renew', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduleId }),
+      })
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}))
+        throw new Error(error.error || 'Failed to cancel subscription')
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
+    },
+  })
+}
+
 export function useOpenlaneProductsQuery() {
   return useQuery<OpenlaneProductsResponse>({
     queryKey: ['products'],

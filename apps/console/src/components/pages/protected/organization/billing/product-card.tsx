@@ -7,6 +7,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { ExternalLink, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 type Product = {
   product_id: string
@@ -32,9 +33,21 @@ interface ProductCardProps {
   onSubscribe: (priceId: string) => void
   onUnsubscribe: (priceId: string) => void
   isOnlyActiveModule?: boolean
+  isSubscriptionCanceled: boolean
 }
 
-export function ProductCard({ product, currentInterval, activePriceIds, endingPriceIds, nextPhaseStart, updating, onSubscribe, onUnsubscribe, isOnlyActiveModule }: ProductCardProps) {
+export function ProductCard({
+  product,
+  currentInterval,
+  activePriceIds,
+  endingPriceIds,
+  nextPhaseStart,
+  updating,
+  onSubscribe,
+  onUnsubscribe,
+  isOnlyActiveModule,
+  isSubscriptionCanceled,
+}: ProductCardProps) {
   const [confirmSubscribeOpen, setConfirmSubscribeOpen] = useState(false)
   const [confirmUnsubscribeOpen, setConfirmUnsubscribeOpen] = useState(false)
   const [confirmRenewOpen, setConfirmRenewOpen] = useState(false)
@@ -90,16 +103,29 @@ export function ProductCard({ product, currentInterval, activePriceIds, endingPr
           <div className="mt-3 flex justify-between">
             {alreadySubscribed ? (
               endingSoon ? (
-                <Button variant="outline" className="h-8 p-2" disabled={updating} onClick={() => setConfirmRenewOpen(true)}>
+                <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmRenewOpen(true)}>
                   Renew
                 </Button>
               ) : (
-                <Button className="h-8 p-2" variant="destructive" disabled={updating || isOnlyActiveModule} onClick={() => setConfirmUnsubscribeOpen(true)}>
-                  Unsubscribe
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button className="h-8 p-2" variant="destructive" disabled={updating || isOnlyActiveModule || isSubscriptionCanceled} onClick={() => setConfirmUnsubscribeOpen(true)}>
+                          Unsubscribe
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {isOnlyActiveModule && (
+                      <TooltipContent side="top" className="max-w-xs">
+                        You only have one module enabled, you cannot cancel this module. You either need to cancel your subscription or add another module first.
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               )
             ) : (
-              <Button variant="outline" className="h-8 p-2" disabled={updating} onClick={() => setConfirmSubscribeOpen(true)}>
+              <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSubscribeOpen(true)}>
                 Subscribe
               </Button>
             )}

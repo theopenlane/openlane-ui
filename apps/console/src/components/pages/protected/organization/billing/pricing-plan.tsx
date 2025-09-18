@@ -50,6 +50,7 @@ const PricingPlan = () => {
   }, [schedules])
 
   const nextPhaseStart = schedules?.[0]?.phases?.[1]?.start_date ? new Date(schedules[0].phases[1].start_date * 1000) : null
+  const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
 
   const modules = Object.values(openlaneProducts?.modules || {})
   const modulesWithoutBase = modules.filter((m) => m.display_name !== 'Base Module')
@@ -149,6 +150,7 @@ const PricingPlan = () => {
                     onSubscribe={handleSubscribe}
                     onUnsubscribe={handleUnsubscribe}
                     isOnlyActiveModule={activeModulesNumber === 1}
+                    isSubscriptionCanceled={isSubscriptionCanceled}
                   />
                 ))}
               </div>
@@ -170,6 +172,7 @@ const PricingPlan = () => {
                     updating={updating}
                     onSubscribe={handleSubscribe}
                     onUnsubscribe={handleUnsubscribe}
+                    isSubscriptionCanceled={isSubscriptionCanceled}
                   />
                 ))}
               </div>

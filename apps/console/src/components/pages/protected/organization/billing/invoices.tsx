@@ -11,16 +11,28 @@ import { DownloadIcon } from 'lucide-react'
 const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | undefined }) => {
   const { data: invoicesData, isLoading, error } = useInvoicesQuery(stripeCustomerId)
 
+  const handleManageBilling = async () => {
+    const res = await fetch('/api/stripe/create-portal-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId: stripeCustomerId, isBillingSettings: true }),
+    })
+
+    const data = await res.json()
+    if (data.url) {
+      window.location.href = data.url
+    } else {
+      console.error('❌ Portal error:', data.error)
+    }
+  }
   return (
     <div className="mt-10">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-3xl font-semibold">Recent Invoices</h2>
         {stripeCustomerId && (
-          <Button className="h-8 p-2">
-            <a href={`https://dashboard.stripe.com/customers/${stripeCustomerId}`} target="_blank" rel="noopener noreferrer">
-              View all in Stripe
-            </a>
+          <Button className="h-8 p-2" onClick={handleManageBilling}>
+            View all in stripe
           </Button>
         )}
       </div>
