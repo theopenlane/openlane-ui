@@ -102,7 +102,7 @@ export async function POST(req: Request) {
         })
       }
     } else {
-      return NextResponse.json({ error: 'Invalid action. Use "subscribe" or "remove".' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid action. Use "subscribe" or "unsubscribe".' }, { status: 400 })
     }
 
     const updated = await stripe.subscriptionSchedules.update(scheduleId, {
