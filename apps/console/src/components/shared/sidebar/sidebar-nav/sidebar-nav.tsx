@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react'
@@ -8,7 +8,6 @@ import { Logo } from '@repo/ui/logo'
 import { Separator as Hr } from '@repo/ui/separator'
 import { GlobalSearch } from '@/components/shared/search/search.tsx'
 import { usePathname, useRouter } from 'next/navigation'
-import { bottomNavigationItems } from '@/routes/dashboard.tsx'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector.tsx'
 import Github from '@/assets/Github.tsx'
 import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum.tsx'
@@ -17,8 +16,15 @@ import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/prog
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 export type PanelKey = 'compliance' | 'trust' | null
+
+interface SidebarChildLinkProps {
+  child: NavItem
+  expanded: boolean
+  onExpandToggle: () => void
+}
 
 interface SideNavProps {
   navItems: (NavItem | Separator | NavHeading)[]
@@ -60,18 +66,57 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
         const isActive = openPanel === (item.title?.toLowerCase() as PanelKey) || pathname === item.href
 
         return (
-          <button
-            key={idx}
-            onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(item.href))}
-            className={`bg-transparent text-muted-foreground p-1 ${isActive ? 'is-active' : ''}`}
-          >
-            <Icon size={18} />
-          </button>
+          <TooltipProvider delayDuration={100} key={idx}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  key={idx}
+                  onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(item.href))}
+                  className={`bg-transparent text-muted-foreground p-1 ${isActive ? 'is-active' : ''}`}
+                >
+                  <Icon size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{item.title}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )
       }
 
       return null
     })
+  }
+
+  const SidebarChildLink: React.FC<SidebarChildLinkProps> = ({ child, expanded, onExpandToggle }) => {
+    const pathname = usePathname()
+    const isActive = child.href === pathname
+
+    const link = (
+      <Link
+        href={child.href ?? '#'}
+        className={`flex mb-1 items-center gap-2 p-1 mb-2 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
+      >
+        {child.icon && <child.icon size={20} />}
+        {expanded && <span className="text-sm font-medium">{child.title}</span>}
+      </Link>
+    )
+
+    return !expanded ? (
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild onClick={onExpandToggle}>
+            {link}
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{child.title}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ) : (
+      link
+    )
   }
 
   return (
@@ -124,7 +169,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
                   </>
                 ) : (
                   <button onClick={onExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
-                    <PanelLeftClose size={18} />
+                    <PanelLeftOpen size={18} />
                   </button>
                 )}
               </div>
@@ -139,15 +184,8 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
                 .map((item) =>
                   item.children ? (
                     <div key={item.title} className="flex flex-col">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.title}
-                          href={child.href ?? '#'}
-                          className={`flex mb-1 items-center gap-2 p-1 mb-2 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${child.href === pathname ? 'bg-card text-paragraph' : ''}`}
-                        >
-                          {child.icon && <child.icon size={20} />}
-                          {expanded && <span className="text-sm font-medium">{child.title}</span>}
-                        </Link>
+                      {item.children.map((child, index) => (
+                        <SidebarChildLink key={index} child={child} expanded={expanded} onExpandToggle={onExpandToggle} />
                       ))}
                     </div>
                   ) : null,
