@@ -59,8 +59,15 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
 
   const [associationControlsIdsMap, setAssociationControlsIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
   const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
+  const [associationSubControlsIdsMap, setAssociationSubControlsIdsMap] = useState<TObjectAssociationMap>({ subcontrolIDs: [] })
+  const [associationSubControlsRefMap, setAssociationSubControlsRefMap] = useState<string[]>([])
+  const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
+  const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsIdsMap, setAssociationProgramsIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
+  const [openControlsAccordion, setOpenControlsAccordion] = useState<string | undefined>('ControlsAccordion')
+  const [openProgramsAccordion, setOpenProgramsAccordion] = useState<string | undefined>('ProgramsAccordion')
+
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -140,6 +147,14 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
       if (formData && formData.objectAssociations) {
         setAssociationControlsIdsMap(formData.objectAssociations.controlIDs ? { controlIDs: [...formData.objectAssociations.controlIDs] } : { controlIDs: [] })
         setAssociationControlsRefMap(formData.controlRefCodes ? [...formData.controlRefCodes] : [])
+        setAssociationControlsFrameworksMap({
+          ...(formData.referenceFramework || {}),
+        })
+        setAssociationSubControlsIdsMap(formData.objectAssociations.subcontrolIDs ? { controlIDs: [...formData.objectAssociations.subcontrolIDs] } : { subcontrolIDs: [] })
+        setAssociationSubControlsRefMap(formData.suncontrolRefCodes ? [...formData.suncontrolRefCodes] : [])
+        setAssociationSubControlsFrameworksMap({
+          ...(formData.subcontrolReferenceFramework || {}),
+        })
         setAssociationProgramsIdsMap(formData.objectAssociations.programIDs ? { programIDs: [...formData.objectAssociations.programIDs] } : { programIDs: [] })
         setAssociationProgramsRefMap(formData.programDisplayIDs ? [...formData.programDisplayIDs] : [])
       }
@@ -152,6 +167,14 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
       setProgramObjectTypes({})
       setAssociationControlsIdsMap(formData?.objectAssociations ?? { controlIDs: [] })
       setAssociationControlsRefMap(formData?.controlRefCodes ? [...formData.controlRefCodes] : [])
+      setAssociationControlsFrameworksMap({
+        ...(formData?.referenceFramework || {}),
+      })
+      setAssociationSubControlsIdsMap(formData?.objectAssociations ?? { subcontrolIDs: [] })
+      setAssociationSubControlsRefMap(formData?.suncontrolRefCodes ? [...formData.suncontrolRefCodes] : [])
+      setAssociationSubControlsFrameworksMap({
+        ...(formData?.subcontrolReferenceFramework || {}),
+      })
       setAssociationProgramsIdsMap(formData?.objectAssociations ?? { programIDs: [] })
       setAssociationProgramsRefMap(formData?.programDisplayIDs ? [...formData.programDisplayIDs] : [])
       setOpenControlsDialog(false)
@@ -366,14 +389,19 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
           <GridRow columns={1}>
             <GridCell>
               <Panel>
-                <Accordion type="single" collapsible value={undefined} className="w-full">
-                  <AccordionItem value="TITLE">
+                <Accordion type="single" collapsible value={openControlsAccordion} onValueChange={setOpenControlsAccordion} className="w-full">
+                  <AccordionItem value="ControlsAccordion">
                     <div className="flex items-center justify-between w-full">
                       <AccordionTrigger asChild>
-                        <button className="group flex items-center gap-2 text-sm font-medium">
-                          <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                          Linked Control(s)
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button className="group flex items-center gap-2 text-sm font-medium">
+                            <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                            Linked Control(s)
+                          </button>
+                          <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                            {(associationSubControlsIdsMap.subcontrolIDs?.length || 0) + (associationControlsIdsMap.controlIDs?.length || 0)}
+                          </span>
+                        </div>
                       </AccordionTrigger>
                       <Button
                         variant="outline"
@@ -395,10 +423,18 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                           open={openControlsDialog}
                           setOpen={setOpenControlsDialog}
                           onIdChange={handleControlIdsChange}
-                          idsMap={associationControlsIdsMap}
-                          setIdsMap={setAssociationControlsIdsMap}
-                          refMap={associationControlsRefMap}
-                          setRefMap={setAssociationControlsRefMap}
+                          controlIdsMap={associationControlsIdsMap}
+                          setControlIdsMap={setAssociationControlsIdsMap}
+                          controlsRefMap={associationControlsRefMap}
+                          subcontrolIdsMap={associationSubControlsIdsMap}
+                          setSubcontrolIdsMap={setAssociationSubControlsIdsMap}
+                          setControlsRefMap={setAssociationControlsRefMap}
+                          subcontrolsRefMap={associationSubControlsRefMap}
+                          setSubcontrolsRefMap={setAssociationSubControlsRefMap}
+                          subcontrolFrameworksMap={associationSubControlsFrameworksMap}
+                          setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
+                          frameworksMap={associationControlsFrameworksMap}
+                          setFrameworksMap={setAssociationControlsFrameworksMap}
                         />
                       </div>
                     </AccordionContent>
@@ -410,14 +446,19 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
           <GridRow columns={1}>
             <GridCell>
               <Panel>
-                <Accordion type="single" collapsible value={undefined} className="w-full">
-                  <AccordionItem value="TITLE">
+                <Accordion type="single" collapsible value={openProgramsAccordion} onValueChange={setOpenProgramsAccordion} className="w-full">
+                  <AccordionItem value="ProgramsAccordion">
                     <div className="flex items-center justify-between w-full">
                       <AccordionTrigger asChild>
-                        <button className="group flex items-center gap-2 text-sm font-medium">
-                          <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                          Linked Program(s)
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button className="group flex items-center gap-2 text-sm font-medium">
+                            <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                            Linked Program(s)
+                          </button>
+                          <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                            {associationProgramsIdsMap.programIDs?.length || 0}
+                          </span>
+                        </div>
                       </AccordionTrigger>
                       <Button
                         variant="outline"

@@ -45021,7 +45021,10 @@ export type TaskQuery = {
     }
     controls: {
       __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlEdge'
+        node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
+      } | null> | null
     }
     risks: {
       __typename?: 'RiskConnection'

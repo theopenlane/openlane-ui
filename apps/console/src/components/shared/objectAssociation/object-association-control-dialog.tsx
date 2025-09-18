@@ -18,15 +18,16 @@ import usePlateEditor from '../plate/usePlateEditor'
 type ControlSelectionDialogProps = {
   open: boolean
   onClose: () => void
-  initialData?: TObjectAssociationMap
-  initialRefCodes?: string[]
-  onSave: (idsMap: TObjectAssociationMap, refCodesMap: string[], frameworks: string[]) => void
+  initialControlData?: TObjectAssociationMap
+  initialControlRefCodes?: string[]
+  initialFramework: Record<string, string>
+  onSave: (idsMap: TObjectAssociationMap, refCodesMap: string[], frameworks: Record<string, string>) => void
 }
 
-export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ open, onClose, initialData, initialRefCodes, onSave }: ControlSelectionDialogProps) => {
+export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ open, onClose, initialControlData, initialControlRefCodes, initialFramework, onSave }: ControlSelectionDialogProps) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
-  const [frameworks, setFrameworks] = useState<string[]>([])
+  const [frameworks, setFrameworks] = useState<Record<string, string>>({})
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const { convertToReadOnly } = usePlateEditor()
@@ -42,10 +43,11 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
 
   useEffect(() => {
     if (open) {
-      setSelectedIdsMap(initialData?.controlIDs ? { controlIDs: [...initialData.controlIDs] } : { controlIDs: [] })
-      setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
+      setSelectedIdsMap(initialControlData?.controlIDs ? { controlIDs: [...initialControlData.controlIDs] } : { controlIDs: [] })
+      setSelectedRefCodeMap(initialControlRefCodes ? [...initialControlRefCodes] : [])
+      setFrameworks(initialFramework ? { ...initialFramework } : {})
     }
-  }, [open, initialData, initialRefCodes])
+  }, [open, initialControlData, initialControlRefCodes, initialFramework])
 
   const { controls, paginationMeta, isLoading, isFetching } = useGetAllControls({
     where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
@@ -58,7 +60,7 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
 
     const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
 
-    const newFrameworks = isChecked ? [...new Set([...frameworks, referenceFramework || ''])] : frameworks.filter((f) => f !== referenceFramework)
+    const newFrameworks = isChecked ? { ...frameworks, [id]: referenceFramework ?? '' } : Object.fromEntries(Object.entries(frameworks).filter(([key]) => key !== id))
 
     setSelectedIdsMap({ controlIDs: newIds })
     setSelectedRefCodeMap(newRefCodes)
@@ -70,12 +72,12 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({ 
       accessorKey: 'name',
       header: 'Control',
       cell: ({ row }) => {
-        const { id, refCode } = row.original
+        const { id, refCode, referenceFramework } = row.original
         const checked = selectedIdsMap.controlIDs?.includes(id) ?? false
 
         return (
           <div className="flex items-center gap-2">
-            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, refCode, val === true)} />
+            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, refCode, val === true, referenceFramework || undefined)} />
             <span>{refCode}</span>
           </div>
         )
