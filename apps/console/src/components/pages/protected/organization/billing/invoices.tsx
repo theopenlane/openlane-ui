@@ -49,7 +49,7 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
           const formattedDate = invoice.created ? formatDate(new Date(invoice.created * 1000).toISOString()) : ''
 
           return (
-            <div key={invoice.id} className="flex items-center justify-between py-4 px-6 boder-b first:border-none">
+            <div key={invoice.id} className="flex items-center justify-between py-4 px-6 border-b first:border-none">
               {/* Left side */}
               <div className="flex flex-col">
                 <span className="font-medium">Invoice #{invoice.number || invoice.id}</span>
