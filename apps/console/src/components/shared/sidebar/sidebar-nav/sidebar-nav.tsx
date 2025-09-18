@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react'
@@ -13,15 +13,16 @@ import { OrganizationSelector } from '@/components/shared/organization-selector/
 import Github from '@/assets/Github.tsx'
 import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum.tsx'
 import { ProgramCreate } from '@/components/pages/protected/program/program-create.tsx'
-import { ProgramCreateIconBtn, ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum.tsx'
+import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
-import { TaskIconBtn, TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
+import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
 interface SideNavProps {
   navItems: (NavItem | Separator | NavHeading)[]
+  footerNavItems: (NavItem | Separator | NavHeading)[]
   openPanel: PanelKey
   expanded: boolean
   onToggle: (panel: PanelKey) => void
@@ -32,31 +33,46 @@ const PANEL_WIDTH = 240
 
 export const PANEL_WIDTH_PX = PANEL_WIDTH
 
-export default function SideNav({ navItems, openPanel, expanded, onToggle, onExpandToggle }: SideNavProps) {
+export default function SideNav({ navItems, footerNavItems, openPanel, expanded, onToggle, onExpandToggle }: SideNavProps) {
   const panelWidth = expanded ? PANEL_WIDTH : null
   const pathname = usePathname()
   const router = useRouter()
-  const footerNavItems = bottomNavigationItems()
   const sidebarItems = [...navItems, ...footerNavItems]
-
-  function isNavItem(item: NavItem | Separator | NavHeading): item is NavItem {
-    return 'title' in item
-  }
-
-  const activePanel = navItems
-    .filter(isNavItem)
-    .find((item) => item.children?.some((child) => child.href === pathname))
-    ?.title.toLowerCase() as PanelKey | undefined
 
   const handleNavigate = (href: string) => {
     router.push(href)
+    onToggle(null)
   }
 
-  useEffect(() => {
-    if (activePanel) {
-      onToggle(activePanel)
-    }
-  }, [activePanel, onToggle])
+  const handleToggle = (isActive: boolean, item: NavItem) => {
+    onToggle(isActive ? openPanel : (item.title.toLowerCase() as PanelKey))
+  }
+
+  const displayMenu = (navItems: (NavItem | Separator | NavHeading)[]) => {
+    return navItems.map((item, idx) => {
+      if ('type' in item && (item.type === 'separator' || item.type === 'heading')) {
+        return <Hr key={idx} />
+      }
+
+      if ('icon' in item && item.icon) {
+        const Icon = item.icon
+        const isExpandable = !!item.children
+        const isActive = openPanel === (item.title?.toLowerCase() as PanelKey) || pathname === item.href
+
+        return (
+          <button
+            key={idx}
+            onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(item.href))}
+            className={`bg-transparent text-muted-foreground p-1 ${isActive ? 'is-active' : ''}`}
+          >
+            <Icon size={18} />
+          </button>
+        )
+      }
+
+      return null
+    })
+  }
 
   return (
     <>
@@ -79,49 +95,12 @@ export default function SideNav({ navItems, openPanel, expanded, onToggle, onExp
           />
           <GlobalSearch />
 
-          {navItems.map((item, idx) => {
-            if ('type' in item && (item.type === 'separator' || item.type === 'heading')) return <Hr key={idx} />
-
-            if ('icon' in item && item.icon) {
-              const Icon = item.icon
-              const isExpandable = !!item.children
-              const isActive = openPanel === (item.title?.toLowerCase() as PanelKey) || pathname === item.href
-
-              return (
-                <button
-                  key={idx}
-                  onClick={() => (isExpandable ? onToggle(isActive ? openPanel : (item.title.toLowerCase() as PanelKey)) : handleNavigate(item.href))}
-                  className={`bg-transparent text-muted-foreground p-1 ${isActive ? 'is-active' : ''}`}
-                >
-                  <Icon size={18} />
-                </button>
-              )
-            }
-            return null
-          })}
+          {displayMenu(navItems)}
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          {footerNavItems.map((item, idx) => {
-            if ('type' in item && (item.type === 'separator' || item.type === 'heading')) return <Hr key={idx} />
+          {displayMenu(footerNavItems)}
 
-            if ('icon' in item && item.icon) {
-              const Icon = item.icon
-              const isExpandable = !!item.children
-              const isActive = openPanel === (item.title?.toLowerCase() as PanelKey) || pathname === item.href
-
-              return (
-                <button
-                  key={idx}
-                  onClick={() => (isExpandable ? onToggle(isActive ? openPanel : (item.title.toLowerCase() as PanelKey)) : handleNavigate(item.href))}
-                  className={`bg-transparent text-muted-foreground p-1 ${isActive ? 'is-active' : ''}`}
-                >
-                  <Icon size={18} />
-                </button>
-              )
-            }
-            return null
-          })}
           <a href="https://github.com/theopenlane" target="_blank" rel="noreferrer">
             <Github size={20} className="cursor-pointer" />
           </a>
@@ -134,14 +113,26 @@ export default function SideNav({ navItems, openPanel, expanded, onToggle, onExp
       {openPanel && (
         <div className="fixed top-0 left-[50px] z-30 h-screen flex flex-col transition-all duration-300 ease-in-out" style={panelWidth ? { width: panelWidth } : undefined}>
           <div className="flex-1 flex flex-col bg-secondary rounded-xl" style={{ margin: '8px 0' }}>
-            <div className="flex items-center justify-between px-4 py-3 ">
-              {expanded && <h3 className="text-sm font-medium capitalize">{openPanel}</h3>}
-              <button onClick={onExpandToggle} className="p-1 bg-transparent">
-                {expanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
-              </button>
+            <div className="p-2 space-y-1 h-[40px]">
+              <div className="flex items-center justify-between gap-2 p-1 mb-1 rounded-md transition-colors duration-500 w-full ">
+                {expanded ? (
+                  <>
+                    <span className="text-sm font-medium capitalize">{openPanel}</span>
+                    <button onClick={onExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
+                      <PanelLeftClose size={18} />
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={onExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
+                    <PanelLeftClose size={18} />
+                  </button>
+                )}
+              </div>
+
+              {!expanded && <Hr className="m-0 mt-1" />}
             </div>
 
-            <div className="p-2 space-y-1">
+            <div className="p-2 space-y-1 mt-3">
               {sidebarItems
                 .filter((item): item is NavItem => 'title' in item)
                 .filter((item) => item.title.toLowerCase() === openPanel)
@@ -152,7 +143,7 @@ export default function SideNav({ navItems, openPanel, expanded, onToggle, onExp
                         <Link
                           key={child.title}
                           href={child.href ?? '#'}
-                          className={`flex mb-1 items-center gap-2 px-3 py-2 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${child.href === pathname ? 'bg-card text-paragraph' : ''}`}
+                          className={`flex mb-1 items-center gap-2 p-1 mb-2 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${child.href === pathname ? 'bg-card text-paragraph' : ''}`}
                         >
                           {child.icon && <child.icon size={20} />}
                           {expanded && <span className="text-sm font-medium">{child.title}</span>}

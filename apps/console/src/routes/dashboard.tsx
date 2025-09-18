@@ -1,8 +1,6 @@
 import {
-  CircleGaugeIcon,
   LayersIcon,
   SettingsIcon,
-  UsersRoundIcon,
   UserRoundCogIcon,
   Users,
   ShieldCheck,
@@ -97,6 +95,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
         title: 'Settings',
         hidden: true,
         href: '/trust-center/settings',
+        icon: Settings2,
       },
     ],
   },

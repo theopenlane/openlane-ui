@@ -13,8 +13,10 @@ import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { topNavigationItems } from '@/routes/dashboard'
+import { bottomNavigationItems, topNavigationItems } from '@/routes/dashboard'
 import Sidebar, { PANEL_WIDTH_PX, type PanelKey } from '@/components/shared/sidebar/sidebar'
+import { NavHeading, NavItem, Separator } from '@/types'
+import { usePathname } from 'next/navigation'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -27,18 +29,33 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const pathname = usePathname()
 
   const navItems = topNavigationItems()
+  const footerNavItems = bottomNavigationItems()
 
-  // Panel state lives here so we can push content
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   const [expanded, setExpanded] = useState(true)
   const panelWidth = openPanel ? (expanded ? PANEL_WIDTH_PX : 60) : 0
-  const contentMarginLeft = 54 + panelWidth
+  const contentMarginLeft = expanded ? 54 + panelWidth : openPanel ? 38 + panelWidth : 54 + panelWidth
+  const currentActivePanel = [...navItems, ...footerNavItems]
+    .filter(isNavItem)
+    .find((item) => item.children?.some((child) => child.href === pathname))
+    ?.title.toLowerCase() as PanelKey | undefined
+
+  function isNavItem(item: NavItem | Separator | NavHeading): item is NavItem {
+    return 'title' in item
+  }
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
   }, [setCrumbs])
+
+  useEffect(() => {
+    if (currentActivePanel) {
+      setOpenPanel(currentActivePanel)
+    }
+  }, [currentActivePanel])
 
   useEffect(() => {
     const handler = () => setShowSessionExpiredModal(true)
@@ -47,10 +64,14 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   }, [])
 
   useEffect(() => {
-    if (!sessionData?.user?.refreshToken) return
+    if (!sessionData?.user?.refreshToken) {
+      return
+    }
 
     const decoded: { exp?: number } = jwtDecode(sessionData.user.refreshToken)
-    if (!decoded.exp) return
+    if (!decoded.exp) {
+      return
+    }
 
     const expirationDate = fromUnixTime(decoded.exp)
     const now = new Date()
@@ -65,10 +86,14 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     return () => clearTimeout(id)
   }, [sessionData])
 
+  const handleOpenPanel = (panel: PanelKey) => {
+    setOpenPanel(panel)
+  }
+
   return (
     <>
       <SessionExpiredModal open={showSessionExpiredModal} />
-      <Sidebar navItems={navItems} openPanel={openPanel} expanded={expanded} onToggle={setOpenPanel} onExpandToggle={() => setExpanded(!expanded)} />
+      <Sidebar navItems={navItems} footerNavItems={footerNavItems} openPanel={openPanel} expanded={expanded} onToggle={handleOpenPanel} onExpandToggle={() => setExpanded(!expanded)} />
 
       <div className="flex flex-col h-screen overflow-hidden transition-all duration-200" style={{ marginLeft: contentMarginLeft, marginRight: '8px' }}>
         {!!bannerText && (
@@ -83,7 +108,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
 
         <Header />
 
-        {/* Scrollable area only inside main */}
         <div className={base()}>
           <main className={main()}>{error ?? children}</main>
           <ChatBot />
