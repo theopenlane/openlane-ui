@@ -165,7 +165,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   }
 
   const handleRowClick = (row: ControlListFieldsFragment) => {
-    push(`/controls/${row.id}`)
+    push(`/standards/${id}?controlId=${row.id}`)
   }
 
   return (
