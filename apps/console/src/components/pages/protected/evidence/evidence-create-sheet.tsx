@@ -75,7 +75,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
       Object.entries({
         controlIDs: controlObjectTypes.controlIDs,
         programIDs: programObjectTypes.programIDs,
-        subcontrolIDs: evidenceObjectTypes?.subcontrolIDs,
+        subcontrolIDs: controlObjectTypes?.subcontrolIDs,
         taskIDs: evidenceObjectTypes?.taskIDs,
         controlObjectiveIDs: evidenceObjectTypes?.controlObjectiveIDs,
       }).filter(([, value]) => value !== undefined),
@@ -151,7 +151,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
           ...(formData.referenceFramework || {}),
         })
         setAssociationSubControlsIdsMap(formData.objectAssociations.subcontrolIDs ? { controlIDs: [...formData.objectAssociations.subcontrolIDs] } : { subcontrolIDs: [] })
-        setAssociationSubControlsRefMap(formData.suncontrolRefCodes ? [...formData.suncontrolRefCodes] : [])
+        setAssociationSubControlsRefMap(formData.subcontrolRefCodes ? [...formData.subcontrolRefCodes] : [])
         setAssociationSubControlsFrameworksMap({
           ...(formData.subcontrolReferenceFramework || {}),
         })
@@ -171,7 +171,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
         ...(formData?.referenceFramework || {}),
       })
       setAssociationSubControlsIdsMap(formData?.objectAssociations ?? { subcontrolIDs: [] })
-      setAssociationSubControlsRefMap(formData?.suncontrolRefCodes ? [...formData.suncontrolRefCodes] : [])
+      setAssociationSubControlsRefMap(formData?.subcontrolRefCodes ? [...formData.subcontrolRefCodes] : [])
       setAssociationSubControlsFrameworksMap({
         ...(formData?.subcontrolReferenceFramework || {}),
       })

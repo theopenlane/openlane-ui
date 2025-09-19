@@ -101,6 +101,7 @@ export const TASK = gql`
             controlID
             description
             displayID
+            referenceFramework
           }
         }
       }

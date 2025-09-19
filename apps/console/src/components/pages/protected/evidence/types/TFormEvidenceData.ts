@@ -4,7 +4,7 @@ export type TFormEvidenceData = {
   displayID?: string
   tags?: string[]
   controlRefCodes?: string[]
-  suncontrolRefCodes?: string[]
+  subcontrolRefCodes?: string[]
   programDisplayIDs?: string[]
   referenceFramework?: Record<string, string>
   subcontrolReferenceFramework?: Record<string, string>

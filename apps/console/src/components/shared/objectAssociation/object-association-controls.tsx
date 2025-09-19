@@ -40,15 +40,40 @@ const ObjectAssociationControls = ({
   subcontrolFrameworksMap,
   setSubcontrolsFrameworksMap,
 }: ObjectAssociationControlsProps) => {
-  const handleSave = (newIds: TObjectAssociationMap, newRefCodes: string[], frameworks: Record<string, string>) => {
-    setControlIdsMap(newIds)
-    setControlsRefMap(newRefCodes || [])
-    setFrameworksMap((prev) => ({
-      ...(prev || {}),
-      ...(frameworks || {}),
-    }))
+  const handleSave = (
+    newIds: TObjectAssociationMap,
+    subcontrolsNewIds: TObjectAssociationMap,
+    newControlRefCodes: string[],
+    newSubcontrolRefCodes: string[],
+    frameworks: Record<string, string>,
+    subcontrolFrameworks: Record<string, string>,
+  ) => {
+    const mergedControlIDs = [...(controlIdsMap.controlIDs || []), ...(newIds.controlIDs || [])]
+    const uniqueControlIDs = Array.from(new Set(mergedControlIDs))
+
+    const mergedSubcontrolIDs = [...(subcontrolIdsMap.subcontrolIDs || []), ...(subcontrolsNewIds.subcontrolIDs || [])]
+    const uniqueSubcontrolIDs = Array.from(new Set(mergedSubcontrolIDs))
+
+    const mergedControlRefCodes = [...(controlsRefMap || []), ...(newControlRefCodes || [])]
+    const uniqueControlRefCodes = Array.from(new Set(mergedControlRefCodes))
+
+    const mergedSubcontrolRefCodes = [...(subcontrolsRefMap || []), ...(newSubcontrolRefCodes || [])]
+    const uniqueSubcontrolRefCodes = Array.from(new Set(mergedSubcontrolRefCodes))
+
+    setControlIdsMap({ controlIDs: uniqueControlIDs })
+    setSubcontrolIdsMap({ subcontrolIDs: uniqueSubcontrolIDs })
+
+    setControlsRefMap(uniqueControlRefCodes)
+    setSubcontrolsRefMap(uniqueSubcontrolRefCodes)
+
+    setFrameworksMap((prev) => ({ ...(prev || {}), ...(frameworks || {}) }))
+    setSubcontrolsFrameworksMap((prev) => ({ ...(prev || {}), ...(subcontrolFrameworks || {}) }))
+
     if (onIdChange) {
-      onIdChange(newIds)
+      onIdChange({
+        controlIDs: uniqueControlIDs,
+        subcontrolIDs: uniqueSubcontrolIDs,
+      })
     }
   }
 
@@ -116,8 +141,13 @@ const ObjectAssociationControls = ({
         open={open}
         onClose={() => setOpen(false)}
         initialFramework={frameworksMap}
-        initialControlData={controlIdsMap}
+        initialControlData={{
+          controlIDs: controlIdsMap.controlIDs,
+          subcontrolIDs: subcontrolIdsMap.subcontrolIDs,
+        }}
         initialControlRefCodes={controlsRefMap}
+        initialSubcontrolRefCodes={subcontrolsRefMap}
+        initialSubcontrolFramework={subcontrolFrameworksMap}
         onSave={handleSave}
       />
     </div>

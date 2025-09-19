@@ -349,7 +349,7 @@ const ControlDetailsPage: React.FC = () => {
         canEdit={canEdit(permission?.roles)}
         control={{
           displayID: subcontrol?.refCode,
-          suncontrolRefCodes: [subcontrol?.refCode],
+          subcontrolRefCodes: [subcontrol?.refCode],
           subcontrolReferenceFramework: {
             [subcontrol?.id ?? 'default']: subcontrol?.referenceFramework ?? '',
           },
