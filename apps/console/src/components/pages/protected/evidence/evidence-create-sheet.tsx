@@ -31,6 +31,7 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import ObjectAssociationControls from '@/components/shared/objectAssociation/object-association-controls'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import ObjectAssociationPrograms from '@/components/shared/objectAssociation/object-association-programs'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
 type EvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -65,10 +66,9 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsIdsMap, setAssociationProgramsIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  const [openControlsAccordion, setOpenControlsAccordion] = useState<string | undefined>('ControlsAccordion')
-  const [openProgramsAccordion, setOpenProgramsAccordion] = useState<string | undefined>('ProgramsAccordion')
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const mergedEvidenceObjectTypes: TObjectAssociationMap = Object.fromEntries(
@@ -213,8 +213,17 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent onEscapeKeyDown={() => onOpenChange(false)} side="right" className="bg-card flex flex-col" minWidth={470}>
+    <Sheet
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          setIsDiscardDialogOpen(true)
+        } else {
+          onOpenChange(true)
+        }
+      }}
+    >
+      <SheetContent side="right" className="bg-card flex flex-col" minWidth={470}>
         <Grid>
           {/* Form Section */}
           <GridRow columns={1}>
@@ -335,200 +344,207 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                       )}
                     />
                   </InputRow>
+                  <div>
+                    {/* Creation Date */}
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="creationDate"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="mb-2 flex items-center">
+                              Creation Date
+                              <SystemTooltip
+                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                                content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>}
+                              />
+                            </FormLabel>
+                            <CalendarPopover field={field} defaultToday required disableFuture />
+                            {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
 
-                  {/* Creation Date */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="creationDate"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="mb-2 flex items-center">
-                            Creation Date
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>} />
-                          </FormLabel>
-                          <CalendarPopover field={field} defaultToday required disableFuture />
-                          {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
-
-                  {/* Renewal Date */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="renewalDate"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="mb-2 flex items-center">
-                            Renewal Date
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence will be re-requested.</p>} />
-                          </FormLabel>
-                          <CalendarPopover field={field} defaultAddDays={365} disabledFrom={new Date()} />
-                          {field.value !== null && (
-                            <p>
-                              Don&apos;t want to renew this evidence?{' '}
-                              <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
-                                Clear it
-                              </b>
-                            </p>
-                          )}
-                          {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
+                    {/* Renewal Date */}
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="renewalDate"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="mb-2 flex items-center">
+                              Renewal Date
+                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence will be re-requested.</p>} />
+                            </FormLabel>
+                            <CalendarPopover field={field} defaultAddDays={365} disabledFrom={new Date()} />
+                            {field.value !== null && (
+                              <p>
+                                Don&apos;t want to renew this evidence?{' '}
+                                <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
+                                  Clear it
+                                </b>
+                              </p>
+                            )}
+                            {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+                  </div>
                 </form>
+                <div className="flex flex-col gap-4 mt-4">
+                  <GridRow columns={1}>
+                    <GridCell>
+                      <Panel>
+                        <Accordion
+                          type="single"
+                          collapsible
+                          defaultValue={(associationSubControlsIdsMap.subcontrolIDs?.length || 0) + (associationControlsIdsMap.controlIDs?.length || 0) > 0 ? 'ControlsAccordion' : undefined}
+                          className="w-full"
+                        >
+                          <AccordionItem value="ControlsAccordion">
+                            <div className="flex items-center justify-between w-full">
+                              <AccordionTrigger asChild>
+                                <div className="flex items-center gap-2 cursor-pointer group">
+                                  <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+                                  <span className="text-sm font-medium">Linked Control(s)</span>
+                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                                    {(associationSubControlsIdsMap.subcontrolIDs?.length || 0) + (associationControlsIdsMap.controlIDs?.length || 0)}
+                                  </span>
+                                </div>
+                              </AccordionTrigger>
+                              <Button
+                                variant="outline"
+                                className="py-5"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenControlsDialog(true)
+                                }}
+                                icon={<Plus />}
+                                iconPosition="left"
+                              >
+                                Add Controls
+                              </Button>
+                            </div>
+
+                            <AccordionContent>
+                              <div className="mt-5 flex flex-col gap-5">
+                                <ObjectAssociationControls
+                                  open={openControlsDialog}
+                                  setOpen={setOpenControlsDialog}
+                                  onIdChange={handleControlIdsChange}
+                                  controlIdsMap={associationControlsIdsMap}
+                                  setControlIdsMap={setAssociationControlsIdsMap}
+                                  controlsRefMap={associationControlsRefMap}
+                                  subcontrolIdsMap={associationSubControlsIdsMap}
+                                  setSubcontrolIdsMap={setAssociationSubControlsIdsMap}
+                                  setControlsRefMap={setAssociationControlsRefMap}
+                                  subcontrolsRefMap={associationSubControlsRefMap}
+                                  setSubcontrolsRefMap={setAssociationSubControlsRefMap}
+                                  subcontrolFrameworksMap={associationSubControlsFrameworksMap}
+                                  setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
+                                  frameworksMap={associationControlsFrameworksMap}
+                                  setFrameworksMap={setAssociationControlsFrameworksMap}
+                                />
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </Panel>
+                    </GridCell>
+                  </GridRow>
+                  <GridRow columns={1}>
+                    <GridCell>
+                      <Panel>
+                        <Accordion type="single" collapsible defaultValue={(associationProgramsIdsMap.programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined} className="w-full">
+                          <AccordionItem value="ProgramsAccordion">
+                            <div className="flex items-center justify-between w-full">
+                              <AccordionTrigger asChild>
+                                <div className="flex items-center gap-2 cursor-pointer group">
+                                  <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+                                  <span className="text-sm font-medium">Linked Program(s)</span>
+                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                                    {associationProgramsIdsMap.programIDs?.length || 0}
+                                  </span>
+                                </div>
+                              </AccordionTrigger>
+                              <Button
+                                variant="outline"
+                                className="py-5"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenProgramsDialog(true)
+                                }}
+                                icon={<Plus />}
+                                iconPosition="left"
+                              >
+                                Add Programs
+                              </Button>
+                            </div>
+
+                            <AccordionContent>
+                              <div className="mt-5 flex flex-col gap-5">
+                                <ObjectAssociationPrograms
+                                  open={openProgramsDialog}
+                                  setOpen={setOpenProgramsDialog}
+                                  onIdChange={handleProgramIdsChange}
+                                  idsMap={associationProgramsIdsMap}
+                                  setIdsMap={setAssociationProgramsIdsMap}
+                                  refMap={associationProgramsRefMap}
+                                  setRefMap={setAssociationProgramsRefMap}
+                                />
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </Panel>
+                    </GridCell>
+                  </GridRow>
+                  {/* Object Association Panel */}
+                  <GridRow columns={1}>
+                    <GridCell>
+                      <Panel>
+                        <Accordion type="single" collapsible value={undefined} className="w-full">
+                          <AccordionItem value="TITLE">
+                            <div className="flex items-center justify-between w-full">
+                              <AccordionTrigger asChild>
+                                <button className="group flex items-center gap-2 text-sm font-medium">
+                                  <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                                  Object associations
+                                </button>
+                              </AccordionTrigger>
+                            </div>
+
+                            <AccordionContent className="mt-2 flex flex-col gap-4">
+                              <PanelHeader heading="Object association" noBorder />
+                              {formData?.objectAssociationsDisplayIDs && (
+                                <HeadsUpDisplay
+                                  title="Need to link more than just controls or programs?"
+                                  accordionLabel="Show objects linked to this evidence"
+                                  descriptionText="Choose an object type (e.g. Task, Policy, or Procedure) from the menu, then search and select the specific items you want to associate with this evidence. You can add as many linked objects as you need to provide full context."
+                                  displayIDs={formData.objectAssociationsDisplayIDs}
+                                />
+                              )}
+                              <ObjectAssociation
+                                onIdChange={handleEvidenceObjectIdsChange}
+                                excludeObjectTypes={excludeObjectTypes || []}
+                                initialData={formData?.objectAssociations}
+                                defaultSelectedObject={defaultSelectedObject}
+                              />
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </Panel>
+                    </GridCell>
+                  </GridRow>
+                </div>
 
                 <p className="pt-5 pb-5">Provide supporting file(s)</p>
                 <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
               </Form>
             </GridCell>
           </GridRow>
-          <GridRow columns={1}>
-            <GridCell>
-              <Panel>
-                <Accordion type="single" collapsible value={openControlsAccordion} onValueChange={setOpenControlsAccordion} className="w-full">
-                  <AccordionItem value="ControlsAccordion">
-                    <div className="flex items-center justify-between w-full">
-                      <AccordionTrigger asChild>
-                        <div className="flex items-center gap-2">
-                          <button className="group flex items-center gap-2 text-sm font-medium">
-                            <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                            Linked Control(s)
-                          </button>
-                          <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
-                            {(associationSubControlsIdsMap.subcontrolIDs?.length || 0) + (associationControlsIdsMap.controlIDs?.length || 0)}
-                          </span>
-                        </div>
-                      </AccordionTrigger>
-                      <Button
-                        variant="outline"
-                        className="py-5"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setOpenControlsDialog(true)
-                        }}
-                        icon={<Plus />}
-                        iconPosition="left"
-                      >
-                        Add Controls
-                      </Button>
-                    </div>
-
-                    <AccordionContent>
-                      <div className="mt-5 flex flex-col gap-5">
-                        <ObjectAssociationControls
-                          open={openControlsDialog}
-                          setOpen={setOpenControlsDialog}
-                          onIdChange={handleControlIdsChange}
-                          controlIdsMap={associationControlsIdsMap}
-                          setControlIdsMap={setAssociationControlsIdsMap}
-                          controlsRefMap={associationControlsRefMap}
-                          subcontrolIdsMap={associationSubControlsIdsMap}
-                          setSubcontrolIdsMap={setAssociationSubControlsIdsMap}
-                          setControlsRefMap={setAssociationControlsRefMap}
-                          subcontrolsRefMap={associationSubControlsRefMap}
-                          setSubcontrolsRefMap={setAssociationSubControlsRefMap}
-                          subcontrolFrameworksMap={associationSubControlsFrameworksMap}
-                          setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
-                          frameworksMap={associationControlsFrameworksMap}
-                          setFrameworksMap={setAssociationControlsFrameworksMap}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </Panel>
-            </GridCell>
-          </GridRow>
-          <GridRow columns={1}>
-            <GridCell>
-              <Panel>
-                <Accordion type="single" collapsible value={openProgramsAccordion} onValueChange={setOpenProgramsAccordion} className="w-full">
-                  <AccordionItem value="ProgramsAccordion">
-                    <div className="flex items-center justify-between w-full">
-                      <AccordionTrigger asChild>
-                        <div className="flex items-center gap-2">
-                          <button className="group flex items-center gap-2 text-sm font-medium">
-                            <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                            Linked Program(s)
-                          </button>
-                          <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
-                            {associationProgramsIdsMap.programIDs?.length || 0}
-                          </span>
-                        </div>
-                      </AccordionTrigger>
-                      <Button
-                        variant="outline"
-                        className="py-5"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setOpenProgramsDialog(true)
-                        }}
-                        icon={<Plus />}
-                        iconPosition="left"
-                      >
-                        Add Programs
-                      </Button>
-                    </div>
-
-                    <AccordionContent>
-                      <div className="mt-5 flex flex-col gap-5">
-                        <ObjectAssociationPrograms
-                          open={openProgramsDialog}
-                          setOpen={setOpenProgramsDialog}
-                          onIdChange={handleProgramIdsChange}
-                          idsMap={associationProgramsIdsMap}
-                          setIdsMap={setAssociationProgramsIdsMap}
-                          refMap={associationProgramsRefMap}
-                          setRefMap={setAssociationProgramsRefMap}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </Panel>
-            </GridCell>
-          </GridRow>
-          {/* Object Association Panel */}
-          <GridRow columns={1}>
-            <GridCell>
-              <Panel>
-                <Accordion type="single" collapsible value={undefined} className="w-full">
-                  <AccordionItem value="TITLE">
-                    <div className="flex items-center justify-between w-full">
-                      <AccordionTrigger asChild>
-                        <button className="group flex items-center gap-2 text-sm font-medium">
-                          <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                          Object associations
-                        </button>
-                      </AccordionTrigger>
-                    </div>
-
-                    <AccordionContent className="mt-2 flex flex-col gap-4">
-                      <PanelHeader heading="Object association" noBorder />
-                      {formData?.objectAssociationsDisplayIDs && (
-                        <HeadsUpDisplay
-                          accordionLabel="Show objects linked to this evidence"
-                          descriptionText="This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below."
-                          displayIDs={formData.objectAssociationsDisplayIDs}
-                        />
-                      )}
-                      <ObjectAssociation
-                        onIdChange={handleEvidenceObjectIdsChange}
-                        excludeObjectTypes={excludeObjectTypes || []}
-                        initialData={formData?.objectAssociations}
-                        defaultSelectedObject={defaultSelectedObject}
-                      />
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </Panel>
-            </GridCell>
-          </GridRow>
-
           {/* Submit Button */}
           <GridRow columns={1}>
             <GridCell>
@@ -538,6 +554,14 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
             </GridCell>
           </GridRow>
         </Grid>
+        <CancelDialog
+          isOpen={isDiscardDialogOpen}
+          onConfirm={() => {
+            setIsDiscardDialogOpen(false)
+            onOpenChange(false)
+          }}
+          onCancel={() => setIsDiscardDialogOpen(false)}
+        />
       </SheetContent>
     </Sheet>
   )

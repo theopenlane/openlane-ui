@@ -47,9 +47,10 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
                   ObjectTypeObjects.GROUP,
                   ObjectTypeObjects.INTERNAL_POLICY,
                   ObjectTypeObjects.CONTROL,
+                  ObjectTypeObjects.SUB_CONTROL,
                   ObjectTypeObjects.PROGRAM,
                 ]}
-                defaultSelectedObject={isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.TASK}
+                defaultSelectedObject={ObjectTypeObjects.TASK}
               />
             </>
           )}

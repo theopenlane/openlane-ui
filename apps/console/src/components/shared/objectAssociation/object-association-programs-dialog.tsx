@@ -3,15 +3,14 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
 import { DataTable } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { TPagination } from '@repo/ui/pagination-types'
-import { Program, ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
+import { ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { useGetAllProgramsPaginated } from '@/lib/graphql-hooks/programs'
+import { getProgramsColumns } from './object-association-programs-columns'
 
 type ProgramSelectionDialogProps = {
   open: boolean
@@ -59,40 +58,19 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
     pagination,
   })
 
-  const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
-    const newIds = isChecked ? [...new Set([...(selectedIdsMap.programIDs || []), id])] : selectedIdsMap.programIDs?.filter((v) => v !== id)
-
-    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
-
-    const newFrameworks = isChecked ? [...new Set([...frameworks, referenceFramework || ''])] : frameworks.filter((f) => f !== referenceFramework)
-
-    setSelectedIdsMap({ programIDs: newIds })
-    setSelectedRefCodeMap(newRefCodes)
-    setFrameworks(newFrameworks)
-  }
-
-  const columns: ColumnDef<Program>[] = [
-    {
-      accessorKey: 'name',
-      header: 'Program',
-      cell: ({ row }) => {
-        const { id, name } = row.original
-        const checked = selectedIdsMap.programIDs?.includes(id) ?? false
-
-        return (
-          <div className="flex items-center gap-2">
-            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, name, val === true)} />
-            <span>{name}</span>
-          </div>
-        )
-      },
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }) => <div className="line-clamp-3 text-justify">{convertToReadOnly(row.getValue('description') as string, 0)}</div>,
-    },
-  ]
+  const columns = useMemo(
+    () =>
+      getProgramsColumns({
+        selectedIdsMap,
+        selectedRefCodeMap,
+        frameworks,
+        setSelectedIdsMap,
+        setSelectedRefCodeMap,
+        setFrameworks,
+        convertToReadOnly: convertToReadOnly!,
+      }),
+    [selectedIdsMap, selectedRefCodeMap, frameworks, convertToReadOnly],
+  )
 
   const handleSave = () => {
     onSave(selectedIdsMap, selectedRefCodeMap, frameworks)

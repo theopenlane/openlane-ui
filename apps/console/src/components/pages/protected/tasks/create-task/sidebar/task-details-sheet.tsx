@@ -190,6 +190,7 @@ const TaskDetailsSheet = () => {
                             ObjectTypeObjects.GROUP,
                             ObjectTypeObjects.INTERNAL_POLICY,
                             ObjectTypeObjects.CONTROL,
+                            ObjectTypeObjects.SUB_CONTROL,
                             ObjectTypeObjects.PROGRAM,
                           ]}
                           defaultSelectedObject={ObjectTypeObjects.TASK}
