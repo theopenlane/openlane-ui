@@ -24,22 +24,47 @@ import {
   GetSubcontrolSelectOptionsQueryVariables,
   GetSubcontrolsPaginatedQuery,
   GetSubcontrolsPaginatedQueryVariables,
+  Subcontrol,
   SubcontrolWhereInput,
   UpdateSubcontrolMutation,
   UpdateSubcontrolMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
+import { TPagination } from '@repo/ui/pagination-types'
 
-export function useGetAllSubcontrols(where?: GetAllSubcontrolsQueryVariables['where']) {
+type UseGetAllSubcontrolsArgs = {
+  where?: GetAllSubcontrolsQueryVariables['where']
+  pagination?: TPagination | null
+  enabled?: boolean
+}
+
+export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseGetAllSubcontrolsArgs) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetAllSubcontrolsQuery, unknown>({
-    queryKey: ['subcontrols', where],
+  const queryResult = useQuery<GetAllSubcontrolsQuery, unknown>({
+    queryKey: ['subcontrols', where, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
       client.request<GetAllSubcontrolsQuery, GetAllSubcontrolsQueryVariables>(GET_ALL_SUBCONTROLS, {
         where,
+        ...pagination?.query,
       }),
+    enabled,
   })
+
+  const edges = queryResult.data?.subcontrols?.edges ?? []
+  const subcontrol = edges.map((edge) => edge?.node) as Subcontrol[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
+    pageInfo: queryResult.data?.subcontrols?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    subcontrol,
+    paginationMeta,
+  }
 }
 
 export const useGetSubcontrolById = (subcontrolId?: string | null) => {

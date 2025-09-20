@@ -39,12 +39,15 @@ import {
   DeleteProgramMutationVariables,
   UpdateProgramMembershipMutationVariables,
   ProgramWhereInput,
+  Program,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
 interface UseGetAllProgramsArgs {
   where?: GetAllProgramsQueryVariables['where']
   orderBy?: GetAllProgramsQueryVariables['orderBy']
+  pagination?: TPagination | null
+  enabled?: boolean
 }
 
 export const useGetAllPrograms = ({ where, orderBy }: UseGetAllProgramsArgs = {}) => {
@@ -55,6 +58,36 @@ export const useGetAllPrograms = ({ where, orderBy }: UseGetAllProgramsArgs = {}
     queryFn: async () => client.request(GET_ALL_PROGRAMS, { where, orderBy }),
     enabled: true,
   })
+}
+
+export const useGetAllProgramsPaginated = ({ where, orderBy, pagination, enabled = true }: UseGetAllProgramsArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetAllProgramsQuery, GetAllProgramsQueryVariables>({
+    queryKey: ['programs', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request(GET_ALL_PROGRAMS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.programs?.edges ?? []
+  const programs = edges.map((edge) => edge?.node).filter(Boolean) as Program[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.programs?.totalCount ?? 0,
+    pageInfo: queryResult.data?.programs?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    programs,
+    paginationMeta,
+  }
 }
 
 export const useGetProgramDetailsById = (programId: string | null) => {
