@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { getCookie } from '@/lib/auth/utils/getCookie'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
 const LOGIN_URL = '/login'
@@ -43,10 +44,10 @@ const SSOCallbackPage: React.FC = () => {
           return
         }
 
-        const organizationId = localStorage.getItem('sso_organization_id')
+        // check cookie or localstorage for the org id
+        const organizationId = getCookie('sso_organization_id') || localStorage.getItem('sso_organization_id')
 
         if (!organizationId) {
-          console.error('No organization_id found in localStorage')
           router.push(getRedirectUrl('missing_organization_id'))
           return
         }
@@ -90,6 +91,8 @@ const SSOCallbackPage: React.FC = () => {
         console.error('SSO callback error:', error)
         router.push(getRedirectUrl('sso_callback_error'))
       } finally {
+        // delete the cookie
+        document.cookie = 'sso_organization_id=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
         localStorage.removeItem('sso_organization_id')
         localStorage.removeItem('testing_sso')
         localStorage.removeItem('api_token')
