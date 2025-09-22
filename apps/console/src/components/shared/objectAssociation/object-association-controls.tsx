@@ -4,6 +4,7 @@ import React from 'react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
+import { TriangleAlert } from 'lucide-react'
 
 type ObjectAssociationControlsProps = {
   controlsRefMap: string[]
@@ -82,6 +83,12 @@ const ObjectAssociationControls = ({
             onRemove={() => handleRemove(id, true)}
           />
         ))}
+        {(form.getValues('controlIDs') || []).length === 0 && (form.getValues('subcontrolIDs') || []).length === 0 && (
+          <div className="flex gap-2 items-center text-sm leading-5 font-sans font-normal">
+            <TriangleAlert height={12} width={12} />
+            You haven&apos;t linked any controls to this evidence, ensure at least one control is linked for proper tracking of evidence
+          </div>
+        )}
       </div>
     </div>
   )

@@ -131,6 +131,7 @@ const EvidenceDetailsPage = () => {
                         Submit Evidence
                       </Button>
                       <EvidenceCreateSheet
+                        onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
                         open={isSheetOpen}
                         onOpenChange={setIsSheetOpen}
                         excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}

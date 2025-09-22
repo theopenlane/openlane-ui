@@ -22,7 +22,6 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
-import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
@@ -34,6 +33,7 @@ import ObjectAssociationPrograms from '@/components/shared/objectAssociation/obj
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
 import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
+import { PageHeading } from '@repo/ui/page-heading'
 
 type EvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -63,6 +63,15 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
+  const [controlsAccordionValue, setControlsAccordionValue] = useState<string | undefined>(() => {
+    const initialCount = (form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)
+    return initialCount > 0 ? 'ControlsAccordion' : undefined
+  })
+
+  const [programsAccordionValue, setProgramsAccordionValue] = useState<string | undefined>(() => {
+    const initialCount = form.getValues('programIDs')?.length || 0
+    return initialCount > 0 ? 'ProgramsAccordion' : undefined
+  })
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -163,6 +172,17 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
     } else handleInitialValue()
   }, [handleInitialValue, open])
 
+  const subcontrolIDs = form.watch('subcontrolIDs')
+  const controlIDs = form.watch('controlIDs')
+  const programIDs = form.watch('programIDs')
+
+  useEffect(() => {
+    const controlsCount = (subcontrolIDs?.length || 0) + (controlIDs?.length || 0)
+    const programsCount = programIDs?.length || 0
+    setControlsAccordionValue(controlsCount > 0 ? 'ControlsAccordion' : undefined)
+    setProgramsAccordionValue(programsCount > 0 ? 'ProgramsAccordion' : undefined)
+  }, [subcontrolIDs, controlIDs, programIDs])
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -227,6 +247,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
       }}
     >
       <SheetContent side="right" className="bg-card flex flex-col" minWidth={470}>
+        <PageHeading heading={`Submit evidence ${formData?.displayID ? 'for' : ''} ${formData?.displayID || ''}`}></PageHeading>
         <Grid>
           {/* Form Section */}
           <GridRow columns={1}>
@@ -370,7 +391,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                     </InputRow>
 
                     {/* Renewal Date */}
-                    <InputRow className="w-full">
+                    <InputRow className="w-full mt-4">
                       <FormField
                         control={form.control}
                         name="renewalDate"
@@ -400,12 +421,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                   <GridRow columns={1}>
                     <GridCell>
                       <Panel>
-                        <Accordion
-                          type="single"
-                          collapsible
-                          defaultValue={(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0) > 0 ? 'ControlsAccordion' : undefined}
-                          className="w-full"
-                        >
+                        <Accordion type="single" collapsible value={controlsAccordionValue} onValueChange={setControlsAccordionValue} className="w-full">
                           <AccordionItem value="ControlsAccordion">
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
@@ -464,7 +480,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                   <GridRow columns={1}>
                     <GridCell>
                       <Panel>
-                        <Accordion type="single" collapsible defaultValue={(form.getValues('programIDs')?.length || 0) > 0 ? 'ProgramsAccordion' : undefined} className="w-full relative">
+                        <Accordion type="single" collapsible value={programsAccordionValue} onValueChange={setProgramsAccordionValue} className="w-full">
                           <AccordionItem value="ProgramsAccordion">
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
@@ -520,21 +536,13 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                               <AccordionTrigger asChild>
                                 <button className="group flex items-center gap-2 text-sm font-medium">
                                   <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                                  Object associations
+                                  Associate more objects
                                 </button>
                               </AccordionTrigger>
                             </div>
 
                             <AccordionContent className="mt-2 flex flex-col gap-4">
-                              <PanelHeader heading="Object association" noBorder />
-                              {formData?.objectAssociationsDisplayIDs && (
-                                <HeadsUpDisplay
-                                  title="Need to link more than just controls or programs?"
-                                  accordionLabel="Show objects linked to this evidence"
-                                  descriptionText="Choose an object type (e.g. Task, Policy, or Procedure) from the menu, then search and select the specific items you want to associate with this evidence. You can add as many linked objects as you need to provide full context."
-                                  displayIDs={formData.objectAssociationsDisplayIDs}
-                                />
-                              )}
+                              <PanelHeader heading="Object associations" noBorder />
                               <ObjectAssociation
                                 onIdChange={handleEvidenceObjectIdsChange}
                                 excludeObjectTypes={excludeObjectTypes || []}
