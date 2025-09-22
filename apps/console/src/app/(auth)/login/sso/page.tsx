@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { getCookie } from '@/lib/auth/utils/getCookie'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
 const LOGIN_URL = '/login'
@@ -41,13 +42,6 @@ const SSOCallbackPage: React.FC = () => {
           console.error('Missing required OAuth parameters')
           router.push(getRedirectUrl('missing_oauth_params'))
           return
-        }
-
-        const getCookie = (name: string) => {
-          const value = `; ${document.cookie}`
-          const parts = value.split(`; ${name}=`)
-          if (parts.length === 2) return parts.pop()?.split(';').shift()
-          return null
         }
 
         // check cookie or localstorage for the org id
