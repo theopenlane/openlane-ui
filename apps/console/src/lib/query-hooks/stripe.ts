@@ -108,7 +108,7 @@ export function useOpenlaneProductsQuery() {
   return useQuery<OpenlaneProductsResponse>({
     queryKey: ['products'],
     queryFn: async () => {
-      const res = await fetch(`${openlaneAPIUrl}/v1/products?include_beta=true`, {
+      const res = await fetch(`${openlaneAPIUrl}/v1/products`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
