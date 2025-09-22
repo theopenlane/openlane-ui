@@ -54,7 +54,6 @@ const SSOCallbackPage: React.FC = () => {
         const organizationId = getCookie('sso_organization_id') || localStorage.getItem('sso_organization_id')
 
         if (!organizationId) {
-          console.error('No organization_id found in cookies or localStorage')
           router.push(getRedirectUrl('missing_organization_id'))
           return
         }

@@ -36,7 +36,7 @@ export const checkSSOEnforcement = async (email: string, cookieStore?: CookieSto
               maxAge: 120,
               path: '/',
             })
-            cookieStore.set('sso_organization_id', ssoData.organization_id, {
+            cookieStore.set('sso_organization_id', ssoConfig.organization_id, {
               maxAge: 120,
               path: '/',
             })
