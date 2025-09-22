@@ -32,6 +32,8 @@ import ObjectAssociationControls from '@/components/shared/objectAssociation/obj
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import ObjectAssociationPrograms from '@/components/shared/objectAssociation/object-association-programs'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
+import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
 
 type EvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -48,8 +50,6 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
-  const [controlObjectTypes, setControlObjectTypes] = useState<TObjectAssociationMap>({})
-  const [programObjectTypes, setProgramObjectTypes] = useState<TObjectAssociationMap>({})
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const searchParams = useSearchParams()
@@ -58,13 +58,10 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const router = useRouter()
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
-  const [associationControlsIdsMap, setAssociationControlsIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
   const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsIdsMap, setAssociationSubControlsIdsMap] = useState<TObjectAssociationMap>({ subcontrolIDs: [] })
   const [associationSubControlsRefMap, setAssociationSubControlsRefMap] = useState<string[]>([])
   const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
-  const [associationProgramsIdsMap, setAssociationProgramsIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
@@ -73,9 +70,6 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const mergedEvidenceObjectTypes: TObjectAssociationMap = Object.fromEntries(
       Object.entries({
-        controlIDs: controlObjectTypes.controlIDs,
-        programIDs: programObjectTypes.programIDs,
-        subcontrolIDs: controlObjectTypes?.subcontrolIDs,
         taskIDs: evidenceObjectTypes?.taskIDs,
         controlObjectiveIDs: evidenceObjectTypes?.controlObjectiveIDs,
       }).filter(([, value]) => value !== undefined),
@@ -126,8 +120,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
       })
     }
   }
-
-  useEffect(() => {
+  const handleInitialValue = useCallback(() => {
     if (formData) {
       form.setValue('name', `Evidence for ${formData.displayID}`)
       for (const [key, value] of Object.entries(formData.objectAssociations)) {
@@ -145,17 +138,20 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
         setTagValues(tags)
       }
       if (formData && formData.objectAssociations) {
-        setAssociationControlsIdsMap(formData.objectAssociations.controlIDs ? { controlIDs: [...formData.objectAssociations.controlIDs] } : { controlIDs: [] })
+        form.setValue('controlIDs', formData.objectAssociations.controlIDs ? formData.objectAssociations.controlIDs : [])
+        form.setValue('programIDs', formData.objectAssociations.programIDs ? formData.objectAssociations.programIDs : [])
+        form.setValue('subcontrolIDs', formData.objectAssociations.subcontrolIDs ? formData.objectAssociations.subcontrolIDs : [])
+
         setAssociationControlsRefMap(formData.controlRefCodes ? [...formData.controlRefCodes] : [])
         setAssociationControlsFrameworksMap({
           ...(formData.referenceFramework || {}),
         })
-        setAssociationSubControlsIdsMap(formData.objectAssociations.subcontrolIDs ? { controlIDs: [...formData.objectAssociations.subcontrolIDs] } : { subcontrolIDs: [] })
+
         setAssociationSubControlsRefMap(formData.subcontrolRefCodes ? [...formData.subcontrolRefCodes] : [])
         setAssociationSubControlsFrameworksMap({
           ...(formData.subcontrolReferenceFramework || {}),
         })
-        setAssociationProgramsIdsMap(formData.objectAssociations.programIDs ? { programIDs: [...formData.objectAssociations.programIDs] } : { programIDs: [] })
+
         setAssociationProgramsRefMap(formData.programDisplayIDs ? [...formData.programDisplayIDs] : [])
       }
     }
@@ -163,24 +159,9 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
 
   useEffect(() => {
     if (!open) {
-      setControlObjectTypes({})
-      setProgramObjectTypes({})
-      setAssociationControlsIdsMap(formData?.objectAssociations ?? { controlIDs: [] })
-      setAssociationControlsRefMap(formData?.controlRefCodes ? [...formData.controlRefCodes] : [])
-      setAssociationControlsFrameworksMap({
-        ...(formData?.referenceFramework || {}),
-      })
-      setAssociationSubControlsIdsMap(formData?.objectAssociations ?? { subcontrolIDs: [] })
-      setAssociationSubControlsRefMap(formData?.subcontrolRefCodes ? [...formData.subcontrolRefCodes] : [])
-      setAssociationSubControlsFrameworksMap({
-        ...(formData?.subcontrolReferenceFramework || {}),
-      })
-      setAssociationProgramsIdsMap(formData?.objectAssociations ?? { programIDs: [] })
-      setAssociationProgramsRefMap(formData?.programDisplayIDs ? [...formData.programDisplayIDs] : [])
-      setOpenControlsDialog(false)
-      setOpenProgramsDialog(false)
-    }
-  }, [open, formData])
+      handleInitialValue()
+    } else handleInitialValue()
+  }, [handleInitialValue, open])
 
   useEffect(() => {
     setCrumbs([
@@ -193,14 +174,6 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
     setEvidenceObjectTypes(updatedMap)
   }, [])
 
-  const handleControlIdsChange = useCallback((updatedMap: TObjectAssociationMap) => {
-    setControlObjectTypes(updatedMap)
-  }, [])
-
-  const handleProgramIdsChange = useCallback((updatedMap: TObjectAssociationMap) => {
-    setProgramObjectTypes(updatedMap)
-  }, [])
-
   const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
     const evidenceFilesFiltered = evidenceFiles?.filter((item) => item.type === 'file')
     if (evidenceFilesFiltered) {
@@ -210,6 +183,36 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
 
   const handleResetEvidenceFiles = () => {
     setResetEvidenceFiles(false)
+  }
+
+  const handleSaveControls = (
+    newIds: string[],
+    subcontrolsNewIds: string[],
+    newControlRefCodes: string[],
+    newSubcontrolRefCodes: string[],
+    frameworks: Record<string, string>,
+    subcontrolFrameworks: Record<string, string>,
+  ) => {
+    const mergedControlRefCodes = [...(associationControlsRefMap || []), ...(newControlRefCodes || [])]
+    const uniqueControlRefCodes = Array.from(new Set(mergedControlRefCodes))
+
+    const mergedSubcontrolRefCodes = [...(associationSubControlsRefMap || []), ...(newSubcontrolRefCodes || [])]
+    const uniqueSubcontrolRefCodes = Array.from(new Set(mergedSubcontrolRefCodes))
+
+    form.setValue('controlIDs', newIds)
+    form.setValue('subcontrolIDs', subcontrolsNewIds)
+
+    setAssociationControlsRefMap(uniqueControlRefCodes)
+    setAssociationSubControlsRefMap(uniqueSubcontrolRefCodes)
+
+    setAssociationControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(frameworks || {}) }))
+    setAssociationSubControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(subcontrolFrameworks || {}) }))
+  }
+
+  const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
+    setAssociationProgramsRefMap(newRefCodes || [])
+
+    form.setValue('programIDs', newIds)
   }
 
   return (
@@ -400,7 +403,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                         <Accordion
                           type="single"
                           collapsible
-                          defaultValue={(associationSubControlsIdsMap.subcontrolIDs?.length || 0) + (associationControlsIdsMap.controlIDs?.length || 0) > 0 ? 'ControlsAccordion' : undefined}
+                          defaultValue={(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0) > 0 ? 'ControlsAccordion' : undefined}
                           className="w-full"
                         >
                           <AccordionItem value="ControlsAccordion">
@@ -410,7 +413,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                                   <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   <span className="text-sm font-medium">Linked Control(s)</span>
                                   <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
-                                    {(associationSubControlsIdsMap.subcontrolIDs?.length || 0) + (associationControlsIdsMap.controlIDs?.length || 0)}
+                                    {(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)}
                                   </span>
                                 </div>
                               </AccordionTrigger>
@@ -431,14 +434,8 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                             <AccordionContent>
                               <div className="mt-5 flex flex-col gap-5">
                                 <ObjectAssociationControls
-                                  open={openControlsDialog}
-                                  setOpen={setOpenControlsDialog}
-                                  onIdChange={handleControlIdsChange}
-                                  controlIdsMap={associationControlsIdsMap}
-                                  setControlIdsMap={setAssociationControlsIdsMap}
+                                  form={form}
                                   controlsRefMap={associationControlsRefMap}
-                                  subcontrolIdsMap={associationSubControlsIdsMap}
-                                  setSubcontrolIdsMap={setAssociationSubControlsIdsMap}
                                   setControlsRefMap={setAssociationControlsRefMap}
                                   subcontrolsRefMap={associationSubControlsRefMap}
                                   setSubcontrolsRefMap={setAssociationSubControlsRefMap}
@@ -451,13 +448,23 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                             </AccordionContent>
                           </AccordionItem>
                         </Accordion>
+                        <ControlSelectionDialog
+                          open={openControlsDialog}
+                          onClose={() => setOpenControlsDialog(false)}
+                          initialFramework={associationControlsFrameworksMap}
+                          initialControlRefCodes={associationControlsRefMap}
+                          initialSubcontrolRefCodes={associationSubControlsRefMap}
+                          initialSubcontrolFramework={associationSubControlsFrameworksMap}
+                          onSave={handleSaveControls}
+                          form={form}
+                        />
                       </Panel>
                     </GridCell>
                   </GridRow>
                   <GridRow columns={1}>
                     <GridCell>
                       <Panel>
-                        <Accordion type="single" collapsible defaultValue={(associationProgramsIdsMap.programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined} className="w-full">
+                        <Accordion type="single" collapsible defaultValue={(form.getValues('programIDs')?.length || 0) > 0 ? 'ProgramsAccordion' : undefined} className="w-full relative">
                           <AccordionItem value="ProgramsAccordion">
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
@@ -465,10 +472,11 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                                   <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   <span className="text-sm font-medium">Linked Program(s)</span>
                                   <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
-                                    {associationProgramsIdsMap.programIDs?.length || 0}
+                                    {form.getValues('programIDs')?.length || 0}
                                   </span>
                                 </div>
                               </AccordionTrigger>
+
                               <Button
                                 variant="outline"
                                 className="py-5"
@@ -476,6 +484,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                                   e.stopPropagation()
                                   setOpenProgramsDialog(true)
                                 }}
+                                type="button"
                                 icon={<Plus />}
                                 iconPosition="left"
                               >
@@ -485,19 +494,19 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
 
                             <AccordionContent>
                               <div className="mt-5 flex flex-col gap-5">
-                                <ObjectAssociationPrograms
-                                  open={openProgramsDialog}
-                                  setOpen={setOpenProgramsDialog}
-                                  onIdChange={handleProgramIdsChange}
-                                  idsMap={associationProgramsIdsMap}
-                                  setIdsMap={setAssociationProgramsIdsMap}
-                                  refMap={associationProgramsRefMap}
-                                  setRefMap={setAssociationProgramsRefMap}
-                                />
+                                <ObjectAssociationPrograms form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
                               </div>
                             </AccordionContent>
                           </AccordionItem>
                         </Accordion>
+
+                        <ProgramSelectionDialog
+                          form={form}
+                          open={openProgramsDialog}
+                          onClose={() => setOpenProgramsDialog(false)}
+                          initialRefCodes={associationProgramsRefMap}
+                          onSave={handleSavePrograms}
+                        />
                       </Panel>
                     </GridCell>
                   </GridRow>

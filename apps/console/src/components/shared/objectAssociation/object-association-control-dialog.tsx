@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { DataTable } from '@repo/ui/data-table'
-import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -15,42 +14,43 @@ import { ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariab
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { getControlsAndSubcontrolsColumns } from './object-association-controls-columns'
+import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { UseFormReturn } from 'react-hook-form'
 
 type ControlSelectionDialogProps = {
   open: boolean
   onClose: () => void
-  initialControlData?: TObjectAssociationMap
   initialControlRefCodes?: string[]
   initialSubcontrolRefCodes?: string[]
   initialFramework?: Record<string, string>
   initialSubcontrolFramework?: Record<string, string>
   onSave: (
-    idsMap: TObjectAssociationMap,
-    subcontrolsIdsMap: TObjectAssociationMap,
+    newIds: string[],
+    subcontrolsNewIds: string[],
     refCodesMap: string[],
     subcontrolsRefCodesMap: string[],
     frameworks: Record<string, string>,
     subcontrolFrameworks: Record<string, string>,
   ) => void
+  form: UseFormReturn<CreateEvidenceFormData>
 }
 
 export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
   open,
   onClose,
-  initialControlData,
+  // initialControlData,
   initialControlRefCodes,
   initialSubcontrolRefCodes,
   initialFramework = {},
   initialSubcontrolFramework = {},
   onSave,
+  form,
 }) => {
   const [selectedObject, setSelectedObject] = useState<'Control' | 'Subcontrol'>('Control')
 
-  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ controlIDs: [] })
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
   const [frameworks, setFrameworks] = useState<Record<string, string>>({})
 
-  const [selectedSubcontrolIdsMap, setSelectedSubcontrolIdsMap] = useState<TObjectAssociationMap>({ subcontrolIDs: [] })
   const [selectedSubcontrolRefCodeMap, setSelectedSubcontrolRefCodeMap] = useState<string[]>([])
   const [subcontrolFrameworks, setSubcontrolFrameworks] = useState<Record<string, string>>({})
 
@@ -70,14 +70,12 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
   useEffect(() => {
     if (!open) return
 
-    setSelectedIdsMap({ controlIDs: initialControlData?.controlIDs ?? [] })
     setSelectedRefCodeMap(initialControlRefCodes ?? [])
     setFrameworks(initialFramework ?? {})
 
-    setSelectedSubcontrolIdsMap({ subcontrolIDs: initialControlData?.subcontrolIDs ?? [] })
     setSelectedSubcontrolRefCodeMap(initialSubcontrolRefCodes ?? [])
     setSubcontrolFrameworks(initialSubcontrolFramework ?? {})
-  }, [open, initialControlData, initialControlRefCodes, initialSubcontrolRefCodes, initialFramework, initialSubcontrolFramework])
+  }, [open, initialControlRefCodes, initialSubcontrolRefCodes, initialFramework, initialSubcontrolFramework])
 
   useEffect(() => {
     setPagination({
@@ -119,25 +117,26 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
     () =>
       getControlsAndSubcontrolsColumns({
         selectedObject,
-        selectedIdsMap,
+        // selectedIdsMap,
         selectedRefCodeMap,
         frameworks,
-        selectedSubcontrolIdsMap,
+        // selectedSubcontrolIdsMap,
         selectedSubcontrolRefCodeMap,
         subcontrolFrameworks,
-        setSelectedIdsMap,
+        // setSelectedIdsMap,
         setSelectedRefCodeMap,
         setFrameworks,
-        setSelectedSubcontrolIdsMap,
+        // setSelectedSubcontrolIdsMap,
         setSelectedSubcontrolRefCodeMap,
         setSubcontrolFrameworks,
         convertToReadOnly: convertToReadOnly!,
+        form,
       }),
-    [selectedObject, selectedIdsMap, selectedRefCodeMap, frameworks, selectedSubcontrolIdsMap, selectedSubcontrolRefCodeMap, subcontrolFrameworks, convertToReadOnly],
+    [selectedObject, selectedRefCodeMap, frameworks, selectedSubcontrolRefCodeMap, subcontrolFrameworks, convertToReadOnly, form],
   )
 
   const handleSave = () => {
-    onSave(selectedIdsMap, selectedSubcontrolIdsMap, selectedRefCodeMap, selectedSubcontrolRefCodeMap, frameworks, subcontrolFrameworks)
+    onSave(form.getValues('controlIDs') || [], form.getValues('subcontrolIDs') || [], selectedRefCodeMap, selectedSubcontrolRefCodeMap, frameworks, subcontrolFrameworks)
     onClose()
   }
 

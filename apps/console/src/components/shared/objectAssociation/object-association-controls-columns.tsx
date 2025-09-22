@@ -1,60 +1,54 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { ControlListFieldsFragment, Subcontrol } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
-import { TObjectAssociationMap } from './types/TObjectAssociationMap'
+import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { UseFormReturn } from 'react-hook-form'
 
 type ColumnOptions = {
   selectedObject: 'Control' | 'Subcontrol'
-  selectedIdsMap: TObjectAssociationMap
   selectedRefCodeMap: string[]
   frameworks: Record<string, string>
-  selectedSubcontrolIdsMap: TObjectAssociationMap
   selectedSubcontrolRefCodeMap: string[]
   subcontrolFrameworks: Record<string, string>
-  setSelectedIdsMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
   setSelectedRefCodeMap: React.Dispatch<React.SetStateAction<string[]>>
   setFrameworks: React.Dispatch<React.SetStateAction<Record<string, string>>>
-  setSelectedSubcontrolIdsMap: React.Dispatch<React.SetStateAction<TObjectAssociationMap>>
   setSelectedSubcontrolRefCodeMap: React.Dispatch<React.SetStateAction<string[]>>
   setSubcontrolFrameworks: React.Dispatch<React.SetStateAction<Record<string, string>>>
   convertToReadOnly: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
+  form: UseFormReturn<CreateEvidenceFormData>
 }
 
 export const getControlsAndSubcontrolsColumns = ({
   selectedObject,
-  selectedIdsMap,
   selectedRefCodeMap,
   frameworks,
-  selectedSubcontrolIdsMap,
   selectedSubcontrolRefCodeMap,
   subcontrolFrameworks,
-  setSelectedIdsMap,
   setSelectedRefCodeMap,
   setFrameworks,
-  setSelectedSubcontrolIdsMap,
   setSelectedSubcontrolRefCodeMap,
   setSubcontrolFrameworks,
   convertToReadOnly,
+  form,
 }: ColumnOptions): ColumnDef<ControlListFieldsFragment | Subcontrol>[] => {
   const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
     if (selectedObject === 'Control') {
-      const newIds = isChecked ? [...new Set([...(selectedIdsMap.controlIDs || []), id])] : selectedIdsMap.controlIDs?.filter((v) => v !== id)
-
+      const currentIds = form.getValues('controlIDs') || []
+      const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
       const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
 
       const newFrameworks = isChecked ? { ...frameworks, [id]: referenceFramework ?? '' } : Object.fromEntries(Object.entries(frameworks).filter(([key]) => key !== id))
+      form.setValue('controlIDs', newIds, { shouldValidate: true, shouldDirty: true })
 
-      setSelectedIdsMap({ controlIDs: newIds })
       setSelectedRefCodeMap(newRefCodes)
       setFrameworks(newFrameworks)
     } else {
-      const newIds = isChecked ? [...new Set([...(selectedSubcontrolIdsMap.subcontrolIDs || []), id])] : selectedSubcontrolIdsMap.subcontrolIDs?.filter((v) => v !== id)
-
+      const currentIds = form.getValues('subcontrolIDs') || []
+      const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
       const newRefCodes = isChecked ? [...new Set([...(selectedSubcontrolRefCodeMap || []), refCode])] : selectedSubcontrolRefCodeMap?.filter((v) => v !== refCode)
 
       const newFrameworks = isChecked ? { ...subcontrolFrameworks, [id]: referenceFramework ?? '' } : Object.fromEntries(Object.entries(subcontrolFrameworks).filter(([key]) => key !== id))
-
-      setSelectedSubcontrolIdsMap({ subcontrolIDs: newIds })
+      form.setValue('subcontrolIDs', newIds, { shouldValidate: true, shouldDirty: true })
       setSelectedSubcontrolRefCodeMap(newRefCodes)
       setSubcontrolFrameworks(newFrameworks)
     }
@@ -65,7 +59,7 @@ export const getControlsAndSubcontrolsColumns = ({
       header: selectedObject === 'Control' ? 'Control' : 'Subcontrol',
       cell: ({ row }) => {
         const { id, refCode, referenceFramework } = row.original
-        const checked = selectedObject === 'Control' ? selectedIdsMap.controlIDs?.includes(id) ?? false : selectedSubcontrolIdsMap.subcontrolIDs?.includes(id) ?? false
+        const checked = selectedObject === 'Control' ? (form.getValues('controlIDs') || []).includes(id) ?? false : (form.getValues('subcontrolIDs') || []).includes(id) ?? false
 
         return (
           <div className="flex items-center gap-2">

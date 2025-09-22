@@ -4,24 +4,24 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
-import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { TPagination } from '@repo/ui/pagination-types'
 import { ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { useGetAllProgramsPaginated } from '@/lib/graphql-hooks/programs'
 import { getProgramsColumns } from './object-association-programs-columns'
+import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { UseFormReturn } from 'react-hook-form'
 
 type ProgramSelectionDialogProps = {
   open: boolean
   onClose: () => void
-  initialData?: TObjectAssociationMap
   initialRefCodes?: string[]
-  onSave: (idsMap: TObjectAssociationMap, refCodesMap: string[], frameworks: string[]) => void
+  onSave: (newIds: string[], refCodesMap: string[], frameworks: string[]) => void
+  form: UseFormReturn<CreateEvidenceFormData>
 }
 
-export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ open, onClose, initialData, initialRefCodes, onSave }: ProgramSelectionDialogProps) => {
-  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({ programIDs: [] })
+export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ open, onClose, initialRefCodes, onSave, form }: ProgramSelectionDialogProps) => {
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
   const [frameworks, setFrameworks] = useState<string[]>([])
   const { convertToReadOnly } = usePlateEditor()
@@ -35,10 +35,9 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
 
   useEffect(() => {
     if (open) {
-      setSelectedIdsMap(initialData?.programIDs ? { programIDs: [...initialData.programIDs] } : { programIDs: [] })
       setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
     }
-  }, [open, initialData, initialRefCodes])
+  }, [open, initialRefCodes])
 
   const where: ProgramWhereInput = useMemo(() => {
     return {
@@ -61,19 +60,18 @@ export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ 
   const columns = useMemo(
     () =>
       getProgramsColumns({
-        selectedIdsMap,
         selectedRefCodeMap,
         frameworks,
-        setSelectedIdsMap,
         setSelectedRefCodeMap,
         setFrameworks,
         convertToReadOnly: convertToReadOnly!,
+        form,
       }),
-    [selectedIdsMap, selectedRefCodeMap, frameworks, convertToReadOnly],
+    [selectedRefCodeMap, frameworks, convertToReadOnly, form],
   )
 
   const handleSave = () => {
-    onSave(selectedIdsMap, selectedRefCodeMap, frameworks)
+    onSave(form.getValues('programIDs') || [], selectedRefCodeMap, frameworks)
     onClose()
   }
 
