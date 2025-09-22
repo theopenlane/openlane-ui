@@ -54,7 +54,7 @@ const BillingEmailDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <h1 className="text-brand text-lg font-medium cursor-pointer" onClick={() => setIsOpen(true)}>
+        <h1 className="text-brand text-sm font-medium cursor-pointer self-end" onClick={() => setIsOpen(true)}>
           Edit
         </h1>
       </DialogTrigger>
