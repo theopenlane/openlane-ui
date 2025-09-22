@@ -2,15 +2,21 @@ import { NextResponse } from 'next/server'
 
 const ssoOnlyCookieTokens = new Set(['state', 'nonce', 'user_sso', 'token_id', 'token_type', 'organization_id'])
 
-/**
- * parses response cookies and sets them on the NextResponse object
- *  sets cookies that are in the allowedTokens set
- *
- * @param response - The NextResponse object to set cookies on
- * @param responseCookies - The raw cookie string from the response headers
- * @param allowedTokens - Set of token names that are allowed to be set as cookies
- */
-export function parseAndSetResponseCookies(response: NextResponse, responseCookies: string) {
+export interface CookieOptions {
+  httpOnly?: boolean
+  secure?: boolean
+  sameSite?: 'strict' | 'lax' | 'none'
+  path?: string
+  maxAge?: number
+  expires?: Date
+  domain?: string
+}
+
+export interface CookieStore {
+  set(name: string, value: string, options?: CookieOptions): void
+}
+
+export function parseSSOCookies(responseCookies: string, cookieStore: CookieStore) {
   const options = {
     httpOnly: true,
     secure: true,
@@ -27,11 +33,20 @@ export function parseAndSetResponseCookies(response: NextResponse, responseCooki
       const [name, value] = cookieParts
 
       // set cookies that are in the allowedTokens set
-      if (!ssoOnlyCookieTokens.has(name)) {
-        continue
+      if (ssoOnlyCookieTokens.has(name)) {
+        cookieStore.set(name, value, options)
       }
-
-      response.cookies.set(name, value, options)
     }
   }
+}
+
+/**
+ * parses response cookies and sets them on the NextResponse object
+ *  sets cookies that are in the allowedTokens set
+ *
+ * @param response - The NextResponse object to set cookies on
+ * @param responseCookies - The raw cookie string from the response headers
+ */
+export function parseAndSetResponseCookies(response: NextResponse, responseCookies: string) {
+  parseSSOCookies(responseCookies, response.cookies)
 }

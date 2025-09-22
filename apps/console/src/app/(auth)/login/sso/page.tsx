@@ -43,10 +43,18 @@ const SSOCallbackPage: React.FC = () => {
           return
         }
 
-        const organizationId = localStorage.getItem('sso_organization_id')
+        const getCookie = (name: string) => {
+          const value = `; ${document.cookie}`
+          const parts = value.split(`; ${name}=`)
+          if (parts.length === 2) return parts.pop()?.split(';').shift()
+          return null
+        }
+
+        // check cookie or localstorage for the org id
+        const organizationId = getCookie('sso_organization_id') || localStorage.getItem('sso_organization_id')
 
         if (!organizationId) {
-          console.error('No organization_id found in localStorage')
+          console.error('No organization_id found in cookies or localStorage')
           router.push(getRedirectUrl('missing_organization_id'))
           return
         }
@@ -90,6 +98,8 @@ const SSOCallbackPage: React.FC = () => {
         console.error('SSO callback error:', error)
         router.push(getRedirectUrl('sso_callback_error'))
       } finally {
+        // delete the cookie
+        document.cookie = 'sso_organization_id=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
         localStorage.removeItem('sso_organization_id')
         localStorage.removeItem('testing_sso')
         localStorage.removeItem('api_token')
