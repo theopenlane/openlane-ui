@@ -38,7 +38,6 @@ type ControlSelectionDialogProps = {
 export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
   open,
   onClose,
-  // initialControlData,
   initialControlRefCodes,
   initialSubcontrolRefCodes,
   initialFramework = {},
@@ -117,16 +116,12 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
     () =>
       getControlsAndSubcontrolsColumns({
         selectedObject,
-        // selectedIdsMap,
         selectedRefCodeMap,
         frameworks,
-        // selectedSubcontrolIdsMap,
         selectedSubcontrolRefCodeMap,
         subcontrolFrameworks,
-        // setSelectedIdsMap,
         setSelectedRefCodeMap,
         setFrameworks,
-        // setSelectedSubcontrolIdsMap,
         setSelectedSubcontrolRefCodeMap,
         setSubcontrolFrameworks,
         convertToReadOnly: convertToReadOnly!,
