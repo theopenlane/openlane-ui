@@ -71,7 +71,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
                 <button
                   key={idx}
                   onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(item.href))}
-                  className={`bg-transparent text-muted-foreground p-1 ${isActive ? 'is-active' : ''}`}
+                  className={`btn-card text-muted-foreground p-1 ${isActive ? 'is-active text-paragraph' : ''}`}
                 >
                   <Icon size={18} />
                 </button>

@@ -63,6 +63,21 @@
     color: var(--color-btn-secondary-text-disabled);
   }
 
+  /* Secondary Button */
+  .btn-card {
+    border-radius: 6px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: var(--color-btn-secondary-text);
+    transition: all 0.5s ease;
+  }
+  button.btn-card:hover,
+  button.btn-card.is-active {
+    background-color: var(--color-nav);
+    border-color: var(--color-border);
+    color: var(--color-text-paragraph)
+  }
+
   /* Transparent Button */
   button.bg-transparent {
     border-radius: 6px;
@@ -106,6 +121,7 @@
   --radius: 0.5rem;
   --color-unset: transparent;
   --color-table-secondary: #EFF4F552;
+  --color-nav: #ffffff;
 
   --color-btn-secondary: #9AF5DC;
   --color-btn-secondary-text: #052E2A;
@@ -152,6 +168,7 @@
   --color-border: #394B58;
   --color-text-paragraph: #ffffff;
   --color-table-secondary: #23344052;
+  --color-nav: #233440;
 
   --color-btn-secondary: #60E8C9;
   --color-btn-secondary-hover: #9AF5DD;
