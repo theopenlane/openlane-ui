@@ -31,73 +31,12 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
   )
 }
 
-interface SheetContentProps {
+type TSheetContentProps = {
   minWidth?: number
   initialWidth?: number
   resizable?: boolean
   header?: React.ReactNode
 }
-
-//const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
-//   ({ side = 'right', className, children, minWidth = 400, initialWidth = 825, resizable = true, header, ...props }, ref) => {
-//     const localRef = React.useRef<HTMLDivElement>(null)
-//     React.useImperativeHandle(ref, () => localRef.current!)
-//
-//     const defaultWidth = `${initialWidth}px`
-//     const [width, setWidth] = React.useState<string | undefined>(defaultWidth)
-//     const isResizing = React.useRef(false)
-//
-//     React.useEffect(() => {
-//       if (!resizable) return
-//       const handleMouseMove = (e: MouseEvent) => {
-//         if (!isResizing.current) {
-//           return
-//         }
-//
-//         const x = e.clientX
-//         let newWidth = side === 'right' ? window.innerWidth - x : x
-//         if (newWidth < minWidth) {
-//           newWidth = minWidth
-//         }
-//         setWidth(`${newWidth}px`)
-//       }
-//       const handleMouseUp = () => {
-//         isResizing.current = false
-//       }
-//       document.addEventListener('mousemove', handleMouseMove)
-//       document.addEventListener('mouseup', handleMouseUp)
-//       return () => {
-//         document.removeEventListener('mousemove', handleMouseMove)
-//         document.removeEventListener('mouseup', handleMouseUp)
-//       }
-//     }, [resizable, side, minWidth])
-//
-//     const onMouseDown = () => {
-//       if (resizable) {
-//         isResizing.current = true
-//       }
-//     }
-//
-//     return (
-//       <SheetPortal>
-//         <SheetOverlay />
-//         <SheetPrimitive.Content ref={localRef} className={cn(sheetVariants({ side }), className)} style={{ width, minWidth }} {...props}>
-//           <div onMouseDown={onMouseDown} className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')} />
-//
-//           <DialogTitle>
-//             <div className="sr-only">Sheet Title</div>
-//           </DialogTitle>
-//
-//           {header && <SheetHeader className="sticky top-0 z-10">{header}</SheetHeader>}
-//
-//           <div className="flex-1 overflow-y-auto">
-//             <div className="flex flex-col h-full">{children}</div>
-//           </div>
-//         </SheetPrimitive.Content>
-//       </SheetPortal>
-//     )
-//   },
-// )
 
 function SheetContent({
   className,
@@ -110,7 +49,7 @@ function SheetContent({
   ref,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> &
-  SheetContentProps & {
+  TSheetContentProps & {
     side?: 'top' | 'right' | 'bottom' | 'left'
   }) {
   const localRef = React.useRef<HTMLDivElement>(null)
