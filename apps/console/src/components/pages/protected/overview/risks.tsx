@@ -137,7 +137,7 @@ const Risks = () => {
             <TabsList>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <TabsTrigger value="created" className="cursor-help">
+                  <TabsTrigger value="created" className="cursor-help bg-unset">
                     Risks I&apos;ve Created
                   </TabsTrigger>
                 </TooltipTrigger>
@@ -145,7 +145,7 @@ const Risks = () => {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <TabsTrigger value="assigned" className="cursor-help">
+                  <TabsTrigger value="assigned" className="cursor-help bg-unset">
                     Risks Assigned to Me
                   </TabsTrigger>
                 </TooltipTrigger>

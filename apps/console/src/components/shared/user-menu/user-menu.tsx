@@ -6,7 +6,6 @@ import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import Link from 'next/link'
-import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
@@ -28,7 +27,6 @@ export const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <div className={trigger()}>
           <Avatar entity={data?.user as User}></Avatar>
-          <ChevronDown />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-64 border shadow-md">

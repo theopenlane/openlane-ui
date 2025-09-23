@@ -140,7 +140,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
             </>
           ) : (
             <>
-              <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
+              <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} className="bg-transparent px-1" />} />
             </>
           )}
           <Menu

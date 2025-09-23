@@ -20,6 +20,9 @@ import {
   MailCheck,
   History,
   DollarSign,
+  Handshake,
+  Bot,
+  UserRoundPen,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
@@ -88,7 +91,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
     title: 'Trust center',
     hidden: true,
     href: '/trust-center',
-    icon: SettingsIcon,
+    icon: Handshake,
     isChildren: true,
     children: [
       {
@@ -119,13 +122,8 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
         icon: GlobeLock,
       },
       {
-        title: 'Members',
-        href: '/organization-settings/members',
-        icon: UserRoundPlus,
-      },
-      {
         title: 'Subscribers',
-        href: '/organization-settings/subscribers',
+        href: '/user-management/subscribers',
         icon: MailCheck,
       },
       {
@@ -134,19 +132,9 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
         icon: DollarSign,
       },
       {
-        title: 'Developers',
-        href: '/organization-settings/developers',
-        icon: KeyRound,
-      },
-      {
         title: 'Audit Logs',
         href: '/organization-settings/logs',
         icon: History,
-      },
-      {
-        title: 'Groups',
-        href: '/groups',
-        icon: Users,
       },
       {
         title: 'Integrations',
@@ -158,21 +146,43 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
     ],
   },
   {
-    title: 'User settings',
+    title: 'User Management',
     href: '/organization-settings',
-    icon: UserRoundCogIcon,
+    icon: UserRoundPen,
     children: [
       {
-        title: 'Profile',
-        href: '/user-settings/profile',
-        icon: UserCog,
+        title: 'Members',
+        href: '/organization-settings/members',
+        icon: UserRoundPlus,
       },
       {
-        title: 'Developers',
+        title: 'Groups',
+        href: '/groups',
+        icon: Users,
+      },
+    ],
+  },
+  {
+    title: 'Developers',
+    href: '/organization-settings',
+    icon: Bot,
+    children: [
+      {
+        title: 'API Tokens',
+        href: '/organization-settings/developers',
+        icon: KeyRound,
+      },
+      {
+        title: 'Personal Access Tokens',
         href: '/user-settings/developers',
         icon: KeyRound,
       },
     ],
+  },
+  {
+    title: 'User settings',
+    href: '/user-settings/profile',
+    icon: UserCog,
   },
 ]
 

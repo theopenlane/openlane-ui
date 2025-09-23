@@ -101,8 +101,8 @@ export const OrganizationSelector = () => {
     <div className={container()}>
       <div>
         <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
-          <PopoverTrigger>
-            <OrganizationSwitch />
+          <PopoverTrigger className="bg-unset">
+            <Avatar entity={currentOrg as Organization} />
           </PopoverTrigger>
           <PopoverContent align="start" className={popoverContent()}>
             <div className={searchWrapper()}>

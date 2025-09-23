@@ -40,7 +40,9 @@
   button.is-active {
     background-color: var(--color-btn-primary-hover);
     border-radius: 6px;
-    border-color: var(--color-border);
+    /*
+    border-color: #09151D3D !important;
+    */
   }
   button:disabled {
     cursor: not-allowed;
@@ -86,13 +88,13 @@
   --foreground: #09151d;
   --card: #f4f9fa;
   --card-foreground: hsl(209 22% 24%);
-  --popover: hsl(0 0% 100%);
+  --popover: #f4f9fa;
   --popover-foreground: hsl(209 22% 24%);
   --primary: hsl(168 64% 49%);
   --primary-foreground: hsl(191 72% 9%);
   --secondary: #ffffff;
   --secondary-foreground: hsl(191 72% 9%);
-  --muted: hsl(198 39% 96%);
+  --muted: #ffffff;
   --muted-foreground: #6B7682;
   --accent: hsl(45 66% 55%);
   --accent-foreground: hsl(191 72% 9%);
@@ -130,13 +132,13 @@
   --foreground: #ffffff;
   --card: #233440;
   --card-foreground: hsl(196 20% 73%);
-  --popover: hsl(209 22% 17%);
+  --popover: #233440;
   --popover-foreground: hsl(196 20% 73%);
   --primary: hsl(168 64% 49%);
   --primary-foreground: hsl(210 40% 98%);
   --secondary: #162431;
   --secondary-foreground: hsl(216 33% 9%);
-  --muted: hsl(213 22% 13%);
+  --muted: #4C5E69;
   --muted-foreground: #9AA5B0;
   --accent: hsl(45 58% 45%);
   --accent-foreground: hsl(216 33% 9%);

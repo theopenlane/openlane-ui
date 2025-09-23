@@ -32,7 +32,7 @@ const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side
       <DropdownMenuTrigger asChild>
         {trigger ?? <Button descriptiveTooltipText="Action" variant="outline" className="h-8 !px-2 !pl-0 bg-card" icon={<EllipsisVertical size={16} />} />}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className={cn('border shadow-md p-0', className)} align={align ?? 'end'} side={side ?? undefined}>
+      <DropdownMenuContent className={cn('border shadow-md p-0 ', className)} align={align ?? 'end'} side={side ?? undefined}>
         <div className="flex flex-col space-y-2 px-3 py-3">{renderContent(content)}</div>
         {extraContent && (
           <>

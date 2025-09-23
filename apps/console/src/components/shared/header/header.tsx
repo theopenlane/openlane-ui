@@ -2,33 +2,23 @@
 
 import { headerStyles } from './header.styles'
 import { UserMenu } from '@/components/shared/user-menu/user-menu'
-import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector'
 import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcrumb'
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import React, { useState } from 'react'
-import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { GlobalSearch } from '../search/search'
-import NavTriangle from '@/assets/NavTriangle'
 import SystemNotificationTracker from '@/components/shared/SystemNotification/SystemNotification.tsx'
 
 export default function Header() {
-  const { isOpen, toggle } = useSidebar()
-  const [status, setStatus] = useState(false)
+  const { isOpen } = useSidebar()
+  const [status] = useState(false)
 
   const path = usePathname()
-  const { header, nav, mobileSidebar, userNav } = headerStyles()
+  const { header, nav, userNav } = headerStyles()
   const { expandNav } = sidebarStyles({
     status,
     isOpen,
   })
-
-  const handleToggle = () => {
-    setStatus(true)
-    toggle()
-    setTimeout(() => setStatus(false), 500)
-  }
 
   if (path === '/onboarding') {
     return (

@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const dialogStyles = tv({
   slots: {
-    overlay: 'fixed inset-0 z-50 bg-glaucous-900/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in data-[state=closed]:fade-out',
+    overlay: 'fixed inset-0 z-50 bg-[rgb(0_0_0/42%)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in data-[state=closed]:fade-out',
     content:
       'fixed left-1/2 top-1/2 z-50 grid w-[75%] max-h-[90%] overflow-auto rounded-md border border-border bg-panel p-6 shadow-lg duration-200 -translate-x-1/2 -translate-y-1/2 gap-4 ' +
       'data-[state=open]:animate-in data-[state=closed]:animate-out ' +
