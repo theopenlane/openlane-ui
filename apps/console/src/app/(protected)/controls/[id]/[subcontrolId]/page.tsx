@@ -348,6 +348,8 @@ const ControlDetailsPage: React.FC = () => {
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
+          controlID: subcontrol?.control.id,
+          subcontrolID: subcontrol?.id,
           displayID: subcontrol?.refCode,
           subcontrolRefCodes: [subcontrol?.refCode],
           subcontrolReferenceFramework: {

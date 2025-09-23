@@ -2,6 +2,8 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 
 export type TFormEvidenceData = {
   displayID?: string
+  controlID?: string
+  subcontrolID?: string
   tags?: string[]
   controlRefCodes?: string[]
   subcontrolRefCodes?: string[]

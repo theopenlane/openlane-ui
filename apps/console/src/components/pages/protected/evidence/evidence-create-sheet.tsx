@@ -20,31 +20,40 @@ import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/T
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import ObjectAssociationControls from '@/components/shared/objectAssociation/object-association-controls'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import ObjectAssociationPrograms from '@/components/shared/objectAssociation/object-association-programs'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
 import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
 import { PageHeading } from '@repo/ui/page-heading'
+import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
+import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 
-type EvidenceCreateSheetProps = {
+type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
   excludeObjectTypes?: ObjectTypeObjects[]
   defaultSelectedObject?: ObjectTypeObjects
   open: boolean
   onOpenChange: (open: boolean) => void
+  controlIdsFromControl?: { controlIdFromControl: string; subcontrolIdFromControl: string | undefined }
 }
 
-const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes, defaultSelectedObject, open, onOpenChange }: EvidenceCreateSheetProps) => {
+const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
+  formData,
+  onEvidenceCreateSuccess,
+  excludeObjectTypes,
+  defaultSelectedObject,
+  open,
+  onOpenChange,
+  controlIdsFromControl,
+}: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
@@ -63,27 +72,11 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  const [controlsAccordionValue, setControlsAccordionValue] = useState<string | undefined>(() => {
-    const initialCount = (form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)
-    return initialCount > 0 ? 'ControlsAccordion' : undefined
-  })
-
-  const [programsAccordionValue, setProgramsAccordionValue] = useState<string | undefined>(() => {
-    const initialCount = form.getValues('programIDs')?.length || 0
-    return initialCount > 0 ? 'ProgramsAccordion' : undefined
-  })
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    const mergedEvidenceObjectTypes: TObjectAssociationMap = Object.fromEntries(
-      Object.entries({
-        taskIDs: evidenceObjectTypes?.taskIDs,
-        controlObjectiveIDs: evidenceObjectTypes?.controlObjectiveIDs,
-      }).filter(([, value]) => value !== undefined),
-    ) as TObjectAssociationMap
-
     const formData = {
       input: {
         name: data.name,
@@ -94,12 +87,12 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
         collectionProcedure: data.collectionProcedure,
         source: data.source,
         fileIDs: data.fileIDs,
-        controlIDs: data.controlIDs,
         taskIDs: data.taskIDs,
+        ...evidenceObjectTypes,
+        controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        ...(programId ? { programIDs: [programId] } : {}),
+        programIDs: programId ? [programId] : data.programIDs ?? [],
         ...(data.url ? { url: data.url } : {}),
-        ...mergedEvidenceObjectTypes,
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
@@ -120,7 +113,13 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
       if (onEvidenceCreateSuccess) {
         onEvidenceCreateSuccess()
       }
-      if (res.createEvidence.evidence.id) router.push(`/evidence?id=${res.createEvidence.evidence.id}`)
+
+      const { controlIdFromControl, subcontrolIdFromControl } = controlIdsFromControl || {}
+
+      if (!res.createEvidence.evidence.id) return
+      if (subcontrolIdFromControl) router.push(`/controls/${controlIdFromControl}/${subcontrolIdFromControl}?controlEvidenceId=${res.createEvidence.evidence.id}`)
+      else if (!subcontrolIdFromControl && controlIdFromControl) router.push(`/controls/${controlIdFromControl}?controlEvidenceId=${res.createEvidence.evidence.id}`)
+      else router.push(`/evidence?id=${res.createEvidence.evidence.id}`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -151,37 +150,37 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
         form.setValue('programIDs', formData.objectAssociations.programIDs ? formData.objectAssociations.programIDs : [])
         form.setValue('subcontrolIDs', formData.objectAssociations.subcontrolIDs ? formData.objectAssociations.subcontrolIDs : [])
 
-        setAssociationControlsRefMap(formData.controlRefCodes ? [...formData.controlRefCodes] : [])
-        setAssociationControlsFrameworksMap({
-          ...(formData.referenceFramework || {}),
-        })
+        setAssociationControlsRefMap(formData.controlRefCodes ? formData.controlRefCodes : [])
+        setAssociationControlsFrameworksMap(formData.referenceFramework || {})
 
-        setAssociationSubControlsRefMap(formData.subcontrolRefCodes ? [...formData.subcontrolRefCodes] : [])
-        setAssociationSubControlsFrameworksMap({
-          ...(formData.subcontrolReferenceFramework || {}),
-        })
+        setAssociationSubControlsRefMap(formData.subcontrolRefCodes ? formData.subcontrolRefCodes : [])
+        setAssociationSubControlsFrameworksMap(formData.subcontrolReferenceFramework || {})
 
-        setAssociationProgramsRefMap(formData.programDisplayIDs ? [...formData.programDisplayIDs] : [])
+        setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
       }
     }
   }, [form, formData])
 
   useEffect(() => {
-    if (!open) {
-      handleInitialValue()
-    } else handleInitialValue()
-  }, [handleInitialValue, open])
+    handleInitialValue()
+  }, [handleInitialValue])
+
+  const handleOnOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setIsDiscardDialogOpen(true)
+    } else {
+      onOpenChange?.(true)
+    }
+    handleInitialValue()
+  }
 
   const subcontrolIDs = form.watch('subcontrolIDs')
   const controlIDs = form.watch('controlIDs')
   const programIDs = form.watch('programIDs')
 
-  useEffect(() => {
-    const controlsCount = (subcontrolIDs?.length || 0) + (controlIDs?.length || 0)
-    const programsCount = programIDs?.length || 0
-    setControlsAccordionValue(controlsCount > 0 ? 'ControlsAccordion' : undefined)
-    setProgramsAccordionValue(programsCount > 0 ? 'ProgramsAccordion' : undefined)
-  }, [subcontrolIDs, controlIDs, programIDs])
+  const controlsAccordionValue = (subcontrolIDs?.length || 0) + (controlIDs?.length || 0) > 0 ? 'ControlsAccordion' : undefined
+
+  const programsAccordionValue = (programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined
 
   useEffect(() => {
     setCrumbs([
@@ -236,16 +235,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
   }
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) {
-          setIsDiscardDialogOpen(true)
-        } else {
-          onOpenChange(true)
-        }
-      }}
-    >
+    <Sheet open={open} onOpenChange={handleOnOpenChange}>
       <SheetContent side="right" className="bg-card flex flex-col" minWidth={470}>
         <PageHeading heading={`Submit evidence ${formData?.displayID ? 'for' : ''} ${formData?.displayID || ''}`}></PageHeading>
         <Grid>
@@ -421,7 +411,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                   <GridRow columns={1}>
                     <GridCell>
                       <Panel>
-                        <Accordion type="single" collapsible value={controlsAccordionValue} onValueChange={setControlsAccordionValue} className="w-full">
+                        <Accordion type="single" collapsible value={controlsAccordionValue} className="w-full">
                           <AccordionItem value="ControlsAccordion">
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
@@ -449,7 +439,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
 
                             <AccordionContent>
                               <div className="mt-5 flex flex-col gap-5">
-                                <ObjectAssociationControls
+                                <ObjectAssociationControlsChips
                                   form={form}
                                   controlsRefMap={associationControlsRefMap}
                                   setControlsRefMap={setAssociationControlsRefMap}
@@ -480,7 +470,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                   <GridRow columns={1}>
                     <GridCell>
                       <Panel>
-                        <Accordion type="single" collapsible value={programsAccordionValue} onValueChange={setProgramsAccordionValue} className="w-full">
+                        <Accordion type="single" collapsible value={programsAccordionValue} className="w-full">
                           <AccordionItem value="ProgramsAccordion">
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
@@ -510,7 +500,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
 
                             <AccordionContent>
                               <div className="mt-5 flex flex-col gap-5">
-                                <ObjectAssociationPrograms form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
+                                <ObjectAssociationProgramsChips form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
                               </div>
                             </AccordionContent>
                           </AccordionItem>
@@ -541,8 +531,7 @@ const EvidenceCreateSheet: React.FC<EvidenceCreateSheetProps> = ({ formData, onE
                               </AccordionTrigger>
                             </div>
 
-                            <AccordionContent className="mt-2 flex flex-col gap-4">
-                              <PanelHeader heading="Object associations" noBorder />
+                            <AccordionContent className="mt-4 flex flex-col gap-4">
                               <ObjectAssociation
                                 onIdChange={handleEvidenceObjectIdsChange}
                                 excludeObjectTypes={excludeObjectTypes || []}

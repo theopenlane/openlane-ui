@@ -17,7 +17,12 @@ import { getControlsAndSubcontrolsColumns } from './object-association-controls-
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 
-type ControlSelectionDialogProps = {
+export enum AccordionEnum {
+  Control = 'Control',
+  Subcontrol = 'Subcontrol',
+}
+
+type TControlSelectionDialogProps = {
   open: boolean
   onClose: () => void
   initialControlRefCodes?: string[]
@@ -35,7 +40,7 @@ type ControlSelectionDialogProps = {
   form: UseFormReturn<CreateEvidenceFormData>
 }
 
-export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
+export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
   open,
   onClose,
   initialControlRefCodes,
@@ -45,7 +50,7 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
   onSave,
   form,
 }) => {
-  const [selectedObject, setSelectedObject] = useState<'Control' | 'Subcontrol'>('Control')
+  const [selectedObject, setSelectedObject] = useState<AccordionEnum>(AccordionEnum.Control)
 
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
   const [frameworks, setFrameworks] = useState<Record<string, string>>({})
@@ -106,11 +111,11 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === 'Control' ? controls ?? [] : subcontrols ?? []
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
 
-  const paginationMeta = selectedObject === 'Control' ? controlsPagination : subcontrolsPagination
-  const isLoading = selectedObject === 'Control' ? controlsLoading : subcontrolsLoading
-  const isFetching = selectedObject === 'Control' ? controlsFetching : subcontrolsFetching
+  const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
+  const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
+  const isFetching = selectedObject === AccordionEnum.Control ? controlsFetching : subcontrolsFetching
 
   const columns = useMemo(
     () =>
@@ -142,7 +147,7 @@ export const ControlSelectionDialog: React.FC<ControlSelectionDialogProps> = ({
           <DialogTitle>Select Controls</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 items-center">
-          <Select value={selectedObject} onValueChange={(val: string) => setSelectedObject(val as 'Control' | 'Subcontrol')}>
+          <Select value={selectedObject} onValueChange={(val: string) => setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)}>
             <SelectTrigger>{selectedObject}</SelectTrigger>
             <SelectContent>
               {(['Control', 'Subcontrol'] as const)

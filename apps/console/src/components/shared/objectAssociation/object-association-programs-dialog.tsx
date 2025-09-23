@@ -13,15 +13,15 @@ import { getProgramsColumns } from './object-association-programs-columns'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 
-type ProgramSelectionDialogProps = {
+type TProgramSelectionDialogProps = {
   open: boolean
   onClose: () => void
   initialRefCodes?: string[]
-  onSave: (newIds: string[], refCodesMap: string[], frameworks: string[]) => void
+  onSave: (newIds: string[], refCodesMap: string[], description?: string[]) => void
   form: UseFormReturn<CreateEvidenceFormData>
 }
 
-export const ProgramSelectionDialog: React.FC<ProgramSelectionDialogProps> = ({ open, onClose, initialRefCodes, onSave, form }: ProgramSelectionDialogProps) => {
+export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({ open, onClose, initialRefCodes, onSave, form }: TProgramSelectionDialogProps) => {
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
   const [frameworks, setFrameworks] = useState<string[]>([])
   const { convertToReadOnly } = usePlateEditor()

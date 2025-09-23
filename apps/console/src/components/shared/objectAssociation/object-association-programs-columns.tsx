@@ -4,7 +4,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 
-type ColumnOptions = {
+type TColumnOptions = {
   selectedRefCodeMap: string[]
   frameworks: string[]
   setSelectedRefCodeMap: React.Dispatch<React.SetStateAction<string[]>>
@@ -13,7 +13,7 @@ type ColumnOptions = {
   form: UseFormReturn<CreateEvidenceFormData>
 }
 
-export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelectedRefCodeMap, setFrameworks, convertToReadOnly, form }: ColumnOptions): ColumnDef<Program>[] => {
+export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelectedRefCodeMap, setFrameworks, convertToReadOnly, form }: TColumnOptions): ColumnDef<Program>[] => {
   const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
     const currentIds = form.getValues('programIDs') || []
     const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
@@ -37,7 +37,12 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
 
         return (
           <div className="flex items-center gap-2">
-            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, name, val === true)} />
+            <Checkbox
+              checked={checked}
+              onCheckedChange={(val) => {
+                toggleChecked(id, name, val === true)
+              }}
+            />
             <span>{name}</span>
           </div>
         )

@@ -3,9 +3,10 @@ import { ControlListFieldsFragment, Subcontrol } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
+import { AccordionEnum } from './object-association-control-dialog'
 
-type ColumnOptions = {
-  selectedObject: 'Control' | 'Subcontrol'
+type TColumnOptions = {
+  selectedObject: AccordionEnum.Control | AccordionEnum.Subcontrol
   selectedRefCodeMap: string[]
   frameworks: Record<string, string>
   selectedSubcontrolRefCodeMap: string[]
@@ -30,9 +31,9 @@ export const getControlsAndSubcontrolsColumns = ({
   setSubcontrolFrameworks,
   convertToReadOnly,
   form,
-}: ColumnOptions): ColumnDef<ControlListFieldsFragment | Subcontrol>[] => {
+}: TColumnOptions): ColumnDef<ControlListFieldsFragment | Subcontrol>[] => {
   const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
-    if (selectedObject === 'Control') {
+    if (selectedObject === AccordionEnum.Control) {
       const currentIds = form.getValues('controlIDs') || []
       const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
       const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
@@ -56,10 +57,10 @@ export const getControlsAndSubcontrolsColumns = ({
   return [
     {
       accessorKey: 'name',
-      header: selectedObject === 'Control' ? 'Control' : 'Subcontrol',
+      header: selectedObject === AccordionEnum.Control ? AccordionEnum.Control : AccordionEnum.Subcontrol,
       cell: ({ row }) => {
         const { id, refCode, referenceFramework } = row.original
-        const checked = selectedObject === 'Control' ? (form.getValues('controlIDs') || []).includes(id) ?? false : (form.getValues('subcontrolIDs') || []).includes(id) ?? false
+        const checked = selectedObject === AccordionEnum.Control ? (form.getValues('controlIDs') || []).includes(id) ?? false : (form.getValues('subcontrolIDs') || []).includes(id) ?? false
 
         return (
           <div className="flex items-center gap-2">

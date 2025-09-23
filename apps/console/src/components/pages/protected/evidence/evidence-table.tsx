@@ -27,7 +27,10 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
   const evidenceSheetHandler = (controlEvidenceID: string) => {
     if (controlEvidenceID) router.replace({ controlEvidenceId: controlEvidenceID })
   }
-
+  const controlIds = {
+    controlIdFromControl: control.controlID!,
+    subcontrolIdFromControl: control.subcontrolID || undefined,
+  }
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
@@ -38,7 +41,9 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
               <CreateButton type="evidence" onClick={() => setIsSheetOpen(true)} />
               <EvidenceCreateSheet
                 open={isSheetOpen}
+                onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
                 onOpenChange={setIsSheetOpen}
+                controlIdsFromControl={controlIds}
                 formData={control}
                 excludeObjectTypes={[
                   ObjectTypeObjects.EVIDENCE,

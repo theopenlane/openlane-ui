@@ -6,7 +6,7 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { UseFormReturn } from 'react-hook-form'
 import { TriangleAlert } from 'lucide-react'
 
-type ObjectAssociationControlsProps = {
+type TObjectAssociationControlsChipsProps = {
   controlsRefMap: string[]
   setControlsRefMap: React.Dispatch<React.SetStateAction<string[]>>
   frameworksMap: Record<string, string>
@@ -18,7 +18,7 @@ type ObjectAssociationControlsProps = {
   form: UseFormReturn<CreateEvidenceFormData>
 }
 
-const ObjectAssociationControls = ({
+const ObjectAssociationControlsChips = ({
   controlsRefMap,
   setControlsRefMap,
   frameworksMap,
@@ -28,7 +28,7 @@ const ObjectAssociationControls = ({
   subcontrolFrameworksMap,
   setSubcontrolsFrameworksMap,
   form,
-}: ObjectAssociationControlsProps) => {
+}: TObjectAssociationControlsChipsProps) => {
   const handleRemove = (id: string, isSubcontrol = false) => {
     if (isSubcontrol) {
       const idx = form.getValues('subcontrolIDs')?.indexOf(id)
@@ -65,6 +65,7 @@ const ObjectAssociationControls = ({
               id,
               refCode: controlsRefMap[i] || id,
               referenceFramework: frameworksMap[id] || '',
+              __typename: 'Control',
             }}
             removable
             onRemove={() => handleRemove(id)}
@@ -78,6 +79,7 @@ const ObjectAssociationControls = ({
               id,
               refCode: subcontrolsRefMap[i] || id,
               referenceFramework: subcontrolFrameworksMap[id] || '',
+              __typename: 'Subcontrol',
             }}
             removable
             onRemove={() => handleRemove(id, true)}
@@ -94,4 +96,4 @@ const ObjectAssociationControls = ({
   )
 }
 
-export default ObjectAssociationControls
+export default ObjectAssociationControlsChips
