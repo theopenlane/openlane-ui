@@ -1,104 +1,347 @@
-@import '@repo/ui/styles.css';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss';
+@import "tw-animate-css";
+@source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  @apply text-text-paragraph font-sans bg-[var(--color-bg)];
+/* ─────────────────────────────────────────────────────────
+   Base additions (safe alongside Tailwind’s base)
+────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground font-normal;
+  }
+
+  [type='text']:focus,
+  [type='password']:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    --tw-ring-color: var(--color-ring);
+    border-color: var(--color-ring);
+    outline: none;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  button:focus-visible {
+    --tw-ring-color: transparent !important;
+    --tw-ring-offset-width: 0 !important;
+    --tw-ring-offset-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Primary Button */
+  button {
+    background-color: var(--color-btn-primary);
+    color: var(--color-btn-primary-text);
+    transition: all 0.5s ease;
+  }
+  button:hover,
+  button.is-active {
+    background-color: var(--color-btn-primary-hover);
+    border-radius: 6px;
+    /*
+    border-color: #09151D3D !important;
+    */
+  }
+  button:disabled {
+    cursor: not-allowed;
+    color: var(--color-btn-primary-text-disabled);
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    background-color: var(--color-btn-secondary);
+    color: var(--color-btn-secondary-text);
+    transition: all 0.5s ease;
+  }
+  .btn-secondary:hover {
+    background-color: var(--color-btn-secondary-hover);
+    border-color: var(--color-border);
+  }
+  .btn-secondary:disabled {
+    color: var(--color-btn-secondary-text-disabled);
+  }
+
+  /* Secondary Button */
+  .btn-card {
+    border-radius: 6px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: var(--color-btn-secondary-text);
+    transition: all 0.5s ease;
+  }
+  button.btn-card:hover,
+  button.btn-card.is-active {
+    background-color: var(--color-nav);
+    border-color: var(--color-border);
+    color: var(--color-text-paragraph)
+  }
+
+  /* Transparent Button */
+  button.bg-transparent {
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.5s ease;
+  }
+
+  button.bg-transparent:hover,
+  button.bg-transparent.is-active {
+    background-color: var(--color-btn-primary-hover) !important;
+    border-radius: 6px;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text-paragraph) !important;
+  }
 }
 
-h4 {
-  @apply text-3xl text-text-header tracking-[-0.038rem] mb-10 w-full font-serif;
+/* ─────────────────────────────────────────────────────────
+   Light mode HSL tokens
+────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: "outfit", "outfit Fallback";
+  --background: #eff4f5;
+  --foreground: #09151d;
+  --card: #f4f9fa;
+  --card-foreground: hsl(209 22% 24%);
+  --popover: #f4f9fa;
+  --popover-foreground: hsl(209 22% 24%);
+  --primary: hsl(168 64% 49%);
+  --primary-foreground: hsl(191 72% 9%);
+  --secondary: #ffffff;
+  --secondary-foreground: hsl(191 72% 9%);
+  --muted: #ffffff;
+  --muted-foreground: #6B7682;
+  --accent: hsl(45 66% 55%);
+  --accent-foreground: hsl(191 72% 9%);
+  --destructive: hsl(0 69% 60%);
+  --destructive-foreground: hsl(156 82% 98%);
+  --border: hsl(198 26% 89%);
+  --input: hsl(204 43% 98%);
+  --ring: hsl(168 64% 49%);
+  --radius: 0.5rem;
+  --color-unset: transparent;
+  --color-table-secondary: #EFF4F552;
+  --color-nav: #ffffff;
+
+  --color-btn-secondary: #9AF5DC;
+  --color-btn-secondary-text: #052E2A;
+  --color-btn-secondary-text-disabled: #052E2A70;
+  --color-btn-secondary-hover: #60E8C8;
+
+  --color-btn-primary: #FFFFFF;
+  --color-btn-primary-hover: #FFFFFF;
+  --color-btn-primary-text: #09151D;
+  --color-btn-primary-text-disabled: #09151D70;
+
+  /* Optional semantic colors */
+  --success: hsl(168 64% 49%);
+  --warning: hsl(43 89% 66%);
+  --info: hsl(207 68% 53%);
+  --color-separator: #E1E7EA;
+  --color-border: #E1E7EA;
 }
 
-h5 {
-  @apply text-[1.313rem] tracking-[-0.033rem];
+/* ─────────────────────────────────────────────────────────
+   Dark mode overrides
+────────────────────────────────────────────────────────── */
+.dark {
+  --background: #09151d;
+  --foreground: #ffffff;
+  --card: #233440;
+  --card-foreground: hsl(196 20% 73%);
+  --popover: #233440;
+  --popover-foreground: hsl(196 20% 73%);
+  --primary: hsl(168 64% 49%);
+  --primary-foreground: hsl(210 40% 98%);
+  --secondary: #162431;
+  --secondary-foreground: hsl(216 33% 9%);
+  --muted: #4C5E69;
+  --muted-foreground: #9AA5B0;
+  --accent: hsl(45 58% 45%);
+  --accent-foreground: hsl(216 33% 9%);
+  --destructive: hsl(0 84% 64%);
+  --destructive-foreground: hsl(156 82% 98%);
+  --border: hsl(208 21% 24%);
+  --input: hsl(216 33% 9%);
+  --ring: hsl(168 64% 49%);
+  --color-separator: #394B58;
+  --color-border: #394B58;
+  --color-text-paragraph: #ffffff;
+  --color-table-secondary: #23344052;
+  --color-nav: #233440;
+
+  --color-btn-secondary: #60E8C9;
+  --color-btn-secondary-hover: #9AF5DD;
+  --color-btn-secondary-text: #052E2A;
+  --color-btn-secondary-text-disabled: #052E2A70;
+
+  --color-btn-primary: #394B58;
+  --color-btn-primary-hover: #4C5E69;
+  --color-btn-primary-text: #FFFFFF;
+  --color-btn-primary-text-disabled:#FFFFFF70;
 }
 
-p {
-  @apply text-text-paragraph;
+/* ─────────────────────────────────────────────────────────
+   Map tokens to Tailwind theme
+────────────────────────────────────────────────────────── */
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+  --color-panel-bg: var(--card);
+  --color-panel-text: var(--card-foreground);
+  --color-panel-border: var(--border);
 }
 
-p.red {
-  @apply text-red-500;
+@theme inline {
+  /* Logo */
+  --color-logo-bg: #303e4a;
+  --color-logo-text: #303e4a;
+  --color-logo-fg: #4dc6ad;
+  --color-logo-dark: #303e4a;
+  --color-logo-light: #b4c1d5;
 }
 
-@font-face {
-  font-family: 'Outfit', sans-serif;
-  src: url('/fonts/Outfit-Thin.ttf') format('truetype');
-  font-weight: '100';
-  style: 'thin';
+/* ─────────────────────────────────────────────────────────
+   Custom Classes
+────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .text-paragraph {
+    color: var(--color-text-paragraph);
+  }
 }
 
-@font-face {
-  font-family: 'Outfit', sans-serif;
-  src: url('/fonts/Outfit-Light.ttf') format('truetype');
-  font-weight: '300';
-  style: 'light';
+/* ─────────────────────────────────────────────────────────
+   Radix / shadcn animations
+────────────────────────────────────────────────────────── */
+
+@utility bg-panel {
+  background-color: var(--color-panel-bg);
+}
+@utility text-panel {
+  color: var(--color-panel-text);
+}
+@utility border-panel {
+  border-color: var(--color-panel-border);
+}
+/* Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes zoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slideOutToTop {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+}
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slideOutToLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
 }
 
-@font-face {
-  font-family: 'Outfit', sans-serif;
-  src: url('/fonts/Outfit-Regular.ttf') format('truetype');
-  font-weight: '400';
-  style: 'normal';
+/* ─────────────────────────────────────────────────────────
+   Extra utilities
+────────────────────────────────────────────────────────── */
+.button-icon svg {
+  width: 1rem;
+  height: 1rem;
 }
-
-@font-face {
-  font-family: 'Outfit', sans-serif;
-  src: url('/fonts/Outfit-Medium.ttf') format('truetype');
-  font-weight: '500';
-  style: 'medium';
+.svc-json-editor-tab__content-area {
+  background-color: var(--color-bg);
 }
-
-@font-face {
-  font-family: 'Outfit', sans-serif;
-  src: url('/fonts/Outfit-Semibold.ttf') format('truetype');
-  font-weight: '700';
-  style: 'bold';
+@keyframes custom-pulse {
+  50% {
+    opacity: 0.5;
+  }
 }
-
-@font-face {
-  font-family: 'Outfit', sans-serif;
-  src: url('/fonts/Outfit-ExtraBold.ttf') format('truetype');
-  font-weight: '800';
-  style: 'extrabold';
-}
-
-@font-face {
-  font-family: 'BIZ UDPMincho', serif;
-  src: url('/fonts/BIZUDPMincho-Regular.ttf') format('truetype');
-  font-weight: '400';
-  style: 'normal';
-}
-
-@font-face {
-  font-family: 'BIZ UDPMincho', serif;
-  src: url('/fonts/BIZUDPMincho-Bold.ttf') format('truetype');
-  font-weight: '700';
-  style: 'bold';
-}
-
-@font-face {
-  font-family: 'JetBrains Mono', monospace;
-  src: url('/fonts/JetBrainsMono-Regular.ttf') format('truetype');
-  font-weight: '400';
-  style: 'normal';
-}
-
-@font-face {
-  font-family: 'JetBrains Mono', monospace;
-  src: url('/fonts/JetBrainsMono-Bold.ttf') format('truetype');
-  font-weight: '700';
-  style: 'bold';
-}
-
-:root {
-  --font-outfit: 'Outfit', sans-serif;
-  --font-sans: 'Outfit', sans-serif;
-  --font-serif: 'BIZ UDPMincho', serif;
-  --font-mincho: 'BIZ UDPMincho', serif;
-  --font-heading: 'BIZ UDPMincho', serif;
-  --font-mono: 'JetBrains Mono', monospace;
+.animate-custom-pulse {
+  animation: custom-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

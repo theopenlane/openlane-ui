@@ -71,11 +71,11 @@ export const SignupPage = () => {
       <p className="text-base mt-8">Connect to Openlane with</p>
 
       <div className={buttons()}>
-        <Button className="bg-card !px-3.5 w-full" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={google}>
+        <Button className="bg-secondary !px-3.5 w-full" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={google}>
           <p className="text-sm font-normal">Google</p>
         </Button>
 
-        <Button className="bg-card !px-3.5 w-full" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={github}>
+        <Button className="bg-secondary !px-3.5 w-full" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={github}>
           <p className="text-sm font-normal">GitHub</p>
         </Button>
       </div>

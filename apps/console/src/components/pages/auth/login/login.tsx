@@ -303,15 +303,22 @@ export const LoginPage = () => {
         <p className="text-base mt-8">Connect to Openlane with</p>
 
         <div className={buttons()}>
-          <Button className="bg-card !px-3.5" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+          <Button className="bg-secondary !px-3.5" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
             <p className="text-sm font-normal">Google</p>
           </Button>
 
-          <Button className="bg-card !px-3.5" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
+          <Button className="bg-secondary !px-3.5" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
             <p className="text-sm font-normal">GitHub</p>
           </Button>
 
-          <Button className="bg-card !px-3.5" variant="outlineLight" icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
+          <Button
+            className="bg-secondary !px-3.5"
+            variant="outlineLight"
+            icon={<KeyRoundIcon className="text-input-text" />}
+            iconPosition="left"
+            onClick={() => passKeySignIn()}
+            disabled={signInLoading}
+          >
             <p className="text-sm font-normal">Passkey</p>
           </Button>
         </div>
