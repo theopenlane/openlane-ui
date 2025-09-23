@@ -17,6 +17,8 @@ import { useSession } from 'next-auth/react'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import EvidenceSuggestedActions from './table/evidence-suggested-actions'
 import Loading from '@/app/(protected)/evidence/loading'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import EvidenceCreateSheet from './evidence-create-sheet'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
@@ -35,6 +37,7 @@ const EvidenceDetailsPage = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const { data: session } = useSession()
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { data: permission } = useOrganizationRole(session)
@@ -83,11 +86,7 @@ const EvidenceDetailsPage = () => {
   }
 
   const handleCreateEvidence = () => {
-    if (programId) {
-      router.push(`/evidence/create?programId=${programId}`)
-    } else {
-      router.push('/evidence/create')
-    }
+    setIsSheetOpen(true)
   }
 
   return (
@@ -127,9 +126,17 @@ const EvidenceDetailsPage = () => {
                   </Select>
 
                   {createAllowed && (
-                    <Button className="h-8 !px-2" onClick={handleCreateEvidence}>
-                      Submit Evidence
-                    </Button>
+                    <>
+                      <Button className="h-8 !px-2" onClick={handleCreateEvidence}>
+                        Submit Evidence
+                      </Button>
+                      <EvidenceCreateSheet
+                        onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
+                        open={isSheetOpen}
+                        onOpenChange={setIsSheetOpen}
+                        excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}
+                      />
+                    </>
                   )}
                 </div>
               </div>

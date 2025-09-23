@@ -354,6 +354,12 @@ const ControlDetailsPage: React.FC = () => {
         canEdit={canEdit(permission?.roles)}
         control={{
           displayID: control?.refCode,
+          controlID: control.id,
+          controlRefCodes: [control?.refCode],
+          referenceFramework: {
+            [control?.id ?? 'default']: control?.referenceFramework ?? '',
+          },
+          programDisplayIDs: (control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
           objectAssociations: {
             controlIDs: [control?.id],
             programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
@@ -361,8 +367,6 @@ const ControlDetailsPage: React.FC = () => {
           },
           objectAssociationsDisplayIDs: [
             ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...((control?.subcontrols?.edges?.map((e) => e?.node?.refCode).filter(Boolean) as string[]) ?? []),
             ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...(control.refCode ? [control.refCode] : []),
           ],

@@ -11,7 +11,6 @@ import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
 import { useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
@@ -30,6 +29,8 @@ import { buildTaskPayload, generateEvidenceFormData } from '../utils'
 import MarkAsComplete from '../form/fields/mark-as-complete'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TasksDetailsSheetSkeleton } from '../../skeleton/tasks-details-sheet-skeleton'
+import EvidenceCreateSheet from '../../../evidence/evidence-create-sheet'
+import { CreateButton } from '@/components/shared/create-button/create-button'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -50,6 +51,7 @@ const TaskDetailsSheet = () => {
   const taskData = data?.task
   const { form } = useFormSchema()
   const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData), [taskData])
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const initialAssociations = useMemo(
     () => ({
@@ -174,13 +176,27 @@ const TaskDetailsSheet = () => {
                 <DetailsField isEditing={isEditing} initialValue={taskData?.details} />
                 {isEditAllowed && !isEditing && (
                   <div className="flex gap-4 pb-4 pt-2">
-                    {taskData && (
-                      <EvidenceCreateFormDialog
-                        formData={evidenceFormData}
-                        excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
-                        defaultSelectedObject={ObjectTypeObjects.TASK}
-                      />
-                    )}
+                    <>
+                      <CreateButton type="evidence" onClick={() => setIsSheetOpen(true)} />
+                      {taskData && (
+                        <EvidenceCreateSheet
+                          open={isSheetOpen}
+                          onOpenChange={setIsSheetOpen}
+                          formData={evidenceFormData}
+                          excludeObjectTypes={[
+                            ObjectTypeObjects.EVIDENCE,
+                            ObjectTypeObjects.RISK,
+                            ObjectTypeObjects.PROCEDURE,
+                            ObjectTypeObjects.GROUP,
+                            ObjectTypeObjects.INTERNAL_POLICY,
+                            ObjectTypeObjects.CONTROL,
+                            ObjectTypeObjects.SUB_CONTROL,
+                            ObjectTypeObjects.PROGRAM,
+                          ]}
+                          defaultSelectedObject={ObjectTypeObjects.TASK}
+                        />
+                      )}
+                    </>
                     <MarkAsComplete taskData={taskData} />
                   </div>
                 )}
