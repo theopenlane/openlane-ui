@@ -11,7 +11,7 @@ export const tableStyles = tv({
       group
       border-b transition-colors
       data-[state=selected]:bg-muted
-      [&:nth-child(even)]:bg-[#23344052]
+      [&:nth-child(even)]:bg-table-secondary
     `,
     tableCell: 'p-4 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] group-hover:bg-card transition-colors duration-500',
     tableHead: 'h-12 px-4 text-left align-middle text-muted-foreground bg-card [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',

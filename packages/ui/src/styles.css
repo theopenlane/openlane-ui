@@ -105,6 +105,7 @@
   --ring: hsl(168 64% 49%);
   --radius: 0.5rem;
   --color-unset: transparent;
+  --color-table-secondary: #EFF4F552;
 
   --color-btn-secondary: #9AF5DC;
   --color-btn-secondary-text: #052E2A;
@@ -150,6 +151,7 @@
   --color-separator: #394B58;
   --color-border: #394B58;
   --color-text-paragraph: #ffffff;
+  --color-table-secondary: #23344052;
 
   --color-btn-secondary: #60E8C9;
   --color-btn-secondary-hover: #9AF5DD;
