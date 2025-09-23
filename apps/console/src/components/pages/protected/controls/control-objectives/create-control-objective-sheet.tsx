@@ -31,7 +31,7 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="bg-card flex flex-col">
+      <SheetContent className="flex flex-col">
         <CreateControlObjectiveForm onSuccess={() => onOpenChange(false)} defaultValues={normalizedValues} />
       </SheetContent>
     </Sheet>

@@ -153,7 +153,7 @@ const TaskDetailsSheet = () => {
           }
         }}
         side="right"
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         minWidth={470}
         header={<TasksSheetHeader close={handleSheetClose} isEditing={isEditing} isPending={isPending} setIsEditing={setIsEditing} displayID={taskData?.displayID} isEditAllowed={isEditAllowed} />}
       >

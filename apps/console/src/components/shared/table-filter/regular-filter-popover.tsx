@@ -69,7 +69,7 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
         <div className="flex items-center border rounded-lg px-2 py-1 max-w-xs cursor-pointer">
           <span className="mr-2 truncate text-xs">{normalizeFilter(regularFilterItem)}</span>
           <button
-            className="border-l pl-2"
+            className="border-l pl-2 bg-unset"
             onClick={(e) => {
               e.stopPropagation()
               onDeleteFilter(regularFilterItem)
