@@ -17,7 +17,7 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { DOCS_URL, OPENLANE_WEBSITE_URL, SUPPORT_EMAIL } from '@/constants'
+import { CONTRIBUTE_URL, DOCS_URL, OPENLANE_WEBSITE_URL, SUPPORT_EMAIL } from '@/constants'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
@@ -121,7 +121,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
     <>
       <aside className="fixed left-0 top-0 z-40 h-screen w-[50px] flex flex-col justify-between items-center py-3">
         <div className="flex flex-col items-center gap-3">
-          <a href="https://www.theopenlane.io/" target="_blank" rel="noreferrer">
+          <a href={OPENLANE_WEBSITE_URL} target="_blank" rel="noreferrer">
             <Logo asIcon width={28} />
           </a>
           <Hr />
@@ -180,7 +180,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
             <Tooltip>
               <TooltipTrigger asChild>
                 <button className="btn-card text-muted-foreground p-1">
-                  <Link href={OPENLANE_WEBSITE_URL} target="_blank" rel="noopener noreferrer">
+                  <Link href={CONTRIBUTE_URL} target="_blank" rel="noopener noreferrer">
                     <Github size={18} className="btn-card text-muted-foreground" />
                   </Link>
                 </button>
