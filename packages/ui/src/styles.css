@@ -15,7 +15,9 @@
     -moz-osx-font-smoothing: grayscale;
     @apply bg-background text-foreground font-normal;
   }
-
+  input {
+    background: var(--input);
+  }
   [type='text']:focus,
   [type='password']:focus,
   input:focus,
@@ -123,7 +125,7 @@
   --destructive: hsl(0 69% 60%);
   --destructive-foreground: hsl(156 82% 98%);
   --border: hsl(198 26% 89%);
-  --input: hsl(204 43% 98%);
+  --input: #ffffff;
   --ring: hsl(168 64% 49%);
   --radius: 0.5rem;
   --color-unset: transparent;
@@ -169,7 +171,7 @@
   --destructive: hsl(0 84% 64%);
   --destructive-foreground: hsl(156 82% 98%);
   --border: hsl(208 21% 24%);
-  --input: hsl(216 33% 9%);
+  --input: #09151D;
   --ring: hsl(168 64% 49%);
   --color-separator: #394B58;
   --color-border: #394B58;

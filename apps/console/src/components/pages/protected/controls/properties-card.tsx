@@ -423,7 +423,7 @@ export const EditableSelectFromQuery = ({
   const [open, setOpen] = useState(false)
 
   const rawOptions = useMemo(() => {
-    return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
+    return isCategory ? (categoriesData?.controlCategories ?? []) : (subcategoriesData?.controlSubcategories ?? [])
   }, [isCategory, categoriesData, subcategoriesData])
   const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -490,12 +490,12 @@ export const EditableSelectFromQuery = ({
             return (
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                  <div ref={triggerRef} className="flex text-sm h-10 px-3 justify-between border bg-input-background rounded-md items-center cursor-pointer">
+                  <div ref={triggerRef} className="flex text-sm h-10 px-3 justify-between border bg-input rounded-md items-center cursor-pointer">
                     <span className="truncate">{field.value || `Select ${label.toLowerCase()}`}</span>
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </div>
                 </PopoverTrigger>
-                <PopoverContent className="p-0 bg-input-background border z-50">
+                <PopoverContent className="p-0 bg-input border z-50">
                   <Command ref={popoverRef}>
                     <CommandInput
                       placeholder="Search..."

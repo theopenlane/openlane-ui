@@ -146,7 +146,7 @@ const CommandEmpty = forwardRef<HTMLDivElement, React.ComponentProps<typeof Comm
 
   if (!render) return null
 
-  return <div ref={forwardedRef} className={cn('py-6 text-center text-sm rounded-md border bg-input-background shadow-md', className)} cmdk-empty="" role="presentation" {...props} />
+  return <div ref={forwardedRef} className={cn('py-6 text-center text-sm rounded-md border bg-input shadow-md', className)} cmdk-empty="" role="presentation" {...props} />
 })
 
 CommandEmpty.displayName = 'CommandEmpty'
@@ -410,7 +410,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       >
         <div
           className={cn(
-            'min-h-10 rounded-md border bg-input-background text-base md:text-sm px-3 py-2',
+            'min-h-10 rounded-md border bg-input text-base md:text-sm px-3 py-2',
             {
               'cursor-text': !disabled && selected.length !== 0,
             },
@@ -495,7 +495,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
               }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
-                'p-0 text-sm flex-1 bg-transparent outline-hidden placeholder:text-muted-foreground border-none',
+                'p-0 text-sm flex-1 bg-input outline-hidden placeholder:text-muted-foreground border-none',
                 {
                   'w-full': hidePlaceholderWhenSelected,
                   'ml-1': selected.length !== 0,
