@@ -181,7 +181,7 @@ function EmojiPickerContent({
   const SearchList = React.useCallback(() => {
     return (
       <div style={{ width: getRowWidth }} data-id="search">
-        <div className="sticky -top-px z-1 bg-popover/90 p-1 py-2 text-sm font-semibold text-card-foreground backdrop-blur-xs">{i18n.searchResult}</div>
+        <div className="sticky -top-px z-1 bg-popover/90 p-1 py-2 text-sm font-semibold backdrop-blur-xs">{i18n.searchResult}</div>
         <div className="relative flex flex-wrap">
           {searchResult.map((emoji: Emoji, index: number) => (
             <EmojiButton key={emoji.id} onMouseOver={onMouseOver} onSelect={onSelectEmoji} emoji={emojiLibrary.getEmoji(emoji.id)} index={index} />

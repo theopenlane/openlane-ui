@@ -3,7 +3,7 @@
 import React from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
-import { PanelLeftOpen, PanelLeftClose } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose, NotebookPen, BookText, MessageSquareText } from 'lucide-react'
 import { Logo } from '@repo/ui/logo'
 import { Separator as Hr } from '@repo/ui/separator'
 import { GlobalSearch } from '@/components/shared/search/search.tsx'
@@ -17,6 +17,7 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { DOCS_URL, OPENLANE_WEBSITE_URL, SUPPORT_EMAIL } from '@/constants'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
@@ -143,9 +144,53 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
         <div className="flex flex-col items-center gap-3">
           {displayMenu(footerNavItems)}
 
-          <a href="https://github.com/theopenlane" target="_blank" rel="noreferrer">
-            <Github size={20} className="cursor-pointer" />
-          </a>
+          <Hr />
+
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="btn-card text-muted-foreground p-1">
+                  <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer">
+                    <BookText size={18} className={`btn-card text-muted-foreground`} />
+                  </Link>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Documentation</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="btn-card text-muted-foreground p-1">
+                  <Link href={SUPPORT_EMAIL}>
+                    <MessageSquareText size={18} className={`btn-card text-muted-foreground`} />
+                  </Link>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Feedback</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="btn-card text-muted-foreground p-1">
+                  <Link href={OPENLANE_WEBSITE_URL} target="_blank" rel="noopener noreferrer">
+                    <Github size={18} className="btn-card text-muted-foreground" />
+                  </Link>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Github</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <Hr />
 
           <OrganizationSelector />

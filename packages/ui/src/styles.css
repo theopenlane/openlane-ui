@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
 
+@variant dark (&:where(.dark, .dark *));
+
 /* ─────────────────────────────────────────────────────────
    Base additions (safe alongside Tailwind’s base)
 ────────────────────────────────────────────────────────── */
@@ -112,7 +114,7 @@
   --foreground: #09151d;
   --card: #f4f9fa;
   --card-foreground: hsl(209 22% 24%);
-  --popover: #f4f9fa;
+  --popover: #ffffff;
   --popover-foreground: hsl(209 22% 24%);
   --primary: hsl(168 64% 49%);
   --primary-foreground: hsl(191 72% 9%);
