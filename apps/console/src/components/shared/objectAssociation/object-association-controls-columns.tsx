@@ -47,8 +47,8 @@ export const getControlsAndSubcontrolsColumns = ({
       const currentIds = form.getValues('subcontrolIDs') || []
       const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
       const newRefCodes = isChecked ? [...new Set([...(selectedSubcontrolRefCodeMap || []), refCode])] : selectedSubcontrolRefCodeMap?.filter((v) => v !== refCode)
-
       const newFrameworks = isChecked ? { ...subcontrolFrameworks, [id]: referenceFramework ?? '' } : Object.fromEntries(Object.entries(subcontrolFrameworks).filter(([key]) => key !== id))
+
       form.setValue('subcontrolIDs', newIds, { shouldValidate: true, shouldDirty: true })
       setSelectedSubcontrolRefCodeMap(newRefCodes)
       setSubcontrolFrameworks(newFrameworks)
@@ -60,6 +60,7 @@ export const getControlsAndSubcontrolsColumns = ({
       header: selectedObject === AccordionEnum.Control ? AccordionEnum.Control : AccordionEnum.Subcontrol,
       cell: ({ row }) => {
         const { id, refCode, referenceFramework } = row.original
+
         const checked = selectedObject === AccordionEnum.Control ? (form.getValues('controlIDs') || []).includes(id) ?? false : (form.getValues('subcontrolIDs') || []).includes(id) ?? false
 
         return (

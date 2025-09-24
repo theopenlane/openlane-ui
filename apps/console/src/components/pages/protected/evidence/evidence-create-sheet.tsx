@@ -216,7 +216,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
     form.setValue('controlIDs', newIds)
     form.setValue('subcontrolIDs', subcontrolsNewIds)
-
     setAssociationControlsRefMap(uniqueControlRefCodes)
     setAssociationSubControlsRefMap(uniqueSubcontrolRefCodes)
 
