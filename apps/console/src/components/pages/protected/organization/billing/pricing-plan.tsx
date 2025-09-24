@@ -8,6 +8,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
 import BillingSummary from './billing-summary'
 import BillingSettings from './billing-settings'
+import SideNavigation from './side-navigation'
 
 const PricingPlan = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
@@ -134,60 +135,68 @@ const PricingPlan = () => {
   }, [paymentUpdate, successNotification])
 
   return (
-    <div className="max-w-[1000px]">
-      <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} />
-      <>
-        {!!schedules[0] && (
-          <div>
-            {/* Available Modules */}
-            <h3 className="mt-8 text-3xl font-semibold">Modules</h3>
-            {productsLoading ? (
-              <p>Loading modules…</p>
-            ) : (
-              <div className="flex flex-col mt-4 w-full">
-                {modulesWithoutBase.map((p) => (
-                  <ProductCard
-                    key={p.product_id}
-                    product={p}
-                    currentInterval={currentInterval}
-                    activePriceIds={activePriceIds}
-                    endingPriceIds={endingPriceIds}
-                    nextPhaseStart={nextPhaseStart}
-                    updating={updating}
-                    onSubscribe={handleSubscribe}
-                    onUnsubscribe={handleUnsubscribe}
-                    isOnlyActiveModule={nextPhaseModulesNumber === 1}
-                    isSubscriptionCanceled={isSubscriptionCanceled}
-                  />
-                ))}
-              </div>
-            )}
-            {/* Available Add-ons */}
-            <h3 className="mt-8 text-3xl font-semibold"> Add-ons</h3>
-            {productsLoading ? (
-              <p>Loading add-ons…</p>
-            ) : (
-              <div className="flex flex-col mt-4 w-full">
-                {addons.map((p) => (
-                  <ProductCard
-                    key={p.product_id}
-                    product={p}
-                    currentInterval={currentInterval}
-                    activePriceIds={activePriceIds}
-                    endingPriceIds={endingPriceIds}
-                    nextPhaseStart={nextPhaseStart}
-                    updating={updating}
-                    onSubscribe={handleSubscribe}
-                    onUnsubscribe={handleUnsubscribe}
-                    isSubscriptionCanceled={isSubscriptionCanceled}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </>
-      <BillingSettings />
+    <div className="flex relative">
+      <SideNavigation />
+
+      <div className="max-w-[1000px] ml-56">
+        <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} />
+        <>
+          {!!schedules[0] && (
+            <div>
+              {/* Available Modules */}
+              <h3 id="modules" className="mt-8 text-3xl font-semibold">
+                Modules
+              </h3>
+              {productsLoading ? (
+                <p>Loading modules…</p>
+              ) : (
+                <div className="flex flex-col mt-4 w-full">
+                  {modulesWithoutBase.map((p) => (
+                    <ProductCard
+                      key={p.product_id}
+                      product={p}
+                      currentInterval={currentInterval}
+                      activePriceIds={activePriceIds}
+                      endingPriceIds={endingPriceIds}
+                      nextPhaseStart={nextPhaseStart}
+                      updating={updating}
+                      onSubscribe={handleSubscribe}
+                      onUnsubscribe={handleUnsubscribe}
+                      isOnlyActiveModule={nextPhaseModulesNumber === 1}
+                      isSubscriptionCanceled={isSubscriptionCanceled}
+                    />
+                  ))}
+                </div>
+              )}
+              {/* Available Add-ons */}
+              <h3 id="addons" className="mt-8 text-3xl font-semibold">
+                Add-ons
+              </h3>
+              {productsLoading ? (
+                <p>Loading add-ons…</p>
+              ) : (
+                <div className="flex flex-col mt-4 w-full">
+                  {addons.map((p) => (
+                    <ProductCard
+                      key={p.product_id}
+                      product={p}
+                      currentInterval={currentInterval}
+                      activePriceIds={activePriceIds}
+                      endingPriceIds={endingPriceIds}
+                      nextPhaseStart={nextPhaseStart}
+                      updating={updating}
+                      onSubscribe={handleSubscribe}
+                      onUnsubscribe={handleUnsubscribe}
+                      isSubscriptionCanceled={isSubscriptionCanceled}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </>
+        <BillingSettings />
+      </div>
     </div>
   )
 }
