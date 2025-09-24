@@ -221,7 +221,7 @@ export default function SystemNotificationTracker() {
                 <div className="text-sm bg-panel-bg rounded-md border px-1 font-bold">{counts.total}</div>
               </div>
 
-              <div className="relative flex items-center gap-1 text-sm font-semibold cursor-pointer text-normal dark:text-button group">
+              <div className="relative flex items-center gap-1 text-sm font-semibold cursor-pointer text-normal text-primary group">
                 <CheckCheck className="w-4 h-4" />
                 <span>Mark all as read</span>
                 <span className="absolute bottom-0 left-0 h-[1px] w-full scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 origin-left"></span>
