@@ -9,6 +9,7 @@ export const GET_ALL_SUBCONTROLS = gql`
           displayID
           description
           refCode
+          referenceFramework
         }
       }
       pageInfo {

@@ -223,19 +223,22 @@ export const LoginPage = () => {
     }
   }
 
-  /**
-   * Setup Github Authentication
-   */
+  const setDirectOAuthCookie = () => {
+    const expires = new Date(Date.now() + 5 * 60 * 1000).toUTCString()
+    document.cookie = `direct_oauth=true; path=/; expires=${expires}; SameSite=Lax`
+  }
+
   const github = async () => {
+    setDirectOAuthCookie()
+
     await signIn('github', {
       redirectTo: redirectUrl,
     })
   }
 
-  /**
-   * Setup Google Authentication
-   */
   const google = async () => {
+    setDirectOAuthCookie()
+
     await signIn('google', {
       redirectTo: redirectUrl,
     })

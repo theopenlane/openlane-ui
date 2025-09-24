@@ -348,7 +348,13 @@ const ControlDetailsPage: React.FC = () => {
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
+          controlID: subcontrol?.control.id,
+          subcontrolID: subcontrol?.id,
           displayID: subcontrol?.refCode,
+          subcontrolRefCodes: [subcontrol?.refCode],
+          subcontrolReferenceFramework: {
+            [subcontrol?.id ?? 'default']: subcontrol?.referenceFramework ?? '',
+          },
           objectAssociations: {
             subcontrolIDs: [subcontrol?.id],
             controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],

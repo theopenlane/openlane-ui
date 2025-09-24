@@ -3,10 +3,34 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { getCookie } from '@/lib/auth/utils/getCookie'
+
+const ORG_SETTINGS_URL = '/organization-settings/authentication'
+const LOGIN_URL = '/login'
 
 const SSOCallbackPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const getRedirectUrl = (error?: string, isSuccess = false) => {
+    const isTesting = localStorage.getItem('testing_sso')
+    const apiTokenData = localStorage.getItem('api_token')
+
+    if (isTesting) {
+      if (isSuccess) return `${ORG_SETTINGS_URL}?ssotested=1`
+      return `${ORG_SETTINGS_URL}?ssotested=0&error=${error}`
+    }
+
+    if (apiTokenData) {
+      const tokenInfo = JSON.parse(apiTokenData)
+      const basePath = tokenInfo.isOrg ? '/organization-settings/developers' : '/user-settings/developers'
+      if (isSuccess) return `${basePath}?token_authorized=1`
+      return `${basePath}?error=${error}`
+    }
+
+    if (isSuccess) return '/'
+    return `${LOGIN_URL}?error=${error}`
+  }
 
   useEffect(() => {
     const handleSSOCallback = async () => {
@@ -16,15 +40,15 @@ const SSOCallbackPage: React.FC = () => {
 
         if (!code || !state) {
           console.error('Missing required OAuth parameters')
-          router.push('/login?error=missing_oauth_params')
+          router.push(getRedirectUrl('missing_oauth_params'))
           return
         }
 
-        const organizationId = localStorage.getItem('sso_organization_id')
+        // check cookie or localstorage for the org id
+        const organizationId = getCookie('sso_organization_id') || localStorage.getItem('sso_organization_id')
 
         if (!organizationId) {
-          console.error('No organization_id found in localStorage')
-          router.push('/login?error=missing_organization_id')
+          router.push(getRedirectUrl('missing_organization_id'))
           return
         }
 
@@ -53,19 +77,25 @@ const SSOCallbackPage: React.FC = () => {
           })
 
           if (signInResult && !signInResult.error) {
-            router.push(data.redirect_url || '/')
-          } else {
-            router.push('/login?error=sso_signin_failed')
+            const redirectUrl = data.redirect_url || getRedirectUrl(undefined, true)
+            router.push(redirectUrl)
+            return
           }
+
+          router.push(getRedirectUrl('sso_signin_failed'))
         } else {
           console.error('SSO callback failed:', data)
-          router.push('/login?error=sso_callback_failed')
+          router.push(getRedirectUrl('sso_callback_failed'))
         }
       } catch (error) {
         console.error('SSO callback error:', error)
-        router.push('/login?error=sso_callback_error')
+        router.push(getRedirectUrl('sso_callback_error'))
       } finally {
+        // delete the cookie
+        document.cookie = 'sso_organization_id=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
         localStorage.removeItem('sso_organization_id')
+        localStorage.removeItem('testing_sso')
+        localStorage.removeItem('api_token')
       }
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
-import { switchOrganization } from '@/lib/user'
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { searchStyles } from './search.styles'
@@ -92,6 +92,10 @@ export const GlobalSearch = () => {
       const response = await switchOrganization({
         target_organization_id: orgId,
       })
+
+      if (handleSSORedirect(response, orgId)) {
+        return
+      }
 
       if (sessionData && response) {
         await updateSession({

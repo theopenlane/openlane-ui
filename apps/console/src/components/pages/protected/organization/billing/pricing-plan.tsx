@@ -1,132 +1,195 @@
 'use client'
-import React, { useMemo } from 'react'
-import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
-import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
-import { CircleCheck, ExternalLink } from 'lucide-react'
+import React, { useEffect, useMemo } from 'react'
+
 import { useOrganization } from '@/hooks/useOrganization'
-import { Card } from '@repo/ui/cardpanel'
-import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-import { OrgSubscription } from '@repo/codegen/src/schema'
+import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
+import { ProductCard } from './product-card'
+import { useNotification } from '@/hooks/useNotification'
+import { useSearchParams } from 'next/navigation'
+import BillingSummary from './billing-summary'
+import BillingSettings from './billing-settings'
 
 const PricingPlan = () => {
-  const { currentOrgId } = useOrganization()
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const { errorNotification, successNotification } = useNotification()
+  const searchParams = useSearchParams()
 
-  const { data } = useGetOrganizationBilling(currentOrgId)
+  const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
 
-  const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
+  const { data: openlaneProducts, isLoading: productsLoading } = useOpenlaneProductsQuery()
+  const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
+  const { mutateAsync: updateSchedule, isPending: updating } = useUpdateScheduleMutation()
 
-  const { expiresAt, subscriptionURL, active, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
-  const { amount: price, interval: priceInterval } = productPrice
+  const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
 
-  const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
-  const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, new Date()) : false
+  const activePriceIds = useMemo(() => {
+    if (!schedules?.length) return new Set<string>()
+    const sub = schedules[0].subscription
+    const items = sub?.items?.data || []
+    return new Set(items.map((item) => item.price?.id || item.price))
+  }, [schedules])
 
-  const badge: { text: string; variant: 'default' | 'secondary' | 'outline' | 'gold' | 'destructive' } = useMemo(() => {
-    if (stripeSubscriptionStatus === 'trialing') {
-      return { variant: 'gold', text: 'Trial' }
+  const currentInterval = useMemo(() => {
+    if (!schedules?.length) return null
+    const firstItem = schedules[0].subscription?.items?.data?.[0]
+    return firstItem?.price?.recurring?.interval ?? null
+  }, [schedules])
+
+  const nextOrCurrentPhase = schedules?.[0]?.phases?.[1] || schedules?.[0]?.phases?.[0] || null
+
+  const nextPhaseActivePriceIds = useMemo(() => {
+    if (!nextOrCurrentPhase) return new Set<string>()
+    return new Set(nextOrCurrentPhase.items.map((i) => i.price))
+  }, [nextOrCurrentPhase])
+
+  const endingPriceIds = useMemo(() => {
+    if (!schedules?.length) return new Set<string>()
+
+    const phases = schedules[0]?.phases || []
+    if (phases.length < 2) return new Set<string>()
+
+    const currentIds = new Set(phases[0].items.map((i) => i.price))
+    const nextIds = new Set(phases[1].items.map((i) => i.price))
+
+    const ending = Array.from(currentIds).filter((id) => !nextIds.has(id))
+    return new Set(ending)
+  }, [schedules])
+
+  const nextPhaseStart = schedules?.[0]?.phases?.[1]?.start_date ? new Date(schedules[0].phases[1].start_date * 1000) : null
+  const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
+
+  const modules = Object.values(openlaneProducts?.modules || {})
+  const modulesWithoutBase = modules.filter((m) => m.display_name !== 'Base Module')
+
+  const nextPhaseModulesNumber = useMemo(() => {
+    if (!nextOrCurrentPhase || !currentInterval) return 0
+
+    return modulesWithoutBase.filter((m) => {
+      const priceForInterval = m.billing.prices.find((p) => p.interval === currentInterval)
+      if (!priceForInterval) return false
+      return nextPhaseActivePriceIds.has(priceForInterval.price_id)
+    }).length
+  }, [modulesWithoutBase, nextOrCurrentPhase, nextPhaseActivePriceIds, currentInterval])
+
+  const addons = Object.values(openlaneProducts?.addons || {})
+
+  const handleSubscribe = async (priceId: string) => {
+    if (!paymentData?.hasPaymentMethod) {
+      errorNotification({
+        title: 'Payment method required',
+        description: 'Please add a payment method before subscribing.',
+      })
+      return
     }
-    if (active) {
-      return { variant: 'default', text: 'Active' }
-    }
-    if (!active) {
-      return { variant: 'destructive', text: 'Expired' }
-    }
-    return { variant: 'destructive', text: 'Unknown' }
-  }, [stripeSubscriptionStatus, active])
 
-  const formattedExpiresDate = useMemo(() => {
     try {
-      if (stripeSubscriptionStatus === 'trialing') {
-        const expirationDate = parseISO(trialExpiresAt)
-        return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
-      }
-
-      if (!expiresAt && trialEnded) {
-        return 'Expired'
-      }
-
-      const expirationDate = parseISO(expiresAt)
-
-      if (isBefore(expirationDate, new Date())) {
-        return 'Expired'
-      }
-
-      return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
-    } catch (error) {
-      console.error('Error parsing expiration date:', error)
-      return 'N/A'
+      await updateSchedule({
+        scheduleId: schedules[0].id,
+        priceId,
+        action: 'subscribe',
+      })
+      successNotification({
+        title: 'Subscribed successfully',
+        description: 'Your subscription has been updated.',
+      })
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unable to subscribe to this plan.'
+      errorNotification({
+        title: 'Subscription failed',
+        description: error,
+      })
     }
-  }, [expiresAt, stripeSubscriptionStatus, trialExpiresAt, trialEnded])
+  }
+
+  const handleUnsubscribe = async (priceId: string) => {
+    try {
+      await updateSchedule({
+        scheduleId: schedules[0].id,
+        priceId,
+        action: 'unsubscribe',
+      })
+      successNotification({
+        title: 'Unsubscribed successfully',
+        description: 'Your subscription has been updated.',
+      })
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unable to unsubscribe from this plan.'
+      errorNotification({
+        title: 'Unsubscribe failed',
+        description: error,
+      })
+    }
+  }
+
+  const paymentUpdate = searchParams.get('paymentUpdate')
+
+  useEffect(() => {
+    if (paymentUpdate === 'success') {
+      successNotification({
+        title: 'Payment method updated',
+        description: 'Your payment method was successfully added.',
+      })
+    }
+  }, [paymentUpdate, successNotification])
 
   return (
-    <div className="">
-      <h2 className="text-2xl">Pricing Plan</h2>
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex gap-10 w-full">
-          <div className="w-full">
-            <div className="flex flex-col text-gray-700">
-              <Card className="shadow-md ">
-                <div className="flex flex-col   ">
-                  <div className="p-4">
-                    <div className="flex pb-3 items-center gap-2 ">
-                      <p className="text-lg font-medium">{'N/A'}</p>
-                      <Badge variant={badge.variant} className="text-xs font-normal text-white">
-                        {badge.text}
-                      </Badge>
-                    </div>
-                    {price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
-                    <p className="text-sm">{formattedExpiresDate}</p>
-                  </div>
-                </div>
-                <div className=" border-t"></div>
-                <div className="p-4 flex justify-center">
-                  {' '}
-                  <div className="p-4 flex flex items-center gap-3">
-                    <Button
-                      className="flex items-center gap-2 max-w-60"
-                      icon={<ExternalLink />}
-                      onClick={() => window.open(subscriptionURL ?? undefined, '_blank', 'noopener,noreferrer')}
-                      disabled={!subscriptionURL}
-                    >
-                      Change Subscription
-                    </Button>
-
-                    <Button
-                      className="flex items-center gap-2 max-w-60"
-                      icon={<ExternalLink />}
-                      onClick={() => window.open(subscription.managePaymentMethods ?? undefined, '_blank', 'noopener,noreferrer')}
-                      disabled={!subscription.managePaymentMethods}
-                    >
-                      Add Payment Method
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Features List */}
-            <h4 className="mt-7 text-lg font-medium text-text-header mb-5">Features in this plan</h4>
-            <ul className="mt-2 flex flex-col gap-y-2 text-gray-700">
-              {features && features?.length > 0 ? (
-                features?.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />)
-              ) : (
-                <p className="text-gray-500">No features listed.</p>
-              )}
-            </ul>
+    <div className="max-w-[1000px]">
+      <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} />
+      <>
+        {!!schedules[0] && (
+          <div>
+            {/* Available Modules */}
+            <h3 className="mt-8 text-3xl font-semibold">Modules</h3>
+            {productsLoading ? (
+              <p>Loading modules…</p>
+            ) : (
+              <div className="flex flex-col mt-4 w-full">
+                {modulesWithoutBase.map((p) => (
+                  <ProductCard
+                    key={p.product_id}
+                    product={p}
+                    currentInterval={currentInterval}
+                    activePriceIds={activePriceIds}
+                    endingPriceIds={endingPriceIds}
+                    nextPhaseStart={nextPhaseStart}
+                    updating={updating}
+                    onSubscribe={handleSubscribe}
+                    onUnsubscribe={handleUnsubscribe}
+                    isOnlyActiveModule={nextPhaseModulesNumber === 1}
+                    isSubscriptionCanceled={isSubscriptionCanceled}
+                  />
+                ))}
+              </div>
+            )}
+            {/* Available Add-ons */}
+            <h3 className="mt-8 text-3xl font-semibold"> Add-ons</h3>
+            {productsLoading ? (
+              <p>Loading add-ons…</p>
+            ) : (
+              <div className="flex flex-col mt-4 w-full">
+                {addons.map((p) => (
+                  <ProductCard
+                    key={p.product_id}
+                    product={p}
+                    currentInterval={currentInterval}
+                    activePriceIds={activePriceIds}
+                    endingPriceIds={endingPriceIds}
+                    nextPhaseStart={nextPhaseStart}
+                    updating={updating}
+                    onSubscribe={handleSubscribe}
+                    onUnsubscribe={handleUnsubscribe}
+                    isSubscriptionCanceled={isSubscriptionCanceled}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      </div>
+        )}
+      </>
+      <BillingSettings />
     </div>
   )
 }
-
-// Extracted Feature Item Component
-const FeatureItem = ({ feature }: { feature: string }) => (
-  <li className="flex items-center gap-2">
-    <CircleCheck className="w-5 h-5 text-brand" />
-    <p>{feature}</p>
-  </li>
-)
 
 export default PricingPlan

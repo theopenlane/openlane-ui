@@ -101,6 +101,7 @@ export const TASK = gql`
             controlID
             description
             displayID
+            referenceFramework
           }
         }
       }
@@ -111,6 +112,7 @@ export const TASK = gql`
             refCode
             description
             displayID
+            referenceFramework
           }
         }
       }

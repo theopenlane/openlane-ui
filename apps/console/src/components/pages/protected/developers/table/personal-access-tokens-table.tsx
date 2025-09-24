@@ -10,15 +10,18 @@ import {
 } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
 import PersonalAccessTokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate, formatTimeSince } from '@/utils/date'
+import { Alert, AlertDescription } from '@repo/ui/alert'
+import { Button } from '@repo/ui/button'
+import { X } from 'lucide-react'
 
 type TokenNode = {
   id: string
@@ -31,8 +34,12 @@ type TokenNode = {
 
 export const PersonalAccessTokenTable = () => {
   const path = usePathname()
+  const searchParams = useSearchParams()
   const isOrg = path.includes('/organization-settings')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [showTokenAuthorizedAlert, setShowTokenAuthorizedAlert] = useState(false)
+  const [showTokenErrorAlert, setShowTokenErrorAlert] = useState(false)
+  const [tokenErrorMessage, setTokenErrorMessage] = useState('')
 
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
 
@@ -56,6 +63,33 @@ export const PersonalAccessTokenTable = () => {
   const orderByFilter = useMemo(() => {
     return orderBy.length > 0 ? orderBy : undefined
   }, [orderBy])
+
+  useEffect(() => {
+    const tokenAuthorized = searchParams?.get('token_authorized')
+    const error = searchParams?.get('error')
+
+    if (tokenAuthorized === '1') {
+      setShowTokenAuthorizedAlert(true)
+      return
+    }
+
+    const errorMessagesMap = {
+      sso_signin_failed: 'SSO sign-in failed during token authorization',
+      sso_callback_failed: 'SSO callback failed during token authorization',
+      sso_callback_error: 'SSO callback error occurred during token authorization',
+      missing_oauth_params: 'Missing OAuth parameters during token authorization',
+      missing_organization_id: 'Missing organization ID during token authorization',
+    }
+
+    const errorMessage = errorMessagesMap[error as keyof typeof errorMessagesMap]
+    if (!errorMessage) {
+      setShowTokenErrorAlert(false)
+      return
+    }
+
+    setShowTokenErrorAlert(true)
+    setTokenErrorMessage(errorMessage)
+  }, [searchParams])
 
   const orgTokensResponse = useGetApiTokens({
     where: whereFilter,
@@ -159,6 +193,32 @@ export const PersonalAccessTokenTable = () => {
 
   return (
     <>
+      {showTokenAuthorizedAlert && (
+        <Alert className="mb-4 border-green-200 bg-green-50">
+          <AlertDescription className="text-green-800">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Token successfully authorized via SSO!</span>
+              <Button variant="outline" size="sm" onClick={() => setShowTokenAuthorizedAlert(false)} className="text-green-600 hover:text-green-800 h-6 w-6 p-0">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {showTokenErrorAlert && (
+        <Alert className="mb-4 border-red-200 bg-red-50">
+          <AlertDescription className="text-red-800">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Token authorization failed: {tokenErrorMessage}</span>
+              <Button variant="outline" size="sm" onClick={() => setShowTokenErrorAlert(false)} className="text-red-600 hover:text-red-800 h-6 w-6 p-0">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
       <DataTable
         loading={isFetching}

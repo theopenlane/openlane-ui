@@ -14,6 +14,7 @@ export const GET_ALL_ORGANIZATIONS = gql`
             id
             presignedURL
           }
+          stripeCustomerID
         }
       }
     }
@@ -174,6 +175,7 @@ export const GET_ORGANIZATION_SETTING = gql`
         identityProviderClientSecret
         oidcDiscoveryEndpoint
         identityProviderLoginEnforced
+        identityProviderAuthTested
       }
     }
   }
