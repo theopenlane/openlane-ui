@@ -174,11 +174,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     handleInitialValue()
   }
 
-  const subcontrolIDs = form.watch('subcontrolIDs')
-  const controlIDs = form.watch('controlIDs')
   const programIDs = form.watch('programIDs')
-
-  const controlsAccordionValue = (subcontrolIDs?.length || 0) + (controlIDs?.length || 0) > 0 ? 'ControlsAccordion' : undefined
 
   const programsAccordionValue = (programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined
 
@@ -411,7 +407,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                   <GridRow columns={1}>
                     <GridCell>
                       <Panel>
-                        <Accordion type="single" collapsible value={controlsAccordionValue} className="w-full">
+                        <Accordion type="single" collapsible defaultValue="ControlsAccordion" className="w-full">
                           <AccordionItem value="ControlsAccordion">
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
