@@ -1,11 +1,23 @@
 import { Meta, ColorPalette, ColorItem } from '@storybook/addon-docs/blocks'
-import themeConfig from '../../tailwind.config.ts'
+
+<Meta title="Styling & Theming/Colors" />
 
 # Color Palette
 
-<Meta title="Styling & Theming/Colors" />
 <ColorPalette>
-  {Object.entries(themeConfig?.presets[0].theme?.extend?.colors || {}).map(([colorName, colorValue]) => (
-    <ColorItem key={colorName} title={colorName} colors={colorValue} />
-  ))}
+  {(() => {
+    const styles = getComputedStyle(document.documentElement);
+    const themeColors = {
+      'regal-blue': styles.getPropertyValue('--color-regal-blue').trim(),
+    };
+
+    return Object.entries(themeColors).map(([name, value]) => (
+      <ColorItem
+        key={name}
+        title={name}
+        subtitle={value}
+        colors={{ [name]: value }}
+      />
+    ))
+  })()}
 </ColorPalette>

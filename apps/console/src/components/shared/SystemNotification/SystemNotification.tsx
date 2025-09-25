@@ -113,13 +113,9 @@ function useOutside<T extends HTMLElement>(onOutside: () => void) {
 
 function BellButton({ count, onClick, isOpen }: { count: number; onClick: () => void; isOpen: boolean }) {
   return (
-    <button
-      onClick={onClick}
-      className={`relative grid h-7 w-7 place-items-center rounded-md focus:outline-none transition-colors hover:bg-table-row-bg-hover ${isOpen ? 'bg-table-row-bg-hover' : ''}`}
-      aria-label="Notifications"
-    >
+    <button onClick={onClick} className={`bg-transparent text-muted-foreground relative grid h-7 w-7 place-items-center rounded-md ${isOpen ? 'is-active' : ''}`} aria-label="Notifications">
       <span className={cx('absolute inset-0 rounded-full animate-ping opacity-40')} />
-      <Bell className="h-6 w-6 " />
+      <Bell className="h-5 w-5 " />
       {count > 0 && <span className="absolute top-[3px] right-[5px] grid h-2 w-2 place-items-center rounded-full px-1 text-[10px] font-semibold bg-orange-500 shadow-sm"></span>}
     </button>
   )
@@ -225,7 +221,7 @@ export default function SystemNotificationTracker() {
                 <div className="text-sm bg-panel-bg rounded-md border px-1 font-bold">{counts.total}</div>
               </div>
 
-              <div className="relative flex items-center gap-1 text-sm font-semibold cursor-pointer text-normal dark:text-button group">
+              <div className="relative flex items-center gap-1 text-sm font-semibold cursor-pointer text-normal text-primary group">
                 <CheckCheck className="w-4 h-4" />
                 <span>Mark all as read</span>
                 <span className="absolute bottom-0 left-0 h-[1px] w-full scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 origin-left"></span>

@@ -125,7 +125,7 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
           onOpenAutoFocus={(e) => e.preventDefault()}
-          className="bg-card flex flex-col"
+          className="flex flex-col"
           header={
             <SheetHeader className="flex justify-between items-center flex-row text-2xl">
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />

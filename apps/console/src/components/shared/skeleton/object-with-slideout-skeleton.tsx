@@ -19,14 +19,14 @@ export const ObjectWithDetailsSkeleton = () => (
 
     <div className="fixed right-0 w-[430px] bottom-0 border-l shadow-xl transition-transform duration-300 z-20 bg-background h-full p-6">
       <div className="flex flex-col gap-4 mt-12">
-        <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4 flex flex-col gap-4">
+        <div className="rounded-lg border bg-card shadow-xs p-4 flex flex-col gap-4">
           <div className="flex gap-4">
             <Skeleton height={20} width="50%" />
             <Skeleton height={20} width="50%" />
           </div>
           <Skeleton height={400} />
         </div>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4 flex flex-col gap-4">
+        <div className="rounded-lg border bg-card shadow-xs p-4 flex flex-col gap-4">
           <Skeleton height={30} width="50%" />
           <div className="flex flex-col gap-2">
             <div className="flex gap-4">
@@ -39,7 +39,7 @@ export const ObjectWithDetailsSkeleton = () => (
             </div>
           </div>
         </div>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4 flex flex-col gap-4">
+        <div className="rounded-lg border bg-card shadow-xs p-4 flex flex-col gap-4">
           <Skeleton height={30} width="50%" />
           <div className="flex flex-col gap-2">
             <div className="flex gap-4">
@@ -72,7 +72,7 @@ export const ObjectWithDetailsSkeleton = () => (
             </div>
           </div>
         </div>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4 flex flex-col gap-4">
+        <div className="rounded-lg border bg-card shadow-xs p-4 flex flex-col gap-4">
           <Skeleton height={30} width="50%" />
           <div className="flex flex-col gap-2">
             <div className="flex gap-4">
@@ -81,7 +81,7 @@ export const ObjectWithDetailsSkeleton = () => (
             </div>
           </div>
         </div>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4 flex flex-col gap-4">
+        <div className="rounded-lg border bg-card shadow-xs p-4 flex flex-col gap-4">
           <Skeleton height={30} width="50%" />
           <div className="flex flex-col gap-2">
             <div className="flex gap-4">
@@ -94,7 +94,7 @@ export const ObjectWithDetailsSkeleton = () => (
             </div>
           </div>
         </div>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4 flex flex-col gap-4">
+        <div className="rounded-lg border bg-card shadow-xs p-4 flex flex-col gap-4">
           <Skeleton height={30} width="50%" />
           <div className="flex flex-col gap-2">
             <div className="flex gap-4">

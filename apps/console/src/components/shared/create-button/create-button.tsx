@@ -76,7 +76,7 @@ export const CreateButton: React.FC<CreateButtonProps> = ({ type, href, onClick,
 
   const inner = (
     <div
-      className={['inline-flex items-center rounded-md border px-1 h-8', disabled ? 'opacity-60 pointer-events-none' : 'hover:bg-muted/40 cursor-pointer', className].join(' ')}
+      className={['inline-flex items-center rounded-md border px-1 h-8', disabled ? 'opacity-60 pointer-events-none' : '/40 cursor-pointer', className].join(' ')}
       role="button"
       aria-label={finalAria}
       title={title ?? finalAria}

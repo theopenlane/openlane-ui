@@ -175,7 +175,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
             ) : (
               <div className="flex">
                 <p className="text-sm">Unable to scan? You can use the&nbsp;</p>
-                <p onClick={() => setIsSecretKeySetup(true)} className="text-sm underline text-accent-secondary cursor-pointer">
+                <p onClick={() => setIsSecretKeySetup(true)} className="text-sm underline text-primary cursor-pointer">
                   setup key
                 </p>
                 <p className="text-sm">&nbsp;to manually configure your authenticator app.</p>

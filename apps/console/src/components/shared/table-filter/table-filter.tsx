@@ -542,12 +542,12 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
 
   return (
     <div>
-      <button className="flex gap-1 size-fit bg-transparent py-1 px-2 border rounded-md items-center" onClick={toggleFilterActive}>
+      <button className="flex gap-1 size-fit py-1 px-2 border rounded-md items-center" onClick={toggleFilterActive}>
         <ListFilter size={16} />
         <p className="text-sm whitespace-nowrap ">Filters</p>
         {filtersActive ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         <span className="border-l pl-2">
-          <span className="bg-background-secondary rounded-md p-1 pl-2 pr-2 text-sm">{getFilterCount()}</span>
+          <span className="rounded-md p-1 pl-2 pr-2 text-sm">{getFilterCount()}</span>
         </span>
       </button>
       {filtersActive && (
@@ -568,7 +568,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                     {filterFields?.map((filterField, index) => (
                       <span
                         key={index}
-                        className="text-sm cursor-pointer hover:bg-muted"
+                        className="text-sm cursor-pointer "
                         onClick={() => {
                           handleAddAppliedFilter(false, filterField)
                           close()
@@ -581,7 +581,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                 )}
                 extraContent={(close) => (
                   <div
-                    className="flex items-center justify-between cursor-pointer hover:bg-muted"
+                    className="flex items-center justify-between cursor-pointer "
                     onClick={() => {
                       handleAddAppliedFilter(true)
                       close()

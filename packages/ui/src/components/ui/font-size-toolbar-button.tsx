@@ -76,7 +76,7 @@ export function FontSizeToolbarButton() {
       <Popover open={isFocused} modal={false}>
         <PopoverTrigger asChild>
           <input
-            className={cn('h-full w-10 shrink-0 bg-transparent px-1 text-center text-sm hover:bg-muted')}
+            className={cn('h-full w-10 shrink-0 bg-transparent px-1 text-center text-sm ')}
             value={displayValue}
             onBlur={() => {
               setIsFocused(false)

@@ -61,7 +61,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
     {
       accessorKey: 'title',
       header: 'Title',
-      cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
+      cell: ({ cell }) => <div>{cell.getValue() as string}</div>,
       size: 200,
     },
     {

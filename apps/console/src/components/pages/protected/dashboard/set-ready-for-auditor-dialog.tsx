@@ -42,7 +42,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
         <DialogHeader>
           <DialogTitle>Set ready for auditor</DialogTitle>
         </DialogHeader>
-        <div className="flex items-start gap-2 rounded-md border border-border bg-input-background p-4 ">
+        <div className="flex items-start gap-2 rounded-md border border-border bg-input p-4 ">
           <Info className="mt-1" size={16} />
           <div className="text-sm">
             <p className="text-base ">What will happen?</p>

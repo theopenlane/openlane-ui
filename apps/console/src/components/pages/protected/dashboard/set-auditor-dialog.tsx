@@ -97,7 +97,7 @@ export const SetAuditorDialog = () => {
         <DialogHeader>
           <DialogTitle>Set auditor</DialogTitle>
         </DialogHeader>
-        <div className="flex items-start gap-2 rounded-md border border-border bg-input-background p-4 ">
+        <div className="flex items-start gap-2 rounded-md border border-border bg-input p-4 ">
           <Info className="mt-1" size={16} />
           <div className="text-sm">
             <p className="text-base ">Need help finding an auditor?</p>

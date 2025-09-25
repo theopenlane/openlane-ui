@@ -81,10 +81,10 @@ export default function ForgotPasswordComponent() {
           <hr />
           <span>
             <p className="text-xl text-logo-dark text-border font-medium mb-2 text-left">Reset your password</p>
-            <p className="text-sm text-text-dark text-left mb-4">Enter your email address and we will send you a link to reset your password.</p>
+            <p className="text-sm text-border text-left mb-4">Enter your email address and we will send you a link to reset your password.</p>
           </span>
           <div className={input()}>
-            <Label htmlFor="email  " className="text-text-dark">
+            <Label htmlFor="email  " className="text-border">
               Email*
             </Label>
             <Input
@@ -95,11 +95,11 @@ export default function ForgotPasswordComponent() {
               onChange={(e) => setEmail(e.target.value)}
               required
               variant="light"
-              className="!border-neutral-300 dark:!border-neutral-300"
+              className="!border-neutral-300 dark:!border-neutral-300 text-border"
             />
           </div>
 
-          <Button type="submit" icon={<ArrowUpRight />} iconAnimated className="mt-2 w-full" disabled={cooldown > 0}>
+          <Button type="submit" icon={<ArrowUpRight />} iconAnimated className="btn-secondary mt-2 w-full" disabled={cooldown > 0}>
             {cooldown > 0 ? `Try again in ${cooldown}s` : 'Send Reset Link'}
           </Button>
         </form>

@@ -27,13 +27,13 @@ const CreateItemsFromPolicyToolbar: React.FC<TCreateItemsFromPolityProps> = ({ h
         content={
           <>
             {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNewPolicy}>
+              <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNewPolicy}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Policy</span>
               </div>
             )}
             {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNewProcedure}>
+              <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNewProcedure}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Procedure</span>
               </div>

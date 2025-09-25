@@ -57,7 +57,7 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
           <span className="border-l bg-background-secondary pl-2 text-xs">{filters?.length}</span>
           {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           <button
-            className="border-l pl-2"
+            className="border-l pl-2 bg-unset"
             onClick={(e) => {
               e.stopPropagation()
               onDeleteFilter()

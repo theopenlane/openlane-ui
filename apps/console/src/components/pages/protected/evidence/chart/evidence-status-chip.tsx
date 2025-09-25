@@ -113,7 +113,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
 
             {evidenceData.value > 5 && (
               <div className="flex items-center">
-                <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs fborder hover:bg-muted/80 transition cursor-pointer">
+                <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs fborder /80 transition cursor-pointer">
                   <span>+{evidenceData.value - 5} more</span>
                 </div>
               </div>

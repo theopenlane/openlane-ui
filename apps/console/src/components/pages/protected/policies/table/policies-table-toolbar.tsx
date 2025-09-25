@@ -104,7 +104,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <Menu
                   trigger={CreateBtn}
                   content={
-                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+                    <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Policy</span>
                     </div>
@@ -118,7 +118,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <BulkCSVCreatePolicyDialog
                         trigger={
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center space-x-2 ">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>
@@ -126,7 +126,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                       />
                     )}
                     <div
-                      className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      className={`flex items-center space-x-2  cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()

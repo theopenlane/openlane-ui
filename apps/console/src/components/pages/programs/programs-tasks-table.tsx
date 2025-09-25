@@ -125,7 +125,7 @@ const TasksTable = () => {
   const encodedFilters = encodeURIComponent(JSON.stringify(filters))
 
   return (
-    <div className="p-6 bg-muted rounded-lg">
+    <div className="p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
         <Link href={`/tasks?regularFilters=${encodedFilters}`}>

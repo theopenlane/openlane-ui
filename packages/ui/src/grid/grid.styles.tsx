@@ -15,9 +15,9 @@ export const gridStyles = tv({
     },
     columns: {
       1: { row: 'grid-cols-1' },
-      2: { row: 'grid-cols-1 sm:grid-cols-2' },
-      3: { row: 'grid-cols-1 sm:grid-cols-3' },
-      4: { row: 'grid-cols-1 sm:grid-cols-4' },
+      2: { row: 'grid-cols-2 sm:grid-cols-1' },
+      3: { row: 'grid-cols-3 sm:grid-cols-1' },
+      4: { row: 'grid-cols-4 sm:grid-cols-1' },
     },
     gap: {
       0: { wrapper: 'gap-0', row: 'gap-0' },

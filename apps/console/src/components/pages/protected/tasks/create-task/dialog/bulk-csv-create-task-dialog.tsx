@@ -61,7 +61,7 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger>
+        <DialogTrigger className="bg-transparent">
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,
@@ -69,7 +69,7 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button icon={<Upload />} className="h-8 !px-2" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+          <Button icon={<Upload />} className="h-8 !px-2 bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Bulk Upload
           </Button>
         </DialogTrigger>

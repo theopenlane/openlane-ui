@@ -77,13 +77,13 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
           <Menu
             content={
               <>
-                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
+                <div className={`flex items-center space-x-2  cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
                 </div>
                 <BulkCSVCreateTemplatelDialog
                   trigger={
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <div className="flex items-center space-x-2 ">
                       <Upload size={16} strokeWidth={2} />
                       <span>Bulk Upload</span>
                     </div>

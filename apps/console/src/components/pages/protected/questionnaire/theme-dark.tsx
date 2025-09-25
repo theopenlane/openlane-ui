@@ -1,5 +1,4 @@
-import resolveConfig from 'tailwindcss/resolveConfig'
-import tailwindConfig from '../../../../../tailwind.config'
+import defaultTheme from 'tailwindcss/defaultTheme'
 
 type TailwindColorScale = Record<string, string>
 type TailwindColors = {
@@ -20,12 +19,12 @@ type TailwindColors = {
   }
 }
 
-export const fullConfig = resolveConfig(tailwindConfig) as unknown as {
+export const fullConfig = {
   theme: {
-    colors: TailwindColors
-    fontSize: Record<string, unknown>
-    spacing: Record<string, unknown>
-  }
+    colors: defaultTheme.colors as TailwindColors,
+    fontSize: defaultTheme.fontSize,
+    spacing: defaultTheme.spacing,
+  },
 }
 
 const colors = {

@@ -112,8 +112,8 @@ const DashboardPage: React.FC = () => {
                 trigger={CreateBtn}
                 content={
                   <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && <ProgramCreate trigger={ProgramCreateIconBtn} />}
-                    <CreateTaskDialog trigger={TaskIconBtn} />
+                    {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && <ProgramCreate trigger={ProgramCreateIconBtn} className="bg-transparent px-1" />}
+                    <CreateTaskDialog trigger={TaskIconBtn} className="bg-transparent px-1" />
                   </>
                 }
               />

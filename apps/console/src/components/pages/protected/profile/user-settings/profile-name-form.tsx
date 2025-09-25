@@ -108,7 +108,7 @@ const ProfileNameForm = () => {
                     <FormLabel>First name</FormLabel>
                     <TooltipProvider disableHoverableContent={true}>
                       <Tooltip>
-                        <TooltipTrigger type="button">
+                        <TooltipTrigger type="button" className="bg-unset">
                           <InfoIcon size={14} className="mx-1 mt-1" />
                         </TooltipTrigger>
                         <TooltipContent side="right">
@@ -132,7 +132,7 @@ const ProfileNameForm = () => {
                   <FormLabel>Last name</FormLabel>
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
-                      <TooltipTrigger type="button">
+                      <TooltipTrigger type="button" className="bg-unset">
                         <InfoIcon size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
@@ -157,7 +157,7 @@ const ProfileNameForm = () => {
                   <FormLabel>Display name</FormLabel>
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
-                      <TooltipTrigger type="button">
+                      <TooltipTrigger type="button" className="bg-unset">
                         <InfoIcon size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
@@ -180,7 +180,7 @@ const ProfileNameForm = () => {
                   <FormLabel>Email</FormLabel>
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
-                      <TooltipTrigger type="button">
+                      <TooltipTrigger type="button" className="bg-unset">
                         <InfoIcon size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">

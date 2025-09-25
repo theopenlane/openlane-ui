@@ -59,7 +59,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   }
 
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-xs p-4">
+    <div className="rounded-lg border bg-card shadow-xs p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex gap-2">
           <div className="flex items-center gap-3">

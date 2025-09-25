@@ -233,14 +233,14 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
               content={
                 <>
                   {editAllowed && (
-                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
+                    <div className="flex items-center space-x-2  cursor-pointer" onClick={handleEdit}>
                       <PencilIcon size={16} strokeWidth={2} />
                       <span>Edit</span>
                     </div>
                   )}
                   {deleteAllowed && (
                     <>
-                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                      <div className="flex items-center space-x-2  cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
                         <Trash2 size={16} strokeWidth={2} />
                         <span>Delete</span>
                       </div>

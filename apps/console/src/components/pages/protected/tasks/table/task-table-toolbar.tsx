@@ -140,7 +140,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
             </>
           ) : (
             <>
-              <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
+              <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} className="bg-transparent px-1" />} />
             </>
           )}
           <Menu
@@ -148,16 +148,16 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
               <>
                 <BulkCSVCreateTaskDialog
                   trigger={
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <div className="flex items-center space-x-2 px-1">
                       <Upload size={16} strokeWidth={2} />
                       <span>Bulk Upload</span>
                     </div>
                   }
                 />
-                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
+                <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
-                </div>
+                </button>
               </>
             }
           />

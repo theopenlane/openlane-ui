@@ -18,11 +18,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
   const isLastPage = currentPage === totalPages
 
   return (
-    <div className="flex items-center gap-4 p-4 justify-end">
+    <div className="flex items-center justify-between p-4">
       <div className="flex items-center gap-2 text-sm">
         <span>Rows per page</span>
         <Select value={pageSize.toString()} onValueChange={(val) => onPageSizeChange(Number(val))}>
-          <SelectTrigger className="w-[80px] h-8 text-sm">
+          <SelectTrigger className="w-[60px] h-8 text-sm bg-secondary">
             <SelectValue placeholder="Select" />
           </SelectTrigger>
           <SelectContent>
@@ -35,22 +35,24 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
         </Select>
       </div>
 
-      <span className="text-sm">
-        Page {currentPage} of {totalPages}
-      </span>
-      <div className="flex gap-2">
-        <Button className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(1)}>
-          <ChevronsLeft size={16} />
-        </Button>
-        <Button className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
-          <ChevronLeft size={16} />
-        </Button>
-        <Button className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
-          <ChevronRight size={16} />
-        </Button>
-        <Button className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
-          <ChevronsRight size={16} />
-        </Button>
+      <div className="flex items-center gap-4">
+        <span className="text-sm">
+          Page {currentPage} of {totalPages}
+        </span>
+        <div className="flex gap-2">
+          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(1)}>
+            <ChevronsLeft size={16} />
+          </Button>
+          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
+            <ChevronLeft size={16} />
+          </Button>
+          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
+            <ChevronRight size={16} />
+          </Button>
+          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
+            <ChevronsRight size={16} />
+          </Button>
+        </div>
       </div>
     </div>
   )

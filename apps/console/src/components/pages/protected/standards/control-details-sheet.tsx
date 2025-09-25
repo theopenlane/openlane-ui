@@ -154,7 +154,7 @@ const ControlDetailsSheet = () => {
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         onOpenAutoFocus={(e) => e.preventDefault()}
         header={
           <SheetHeader>

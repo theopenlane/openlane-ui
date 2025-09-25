@@ -1,4 +1,4 @@
-import { Circle, CircleCheck, CircleOff, CirclePlus, ScanEye, Timer } from 'lucide-react'
+import { Circle, CircleCheck, CircleCheckBig, CircleOff, CirclePlus, ScanEye, Timer } from 'lucide-react'
 import { TaskTaskStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
@@ -29,8 +29,14 @@ export const TaskTypesOptions = Object.values(TaskTypes).map((value) => ({
 }))
 
 export const TaskIconBtn = (
-  <div className="flex items-center space-x-2 hover:bg-muted">
+  <div className="flex items-center space-x-2">
     <CirclePlus size={16} strokeWidth={2} />
     <span>Task</span>
+  </div>
+)
+export const TaskIconPrefixBtn = (
+  <div className="flex items-center space-x-2">
+    <CircleCheckBig size={16} strokeWidth={2} />
+    <span>Create Task</span>
   </div>
 )

@@ -344,7 +344,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             handleSheetClose()
           }
         }}
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         minWidth={600}
         header={
           <SheetHeader>
@@ -481,7 +481,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   <div className="space-y-3 pr-4">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CircuitBoard size={16} className="text-accent-secondary" />
+                        <CircuitBoard size={16} className="text-primary" />
                         Source
                       </div>
                       <div className="text-sm text-left w-[200px]">
@@ -510,7 +510,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <LinkIcon size={16} className="text-accent-secondary" />
+                        <LinkIcon size={16} className="text-primary" />
                         URL
                       </div>
 
@@ -551,7 +551,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Binoculars size={16} className="text-accent-secondary" />
+                        <Binoculars size={16} className="text-primary" />
                         Status
                       </div>
                       <div ref={triggerRef} className="text-sm text-left w-[200px]">
@@ -594,7 +594,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Calendar size={16} className="text-accent-secondary" />
+                        <Calendar size={16} className="text-primary" />
                         Creation Date
                       </div>
                       <div ref={triggerRef} className="text-sm text-left w-[200px]">
@@ -627,7 +627,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Calendar size={16} className="text-accent-secondary" />
+                        <Calendar size={16} className="text-primary" />
                         Renewal Date
                       </div>
                       <div ref={triggerRef} className="text-sm text-left w-[200px]">
@@ -659,7 +659,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Tag size={16} className="text-accent-secondary" />
+                        <Tag size={16} className="text-primary" />
                         Tags
                       </div>
                       <div ref={triggerRef} className="text-sm text-left w-[200px]">
@@ -706,7 +706,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   <div className="space-y-3 pl-4">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CalendarCheck2 size={16} className="text-accent-secondary" />
+                        <CalendarCheck2 size={16} className="text-primary" />
                         Created At
                       </div>
                       <div className="text-sm text-left w-[200px] cursor-not-allowed">
@@ -716,7 +716,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <UserRoundCheck size={16} className="text-accent-secondary" />
+                        <UserRoundCheck size={16} className="text-primary" />
                         Created By
                       </div>
                       <div className="text-sm text-left w-[200px] cursor-not-allowed">
@@ -729,7 +729,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CalendarClock size={16} className="text-accent-secondary" />
+                        <CalendarClock size={16} className="text-primary" />
                         Updated At
                       </div>
                       <div className="text-sm text-left w-[200px] cursor-not-allowed">
@@ -739,7 +739,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <UserRoundPen size={16} className="text-accent-secondary" />
+                        <UserRoundPen size={16} className="text-primary" />
                         Updated By
                       </div>
                       <div className="text-sm text-left w-[200px] cursor-not-allowed">
@@ -753,7 +753,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     {evidence?.url && (
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2 text-sm w-[180px]">
-                          <Link size={16} className="text-accent-secondary" />
+                          <Link size={16} className="text-primary" />
                           URL
                         </div>
                         <div className="text-sm text-left w-[200px] cursor-not-allowed">
