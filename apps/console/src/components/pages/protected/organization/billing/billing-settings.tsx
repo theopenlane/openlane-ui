@@ -110,8 +110,8 @@ const BillingSettings: React.FC = () => {
       <h2 id="payment-method" className="text-3xl font-semibold mt-8 mb-4">
         Payment Method
       </h2>
-      <Card className="bg-transparent p-4 flex size-fit">
-        <div className="flex gap-5">
+      <Card className="bg-transparent p-4 flex size-fit gap-4">
+        <div className="flex gap-5 items-center">
           <CreditCard size={16} />
           {paymentData?.defaultPaymentMethod?.card ? (
             <div className="flex-col gap-1">

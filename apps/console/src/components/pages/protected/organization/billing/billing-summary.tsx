@@ -135,7 +135,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
 
   return (
     <>
-      <h2 id="summary" className="text-3xl my-2">
+      <h2 id="summary" className="text-3xl mb-2">
         Summary
       </h2>
       <div className="border rounded-lg">
