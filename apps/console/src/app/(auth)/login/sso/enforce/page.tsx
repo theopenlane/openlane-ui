@@ -33,8 +33,7 @@ const SSOEnforcePage: React.FC = () => {
       }
 
       window.location.href = ssoConfig.redirect_uri
-    } catch (error) {
-      console.error('SSO login error:', error)
+    } catch {
       setError('An error occurred during SSO login')
       setLoading(false)
     }

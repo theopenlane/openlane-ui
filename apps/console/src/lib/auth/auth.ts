@@ -100,10 +100,6 @@ export const config = {
         try {
           if (isDirectOAuth) {
             cookieStore.delete('direct_oauth')
-            // const ssoConfig = await checkSSOEnforcement(email, cookieStore)
-            // if (ssoConfig) {
-            // return ssoConfig.redirect_uri
-            // }
             return `/login/sso/enforce?email=${email}`
           }
 

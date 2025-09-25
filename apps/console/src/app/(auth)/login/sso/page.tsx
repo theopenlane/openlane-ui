@@ -85,11 +85,9 @@ const SSOCallbackPage: React.FC = () => {
 
           router.push(getRedirectUrl('sso_signin_failed'))
         } else {
-          console.error('SSO callback failed:', data)
           router.push(getRedirectUrl('sso_callback_failed'))
         }
-      } catch (error) {
-        console.error('SSO callback error:', error)
+      } catch {
         router.push(getRedirectUrl('sso_callback_error'))
       } finally {
         localStorage.removeItem('testing_sso')
