@@ -24,7 +24,7 @@ const SideNavigation = () => {
   return (
     <div className="flex flex-col gap-2">
       {sections.map((s) => (
-        <button key={s.id} onClick={() => handleScrollTo(s.id)} className={`text-left font-bold text-text-heading`}>
+        <button key={s.id} onClick={() => handleScrollTo(s.id)} className={`text-left font-bold text-text-heading whitespace-nowrap`}>
           {s.label}
         </button>
       ))}

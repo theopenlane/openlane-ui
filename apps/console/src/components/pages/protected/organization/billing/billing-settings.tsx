@@ -63,7 +63,7 @@ const BillingSettings: React.FC = () => {
   return (
     <div id="billing-settings" className={cn(panel())}>
       <div className="mt-8 mb-4 flex justify-between items-center">
-        <h2 className="text-3xl font-semibold">Billing Settings</h2>
+        <h2 className="text-2xl">Billing Settings</h2>
       </div>
 
       {/* Billing Address Section */}
@@ -107,7 +107,7 @@ const BillingSettings: React.FC = () => {
       </div>
 
       {/* Payment Method Section */}
-      <h2 id="payment-method" className="text-3xl font-semibold mt-8 mb-4">
+      <h2 id="payment-method" className="text-2xl mt-8 mb-4">
         Payment Method
       </h2>
       <Card className="bg-transparent p-4 flex size-fit gap-4">
@@ -141,7 +141,7 @@ const BillingSettings: React.FC = () => {
       <Invoices stripeCustomerId={stripeCustomerId} />
 
       {/* Cancel Section */}
-      <h2 className="text-3xl font-semibold mt-8 mb-4">Cancel Subscription</h2>
+      <h2 className="text-2xl mt-8 mb-4">Cancel Subscription</h2>
 
       {data?.organization?.orgSubscriptions && data?.organization?.orgSubscriptions.length > 0 && (
         <div id="cancel-subscription">

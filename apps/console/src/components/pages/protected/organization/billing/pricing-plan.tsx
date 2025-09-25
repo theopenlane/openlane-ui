@@ -138,13 +138,13 @@ const PricingPlan = () => {
     <div className="flex relative">
       <SideNavigation />
 
-      <div className="max-w-[1000px] ml-56">
+      <div className="max-w-[1000px] ml-14">
         <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} />
         <>
           {!!schedules[0] && (
             <div>
               {/* Available Modules */}
-              <h3 id="modules" className="mt-8 text-3xl font-semibold">
+              <h3 id="modules" className="mt-8 text-2xl">
                 Modules
               </h3>
               {productsLoading ? (
@@ -169,7 +169,7 @@ const PricingPlan = () => {
                 </div>
               )}
               {/* Available Add-ons */}
-              <h3 id="addons" className="mt-8 text-3xl font-semibold">
+              <h3 id="addons" className="mt-8 text-2xl">
                 Add-ons
               </h3>
               {productsLoading ? (
