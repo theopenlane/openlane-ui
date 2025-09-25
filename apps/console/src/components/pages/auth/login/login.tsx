@@ -270,6 +270,7 @@ export const LoginPage = () => {
       })
 
       if (verificationResult.success) {
+        setDirectOAuthCookie()
         await signIn('passkey', {
           callbackUrl: redirectUrl,
           email: email || '',

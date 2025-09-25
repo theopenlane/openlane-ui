@@ -89,11 +89,14 @@ export const config = {
         return '/waitlist'
       }
 
-      // If OAuth authentication
-      if (account?.type === 'oauth' || account?.type === 'oidc') {
+      // if OAuth authentication or passkey
+      // we cannot use account?.type === 'credentials' as we already handle sso login differently on the
+      // UI by showing the user a button that takes them to the sso auth page
+      // else we will get into a non ending loop
+      if (account?.type === 'oauth' || account?.type === 'oidc' || account?.provider === 'passkey') {
         const email = profile?.email || user?.email || ''
 
-        // if the user clicked the oauth signin buttons this will be set to true
+        // if the user clicked the oauth signin buttons or passkey button this will be set to true
         // and if true, we need to check for sso enforcement
         //
         // This is also needed to rightfully know when a user is coming in via the login page
