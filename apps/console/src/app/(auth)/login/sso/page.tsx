@@ -46,7 +46,6 @@ const SSOCallbackPage: React.FC = () => {
 
         // check cookie or localstorage for the org id
         const organizationId = getCookie('organization_id')
-        console.log(organizationId)
 
         if (!organizationId) {
           router.push(getRedirectUrl('missing_organization_id'))
