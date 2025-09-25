@@ -1,0 +1,103 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Button } from '@repo/ui/button'
+import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
+
+const SSOEnforcePage: React.FC = () => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const email = searchParams?.get('email') || ''
+  const hasError = !email || !!error
+
+  const handleSSOLogin = async () => {
+    setLoading(true)
+
+    try {
+      const organizationId = searchParams?.get('org_id')
+
+      if (!organizationId) {
+        setError('Organization information not found')
+        setLoading(false)
+        return
+      }
+
+      localStorage.setItem('sso_organization_id', organizationId)
+      const response = await fetch('/api/auth/sso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organization_id: organizationId,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success && data.redirect_uri) {
+        window.location.href = data.redirect_uri
+      } else {
+        setError(data.message || 'SSO login failed')
+        setLoading(false)
+      }
+    } catch (error) {
+      console.error('SSO login error:', error)
+      setError('An error occurred during SSO login')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex h-full w-full min-h-screen justify-center items-center">
+      <div className="text-center max-w-md">
+        <div className="mb-6">
+          <ShieldCheck className="w-16 h-16 mx-auto text-brand mb-4" />
+          <h1 className="text-2xl font-medium mb-2">Your organization requires SSO</h1>
+          <p className="text-sm text-gray-600">To access your account, you need to sign in through your organization&apos;s single sign-on provider.</p>
+          {email && (
+            <p className="text-sm text-gray-500 mt-2">
+              Email: <span className="font-medium">{email}</span>
+            </p>
+          )}
+          {!email && <p className="text-sm text-red-600 mt-2">Email not found. Please try logging in again.</p>}
+          {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+        </div>
+
+        <div className="flex gap-3">
+          <Button className="flex-1" onClick={handleSSOLogin} disabled={loading || hasError} size="lg">
+            {loading ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Redirecting...
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                Continue with SSO
+                <ArrowRightCircle size={16} className="ml-2" />
+              </div>
+            )}
+          </Button>
+
+          {hasError && (
+            <Button variant="outline" onClick={() => router.push('/login')} disabled={loading} size="lg">
+              Back to login
+            </Button>
+          )}
+        </div>
+
+        {!hasError && (
+          <button onClick={() => router.push('/login')} className="text-sm text-gray-500 hover:text-gray-700 mt-4 block mx-auto" disabled={loading}>
+            Back to login
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default SSOEnforcePage
