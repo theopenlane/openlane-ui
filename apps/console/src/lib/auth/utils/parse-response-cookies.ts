@@ -34,7 +34,13 @@ export function parseSSOCookies(responseCookies: string, cookieStore: CookieStor
 
       // set cookies that are in the allowedTokens set
       if (ssoOnlyCookieTokens.has(name)) {
-        cookieStore.set(name, value, options)
+        console.log(name, name !== 'organization_id')
+        cookieStore.set(name, value, {
+          ...options,
+          // set all cookies to httponly as expected except the organization_id
+          // as this will help get rid of the localStorage we use to store the organization_id
+          httpOnly: name !== 'organization_id',
+        })
       }
     }
   }

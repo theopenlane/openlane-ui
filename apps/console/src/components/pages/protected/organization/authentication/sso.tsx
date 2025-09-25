@@ -277,7 +277,6 @@ const SSOPage = () => {
     setIsTestingSSO(true)
 
     try {
-      localStorage.setItem('sso_organization_id', currentOrgId)
       localStorage.setItem('testing_sso', 'true')
 
       const response = await fetch('/api/auth/sso', {

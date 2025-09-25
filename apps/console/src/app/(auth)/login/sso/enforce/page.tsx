@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
+import { checkSSOEnforcement } from '@/lib/auth/utils/get-openlane-token'
 
 const SSOEnforcePage: React.FC = () => {
   const router = useRouter()
@@ -15,36 +16,23 @@ const SSOEnforcePage: React.FC = () => {
   const hasError = !email || !!error
 
   const handleSSOLogin = async () => {
+    if (!email) {
+      setError('Email not found')
+      return
+    }
+
     setLoading(true)
 
     try {
-      const organizationId = searchParams?.get('org_id')
+      const ssoConfig = await checkSSOEnforcement(email)
 
-      if (!organizationId) {
-        setError('Organization information not found')
+      if (!ssoConfig) {
+        setError('SSO configuration not found')
         setLoading(false)
         return
       }
 
-      localStorage.setItem('sso_organization_id', organizationId)
-      const response = await fetch('/api/auth/sso', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          organization_id: organizationId,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success && data.redirect_uri) {
-        window.location.href = data.redirect_uri
-      } else {
-        setError(data.message || 'SSO login failed')
-        setLoading(false)
-      }
+      window.location.href = ssoConfig.redirect_uri
     } catch (error) {
       console.error('SSO login error:', error)
       setError('An error occurred during SSO login')

@@ -13,12 +13,12 @@ export interface OAuthUserRequest {
 
 export const checkSSOEnforcement = async (email: string, cookieStore?: CookieStore): Promise<{ redirect_uri: string; organization_id: string } | null> => {
   try {
-    const webfingerResponse = await secureFetch(`${openlaneAPIUrl}/.well-known/webfinger?resource=acct:${email}`)
+    const webfingerResponse = await secureFetch(`/api/auth/webfinger?email=${encodeURIComponent(email)}`)
     const ssoConfig = await webfingerResponse.json()
 
     if (ssoConfig.success && ssoConfig.enforced && ssoConfig.provider !== 'NONE' && ssoConfig.organization_id) {
       try {
-        const ssoResponse = await secureFetch(`${openlaneAPIUrl}/v1/sso/login`, {
+        const ssoResponse = await secureFetch(`/api/auth/sso`, {
           method: 'POST',
           body: JSON.stringify({
             organization_id: ssoConfig.organization_id,
@@ -31,15 +31,6 @@ export const checkSSOEnforcement = async (email: string, cookieStore?: CookieSto
           const responseCookies = ssoResponse.headers.get('set-cookie')
           if (responseCookies && cookieStore) {
             parseSSOCookies(responseCookies, cookieStore)
-
-            cookieStore.set('sso_redirect_url', ssoData.redirect_uri, {
-              maxAge: 120,
-              path: '/',
-            })
-            cookieStore.set('sso_organization_id', ssoConfig.organization_id, {
-              maxAge: 120,
-              path: '/',
-            })
           }
 
           return {
