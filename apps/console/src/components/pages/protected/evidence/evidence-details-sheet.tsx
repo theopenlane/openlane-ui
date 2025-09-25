@@ -8,21 +8,22 @@ import {
   Calendar,
   CalendarCheck2,
   CalendarClock,
-  Check,
   CircuitBoard,
   Download,
   Eye,
   InfoIcon,
   LinkIcon,
   Link,
-  PanelRightClose,
-  PencilIcon,
   Tag,
   Trash2,
   UserRoundCheck,
   UserRoundPen,
+  X,
+  Copy,
+  Pencil,
+  Save,
 } from 'lucide-react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Input, InputRow } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
 import { Badge } from '@repo/ui/badge'
@@ -63,6 +64,8 @@ import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skelet
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import NextLink from 'next/link'
 import EvidenceFiles from './evidence-files'
+import { Card, CardContent } from '@repo/ui/cardpanel'
+import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -89,6 +92,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
+  const { wrapper, content } = statCardStyles({ color: 'green' })
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -348,35 +352,41 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         minWidth={600}
         header={
           <SheetHeader>
-            <div className="flex items-center justify-between">
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
-              <div className="flex justify-end gap-2 items-center">
-                <Button className="h-8 p-2" icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                  Copy link
-                </Button>
-                {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button className="h-8 p-2" onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                      Save
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    {editAllowed && (
-                      <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
-                        <PencilIcon size={16} strokeWidth={2} />
-                      </Button>
-                    )}
-                  </>
-                )}
-                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
-                  <Trash2 size={16} strokeWidth={2} />
-                </Button>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className={`text-2xl leading-8 font-medium`}>{evidence?.name || 'Untitled'}</span>
 
+                <X aria-label="Close detail sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
+              </div>
+
+              <div className="flex justify-start gap-2 items-center">
+                <div className="flex gap-3">
+                  {isEditing ? (
+                    <>
+                      <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </Button>
+                      <Button className="h-8 p-2" onClick={form.handleSubmit(onSubmit)} icon={<Save />} iconPosition="left">
+                        Save
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button className="h-8 p-2" icon={<Copy />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                        Copy link
+                      </Button>
+                      {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
+                      {editAllowed && (
+                        <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
+                          <Pencil size={16} strokeWidth={2} />
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                    <Trash2 size={16} strokeWidth={2} />
+                  </Button>
+                </div>
                 <ConfirmationDialog
                   open={deleteDialogIsOpen}
                   onOpenChange={setDeleteDialogIsOpen}
@@ -399,31 +409,21 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           <>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <SheetTitle>
-                  {isEditing || editField === 'name' ? (
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Title</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
-                          </div>
-                          <FormControl>
-                            <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                          </FormControl>
-                          {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  ) : (
-                    <span onDoubleClick={() => handleDoubleClick('name')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
-                      {evidence?.name}
-                    </span>
-                  )}
-                </SheetTitle>
-
+                {isEditing || editField === 'name' ? (
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                        </FormControl>
+                        {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                      </FormItem>
+                    )}
+                  />
+                ) : null}
                 {isEditing || editField === 'description' ? (
                   <FormField
                     control={form.control}
@@ -473,304 +473,311 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     {evidence?.collectionProcedure ? <p>{evidence?.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
                   </div>
                 )}
+                <div className="mt-6 mb-8">
+                  <Card className={wrapper()}>
+                    <CardContent className={content()}>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <CircuitBoard size={16} className="text-accent-secondary" />
+                            Source
+                          </div>
+                          <div className="text-sm text-right w-[200px]">
+                            {isEditing || editField === 'source' ? (
+                              <InputRow className="w-full">
+                                <FormField
+                                  control={form.control}
+                                  name="source"
+                                  render={({ field }) => (
+                                    <FormItem className="w-full">
+                                      <FormControl>
+                                        <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                      </FormControl>
+                                      {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
+                                    </FormItem>
+                                  )}
+                                />
+                              </InputRow>
+                            ) : (
+                              <p className={`text-sm text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('source')}>
+                                {evidence?.source || <span className="text-gray-500">no source provided</span>}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                <div className="relative grid grid-cols-2 gap-8 p-4 border rounded-lg mt-10">
-                  <div className="absolute top-0 bottom-0 left-1/2 w-px border" />
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <LinkIcon size={16} className="text-accent-secondary" />
+                            URL
+                          </div>
 
-                  {/* Left Column */}
-                  <div className="space-y-3 pr-4">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CircuitBoard size={16} className="text-accent-secondary" />
-                        Source
+                          <div className="text-sm text-right min-w-0">
+                            {isEditing || editField === 'url' ? (
+                              <InputRow className="w-full">
+                                <FormField
+                                  control={form.control}
+                                  name="url"
+                                  render={({ field }) => (
+                                    <FormItem className="w-full">
+                                      <FormControl>
+                                        <Input variant="medium" {...field} className="w-full text-right" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                      </FormControl>
+                                      {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
+                                    </FormItem>
+                                  )}
+                                />
+                              </InputRow>
+                            ) : (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className={`flex items-center w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
+                                      <span className="truncate overflow-hidden whitespace-nowrap text-right">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <NextLink href={evidence?.url ?? '#'} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                      {evidence?.url}
+                                    </NextLink>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <Binoculars size={16} className="text-accent-secondary" />
+                            Status
+                          </div>
+                          <div ref={triggerRef} className="text-sm text-right">
+                            {isEditing || editField === 'status' ? (
+                              <Controller
+                                name="status"
+                                control={form.control}
+                                render={({ field }) => {
+                                  return (
+                                    <>
+                                      <Select
+                                        value={field.value ?? undefined}
+                                        onValueChange={(value) => {
+                                          field.onChange(value)
+                                          handleUpdateField()
+                                        }}
+                                      >
+                                        <SelectTrigger className="w-full">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
+                                        <SelectContent ref={popoverRef}>
+                                          {statusOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                              {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                                    </>
+                                  )
+                                }}
+                              />
+                            ) : (
+                              <div className={`flex items-center text-right space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('status')}>
+                                {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
+                                <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <Calendar size={16} className="text-accent-secondary" />
+                            Creation Date
+                          </div>
+                          <div ref={triggerRef} className="text-sm text-right">
+                            {isEditing || editField === 'creationDate' ? (
+                              <FormField
+                                control={form.control}
+                                name="creationDate"
+                                render={({ field }) => (
+                                  <FormItem ref={popoverRef} className="w-full">
+                                    <CalendarPopover
+                                      field={field}
+                                      defaultToday
+                                      required
+                                      onChange={(date) => {
+                                        field.onChange(date)
+                                        handleUpdateField()
+                                      }}
+                                    />
+                                    {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
+                                  </FormItem>
+                                )}
+                              />
+                            ) : (
+                              <p className={`text-sm text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('creationDate')}>
+                                {formatDate(evidence?.creationDate)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <Calendar size={16} className="text-accent-secondary" />
+                            Renewal Date
+                          </div>
+                          <div ref={triggerRef} className="text-sm text-right">
+                            {isEditing || editField === 'renewalDate' ? (
+                              <FormField
+                                control={form.control}
+                                name="renewalDate"
+                                render={({ field }) => (
+                                  <FormItem ref={popoverRef} className="w-full">
+                                    <CalendarPopover
+                                      field={field}
+                                      defaultAddDays={365}
+                                      onChange={(date) => {
+                                        field.onChange(date)
+                                        handleUpdateField()
+                                      }}
+                                    />
+                                    {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
+                                  </FormItem>
+                                )}
+                              />
+                            ) : (
+                              <p className={`text-sm text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('renewalDate')}>
+                                {formatDate(evidence?.renewalDate)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <Tag size={16} className="text-accent-secondary" />
+                            Tags
+                          </div>
+                          <div ref={triggerRef} className="text-sm text-right">
+                            {isEditing || editField === 'tags' ? (
+                              <Controller
+                                name="tags"
+                                control={form.control}
+                                render={({ field }) => {
+                                  return (
+                                    <>
+                                      <MultipleSelector
+                                        placeholder="Add tag..."
+                                        creatable
+                                        className="w-[180px]"
+                                        commandProps={{ className: 'w-full' }}
+                                        value={tagValues}
+                                        hideClearAllButton
+                                        onChange={(selectedOptions) => {
+                                          const options = selectedOptions.map((option) => option.value)
+                                          field.onChange(options)
+                                          setTagValues(
+                                            selectedOptions.map((item) => ({
+                                              value: item.value,
+                                              label: item.label,
+                                            })),
+                                          )
+                                        }}
+                                      />
+                                      {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                                    </>
+                                  )
+                                }}
+                              />
+                            ) : (
+                              <div onDoubleClick={() => handleDoubleClick('tags')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                                {handleTags()}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing || editField === 'source' ? (
-                          <InputRow className="w-full">
-                            <FormField
-                              control={form.control}
-                              name="source"
-                              render={({ field }) => (
-                                <FormItem className="w-full">
-                                  <FormControl>
-                                    <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                                  </FormControl>
-                                  {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
-                                </FormItem>
-                              )}
-                            />
-                          </InputRow>
-                        ) : (
-                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('source')}>
-                            {evidence?.source || <span className="text-gray-500">no source provided</span>}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                    </CardContent>
+                  </Card>
 
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <LinkIcon size={16} className="text-accent-secondary" />
-                        URL
-                      </div>
+                  {!isEditing && (
+                    <div className="flex flex-col gap-6 mt-6 mb-8">
+                      <Card className={wrapper()}>
+                        <CardContent className={content()}>
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                                <CalendarCheck2 size={16} className="text-accent-secondary" />
+                                Created At
+                              </div>
+                              <div className="text-sm cursor-not-allowed">
+                                <p className="text-sm text-right">{formatDate(evidence?.createdAt)}</p>
+                              </div>
+                            </div>
 
-                      <div className="text-sm text-left w-[200px] min-w-0">
-                        {isEditing || editField === 'url' ? (
-                          <InputRow className="w-full">
-                            <FormField
-                              control={form.control}
-                              name="url"
-                              render={({ field }) => (
-                                <FormItem className="w-full">
-                                  <FormControl>
-                                    <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                                  </FormControl>
-                                  {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
-                                </FormItem>
-                              )}
-                            />
-                          </InputRow>
-                        ) : (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className={`flex items-center w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
-                                  <span className="truncate overflow-hidden whitespace-nowrap">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                                <UserRoundCheck size={16} className="text-accent-secondary" />
+                                Created By
+                              </div>
+                              <div className="text-sm cursor-not-allowed">
+                                <p className="text-sm justify-end flex items-center">
+                                  <Avatar entity={createdByUser as User} variant="small" />
+                                  <span>{createdByUser?.displayName}</span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                                <CalendarClock size={16} className="text-accent-secondary" />
+                                Updated At
+                              </div>
+                              <div className="text-sm cursor-not-allowed">
+                                <p className="text-sm text-right">{formatDate(evidence?.updatedAt)}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                                <UserRoundPen size={16} className="text-accent-secondary" />
+                                Updated By
+                              </div>
+                              <div className="text-sm cursor-not-allowed">
+                                <p className="text-sm justify-end flex items-center ">
+                                  <Avatar entity={updatedByUser as User} variant="small" />
+                                  <span>{updatedByUser?.displayName}</span>
+                                </p>
+                              </div>
+                            </div>
+
+                            {evidence?.url && (
+                              <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-2 text-sm w-[180px]">
+                                  <Link size={16} className="text-accent-secondary" />
+                                  URL
                                 </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <NextLink href={evidence?.url ?? '#'} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                  {evidence?.url}
-                                </NextLink>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Binoculars size={16} className="text-accent-secondary" />
-                        Status
-                      </div>
-                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
-                        {isEditing || editField === 'status' ? (
-                          <Controller
-                            name="status"
-                            control={form.control}
-                            render={({ field }) => {
-                              return (
-                                <>
-                                  <Select
-                                    value={field.value ?? undefined}
-                                    onValueChange={(value) => {
-                                      field.onChange(value)
-                                      handleUpdateField()
-                                    }}
-                                  >
-                                    <SelectTrigger className="w-full">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
-                                    <SelectContent ref={popoverRef}>
-                                      {statusOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                          {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
-                                </>
-                              )
-                            }}
-                          />
-                        ) : (
-                          <div className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('status')}>
-                            {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
-                            <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Calendar size={16} className="text-accent-secondary" />
-                        Creation Date
-                      </div>
-                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
-                        {isEditing || editField === 'creationDate' ? (
-                          <FormField
-                            control={form.control}
-                            name="creationDate"
-                            render={({ field }) => (
-                              <FormItem ref={popoverRef} className="w-full">
-                                <CalendarPopover
-                                  field={field}
-                                  defaultToday
-                                  required
-                                  onChange={(date) => {
-                                    field.onChange(date)
-                                    handleUpdateField()
-                                  }}
-                                />
-                                {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
-                              </FormItem>
+                                <div className="text-sm text-left w-[200px] cursor-not-allowed">
+                                  <div className="flex items-center gap-4 cursor-pointer">
+                                    <p className="flex items-center gap-1">
+                                      <Eye size={16} />
+                                      View
+                                    </p>
+                                    <p className="flex items-center gap-1" onClick={() => fileDownload(evidence.url!, 'customFileName', errorNotification)}>
+                                      <Download size={16} />
+                                      Download
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
                             )}
-                          />
-                        ) : (
-                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('creationDate')}>
-                            {formatDate(evidence?.creationDate)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Calendar size={16} className="text-accent-secondary" />
-                        Renewal Date
-                      </div>
-                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
-                        {isEditing || editField === 'renewalDate' ? (
-                          <FormField
-                            control={form.control}
-                            name="renewalDate"
-                            render={({ field }) => (
-                              <FormItem ref={popoverRef} className="w-full">
-                                <CalendarPopover
-                                  field={field}
-                                  defaultAddDays={365}
-                                  onChange={(date) => {
-                                    field.onChange(date)
-                                    handleUpdateField()
-                                  }}
-                                />
-                                {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
-                              </FormItem>
-                            )}
-                          />
-                        ) : (
-                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('renewalDate')}>
-                            {formatDate(evidence?.renewalDate)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Tag size={16} className="text-accent-secondary" />
-                        Tags
-                      </div>
-                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
-                        {isEditing || editField === 'tags' ? (
-                          <Controller
-                            name="tags"
-                            control={form.control}
-                            render={({ field }) => {
-                              return (
-                                <>
-                                  <MultipleSelector
-                                    placeholder="Add tag..."
-                                    creatable
-                                    className="w-[180px]"
-                                    commandProps={{ className: 'w-full' }}
-                                    value={tagValues}
-                                    hideClearAllButton
-                                    onChange={(selectedOptions) => {
-                                      const options = selectedOptions.map((option) => option.value)
-                                      field.onChange(options)
-                                      setTagValues(
-                                        selectedOptions.map((item) => ({
-                                          value: item.value,
-                                          label: item.label,
-                                        })),
-                                      )
-                                    }}
-                                  />
-                                  {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
-                                </>
-                              )
-                            }}
-                          />
-                        ) : (
-                          <div onDoubleClick={() => handleDoubleClick('tags')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
-                            {handleTags()}
                           </div>
-                        )}
-                      </div>
+                        </CardContent>
+                      </Card>
                     </div>
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="space-y-3 pl-4">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CalendarCheck2 size={16} className="text-accent-secondary" />
-                        Created At
-                      </div>
-                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
-                        <p className="text-sm text-left">{formatDate(evidence?.createdAt)}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <UserRoundCheck size={16} className="text-accent-secondary" />
-                        Created By
-                      </div>
-                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
-                        <p className="text-sm flex items-center">
-                          <Avatar entity={createdByUser as User} variant="small" />
-                          <span>{createdByUser?.displayName}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CalendarClock size={16} className="text-accent-secondary" />
-                        Updated At
-                      </div>
-                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
-                        <p className="text-sm text-left">{formatDate(evidence?.updatedAt)}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <UserRoundPen size={16} className="text-accent-secondary" />
-                        Updated By
-                      </div>
-                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
-                        <p className="text-sm flex items-center ">
-                          <Avatar entity={updatedByUser as User} variant="small" />
-                          <span>{updatedByUser?.displayName}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    {evidence?.url && (
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-sm w-[180px]">
-                          <Link size={16} className="text-accent-secondary" />
-                          URL
-                        </div>
-                        <div className="text-sm text-left w-[200px] cursor-not-allowed">
-                          <div className="flex items-center gap-4 cursor-pointer">
-                            <p className="flex items-center gap-1">
-                              <Eye size={16} />
-                              View
-                            </p>
-                            <p className="flex items-center gap-1" onClick={() => fileDownload(evidence.url!, 'customFileName', errorNotification)}>
-                              <Download size={16} />
-                              Download
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </form>
               {isEditing && (
