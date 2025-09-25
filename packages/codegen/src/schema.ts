@@ -20146,6 +20146,7 @@ export interface Mutation {
   deleteUser: UserDeletePayload
   /** Delete an existing webauthn */
   deleteWebauthn: WebauthnDeletePayload
+  sendTrustCenterNDAEmail: SendTrustCenterNdaEmailPayload
   /** Update an existing apiToken */
   updateAPIToken: ApiTokenUpdatePayload
   /** Update an existing actionPlan */
@@ -21098,6 +21099,10 @@ export interface MutationDeleteUserArgs {
 
 export interface MutationDeleteWebauthnArgs {
   id: Scalars['ID']['input']
+}
+
+export interface MutationSendTrustCenterNdaEmailArgs {
+  input: SendTrustCenterNdaInput
 }
 
 export interface MutationUpdateApiTokenArgs {
@@ -33170,6 +33175,18 @@ export interface SearchResults {
   userSettings?: Maybe<UserSettingConnection>
   users?: Maybe<UserConnection>
   webauthns?: Maybe<WebauthnConnection>
+}
+
+export interface SendTrustCenterNdaEmailPayload {
+  __typename?: 'SendTrustCenterNDAEmailPayload'
+  success: Scalars['Boolean']['output']
+}
+
+export interface SendTrustCenterNdaInput {
+  /** email address */
+  email: Scalars['String']['input']
+  /** trust center id */
+  trustCenterID: Scalars['ID']['input']
 }
 
 export interface Standard extends Node {

@@ -29,7 +29,9 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
     <div className="mt-10">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-3xl font-semibold">Recent Invoices</h2>
+        <h2 id="recent-invoices" className="text-2xl">
+          Recent Invoices
+        </h2>
         {stripeCustomerId && (
           <Button className="h-8 p-2" onClick={handleManageBilling}>
             View all in stripe

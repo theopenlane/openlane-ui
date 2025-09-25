@@ -4,10 +4,11 @@ import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { ExternalLink, InfoIcon } from 'lucide-react'
+import { Box, ExternalLink, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Card } from '@repo/ui/cardpanel'
 
 type Product = {
   product_id: string
@@ -83,56 +84,62 @@ export function ProductCard({
   }
 
   return (
-    <>
-      <div className="border-b py-4 w-full first:border-y">
-        <div className="flex flex-col justify-between flex-1">
-          <div>
-            <div className="flex gap-2 items-center">
-              <p className="text-sm text-text-informational">
-                ${priceForCurrentInterval.unit_amount / 100} / {priceForCurrentInterval.interval}
-              </p>
-              <SystemTooltip
-                icon={<InfoIcon size={14} className="text-brand-100" />}
-                content={<div className="flex flex-col gap-1 text-sm text-text-informational">{renderPriceOptions(product.billing.prices)}</div>}
-              />
-            </div>
-            <p className="text-xl font-medium mb-2">{product.display_name}</p>
-            {(product.marketing_description ?? product.description) && <p className="text-sm">{product.marketing_description || product.description}</p>}
-          </div>
+    <Card className="bg-transparent p-4">
+      <div className="flex flex-col justify-between flex-1">
+        <div className="flex gap-2 w-full">
+          <Box size={16} className="mt-2" />
+          <div className="flex-1">
+            <div className="flex justify-between w-full">
+              <div className="flex gap-1 items-center">
+                <p className="text-xl font-medium ">{product.display_name}</p>
+                <SystemTooltip
+                  icon={<InfoIcon size={14} className="text-brand-100" />}
+                  content={<div className="flex flex-col gap-1 text-sm text-text-informational">{renderPriceOptions(product.billing.prices)}</div>}
+                />
+              </div>
+              <div className="flex gap-5 items-center">
+                <p>
+                  ${priceForCurrentInterval.unit_amount / 100} / {priceForCurrentInterval.interval}
+                </p>
 
-          <div className="mt-3 flex justify-between">
-            {alreadySubscribed ? (
-              endingSoon ? (
-                <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmRenewOpen(true)}>
-                  Renew
-                </Button>
-              ) : (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span>
-                        <Button className="h-8 p-2" variant="destructive" disabled={updating || isOnlyActiveModule || isSubscriptionCanceled} onClick={() => setConfirmUnsubscribeOpen(true)}>
-                          Unsubscribe
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
-                    {isOnlyActiveModule && (
-                      <TooltipContent side="top" className="max-w-xs">
-                        You only have one module enabled, you cannot cancel this module. You either need to cancel your subscription or add another module first.
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-              )
-            ) : (
-              <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSubscribeOpen(true)}>
-                Subscribe
-              </Button>
-            )}
-            <a href={`${OPENLANE_WEBSITE_URL}/pricing`} target="_blank" rel="noopener noreferrer" className="text-brand text-sm font-medium flex gap-1 items-center">
-              <ExternalLink size={16} />
-              <span>Learn more</span>
-            </a>
+                {alreadySubscribed ? (
+                  endingSoon ? (
+                    <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmRenewOpen(true)}>
+                      Renew
+                    </Button>
+                  ) : (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>
+                            <Button className="h-8 p-2" variant="destructive" disabled={updating || isOnlyActiveModule || isSubscriptionCanceled} onClick={() => setConfirmUnsubscribeOpen(true)}>
+                              Unsubscribe
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        {isOnlyActiveModule && (
+                          <TooltipContent side="top" className="max-w-xs">
+                            You only have one module enabled, you cannot cancel this module. You either need to cancel your subscription or add another module first.
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  )
+                ) : (
+                  <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSubscribeOpen(true)}>
+                    Subscribe
+                  </Button>
+                )}
+              </div>
+            </div>
+            {(product.marketing_description ?? product.description) && <p className="text-sm text-text-informational mt-1">{product.marketing_description || product.description}</p>}
+
+            <div className="mt-1">
+              <a href={`${OPENLANE_WEBSITE_URL}/pricing`} target="_blank" rel="noopener noreferrer" className="text-brand text-sm font-medium flex gap-1 items-center">
+                <ExternalLink size={16} />
+                <span>Learn more</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -203,6 +210,6 @@ export function ProductCard({
         confirmationText="Confirm"
         confirmationTextVariant="destructive"
       />
-    </>
+    </Card>
   )
 }
