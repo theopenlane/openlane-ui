@@ -99,7 +99,6 @@ export const config = {
 
         try {
           if (isDirectOAuth) {
-            cookieStore.delete('direct_oauth')
             return `/login/sso/enforce?email=${email}`
           }
 

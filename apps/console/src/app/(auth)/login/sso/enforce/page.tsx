@@ -1,19 +1,43 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { checkSSOEnforcement } from '@/lib/auth/utils/get-openlane-token'
+import { getCookie } from '@/lib/auth/utils/getCookie'
+import { Loading } from '@/components/shared/loading/loading'
 
 const SSOEnforcePage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isValidating, setIsValidating] = useState(true)
 
   const email = searchParams?.get('email') || ''
   const hasError = !email || !!error
+
+  useEffect(() => {
+    const directOAuth = getCookie('direct_oauth')
+    if (!directOAuth) {
+      router.push('/login')
+      return
+    }
+
+    // delete the cookie
+    document.cookie = 'direct_oauth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+
+    setIsValidating(false)
+  }, [router])
+
+  if (isValidating) {
+    return (
+      <div className="flex h-full w-full min-h-screen justify-center items-center">
+        <Loading />
+      </div>
+    )
+  }
 
   const handleSSOLogin = async () => {
     if (!email) {
