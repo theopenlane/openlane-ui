@@ -232,7 +232,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleDelete = async () => {
     try {
-      await deleteEvidence({ deleteEvidenceId: id as string })
+      await deleteEvidence({ deleteEvidenceId: config.id as string })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
