@@ -723,7 +723,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 Created By
                               </div>
                               <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm text-right flex items-center">
+                                <p className="text-sm justify-end flex items-center">
                                   <Avatar entity={createdByUser as User} variant="small" />
                                   <span>{createdByUser?.displayName}</span>
                                 </p>
@@ -746,7 +746,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 Updated By
                               </div>
                               <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm text-right flex items-center ">
+                                <p className="text-sm justify-end flex items-center ">
                                   <Avatar entity={updatedByUser as User} variant="small" />
                                   <span>{updatedByUser?.displayName}</span>
                                 </p>
