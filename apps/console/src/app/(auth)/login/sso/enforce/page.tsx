@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
-import { checkSSOEnforcement } from '@/lib/auth/utils/get-openlane-token'
+import { getSSORedirect } from '@/lib/auth/utils/get-openlane-token'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { Loading } from '@/components/shared/loading/loading'
 
@@ -16,7 +16,8 @@ const SSOEnforcePage: React.FC = () => {
   const [isValidating, setIsValidating] = useState(true)
 
   const email = searchParams?.get('email') || ''
-  const hasError = !email || !!error
+  const organizationId = searchParams?.get('organization_id') || ''
+  const hasError = !email || !organizationId || !!error
 
   useEffect(() => {
     const directOAuth = getCookie('direct_oauth')
@@ -45,13 +46,18 @@ const SSOEnforcePage: React.FC = () => {
       return
     }
 
+    if (!organizationId) {
+      setError('Organization ID not found')
+      return
+    }
+
     setLoading(true)
 
     try {
-      const ssoConfig = await checkSSOEnforcement(email)
+      const ssoConfig = await getSSORedirect(organizationId)
 
       if (!ssoConfig) {
-        setError('SSO configuration not found')
+        setError('Failed to get SSO redirect URL')
         setLoading(false)
         return
       }
@@ -76,6 +82,7 @@ const SSOEnforcePage: React.FC = () => {
             </p>
           )}
           {!email && <p className="text-sm text-red-600 mt-2">Email not found. Please try logging in again.</p>}
+          {!organizationId && <p className="text-sm text-red-600 mt-2">Organization ID not found. Please try logging in again.</p>}
           {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
         </div>
 

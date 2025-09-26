@@ -6,7 +6,7 @@ import { isDevelopment } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { getTokenFromOpenlaneAPI, OAuthUserRequest } from './utils/get-openlane-token'
+import { checkWebfinger, getTokenFromOpenlaneAPI, OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
@@ -79,9 +79,14 @@ export const config = {
       // we cannot use account?.type === 'credentials' as we already handle sso login differently on the
       // UI by showing the user a button that takes them to the sso auth page
       // else we will get into a non ending loop
-      if (account?.type === 'oauth' || account?.type === 'oidc' || account?.provider === 'passkey') {
-        const email = profile?.email || user?.email || ''
 
+      const checkSSO = await checkWebfinger(email)
+
+      if (user?.check_sso && checkSSO?.enforced) {
+        return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
+      }
+
+      if (account?.type === 'oauth' || account?.type === 'oidc') {
         // if the user clicked the oauth signin buttons or passkey button this will be set to true
         // and if true, we need to check for sso enforcement
         //
@@ -98,8 +103,8 @@ export const config = {
         }
 
         try {
-          if (isDirectOAuth) {
-            return `/login/sso/enforce?email=${email}`
+          if (isDirectOAuth && checkSSO?.enforced) {
+            return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
           }
 
           const data = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)

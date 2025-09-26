@@ -1,6 +1,5 @@
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { secureFetch } from './secure-fetch'
-import { parseSSOCookies, type CookieStore } from './parse-response-cookies'
 
 export interface OAuthUserRequest {
   externalUserID: string | number
@@ -11,39 +10,57 @@ export interface OAuthUserRequest {
   accessToken: string
 }
 
-export const checkSSOEnforcement = async (email: string, cookieStore?: CookieStore): Promise<{ redirect_uri: string; organization_id: string } | null> => {
+export interface WebfingerConfig {
+  success: boolean
+  enforced: boolean
+  provider: string
+  organization_id: string
+}
+
+export const checkWebfinger = async (email: string): Promise<WebfingerConfig | null> => {
   try {
-    const webfingerResponse = await secureFetch(`/api/auth/webfinger?email=${encodeURIComponent(email)}`)
+    const webfingerResponse = await secureFetch(`${openlaneAPIUrl}/.well-known/webfinger?resource=acct:${email}`)
     const ssoConfig = await webfingerResponse.json()
 
     if (ssoConfig.success && ssoConfig.enforced && ssoConfig.provider !== 'NONE' && ssoConfig.organization_id) {
-      try {
-        const ssoResponse = await secureFetch(`/api/auth/sso`, {
-          method: 'POST',
-          body: JSON.stringify({
-            organization_id: ssoConfig.organization_id,
-          }),
-        })
-
-        const ssoData = await ssoResponse.json()
-
-        if (ssoResponse.ok && ssoData.success && ssoData.redirect_uri) {
-          const responseCookies = ssoResponse.headers.get('set-cookie')
-          if (responseCookies && cookieStore) {
-            parseSSOCookies(responseCookies, cookieStore)
-          }
-
-          return {
-            redirect_uri: ssoData.redirect_uri,
-            organization_id: ssoConfig.organization_id,
-          }
-        }
-      } catch (ssoError) {
-        console.error('failed to get SSO redirect:', ssoError)
-      }
+      return ssoConfig as WebfingerConfig
     }
   } catch (error) {
-    console.error('failed to check SSO enforcements:', error)
+    console.error('failed to check webfinger:', error)
+  }
+
+  return null
+}
+
+export const getSSORedirect = async (organizationId: string): Promise<{ redirect_uri: string; organization_id: string } | null> => {
+  try {
+    const ssoResponse = await secureFetch(`/api/auth/sso`, {
+      method: 'POST',
+      body: JSON.stringify({
+        organization_id: organizationId,
+      }),
+    })
+
+    const ssoData = await ssoResponse.json()
+
+    if (ssoResponse.ok && ssoData.success && ssoData.redirect_uri) {
+      return {
+        redirect_uri: ssoData.redirect_uri,
+        organization_id: organizationId,
+      }
+    }
+  } catch (ssoError) {
+    console.error('failed to get SSO redirect:', ssoError)
+  }
+
+  return null
+}
+
+export const checkSSOEnforcement = async (email: string): Promise<{ redirect_uri: string; organization_id: string } | null> => {
+  const webfingerConfig = await checkWebfinger(email)
+
+  if (webfingerConfig) {
+    return await getSSORedirect(webfingerConfig.organization_id)
   }
 
   return null

@@ -1,5 +1,6 @@
 'use client'
 
+import { signIn } from 'next-auth/react'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -32,17 +33,30 @@ export const InviteAccepter = () => {
 
     hasUpdatedRef.current = true
 
-    update({
-      ...session,
-      user: {
-        ...session.user,
-        accessToken: verified?.access_token,
-        refreshToken: verified?.refresh_token,
-        organization: verified?.joined_org_id,
-        isOnboarding: false,
-      },
-    }).then(() => {
-      window.location.href = '/'
+    // update({
+    //   ...session,
+    //   user: {
+    //     ...session.user,
+    //     accessToken: verified?.access_token,
+    //     refreshToken: verified?.refresh_token,
+    //     organization: verified?.joined_org_id,
+    //     isOnboarding: false,
+    //   },
+    //
+    // }).then(() => {
+    //   window.location.href = '/'
+    // })
+    //
+    const expires = new Date(Date.now() + 5 * 60 * 1000).toUTCString()
+    document.cookie = `direct_oauth=true; path=/; expires=${expires}; SameSite=Lax`
+
+    signIn('credentials', {
+      callbackUrl: '/',
+      session: verified.session,
+      accessToken: verified?.access_token,
+      refreshToken: verified?.refresh_token,
+      organization: verified?.joined_org_id,
+      check_sso: true,
     })
   }, [verified, session, update])
 
