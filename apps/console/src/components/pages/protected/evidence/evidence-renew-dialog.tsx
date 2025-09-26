@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, InfoIcon, RefreshCw, Trash2 } from 'lucide-react'
+import { FileUp, InfoIcon, Repeat, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -14,15 +14,15 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InputRow } from '@repo/ui/input'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
-import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-type TControlEvidenceRenewDialog = {
+type TEvidenceRenewDialog = {
   controlId?: string
   evidenceId: string
 }
 
-const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evidenceId, controlId }) => {
+const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, controlId }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const queryClient = useQueryClient()
   const { form } = useFormSchema()
@@ -88,7 +88,7 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-8 p-2" icon={<RefreshCw />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+        <Button variant="outline" className="h-8 p-2" icon={<Repeat />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
           Renew
         </Button>
       </DialogTrigger>
@@ -174,4 +174,4 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
   )
 }
 
-export { ControlEvidenceRenewDialog }
+export { EvidenceRenewDialog }

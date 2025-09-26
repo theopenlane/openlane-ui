@@ -21,8 +21,8 @@ import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
-import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
-import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
@@ -354,18 +354,19 @@ const ControlDetailsPage: React.FC = () => {
         canEdit={canEdit(permission?.roles)}
         control={{
           displayID: control?.refCode,
-          tags: control.tags ?? [],
+          controlID: control.id,
+          controlRefCodes: [control?.refCode],
+          referenceFramework: {
+            [control?.id ?? 'default']: control?.referenceFramework ?? '',
+          },
+          programDisplayIDs: (control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
           objectAssociations: {
             controlIDs: [control?.id],
             programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-            taskIDs: (control?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-            subcontrolIDs: (control?.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
             controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [
             ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...((control?.subcontrols?.edges?.map((e) => e?.node?.refCode).filter(Boolean) as string[]) ?? []),
             ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...(control.refCode ? [control.refCode] : []),
           ],

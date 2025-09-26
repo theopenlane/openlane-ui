@@ -6,7 +6,7 @@ export default auth(async (req) => {
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset', '/signup']
+  const publicPages = ['/login', '/login/sso', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset', '/signup']
 
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 
@@ -36,6 +36,10 @@ export default auth(async (req) => {
   }
 
   if (isPublicPage) {
+    if (req.cookies.get('user_sso')) {
+      return NextResponse.next()
+    }
+
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 

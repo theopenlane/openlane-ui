@@ -12,8 +12,15 @@ export const CREATE_EVIDENCE = gql`
 `
 
 export const GET_EVIDENCE_FILES = gql`
-  query GetEvidenceFiles {
-    files {
+  query GetEvidenceFiles($first: Int, $last: Int, $before: Cursor, $after: Cursor) {
+    files(first: $first, last: $last, before: $before, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
       edges {
         node {
           id
@@ -309,8 +316,8 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS = gql`
 `
 
 export const GET_FIRST_FIVE_EVIDENCES_BY_STATUS = gql`
-  query GetEvidencesByStatus($status: EvidenceEvidenceStatus!, $programId: ID!) {
-    evidences(first: 5, where: { status: $status, hasProgramsWith: [{ id: $programId }] }) {
+  query GetEvidencesByStatus($where: EvidenceWhereInput) {
+    evidences(first: 5, where: $where) {
       edges {
         node {
           id

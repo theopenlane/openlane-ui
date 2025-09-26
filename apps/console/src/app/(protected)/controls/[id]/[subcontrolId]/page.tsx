@@ -16,8 +16,8 @@ import TitleField from '@/components/pages/protected/controls/form-fields/title-
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
-import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
-import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import Menu from '@/components/shared/menu/menu'
@@ -348,11 +348,15 @@ const ControlDetailsPage: React.FC = () => {
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
+          controlID: subcontrol?.control.id,
+          subcontrolID: subcontrol?.id,
           displayID: subcontrol?.refCode,
-          tags: subcontrol.tags ?? [],
+          subcontrolRefCodes: [subcontrol?.refCode],
+          subcontrolReferenceFramework: {
+            [subcontrol?.id ?? 'default']: subcontrol?.referenceFramework ?? '',
+          },
           objectAssociations: {
-            controlIDs: [subcontrol?.id],
-            taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            subcontrolIDs: [subcontrol?.id],
             controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [

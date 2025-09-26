@@ -10,13 +10,15 @@ import { useOrganization } from '@/hooks/useOrganization.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
-import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import EvidenceSuggestedActions from './table/evidence-suggested-actions'
 import Loading from '@/app/(protected)/evidence/loading'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import EvidenceCreateSheet from './evidence-create-sheet'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
@@ -35,6 +37,7 @@ const EvidenceDetailsPage = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const { data: session } = useSession()
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { data: permission } = useOrganizationRole(session)
@@ -63,6 +66,14 @@ const EvidenceDetailsPage = () => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
+  useEffect(() => {
+    if (programId && programMap[programId]) {
+      setSelectedProgram(programMap[programId])
+    } else {
+      setSelectedProgram('All Programs')
+    }
+  }, [programId, programMap])
+
   const handleSelectChange = (val: string) => {
     if (val === 'all') {
       setSelectedProgram('All programs')
@@ -75,11 +86,7 @@ const EvidenceDetailsPage = () => {
   }
 
   const handleCreateEvidence = () => {
-    if (programId) {
-      router.push(`/evidence/create?programId=${programId}`)
-    } else {
-      router.push('/evidence/create')
-    }
+    setIsSheetOpen(true)
   }
 
   return (
@@ -119,9 +126,17 @@ const EvidenceDetailsPage = () => {
                   </Select>
 
                   {createAllowed && (
-                    <Button className="h-8 !px-2" onClick={handleCreateEvidence}>
-                      Submit Evidence
-                    </Button>
+                    <>
+                      <Button className="h-8 !px-2" onClick={handleCreateEvidence}>
+                        Submit Evidence
+                      </Button>
+                      <EvidenceCreateSheet
+                        onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
+                        open={isSheetOpen}
+                        onOpenChange={setIsSheetOpen}
+                        excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}
+                      />
+                    </>
                   )}
                 </div>
               </div>

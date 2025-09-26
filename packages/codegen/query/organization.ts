@@ -14,6 +14,7 @@ export const GET_ALL_ORGANIZATIONS = gql`
             id
             presignedURL
           }
+          stripeCustomerID
         }
       }
     }
@@ -126,7 +127,6 @@ export const GET_ORGANIZATION_BILLING = gql`
       orgSubscriptions {
         active
         expiresAt
-        subscriptionURL
         stripeSubscriptionStatus
         productPrice
         features
@@ -170,6 +170,12 @@ export const GET_ORGANIZATION_SETTING = gql`
         geoLocation
         billingNotificationsEnabled
         allowedEmailDomains
+        identityProvider
+        identityProviderClientID
+        identityProviderClientSecret
+        oidcDiscoveryEndpoint
+        identityProviderLoginEnforced
+        identityProviderAuthTested
       }
     }
   }

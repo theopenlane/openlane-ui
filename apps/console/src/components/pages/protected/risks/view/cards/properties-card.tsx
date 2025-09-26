@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { RiskFieldsFragment, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Circle, CircleAlert, CircleHelp, Folder, Gauge, Tag } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
@@ -114,8 +113,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
   }
 
   return (
-    <Card className="p-4">
-      <h3 className="text-lg font-medium mb-2">Properties</h3>
+    <div>
       <div className="flex flex-col gap-4">
         {renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}
         {renderTextField('category', 'Category', risk?.category ?? undefined)}
@@ -124,7 +122,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
         {renderRiskLabelField('likelihood', 'Likelihood')}
         {renderRiskLabelField('status', 'Status')}
       </div>
-    </Card>
+    </div>
   )
 }
 

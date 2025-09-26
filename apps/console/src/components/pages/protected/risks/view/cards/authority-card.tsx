@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { Group, RiskFieldsFragment, UpdateRiskInput } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
 import { Stamp, CircleArrowRight } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
@@ -98,13 +97,13 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
   }
 
   return (
-    <Card className="p-4 !mt-2">
-      <h3 className="text-lg font-medium mb-2">Authority</h3>
+    <div>
+      <h3 className="text-lg font-medium mb-2">Properties</h3>
       <div className="flex flex-col gap-4">
         {renderField('stakeholderID', 'Stakeholder', <Stamp size={16} className="text-brand" />, stakeholder as Group, 'stakeholder')}
         {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
       </div>
-    </Card>
+    </div>
   )
 }
 
