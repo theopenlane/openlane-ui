@@ -131,7 +131,6 @@ export const GET_ORGANIZATION_BILLING = gql`
         productPrice
         features
         managePaymentMethods
-        cancellation
         trialExpiresAt
       }
     }
