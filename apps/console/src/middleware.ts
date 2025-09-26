@@ -49,6 +49,11 @@ export default auth(async (req) => {
     return NextResponse.next()
   }
 
+  // needed for accepting invites to orgs
+  if (path === '/login/sso/enforce') {
+    return NextResponse.next()
+  }
+
   if (isPublicPage) {
     if (req.cookies.get('user_sso')) {
       return NextResponse.next()
