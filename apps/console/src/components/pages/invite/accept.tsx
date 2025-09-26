@@ -32,6 +32,9 @@ export const InviteAccepter = () => {
 
     hasUpdatedRef.current = true
 
+    const expires = new Date(Date.now() + 5 * 60 * 1000).toUTCString()
+    document.cookie = `direct_oauth=true; path=/; expires=${expires}; SameSite=Lax`
+
     update({
       ...session,
       user: {
@@ -42,7 +45,12 @@ export const InviteAccepter = () => {
         isOnboarding: false,
       },
     }).then(() => {
-      window.location.href = '/'
+      let redirectURL = '/'
+      if (verified?.needs_sso) {
+        redirectURL = `/login/sso/enforce?email=${session.user?.email}&organization_id=${verified.joined_org_id}`
+      }
+
+      window.location.href = redirectURL
     })
   }, [verified, session, update])
 

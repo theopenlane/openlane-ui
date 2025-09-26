@@ -46,7 +46,7 @@ export const ExistingOrganizations = () => {
         target_organization_id: orgId,
       })
 
-      if (handleSSORedirect(response, orgId)) {
+      if (handleSSORedirect(response)) {
         return
       }
 
@@ -85,7 +85,7 @@ export const ExistingOrganizations = () => {
           target_organization_id: nextOrg,
         })
 
-        if (handleSSORedirect(response, nextOrg)) {
+        if (handleSSORedirect(response)) {
           return
         }
 

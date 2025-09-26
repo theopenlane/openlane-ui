@@ -45,7 +45,7 @@ const SSOCallbackPage: React.FC = () => {
         }
 
         // check cookie or localstorage for the org id
-        const organizationId = getCookie('sso_organization_id') || localStorage.getItem('sso_organization_id')
+        const organizationId = getCookie('organization_id')
 
         if (!organizationId) {
           router.push(getRedirectUrl('missing_organization_id'))
@@ -84,16 +84,11 @@ const SSOCallbackPage: React.FC = () => {
 
           router.push(getRedirectUrl('sso_signin_failed'))
         } else {
-          console.error('SSO callback failed:', data)
           router.push(getRedirectUrl('sso_callback_failed'))
         }
-      } catch (error) {
-        console.error('SSO callback error:', error)
+      } catch {
         router.push(getRedirectUrl('sso_callback_error'))
       } finally {
-        // delete the cookie
-        document.cookie = 'sso_organization_id=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
-        localStorage.removeItem('sso_organization_id')
         localStorage.removeItem('testing_sso')
         localStorage.removeItem('api_token')
       }

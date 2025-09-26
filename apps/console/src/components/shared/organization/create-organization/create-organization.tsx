@@ -68,7 +68,7 @@ export const CreateOrganizationForm = () => {
           target_organization_id: response.data.createOrganization.organization.id,
         })
 
-        if (handleSSORedirect(switchResponse, response.data.createOrganization.organization.id)) {
+        if (handleSSORedirect(switchResponse)) {
           return
         }
 

@@ -6,7 +6,7 @@ import { isDevelopment } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { getTokenFromOpenlaneAPI, OAuthUserRequest, checkSSOEnforcement } from './utils/get-openlane-token'
+import { checkWebfinger, getTokenFromOpenlaneAPI, OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
@@ -62,20 +62,6 @@ export const config = {
     },
   },
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      const cookieStore = await cookies()
-      const ssoRedirectUrl = cookieStore.get('sso_redirect_url')?.value
-
-      if (ssoRedirectUrl) {
-        cookieStore.delete('sso_redirect_url')
-        return ssoRedirectUrl
-      }
-
-      // default redirect behavior from docs
-      if (url.startsWith('/')) return `${baseUrl}${url}`
-      else if (new URL(url).origin === baseUrl) return url
-      return baseUrl
-    },
     async signIn({ user, account, profile }) {
       if ('error' in user && typeof user.error === 'string') {
         throw new InvalidLoginError(user.error)
@@ -93,9 +79,14 @@ export const config = {
       // we cannot use account?.type === 'credentials' as we already handle sso login differently on the
       // UI by showing the user a button that takes them to the sso auth page
       // else we will get into a non ending loop
-      if (account?.type === 'oauth' || account?.type === 'oidc' || account?.provider === 'passkey') {
-        const email = profile?.email || user?.email || ''
 
+      const checkSSO = await checkWebfinger(email)
+
+      if (account?.provider === 'passkey' && checkSSO?.enforced) {
+        return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
+      }
+
+      if (account?.type === 'oauth' || account?.type === 'oidc') {
         // if the user clicked the oauth signin buttons or passkey button this will be set to true
         // and if true, we need to check for sso enforcement
         //
@@ -112,12 +103,8 @@ export const config = {
         }
 
         try {
-          if (isDirectOAuth) {
-            cookieStore.delete('direct_oauth')
-            const ssoConfig = await checkSSOEnforcement(email, cookieStore)
-            if (ssoConfig) {
-              return ssoConfig.redirect_uri
-            }
+          if (isDirectOAuth && checkSSO?.enforced) {
+            return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
           }
 
           const data = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)

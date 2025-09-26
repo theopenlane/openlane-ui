@@ -73,7 +73,7 @@ export const OrganizationSelector = () => {
     if (orgId && orgId !== currentOrgId) {
       const response = await switchOrganization({ target_organization_id: orgId })
 
-      if (handleSSORedirect(response, orgId)) {
+      if (handleSSORedirect(response)) {
         return
       }
 

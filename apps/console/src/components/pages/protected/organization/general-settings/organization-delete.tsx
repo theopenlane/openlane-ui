@@ -48,7 +48,7 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
           target_organization_id: orgID,
         })
 
-        if (handleSSORedirect(switchResponse, orgID)) {
+        if (handleSSORedirect(switchResponse)) {
           return
         }
 

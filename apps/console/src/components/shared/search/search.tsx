@@ -91,7 +91,7 @@ export const GlobalSearch = () => {
         target_organization_id: orgId,
       })
 
-      if (handleSSORedirect(response, orgId)) {
+      if (handleSSORedirect(response)) {
         return
       }
 
