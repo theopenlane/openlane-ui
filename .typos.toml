@@ -1,5 +1,5 @@
 [files]
-extend-exclude = []
+extend-exclude = ["packages/ui/src/components/ui/mention-node.tsx"]
 ignore-hidden = true
 ignore-files = true
 ignore-dot = true
