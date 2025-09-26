@@ -82,7 +82,7 @@ export const config = {
 
       const checkSSO = await checkWebfinger(email)
 
-      if (user?.check_sso && checkSSO?.enforced) {
+      if (account?.provider === 'passkey' && checkSSO?.enforced) {
         return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
       }
 

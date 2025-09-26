@@ -20,7 +20,6 @@ declare module 'next-auth' {
     session: string
     isTfaEnabled: boolean
     isOnboarding: boolean
-    check_sso: boolean
   }
   interface Profile extends DefaultProfile {
     display_name: string

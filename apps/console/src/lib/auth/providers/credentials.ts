@@ -16,7 +16,6 @@ export const credentialsProvider = Credentials({
       accessToken?: string
       refreshToken?: string
       session?: string
-      check_sso?: boolean
     }
 
     let accessToken = ''
@@ -74,7 +73,6 @@ export const credentialsProvider = Credentials({
         refreshToken,
         session,
         ...data,
-        check_sso: credentials?.check_sso,
       }
     } catch (error) {
       console.error('Authorization error:', error)

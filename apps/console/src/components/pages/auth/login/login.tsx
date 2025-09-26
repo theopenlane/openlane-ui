@@ -275,7 +275,6 @@ export const LoginPage = () => {
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
           refreshToken: verificationResult.refresh_token,
-          check_sso: true,
         })
       } else {
         setSignInError(true)
