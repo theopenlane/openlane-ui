@@ -45,7 +45,12 @@ export const InviteAccepter = () => {
         isOnboarding: false,
       },
     }).then(() => {
-      window.location.href = `/login/sso/enforce?email=${session.user?.email}&organization_id=${verified.joined_org_id}`
+      let redirectURL = '/'
+      if (verified?.needs_sso) {
+        redirectURL = `/login/sso/enforce?email=${session.user?.email}&organization_id=${verified.joined_org_id}`
+      }
+
+      window.location.href = redirectURL
     })
   }, [verified, session, update])
 
