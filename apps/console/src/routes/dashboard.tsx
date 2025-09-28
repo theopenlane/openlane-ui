@@ -123,7 +123,7 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
       },
       {
         title: 'Subscribers',
-        href: '/user-management/subscribers',
+        href: '/organization-settings/subscribers',
         icon: MailCheck,
       },
       {
