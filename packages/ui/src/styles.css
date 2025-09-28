@@ -134,6 +134,7 @@
   --color-table-secondary: #EFF4F552;
   --color-nav: #ffffff;
 
+  --color-primary-muted: #60E8C91F;
   --color-btn-secondary: #9AF5DC;
   --color-btn-secondary-text: #052E2A;
   --color-btn-secondary-text-disabled: #052E2A70;
@@ -181,6 +182,7 @@
   --color-table-secondary: #23344052;
   --color-nav: #233440;
 
+  --color-primary-muted: #60E8C91F;
   --color-btn-secondary: #60E8C9;
   --color-btn-secondary-hover: #9AF5DD;
   --color-btn-secondary-text: #052E2A;

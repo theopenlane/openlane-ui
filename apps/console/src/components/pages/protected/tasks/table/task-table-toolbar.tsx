@@ -1,10 +1,10 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useState } from 'react'
-import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/table-config'
+import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
+import { FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { DownloadIcon, FileText, LoaderCircle, SearchIcon, Upload, UserRound } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
@@ -19,8 +19,9 @@ import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { TAccessRole, TData } from '@/lib/authz/access-api'
 import { Button } from '@repo/ui/button'
 import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
-type TProps = {
+type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
   onTabChange: (tab: 'table' | 'card') => void
   onShowCompletedTasksChange: (val: boolean) => void
@@ -44,7 +45,7 @@ type TProps = {
   onShowMyTasksChange: (val: boolean) => void
 }
 
-const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
+const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToolbarProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
@@ -68,19 +69,24 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
         label: 'Assigner',
         type: 'select',
         options: orgMembers,
-      } as SelectFilterField,
+        icon: UserRound,
+      },
       {
         key: 'assigneeID',
         label: 'Assignee',
         type: 'select',
         options: orgMembers,
-      } as SelectFilterField,
+        icon: UserRound,
+      },
       {
         key: 'hasProgramsWith',
         label: 'Program Name',
-        type: 'selectIs',
+        type: 'select',
+        forceKeyOperator: true,
+        childrenObjectKey: 'id',
         options: programOptions,
-      } as SelectIsFilterField,
+        icon: FileText,
+      },
     ])
   }, [orgMembers, programOptions, filterFields, isSuccess])
 
@@ -101,25 +107,45 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   return (
     <>
       <div className="flex items-center gap-2 my-2">
-        <TableCardView activeTab={activeTab} onTabChange={handleTabChange}></TableCardView>
+        <Input
+          className="bg-transparent w-[280px]"
+          icon={props.searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+          placeholder="Search"
+          value={props.searchTerm}
+          onChange={(event) => props.setSearchTerm(event.currentTarget.value)}
+          variant="searchTable"
+          iconPosition="left"
+        />
+        <TableCardView activeTab={activeTab} onTabChange={handleTabChange} />
         <div className="grow flex flex-row items-center gap-2">
-          {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
-          )}
-          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />}
-          <Input
-            icon={props.searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-            placeholder="Search"
-            value={props.searchTerm}
-            onChange={(event) => props.setSearchTerm(event.currentTarget.value)}
-            variant="searchTable"
-          />
-          <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
           <p>Show completed tasks</p>
           <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
           <p>Show my tasks</p>
+          <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
+          <Menu
+            content={
+              <>
+                <BulkCSVCreateTaskDialog
+                  trigger={
+                    <div className="flex items-center space-x-2 px-1">
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Bulk Upload</span>
+                    </div>
+                  }
+                />
+                <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </button>
+              </>
+            }
+          />
+          {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} />
+          )}
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableFilterKeysEnum.TASK} />}
           {isBulkEditing ? (
             <>
               {props.canEdit(props.permission?.roles) && (
@@ -143,24 +169,6 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
               <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} className="bg-transparent px-1" />} />
             </>
           )}
-          <Menu
-            content={
-              <>
-                <BulkCSVCreateTaskDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
-                    </div>
-                  }
-                />
-                <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </button>
-              </>
-            }
-          />
         </div>
       </div>
       <div id="datatable-filter-portal" />

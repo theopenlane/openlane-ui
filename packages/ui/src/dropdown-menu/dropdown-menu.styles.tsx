@@ -4,9 +4,9 @@ export const dropdownMenuStyles = tv({
   slots: {
     subTrigger:
       'flex cursor-default select-none items-center rounded-xs px-2 py-1.5 bg-accent-secondary text-text-dark text-sm ' +
-      'outline-hidden focus:bg-muted focus:rounded-sm data-[state=open]:bg-button-muted ',
+      'outline-hidden focus:bg-btn-primary-hover focus:rounded-sm data-[state=open]:bg-button-muted ',
     subTriggerChevron: 'ml-auto h-4 w-4',
-    icon: 'h-4 w-4',
+    icon: 'h-4 w-4 text-primary',
     separator: '-mx-8 my-1 h-px',
     subContent:
       'z-50 min-w-72 overflow-hidden rounded-md border bg-popover p-1 shadow-lg data-[state=open]:animate-in ' +
@@ -20,14 +20,14 @@ export const dropdownMenuStyles = tv({
       'data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
     menuItem:
       'cursor-pointer relative flex select-none items-center gap-3 rounded-xs px-2 py-1.5 text-sm outline-hidden transition-colors duration-500 ' +
-      'focus:bg-muted focus:rounded-sm found:rounded-xs data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus:bg-btn-primary-hover focus:rounded-sm found:rounded-xs data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
     menuCheckboxItem:
       'relative flex cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden transition-colors ' +
-      'focus:bg-muted focus:rounded-sm focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-    menuCheckboxItemSpan: 'absolute left-2 flex h-5 w-5 items-left justify-left border border-bg-accent-secondary ring-offset-white',
+      'focus:bg-btn-primary-hover focus:rounded-sm data-[disabled]:pointer-events-none data-[disabled]:opacity-50 duration-500',
+    menuCheckboxItemSpan: 'absolute left-2 flex h-5 w-5 items-left justify-left border rounded-md ring-offset-white',
     menuRadioItem:
       'relative flex cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden transition-colors ' +
-      'focus:bg-muted focus:rounded-sm focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus:bg-btn-primary-hover focus:rounded-sm data-[disabled]:pointer-events-none data-[disabled]:opacity-50 duration-500',
     menuRadioItemSpan: 'absolute left-2 flex h-3.5 w-3.5 items-center justify-center',
     menuLabel: 'px-2 py-1.5 text-sm font-semibold',
     menuShortcut: 'ml-auto text-sm tracking-widest opacity-60',

@@ -4,7 +4,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const buttonStyles = tv({
   slots: {
     base:
-      'relative group font-sans font-semibold inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none ' +
+      '!px-2 relative group font-sans font-normal inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none ' +
       'text-sm transition-all duration-500 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
     iconOuter: 'relative h-4 w-4 overflow-hidden',
     iconInner: 'absolute transition-all duration-500',
@@ -37,7 +37,7 @@ export const buttonStyles = tv({
     },
     size: {
       sm: 'h-auto rounded-md p-0 !bg-transparent font-sans text-sm',
-      md: 'h-10 rounded-md px-5 text-sm',
+      md: 'h-8 rounded-md px-5 text-sm',
       lg: 'h-16 rounded-lg px-8 text-lg',
     },
     full: {

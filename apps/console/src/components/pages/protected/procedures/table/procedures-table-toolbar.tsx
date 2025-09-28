@@ -15,6 +15,7 @@ import { ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '../../policies/table/table-config'
 import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
 import { Button } from '@repo/ui/button'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -70,7 +71,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
           )}
-          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} />}
+          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"

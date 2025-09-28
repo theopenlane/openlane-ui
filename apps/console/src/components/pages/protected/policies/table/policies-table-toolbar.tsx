@@ -14,6 +14,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -65,19 +66,13 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   return (
     <>
       <div className="relative flex items-center gap-2 my-2">
-        <div className="grow flex flex-row items-center gap-2">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
-          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} />}
-          <Input
-            icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.currentTarget.value)}
-            variant="searchTable"
-          />
-        </div>
+        <Input
+          icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.currentTarget.value)}
+          variant="searchTable"
+        />
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {isBulkEditing ? (
@@ -100,6 +95,39 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
             </>
           ) : (
             <>
+              <Menu
+                closeOnSelect={true}
+                content={(close) => (
+                  <>
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                      <BulkCSVCreatePolicyDialog
+                        trigger={
+                          <div className="flex items-center space-x-2 px-1">
+                            <Import size={16} strokeWidth={2} />
+                            <span>Import existing document</span>
+                          </div>
+                        }
+                      />
+                    )}
+                    <button
+                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      onClick={() => {
+                        handleExport()
+                        close()
+                      }}
+                    >
+                      <DownloadIcon size={16} strokeWidth={2} />
+                      <span>Export</span>
+                    </button>
+                  </>
+                )}
+              />
+
+              {mappedColumns && columnVisibility && setColumnVisibility && (
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              )}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
+
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                 <Menu
                   trigger={CreateBtn}
@@ -111,33 +139,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                   }
                 />
               )}
-              <Menu
-                closeOnSelect={true}
-                content={(close) => (
-                  <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                      <BulkCSVCreatePolicyDialog
-                        trigger={
-                          <div className="flex items-center space-x-2 ">
-                            <Import size={16} strokeWidth={2} />
-                            <span>Import existing document</span>
-                          </div>
-                        }
-                      />
-                    )}
-                    <div
-                      className={`flex items-center space-x-2  cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                      onClick={() => {
-                        handleExport()
-                        close()
-                      }}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </div>
-                  </>
-                )}
-              />
             </>
           )}
         </div>

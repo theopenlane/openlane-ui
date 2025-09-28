@@ -1,4 +1,4 @@
-import { FilterField, SelectFilterField } from '@/types'
+import { FilterField } from '@/types'
 import { OrderDirection, RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 
 const enumToOptions = (e: Record<string, string>) =>
@@ -17,13 +17,13 @@ export const RISKS_FILTER_FIELDS: FilterField[] = [
     label: 'Impact',
     type: 'select',
     options: enumToOptions(RiskRiskImpact),
-  } as SelectFilterField,
+  },
   {
     key: 'likelihood',
     label: 'Likelihood',
     type: 'select',
     options: enumToOptions(RiskRiskLikelihood),
-  } as SelectFilterField,
+  },
   {
     key: 'riskType',
     label: 'Risk Type',
@@ -35,7 +35,7 @@ export const RISKS_FILTER_FIELDS: FilterField[] = [
     label: 'Status',
     type: 'select',
     options: enumToOptions(RiskRiskStatus),
-  } as SelectFilterField,
+  },
 ]
 
 export const RISKS_SORT_FIELDS = [
