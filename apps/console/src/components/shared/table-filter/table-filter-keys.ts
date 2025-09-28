@@ -4,8 +4,12 @@ export enum TableFilterKeysEnum {
   EVIDENCE = 'evidence',
   POLICY = 'policy',
   PROCEDURE = 'procedure',
-  STANDARD_CATALOG = 'standard_catalog',
+  STANDARD_CATALOG = 'standard-catalog',
   QUESTIONNAIRE = 'questionnaire',
   RISK = 'risk',
   SUBSCRIBE = 'subscribe',
+  MEMBER = 'member',
+  ORG_INVITE = 'org_invite',
+  GROUP = 'group',
+  PERSONAL_ACCESS_TOKEN = 'personal-access-token',
 }
