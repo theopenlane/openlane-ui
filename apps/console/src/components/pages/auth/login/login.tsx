@@ -60,11 +60,19 @@ export const LoginPage = () => {
       return true
     }
 
+    // if SSO is not enforced, always show password field
+    if (!webfingerResponse.enforced || webfingerResponse.provider === 'NONE') {
+      return true
+    }
+
+    // if SSO is enforced and the user is an org admin,
+    // show password field only if they chose to use password
     if (webfingerResponse.enforced && webfingerResponse.is_org_admin) {
       return usePasswordInsteadOfSSO
     }
 
-    return webfingerResponse.provider === 'NONE' || !webfingerResponse.enforced
+    // if SSO is enforced and the user is not an org admin, don't show password field
+    return false
   }, [webfingerResponse, usePasswordInsteadOfSSO])
 
   const shouldShowSSOButton = useCallback((): boolean => {
@@ -72,14 +80,17 @@ export const LoginPage = () => {
       return false
     }
 
+    // only show SSO button when it is enforced
     if (webfingerResponse.enforced && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id) {
+      // but if the user is the org admin and chooses to use password, don't show SSO button
       if (webfingerResponse.is_org_admin && usePasswordInsteadOfSSO) {
         return false
       }
       return webfingerResponse.success
     }
 
-    return webfingerResponse.success && webfingerResponse.provider !== 'NONE' && Boolean(webfingerResponse.organization_id)
+    // don't show SSO button when SSO is not enforced
+    return false
   }, [webfingerResponse, usePasswordInsteadOfSSO])
 
   const shouldShowToggleOption = useCallback((): boolean => {
