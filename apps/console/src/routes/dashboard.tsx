@@ -115,7 +115,6 @@ export const generateNavItems = () // canEdit?: boolean
       {
         title: 'Authentication',
         href: '/organization-settings/authentication',
-        hidden: false,
       },
       {
         title: 'Members',
