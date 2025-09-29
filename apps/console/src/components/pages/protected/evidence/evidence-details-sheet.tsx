@@ -154,7 +154,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const initialAssociations = useMemo(
     () => ({
       programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      programDisplayIDs: (evidence?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+
       controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
       controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
@@ -165,6 +165,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const initialAssociationsControlsAndPrograms = useMemo(
     () => ({
+      programDisplayIDs: (evidence?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
       subcontrolRefCodes: evidence?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
       subcontrolReferenceFramework: Object.fromEntries(evidence?.subcontrols?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
       controlRefCodes: evidence?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
@@ -211,7 +212,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       setAssociationSubControlsRefMap(initialAssociationsControlsAndPrograms.subcontrolRefCodes ? initialAssociationsControlsAndPrograms.subcontrolRefCodes : [])
       setAssociationSubControlsFrameworksMap(initialAssociationsControlsAndPrograms.subcontrolReferenceFramework || {})
 
-      setAssociationProgramsRefMap(initialAssociations.programDisplayIDs ? initialAssociations.programDisplayIDs : [])
+      setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
 
@@ -259,29 +260,31 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
+  const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k as K))) as Omit<T, K>
+
   const onSubmit = async (formData: EditEvidenceFormData) => {
     const controlIDs = form.getValues('controlIDs') || []
     const subcontrolIDs = form.getValues('subcontrolIDs') || []
-    console.log('formData', formData)
-    // console.log('subcontrolIDs', subcontrolIDs)
+    const programIDs = form.getValues('programIDs') || []
 
     const updatedAssociations = {
       ...associations,
       controlIDs,
       subcontrolIDs,
+      programIDs,
     }
 
     setAssociations(updatedAssociations)
 
-    // console.log('updatedAssociations', updatedAssociations)
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
-    // console.log('associationInputs', associationInputs)
+
+    const cleanFormData = omit(formData, ['programIDs', 'controlIDs', 'subcontrolIDs'])
 
     try {
       await updateEvidence({
         updateEvidenceId: config.id as string,
         input: {
-          ...formData,
+          ...cleanFormData,
           ...associationInputs,
           clearURL: formData?.url === undefined,
         },
@@ -935,7 +938,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       form={form}
                     />
                   </Panel>
-                  <Panel>
+                  <Panel className="mt-5">
                     <Accordion type="single" collapsible value={programsAccordionValue} className="w-full">
                       <AccordionItem value="ProgramsAccordion">
                         <div className="flex items-center justify-between w-full">
