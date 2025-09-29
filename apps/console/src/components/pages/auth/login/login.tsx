@@ -37,8 +37,10 @@ export const LoginPage = () => {
     provider: string
     discovery_url?: string
     organization_id?: string
+    is_org_admin?: boolean
   } | null>(null)
   const [webfingerLoading, setWebfingerLoading] = useState(false)
+  const [usePasswordInsteadOfSSO, setUsePasswordInsteadOfSSO] = useState(false)
   const { errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
@@ -58,15 +60,30 @@ export const LoginPage = () => {
       return true
     }
 
+    if (webfingerResponse.enforced && webfingerResponse.is_org_admin) {
+      return usePasswordInsteadOfSSO
+    }
+
     return webfingerResponse.provider === 'NONE' || !webfingerResponse.enforced
-  }, [webfingerResponse])
+  }, [webfingerResponse, usePasswordInsteadOfSSO])
 
   const shouldShowSSOButton = useCallback((): boolean => {
     if (!webfingerResponse) {
       return false
     }
 
-    return webfingerResponse.success && webfingerResponse.provider !== 'NONE' && webfingerResponse.enforced && !!webfingerResponse.organization_id
+    if (webfingerResponse.enforced && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id) {
+      if (webfingerResponse.is_org_admin && usePasswordInsteadOfSSO) {
+        return false
+      }
+      return webfingerResponse.success
+    }
+
+    return webfingerResponse.success && webfingerResponse.provider !== 'NONE' && Boolean(webfingerResponse.organization_id)
+  }, [webfingerResponse, usePasswordInsteadOfSSO])
+
+  const shouldShowToggleOption = useCallback((): boolean => {
+    return Boolean(webfingerResponse?.enforced && webfingerResponse?.is_org_admin && webfingerResponse?.provider !== 'NONE' && webfingerResponse?.organization_id)
   }, [webfingerResponse])
 
   const handleSSOLogin = useCallback(async () => {
@@ -330,6 +347,8 @@ export const LoginPage = () => {
           onChange={(e: { username: string; password?: string }) => {
             if (e.username !== undefined && e.username !== email) {
               setEmail(e.username)
+              // reset toggle when email address changes until next webfinger api check
+              setUsePasswordInsteadOfSSO(false)
 
               if (e.username && isValidEmail(e.username)) {
                 debouncedCheckLoginMethods(e.username)
@@ -343,6 +362,32 @@ export const LoginPage = () => {
           <div className={input()}>
             <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent !text-text" />
           </div>
+
+          {shouldShowToggleOption() && (
+            <div className="flex flex-col mt-2">
+              <p className="text-sm text-gray-600 mb-3">As an organization admin, you can choose how to sign in:</p>
+              <div className="flex gap-2 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setUsePasswordInsteadOfSSO(false)}
+                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
+                    !usePasswordInsteadOfSSO ? 'bg-brand text-button-text border-brand shadow-sm' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  }`}
+                >
+                  SSO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUsePasswordInsteadOfSSO(true)}
+                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
+                    usePasswordInsteadOfSSO ? 'bg-brand text-button-text border-brand shadow-sm' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  }`}
+                >
+                  Password
+                </button>
+              </div>
+            </div>
+          )}
 
           {shouldShowSSOButton() && (
             <div className="flex flex-col">
@@ -359,30 +404,18 @@ export const LoginPage = () => {
           )}
 
           {shouldShowPasswordField() && (
-            <>
-              <div className="flex flex-col">
-                {
-                  <>
-                    <div className={input()}>
-                      <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
-                    </div>
-                    <Link href="/forgot-password" className=" text-base text-xs text-blue-500 mt-1 mb-1 text-right  hover:opacity-80 transition">
-                      Forgot password?
-                    </Link>
-                    <button className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
-                      <span>Login</span>
-                      <ArrowRightCircle size={16} />
-                    </button>
-                  </>
-                }
-
-                <span
-                  onClick={() => !signInLoading}
-                  className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
-                  style={{ opacity: signInLoading ? 0.5 : 1 }}
-                ></span>
+            <div className="flex flex-col">
+              <div className={input()}>
+                <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
               </div>
-            </>
+              <Link href="/forgot-password" className=" text-base text-xs text-blue-500 mt-1 mb-1 text-right  hover:opacity-80 transition">
+                Forgot password?
+              </Link>
+              <button className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
+                <span>Login</span>
+                <ArrowRightCircle size={16} />
+              </button>
+            </div>
           )}
           <div className="flex text-base">
             <span>New to Openlane? &nbsp;</span>
