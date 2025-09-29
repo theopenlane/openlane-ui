@@ -52,7 +52,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
 
   const createDropdown = () => {
     if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
-      return <Menu trigger={CreateBtn} content={<CreateDropdown />} />
+      return <CreateDropdown />
     }
   }
 

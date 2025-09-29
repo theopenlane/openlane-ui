@@ -8,16 +8,16 @@ type TObjectsChipProps = {
 }
 
 const borderColors: Record<string, string> = {
-  controls: 'border-object-controls',
-  programs: 'border-object-programs',
-  tasks: 'border-object-tasks',
-  procedures: 'border-object-procedures',
-  risks: 'border-object-risks',
-  subcontrols: 'border-object-subcontrols',
-  controlObjectives: 'border-object-controlObjectives',
-  policies: 'border-object-policies',
-  groups: 'border-object-groups',
-  evidences: 'border-object-evidence',
+  controls: 'border-controls',
+  programs: 'border-programs',
+  tasks: 'border-tasks',
+  procedures: 'border-procedures',
+  risks: 'border-risks',
+  subcontrols: 'border-subcontrols',
+  controlObjectives: 'border-controlObjectives',
+  policies: 'border-policies',
+  groups: 'border-groups',
+  evidences: 'border-evidence',
   default: 'border-transparent',
 }
 

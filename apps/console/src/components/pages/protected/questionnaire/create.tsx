@@ -1,10 +1,11 @@
 import { useRouter } from 'next/navigation'
 import { pageStyles } from './page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { CirclePlus, FilePlus, LayoutTemplate } from 'lucide-react'
+import { CirclePlus, FilePlus, LayoutTemplate, SquarePlus } from 'lucide-react'
 import { TemplateList } from './templates'
 import React, { useState } from 'react'
 import { AlertDialog } from '@repo/ui/alert-dialog'
+import { Button } from '@repo/ui/button'
 
 const ICON_SIZE = 12
 
@@ -23,14 +24,13 @@ export const CreateDropdown = () => {
     <div className={buttons()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
-            <CirclePlus size={16} strokeWidth={2} />
-            <span>Questionnaire</span>
-          </div>
+          <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+            Create
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem onSelect={handleCreateNew}>
-            <FilePlus width={ICON_SIZE} />
+            <FilePlus width={ICON_SIZE} className="text-muted-foreground" />
             From Scratch
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -38,7 +38,7 @@ export const CreateDropdown = () => {
               setTemplateDialogOpen(true)
             }}
           >
-            <LayoutTemplate width={ICON_SIZE} />
+            <LayoutTemplate width={ICON_SIZE} className="text-muted-foreground" />
             From Template
           </DropdownMenuItem>
         </DropdownMenuContent>
