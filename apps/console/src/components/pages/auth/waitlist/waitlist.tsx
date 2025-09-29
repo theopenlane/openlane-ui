@@ -16,7 +16,7 @@ const Waitlist: React.FC = () => {
       </div>
       <div className="flex flex-col md:flex-row relative gap-5 items-center">
         <div className="relative z-10 w-full md:max-w-lg self-start">
-          <h1 className="text-4xl md:text-5xl font-normal leading-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-normal mb-4">
             Compliance should be <br className="hidden md:block" /> built-in, not bolted on
           </h1>
 
@@ -28,7 +28,7 @@ const Waitlist: React.FC = () => {
             {/* GitHub */}
             <a href="https://github.com/theopenlane" target="_blank" rel="noopener noreferrer" className="bg-card flex items-center gap-3 px-2.5 py-1.5 rounded-lg border w-[162px] ">
               <Github size={30} />
-              <div className="flex flex-col text-left text-sm leading-tight gap-1">
+              <div className="flex flex-col text-left text-sm gap-1">
                 <span>GitHub</span>
                 <span className="text-blue-500">@theopenlane</span>
               </div>
@@ -37,7 +37,7 @@ const Waitlist: React.FC = () => {
             {/* Discord */}
             <a href="https://discord.gg/4fq2sxDk7D" target="_blank" rel="noopener noreferrer" className="bg-card flex items-center gap-3 px-2.5 py-1.5 rounded-lg border w-[162px] ">
               <Discord size={30} />
-              <div className="flex flex-col text-left text-sm leading-tight gap-1">
+              <div className="flex flex-col text-left text-sm gap-1">
                 <span>Discord</span>
                 <span className="text-blue-500">Join community</span>
               </div>
@@ -46,7 +46,7 @@ const Waitlist: React.FC = () => {
             {/* LinkedIn */}
             <a href="https://www.linkedin.com/company/theopenlane" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg border bg-card w-[162px] ">
               <Linkedin size={30} />
-              <div className="flex flex-col text-left text-sm leading-tight gap-1">
+              <div className="flex flex-col text-left text-sm gap-1">
                 <span>LinkedIn</span>
                 <span className="text-blue-500">@theopenlane</span>
               </div>
