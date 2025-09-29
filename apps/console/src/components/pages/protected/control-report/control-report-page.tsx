@@ -17,13 +17,12 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 import { useRouter } from 'next/navigation'
-import { CreateButton } from '@/components/shared/create-button/create-button'
 
 import { useSession } from 'next-auth/react'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import Loading from '@/app/(protected)/control-report/loading'
+import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
@@ -119,7 +118,7 @@ const ControlReportPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Control Report', href: '/control-report' },
+      { label: 'Controls', href: '/controls' },
     ])
   }, [setCrumbs])
 
@@ -135,8 +134,9 @@ const ControlReportPage = () => {
       setReferenceFramework(first || 'Custom')
     }
   }, [standardOptions, isSuccessStandards])
+
   if (isLoading || !data) {
-    return <Loading />
+    return <ControlReportPageSkeleton />
   }
 
   return (
@@ -176,7 +176,7 @@ const ControlReportPage = () => {
       </div>
       <div className="space-y-2">
         {isLoading || isFetching ? (
-          <Loading />
+          <ControlReportPageSkeleton />
         ) : !data || data.length === 0 ? (
           <>
             <div className="flex flex-col items-center justify-center mt-16 gap-6">

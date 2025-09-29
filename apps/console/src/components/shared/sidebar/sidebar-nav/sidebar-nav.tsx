@@ -65,6 +65,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
         const Icon = item.icon
         const isExpandable = !!item.children
         const isActive = openPanel === (item.title?.toLowerCase() as PanelKey) || pathname === item.href
+        const url = item.params ? item.href + item.params : item.href
 
         return (
           <TooltipProvider delayDuration={100} key={idx}>
@@ -72,7 +73,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
               <TooltipTrigger asChild>
                 <button
                   key={idx}
-                  onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(item.href))}
+                  onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(url))}
                   className={`btn-card text-muted-foreground p-1 ${isActive ? 'is-active text-paragraph' : ''}`}
                 >
                   <Icon size={18} />

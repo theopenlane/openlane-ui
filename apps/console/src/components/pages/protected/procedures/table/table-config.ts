@@ -48,8 +48,8 @@ export function useProceduresFilters(): FilterField[] | null {
         icon: UserRound,
       },
       {
-        key: 'policyType',
-        label: 'Policy Type',
+        key: 'procedureType',
+        label: 'Procedure Type',
         type: 'text',
         icon: UserRound,
       },

@@ -130,7 +130,7 @@ const ControlsTable: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Control Report', href: '/control-report' },
+      { label: 'Controls', href: '/controls' },
     ])
   }, [setCrumbs])
 

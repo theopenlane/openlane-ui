@@ -8,7 +8,7 @@ const badgeVariants = cva('inline-flex items-center rounded-full border px-2.5 p
       default: 'border-transparent btn-secondary text-button-text hover:bg-primary transition-colors duration-500',
       secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
       outline: 'text-foreground',
-      gold: 'border-transparent bg-saffron-500 text-white',
+      gold: 'border-transparent bg-gold-trial text-white',
       destructive: 'border-transparent error text-white bg-red-700',
     },
   },

@@ -10,5 +10,6 @@ export const BreadcrumbContext = React.createContext<{
 
 export function BreadcrumbProvider({ children }: { children: React.ReactNode }) {
   const [crumbs, setCrumbs] = React.useState<Crumb[]>([])
+  console.log(crumbs)
   return <BreadcrumbContext.Provider value={{ crumbs, setCrumbs }}>{children}</BreadcrumbContext.Provider>
 }

@@ -228,6 +228,9 @@
 }
 
 @theme inline {
+  /* Trial */
+  --color-gold-trial: #d9ae40;
+
   /* standards */
   --color-standard-iso27001: #4d77b0;
   --color-standard-nist80053: #388426;

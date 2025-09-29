@@ -50,7 +50,8 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
       },
       {
         title: 'Controls',
-        href: '/control-report',
+        href: '/controls',
+        params: '?tab=report',
         icon: Settings2,
       },
       {

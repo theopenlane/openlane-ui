@@ -4,6 +4,7 @@ export interface NavItem {
   title: string
   addCount?: boolean
   href: string
+  params?: string
   icon?: LucideIcon
   isChildren?: boolean
   children?: NavItem[]
