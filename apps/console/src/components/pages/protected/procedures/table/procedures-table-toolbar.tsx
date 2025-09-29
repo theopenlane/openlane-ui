@@ -68,10 +68,6 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
     <>
       <div className="flex items-center gap-2 my-2">
         <div className="grow flex flex-row items-center gap-2">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
-          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"
@@ -102,17 +98,6 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
             </>
           ) : (
             <>
-              {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-                <Menu
-                  trigger={CreateBtn}
-                  content={
-                    <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Procedure</span>
-                    </div>
-                  }
-                />
-              )}
               <Menu
                 closeOnSelect={true}
                 content={(close) => (
@@ -142,9 +127,23 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
               />
             </>
           )}
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
+          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
+          {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
+            <Menu
+              trigger={CreateBtn}
+              content={
+                <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Procedure</span>
+                </div>
+              }
+            />
+          )}
         </div>
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }
