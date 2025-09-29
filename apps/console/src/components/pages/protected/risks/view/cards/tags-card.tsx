@@ -1,7 +1,6 @@
 'use client'
 
 import React, { Fragment, useMemo, useState } from 'react'
-import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
@@ -61,7 +60,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
   )
 
   return (
-    <Card className="p-4">
+    <div>
       <div className="flex flex-col gap-4">
         {/* Label */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
@@ -124,7 +123,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
 

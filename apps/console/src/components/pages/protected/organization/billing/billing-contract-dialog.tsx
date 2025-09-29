@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Libraries, useLoadScript } from '@react-google-maps/api'
 import { Button } from '@repo/ui/button'
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -134,9 +134,8 @@ const BillingContactDialog = () => {
 
   return (
     <Dialog aria-describedby={undefined}>
-      <DialogDescription />
       <DialogTrigger asChild>
-        <h1 className="text-brand text-sm font-medium cursor-pointer self-end">Edit</h1>
+        <h1 className="text-brand text-sm font-medium cursor-pointer">Edit</h1>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[455px]">
         <DialogHeader>

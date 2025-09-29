@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, InfoIcon, RefreshCw, Trash2 } from 'lucide-react'
+import { FileUp, InfoIcon, Repeat, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -88,7 +88,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-8 p-2" icon={<RefreshCw />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+        <Button variant="outline" className="h-8 p-2" icon={<Repeat />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
           Renew
         </Button>
       </DialogTrigger>

@@ -29,6 +29,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/risks/[id]/loading'
+import { Card } from '@repo/ui/cardpanel'
 
 type TRisksPageProps = {
   riskId: string
@@ -204,9 +205,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
-      <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
-      <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
+      <Card className="p-4 !mt-2 flex flex-col gap-4">
+        <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
+        <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
+        <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
+      </Card>
     </>
   )
 

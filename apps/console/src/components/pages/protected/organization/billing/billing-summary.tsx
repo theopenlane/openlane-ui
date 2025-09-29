@@ -8,7 +8,6 @@ import { Price, SchedulePhase, SchedulePhaseItem, SubscriptionItem } from '@/typ
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
 import { formatDate } from '@/utils/date'
 
 type Props = {
@@ -41,6 +40,13 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
   const modules = Object.values(openlaneProducts?.modules || {})
   const addons = Object.values(openlaneProducts?.addons || {})
   const modulesWithoutBase = modules.filter((m) => m.display_name !== 'Base Module')
+
+  const activeAddons = useMemo(() => {
+    return addons.filter((a) => {
+      const priceForInterval = a.billing.prices.find((p) => p.interval === currentInterval)
+      return priceForInterval && activePriceIds.has(priceForInterval.price_id)
+    })
+  }, [addons, currentInterval, activePriceIds])
 
   type Product = {
     billing: {
@@ -126,28 +132,44 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
       })
     }
   }
+
   return (
     <>
-      <h2 className="text-3xl my-2">Summary</h2>
-      <div className="border-y py-4">
+      <h2 id="summary" className="text-2xl mb-2">
+        Summary
+      </h2>
+      <div className="border rounded-lg">
         {/* Current subscription summary */}
-        <div className="flex gap-4 items-center">
-          {/* Interval + Cost */}
-          {currentInterval && !!futureCost && (
-            <p className="text-sm">
-              <span className="text-sm font-medium">Interval:</span> {currentInterval.charAt(0).toUpperCase() + currentInterval.slice(1)}{' '}
-              <span className="ml-4 font-medium text-sm">Upcoming cost:</span> ${futureCost} / {currentInterval}
-            </p>
+        <div className="flex gap-2.5 items-center justify-between p-4 pt-5 border-b">
+          <div className="flex gap-2">
+            {/* Interval + Cost */}
+            {currentInterval && !!futureCost && (
+              <p className="text-base">
+                {/* <span className="text-sm font-medium">Interval:</span> {currentInterval.charAt(0).toUpperCase() + currentInterval.slice(1)}{' '} */}
+                <span className="font-medium text-base w-28 inline-block mr-2">Upcoming cost</span> ${futureCost} / {currentInterval}
+              </p>
+            )}
+            {/* Expiration */}
+            <Badge variant={badge.variant}>{badge.text}</Badge>
+          </div>
+          {trialExpiresAt ? (
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-text-informational">Trial status:</p>
+              <p className="text-sm text-text-informational">{formattedExpiresDate}</p>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Next billing:</p>
+              <p className="text-sm text-text-informational">{nextPhaseStart ? formatDate(nextPhaseStart.toISOString()) : 'N/A'}</p>
+            </div>
           )}
-          {/* Expiration */}
-          <Badge variant={badge.variant}>{badge.text}</Badge>
         </div>
         {/* Switch billing interval */}
 
         {/* Active Modules */}
         {modulesWithoutBase.length > 0 && (
-          <div className="mt-4 flex gap-2 items-center">
-            <p className="text-sm font-medium">Modules:</p>
+          <div className="flex gap-2 items-center p-4 pt-5 border-b">
+            <p className="font-medium text-base w-28">Modules:</p>
             <div className="flex flex-wrap gap-2 mt-1">
               {modulesWithoutBase
                 .filter((m) => {
@@ -164,40 +186,42 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
         )}
 
         {/* Active Add-Ons */}
-        {addons.length > 0 && (
-          <div className="mt-4 flex gap-2 items-center">
-            <p className="text-sm font-medium">Add-Ons:</p>
+        <div className="flex gap-2 items-center p-4 pt-5 border-b">
+          <p className="font-medium text-base w-28">Add-Ons:</p>
+          {activeAddons.length > 0 ? (
             <div className="flex flex-wrap gap-2 mt-1">
-              {addons
-                .filter((a) => {
-                  const priceForInterval = a.billing.prices.find((p) => p.interval === currentInterval)
-                  return priceForInterval && activePriceIds.has(priceForInterval.price_id)
-                })
-                .map((a) => (
-                  <Badge key={a.product_id} variant="outline">
-                    {a.display_name}
-                  </Badge>
-                ))}
-            </div>
-          </div>
-        )}
-        <div className="flex gap-3 items-center">
-          {trialExpiresAt ? (
-            <div className="mt-4 flex items-center gap-2">
-              <p className=" text-sm font-medium">Trial status:</p>
-              <p className="text-xs text-text-informational mt-1">{formattedExpiresDate}</p>
+              {activeAddons.map((a) => (
+                <Badge key={a.product_id} variant="outline">
+                  {a.display_name}
+                </Badge>
+              ))}
             </div>
           ) : (
-            <div className="mt-4 flex items-center gap-2">
-              <p className=" text-sm font-medium">Next billing:</p>
-              <p className="text-xs text-text-informational mt-1">{nextPhaseStart ? formatDate(nextPhaseStart.toISOString()) : 'N/A'}</p>
-            </div>
+            <span className="text-sm text-gray-500">None</span>
           )}
-          {currentInterval && (
-            <Button className="h-7 p-2 mt-4" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSwitchOpen(true)}>
-              {currentInterval === 'month' ? 'Switch to annual' : 'Switch to monthly'}
-            </Button>
-          )}
+        </div>
+        <div className="flex gap-3 items-center p-4 pt-5">
+          <span className="font-medium text-base w-28">Billing interval</span>
+          <div className="border rounded-lg p-1 flex">
+            <button
+              disabled={updating || isSubscriptionCanceled || currentInterval === 'month'}
+              onClick={() => {
+                if (currentInterval !== 'month') setConfirmSwitchOpen(true)
+              }}
+              className={`px-3 rounded-lg text-xs font-medium h-[30px] ${currentInterval === 'month' ? 'bg-brand text-button-text' : 'text-text-informational'}`}
+            >
+              Monthly
+            </button>
+            <button
+              disabled={updating || isSubscriptionCanceled || currentInterval === 'year'}
+              onClick={() => {
+                if (currentInterval !== 'year') setConfirmSwitchOpen(true)
+              }}
+              className={`px-3 rounded-lg text-xs font-medium h-[30px] ${currentInterval === 'year' ? 'bg-brand text-button-text' : 'text-text-informational'}`}
+            >
+              Annual (15% off)
+            </button>
+          </div>
         </div>
       </div>
       <ConfirmationDialog
