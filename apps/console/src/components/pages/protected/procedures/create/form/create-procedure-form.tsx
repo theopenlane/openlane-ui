@@ -272,8 +272,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
     <>
       {isEditable && <title>{`${currentOrganization?.node?.displayName}: Procedures - ${procedure?.name}`}</title>}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-          <div className="space-y-6">
+        <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="flex flex-col lg:flex-row gap-6 w-full">
+          <div className="flex-1 space-y-6 min-w-0">
             {isEditable && (
               <Alert>
                 <Info className="h-4 w-4" />
@@ -304,13 +304,13 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full min-w-0">
                     <div className="flex items-center">
                       <FormLabel>Title</FormLabel>
                       <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the procedure later.</p>} />
                     </div>
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-full" />
+                      <Input variant="medium" {...field} className="w-full min-w-0" />
                     </FormControl>
                     {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
                   </FormItem>
@@ -324,7 +324,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                 control={form.control}
                 name="details"
                 render={() => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full min-w-0">
                     <FormLabel>Procedure</FormLabel>
                     <SystemTooltip
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
@@ -341,8 +341,9 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
               {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
             </Button>
           </div>
-          <div className="space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" editAllowed={true} />
+
+          <div className="flex-shrink-0 w-[380px] space-y-4">
+            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />
             <TagsCard form={form} />

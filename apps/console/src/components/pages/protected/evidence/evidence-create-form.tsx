@@ -299,7 +299,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                           {field.value !== null && (
                             <p>
                               Don&apos;t want to renew this evidence?{' '}
-                              <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
+                              <b className="text-sm cursor-pointer text-primary" onClick={() => field.onChange(null)}>
                                 Clear it
                               </b>
                             </p>

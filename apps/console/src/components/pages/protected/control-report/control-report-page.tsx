@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Settings2 } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, Settings2, SquarePlus } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -17,13 +17,12 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 import { useRouter } from 'next/navigation'
-import { CreateButton } from '@/components/shared/create-button/create-button'
 
 import { useSession } from 'next-auth/react'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import Loading from '@/app/(protected)/control-report/loading'
+import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
@@ -119,7 +118,7 @@ const ControlReportPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Control Report', href: '/control-report' },
+      { label: 'Controls', href: '/controls' },
     ])
   }, [setCrumbs])
 
@@ -135,15 +134,16 @@ const ControlReportPage = () => {
       setReferenceFramework(first || 'Custom')
     }
   }, [standardOptions, isSuccessStandards])
+
   if (isLoading || !data) {
-    return <Loading />
+    return <ControlReportPageSkeleton />
   }
 
   return (
     <TooltipProvider>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="text-3xl tracking-[-0.056rem] text-header">All Controls</h1>
+          <h1 className="text-2xl tracking-[-0.056rem] text-header">All Controls</h1>
           <Select onValueChange={setReferenceFramework} value={referenceFramework}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Framework" />
@@ -165,15 +165,18 @@ const ControlReportPage = () => {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          {createAllowed && <CreateButton type="control" leftIconSize={18} href="/controls/create-control" />}
-          <Link href={'/controls'}>
-            <Button className="h-8 p-2">View All Controls</Button>
-          </Link>
+          {createAllowed && (
+            <Link href="/controls/create-control" aria-label="Create Control">
+              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                Create
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
       <div className="space-y-2">
         {isLoading || isFetching ? (
-          <Loading />
+          <ControlReportPageSkeleton />
         ) : !data || data.length === 0 ? (
           <>
             <div className="flex flex-col items-center justify-center mt-16 gap-6">
@@ -223,7 +226,7 @@ const ControlReportPage = () => {
               return (
                 <AccordionItem className="mt-4" key={category} value={category}>
                   <div className="flex justify-between items-center">
-                    <AccordionTrigger asChild>
+                    <AccordionTrigger asChild className="bg-unset">
                       <button className="size-fit group flex items-center gap-2">
                         <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
                         <span className="text-xl">{category}</span>

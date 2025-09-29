@@ -6,6 +6,7 @@ import { Input } from '@repo/ui/input'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization/subscribers/bulk-csv-create-subscriber-dialog.tsx'
 import { SubscriberWhereInput } from '@repo/codegen/src/schema'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type TProps = {
   onFilterChange: (filters: SubscriberWhereInput) => void
@@ -20,7 +21,6 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
     <>
       <div className="flex items-center gap-2 my-2">
         <div className="grow flex flex-row items-center gap-2">
-          <TableFilter filterFields={SUBSCRIBERS_FILTER_FIELDS} onFilterChange={onFilterChange} />
           <Input
             icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"
@@ -32,23 +32,23 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
         <Menu
           content={
             <>
-              <div className="flex items-center space-x-2" onClick={handleExport}>
+              <button className="flex items-center space-x-2 px-1 bg-transparent" onClick={handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
-              </div>
+              </button>
               <BulkCSVCreateSubscriberDialog
                 trigger={
-                  <div className="flex items-center space-x-2">
+                  <button className="flex items-center space-x-2 px-1 bg-transparent">
                     <Upload size={16} strokeWidth={2} />
                     <span>Bulk Upload</span>
-                  </div>
+                  </button>
                 }
               />
             </>
           }
         />
+        <TableFilter filterFields={SUBSCRIBERS_FILTER_FIELDS} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.SUBSCRIBE} />
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }

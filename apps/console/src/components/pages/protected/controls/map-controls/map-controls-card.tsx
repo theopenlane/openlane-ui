@@ -111,7 +111,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
   return (
     <Card className="p-4">
       <AccordionItem value={title}>
-        <AccordionTrigger asChild>
+        <AccordionTrigger asChild className="bg-unset">
           <button className="group flex w-full justify-between items-center" onClick={setExpandedCard}>
             <div className="flex items-center gap-2 w-full justify-between">
               <div className="flex gap-2 items-center">

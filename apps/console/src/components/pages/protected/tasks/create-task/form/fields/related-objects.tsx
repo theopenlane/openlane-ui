@@ -138,7 +138,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
           return (
             <TooltipProvider key={key}>
               <Tooltip>
-                <TooltipTrigger onClick={(e) => e.preventDefault()}>
+                <TooltipTrigger onClick={(e) => e.preventDefault()} className="bg-unset">
                   <ObjectsChip name={key} objectType={kind} />
                 </TooltipTrigger>
                 <TooltipContent>
@@ -148,7 +148,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
                         <SlidersHorizontal size={12} />
                         <span className="font-medium">Name</span>
                       </div>
-                      <span className={`text-brand pl-3 cursor-pointer ${linkClass}`} onClick={() => handleNavigate(href)}>
+                      <span className={`text-brand pl-3 cursor-pointer text-primary ${linkClass}`} onClick={() => handleNavigate(href)}>
                         {key}
                       </span>
                     </div>

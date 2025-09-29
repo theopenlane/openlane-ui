@@ -1,10 +1,10 @@
-import { Circle, CircleCheck, CircleOff, CirclePlus, ScanEye, Timer } from 'lucide-react'
+import { Circle, CircleCheck, CircleCheckBig, CircleOff, CirclePlus, ScanEye, Timer } from 'lucide-react'
 import { TaskTaskStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 
 export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
-  [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-task-complete" />,
+  [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-task-completed" />,
   [TaskTaskStatus.IN_PROGRESS]: <Timer height={16} width={16} className="text-task-in-progress" />,
   [TaskTaskStatus.IN_REVIEW]: <ScanEye height={16} width={16} className="text-task-in-review" />,
   [TaskTaskStatus.OPEN]: <Circle height={16} width={16} className="text-task-open" />,
@@ -29,8 +29,14 @@ export const TaskTypesOptions = Object.values(TaskTypes).map((value) => ({
 }))
 
 export const TaskIconBtn = (
-  <div className="flex items-center space-x-2 hover:bg-muted">
+  <div className="flex items-center space-x-2">
     <CirclePlus size={16} strokeWidth={2} />
     <span>Task</span>
+  </div>
+)
+export const TaskIconPrefixBtn = (
+  <div className="flex items-center space-x-2">
+    <CircleCheckBig size={16} strokeWidth={2} />
+    <span>Create Task</span>
   </div>
 )

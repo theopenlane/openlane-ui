@@ -107,16 +107,22 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
   return (
     <Tabs variant="solid" defaultValue={defaultTab}>
       <TabsList>
-        <TabsTrigger value="upload">Upload</TabsTrigger>
-        <TabsTrigger value="directLink">Direct Link</TabsTrigger>
-        <TabsTrigger value="existingFiles">Existing Files</TabsTrigger>
+        <TabsTrigger value="upload" className="bg-unset">
+          Upload
+        </TabsTrigger>
+        <TabsTrigger value="directLink" className="bg-unset">
+          Direct Link
+        </TabsTrigger>
+        <TabsTrigger value="existingFiles" className="bg-unset">
+          Existing Files
+        </TabsTrigger>
       </TabsList>
       <UploadTab uploadedFile={handleUploadedFile} />
       <DirectLinkTab directLink={handleUploadedFile} evidenceFiles={evidenceFiles} form={props.form} />
       <ExistingFilesTab existingFile={handleUploadedFile} evidenceFiles={evidenceFiles} form={props.form} />
 
       {evidenceFiles.map((file, index) => (
-        <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-gray-100 dark:bg-glaucous-900">
+        <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
           <div className="flex items-center">{handleFileStyle(file)}</div>
           <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />
         </div>

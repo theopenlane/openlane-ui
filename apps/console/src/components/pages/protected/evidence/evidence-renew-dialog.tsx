@@ -133,7 +133,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
                     {field.value !== null && (
                       <p>
                         Don&apos;t want to renew this evidence?{' '}
-                        <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
+                        <b className="text-sm cursor-pointer text-primary" onClick={() => field.onChange(null)}>
                           Clear it
                         </b>
                       </p>
@@ -148,7 +148,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
 
         <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={100} multipleFiles={true} />
         {evidenceFiles.map((file, index) => (
-          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-gray-100 dark:bg-glaucous-900">
+          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
             <div className="flex items-center">
               <div className="mr-2">
                 <FileUp className="w-8 h-8" />

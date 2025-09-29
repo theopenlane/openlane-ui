@@ -11,6 +11,7 @@ import { AxisDomain } from 'recharts/types/util/types'
 import { AvailableChartColors, AvailableChartColorsKeys, constructCategoryColors, getColorClassName, getYAxisDomain, hasOnlyOneValueForKey } from '@repo/ui/lib/chartUtils'
 import { useOnWindowResize } from '@repo/ui/lib/windowResize'
 import { cn } from '@repo/ui/lib/utils'
+import { isString } from 'lodash'
 
 //#region Legend
 
@@ -578,6 +579,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>((props, ref) 
             offset={20}
             position={{ y: 0 }}
             content={({ active, payload, label }) => {
+              const stringLabel = label as string
               const cleanPayload: TooltipProps['payload'] = payload
                 ? payload.map((item: any) => ({
                     category: item.dataKey,
@@ -590,16 +592,16 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>((props, ref) 
                 : []
 
               if (tooltipCallback && (active !== prevActiveRef.current || label !== prevLabelRef.current)) {
-                tooltipCallback({ active, payload: cleanPayload, label })
+                tooltipCallback({ active, payload: cleanPayload, label: stringLabel })
                 prevActiveRef.current = active
-                prevLabelRef.current = label
+                prevLabelRef.current = stringLabel
               }
 
               return showTooltip && active ? (
                 CustomTooltip ? (
-                  <CustomTooltip active={active} payload={cleanPayload} label={label} />
+                  <CustomTooltip active={active} payload={cleanPayload} label={stringLabel} />
                 ) : (
-                  <ChartTooltip active={active} payload={cleanPayload} label={label} valueFormatter={valueFormatter} />
+                  <ChartTooltip active={active} payload={cleanPayload} label={stringLabel} valueFormatter={valueFormatter} />
                 )
               ) : null
             }}

@@ -446,7 +446,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             handleSheetClose()
           }
         }}
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         minWidth={600}
         header={
           <SheetHeader>

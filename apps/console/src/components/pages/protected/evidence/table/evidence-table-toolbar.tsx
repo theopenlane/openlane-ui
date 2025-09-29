@@ -6,6 +6,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { EVIDENCE_FILTERABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -27,21 +28,20 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({ searching,
   return (
     <>
       <div className="relative flex items-center gap-2 my-2">
-        <div className="grow flex flex-row items-center gap-2">
+        <Input
+          icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.currentTarget.value)}
+          variant="searchTable"
+        />
+        <div className="grow flex flex-row items-center gap-2 justify-end">
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} />
           )}
-          <TableFilter filterFields={EVIDENCE_FILTERABLE_FIELDS} onFilterChange={setFilters} />
-          <Input
-            icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.currentTarget.value)}
-            variant="searchTable"
-          />
+          <TableFilter filterFields={EVIDENCE_FILTERABLE_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.EVIDENCE} />
         </div>
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }

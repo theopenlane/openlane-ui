@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { EllipsisVertical } from 'lucide-react'
+import { Ellipsis } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import cn from 'classnames'
 
@@ -9,16 +9,18 @@ interface MenuProps {
   content: React.ReactNode | ((close: () => void) => React.ReactNode)
   extraContent?: React.ReactNode | ((close: () => void) => React.ReactNode)
   align?: 'start' | 'center' | 'end'
+  side?: 'top' | 'right' | 'bottom' | 'left'
   closeOnSelect?: boolean
   className?: string
 }
 
-const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, closeOnSelect, className }) => {
+const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side, closeOnSelect, className }) => {
   const [open, setOpen] = useState(false)
 
   const handleClose = () => {
-    console.log(closeOnSelect)
-    if (closeOnSelect) setOpen(false)
+    if (closeOnSelect) {
+      setOpen(false)
+    }
   }
 
   const renderContent = (node: typeof content) => {
@@ -27,10 +29,8 @@ const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, clos
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        {trigger ?? <Button descriptiveTooltipText="Action" variant="outline" className="h-8 !px-2 !pl-0 bg-card" icon={<EllipsisVertical size={16} />} />}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className={cn('border shadow-md p-0', className)} align={align ?? 'end'}>
+      <DropdownMenuTrigger asChild>{trigger ?? <Button descriptiveTooltipText="Action" className="h-8 !px-2 !pl-0 " icon={<Ellipsis size={16} />} />}</DropdownMenuTrigger>
+      <DropdownMenuContent className={cn('border shadow-md p-0 ', className)} align={align ?? 'end'} side={side ?? undefined}>
         <div className="flex flex-col space-y-2 px-3 py-3">{renderContent(content)}</div>
         {extraContent && (
           <>

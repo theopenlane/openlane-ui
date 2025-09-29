@@ -150,10 +150,14 @@ const ProfilePage = () => {
   const twoFAConfig = useMemo(() => {
     if (!tfaSettings || !isVerified) {
       return {
-        badge: <Badge variant="secondary">Recommended</Badge>,
+        badge: (
+          <Badge variant="secondary" className="text-muted-foreground">
+            Recommended
+          </Badge>
+        ),
         text: <p className="text-sm">A TOTP method has not been setup for your account.</p>,
         buttons: [
-          <Button key={0} className="mx-10 w-24" onClick={handleConfigure}>
+          <Button key={0} className="mx-10 w-24 btn-secondary" onClick={handleConfigure}>
             Configure
           </Button>,
         ],
@@ -162,7 +166,11 @@ const ProfilePage = () => {
 
     if (userData?.user.setting.isTfaEnabled) {
       return {
-        badge: <Badge variant="default">Enabled</Badge>,
+        badge: (
+          <Badge variant="default" className="text-muted-foreground">
+            Enabled
+          </Badge>
+        ),
         text: (
           <p className="text-sm">
             A TOTP method has been added for your account. Ensure you have your recovery codes stored, or{' '}

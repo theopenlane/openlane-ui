@@ -1,7 +1,7 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
-import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
-import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { FilterField } from '@/types'
+import { CirclePlus, DownloadIcon, FileQuestion, FileText, LoaderCircle, SearchIcon, Upload, UserRound } from 'lucide-react'
 import { CONTROLS_FILTER_FIELDS } from './table-config'
 import { Input } from '@repo/ui/input'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
@@ -19,6 +19,7 @@ import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
 import { TAccessRole, TData } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -81,7 +82,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
       {
         key: 'standard',
         label: 'Standard',
-        type: 'selectIs',
+        type: 'select',
         options: [
           ...standardOptions,
           {
@@ -89,6 +90,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
             label: 'CUSTOM',
           },
         ],
+        icon: FileQuestion,
       },
       {
         key: 'controlOwnerID',
@@ -98,13 +100,17 @@ const ControlsTableToolbar: React.FC<TProps> = ({
           value: group.value,
           label: group.label,
         })),
-      } as SelectFilterField,
+        icon: UserRound,
+      },
       {
         key: 'hasProgramsWith',
         label: 'Program Name',
-        type: 'selectIs',
+        forceKeyOperator: true,
+        childrenObjectKey: 'id',
+        type: 'select',
         options: programOptions,
-      } as SelectIsFilterField,
+        icon: FileText,
+      },
     ])
   }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess])
 
@@ -112,10 +118,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
     <>
       <div className="flex items-center gap-2 my-2">
         <div className="grow flex flex-row items-center gap-2">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
-          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />}
           <Input
             icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"
@@ -146,6 +148,35 @@ const ControlsTableToolbar: React.FC<TProps> = ({
             </>
           ) : (
             <>
+              <Menu
+                closeOnSelect={true}
+                content={(close) => (
+                  <>
+                    <button
+                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      onClick={() => {
+                        handleExport()
+                        close()
+                      }}
+                    >
+                      <DownloadIcon size={16} strokeWidth={2} />
+                      <span>Export</span>
+                    </button>
+                    <BulkCSVCreateControlDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Bulk Upload</span>
+                        </div>
+                      }
+                    />
+                  </>
+                )}
+              />
+              {mappedColumns && columnVisibility && setColumnVisibility && (
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              )}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.CONTROL} />}
               {(createControlAllowed || createSubcontrolAllowed) && (
                 <Menu
                   trigger={CreateBtn}
@@ -153,7 +184,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     <>
                       {createControlAllowed && (
                         <Link href="/controls/create-control">
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center space-x-2 ">
                             <CirclePlus size={16} strokeWidth={2} />
                             <span>Control</span>
                           </div>
@@ -161,7 +192,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       )}
                       {createSubcontrolAllowed && (
                         <Link href="/controls/create-subcontrol">
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center space-x-2 ">
                             <CirclePlus size={16} strokeWidth={2} />
                             <span>Subcontrol</span>
                           </div>
@@ -171,36 +202,10 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   }
                 />
               )}
-              <Menu
-                closeOnSelect={true}
-                content={(close) => (
-                  <>
-                    <div
-                      className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                      onClick={() => {
-                        handleExport()
-                        close()
-                      }}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </div>
-                    <BulkCSVCreateControlDialog
-                      trigger={
-                        <div className="flex items-center space-x-2 hover:bg-muted">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Bulk Upload</span>
-                        </div>
-                      }
-                    />
-                  </>
-                )}
-              ></Menu>
             </>
           )}
         </div>
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }

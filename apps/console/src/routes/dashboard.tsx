@@ -1,9 +1,5 @@
 import {
-  CircleGaugeIcon,
-  LayersIcon,
   SettingsIcon,
-  UsersRoundIcon,
-  UserRoundCogIcon,
   Users,
   ShieldCheck,
   AlertTriangle,
@@ -14,15 +10,28 @@ import {
   Workflow,
   NotebookPen,
   FileBadge2,
+  House,
+  UserCog,
+  KeyRound,
+  UserRoundPlus,
+  GlobeLock,
+  MailCheck,
+  History,
+  DollarSign,
+  Handshake,
+  Bot,
+  UserRoundPen,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
-export const generateNavItems = () // canEdit?: boolean
-: (NavItem | Separator | NavHeading)[] => [
+export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
+  {
+    type: 'separator',
+  },
   {
     title: 'Home',
     href: '/dashboard',
-    icon: CircleGaugeIcon,
+    icon: House,
   },
   {
     title: 'Tasks',
@@ -30,179 +39,155 @@ export const generateNavItems = () // canEdit?: boolean
     icon: ListChecks,
   },
   {
-    type: 'separator',
-  },
-  {
-    title: 'Programs',
-    href: '/programs',
+    title: 'Compliance',
     icon: ShieldCheck,
-  },
-  {
-    title: 'Risks',
-    href: '/risks',
-    icon: AlertTriangle,
-  },
-  {
-    title: 'Controls',
-    href: '/control-report',
-    icon: Settings2,
-  },
-  {
-    title: 'Evidence',
-    href: '/evidence',
-    icon: Fingerprint,
-  },
-  {
-    title: 'Policies',
-    href: '/policies',
-    icon: ScrollText,
-  },
-  {
-    title: 'Procedures',
-    href: '/procedures',
-    icon: Workflow,
-  },
-  {
-    title: 'Questionnaires',
-    href: '/questionnaires',
-    icon: NotebookPen,
-  },
-  {
-    title: 'Standards',
-    href: '/standards',
-    icon: FileBadge2,
-  },
-
-  {
-    type: 'separator',
-  },
-  {
-    title: 'Groups',
-    href: '/groups',
-    icon: UsersRoundIcon,
-  },
-  // {
-  //   title: 'Entities',
-  //   href: '/entities',
-  //   icon: Building,
-  // },
-  // {
-  //   title: 'Assets',
-  //   href: '/assets',
-  //   icon: ShapesIcon,
-  // },
-  // {
-  //   type: 'separator',
-  // },
-  // {
-  //   title: 'Reporting',
-  //   href: '/reporting',
-  //   icon: LineChart,
-  // },
-  {
-    type: 'separator',
-  },
-  {
-    title: 'Organization settings',
-    href: '/organization-settings',
-    icon: SettingsIcon,
-    isChildren: true,
+    href: '/',
     children: [
       {
-        title: 'General Settings',
-        href: '/organization-settings/general-settings',
+        title: 'Programs',
+        href: '/programs',
+        icon: ShieldCheck,
       },
       {
-        title: 'Authentication',
-        href: '/organization-settings/authentication',
+        title: 'Controls',
+        href: '/controls',
+        params: '?tab=report',
+        icon: Settings2,
       },
       {
-        title: 'Members',
-        href: '/organization-settings/members',
+        title: 'Evidence',
+        href: '/evidence',
+        icon: Fingerprint,
       },
       {
-        title: 'Subscribers',
-        href: '/organization-settings/subscribers',
+        title: 'Policies',
+        href: '/policies',
+        icon: ScrollText,
       },
       {
-        title: 'Billing',
-        href: '/organization-settings/billing',
+        title: 'Procedures',
+        href: '/procedures',
+        icon: Workflow,
       },
       {
-        title: 'Developers',
-        href: '/organization-settings/developers',
+        title: 'Standards Catalog',
+        href: '/standards',
+        icon: FileBadge2,
       },
       {
-        title: 'Audit Logs',
-        href: '/organization-settings/logs',
+        title: 'Questionnaires',
+        href: '/questionnaires',
+        icon: NotebookPen,
       },
       {
-        title: 'Integrations',
-        href: '/organization-settings/integrations',
-        // hidden: !canEdit,
-        hidden: true,
+        title: 'Risks',
+        href: '/risks',
+        icon: AlertTriangle,
       },
-    ],
-  },
-  {
-    type: 'separator',
-  },
-  {
-    title: 'User settings',
-    href: '/organization-settings',
-    icon: UserRoundCogIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'Profile',
-        href: '/user-settings/profile',
-      },
-      {
-        title: 'Developers',
-        href: '/user-settings/developers',
-      },
-      // {
-      //   title: 'Alerts & Preferences',
-      //   href: '/user-settings/alerts-preferences',
-      // },
     ],
   },
   {
     title: 'Trust center',
     hidden: true,
     href: '/trust-center',
-    icon: SettingsIcon,
+    icon: Handshake,
     isChildren: true,
     children: [
       {
         title: 'Settings',
         hidden: true,
         href: '/trust-center/settings',
+        icon: Settings2,
       },
     ],
   },
 ]
 
-export const PersonalNavItems: (NavItem | Separator | NavHeading)[] = [
+export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
-    type: 'heading',
-    heading: 'Organizations',
+    title: 'Organization settings',
+    href: '/organization-settings',
+    icon: SettingsIcon,
+    children: [
+      {
+        title: 'General Settings',
+        href: '/organization-settings/general-settings',
+        icon: SettingsIcon,
+      },
+      {
+        title: 'Authentication',
+        href: '/organization-settings/authentication',
+        icon: GlobeLock,
+      },
+      {
+        title: 'Subscribers',
+        href: '/organization-settings/subscribers',
+        icon: MailCheck,
+      },
+      {
+        title: 'Billing',
+        href: '/organization-settings/billing',
+        icon: DollarSign,
+      },
+      {
+        title: 'Audit Logs',
+        href: '/organization-settings/logs',
+        icon: History,
+      },
+      {
+        title: 'Integrations',
+        href: '/organization-settings/integrations',
+        // hidden: !canEdit,
+        hidden: true,
+        icon: Workflow,
+      },
+    ],
   },
   {
-    title: 'My organizations',
-    href: '/organization',
-    icon: LayersIcon,
+    title: 'User Management',
+    href: '/organization-settings',
+    icon: UserRoundPen,
+    children: [
+      {
+        title: 'Members',
+        href: '/organization-settings/members',
+        icon: UserRoundPlus,
+      },
+      {
+        title: 'Groups',
+        href: '/groups',
+        icon: Users,
+      },
+    ],
   },
   {
-    type: 'separator',
+    title: 'Developers',
+    href: '/organization-settings',
+    icon: Bot,
+    children: [
+      {
+        title: 'API Tokens',
+        href: '/organization-settings/developers',
+        icon: KeyRound,
+      },
+      {
+        title: 'Personal Access Tokens',
+        href: '/user-settings/developers',
+        icon: KeyRound,
+      },
+    ],
   },
   {
-    type: 'heading',
-    heading: 'User settings',
-  },
-  {
-    title: 'My profile',
+    title: 'User settings',
     href: '/user-settings/profile',
-    icon: Users,
+    icon: UserCog,
+  },
+]
+
+export const personalNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
+  {
+    title: 'User settings',
+    href: '/user-settings/profile',
+    icon: UserCog,
   },
 ]

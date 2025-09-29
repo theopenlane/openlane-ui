@@ -1,10 +1,11 @@
 import { FilterField } from '@/types'
 import { OrderDirection, SubscriberOrderField } from '@repo/codegen/src/schema.ts'
+import { BookOpenCheck, Mail, MailCheck } from 'lucide-react'
 
 export const SUBSCRIBERS_FILTER_FIELDS: FilterField[] = [
-  { key: 'email', label: 'Name', type: 'text' },
-  { key: 'active', label: 'Active', type: 'boolean' },
-  { key: 'verifiedEmail', label: 'Verified', type: 'boolean' },
+  { key: 'email', label: 'Name', type: 'text', icon: Mail },
+  { key: 'active', label: 'Active', type: 'boolean', icon: BookOpenCheck },
+  { key: 'verifiedEmail', label: 'Verified', type: 'boolean', icon: MailCheck },
 ]
 
 export const SUBSCRIBERS_SORT_FIELDS = [

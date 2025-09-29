@@ -5,21 +5,21 @@ import React, { useCallback } from 'react'
 type TSuccessProps = {
   title?: string
   description?: string | React.ReactNode
-  variant?: 'default' | 'destructive' | 'success'
+  variant?: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success'
 }
 
 type TErrorProps = {
   title?: string
   description?: string
   gqlError?: GqlError
-  variant?: 'default' | 'destructive' | 'success'
+  variant?: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success'
 }
 
 export function useNotification() {
   const { toast } = useToast()
 
   const handleShowNotification = useCallback(
-    (title?: string, description?: string | React.ReactNode, variant: 'default' | 'destructive' | 'success' = 'default') => {
+    (title?: string, description?: string | React.ReactNode, variant: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success' = 'default') => {
       toast({
         variant,
         ...(title ? { title } : {}),
@@ -56,7 +56,7 @@ export function useNotification() {
         description = messages.join('\n')
       }
 
-      handleShowNotification(props.title, description, 'destructive')
+      handleShowNotification(props.title, description, 'error')
     },
     [handleShowNotification],
   )

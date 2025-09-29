@@ -247,16 +247,16 @@ const ControlDetailsPage: React.FC = () => {
             content={
               <>
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
-                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <button onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 bg-transparent cursor-pointer px-1">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Implementation</span>
-                  </div>
+                  </button>
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
-                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <button onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 bg-transparent cursor-pointer px-1">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Objective</span>
-                  </div>
+                  </button>
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
                   <CreateControlObjectiveSheet
@@ -276,14 +276,15 @@ const ControlDetailsPage: React.FC = () => {
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) && (
                   <Link href={`/controls/${id}/create-subcontrol`}>
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <button className="flex items-center space-x-2 bg-transparent px-1">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Subcontrol</span>
-                    </div>
+                    </button>
                   </Link>
                 )}
                 <CreateTaskDialog
                   trigger={TaskIconBtn}
+                  className="px-1 bg-transparent"
                   defaultSelectedObject={ObjectTypeObjects.CONTROL}
                   initialData={{
                     programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
@@ -296,10 +297,10 @@ const ControlDetailsPage: React.FC = () => {
                 />
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
                   <Link href={`/controls/${id}/map-control`}>
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <button className="flex items-center space-x-2 px-1 bg-transparent">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Map Control</span>
-                    </div>
+                    </button>
                   </Link>
                 )}
               </>

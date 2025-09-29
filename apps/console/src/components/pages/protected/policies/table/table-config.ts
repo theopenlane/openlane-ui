@@ -5,6 +5,7 @@ import { FilterField } from '@/types'
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { Calendar, FileText, Tags, UserRound } from 'lucide-react'
 
 export function usePoliciesFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
@@ -20,38 +21,51 @@ export function usePoliciesFilters(): FilterField[] | null {
         label: 'Approver Group',
         type: 'select',
         options: groupOptions,
+        icon: UserRound,
       },
       {
-        key: 'hasControlWith.refCodeContainsFold',
+        key: 'hasControlsWith',
+        childrenObjectKey: 'refCodeContainsFold',
+        forceKeyOperator: true,
         label: 'Control',
-        type: 'containsText',
+        type: 'text',
+        icon: FileText,
       },
       {
         key: 'hasProgramsWith',
         label: 'Program Name',
-        type: 'selectIs',
+        type: 'select',
+        forceKeyOperator: true,
+        childrenObjectKey: 'id',
         options: programOptions,
+        icon: FileText,
       },
       {
-        key: 'hasSubcontrolWith.refCodeContainsFold',
+        key: 'hasSubcontrolWith',
+        childrenObjectKey: 'refCodeContainsFold',
+        forceKeyOperator: true,
         label: 'Subcontrol',
-        type: 'containsText',
+        type: 'text',
+        icon: FileText,
       },
       {
         key: 'policyType',
         label: 'Policy Type',
         type: 'text',
+        icon: Tags,
       },
       {
         key: 'reviewDue',
         label: 'Review Due',
         type: 'date',
+        icon: Calendar,
       },
       {
         key: 'status',
         label: 'Status',
         type: 'select',
         options: InternalPolicyStatusFilterOptions,
+        icon: Tags,
       },
     ]
 

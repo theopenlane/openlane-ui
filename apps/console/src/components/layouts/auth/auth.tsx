@@ -22,8 +22,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
     <div className={base()}>
       {showTriangles && (
         <>
-          <Triangle className="hidden md:block md:h-[1000px] lg:h-[1263px] md:-top-40 lg:-top-80 left-[21%] text-border w-auto absolute z-0" />
-          <Triangle className="hidden md:block md:h-[1000px] lg:h-[1263px] top-0 left-1/2 text-border w-auto absolute z-0" />
+          <Triangle className="hidden md:block md:h-[1000px] lg:h-[1263px] md:-top-40 lg:-top-80 left-[21%] w-auto absolute z-0" />
+          <Triangle className="hidden md:block md:h-[1000px] lg:h-[1263px] top-0 left-1/2 w-auto absolute z-0" />
         </>
       )}
 
@@ -31,7 +31,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       <div className={closeButton()}>
         <Link href={OPENLANE_WEBSITE_URL}>
-          <Button className="!py-2 !px-1.5 !h-8" variant="outline" icon={<ArrowLeft size={16} />} iconPosition="left">
+          <Button className="!py-2 !px-1.5 !h-8 bg-transparent" variant="outline" icon={<ArrowLeft size={16} />} iconPosition="left">
             Back to Home
           </Button>
         </Link>

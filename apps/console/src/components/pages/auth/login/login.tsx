@@ -333,15 +333,22 @@ export const LoginPage = () => {
         <p className="text-base mt-8">Connect to Openlane with</p>
 
         <div className={buttons()}>
-          <Button className="bg-card !px-3.5" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+          <Button className="bg-secondary !px-3.5" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
             <p className="text-sm font-normal">Google</p>
           </Button>
 
-          <Button className="bg-card !px-3.5" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
+          <Button className="bg-secondary !px-3.5" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
             <p className="text-sm font-normal">GitHub</p>
           </Button>
 
-          <Button className="bg-card !px-3.5" variant="outlineLight" icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
+          <Button
+            className="bg-secondary !px-3.5"
+            variant="outlineLight"
+            icon={<KeyRoundIcon className="text-input-text" />}
+            iconPosition="left"
+            onClick={() => passKeySignIn()}
+            disabled={signInLoading}
+          >
             <p className="text-sm font-normal">Passkey</p>
           </Button>
         </div>
@@ -369,7 +376,7 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent !text-text" />
+            <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent" />
           </div>
 
           {shouldShowSSOButton() && (
@@ -397,28 +404,30 @@ export const LoginPage = () => {
           )}
 
           {shouldShowPasswordField() && (
-            <div className="flex flex-col">
-              <div className={input()}>
-                <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
-              </div>
-              <Link href="/forgot-password" className=" text-base text-xs text-blue-500 mt-1 mb-1 text-right  hover:opacity-80 transition">
-                Forgot password?
-              </Link>
-              <button className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
-                <span>Login</span>
-                <ArrowRightCircle size={16} />
-              </button>
-
-              {shouldShowToggleOption() && (
-                <div className="flex justify-end mt-2">
-                  <div className="text-sm text-gray-400">
-                    <button type="button" onClick={() => setUsePasswordInsteadOfSSO(false)} className="hover:text-gray-300 transition-colors">
-                      Sign-in With SSO
+            <>
+              <div className="flex flex-col">
+                {
+                  <>
+                    <div className={input()}>
+                      <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
+                    </div>
+                    <Link href="/forgot-password" className="text-base text-xs text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition">
+                      Forgot password?
+                    </Link>
+                    <button className="p-4 btn-secondary justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
+                      <span>Login</span>
+                      <ArrowRightCircle size={16} />
                     </button>
-                  </div>
-                </div>
-              )}
-            </div>
+                  </>
+                }
+
+                <span
+                  onClick={() => !signInLoading}
+                  className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
+                  style={{ opacity: signInLoading ? 0.5 : 1 }}
+                ></span>
+              </div>
+            </>
           )}
           <div className="flex text-base">
             <span>New to Openlane? &nbsp;</span>

@@ -33,12 +33,12 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
     <div ref={triggerRef} className={`w-[200px] ${className}`}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input-background rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
+          <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
             <span className="truncate">{selected?.label || placeholder}</span>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
-        <PopoverContent ref={popoverRef} className="w-[200px] p-0 !bg-input-background border" side="bottom">
+        <PopoverContent ref={popoverRef} className="w-[200px] p-0 !bg-input border" side="bottom">
           <Command shouldFilter autoFocus={autoFocus}>
             <CommandInput placeholder="Search..." />
             <CommandList>

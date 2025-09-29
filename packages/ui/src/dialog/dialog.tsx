@@ -25,7 +25,7 @@ const DialogOverlay = React.forwardRef<React.ElementRef<typeof DialogPrimitive.O
       {...props}
       onPointerDown={(e) => {
         if (!isClosable) {
-          e.stopPropagation() // Prevent closing when overlay is clicked
+          e.stopPropagation()
         }
       }}
     />
@@ -43,14 +43,14 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
         {...props}
         onEscapeKeyDown={(e) => {
           if (!isClosable) {
-            e.preventDefault() // Prevent closing on Escape key
+            e.preventDefault()
           }
         }}
       >
         {children}
         {isClosable && (
-          <DialogPrimitive.Close className={cn(close(), className)}>
-            <X className={cn(closeIcon(), className)} />
+          <DialogPrimitive.Close className={cn(close())}>
+            <X className={cn(closeIcon())} />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
