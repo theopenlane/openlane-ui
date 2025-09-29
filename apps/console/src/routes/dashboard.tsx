@@ -116,7 +116,6 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
       {
         title: 'Authentication',
         href: '/organization-settings/authentication',
-        hidden: true, // the only thing here is domain restricted which currently has a bug
         icon: GlobeLock,
       },
       {

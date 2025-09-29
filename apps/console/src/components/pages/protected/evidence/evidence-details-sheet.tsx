@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useRef, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useMemo, useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -22,6 +22,8 @@ import {
   Copy,
   Pencil,
   Save,
+  ChevronDown,
+  Plus,
 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Input, InputRow } from '@repo/ui/input'
@@ -66,6 +68,11 @@ import NextLink from 'next/link'
 import EvidenceFiles from './evidence-files'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
+import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
+import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
+import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -93,6 +100,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { wrapper, content } = statCardStyles({ color: 'green' })
+
+  const [openControlsDialog, setOpenControlsDialog] = useState(false)
+
+  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
+  const [associationSubControlsRefMap, setAssociationSubControlsRefMap] = useState<string[]>([])
+  const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
+  const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
+  const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
+  const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -135,10 +151,22 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const initialAssociations = useMemo(
     () => ({
       programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+
       controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
       controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
       taskIDs: (evidence?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+    }),
+    [evidence],
+  )
+
+  const initialAssociationsControlsAndPrograms = useMemo(
+    () => ({
+      programDisplayIDs: (evidence?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+      subcontrolRefCodes: evidence?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+      subcontrolReferenceFramework: Object.fromEntries(evidence?.subcontrols?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
+      controlRefCodes: evidence?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+      controlReferenceFramework: Object.fromEntries(evidence?.controls?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
     }),
     [evidence],
   )
@@ -169,6 +197,30 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [evidence, form])
 
+  const handleInitialValue = useCallback(() => {
+    if (initialAssociations && initialAssociationsControlsAndPrograms) {
+      form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
+      form.setValue('programIDs', initialAssociations.programIDs ? initialAssociations.programIDs : [])
+      form.setValue('subcontrolIDs', initialAssociations.subcontrolIDs ? initialAssociations.subcontrolIDs : [])
+
+      setAssociationControlsRefMap(initialAssociationsControlsAndPrograms.controlRefCodes ? initialAssociationsControlsAndPrograms.controlRefCodes : [])
+      setAssociationControlsFrameworksMap(initialAssociationsControlsAndPrograms.controlReferenceFramework || {})
+
+      setAssociationSubControlsRefMap(initialAssociationsControlsAndPrograms.subcontrolRefCodes ? initialAssociationsControlsAndPrograms.subcontrolRefCodes : [])
+      setAssociationSubControlsFrameworksMap(initialAssociationsControlsAndPrograms.subcontrolReferenceFramework || {})
+
+      setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
+    }
+  }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
+
+  useEffect(() => {
+    handleInitialValue()
+  }, [handleInitialValue])
+
+  const programIDs = form.watch('programIDs')
+
+  const programsAccordionValue = (programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined
+
   const handleCopyLink = () => {
     if (!config.id) {
       return
@@ -193,7 +245,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       setIsDiscardDialogOpen(true)
       return
     }
-
     handleCloseParams()
   }
 
@@ -206,14 +257,31 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
+  const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k as K))) as Omit<T, K>
+
   const onSubmit = async (formData: EditEvidenceFormData) => {
-    const associationInputs = getAssociationInput(initialAssociations, associations)
+    const controlIDs = form.getValues('controlIDs') || []
+    const subcontrolIDs = form.getValues('subcontrolIDs') || []
+    const programIDs = form.getValues('programIDs') || []
+
+    const updatedAssociations = {
+      ...associations,
+      controlIDs,
+      subcontrolIDs,
+      programIDs,
+    }
+
+    setAssociations(updatedAssociations)
+
+    const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
+
+    const cleanFormData = omit(formData, ['programIDs', 'controlIDs', 'subcontrolIDs'])
 
     try {
       await updateEvidence({
         updateEvidenceId: config.id as string,
         input: {
-          ...formData,
+          ...cleanFormData,
           ...associationInputs,
           clearURL: formData?.url === undefined,
         },
@@ -336,6 +404,36 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return (
       <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
+  }
+
+  const handleSaveControls = (
+    newIds: string[],
+    subcontrolsNewIds: string[],
+    newControlRefCodes: string[],
+    newSubcontrolRefCodes: string[],
+    frameworks: Record<string, string>,
+    subcontrolFrameworks: Record<string, string>,
+  ) => {
+    const mergedControlRefCodes = [...(associationControlsRefMap || []), ...(newControlRefCodes || [])]
+    const uniqueControlRefCodes = Array.from(new Set(mergedControlRefCodes))
+
+    const mergedSubcontrolRefCodes = [...(associationSubControlsRefMap || []), ...(newSubcontrolRefCodes || [])]
+    const uniqueSubcontrolRefCodes = Array.from(new Set(mergedSubcontrolRefCodes))
+
+    form.setValue('controlIDs', newIds)
+    form.setValue('subcontrolIDs', subcontrolsNewIds)
+
+    setAssociationControlsRefMap(uniqueControlRefCodes)
+    setAssociationSubControlsRefMap(uniqueSubcontrolRefCodes)
+
+    setAssociationControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(frameworks || {}) }))
+    setAssociationSubControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(subcontrolFrameworks || {}) }))
+  }
+
+  const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
+    setAssociationProgramsRefMap(newRefCodes || [])
+
+    form.setValue('programIDs', newIds)
   }
 
   return (
@@ -783,12 +881,121 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
               {isEditing && (
                 <div ref={objectAssociationRef}>
                   <Panel className="mt-5">
-                    <PanelHeader heading="Object association" noBorder />
+                    <Accordion type="single" collapsible defaultValue="ControlsAccordion" className="w-full">
+                      <AccordionItem value="ControlsAccordion">
+                        <div className="flex items-center justify-between w-full">
+                          <AccordionTrigger asChild>
+                            <div className="flex items-center gap-2 cursor-pointer group">
+                              <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+                              <span className="text-sm font-medium">Linked Control(s)</span>
+                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                                {(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)}
+                              </span>
+                            </div>
+                          </AccordionTrigger>
+                          <Button
+                            variant="outline"
+                            className="py-5"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenControlsDialog(true)
+                            }}
+                            icon={<Plus />}
+                            iconPosition="left"
+                          >
+                            Add Controls
+                          </Button>
+                        </div>
+
+                        <AccordionContent>
+                          <div className="mt-5 flex flex-col gap-5">
+                            <ObjectAssociationControlsChips
+                              form={form}
+                              controlsRefMap={associationControlsRefMap}
+                              setControlsRefMap={setAssociationControlsRefMap}
+                              subcontrolsRefMap={associationSubControlsRefMap}
+                              setSubcontrolsRefMap={setAssociationSubControlsRefMap}
+                              subcontrolFrameworksMap={associationSubControlsFrameworksMap}
+                              setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
+                              frameworksMap={associationControlsFrameworksMap}
+                              setFrameworksMap={setAssociationControlsFrameworksMap}
+                            />
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                    <ControlSelectionDialog
+                      open={openControlsDialog}
+                      onClose={() => setOpenControlsDialog(false)}
+                      initialFramework={associationControlsFrameworksMap}
+                      initialControlRefCodes={associationControlsRefMap}
+                      initialSubcontrolRefCodes={associationSubControlsRefMap}
+                      initialSubcontrolFramework={associationSubControlsFrameworksMap}
+                      onSave={handleSaveControls}
+                      form={form}
+                    />
+                  </Panel>
+                  <Panel className="mt-5">
+                    <Accordion type="single" collapsible value={programsAccordionValue} className="w-full">
+                      <AccordionItem value="ProgramsAccordion">
+                        <div className="flex items-center justify-between w-full">
+                          <AccordionTrigger asChild>
+                            <div className="flex items-center gap-2 cursor-pointer group">
+                              <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+                              <span className="text-sm font-medium">Linked Program(s)</span>
+                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                                {form.getValues('programIDs')?.length || 0}
+                              </span>
+                            </div>
+                          </AccordionTrigger>
+
+                          <Button
+                            variant="outline"
+                            className="py-5"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenProgramsDialog(true)
+                            }}
+                            type="button"
+                            icon={<Plus />}
+                            iconPosition="left"
+                          >
+                            Add Programs
+                          </Button>
+                        </div>
+
+                        <AccordionContent>
+                          <div className="mt-5 flex flex-col gap-5">
+                            <ObjectAssociationProgramsChips form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+
+                    <ProgramSelectionDialog
+                      form={form}
+                      open={openProgramsDialog}
+                      onClose={() => setOpenProgramsDialog(false)}
+                      initialRefCodes={associationProgramsRefMap}
+                      onSave={handleSavePrograms}
+                    />
+                  </Panel>
+                  <Panel className="mt-5">
+                    <PanelHeader heading="Associate more objects" noBorder />
                     <p>Associating objects will allow users with access to the object to see the created evidence.</p>
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
+                      excludeObjectTypes={[
+                        ObjectTypeObjects.EVIDENCE,
+                        ObjectTypeObjects.GROUP,
+                        ObjectTypeObjects.INTERNAL_POLICY,
+                        ObjectTypeObjects.PROCEDURE,
+                        ObjectTypeObjects.RISK,
+                        ObjectTypeObjects.CONTROL,
+                        ObjectTypeObjects.SUB_CONTROL,
+                        ObjectTypeObjects.PROGRAM,
+                      ]}
                     />
                   </Panel>
                 </div>

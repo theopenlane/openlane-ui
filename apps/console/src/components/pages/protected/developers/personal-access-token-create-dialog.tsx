@@ -156,7 +156,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
     try {
       setIsAuthorizingSSO(true)
 
-      localStorage.setItem('sso_organization_id', currentOrgId || '')
       localStorage.setItem(
         'api_token',
         JSON.stringify({
