@@ -230,6 +230,13 @@
   --color-logo-fg: #4dc6ad;
   --color-logo-dark: #303e4a;
   --color-logo-light: #b4c1d5;
+
+  /* Task */
+  --color-task-in-review: #FF842C;
+  --color-task-in-progress: #6392FF;
+  --color-task-open: #8F46F5;
+  --color-task-completed: #21C55D;
+  --task-wont-do: #ff3e2c;
 }
 
 /* ─────────────────────────────────────────────────────────

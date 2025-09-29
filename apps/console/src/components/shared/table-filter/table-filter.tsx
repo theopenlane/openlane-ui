@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { FilterField, WhereCondition, Condition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
 import { format, startOfDay, addDays } from 'date-fns'
@@ -31,8 +31,8 @@ const handleDateEQOperator = (value: Date, field: string): Condition[] => {
 }
 
 const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageKey, onFilterChange }) => {
-  const [values, setValues] = React.useState<TFilterState>({})
-  const [open, setOpen] = React.useState(false)
+  const [values, setValues] = useState<TFilterState>({})
+  const [open, setOpen] = useState(false)
 
   const buildWhereCondition = useCallback((vals: TFilterState, fields: FilterField[]): WhereCondition => {
     const andConditions: WhereCondition[] = []

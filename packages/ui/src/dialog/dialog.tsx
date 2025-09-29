@@ -49,8 +49,8 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
       >
         {children}
         {isClosable && (
-          <DialogPrimitive.Close className={cn(close(), className)}>
-            <X className={cn(closeIcon(), className)} />
+          <DialogPrimitive.Close className={cn(close())}>
+            <X className={cn(closeIcon())} />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}

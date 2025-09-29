@@ -10,10 +10,7 @@ export const dialogStyles = tv({
       'data-[state=open]:zoom-in data-[state=closed]:zoom-out ' +
       'data-[state=open]:slide-in-from-top data-[state=open]:slide-in-from-left ' +
       'data-[state=closed]:slide-out-to-top data-[state=closed]:slide-out-to-left',
-    close:
-      'absolute right-4 top-4 rounded-xs opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none ' +
-      'data-[state=open]:bg-oxford-blue-100 data-[state=open]:text-oxford-blue-500 ' +
-      'dark:ring-offset-oxford-blue-950 dark:data-[state=open]:bg-oxford-blue-800 dark:data-[state=open]:text-oxford-blue-400',
+    close: 'absolute right-4 top-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 bg-unset p-1',
     closeIcon: 'h-4 w-4',
     header: 'flex flex-col space-y-1.5 sm:text-left',
     footer: 'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',

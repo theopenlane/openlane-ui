@@ -4,7 +4,7 @@ import React from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 
 export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
-  [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-task-complete" />,
+  [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-task-completed" />,
   [TaskTaskStatus.IN_PROGRESS]: <Timer height={16} width={16} className="text-task-in-progress" />,
   [TaskTaskStatus.IN_REVIEW]: <ScanEye height={16} width={16} className="text-task-in-review" />,
   [TaskTaskStatus.OPEN]: <Circle height={16} width={16} className="text-task-open" />,
