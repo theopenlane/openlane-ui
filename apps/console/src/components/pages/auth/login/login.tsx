@@ -421,16 +421,13 @@ export const LoginPage = () => {
                   </>
                 }
 
-              {shouldShowToggleOption() && (
-                <div className="flex justify-end mt-2">
-                  <div className="text-sm text-gray-400">
-                    <button type="button" onClick={() => setUsePasswordInsteadOfSSO(false)} className="hover:text-gray-300 transition-colors">
-                      Sign-in With SSO
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+                <span
+                  onClick={() => !signInLoading}
+                  className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
+                  style={{ opacity: signInLoading ? 0.5 : 1 }}
+                ></span>
+              </div>
+            </>
           )}
           <div className="flex text-base">
             <span>New to Openlane? &nbsp;</span>
