@@ -107,17 +107,6 @@ const DashboardPage: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-2.5">
-              <Menu
-                trigger={CreateBtn}
-                content={
-                  <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && <ProgramCreate trigger={ProgramCreateIconBtn} className="bg-transparent px-1" />}
-                    <CreateTaskDialog trigger={TaskIconBtn} className="bg-transparent px-1" />
-                  </>
-                }
-              />
-            </div>
           </div>
         }
       />
