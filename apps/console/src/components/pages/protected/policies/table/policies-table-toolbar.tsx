@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
+import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -129,21 +129,14 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
 
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                <Menu
-                  trigger={CreateBtn}
-                  content={
-                    <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Policy</span>
-                    </div>
-                  }
-                />
+                <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                  Create
+                </Button>
               )}
             </>
           )}
         </div>
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }

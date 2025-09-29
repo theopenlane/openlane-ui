@@ -298,28 +298,28 @@
   --color-toast-info-icon-border: #60E8C947;
 
   --color-toast-info2: #FFFFFFBF;
-  --color-toast-info2-muted: #6392FF52;
+  --color-toast-info2-muted: rgb(0, 29, 94);
   --color-toast-info2-border: #6392FF5C;
   --color-toast-info2-icon: #6392FF;
   --color-toast-info2-icon-muted: #6392FF3D;
   --color-toast-info2-icon-border: #6392FF52;
 
   --color-toast-warning: #FFFFFFBF;
-  --color-toast-warning-muted: #FF842C52;
+  --color-toast-warning-muted: rgb(113, 44, 0);
   --color-toast-warning-border: #FF842C5C;
   --color-toast-warning-icon: #FF842C;
   --color-toast-warning-icon-muted: #FF842C3D;
   --color-toast-warning-icon-border: #FF842C52;
 
   --color-toast-success: #FFFFFFBF;
-  --color-toast-success-muted: #21C55D3D;
+  --color-toast-success-muted: #00511d;
   --color-toast-success-border: #21C55D5C;
   --color-toast-success-icon: #21C55D;
   --color-toast-success-icon-muted: #21C55D3D;
   --color-toast-success-icon-border: #21C55D52;
 
   --color-toast-error: #FFFFFFBF;
-  --color-toast-error-muted: #F45B5052;
+  --color-toast-error-muted: rgb(104, 7, 0);
   --color-toast-error-border: #F45B505C;
   --color-toast-error-icon: #F45B50;
   --color-toast-error-icon-muted: #F45B503D;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
+import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-c-s-v-create-procedure-dialog.tsx'
@@ -132,15 +132,9 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
           )}
           {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
           {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-            <Menu
-              trigger={CreateBtn}
-              content={
-                <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNew}>
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Procedure</span>
-                </div>
-              }
-            />
+            <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+              Create
+            </Button>
           )}
         </div>
       </div>

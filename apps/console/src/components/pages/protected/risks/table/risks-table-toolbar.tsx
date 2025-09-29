@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useState } from 'react'
-import { CirclePlus, DownloadIcon, FileText, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { CirclePlus, DownloadIcon, FileText, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { RISKS_FILTER_FIELDS } from './table-config'
 import { FilterField } from '@/types'
@@ -150,20 +150,11 @@ const RisksTableToolbar: React.FC<TProps> = ({
           </>
         ) : (
           <>
-            <Menu
-              trigger={CreateBtn}
-              content={
-                <>
-                  {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-                    <button className="px-1 bg-transparent flex items-center space-x-2 cursor-pointer " onClick={handleCreateNew}>
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Risk</span>
-                    </button>
-                  )}
-                  <CreateTaskDialog trigger={TaskIconBtn} className="px-1 bg-transparent flex items-center space-x-2 cursor-pointer" />
-                </>
-              }
-            />
+            {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+              <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                Create
+              </Button>
+            )}
           </>
         )}
       </div>

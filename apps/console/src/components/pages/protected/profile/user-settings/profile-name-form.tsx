@@ -196,7 +196,7 @@ const ProfileNameForm = () => {
               )}
             />
           </InputRow>
-          <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting} className="mt-6">
+          <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting} className="mt-6 btn-secondary">
             {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
           </Button>
         </form>

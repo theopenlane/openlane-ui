@@ -4,7 +4,7 @@ import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/tab
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { DownloadIcon, FileText, LoaderCircle, SearchIcon, Upload, UserRound } from 'lucide-react'
+import { DownloadIcon, FileText, LoaderCircle, SearchIcon, SquarePlus, Upload, UserRound } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
@@ -166,7 +166,13 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
             </>
           ) : (
             <>
-              <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} className="bg-transparent px-1" />} />
+              <CreateTaskDialog
+                trigger={
+                  <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                    Create
+                  </Button>
+                }
+              />
             </>
           )}
         </div>

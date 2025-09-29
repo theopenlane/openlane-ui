@@ -8,6 +8,7 @@ import { Input } from '@repo/ui/input'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import RiskLabel from '@/components/pages/protected/risks/risk-label'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { Card } from '@repo/ui/cardpanel'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -113,16 +114,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
   }
 
   return (
-    <div>
-      <div className="flex flex-col gap-4">
-        {renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}
-        {renderTextField('category', 'Category', risk?.category ?? undefined)}
-        {renderRiskLabelField('score', 'Score')}
-        {renderRiskLabelField('impact', 'Impact')}
-        {renderRiskLabelField('likelihood', 'Likelihood')}
-        {renderRiskLabelField('status', 'Status')}
-      </div>
-    </div>
+    <Card className="p-4">
+      <div className="m-1">{renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}</div>
+      <div className="m-1">{renderTextField('category', 'Category', risk?.category ?? undefined)}</div>
+      <div className="m-1">{renderRiskLabelField('score', 'Score')}</div>
+      <div className="m-1">{renderRiskLabelField('impact', 'Impact')}</div>
+      <div className="m-1">{renderRiskLabelField('likelihood', 'Likelihood')}</div>
+      <div className="m-1">{renderRiskLabelField('status', 'Status')}</div>
+    </Card>
   )
 }
 

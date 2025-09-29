@@ -10,6 +10,7 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { Card } from '@repo/ui/cardpanel'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -112,10 +113,10 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-4">
-      {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
-      {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
-    </div>
+    <Card className="p-4">
+      <div className="m-1">{renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}</div>
+      <div className="m-1">{renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}</div>
+    </Card>
   )
 }
 

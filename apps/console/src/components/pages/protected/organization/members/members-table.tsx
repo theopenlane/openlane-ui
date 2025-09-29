@@ -30,7 +30,7 @@ import MembersTableToolbar from '@/components/pages/protected/organization/membe
 import { MEMBERS_SORT_FIELDS } from './table/table-config'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
-  providers?: string
+  providersIn?: UserAuthProvider[]
 }
 
 export const MembersTable = () => {
@@ -62,14 +62,16 @@ export const MembersTable = () => {
       mergedFilters = { ...filters }
     }
 
-    const { providers, ...rest } = mergedFilters
+    const { providersIn, ...rest } = mergedFilters
+    console.log(mergedFilters)
+    console.log(providersIn)
 
     const hasUserWith: UserWhereInput = {
       displayNameContainsFold: debouncedSearch,
     }
 
-    if (providers) {
-      hasUserWith.authProviderIn = [providers as UserAuthProvider]
+    if (providersIn) {
+      hasUserWith.authProviderIn = providersIn
     }
 
     return {

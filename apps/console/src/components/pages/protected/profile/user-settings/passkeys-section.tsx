@@ -101,14 +101,22 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
   const passKeyConfig = useMemo(() => {
     if (!userData?.user.setting.isWebauthnAllowed) {
       return {
-        badge: <Badge variant="secondary">Recommended</Badge>,
+        badge: (
+          <Badge variant="secondary" className="text-muted-foreground">
+            Recommended
+          </Badge>
+        ),
         text: <p className="text-sm">With Passkeys, you can securely sign into your account using just your fingerprint, face, screen lock, or security key</p>,
         buttons: [],
       }
     }
 
     return {
-      badge: <Badge variant="default">Enabled</Badge>,
+      badge: (
+        <Badge variant="default" className="text-muted-foreground">
+          Enabled
+        </Badge>
+      ),
       text: <p className="text-sm">Be sure to keep your screen locks private and security keys safe, so only you can use them.</p>,
       buttons: [],
     }
@@ -127,7 +135,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
                 </div>
                 <div className="flex items-center justify-between">
                   <span>{passKeyConfig?.text}</span>
-                  <Button onClick={handleConfigure} loading={loading} disabled={loading}>
+                  <Button onClick={handleConfigure} loading={loading} disabled={loading} className="btn-secondary">
                     {passkeys?.webauthns?.edges?.length ? 'Add another Passkey' : 'Add passkey'}
                   </Button>
                 </div>

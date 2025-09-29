@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Settings2 } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, Settings2, SquarePlus } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -165,10 +165,13 @@ const ControlReportPage = () => {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          {createAllowed && <CreateButton type="control" leftIconSize={18} href="/controls/create-control" />}
-          <Link href={'/controls'}>
-            <Button className="h-8 p-2">View All Controls</Button>
-          </Link>
+          {createAllowed && (
+            <Link href="/controls/create-control" aria-label="Create Control">
+              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                Create
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
       <div className="space-y-2">

@@ -91,7 +91,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : data.programIDs ?? [],
+        programIDs: programId ? [programId] : (data.programIDs ?? []),
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -231,7 +231,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={handleOnOpenChange}>
-      <SheetContent side="right" className="bg-card flex flex-col" minWidth={470}>
+      <SheetContent side="right" className="bg-secondary flex flex-col" minWidth={470}>
         <PageHeading heading={`Submit evidence ${formData?.displayID ? 'for' : ''} ${formData?.displayID || ''}`}></PageHeading>
         <Grid>
           {/* Form Section */}
@@ -519,7 +519,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                           <AccordionItem value="TITLE">
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
-                                <button className="group flex items-center gap-2 text-sm font-medium">
+                                <button className="group flex items-center gap-2 text-sm font-medium bg-unset">
                                   <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
                                   Associate more objects
                                 </button>

@@ -71,7 +71,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
         </DialogHeader>
         <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={100} multipleFiles={true} />
         {evidenceFiles.map((file, index) => (
-          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-gray-100 dark:bg-glaucous-900">
+          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
             <div className="flex items-center">
               <div className="mr-2">
                 <FileUp className="w-8 h-8" />
