@@ -343,7 +343,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
           </div>
 
           <div className="flex-shrink-0 w-[380px] space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} />
+            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />
             <TagsCard form={form} />

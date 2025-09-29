@@ -20,9 +20,10 @@ type TAuthorityCardProps = {
   editAllowed: boolean
   handleUpdate?: (val: UpdateInternalPolicyInput) => void
   inputClassName?: string
+  isCreate?: boolean
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approver, delegate, editAllowed, handleUpdate, inputClassName }) => {
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreate, approver, delegate, editAllowed, handleUpdate, inputClassName }) => {
   const [editingField, setEditingField] = useState<'approver' | 'delegate' | null>(null)
 
   const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
@@ -109,6 +110,15 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
             </Tooltip>
           </TooltipProvider>
         )}
+      </div>
+    )
+  }
+
+  if (!isCreate) {
+    return (
+      <div className="flex flex-col gap-4 pb-4">
+        {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
+        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
       </div>
     )
   }
