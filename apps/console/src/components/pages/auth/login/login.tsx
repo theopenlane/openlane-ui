@@ -333,16 +333,32 @@ export const LoginPage = () => {
         <p className="text-base mt-8">Connect to Openlane with</p>
 
         <div className={buttons()}>
-          <Button className="bg-secondary !px-3.5" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+          <Button
+            className="bg-secondary !px-3.5 hover:opacity-60 transition"
+            variant="outlineLight"
+            size="md"
+            icon={<GoogleIcon />}
+            iconPosition="left"
+            onClick={() => google()}
+            disabled={signInLoading}
+          >
             <p className="text-sm font-normal">Google</p>
           </Button>
 
-          <Button className="bg-secondary !px-3.5" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
+          <Button
+            className="bg-secondary !px-3.5 hover:opacity-60 transition"
+            variant="outlineLight"
+            size="md"
+            icon={<Github className="text-input-text" />}
+            iconPosition="left"
+            onClick={() => github()}
+            disabled={signInLoading}
+          >
             <p className="text-sm font-normal">GitHub</p>
           </Button>
 
           <Button
-            className="bg-secondary !px-3.5"
+            className="bg-secondary !px-3.5 hover:opacity-60 transition"
             variant="outlineLight"
             icon={<KeyRoundIcon className="text-input-text" />}
             iconPosition="left"
@@ -411,13 +427,13 @@ export const LoginPage = () => {
                     <div className={input()}>
                       <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <Link href="/forgot-password" className="text-base text-xs text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition">
-                      Forgot password?
-                    </Link>
                     <button className="p-4 btn-secondary justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
                       <span>Login</span>
                       <ArrowRightCircle size={16} />
                     </button>
+                    <Link href="/forgot-password" className="text-base text-xs underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition">
+                      Forgot password?
+                    </Link>
                   </>
                 }
 
@@ -429,25 +445,27 @@ export const LoginPage = () => {
               </div>
             </>
           )}
-          <div className="flex text-base">
-            <span>New to Openlane? &nbsp;</span>
-            <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-base text-blue-500 hover:opacity-80 transition">
-              Sign up for an account
-            </Link>
-          </div>
+          {!shouldShowSSOButton() && !shouldShowPasswordField() && (
+            <div className="flex text-base mt-4">
+              <span>New to Openlane? &nbsp;</span>
+              <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-base underline hover:text-blue-500 hover:opacity-80 transition">
+                Sign up for an account
+              </Link>
+            </div>
+          )}
         </SimpleForm>
-        <div className="flex gap-6 mt-9">
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
+
+        <div className="text-xs opacity-90 flex gap-1 mt-9">
+          By signing in, you agree to our
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition">
+            Terms of Service
+          </Link>{' '}
+          and
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition">
             Privacy Policy
           </Link>
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
-            Terms of Service
-          </Link>
         </div>
-        <p className="text-xs mt-5">
-          This site is protected by reCAPTCHA and the <br />
-          Google Privacy Policy and Terms of Service apply.
-        </p>
+
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>
