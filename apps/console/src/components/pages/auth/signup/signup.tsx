@@ -179,11 +179,6 @@ export const SignupPage = () => {
         </Link>
       </div>
 
-      <p className="text-xs mt-5">
-        This site is protected by reCAPTCHA and the <br />
-        Google Privacy Policy and Terms of Service apply.
-      </p>
-
       {showError && <MessageBox maxWidth={320} className="p-4 ml-1" message={registrationErrorMessage} />}
     </div>
   )
