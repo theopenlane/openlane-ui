@@ -143,7 +143,7 @@ const ControlReportPage = () => {
     <TooltipProvider>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="text-3xl tracking-[-0.056rem] text-header">All Controls</h1>
+          <h1 className="text-2xl tracking-[-0.056rem] text-header">All Controls</h1>
           <Select onValueChange={setReferenceFramework} value={referenceFramework}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Framework" />
@@ -223,7 +223,7 @@ const ControlReportPage = () => {
               return (
                 <AccordionItem className="mt-4" key={category} value={category}>
                   <div className="flex justify-between items-center">
-                    <AccordionTrigger asChild>
+                    <AccordionTrigger asChild className="bg-unset">
                       <button className="size-fit group flex items-center gap-2">
                         <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
                         <span className="text-xl">{category}</span>

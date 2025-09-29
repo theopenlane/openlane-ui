@@ -1,13 +1,12 @@
-import React from 'react'
+import { ControlSwitcher } from '@/components/shared/control-switcher/control-switcher'
 import { Metadata } from 'next'
-import ControlReportPage from '@/components/pages/protected/control-report/control-report-page'
 
 export const metadata: Metadata = {
   title: 'Control Report',
 }
 
 const Page: React.FC = () => {
-  return <ControlReportPage />
+  return <ControlSwitcher />
 }
 
 export default Page

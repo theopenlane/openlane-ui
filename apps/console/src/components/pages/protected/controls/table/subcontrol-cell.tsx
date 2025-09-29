@@ -29,7 +29,7 @@ const SubcontrolCell = ({ row }: Props) => {
         return <RelatedControlChip href={`/controls/${controlId}/${node.id}`} key={i} refCode={node.refCode} />
       })}
       {hasMore && (
-        <button onClick={handleShowMore} className="text-xs text-brand">
+        <button onClick={handleShowMore} className="text-xs text-brand bg-transparent px-1">
           Show more
         </button>
       )}

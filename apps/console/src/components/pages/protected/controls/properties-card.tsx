@@ -71,7 +71,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   }))
 
   return (
-    <Card className="p-4 bg-muted rounded-xl shadow-xs">
+    <Card className="p-4 bg-card rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
         <AuthorityField
@@ -717,7 +717,7 @@ const AuthorityField = ({
           <Tooltip>
             <TooltipTrigger
               type="button"
-              className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} `}
+              className={`w-[200px] ${isEditAllowed ? 'cursor-pointer bg-unset' : 'cursor-not-allowed'} `}
               onDoubleClick={() => {
                 if (!isEditing && isEditAllowed) setEditingField(editingKey)
               }}
