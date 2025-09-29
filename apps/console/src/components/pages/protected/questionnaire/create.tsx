@@ -1,7 +1,6 @@
 import { useRouter } from 'next/navigation'
-import { pageStyles } from './page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { CirclePlus, FilePlus, LayoutTemplate, SquarePlus } from 'lucide-react'
+import { FilePlus, LayoutTemplate, SquarePlus } from 'lucide-react'
 import { TemplateList } from './templates'
 import React, { useState } from 'react'
 import { AlertDialog } from '@repo/ui/alert-dialog'
@@ -18,10 +17,8 @@ export const CreateDropdown = () => {
     router.push('/questionnaires/questionnaire-editor')
   }
 
-  const { buttons } = pageStyles()
-
   return (
-    <div className={buttons()}>
+    <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
