@@ -34,7 +34,17 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
 
   const handleSelect = (field: keyof EditRisksFormData, value: string) => {
     if (!isEditing && handleUpdate && risk) {
-      const currentValue = field === 'stakeholderID' ? (risk.stakeholder?.id ?? null) : field === 'delegateID' ? (risk.delegate?.id ?? null) : null
+      let currentValue: string | null
+      switch (field) {
+        case 'stakeholderID':
+          currentValue = risk.stakeholder?.id ?? null
+          break
+        case 'delegateID':
+          currentValue = risk.delegate?.id ?? null
+          break
+        default:
+          currentValue = null
+      }
       // only call handleUpdate if the value actually changed
       if (currentValue !== value) {
         handleUpdate({ [field]: value })
