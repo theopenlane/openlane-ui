@@ -37,7 +37,7 @@ export const LoginPage = () => {
     provider: string
     discovery_url?: string
     organization_id?: string
-    is_org_admin?: boolean
+    is_org_owner?: boolean
   } | null>(null)
   const [webfingerLoading, setWebfingerLoading] = useState(false)
   const [usePasswordInsteadOfSSO, setUsePasswordInsteadOfSSO] = useState(false)
@@ -67,7 +67,7 @@ export const LoginPage = () => {
 
     // if SSO is enforced and the user is an org admin,
     // show password field only if they chose to use password
-    if (webfingerResponse.enforced && webfingerResponse.is_org_admin) {
+    if (webfingerResponse.enforced && webfingerResponse.is_org_owner) {
       return usePasswordInsteadOfSSO
     }
 
@@ -83,7 +83,7 @@ export const LoginPage = () => {
     // only show SSO button when it is enforced
     if (webfingerResponse.enforced && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id) {
       // but if the user is the org admin and chooses to use password, don't show SSO button
-      if (webfingerResponse.is_org_admin && usePasswordInsteadOfSSO) {
+      if (webfingerResponse.is_org_owner && usePasswordInsteadOfSSO) {
         return false
       }
       return webfingerResponse.success
@@ -94,7 +94,7 @@ export const LoginPage = () => {
   }, [webfingerResponse, usePasswordInsteadOfSSO])
 
   const shouldShowToggleOption = useCallback((): boolean => {
-    return Boolean(webfingerResponse?.enforced && webfingerResponse?.is_org_admin && webfingerResponse?.provider !== 'NONE' && webfingerResponse?.organization_id)
+    return Boolean(webfingerResponse?.enforced && webfingerResponse?.is_org_owner && webfingerResponse?.provider !== 'NONE' && webfingerResponse?.organization_id)
   }, [webfingerResponse])
 
   const handleSSOLogin = useCallback(async () => {
@@ -374,32 +374,6 @@ export const LoginPage = () => {
             <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent !text-text" />
           </div>
 
-          {shouldShowToggleOption() && (
-            <div className="flex flex-col mt-2">
-              <p className="text-sm text-gray-600 mb-3">As an organization admin, you can choose how to sign in:</p>
-              <div className="flex gap-2 mb-4">
-                <button
-                  type="button"
-                  onClick={() => setUsePasswordInsteadOfSSO(false)}
-                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
-                    !usePasswordInsteadOfSSO ? 'bg-brand text-button-text border-brand shadow-sm' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                  }`}
-                >
-                  SSO
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUsePasswordInsteadOfSSO(true)}
-                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
-                    usePasswordInsteadOfSSO ? 'bg-brand text-button-text border-brand shadow-sm' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                  }`}
-                >
-                  Password
-                </button>
-              </div>
-            </div>
-          )}
-
           {shouldShowSSOButton() && (
             <div className="flex flex-col">
               <button
@@ -411,6 +385,16 @@ export const LoginPage = () => {
                 <span>Continue with SSO</span>
                 <ArrowRightCircle size={16} className="ml-2" />
               </button>
+
+              {shouldShowToggleOption() && (
+                <div className="flex justify-end mt-2">
+                  <div className="text-sm text-gray-400">
+                    <button type="button" onClick={() => setUsePasswordInsteadOfSSO(true)} className="hover:text-gray-300 transition-colors">
+                      Sign-in With Password
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -426,6 +410,16 @@ export const LoginPage = () => {
                 <span>Login</span>
                 <ArrowRightCircle size={16} />
               </button>
+
+              {shouldShowToggleOption() && (
+                <div className="flex justify-end mt-2">
+                  <div className="text-sm text-gray-400">
+                    <button type="button" onClick={() => setUsePasswordInsteadOfSSO(false)} className="hover:text-gray-300 transition-colors">
+                      Sign-in With SSO
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <div className="flex text-base">
