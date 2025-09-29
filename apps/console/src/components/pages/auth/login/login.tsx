@@ -102,8 +102,6 @@ export const LoginPage = () => {
       return false
     }
 
-    localStorage.setItem('sso_organization_id', webfingerResponse.organization_id)
-
     try {
       const response = await fetch('/api/auth/sso', {
         method: 'POST',
