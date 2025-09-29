@@ -81,7 +81,7 @@ const CreateRiskForm: React.FC = () => {
           </div>
           <div className="space-y-4">
             <AuthorityCard form={form} />
-            <PropertiesCard form={form} isEditing={true} />
+            <PropertiesCard form={form} isEditing={true} isCreate={true} />
             <AssociationCard />
             <TagsCard form={form} />
           </div>

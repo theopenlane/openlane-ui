@@ -16,11 +16,12 @@ type TPropertiesCardProps = {
   isEditing: boolean
   isEditAllowed?: boolean
   handleUpdate?: (val: UpdateRiskInput) => void
+  isCreate?: boolean
 }
 
 type Fields = 'riskType' | 'category' | 'score' | 'impact' | 'likelihood' | 'status'
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing, isEditAllowed = true, handleUpdate }) => {
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, isEditing, isEditAllowed = true, handleUpdate }) => {
   const { control, getValues } = form
   const [editingField, setEditingField] = useState<Fields | null>(null)
 
@@ -110,6 +111,21 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
           }}
         />
       </FieldRow>
+    )
+  }
+
+  if (!isCreate) {
+    return (
+      <div>
+        <div className="flex flex-col gap-4">
+          {renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}
+          {renderTextField('category', 'Category', risk?.category ?? undefined)}
+          {renderRiskLabelField('score', 'Score')}
+          {renderRiskLabelField('impact', 'Impact')}
+          {renderRiskLabelField('likelihood', 'Likelihood')}
+          {renderRiskLabelField('status', 'Status')}
+        </div>
+      </div>
     )
   }
 
