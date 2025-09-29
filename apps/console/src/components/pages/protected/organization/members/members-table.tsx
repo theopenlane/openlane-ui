@@ -63,8 +63,6 @@ export const MembersTable = () => {
     }
 
     const { providersIn, ...rest } = mergedFilters
-    console.log(mergedFilters)
-    console.log(providersIn)
 
     const hasUserWith: UserWhereInput = {
       displayNameContainsFold: debouncedSearch,
