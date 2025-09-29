@@ -18,8 +18,6 @@ import Github from '@/assets/Github'
 import { loginStyles } from '../login/login.styles'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 
-// const TEMP_PASSKEY_EMAIL = 'tempuser1@test.com'
-
 export const SignupPage = () => {
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
@@ -168,13 +166,13 @@ export const SignupPage = () => {
         </div>
       </SimpleForm>
 
-      <div className="flex gap-6 mt-9">
-        By signing in, you agree to our
-        <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
+      <div className="text-xs opacity-90 flex gap-1 mt-9">
+        By signing up, you agree to our
+        <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90 hover:opacity-80 transition hover:underline">
           Terms of Service
         </Link>{' '}
         and
-        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
+        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90 hover:opacity-80 transition hover:underline">
           Privacy Policy
         </Link>
       </div>

@@ -436,16 +436,18 @@ export const LoginPage = () => {
             </Link>
           </div>
         </SimpleForm>
-        <div className="flex gap-6 mt-9">
+
+        <div className="text-xs opacity-90 flex gap-1 mt-9">
           By signing in, you agree to our
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90 hover:opacity-80 transition hover:underline">
             Terms of Service
           </Link>{' '}
           and
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90 hover:opacity-80 transition hover:underline">
             Privacy Policy
           </Link>
         </div>
+
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>
