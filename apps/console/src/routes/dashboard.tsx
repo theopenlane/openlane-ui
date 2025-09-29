@@ -1,7 +1,6 @@
 import {
   LayersIcon,
   SettingsIcon,
-  UserRoundCogIcon,
   Users,
   ShieldCheck,
   AlertTriangle,

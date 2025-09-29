@@ -14,7 +14,7 @@ import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
-  const { trigger, email, commandRow, commands } = userMenuStyles()
+  const { trigger, email } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
   const { suffix } = useShortcutSuffix()

@@ -12,10 +12,10 @@ import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { ProcedureWhereInput } from '@repo/codegen/src/schema'
-import { usePoliciesFilters } from '../../policies/table/table-config'
 import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
 import { Button } from '@repo/ui/button'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config.ts'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -57,7 +57,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   permission,
 }) => {
   const isSearching = useDebounce(searching, 200)
-  const filters = usePoliciesFilters()
+  const filters = useProceduresFilters()
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
 
   useEffect(() => {

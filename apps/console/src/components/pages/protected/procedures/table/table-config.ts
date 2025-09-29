@@ -1,10 +1,11 @@
-import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
+import { FilterField } from '@/types'
 import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts'
 
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { UserRound } from 'lucide-react'
 
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
@@ -13,68 +14,58 @@ export function useProceduresFilters(): FilterField[] | null {
 
   useEffect(() => {
     if (!isProgramSuccess || !isGroupSuccess || filters) return
-
-    const statusOptions = ProcedureStatusFilterOptions
-
     const newFilters: FilterField[] = [
       {
         key: 'approverID',
         label: 'Approver Group',
         type: 'select',
         options: groupOptions,
-      } as SelectFilterField,
+        icon: UserRound,
+      },
       {
         key: 'hasControlWith.refCodeContainsFold',
         label: 'Control',
-        type: 'containsText',
+        type: 'text',
+        icon: UserRound,
       },
       {
         key: 'hasProgramsWith',
         label: 'Program Name',
-        type: 'selectIs',
+        type: 'select',
+        forceKeyOperator: true,
+        childrenObjectKey: 'id',
         options: programOptions,
-      } as SelectIsFilterField,
+        icon: UserRound,
+      },
       {
         key: 'hasSubcontrolWith.refCodeContainsFold',
         label: 'Subcontrol',
-        type: 'containsText',
-      },
-      {
-        key: 'name',
-        label: 'Name',
         type: 'text',
+        icon: UserRound,
       },
       {
         key: 'policyType',
         label: 'Policy Type',
         type: 'text',
+        icon: UserRound,
       },
       {
         key: 'reviewDue',
         label: 'Review Due',
         type: 'date',
+        icon: UserRound,
       },
       {
         key: 'status',
         label: 'Status',
         type: 'select',
-        options: statusOptions,
-      },
-      {
-        key: 'updatedAt',
-        label: 'Last Updated',
-        type: 'date',
-      },
-      {
-        key: 'updatedBy',
-        label: 'Last Updated By',
-        type: 'date',
+        options: ProcedureStatusFilterOptions,
+        icon: UserRound,
       },
     ]
 
     setFilters(newFilters)
-  }, [isProgramSuccess, isGroupSuccess, programOptions, groupOptions, filters])
-
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters])
   return filters
 }
 
