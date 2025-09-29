@@ -23037,7 +23037,6 @@ export interface OrgSubscription extends Node {
   __typename?: 'OrgSubscription'
   /** indicates if the subscription is active */
   active: Scalars['Boolean']['output']
-  cancellation?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** number of days until there is a due payment */
@@ -47075,7 +47074,6 @@ export type GetOrganizationBillingQuery = {
       productPrice?: any | null
       features?: Array<string> | null
       managePaymentMethods?: string | null
-      cancellation?: string | null
       trialExpiresAt?: any | null
     }> | null
   }
