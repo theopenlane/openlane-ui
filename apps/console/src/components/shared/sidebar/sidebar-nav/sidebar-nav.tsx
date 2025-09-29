@@ -3,7 +3,7 @@
 import React from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
-import { PanelLeftOpen, PanelLeftClose, NotebookPen, BookText, MessageSquareText } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText } from 'lucide-react'
 import { Logo } from '@repo/ui/logo'
 import { Separator as Hr } from '@repo/ui/separator'
 import { GlobalSearch } from '@/components/shared/search/search.tsx'

@@ -12,6 +12,7 @@ import { Calendar } from '@repo/ui/calendar'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { Separator as Hr } from '@repo/ui/separator'
 
 type TFilterValue = string | string[] | number | boolean | Date | undefined
 type TFilterState = Record<string, TFilterValue>
@@ -232,8 +233,9 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="border shadow-md p-4 w-[540px] overflow-y-auto" align="end">
-        <Accordion type="multiple" className="space-y-2" defaultValue={activeFilterKeys}>
+      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0" align="end">
+        <p className="text-muted-foreground text-xs p-4 pb-0"> FILTER BY</p>
+        <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pb-0">
           {filterFields.map((field) => (
             <AccordionItem key={field.key} value={field.key}>
               <AccordionTrigger asChild>
@@ -250,7 +252,9 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           ))}
         </Accordion>
 
-        <div className="flex justify-between mt-4">
+        <Hr />
+
+        <div className="flex justify-between p-4">
           <Button onClick={resetFilters} variant="outline">
             Reset filters
           </Button>
