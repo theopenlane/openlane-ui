@@ -13,10 +13,11 @@ import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { bottomNavigationItems, topNavigationItems } from '@/routes/dashboard'
+import { bottomNavigationItems, personalNavigationItems, topNavigationItems } from '@/routes/dashboard'
 import Sidebar, { PANEL_WIDTH_PX, type PanelKey } from '@/components/shared/sidebar/sidebar'
 import { NavHeading, NavItem, Separator } from '@/types'
 import { usePathname } from 'next/navigation'
+import { useOrganization } from '@/hooks/useOrganization.ts'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -30,9 +31,13 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { data: sessionData } = useSession()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const pathname = usePathname()
+  const { currentOrgId, allOrgs } = useOrganization()
 
-  const navItems = topNavigationItems()
-  const footerNavItems = bottomNavigationItems()
+  const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
+  const isOrganizationSelected = !activeOrg?.personalOrg
+
+  const navItems = !isOrganizationSelected ? [] : topNavigationItems()
+  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems()
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   const [expanded, setExpanded] = useState(true)
@@ -93,7 +98,15 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   return (
     <>
       <SessionExpiredModal open={showSessionExpiredModal} />
-      <Sidebar navItems={navItems} footerNavItems={footerNavItems} openPanel={openPanel} expanded={expanded} onToggle={handleOpenPanel} onExpandToggle={() => setExpanded(!expanded)} />
+      <Sidebar
+        navItems={navItems}
+        footerNavItems={footerNavItems}
+        openPanel={openPanel}
+        expanded={expanded}
+        onToggle={handleOpenPanel}
+        onExpandToggle={() => setExpanded(!expanded)}
+        isOrganizationSelected={isOrganizationSelected}
+      />
 
       <div className="flex flex-col h-screen overflow-hidden transition-all duration-200" style={{ marginLeft: contentMarginLeft, marginRight: '8px' }}>
         {!!bannerText && (

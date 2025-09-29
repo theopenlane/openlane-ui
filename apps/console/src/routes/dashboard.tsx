@@ -185,26 +185,10 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
   },
 ]
 
-export const PersonalNavItems: (NavItem | Separator | NavHeading)[] = [
+export const personalNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
-    type: 'heading',
-    heading: 'Organizations',
-  },
-  {
-    title: 'My organizations',
-    href: '/organization',
-    icon: LayersIcon,
-  },
-  {
-    type: 'separator',
-  },
-  {
-    type: 'heading',
-    heading: 'User settings',
-  },
-  {
-    title: 'My profile',
+    title: 'User settings',
     href: '/user-settings/profile',
-    icon: Users,
+    icon: UserCog,
   },
 ]

@@ -33,13 +33,14 @@ type TSideNavProps = {
   expanded: boolean
   onToggleAction: (panel: PanelKey) => void
   onExpandToggleAction: () => void
+  isOrganizationSelected: boolean
 }
 
 const PANEL_WIDTH = 240
 
 export const PANEL_WIDTH_PX = PANEL_WIDTH
 
-export default function SideNav({ navItems, footerNavItems, openPanel, expanded, onToggleAction, onExpandToggleAction }: TSideNavProps) {
+export default function SideNav({ navItems, footerNavItems, openPanel, expanded, onToggleAction, onExpandToggleAction, isOrganizationSelected }: TSideNavProps) {
   const panelWidth = expanded ? PANEL_WIDTH : null
   const pathname = usePathname()
   const router = useRouter()
@@ -124,19 +125,23 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
           <a href={OPENLANE_WEBSITE_URL} target="_blank" rel="noreferrer">
             <Logo asIcon width={28} />
           </a>
-          <Hr />
-          <Menu
-            trigger={CreateBtnIcon}
-            side="right"
-            align="start"
-            content={
-              <>
-                <ProgramCreate trigger={ProgramCreatePrefixIconBtn} className="bg-transparent px-1" />
-                <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
-              </>
-            }
-          />
-          <GlobalSearch />
+          {isOrganizationSelected && (
+            <>
+              <Hr />
+              <Menu
+                trigger={CreateBtnIcon}
+                side="right"
+                align="start"
+                content={
+                  <>
+                    <ProgramCreate trigger={ProgramCreatePrefixIconBtn} className="bg-transparent px-1" />
+                    <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
+                  </>
+                }
+              />
+              <GlobalSearch />
+            </>
+          )}
 
           {displayMenu(navItems)}
         </div>
