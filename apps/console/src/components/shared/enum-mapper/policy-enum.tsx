@@ -1,5 +1,7 @@
 import { Archive, FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { Badge } from '@repo/ui/badge'
+import clsx from 'clsx'
 
 export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {
   [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} />,
@@ -15,6 +17,22 @@ export const DocumentStatusMapper: Record<InternalPolicyDocumentStatus | Procedu
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'Needs Approval',
   [InternalPolicyDocumentStatus.PUBLISHED]: 'Published',
   [InternalPolicyDocumentStatus.ARCHIVED]: 'Archived',
+}
+
+const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
+  [InternalPolicyDocumentStatus.DRAFT]: 'text-document-draft bg-document-draft-muted border-document-draft-border',
+  [InternalPolicyDocumentStatus.APPROVED]: 'text-document-approved bg-document-approved-muted border-document-approved-border',
+  [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'text-document-needs-approval bg-document-needs-approval-muted border-document-needs-approval-border',
+  [InternalPolicyDocumentStatus.PUBLISHED]: 'text-document-published bg-document-published-muted border-document-published-border',
+  [InternalPolicyDocumentStatus.ARCHIVED]: 'text-document-archived bg-document-archived-muted border-document-archived-border',
+}
+
+export function DocumentStatusBadge({ status }: { status: InternalPolicyDocumentStatus | ProcedureDocumentStatus }) {
+  return (
+    <Badge variant="outline" className={`flex items-center gap-2 ${DocumentStatusColorMapper[status]}`}>
+      {DocumentStatusMapper[status]}
+    </Badge>
+  )
 }
 
 export const DocumentStatusTooltips: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {

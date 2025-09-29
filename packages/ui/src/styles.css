@@ -237,6 +237,23 @@
   --color-task-open: #8F46F5;
   --color-task-completed: #21C55D;
   --task-wont-do: #ff3e2c;
+
+  /* Document Status */
+  --color-document-draft: #6392FF;
+  --color-document-draft-muted: #6392FF29;
+  --color-document-draft-border: #6392FF3D;
+  --color-document-approved: #21C55D;
+  --color-document-approved-muted: #21C55D29;
+  --color-document-approved-border: #21C55D3D;
+  --color-document-needs-approval: #FF842C;
+  --color-document-needs-approval-muted: #FF842C29;
+  --color-document-needs-approval-border: #FF842C;
+  --color-document-archived: #F45B50;
+  --color-document-archived-muted: #F45B5029;
+  --color-document-archived-border: #F45B503D;
+  --color-document-published: #21C55D;
+  --color-document-published-muted: #21C55D29;
+  --color-document-published-border: #21C55D3D;
 }
 
 /* ─────────────────────────────────────────────────────────

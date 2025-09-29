@@ -34,7 +34,7 @@ const AssociatedObjectsAccordion: React.FC = () => {
                 <div className="flex gap-[5px]">
                   {refCodes!.map((refCode, index) => (
                     <Fragment key={`${refCode}-${index}`}>
-                      <Badge className="bg-background-secondary mr-1" variant="outline">
+                      <Badge className="bg-secondary mr-1" variant="outline">
                         {refCode}
                       </Badge>
                     </Fragment>
