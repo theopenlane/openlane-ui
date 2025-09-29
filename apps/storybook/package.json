@@ -16,7 +16,7 @@
     "@repo/ui": "workspace:*",
     "@storybook/addon-themes": "9.0.18",
     "@storybook/types": "^8.6.14",
-    "@tailwindcss/postcss": "^4.1.13",
+    "@tailwindcss/vite": "^4.1.13",
     "lucide-react": "^0.544.0",
     "postcss": "^8.4.24",
     "react": "19.1.0",
