@@ -63,7 +63,11 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
 
       switch (field.type) {
         case 'text':
-          andConditions.push({ [key]: val as string })
+          if (field.childrenObjectKey) {
+            andConditions.push({ [key]: { [field.childrenObjectKey!]: val as string } })
+          } else {
+            andConditions.push({ [key]: val as string })
+          }
           break
 
         case 'select': {

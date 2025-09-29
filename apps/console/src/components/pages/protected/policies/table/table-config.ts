@@ -24,7 +24,9 @@ export function usePoliciesFilters(): FilterField[] | null {
         icon: UserRound,
       },
       {
-        key: 'hasControlWith.refCodeContainsFold',
+        key: 'hasControlsWith',
+        childrenObjectKey: 'refCodeContainsFold',
+        forceKeyOperator: true,
         label: 'Control',
         type: 'text',
         icon: FileText,
@@ -39,7 +41,9 @@ export function usePoliciesFilters(): FilterField[] | null {
         icon: FileText,
       },
       {
-        key: 'hasSubcontrolWith.refCodeContainsFold',
+        key: 'hasSubcontrolWith',
+        childrenObjectKey: 'refCodeContainsFold',
+        forceKeyOperator: true,
         label: 'Subcontrol',
         type: 'text',
         icon: FileText,

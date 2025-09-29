@@ -23,7 +23,9 @@ export function useProceduresFilters(): FilterField[] | null {
         icon: UserRound,
       },
       {
-        key: 'hasControlWith.refCodeContainsFold',
+        key: 'hasControlsWith',
+        childrenObjectKey: 'refCodeContainsFold',
+        forceKeyOperator: true,
         label: 'Control',
         type: 'text',
         icon: UserRound,
@@ -38,7 +40,9 @@ export function useProceduresFilters(): FilterField[] | null {
         icon: UserRound,
       },
       {
-        key: 'hasSubcontrolWith.refCodeContainsFold',
+        key: 'hasSubcontrolWith',
+        childrenObjectKey: 'refCodeContainsFold',
+        forceKeyOperator: true,
         label: 'Subcontrol',
         type: 'text',
         icon: UserRound,

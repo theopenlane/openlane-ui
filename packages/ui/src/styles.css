@@ -148,7 +148,7 @@
   /* Optional semantic colors */
   --success: hsl(168 64% 49%);
   --warning: hsl(43 89% 66%);
-  --info: hsl(207 68% 53%);
+  --color-info: hsl(207, 100%, 33%);
   --color-separator: #E1E7EA;
   --color-border: #E1E7EA;
 }
