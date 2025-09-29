@@ -256,7 +256,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
             objectAssociationsDisplayIDs={policy?.displayID ? [policy?.displayID] : []}
-          ></CreateItemsFromPolicyToolbar>
+          />
           {!editAllowed && !deleteAllowed ? (
             <></>
           ) : (
@@ -264,7 +264,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
               content={
                 <>
                   {editAllowed && (
-                    <div className="flex items-center space-x-2  cursor-pointer" onClick={handleEdit}>
+                    <div className="flex items-center space-x-2 cursor-pointer" onClick={handleEdit}>
                       <PencilIcon size={16} strokeWidth={2} />
                       <span>Edit</span>
                     </div>

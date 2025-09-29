@@ -27,18 +27,28 @@ const CreateItemsFromPolicyToolbar: React.FC<TCreateItemsFromPolityProps> = ({ h
         content={
           <>
             {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-              <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNewPolicy}>
+              <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={handleCreateNewPolicy}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Policy</span>
-              </div>
+              </button>
             )}
             {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-              <div className="flex items-center space-x-2  cursor-pointer" onClick={handleCreateNewProcedure}>
+              <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={handleCreateNewProcedure}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Procedure</span>
-              </div>
+              </button>
             )}
-            <CreateTaskDialog initialData={initialData} trigger={TaskIconBtn} objectAssociationsDisplayIDs={objectAssociationsDisplayIDs} />
+            <CreateTaskDialog
+              className="bg-transparent"
+              initialData={initialData}
+              trigger={
+                <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent">
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Task</span>
+                </button>
+              }
+              objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
+            />
           </>
         }
       />
