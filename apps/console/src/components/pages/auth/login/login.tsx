@@ -37,8 +37,10 @@ export const LoginPage = () => {
     provider: string
     discovery_url?: string
     organization_id?: string
+    is_org_owner?: boolean
   } | null>(null)
   const [webfingerLoading, setWebfingerLoading] = useState(false)
+  const [usePasswordInsteadOfSSO, setUsePasswordInsteadOfSSO] = useState(false)
   const { errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
@@ -58,15 +60,41 @@ export const LoginPage = () => {
       return true
     }
 
-    return webfingerResponse.provider === 'NONE' || !webfingerResponse.enforced
-  }, [webfingerResponse])
+    // if SSO is not enforced, always show password field
+    if (!webfingerResponse.enforced || webfingerResponse.provider === 'NONE') {
+      return true
+    }
+
+    // if SSO is enforced and the user is an org admin,
+    // show password field only if they chose to use password
+    if (webfingerResponse.enforced && webfingerResponse.is_org_owner) {
+      return usePasswordInsteadOfSSO
+    }
+
+    // if SSO is enforced and the user is not an org admin, don't show password field
+    return false
+  }, [webfingerResponse, usePasswordInsteadOfSSO])
 
   const shouldShowSSOButton = useCallback((): boolean => {
     if (!webfingerResponse) {
       return false
     }
 
-    return webfingerResponse.success && webfingerResponse.provider !== 'NONE' && webfingerResponse.enforced && !!webfingerResponse.organization_id
+    // only show SSO button when it is enforced
+    if (webfingerResponse.enforced && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id) {
+      // but if the user is the org admin and chooses to use password, don't show SSO button
+      if (webfingerResponse.is_org_owner && usePasswordInsteadOfSSO) {
+        return false
+      }
+      return webfingerResponse.success
+    }
+
+    // don't show SSO button when SSO is not enforced
+    return false
+  }, [webfingerResponse, usePasswordInsteadOfSSO])
+
+  const shouldShowToggleOption = useCallback((): boolean => {
+    return Boolean(webfingerResponse?.enforced && webfingerResponse?.is_org_owner && webfingerResponse?.provider !== 'NONE' && webfingerResponse?.organization_id)
   }, [webfingerResponse])
 
   const handleSSOLogin = useCallback(async () => {
@@ -328,6 +356,8 @@ export const LoginPage = () => {
           onChange={(e: { username: string; password?: string }) => {
             if (e.username !== undefined && e.username !== email) {
               setEmail(e.username)
+              // reset toggle when email address changes until next webfinger api check
+              setUsePasswordInsteadOfSSO(false)
 
               if (e.username && isValidEmail(e.username)) {
                 debouncedCheckLoginMethods(e.username)
@@ -353,34 +383,42 @@ export const LoginPage = () => {
                 <span>Continue with SSO</span>
                 <ArrowRightCircle size={16} className="ml-2" />
               </button>
+
+              {shouldShowToggleOption() && (
+                <div className="flex justify-end mt-2">
+                  <div className="text-sm text-gray-400">
+                    <button type="button" onClick={() => setUsePasswordInsteadOfSSO(true)} className="hover:text-gray-300 transition-colors">
+                      Sign-in With Password
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {shouldShowPasswordField() && (
-            <>
-              <div className="flex flex-col">
-                {
-                  <>
-                    <div className={input()}>
-                      <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
-                    </div>
-                    <Link href="/forgot-password" className=" text-base text-xs text-blue-500 mt-1 mb-1 text-right  hover:opacity-80 transition">
-                      Forgot password?
-                    </Link>
-                    <button className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
-                      <span>Login</span>
-                      <ArrowRightCircle size={16} />
-                    </button>
-                  </>
-                }
-
-                <span
-                  onClick={() => !signInLoading}
-                  className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
-                  style={{ opacity: signInLoading ? 0.5 : 1 }}
-                ></span>
+            <div className="flex flex-col">
+              <div className={input()}>
+                <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
               </div>
-            </>
+              <Link href="/forgot-password" className=" text-base text-xs text-blue-500 mt-1 mb-1 text-right  hover:opacity-80 transition">
+                Forgot password?
+              </Link>
+              <button className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
+                <span>Login</span>
+                <ArrowRightCircle size={16} />
+              </button>
+
+              {shouldShowToggleOption() && (
+                <div className="flex justify-end mt-2">
+                  <div className="text-sm text-gray-400">
+                    <button type="button" onClick={() => setUsePasswordInsteadOfSSO(false)} className="hover:text-gray-300 transition-colors">
+                      Sign-in With SSO
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
           <div className="flex text-base">
             <span>New to Openlane? &nbsp;</span>
