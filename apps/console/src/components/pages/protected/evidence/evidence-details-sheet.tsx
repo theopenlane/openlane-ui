@@ -101,7 +101,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { wrapper, content } = statCardStyles({ color: 'green' })
 
-  //  new code
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
   const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
@@ -109,9 +108,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
-  //new code end
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
