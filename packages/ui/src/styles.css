@@ -12,6 +12,10 @@
     @apply border-border;
   }
 
+  .grecaptcha-badge {
+    visibility: hidden;
+  }
+
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
