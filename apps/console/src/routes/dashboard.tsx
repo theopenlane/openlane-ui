@@ -115,7 +115,7 @@ export const generateNavItems = () // canEdit?: boolean
       {
         title: 'Authentication',
         href: '/organization-settings/authentication',
-        hidden: true, // the only thing here is domain restricted which currently has a bug
+        hidden: false,
       },
       {
         title: 'Members',
