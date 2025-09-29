@@ -4,7 +4,7 @@ export const avatarStyles = tv({
   slots: {
     avatarImageWrap: 'relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full p-0',
     avatarImage: 'aspect-square h-full w-full',
-    avatarFallBack: 'uppercase flex h-full w-full items-center justify-center bg-button text-button-text rounded-md',
+    avatarFallBack: 'uppercase flex h-full w-full items-center justify-center bg-avatar text-button-text rounded-full',
   },
   variants: {
     size: {

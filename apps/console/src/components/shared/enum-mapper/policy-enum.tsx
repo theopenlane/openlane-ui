@@ -1,7 +1,6 @@
 import { Archive, FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
-import clsx from 'clsx'
 
 export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {
   [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} />,

@@ -4,7 +4,7 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM", "ESNext"],
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */

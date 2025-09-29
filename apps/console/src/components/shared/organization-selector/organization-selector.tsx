@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
 import { Button } from '@repo/ui/button'
-import { BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
+import { BriefcaseBusiness, Check, SearchIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
@@ -17,7 +17,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import OrganizationSwitch from '@/assets/OrganizationSwitch.tsx'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -32,7 +31,7 @@ export const OrganizationSelector = () => {
   const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
-  const { container, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
+  const { container, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
   const filteredOrgs = orgs
     .filter((org) => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg

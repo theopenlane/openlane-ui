@@ -1,4 +1,4 @@
-export const fileDownload = async (presignedURL: string, fileName: string, errorNotification: (args: { title: string; variant: 'destructive' | 'default' }) => void) => {
+export const fileDownload = async (presignedURL: string, fileName: string, errorNotification: (args: { title: string; variant: 'error' | 'default' }) => void) => {
   try {
     const response = await fetch(presignedURL)
     if (!response.ok) throw new Error('Failed to fetch file')
@@ -17,7 +17,7 @@ export const fileDownload = async (presignedURL: string, fileName: string, error
   } catch {
     errorNotification({
       title: 'An error occurred while downloading file. Please try again.',
-      variant: 'destructive',
+      variant: 'error',
     })
   }
 }

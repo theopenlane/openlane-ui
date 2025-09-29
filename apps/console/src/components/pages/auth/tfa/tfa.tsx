@@ -62,7 +62,7 @@ const TfaPage: React.FC = () => {
 
   const onVerified = async () => {
     if (!sessionData || !sessionData.user) {
-      errorNotification({ title: 'Session is not available', variant: 'destructive' })
+      errorNotification({ title: 'Session is not available', variant: 'error' })
       return
     }
 

@@ -1,5 +1,4 @@
 import {
-  LayersIcon,
   SettingsIcon,
   Users,
   ShieldCheck,

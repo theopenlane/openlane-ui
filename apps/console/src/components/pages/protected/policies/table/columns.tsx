@@ -6,7 +6,7 @@ import { KeyRound } from 'lucide-react'
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { DocumentIconMapper, DocumentStatusBadge, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
+import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 
 type TPoliciesColumnsProps = {

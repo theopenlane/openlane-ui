@@ -13,14 +13,12 @@ import { Organization, SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogTrigger } from '@repo/ui/dialog'
 import { generateSelectOptions, getSearchResultCount, searchTypeIcons } from './search-config'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
 import { useQueryClient } from '@tanstack/react-query'
-import { PanelKey } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav.tsx'
-import { Button } from '@repo/ui/button'
 
 type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
 
@@ -44,7 +42,6 @@ export const GlobalSearch = () => {
   const [query, setQuery] = useState('')
   const cmdInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const { fullSuffix } = useShortcutSuffix()
   const [selectedType, setSelectedType] = useState<string>('All')
 
   const { history: searchHistory, addTerm } = useSearchHistory()
