@@ -437,17 +437,15 @@ export const LoginPage = () => {
           </div>
         </SimpleForm>
         <div className="flex gap-6 mt-9">
+          By signing in, you agree to our
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
+            Terms of Service
+          </Link>{' '}
+          and
           <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
             Privacy Policy
           </Link>
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
-            Terms of Service
-          </Link>
         </div>
-        <p className="text-xs mt-5">
-          This site is protected by reCAPTCHA and the <br />
-          Google Privacy Policy and Terms of Service apply.
-        </p>
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>

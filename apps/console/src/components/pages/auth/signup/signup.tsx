@@ -169,11 +169,13 @@ export const SignupPage = () => {
       </SimpleForm>
 
       <div className="flex gap-6 mt-9">
-        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
-          Privacy Policy
-        </Link>
+        By signing in, you agree to our
         <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
           Terms of Service
+        </Link>{' '}
+        and
+        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
+          Privacy Policy
         </Link>
       </div>
 
