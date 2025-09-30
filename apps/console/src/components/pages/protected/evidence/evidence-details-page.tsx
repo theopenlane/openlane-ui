@@ -127,7 +127,7 @@ const EvidenceDetailsPage = () => {
 
                   {createAllowed && (
                     <>
-                      <Button className="h-8 !px-2" onClick={handleCreateEvidence}>
+                      <Button className="h-8 !px-2 btn-secondary" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
                       <EvidenceCreateSheet

@@ -151,14 +151,14 @@ const BrandSection = ({ setting }: Props) => {
                         multipleFiles={false}
                       />
                     </div>
-                    <Button onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3 block">
+                    <Button onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3 block btn-secondary">
                       {logoPending || logoLinkPending ? 'Saving…' : 'Save'}
                     </Button>
                   </>
                 )}
 
                 {!showLogoLinkInput && (
-                  <button type="button" onClick={() => setShowLogoLinkInput(true)} className="mt-1 text-xs text-blue-500">
+                  <button type="button" onClick={() => setShowLogoLinkInput(true)} className="mt-1 text-xs bg-unset text-blue-500">
                     or enter URL
                   </button>
                 )}
@@ -174,7 +174,7 @@ const BrandSection = ({ setting }: Props) => {
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
-                      <Button className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
+                      <Button className="w-auto btn-secondary" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
                         {logoLinkPending ? 'Saving…' : 'Save'}
                       </Button>
                     </div>
@@ -222,14 +222,14 @@ const BrandSection = ({ setting }: Props) => {
                         multipleFiles={false}
                       />
                     </div>
-                    <Button onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3 block">
+                    <Button onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3 block btn-secondary">
                       {faviconPending || faviconLinkPending ? 'Saving…' : 'Save'}
                     </Button>
                   </>
                 )}
 
                 {!showFaviconLinkInput && (
-                  <button type="button" onClick={() => setShowFaviconLinkInput(true)} className="mt-1 text-xs text-blue-500">
+                  <button type="button" onClick={() => setShowFaviconLinkInput(true)} className="mt-1 text-xs bg-unset text-blue-500">
                     or enter URL
                   </button>
                 )}
@@ -245,7 +245,7 @@ const BrandSection = ({ setting }: Props) => {
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={faviconLink} onChange={setFaviconLink} />
-                      <Button className="w-auto" onClick={handleSaveFaviconLink} disabled={faviconLinkPending}>
+                      <Button className="w-auto btn-secondary" onClick={handleSaveFaviconLink} disabled={faviconLinkPending}>
                         {faviconLinkPending ? 'Saving…' : 'Save'}
                       </Button>
                     </div>

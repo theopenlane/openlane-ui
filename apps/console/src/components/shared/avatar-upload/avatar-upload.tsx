@@ -25,6 +25,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<null | string>()
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
+  const [zoom, setZoom] = useState(1)
 
   const dropMessage = 'Drop to upload!'
   const defaultMessage = (
@@ -108,7 +109,9 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
             <DialogDescription>Please crop, resize and click &apos;Save avatar&apos;</DialogDescription>
           </DialogHeader>
           <div className={cropContainer()}>
-            {uploadedImage && <Cropper image={uploadedImage} crop={crop} zoom={1} aspect={1} cropShape="rect" showGrid={false} onCropChange={onCropChange} onCropComplete={onCropComplete} />}
+            {uploadedImage && (
+              <Cropper image={uploadedImage} crop={crop} zoom={zoom} aspect={1} cropShape="rect" showGrid={false} onCropChange={onCropChange} onCropComplete={onCropComplete} onZoomChange={setZoom} />
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeModal}>

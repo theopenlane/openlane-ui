@@ -101,22 +101,14 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
   const passKeyConfig = useMemo(() => {
     if (!userData?.user.setting.isWebauthnAllowed) {
       return {
-        badge: (
-          <Badge variant="secondary" className="text-muted-foreground">
-            Recommended
-          </Badge>
-        ),
+        badge: <Badge variant="secondary">Recommended</Badge>,
         text: <p className="text-sm">With Passkeys, you can securely sign into your account using just your fingerprint, face, screen lock, or security key</p>,
         buttons: [],
       }
     }
 
     return {
-      badge: (
-        <Badge variant="default" className="text-muted-foreground">
-          Enabled
-        </Badge>
-      ),
+      badge: <Badge variant="default">Enabled</Badge>,
       text: <p className="text-sm">Be sure to keep your screen locks private and security keys safe, so only you can use them.</p>,
       buttons: [],
     }

@@ -25,7 +25,7 @@ const ObjectsChip = ({ name, objectType, removable, onRemove }: TObjectsChipProp
   const colorClass = borderColors[objectType] || borderColors.default
 
   return (
-    <div className={`inline-flex gap-1 items-center rounded-full px-2.5 py-0.5 border text-xs font-semibold transition-colors focus:outline-hidden h-fit shrink-0 ${colorClass}`}>
+    <div className={`inline-flex gap-1 bg-secondary items-center rounded-full px-2.5 py-0.5 border text-xs font-semibold transition-colors focus:outline-hidden h-fit shrink-0 ${colorClass}`}>
       {name}
       {removable && onRemove && (
         <XIcon

@@ -145,7 +145,7 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
   },
   {
     title: 'User Management',
-    href: '/organization-settings',
+    href: '/user-management',
     icon: UserRoundPen,
     children: [
       {
@@ -162,7 +162,7 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
   },
   {
     title: 'Developers',
-    href: '/organization-settings',
+    href: '/developers',
     icon: Bot,
     children: [
       {
