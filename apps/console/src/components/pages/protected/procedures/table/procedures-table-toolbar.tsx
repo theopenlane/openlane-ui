@@ -105,19 +105,9 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreateProcedureUploadDialog
                         trigger={
-                          <div className="flex items-center space-x-2 ">
-                            <Import size={16} strokeWidth={2} />
-                            <span>Import existing document</span>
-                          </div>
-                        }
-                      />
-                    )}
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                      <CreateProcedureUploadDialog
-                        trigger={
                           <div className="flex items-center space-x-2">
                             <Import size={16} strokeWidth={2} />
-                            <span>Bulk upload</span>
+                            <span>Import existing document</span>
                           </div>
                         }
                       />

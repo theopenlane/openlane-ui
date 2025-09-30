@@ -112,7 +112,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <BulkCSVCreatePolicyDialog
                         trigger={
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Bulk upload</span>
                           </div>
