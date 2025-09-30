@@ -152,7 +152,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
             {/* Expiration */}
             <Badge variant={badge.variant}>{badge.text}</Badge>
           </div>
-          {trialExpiresAt ? (
+          {trialExpiresAt && stripeSubscriptionStatus === 'trialing' ? (
             <div className="flex items-center gap-2">
               <p className="text-sm font-medium text-text-informational">Trial status:</p>
               <p className="text-sm text-text-informational">{formattedExpiresDate}</p>

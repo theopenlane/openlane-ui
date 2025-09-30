@@ -1,3 +1,5 @@
+import Stripe from 'stripe'
+
 //PRODUCTS
 type BillingPrice = {
   interval: 'month' | 'year'
@@ -37,6 +39,9 @@ export interface Addon {
   product_id: string
 }
 
+export type ExtendedPhase = Stripe.SubscriptionSchedule.Phase & {
+  trial?: boolean
+}
 export interface OpenlaneProductsResponse {
   success: boolean
   version: string

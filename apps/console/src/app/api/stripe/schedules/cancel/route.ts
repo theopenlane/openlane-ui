@@ -1,6 +1,6 @@
 import { stripe } from '@/lib/stripe'
+import { ExtendedPhase } from '@/types/stripe'
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
 
 export async function POST(req: Request) {
   try {
@@ -10,8 +10,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId required' }, { status: 400 })
     }
 
-    const updated: Stripe.SubscriptionSchedule = await stripe.subscriptionSchedules.update(scheduleId, {
+    const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId)
+    const currentPhase: ExtendedPhase = schedule.phases?.[0]
+    if (!currentPhase) {
+      return NextResponse.json({ error: 'No active phase found' }, { status: 404 })
+    }
+
+    const updated = await stripe.subscriptionSchedules.update(scheduleId, {
       end_behavior: 'cancel',
+      phases: [
+        {
+          items: currentPhase.items.map((i) => ({
+            price: i.price as string,
+            quantity: i.quantity ?? 1,
+          })),
+          start_date: currentPhase.start_date,
+          end_date: currentPhase.end_date,
+          trial: currentPhase.trial,
+        },
+      ],
     })
 
     return NextResponse.json(updated)
