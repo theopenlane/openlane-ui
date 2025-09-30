@@ -21451,6 +21451,8 @@ export interface MutationUpdateTrustCenterComplianceArgs {
 export interface MutationUpdateTrustCenterDocArgs {
   id: Scalars['ID']['input']
   input: UpdateTrustCenterDocInput
+  trustCenterDocFile?: InputMaybe<Scalars['Upload']['input']>
+  watermarkedTrustCenterDocFile?: InputMaybe<Scalars['Upload']['input']>
 }
 
 export interface MutationUpdateTrustCenterNdaArgs {
@@ -40392,22 +40394,19 @@ export interface TrustCenterWatermarkConfigEdge {
 /** TrustCenterWatermarkConfigFont is enum for the field font */
 export enum TrustCenterWatermarkConfigFont {
   arial = 'arial',
-  avant = 'avant',
+  avant_garde = 'avant_garde',
   bookman = 'bookman',
-  comic = 'comic',
+  comic_sans_ms = 'comic_sans_ms',
   courier = 'courier',
+  courier_new = 'courier_new',
   garamond = 'garamond',
-  garde = 'garde',
   georgia = 'georgia',
   helvetica = 'helvetica',
   impact = 'impact',
-  ms = 'ms',
-  new = 'new',
   palatino = 'palatino',
-  roman = 'roman',
-  sans = 'sans',
   times = 'times',
-  trebuchet = 'trebuchet',
+  times_new_roman = 'times_new_roman',
+  trebuchet_ms = 'trebuchet_ms',
   verdana = 'verdana',
 }
 
@@ -40464,22 +40463,19 @@ export interface TrustCenterWatermarkConfigHistoryEdge {
 /** TrustCenterWatermarkConfigHistoryFont is enum for the field font */
 export enum TrustCenterWatermarkConfigHistoryFont {
   arial = 'arial',
-  avant = 'avant',
+  avant_garde = 'avant_garde',
   bookman = 'bookman',
-  comic = 'comic',
+  comic_sans_ms = 'comic_sans_ms',
   courier = 'courier',
+  courier_new = 'courier_new',
   garamond = 'garamond',
-  garde = 'garde',
   georgia = 'georgia',
   helvetica = 'helvetica',
   impact = 'impact',
-  ms = 'ms',
-  new = 'new',
   palatino = 'palatino',
-  roman = 'roman',
-  sans = 'sans',
   times = 'times',
-  trebuchet = 'trebuchet',
+  times_new_roman = 'times_new_roman',
+  trebuchet_ms = 'trebuchet_ms',
   verdana = 'verdana',
 }
 
