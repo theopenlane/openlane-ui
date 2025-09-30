@@ -46190,11 +46190,17 @@ export type EvidenceFieldsFragment = {
   url?: string | null
   updatedBy?: string | null
   updatedAt?: any | null
-  programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string } | null } | null> | null }
-  subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+  programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+  }
   tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
   controlObjectives: { __typename?: 'ControlObjectiveConnection'; edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string } | null } | null> | null }
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+  }
 }
 
 export type GetEvidenceQueryVariables = Exact<{
@@ -46220,14 +46226,20 @@ export type GetEvidenceQuery = {
     url?: string | null
     updatedBy?: string | null
     updatedAt?: any | null
-    programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string } | null } | null> | null }
-    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+    programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+    }
     tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string } | null } | null> | null
     }
-    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+    controls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+    }
   }
 }
 

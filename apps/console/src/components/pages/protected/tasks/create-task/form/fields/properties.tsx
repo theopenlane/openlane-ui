@@ -118,14 +118,14 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
     <div className="flex flex-col gap-4">
       {/* Assigner */}
       <div className="flex items-center gap-4">
-        <CircleUser className="text-accent-secondary" size={16} />
+        <CircleUser className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Assigner</p>
         <p className="capitalize text-sm">{taskData?.assigner?.displayName}</p>
       </div>
 
       {/* Assignee */}
       <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>
-        <UserRoundPen className="text-accent-secondary" size={16} />
+        <UserRoundPen className="text-primary" size={16} />
         <p className="text-sm w-[120px] shrink-0">Assignee</p>
         {isEditing || internalEditing === 'assigneeID' ? (
           <Controller
@@ -164,7 +164,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
       {/* Due Date */}
       <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}>
-        <CalendarCheck2 className="text-accent-secondary" size={16} />
+        <CalendarCheck2 className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Due Date</p>
         {isEditing || internalEditing === 'due' ? (
           <Controller
@@ -195,7 +195,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
       {/* Status */}
       <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>
-        <Circle className="text-accent-secondary" size={16} />
+        <Circle className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Status</p>
         {isEditing || internalEditing === 'status' ? (
           <Controller
@@ -231,7 +231,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
       {/* Task Type */}
       <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('category')}>
-        <Folder className="text-accent-secondary" size={16} />
+        <Folder className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Task Type</p>
         {isEditing || internalEditing === 'category' ? (
           <Controller
@@ -267,7 +267,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
       {/* Tags */}
       <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}>
-        <Tag className="text-accent-secondary" size={16} />
+        <Tag className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Tags</p>
         {isEditing || internalEditing === 'tags' ? (
           <Controller
@@ -299,7 +299,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
       {!isEditing && (
         <div className="flex items-center gap-4">
-          <BookText className="text-accent-secondary w-[16px] h-[16px] shrink-0" />
+          <BookText className="text-primary w-[16px] h-[16px] shrink-0" />
           <p className="text-sm w-[120px]">Related Objects</p>
           <RelatedObjects taskData={taskData} />
         </div>

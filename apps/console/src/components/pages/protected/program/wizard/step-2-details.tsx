@@ -52,7 +52,7 @@ export const AuditorPermissionsComponent = () => {
         Auditor Permissions
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger className="bg-unset">
               <InfoIcon size={14} className="mx-1" />
             </TooltipTrigger>
             <TooltipContent side="right" className="bg-background">
@@ -74,7 +74,7 @@ export const AuditorPermissionsComponent = () => {
                       Read Comments
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger>
+                          <TooltipTrigger className="bg-unset">
                             <InfoIcon size={14} className="mx-1" />
                           </TooltipTrigger>
                           <TooltipContent>
@@ -104,7 +104,7 @@ export const AuditorPermissionsComponent = () => {
                       Write Comments
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger>
+                          <TooltipTrigger className="bg-unset">
                             <InfoIcon size={14} className="mx-1" />
                           </TooltipTrigger>
                           <TooltipContent>
@@ -134,7 +134,7 @@ export const AuditorPermissionsComponent = () => {
                       Auditor Ready
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger>
+                          <TooltipTrigger className="bg-unset">
                             <InfoIcon size={14} className="mx-1" />
                           </TooltipTrigger>
                           <TooltipContent>
@@ -173,7 +173,7 @@ const AuditPartner = () => {
                 Audit Partner
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger className="bg-unset">
                       <InfoIcon size={14} className="mx-1" />
                     </TooltipTrigger>
                     <TooltipContent side="right">
@@ -208,7 +208,7 @@ const AuditPartner = () => {
                 Audit Firm
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger className="bg-unset">
                       <InfoIcon size={14} className="mx-1" />
                     </TooltipTrigger>
                     <TooltipContent side="right">
@@ -243,7 +243,7 @@ const AuditPartner = () => {
                 Audit Partner Contact Email
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger className="bg-unset">
                       <InfoIcon size={14} className="mx-1" />
                     </TooltipTrigger>
                     <TooltipContent side="right">

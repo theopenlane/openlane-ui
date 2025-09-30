@@ -3,7 +3,9 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const buttonStyles = tv({
   slots: {
-    base: 'relative group font-sans font-semibold inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none text-sm transition-all duration-500 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+    base:
+      '!px-2 relative group font-sans font-normal inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none ' +
+      'text-sm transition-all duration-500 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
     iconOuter: 'relative h-4 w-4 overflow-hidden',
     iconInner: 'absolute transition-all duration-500',
     loadingWrapper: 'absolute top-1/2 left-1/2  transform -translate-x-1/2 -translate-y-1/2',
@@ -12,17 +14,17 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      filled: 'bg-button text-button-text hover:!opacity-90',
-      light: 'bg-button-light text-text-dark hover:!opacity-90',
+      filled: 'bg-button text-button-text ',
+      light: 'bg-button-light text-text-dark ',
       outline: 'border-border text-text-paragraph border',
-      outlineLight: 'border-border-dark text-text-dark border hover:!bg-teal-400 hover:!bg-opacity-20',
-      outlineInput: 'border-border text-text-paragraph border hover:!opacity-90',
-      outlineInputPadding: 'border-border text-paragraph mx-1 border hover:!opacity-90',
-      redOutline: 'border-error text-error border hover:!opacity-90 dark:border-red-500 dark:text-red-500',
+      outlineLight: 'border-border-dark text-text-dark border',
+      outlineInput: 'border-border text-text-paragraph border ',
+      outlineInputPadding: 'border-border text-paragraph mx-1 border ',
+      redOutline: 'border-error text-error border  dark:border-red-500 dark:text-red-500',
       white: {},
-      success: 'flex-row-reverse !bg-teal-600 text-button-text hover:!opacity-90',
-      destructive: 'flex-row-reverse !bg-destructive text-destructive-foreground hover:!opacity-90',
-      back: 'bg-button-back text-text-dark hover:!opacity-90',
+      success: 'flex-row-reverse !bg-teal-600 text-button-text ',
+      destructive: 'flex-row-reverse !bg-destructive text-destructive-foreground ',
+      back: 'bg-button-back text-text-dark',
     },
     iconPosition: {
       left: 'flex-row-reverse',
@@ -35,7 +37,7 @@ export const buttonStyles = tv({
     },
     size: {
       sm: 'h-auto rounded-md p-0 !bg-transparent font-sans text-sm',
-      md: 'h-10 rounded-md px-5 text-sm',
+      md: 'h-8 rounded-md px-5 text-sm',
       lg: 'h-16 rounded-lg px-8 text-lg',
     },
     full: {

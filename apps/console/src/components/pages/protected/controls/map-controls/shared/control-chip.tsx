@@ -47,7 +47,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
 }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
-  const baseClasses = 'bg-background-secondary flex gap-1 items-center'
+  const baseClasses = 'bg-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
   const borderClass = selected ? 'border-brand ring-1 ring-brand' : 'border-border'
   const href = control.__typename === 'Subcontrol' ? `/controls/${control.controlID}/${control.id}` : `/controls/${control.id}`

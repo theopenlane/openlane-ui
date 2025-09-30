@@ -78,6 +78,8 @@ const EVIDENCE_FIELDS = gql`
       edges {
         node {
           id
+          name
+          displayID
         }
       }
     }
@@ -85,6 +87,8 @@ const EVIDENCE_FIELDS = gql`
       edges {
         node {
           id
+          referenceFramework
+          refCode
         }
       }
     }
@@ -106,6 +110,8 @@ const EVIDENCE_FIELDS = gql`
       edges {
         node {
           id
+          referenceFramework
+          refCode
         }
       }
     }

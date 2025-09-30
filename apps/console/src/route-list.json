@@ -50,11 +50,6 @@
     "keywords": ["subscription", "plan", "payment method"]
   },
   {
-    "route": "/organization-settings/billing/pricing",
-    "name": "Pricing",
-    "hidden": true
-  },
-  {
     "route": "/standards",
     "name": "Standards",
     "keywords": ["frameworks", "regulations", "compliance"]
@@ -190,10 +185,6 @@
   {
     "route": "/risks/create",
     "name": "Create"
-  },
-  {
-    "route": "/control-report",
-    "name": "Control Report"
   },
   {
     "route": "/organization-settings/integrations",

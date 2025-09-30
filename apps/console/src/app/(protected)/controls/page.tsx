@@ -1,19 +1,12 @@
-import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
-import ControlsTable from '@/components/pages/protected/controls/table/controls-table'
+import { ControlSwitcher } from '@/components/shared/control-switcher/control-switcher'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Controls',
+  title: 'Control Report',
 }
 
 const Page: React.FC = () => {
-  return (
-    <>
-      <PageHeading heading="Controls" />
-      <ControlsTable />
-    </>
-  )
+  return <ControlSwitcher />
 }
 
 export default Page

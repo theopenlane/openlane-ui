@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const panelStyles = tv({
   slots: {
-    panel: 'flex flex-col border w-full shadow-3xl rounded-lg bg-panel-bg border-border p-4',
+    panel: 'flex flex-col border w-full shadow-3xl rounded-lg bg-card border-border p-4',
     icon: '',
     iconRow: 'flex gap-6',
     contentColumn: 'flex-1 flex flex-col gap-5',

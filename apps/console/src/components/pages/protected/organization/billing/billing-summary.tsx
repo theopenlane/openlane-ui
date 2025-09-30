@@ -208,7 +208,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
               onClick={() => {
                 if (currentInterval !== 'month') setConfirmSwitchOpen(true)
               }}
-              className={`px-3 rounded-lg text-xs font-medium h-[30px] ${currentInterval === 'month' ? 'bg-brand text-button-text' : 'text-text-informational'}`}
+              className={`px-3 rounded-lg text-xs font-medium bg-unset h-[30px] ${currentInterval === 'month' ? '!bg-primary text-btn-secondary-text' : 'text-text-informational'}`}
             >
               Monthly
             </button>
@@ -217,7 +217,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
               onClick={() => {
                 if (currentInterval !== 'year') setConfirmSwitchOpen(true)
               }}
-              className={`px-3 rounded-lg text-xs font-medium h-[30px] ${currentInterval === 'year' ? 'bg-brand text-button-text' : 'text-text-informational'}`}
+              className={`px-3 rounded-lg text-xs font-medium bg-unset h-[30px] ${currentInterval === 'year' ? '!bg-primary text-btn-secondary-text' : 'text-text-informational'}`}
             >
               Annual (15% off)
             </button>

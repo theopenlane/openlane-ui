@@ -121,7 +121,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger>{trigger}</DialogTrigger>
+        <DialogTrigger className="bg-transparent px-1">{trigger}</DialogTrigger>
       ) : (
         <DialogTrigger asChild>
           <Button icon={<PlusCircle />} iconPosition="left">

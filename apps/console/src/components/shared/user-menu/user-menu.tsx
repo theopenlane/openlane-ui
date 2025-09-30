@@ -3,120 +3,93 @@
 import { signOut, useSession } from 'next-auth/react'
 import { userMenuStyles } from './user-menu.styles'
 import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import Link from 'next/link'
-import { ChevronDown } from '@repo/ui/icons/chevron-down'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
-import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, Paintbrush, UserRoundCog } from 'lucide-react'
-import { DOCS_URL, SUPPORT_EMAIL } from '@/constants'
+import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch } from 'lucide-react'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
-  const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
+  const { trigger, email } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
   const { suffix } = useShortcutSuffix()
+  const themeOptions = [
+    { value: 'dark', icon: <Moon size={14} />, label: 'Dark' },
+    { value: 'light', icon: <Sun size={14} />, label: 'Light' },
+    { value: 'system', icon: <Computer size={14} />, label: 'System' },
+  ]
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className={trigger()}>
           <Avatar entity={data?.user as User}></Avatar>
-          <ChevronDown />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-64 border shadow-md">
-        <div className="text-sm px-2">
+      <DropdownMenuContent className="min-w-64 border shadow-md pb-1" align="end">
+        <div className="text-sm px-2 text-paragraph">
           {`${data?.user.displayName}`}
           <br />
-          <div className={email()}>{data?.user.email}</div>
+          <div className={email() + ' text-muted-foreground'}>{data?.user.email}</div>
         </div>
-        <DropdownMenuSeparator spacing="md" className="border-b" />
-        <DropdownMenuItem asChild>
-          <Link href="/user-settings/profile" className={userSettingsLink()}>
-            <UserRoundCog className="text-input-text" size={14} />
-            <p>User Settings</p>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/organization" className={userSettingsLink()}>
-            <BriefcaseBusiness className="text-input-text" size={14} />
-            <p>My Organizations</p>
-          </Link>
-        </DropdownMenuItem>
+        <DropdownMenuSeparator spacing="md" className="border-b mt-4 mb-1" />
 
-        <DropdownMenuSeparator spacing="md" className="border-b" />
-
-        <div className={themeRow()}>
-          <div className={userSettingsLink()}>
-            <Paintbrush size={14} />
-            <p>Theme</p>
+        <div className="flex items-center justify-between pl-2">
+          <div className="flex items-center gap-1">
+            <PaintbrushVertical size={16} className="text-muted-foreground" />
+            <p className="text-sm font-medium">Theme</p>
           </div>
-          <Select onValueChange={(value) => setTheme(value)} value={theme}>
-            <SelectTrigger className={themeDropdown()}>
-              <SelectValue placeholder="Select theme" />
-            </SelectTrigger>
-            <SelectContent className="bg-panel">
-              <SelectGroup>
-                <SelectItem value="system">Default</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="light">Light</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+
+          <div className="flex items-center gap-1 rounded-lg bg-popover bg-card p-1 border">
+            {themeOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setTheme(opt.value)}
+                className={`flex items-center justify-center rounded-md p-1 transition-all bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-primary ${theme === opt.value ? '!bg-card dark:!bg-btn-primary' : 'text-muted-foreground'}`}
+                title={opt.label}
+              >
+                {opt.icon}
+              </button>
+            ))}
+          </div>
         </div>
-        <DropdownMenuSeparator spacing="md" className="border-b" />
 
-        <DropdownMenuItem asChild>
-          <Link href={SUPPORT_EMAIL} className={userSettingsLink()}>
-            <NotebookPen className="text-input-text" size={14} />
-            Feedback
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
-            <BookText className="text-input-text" size={14} />
-            Docs
-          </Link>
-        </DropdownMenuItem>
+        <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
-        <DropdownMenuSeparator spacing="md" className="border-b" />
-        <div className={commandRow()}>
-          <Keyboard size={14} />
-          <p>Command menu</p>
-          <div className={commands()}>
+        <div className="flex items-center justify-between pl-2 mt-3">
+          <div className="flex items-center gap-1">
+            <Keyboard size={16} className="text-muted-foreground" />
+            <p className="text-sm font-medium">Command Menu</p>
+          </div>
+
+          <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">
             <span className="text-[10px]">{suffix}</span>
-            <span>K</span>
+            <span className="text-[12px]">K</span>
           </div>
         </div>
-        <div className={commandRow()}>
-          <Keyboard size={14} />
-          <p>Search menu</p>
-          <div className={commands()}>
-            <span className="text-[10px]">{suffix}</span>
-            <span>/</span>
-          </div>
-        </div>
-        <DropdownMenuSeparator spacing="md" className="border-b" />
 
-        <Button
-          size="md"
-          variant="outline"
-          full
-          onClick={() => {
-            signOut()
-          }}
-        >
-          <div className="flex gap-1 items-center">
-            <LogOut size={16} />
-            <span>Log out</span>
+        <div className="flex items-center justify-between pl-2 mt-3">
+          <div className="flex items-center gap-1">
+            <TextSearch size={16} className="text-muted-foreground" />
+            <p className="text-sm font-medium">Search Menu</p>
           </div>
+
+          <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">
+            <span className="text-[10px]">{suffix}</span>
+            <span className="text-[12px]">/</span>
+          </div>
+        </div>
+
+        <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1 mt-3" />
+
+        <Button size="md" variant="outline" full className="bg-transparent border-transparent justify-start gap-1 pl-2" onClick={() => signOut()}>
+          <LogOut size={16} className="text-muted-foreground" />
+          <span>Log out</span>
         </Button>
       </DropdownMenuContent>
     </DropdownMenu>

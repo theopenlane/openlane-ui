@@ -1,41 +1,39 @@
-import React from 'react'
+'use client'
 
-import { useSidebar } from '@/hooks/useSidebar'
-import { cn } from '@repo/ui/lib/utils'
-import { sidebarStyles } from './sidebar.styles'
-import { SideNav } from './sidebar-nav/sidebar-nav'
-import { generateNavItems, PersonalNavItems } from '@/routes/dashboard'
-import { useOrganization } from '@/hooks/useOrganization'
-import { usePathname } from 'next/navigation'
-// import { useOrganizationRole } from '@/lib/authz/access-api'
-// import { canEdit } from '@/lib/authz/utils'
+import React from 'react'
+import { useSession } from 'next-auth/react'
+import SideNav, { type PanelKey, PANEL_WIDTH_PX } from './sidebar-nav/sidebar-nav'
+import { type NavItem, type NavHeading, type Separator } from '@/types'
 
 interface SidebarProps {
-  className?: string
+  navItems: (NavItem | Separator | NavHeading)[]
+  footerNavItems: (NavItem | Separator | NavHeading)[]
+  openPanel: PanelKey
+  expanded: boolean
+  onToggle: (panel: PanelKey) => void
+  onExpandToggle: () => void
+  isOrganizationSelected: boolean
 }
 
-export default function Sidebar({ className }: SidebarProps) {
-  const { isOpen } = useSidebar()
-  const { currentOrgId, allOrgs } = useOrganization()
-  const path = usePathname()
+export default function Sidebar({ navItems, footerNavItems, openPanel, expanded, onToggle, onExpandToggle, isOrganizationSelected }: SidebarProps) {
+  const { data: session } = useSession()
 
-  const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
-
-  const isOrganizationSelected = !activeOrg?.personalOrg
-
-  const { nav, sideNav } = sidebarStyles({
-    isOpen,
-  })
-
-  if (path === '/onboarding') {
+  if (session?.user?.isOnboarding) {
     return null
   }
 
-  const navItems = generateNavItems()
-
   return (
-    <div className={cn(nav(), className)}>
-      <SideNav className={sideNav()} items={isOrganizationSelected ? navItems : PersonalNavItems} />
-    </div>
+    <SideNav
+      navItems={navItems}
+      footerNavItems={footerNavItems}
+      openPanel={openPanel}
+      expanded={expanded}
+      onToggleAction={onToggle}
+      onExpandToggleAction={onExpandToggle}
+      isOrganizationSelected={isOrganizationSelected}
+    />
   )
 }
+
+export { PANEL_WIDTH_PX }
+export type { PanelKey }

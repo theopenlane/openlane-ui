@@ -6,7 +6,7 @@ import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { DocumentIconMapper, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
+import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 
 type TProceduresColumnsProps = {
@@ -61,26 +61,20 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => (
-        <div>
+        <div className="flex items-center gap-2">
           <div className="font-bold">{cell.getValue() as string}</div>
-          <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-            {cell.row.original.status && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant={'outline'}>
-                      <span className="flex items-center gap-2">
-                        {DocumentIconMapper[cell.row.original.status]} {DocumentStatusMapper[cell.row.original.status]}
-                      </span>
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{DocumentStatusTooltips[cell.row.original.status]}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
+          {cell.row.original.status && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DocumentStatusBadge status={cell.row.original.status} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{DocumentStatusTooltips[cell.row.original.status]}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       ),
       size: 180,

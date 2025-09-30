@@ -6,7 +6,7 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
-import { AlertTriangleIcon, CirclePlusIcon, CopyIcon } from 'lucide-react'
+import { AlertTriangleIcon, CopyIcon, SquarePlus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
@@ -156,7 +156,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
     try {
       setIsAuthorizingSSO(true)
 
-      localStorage.setItem('sso_organization_id', currentOrgId || '')
       localStorage.setItem(
         'api_token',
         JSON.stringify({
@@ -222,8 +221,8 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
             <p>?</p>
           </div>
         ) : (
-          <Button iconPosition="left" icon={<CirclePlusIcon />}>
-            Create New
+          <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+            Create
           </Button>
         )}
       </DialogTrigger>

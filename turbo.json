@@ -26,7 +26,6 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },
     "lint": {},
-    "type-check": {},
     "dev": {
       "cache": false,
       "persistent": true

@@ -256,7 +256,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
             objectAssociationsDisplayIDs={policy?.displayID ? [policy?.displayID] : []}
-          ></CreateItemsFromPolicyToolbar>
+          />
           {!editAllowed && !deleteAllowed ? (
             <></>
           ) : (
@@ -264,14 +264,14 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
               content={
                 <>
                   {editAllowed && (
-                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
+                    <div className="flex items-center space-x-2 cursor-pointer" onClick={handleEdit}>
                       <PencilIcon size={16} strokeWidth={2} />
                       <span>Edit</span>
                     </div>
                   )}
                   {deleteAllowed && (
                     <>
-                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                      <div className="flex items-center space-x-2  cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
                         <Trash2 size={16} strokeWidth={2} />
                         <span>Delete</span>
                       </div>
@@ -288,7 +288,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                       />
                     </>
                   )}
-                  <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setShowPermissionsSheet(true)}>
+                  <div className="flex items-center space-x-2  cursor-pointer" onClick={() => setShowPermissionsSheet(true)}>
                     <LockOpen size={16} strokeWidth={2} />
                     <span>Manage Permissions</span>
                   </div>
