@@ -68,8 +68,8 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   useEffect(() => {
     if (taskData && userData && userData?.users?.edges?.length) {
       const comments = (taskData?.comments || [])?.edges?.map((item) => {
-        const user = userData.users!.edges!.find((user) => user!.node!.id === item?.node?.createdBy)?.node
-        const avatarUrl = user!.avatarFile?.presignedURL || user?.avatarRemoteURL
+        const user = userData?.users?.edges?.find((user) => user?.node?.id === item?.node?.createdBy)?.node
+        const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
         return {
           comment: item?.node?.text,
           avatarUrl,
