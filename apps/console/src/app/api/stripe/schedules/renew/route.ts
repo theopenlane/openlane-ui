@@ -27,13 +27,11 @@ export async function POST(req: Request) {
     const newStart = lastPhase.end_date
     let newEnd = newStart
 
-    if (interval === 'month') {
-      newEnd += 30 * 24 * 60 * 60 // 30 days
-    } else if (interval === 'year') {
+    if (interval === 'year') {
       newEnd += 365 * 24 * 60 * 60 // 1 year
     } else {
-      // fallback ti 30 days
-      newEnd += 30 * 24 * 60 * 60
+      // use default monthly interval
+      newEnd += 30 * 24 * 60 * 60 // 30 days
     }
 
     const newItems = lastPhase.items.map((item) => ({
