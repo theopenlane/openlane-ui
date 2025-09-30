@@ -128,9 +128,6 @@ export const GET_ORGANIZATION_BILLING = gql`
         active
         expiresAt
         stripeSubscriptionStatus
-        productPrice
-        features
-        managePaymentMethods
         trialExpiresAt
       }
     }
