@@ -39,7 +39,7 @@ const ObjectAssociationProgramsChips: React.FC<TObjectAssociationProgramsChipsPr
           return (
             <TooltipProvider key={id}>
               <Tooltip>
-                <TooltipTrigger onClick={(e) => e.preventDefault()}>
+                <TooltipTrigger onClick={(e) => e.preventDefault()} asChild>
                   <ObjectsChip removable onRemove={() => handleRemove(id)} name={refMap[i] ?? id} objectType={'programs'} />
                 </TooltipTrigger>
                 <TooltipContent>

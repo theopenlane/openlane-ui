@@ -335,8 +335,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-        ? oldValue.getTime() === newValue.getTime()
-        : oldValue === newValue
+          ? oldValue.getTime() === newValue.getTime()
+          : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -402,7 +402,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       return <span className="text-gray-500">no tags provided</span>
     }
     return (
-      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex flex-wrap gap-2">
+        {evidence?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
+      </div>
     )
   }
 
@@ -464,7 +468,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
                         Cancel
                       </Button>
-                      <Button className="h-8 p-2" onClick={form.handleSubmit(onSubmit)} icon={<Save />} iconPosition="left">
+                      <Button className="h-8 p-2 btn-secondary" onClick={form.handleSubmit(onSubmit)} icon={<Save />} iconPosition="left">
                         Save
                       </Button>
                     </>
@@ -506,7 +510,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         ) : (
           <>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="pr-4">
                 {isEditing || editField === 'name' ? (
                   <FormField
                     control={form.control}
@@ -575,12 +579,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   <Card className={wrapper()}>
                     <CardContent className={content()}>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center">
+                        {/* Source */}
+                        <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-2 text-sm w-[180px]">
                             <CircuitBoard size={16} className="text-accent-secondary" />
                             Source
                           </div>
-                          <div className="text-sm text-right w-[200px]">
+                          <div className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'source' ? (
                               <InputRow className="w-full">
                                 <FormField
@@ -589,7 +594,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                   render={({ field }) => (
                                     <FormItem className="w-full">
                                       <FormControl>
-                                        <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                        <Input variant="medium" {...field} className="w-[250px]" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                       </FormControl>
                                       {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
                                     </FormItem>
@@ -597,20 +602,21 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 />
                               </InputRow>
                             ) : (
-                              <p className={`text-sm text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('source')}>
+                              <p className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('source')}>
                                 {evidence?.source || <span className="text-gray-500">no source provided</span>}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
+                        {/* URL */}
+                        <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-2 text-sm w-[180px]">
                             <LinkIcon size={16} className="text-accent-secondary" />
                             URL
                           </div>
 
-                          <div className="text-sm text-right min-w-0">
+                          <div className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'url' ? (
                               <InputRow className="w-full">
                                 <FormField
@@ -619,7 +625,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                   render={({ field }) => (
                                     <FormItem className="w-full">
                                       <FormControl>
-                                        <Input variant="medium" {...field} className="w-full text-right" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                        <Input variant="medium" {...field} className="w-[250px] text-right" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                       </FormControl>
                                       {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
                                     </FormItem>
@@ -630,7 +636,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <div className={`flex items-center w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
+                                    <div className={`flex items-center w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
                                       <span className="truncate overflow-hidden whitespace-nowrap text-right">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
                                     </div>
                                   </TooltipTrigger>
@@ -645,42 +651,44 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
+                        {/* Status */}
+                        <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-2 text-sm w-[180px]">
                             <Binoculars size={16} className="text-accent-secondary" />
                             Status
                           </div>
-                          <div ref={triggerRef} className="text-sm text-right">
+                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'status' ? (
                               <Controller
                                 name="status"
                                 control={form.control}
-                                render={({ field }) => {
-                                  return (
-                                    <>
-                                      <Select
-                                        value={field.value ?? undefined}
-                                        onValueChange={(value) => {
-                                          field.onChange(value)
-                                          handleUpdateField()
-                                        }}
-                                      >
-                                        <SelectTrigger className="w-full">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
-                                        <SelectContent ref={popoverRef}>
-                                          {statusOptions.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                              {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                      {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
-                                    </>
-                                  )
-                                }}
+                                render={({ field }) => (
+                                  <>
+                                    <Select
+                                      value={field.value ?? undefined}
+                                      onValueChange={(value) => {
+                                        field.onChange(value)
+                                        handleUpdateField()
+                                      }}
+                                    >
+                                      <SelectTrigger className="w-[250px]">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
+                                      <SelectContent ref={popoverRef}>
+                                        {statusOptions.map((option) => (
+                                          <SelectItem key={option.value} value={option.value}>
+                                            {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                                  </>
+                                )}
                               />
                             ) : (
-                              <div className={`flex items-center text-right space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('status')}>
+                              <div
+                                className={`flex items-center text-right space-x-2 w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                onDoubleClick={() => handleDoubleClick('status')}
+                              >
                                 {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
                                 <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
                               </div>
@@ -688,18 +696,19 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
+                        {/* Creation Date */}
+                        <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-2 text-sm w-[180px]">
                             <Calendar size={16} className="text-accent-secondary" />
                             Creation Date
                           </div>
-                          <div ref={triggerRef} className="text-sm text-right">
+                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'creationDate' ? (
                               <FormField
                                 control={form.control}
                                 name="creationDate"
                                 render={({ field }) => (
-                                  <FormItem ref={popoverRef} className="w-full">
+                                  <FormItem ref={popoverRef} className="w-[250px]">
                                     <CalendarPopover
                                       field={field}
                                       defaultToday
@@ -714,25 +723,26 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 )}
                               />
                             ) : (
-                              <p className={`text-sm text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('creationDate')}>
+                              <p className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('creationDate')}>
                                 {formatDate(evidence?.creationDate)}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
+                        {/* Renewal Date */}
+                        <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-2 text-sm w-[180px]">
                             <Calendar size={16} className="text-accent-secondary" />
                             Renewal Date
                           </div>
-                          <div ref={triggerRef} className="text-sm text-right">
+                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'renewalDate' ? (
                               <FormField
                                 control={form.control}
                                 name="renewalDate"
                                 render={({ field }) => (
-                                  <FormItem ref={popoverRef} className="w-full">
+                                  <FormItem ref={popoverRef} className="w-[250px]">
                                     <CalendarPopover
                                       field={field}
                                       defaultAddDays={365}
@@ -746,51 +756,50 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 )}
                               />
                             ) : (
-                              <p className={`text-sm text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('renewalDate')}>
+                              <p className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('renewalDate')}>
                                 {formatDate(evidence?.renewalDate)}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-start">
+                        {/* Tags */}
+                        <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2 text-sm w-[180px]">
                             <Tag size={16} className="text-accent-secondary" />
                             Tags
                           </div>
-                          <div ref={triggerRef} className="text-sm text-right">
+                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'tags' ? (
                               <Controller
                                 name="tags"
                                 control={form.control}
-                                render={({ field }) => {
-                                  return (
-                                    <>
-                                      <MultipleSelector
-                                        placeholder="Add tag..."
-                                        creatable
-                                        className="w-[180px]"
-                                        commandProps={{ className: 'w-full' }}
-                                        value={tagValues}
-                                        hideClearAllButton
-                                        onChange={(selectedOptions) => {
-                                          const options = selectedOptions.map((option) => option.value)
-                                          field.onChange(options)
-                                          setTagValues(
-                                            selectedOptions.map((item) => ({
-                                              value: item.value,
-                                              label: item.label,
-                                            })),
-                                          )
-                                        }}
-                                      />
-                                      {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
-                                    </>
-                                  )
-                                }}
+                                render={({ field }) => (
+                                  <>
+                                    <MultipleSelector
+                                      placeholder="Add tag..."
+                                      creatable
+                                      className="w-[250px]"
+                                      commandProps={{ className: 'w-full' }}
+                                      value={tagValues}
+                                      hideClearAllButton
+                                      onChange={(selectedOptions) => {
+                                        const options = selectedOptions.map((option) => option.value)
+                                        field.onChange(options)
+                                        setTagValues(
+                                          selectedOptions.map((item) => ({
+                                            value: item.value,
+                                            label: item.label,
+                                          })),
+                                        )
+                                      }}
+                                    />
+                                    {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                                  </>
+                                )}
                               />
                             ) : (
-                              <div onDoubleClick={() => handleDoubleClick('tags')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                              <div onDoubleClick={() => handleDoubleClick('tags')} className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
                                 {handleTags()}
                               </div>
                             )}
@@ -879,7 +888,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 </div>
               </form>
               {isEditing && (
-                <div ref={objectAssociationRef}>
+                <div ref={objectAssociationRef} className="pr-4">
                   <Panel className="mt-5">
                     <Accordion type="single" collapsible defaultValue="ControlsAccordion" className="w-full">
                       <AccordionItem value="ControlsAccordion">
@@ -1000,7 +1009,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </Panel>
                 </div>
               )}
-              {config.id && <EvidenceFiles editAllowed={editAllowed} evidenceID={config.id} />}
+              {config.id && (
+                <div className="pr-4">
+                  <EvidenceFiles editAllowed={editAllowed} evidenceID={config.id} />
+                </div>
+              )}
             </Form>
           </>
         )}
