@@ -47692,7 +47692,7 @@ export type CreateUploadProcedureMutationVariables = Exact<{
 
 export type CreateUploadProcedureMutation = {
   __typename?: 'Mutation'
-  createUploadProcedure: { __typename?: 'ProcedureCreatePayload'; procedure: { __typename?: 'Procedure'; fileID?: string | null } }
+  createUploadProcedure: { __typename?: 'ProcedureCreatePayload'; procedure: { __typename?: 'Procedure'; fileID?: string | null; id: string } }
 }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{

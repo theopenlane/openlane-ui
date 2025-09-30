@@ -1,16 +1,19 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Import, Info } from 'lucide-react'
+import { FileUp, Import, Trash2 } from 'lucide-react'
 import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateUploadProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useCreateProcedure, useCreateUploadProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
 import DirectLinkCreateTab from './create-procedure-via-direct-link'
+import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
+import { CreateProcedureInput } from '@repo/codegen/src/schema'
+import { useRouter } from 'next/navigation'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -23,51 +26,124 @@ type TCreateProcedureUploadDialogProps = {
 }
 
 const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> = ({ trigger }) => {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
+  const [uploadedFiles, setUploadedFiles] = useState<TUploadedFile[]>([])
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createUploadProcedure, isPending: isSubmitting } = useCreateUploadProcedure()
-  const defaultTab = 'upload'
+  const { mutateAsync: createProcedure, isPending: isCreating } = useCreateProcedure()
+
+  const [defaultTab, setDefaultTab] = useState<PolicyProcedureTabEnum>(PolicyProcedureTabEnum.Upload)
   const [procedureMdDocumentLink, setProcedureMdDocumentLink] = useState<string>('')
   const [procedureMdDocumentLinks, setProcedureMdDocumentLinks] = useState<string[]>([])
+  const hasSingleFileOrLink = procedureMdDocumentLinks.length + uploadedFiles.length === 1
 
-  const handleFileUpload = async () => {
-    if (!uploadedFile) {
-      return
+  const handleUpload = async () => {
+    if (uploadedFiles.length > 0) {
+      await handleFileUpload()
     }
 
-    try {
-      await createUploadProcedure({ procedureFile: uploadedFile.file! })
-      successNotification({
-        title: 'Procedure Created',
-        description: `Procedure has been successfully created`,
-      })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
+    if (procedureMdDocumentLinks.length > 0) {
+      await handleLinkUpload()
     }
   }
-  // const handleAddProcedureLink = async () => {
-  //   if (procedureMdDocumentLink.trim() === '') return
 
-  //   setProcedureMdDocumentLinks((prev) => [...prev, procedureMdDocumentLink])
-  //   setProcedureMdDocumentLink('')
-  // }
+  const handleLinkUpload = async () => {
+    const dataArray: { input: CreateProcedureInput }[] = procedureMdDocumentLinks.map((link, index) => ({
+      input: {
+        name: `Name ${link}-${index}`,
+        url: link,
+      },
+    }))
+    if (hasSingleFileOrLink) {
+      try {
+        const createdProcedure = await createProcedure(dataArray[0])
+        successNotification({
+          title: 'Procedure Created',
+          description: 'Procedure has been successfully created',
+        })
+        router.push(`/procedures/${createdProcedure.createProcedure.procedure.id}/view`)
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    } else {
+      try {
+        for (const singleData of dataArray) {
+          await createProcedure(singleData)
+        }
+        successNotification({
+          title: 'Procedure Created',
+          description: 'Procedure(s) have been successfully created',
+        })
+        clearState()
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    }
+  }
+
+  const handleFileUpload = async () => {
+    if (hasSingleFileOrLink) {
+      try {
+        const createdProcedure = await createUploadProcedure({ procedureFile: uploadedFiles[0].file! })
+        successNotification({
+          title: 'Procedure Created',
+          description: 'Procedure has been successfully created',
+        })
+        router.push(`/procedures/${createdProcedure.createUploadProcedure.procedure.id}/view`)
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    } else {
+      try {
+        for (const uploadedFile of uploadedFiles) {
+          await createUploadProcedure({ procedureFile: uploadedFile.file! })
+        }
+        successNotification({
+          title: 'Procedure Created',
+          description: 'Procedure(s) have been successfully created',
+        })
+        clearState()
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    }
+  }
 
   const handleUploadedFile = (uploadedFile: TUploadedFile) => {
-    setUploadedFile(uploadedFile)
+    setUploadedFiles((prev) => [...prev, uploadedFile])
+  }
+
+  const handleDeleteFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   useEffect(() => {
     if (!isOpen) {
-      console.log('isopen')
-      setProcedureMdDocumentLink('')
-      setProcedureMdDocumentLinks([])
+      clearState()
     }
   }, [isOpen])
+
+  const clearState = () => {
+    setProcedureMdDocumentLink('')
+    setProcedureMdDocumentLinks([])
+  }
 
   const handleAddLink = (link: string) => {
     if (link.trim() === '') return
@@ -76,10 +152,14 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     setProcedureMdDocumentLink('')
   }
 
+  const handleDeleteLink = (index: number) => {
+    setProcedureMdDocumentLinks((prev) => prev.filter((_, i) => i !== index))
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger>
+        <DialogTrigger className="bg-transparent">
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,
@@ -96,11 +176,17 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
         <DialogHeader>
           <DialogTitle>Import existing document</DialogTitle>
         </DialogHeader>
-        <Tabs variant="solid" defaultValue={defaultTab}>
+        <Tabs variant="solid" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
           <TabsList>
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-            <TabsTrigger value="directLink">Direct Link</TabsTrigger>
-            <TabsTrigger value="existingFiles">Existing Files</TabsTrigger>
+            <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
+              Upload
+            </TabsTrigger>
+            <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.DirectLink}>
+              Direct Link
+            </TabsTrigger>
+            <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.ExistingFiles}>
+              Existing Files
+            </TabsTrigger>
           </TabsList>
           <UploadTab
             acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
@@ -109,13 +195,32 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
           />
           <DirectLinkCreateTab setProcedureMdDocumentLink={setProcedureMdDocumentLink} procedureMdDocumentLink={procedureMdDocumentLink} onAddLink={handleAddLink}></DirectLinkCreateTab>
         </Tabs>
-        <Info className="mt-1" width={16} height={16} />
+        {procedureMdDocumentLinks.map((link, index) => (
+          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
+            <div>
+              <div className="font-semibold">
+                <div className="truncate max-w-sm">{link}</div>
+              </div>
+              <div className="text-sm">Direct link</div>
+            </div>
+            <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteLink(index)} />
+          </div>
+        ))}
+        {uploadedFiles.map((file, index) => (
+          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
+            <div className="mr-2">
+              <FileUp className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="font-semibold">{file.name}</div>
+              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+            </div>
+            <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteFile(index)} />
+          </div>
+        ))}
         <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
-            {isSubmitting ? 'Uploading...' : 'Upload'}
-          </Button>
-          <Button onClick={() => console.log(procedureMdDocumentLinks)} loading={isSubmitting} disabled={isSubmitting}>
-            Check
+          <Button onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting}>
+            {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
           </Button>
         </div>
       </DialogContent>

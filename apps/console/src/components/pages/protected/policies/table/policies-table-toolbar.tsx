@@ -13,7 +13,6 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
-import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type TPoliciesTableToolbarProps = {
@@ -99,20 +98,20 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {/* {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreatePolicyUploadDialog
                         trigger={
-                          <div className="flex items-center space-x-2 px-1">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>
                         }
                       />
-                    )}
+                    )} */}
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <BulkCSVCreatePolicyDialog
                         trigger={
-                          <div className="flex items-center space-x-2 px-1">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Bulk upload</span>
                           </div>

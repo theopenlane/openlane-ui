@@ -55,7 +55,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger>
+        <DialogTrigger className="bg-transparent">
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

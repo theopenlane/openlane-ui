@@ -105,7 +105,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreateProcedureUploadDialog
                         trigger={
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>
@@ -115,7 +115,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <BulkCSVCreateProcedureDialog
                         trigger={
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Bulk upload</span>
                           </div>
@@ -123,7 +123,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                       />
                     )}
                     <div
-                      className={`flex items-center space-x-2  cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()

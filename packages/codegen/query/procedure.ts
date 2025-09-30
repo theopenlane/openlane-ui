@@ -282,6 +282,7 @@ export const CREATE_UPLOAD_PROCEDURE = gql`
     createUploadProcedure(procedureFile: $procedureFile) {
       procedure {
         fileID
+        id
       }
     }
   }
