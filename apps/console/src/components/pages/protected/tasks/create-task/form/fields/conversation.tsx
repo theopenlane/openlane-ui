@@ -12,8 +12,7 @@ import { TComments } from '@/components/shared/comments/types/TComments'
 import { useUpdateTask } from '@/lib/graphql-hooks/tasks'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useSearchParams } from 'next/navigation'
-import { useGetUsers } from '@/lib/graphql-hooks/user'
-import { TaskQuery, UserWhereInput } from '@repo/codegen/src/schema'
+import { TaskQuery } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type ConversationProps = {
@@ -28,14 +27,6 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   const [comments, setComments] = useState<TCommentData[]>([])
 
   const { mutateAsync: updateTask } = useUpdateTask()
-
-  const where: UserWhereInput | undefined = taskData?.comments
-    ? {
-        idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
-      }
-    : undefined
-
-  const { data: userData } = useGetUsers(where)
 
   const queryClient = useQueryClient()
   const { errorNotification } = useNotification()
@@ -66,15 +57,14 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   }
 
   useEffect(() => {
-    if (taskData && userData && userData?.users?.edges?.length) {
+    if (taskData) {
       const comments = (taskData?.comments || [])?.edges?.map((item) => {
-        const user = userData?.users?.edges?.find((user) => user?.node?.id === item?.node?.createdBy)?.node
-        const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+        const avatarUrl = item?.node?.owner?.avatarRemoteURL || item?.node?.owner?.avatarRemoteURL
         return {
           comment: item?.node?.text,
           avatarUrl,
           createdAt: item?.node?.createdAt,
-          userName: user?.displayName,
+          userName: item?.node?.owner?.displayName,
           createdBy: item?.node?.createdBy,
           id: item?.node?.id || '',
         } as TCommentData
@@ -82,7 +72,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
       const sortedComments = comments?.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
       setComments(sortedComments || [])
     }
-  }, [commentSortIsAsc, taskData, userData])
+  }, [commentSortIsAsc, taskData])
 
   if (isEditing) return null
 
