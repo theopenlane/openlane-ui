@@ -21451,6 +21451,8 @@ export interface MutationUpdateTrustCenterComplianceArgs {
 export interface MutationUpdateTrustCenterDocArgs {
   id: Scalars['ID']['input']
   input: UpdateTrustCenterDocInput
+  trustCenterDocFile?: InputMaybe<Scalars['Upload']['input']>
+  watermarkedTrustCenterDocFile?: InputMaybe<Scalars['Upload']['input']>
 }
 
 export interface MutationUpdateTrustCenterNdaArgs {
@@ -40392,22 +40394,19 @@ export interface TrustCenterWatermarkConfigEdge {
 /** TrustCenterWatermarkConfigFont is enum for the field font */
 export enum TrustCenterWatermarkConfigFont {
   arial = 'arial',
-  avant = 'avant',
+  avant_garde = 'avant_garde',
   bookman = 'bookman',
-  comic = 'comic',
+  comic_sans_ms = 'comic_sans_ms',
   courier = 'courier',
+  courier_new = 'courier_new',
   garamond = 'garamond',
-  garde = 'garde',
   georgia = 'georgia',
   helvetica = 'helvetica',
   impact = 'impact',
-  ms = 'ms',
-  new = 'new',
   palatino = 'palatino',
-  roman = 'roman',
-  sans = 'sans',
   times = 'times',
-  trebuchet = 'trebuchet',
+  times_new_roman = 'times_new_roman',
+  trebuchet_ms = 'trebuchet_ms',
   verdana = 'verdana',
 }
 
@@ -40464,22 +40463,19 @@ export interface TrustCenterWatermarkConfigHistoryEdge {
 /** TrustCenterWatermarkConfigHistoryFont is enum for the field font */
 export enum TrustCenterWatermarkConfigHistoryFont {
   arial = 'arial',
-  avant = 'avant',
+  avant_garde = 'avant_garde',
   bookman = 'bookman',
-  comic = 'comic',
+  comic_sans_ms = 'comic_sans_ms',
   courier = 'courier',
+  courier_new = 'courier_new',
   garamond = 'garamond',
-  garde = 'garde',
   georgia = 'georgia',
   helvetica = 'helvetica',
   impact = 'impact',
-  ms = 'ms',
-  new = 'new',
   palatino = 'palatino',
-  roman = 'roman',
-  sans = 'sans',
   times = 'times',
-  trebuchet = 'trebuchet',
+  times_new_roman = 'times_new_roman',
+  trebuchet_ms = 'trebuchet_ms',
   verdana = 'verdana',
 }
 
@@ -47424,6 +47420,15 @@ export type UpdateBulkInternalPolicyMutationVariables = Exact<{
 
 export type UpdateBulkInternalPolicyMutation = { __typename?: 'Mutation'; updateBulkInternalPolicy: { __typename?: 'InternalPolicyBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
+export type CreateUploadInternalPolicyMutationVariables = Exact<{
+  policyFile: Scalars['Upload']['input']
+}>
+
+export type CreateUploadInternalPolicyMutation = {
+  __typename?: 'Mutation'
+  createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null } }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
@@ -47679,6 +47684,15 @@ export type CreateBulkCsvProcedureMutationVariables = Exact<{
 export type CreateBulkCsvProcedureMutation = {
   __typename?: 'Mutation'
   createBulkCSVProcedure: { __typename?: 'ProcedureBulkCreatePayload'; procedures?: Array<{ __typename?: 'Procedure'; id: string }> | null }
+}
+
+export type CreateUploadProcedureMutationVariables = Exact<{
+  procedureFile: Scalars['Upload']['input']
+}>
+
+export type CreateUploadProcedureMutation = {
+  __typename?: 'Mutation'
+  createUploadProcedure: { __typename?: 'ProcedureCreatePayload'; procedure: { __typename?: 'Procedure'; fileID?: string | null } }
 }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
