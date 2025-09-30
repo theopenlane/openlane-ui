@@ -15,6 +15,7 @@ import { ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '../../policies/table/table-config'
 import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
 import { Button } from '@repo/ui/button'
+import CreateProcedureUploadDialog from '../create/form/create-procedure-upload-dialog'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -117,11 +118,21 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 content={(close) => (
                   <>
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                      <BulkCSVCreateProcedureDialog
+                      <CreateProcedureUploadDialog
                         trigger={
                           <div className="flex items-center space-x-2 hover:bg-muted">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
+                          </div>
+                        }
+                      />
+                    )}
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                      <BulkCSVCreateProcedureDialog
+                        trigger={
+                          <div className="flex items-center space-x-2 hover:bg-muted">
+                            <Import size={16} strokeWidth={2} />
+                            <span>Bulk upload</span>
                           </div>
                         }
                       />

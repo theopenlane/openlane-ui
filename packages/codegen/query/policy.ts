@@ -268,3 +268,13 @@ export const BULK_EDIT_INTERNAL_POLICY = gql`
     }
   }
 `
+
+export const CREATE_UPLOAD_POLICY = gql`
+  mutation CreateUploadInternalPolicy($policyFile: Upload!) {
+    createUploadInternalPolicy(policyFile: $policyFile) {
+      internalPolicy {
+        fileID
+      }
+    }
+  }
+`

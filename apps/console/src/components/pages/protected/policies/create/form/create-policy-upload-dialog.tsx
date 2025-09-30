@@ -7,12 +7,12 @@ import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-type TBulkCSVCreatePolicyDialogProps = {
+type TCreatePolicyUploadDialogProps = {
   trigger?: React.ReactElement<
     Partial<{
       onClick: React.MouseEventHandler
@@ -22,11 +22,11 @@ type TBulkCSVCreatePolicyDialogProps = {
   >
 }
 
-const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ trigger }) => {
+const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createBulkInternalPolicy, isPending: isSubmitting } = useCreateBulkCSVInternalPolicy()
+  const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy()
 
   const handleFileUpload = async () => {
     if (!uploadedFile) {
@@ -34,7 +34,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
     }
 
     try {
-      await createBulkInternalPolicy({ input: uploadedFile.file! })
+      await createUploadPolicy({ policyFile: uploadedFile.file! })
       successNotification({
         title: 'Policies Created',
         description: `Policies has been successfully created`,
@@ -71,7 +71,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
 
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Bulk upload</DialogTitle>
+          <DialogTitle>Import existing document</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
           <Info className="mt-1" width={16} height={16} />
@@ -87,8 +87,8 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
           </div>
         </Card>
         <FileUpload
-          acceptedFileTypes={['text/csv']}
-          acceptedFileTypesShort={['CSV']}
+          acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+          acceptedFileTypesShort={['TXT', 'MD', 'DOCX']}
           maxFileSizeInMb={1}
           onFileUpload={handleUploadedFile}
           multipleFiles={false}
@@ -104,4 +104,4 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
   )
 }
 
-export default BulkCSVCreatePolicyDialog
+export default CreatePolicyUploadDialog

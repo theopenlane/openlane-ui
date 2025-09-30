@@ -8,12 +8,15 @@ import {
   DELETE_INTERNAL_POLICY,
   CREATE_CSV_BULK_INTERNAL_POLICY,
   BULK_EDIT_INTERNAL_POLICY,
+  CREATE_UPLOAD_POLICY,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
   CreateBulkCsvInternalPolicyMutationVariables,
   CreateInternalPolicyMutation,
   CreateInternalPolicyMutationVariables,
+  CreateUploadInternalPolicyMutation,
+  CreateUploadInternalPolicyMutationVariables,
   DeleteInternalPolicyMutation,
   DeleteInternalPolicyMutationVariables,
   GetInternalPoliciesListQuery,
@@ -137,6 +140,17 @@ export const useCreateBulkCSVInternalPolicy = () => {
 
   return useMutation<CreateBulkCsvInternalPolicyMutation, unknown, CreateBulkCsvInternalPolicyMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_INTERNAL_POLICY, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    },
+  })
+}
+
+export const useCreateUploadInternalPolicy = () => {
+  const { queryClient } = useGraphQLClient()
+  console.log('useCreateUploadInternalPolicy')
+  return useMutation<CreateUploadInternalPolicyMutation, unknown, CreateUploadInternalPolicyMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_UPLOAD_POLICY, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
     },
