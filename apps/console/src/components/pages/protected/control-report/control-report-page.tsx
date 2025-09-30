@@ -23,8 +23,14 @@ import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
+import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
 
-const ControlReportPage = () => {
+type TControlReportPageProps = {
+  active: 'report' | 'controls'
+  setActive: (tab: 'report' | 'controls') => void
+}
+
+const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
@@ -140,12 +146,13 @@ const ControlReportPage = () => {
   }
 
   return (
-    <TooltipProvider>
+    <div>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl tracking-[-0.056rem] text-header">All Controls</h1>
+          <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
+          <TabSwitcher active={active} setActive={setActive} />
           <Select onValueChange={setReferenceFramework} value={referenceFramework}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-48 h-7.5">
               <SelectValue placeholder="Select Framework" />
             </SelectTrigger>
             <SelectContent>
@@ -157,7 +164,7 @@ const ControlReportPage = () => {
               <SelectItem value="Custom">Custom</SelectItem>
             </SelectContent>
           </Select>
-          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+          <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
@@ -248,15 +255,17 @@ const ControlReportPage = () => {
                           <div key={status} className={`flex gap-4 ${!isLast ? 'border-b pb-4' : 'pb-0'}`}>
                             <div className="flex gap-2 flex-col min-w-48">
                               <div className="flex items-center gap-2 text-sm">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="flex items-center gap-2 cursor-help">
-                                      <Icon className="w-4 h-4" />
-                                      <span>{ControlStatusLabels[status]}</span>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>{ControlStatusTooltips[status]}</TooltipContent>
-                                </Tooltip>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-2 cursor-help">
+                                        <Icon className="w-4 h-4" />
+                                        <span>{ControlStatusLabels[status]}</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>{ControlStatusTooltips[status]}</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                               <div className="text-xs">
                                 <span>Total:&nbsp;</span>
@@ -281,7 +290,7 @@ const ControlReportPage = () => {
           </Accordion>
         )}
       </div>
-    </TooltipProvider>
+    </div>
   )
 }
 

@@ -28,8 +28,14 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import TabSwitcher from '@/components/shared/control-switcher/tab-switcher.tsx'
 
-const ControlsTable: React.FC = () => {
+type TControlsTableProps = {
+  active: 'report' | 'controls'
+  setActive: (tab: 'report' | 'controls') => void
+}
+
+const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => {
   const { push } = useRouter()
   const { convertToReadOnly } = usePlateEditor()
   const [filters, setFilters] = useState<ControlWhereInput | null>(null)
@@ -201,6 +207,12 @@ const ControlsTable: React.FC = () => {
 
   return (
     <div>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
+          <TabSwitcher active={active} setActive={setActive} />
+        </div>
+      </div>
       <ControlsTableToolbar
         handleExport={handleExportFile}
         handleBulkEdit={handleBulkEdit}

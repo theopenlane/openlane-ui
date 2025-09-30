@@ -93,7 +93,7 @@ const CommentList: React.FC<TProps> = ({ comments }) => {
         const isEditing = isEditingItemId === item.id
 
         return (
-          <div className="w-full p-2 mb-2 hover:bg-gray-950 hover:bg-opacity-10 dark:hover:bg-opacity-30 rounded-lg" key={`${item.id}-${index}`}>
+          <div className="w-full p-2 mb-2 hover:bg-panel dark:hover:bg-panel rounded-lg transition-color duration-500" key={`${item.id}-${index}`}>
             <div className="flex items-start space-x-3">
               <Avatar variant="medium" className="relative flex shrink-0 overflow-hidden rounded-full p-0 h-10 w-10 mr-2">
                 {item?.avatarUrl && <AvatarImage src={item.avatarUrl} />}
@@ -104,12 +104,12 @@ const CommentList: React.FC<TProps> = ({ comments }) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-baseline space-x-2">
                     <p className="font-semibold">{item.userName}</p>
-                    <p className="text-sm text-gray-500">{formatDateTime(item.createdAt)}</p>
+                    <p className="text-sm text-muted-foreground">{formatDateTime(item.createdAt)}</p>
                   </div>
 
                   {isOwner && !isEditing && (
                     <div className="flex gap-2">
-                      <button onClick={() => handleEdit(item)}>
+                      <button onClick={() => handleEdit(item)} className="hover:text-btn-secondary bg-unset">
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
@@ -117,7 +117,7 @@ const CommentList: React.FC<TProps> = ({ comments }) => {
                           setCommentToDelete(item)
                           setDeleteDialogOpen(true)
                         }}
-                        className="hover:text-destructive"
+                        className="hover:text-destructive bg-unset"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
