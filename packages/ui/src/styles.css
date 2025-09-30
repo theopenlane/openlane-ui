@@ -12,6 +12,10 @@
     @apply border-border;
   }
 
+  .reactEasyCrop_Container img {
+    position: relative !important;
+  }
+
   .grecaptcha-badge {
     visibility: hidden;
   }

@@ -87,7 +87,7 @@ const SSOEnforcePage: React.FC = () => {
         </div>
 
         <div className="flex gap-3">
-          <Button className="flex-1" onClick={handleSSOLogin} disabled={loading || hasError} size="lg">
+          <Button className="flex-1 btn-secondary" onClick={handleSSOLogin} disabled={loading || hasError} size="lg">
             {loading ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -102,14 +102,14 @@ const SSOEnforcePage: React.FC = () => {
           </Button>
 
           {hasError && (
-            <Button variant="outline" onClick={() => router.push('/login')} disabled={loading} size="lg">
+            <Button variant="outline" className="bg-unset" onClick={() => router.push('/login')} disabled={loading} size="lg">
               Back to login
             </Button>
           )}
         </div>
 
         {!hasError && (
-          <button onClick={() => router.push('/login')} className="text-sm text-gray-500 hover:text-gray-700 mt-4 block mx-auto" disabled={loading}>
+          <button onClick={() => router.push('/login')} className="bg-unset text-sm text-gray-500 hover:text-gray-700 mt-4 block mx-auto" disabled={loading}>
             Back to login
           </button>
         )}

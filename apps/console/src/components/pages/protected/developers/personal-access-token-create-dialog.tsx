@@ -418,7 +418,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           </Form>
         </DialogContent>
       ) : (
-        <DialogContent isClosable={confirmationChecked && !isAuthorizingSSO} className="sm:max-w-[455px]">
+        <DialogContent showCloseButton={confirmationChecked && !isAuthorizingSSO} className="sm:max-w-[455px]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Token created</DialogTitle>
             <div className="flex gap-3 p-4 border rounded-md">

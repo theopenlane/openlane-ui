@@ -201,7 +201,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[650px]" isClosable={modalClosable}>
+      <DialogContent className="sm:max-w-[650px]" showCloseButton={modalClosable}>
         <DialogHeader>
           <DialogTitle className="text-center">{config.title}</DialogTitle>
         </DialogHeader>
