@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react'
 import React from 'react'
 
 const RelationsAccordionTrigger = ({ label, count }: { label: string; count: number }) => (
-  <AccordionTrigger asChild>
+  <AccordionTrigger asChild className="bg-unset">
     <button className="group flex items-center text-left gap-3 w-full">
       <div className="flex items-center gap-2">
         <ChevronDown size={22} className=" text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-brand" />

@@ -45,7 +45,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const contentMarginLeft = expanded ? 54 + panelWidth : openPanel ? 38 + panelWidth : 54 + panelWidth
   const currentActivePanel = [...navItems, ...footerNavItems]
     .filter(isNavItem)
-    .find((item) => item.children?.some((child) => child.href === pathname))
+    .find((item) => item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`)))
     ?.title.toLowerCase() as PanelKey | undefined
 
   function isNavItem(item: NavItem | Separator | NavHeading): item is NavItem {
