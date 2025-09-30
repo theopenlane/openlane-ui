@@ -625,7 +625,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                   render={({ field }) => (
                                     <FormItem className="w-full">
                                       <FormControl>
-                                        <Input variant="medium" {...field} className="w-[250px] text-right" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                        <Input variant="medium" {...field} className="w-[250px]" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                       </FormControl>
                                       {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
                                     </FormItem>
@@ -636,7 +636,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <div className={`flex items-center w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
+                                    <div className={`flex items-center justify-end w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
                                       <span className="truncate overflow-hidden whitespace-nowrap text-right">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
                                     </div>
                                   </TooltipTrigger>
@@ -686,7 +686,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               />
                             ) : (
                               <div
-                                className={`flex items-center text-right space-x-2 w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`flex items-center justify-end space-x-2 w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onDoubleClick={() => handleDoubleClick('status')}
                               >
                                 {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
