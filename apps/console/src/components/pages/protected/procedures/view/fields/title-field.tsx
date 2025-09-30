@@ -9,6 +9,7 @@ import { Input } from '@repo/ui/input'
 import { UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { Separator } from '@repo/ui/separator'
 
 type TTitleFieldProps = {
   isEditing: boolean
@@ -75,9 +76,12 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
       />
     </div>
   ) : (
-    <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-      {form.getValues('name')}
-    </h1>
+    <>
+      <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+        {form.getValues('name')}
+      </h1>
+      <Separator separatorClass="bg-divider mt-[24px]" />
+    </>
   )
 }
 
