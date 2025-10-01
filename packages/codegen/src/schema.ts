@@ -47406,7 +47406,7 @@ export type CreateUploadInternalPolicyMutationVariables = Exact<{
 
 export type CreateUploadInternalPolicyMutation = {
   __typename?: 'Mutation'
-  createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null } }
+  createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string } }
 }
 
 export type CreateProcedureMutationVariables = Exact<{

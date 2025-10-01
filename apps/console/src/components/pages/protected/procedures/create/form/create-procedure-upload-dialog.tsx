@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, Import, Trash2 } from 'lucide-react'
+import { FileUp, Import, InfoIcon, Trash2 } from 'lucide-react'
 import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
@@ -14,7 +14,7 @@ import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-p
 import { CreateProcedureInput } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
-import PolicyProcedureExistingFiles from '@/components/shared/policy-procedure-shared-tabs/policy-procedure-existing-files'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -38,6 +38,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
   const [procedureMdDocumentLink, setProcedureMdDocumentLink] = useState<string>('')
   const [procedureMdDocumentLinks, setProcedureMdDocumentLinks] = useState<string[]>([])
   const hasSingleFileOrLink = procedureMdDocumentLinks.length + uploadedFiles.length === 1
+  const hasFileOrLink = procedureMdDocumentLinks.length + uploadedFiles.length > 0
 
   const handleUpload = async () => {
     if (uploadedFiles.length > 0) {
@@ -169,13 +170,13 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
       ) : (
         <DialogTrigger asChild>
           <Button icon={<Import />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-            Import existing document
+            Import Existing Procedure(s)
           </Button>
         </DialogTrigger>
       )}
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import existing document</DialogTitle>
+          <DialogTitle>Import Existing Procedure(s)</DialogTitle>
         </DialogHeader>
         <Tabs variant="solid" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
           <TabsList>
@@ -185,17 +186,23 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.DirectLink}>
               Direct Link
             </TabsTrigger>
-            <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.ExistingFiles}>
-              Existing Files
-            </TabsTrigger>
           </TabsList>
           <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
-            acceptedFileTypesShort={['TXT', 'DOCX']}
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+            acceptedFileTypesShort={['TXT', 'DOCX', 'MD', 'MDX']}
             uploadedFile={handleUploadedFile}
           />
           <DirectLinkCreatePolicyProcedureTab setLink={setProcedureMdDocumentLink} link={procedureMdDocumentLink} onAddLink={handleAddLink} />
-          <PolicyProcedureExistingFiles onAddExistingFile={handleUploadedFile} />
+          <SystemTooltip
+            side="top"
+            icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+            content={
+              <p>
+                You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be
+                imported separately and create its own procedure
+              </p>
+            }
+          />
         </Tabs>
         {procedureMdDocumentLinks.map((link, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
@@ -213,26 +220,15 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             <div className="mr-2">
               <FileUp className="w-8 h-8" />
             </div>
-            {file.type === 'existingFile' ? (
-              <div>
-                <div className="font-semibold">{file.name}</div>
-                <div className="text-sm">
-                  Existing file{file.category ? `, ${file.category}` : ''}
-                  {file.createdAt ? `, ${file.createdAt}` : ''}
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="font-semibold">{file.name}</div>
-                <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
-              </div>
-            )}
-
+            <div>
+              <div className="font-semibold">{file.name}</div>
+              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+            </div>
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteFile(index)} />
           </div>
         ))}
         <div className="flex">
-          <Button onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting}>
+          <Button onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
             {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
           </Button>
         </div>

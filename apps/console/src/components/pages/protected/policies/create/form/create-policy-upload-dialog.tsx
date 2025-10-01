@@ -1,16 +1,20 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Import, Info } from 'lucide-react'
-import React, { cloneElement, useState } from 'react'
+import React, { cloneElement, useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
-import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
-import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
+import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useRouter } from 'next/navigation'
+import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
+import { CreateInternalPolicyInput } from '@repo/codegen/src/schema'
+import { FileUp, Import, InfoIcon, Trash2 } from 'lucide-react'
+import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import UploadTab from '../../../evidence/upload/upload-tab'
+import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type TCreatePolicyUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -23,33 +27,135 @@ type TCreatePolicyUploadDialogProps = {
 }
 
 const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ trigger }) => {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
+  const [uploadedFiles, setUploadedFiles] = useState<TUploadedFile[]>([])
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy()
+  const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
 
-  const handleFileUpload = async () => {
-    if (!uploadedFile) {
-      return
+  const [defaultTab, setDefaultTab] = useState<PolicyProcedureTabEnum>(PolicyProcedureTabEnum.Upload)
+  const [policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
+  const [policyMdDocumentLinks, setPolicyMdDocumentLinks] = useState<string[]>([])
+  const hasSingleFileOrLink = policyMdDocumentLinks.length + uploadedFiles.length === 1
+  const hasFileOrLink = policyMdDocumentLinks.length + uploadedFiles.length > 0
+
+  const handleUpload = async () => {
+    if (uploadedFiles.length > 0) {
+      await handleFileUpload()
     }
 
-    try {
-      await createUploadPolicy({ policyFile: uploadedFile.file! })
-      successNotification({
-        title: 'Policies Created',
-        description: `Policies has been successfully created`,
-      })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
+    if (policyMdDocumentLinks.length > 0) {
+      await handleLinkUpload()
+    }
+
+    setIsOpen(true)
+  }
+
+  const handleLinkUpload = async () => {
+    const dataArray: { input: CreateInternalPolicyInput }[] = policyMdDocumentLinks.map((link, index) => ({
+      input: {
+        name: `Name ${link}-${index}`,
+        url: link,
+      },
+    }))
+    if (hasSingleFileOrLink) {
+      try {
+        const policy = await createPolicy(dataArray[0])
+        successNotification({
+          title: 'Policy Created',
+          description: 'Policy has been successfully created',
+        })
+        router.push(`/policies/${policy.createInternalPolicy.internalPolicy.id}/view`)
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    } else {
+      try {
+        for (const singleData of dataArray) {
+          await createPolicy(singleData)
+        }
+        successNotification({
+          title: 'Policy Created',
+          description: 'Policy(s) have been successfully created',
+        })
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    }
+  }
+
+  const handleFileUpload = async () => {
+    if (hasSingleFileOrLink) {
+      try {
+        const policy = await createUploadPolicy({ policyFile: uploadedFiles[0].file })
+        successNotification({
+          title: 'Policy Created',
+          description: 'Policy has been successfully created',
+        })
+        router.push(`/policies/${policy.createUploadInternalPolicy.internalPolicy.id}/view`)
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    } else {
+      try {
+        for (const uploadedFile of uploadedFiles) {
+          await createUploadPolicy({ policyFile: uploadedFile.file! })
+        }
+        successNotification({
+          title: 'Policy Created',
+          description: 'Policy(s) have been successfully created',
+        })
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
     }
   }
 
   const handleUploadedFile = (uploadedFile: TUploadedFile) => {
-    setUploadedFile(uploadedFile)
+    setUploadedFiles((prev) => [...prev, uploadedFile])
+  }
+
+  const handleDeleteFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  useEffect(() => {
+    if (!isOpen) {
+      clearState()
+    }
+  }, [isOpen])
+
+  const clearState = () => {
+    setPolicyMdDocumentLink('')
+    setPolicyMdDocumentLinks([])
+  }
+
+  const handleAddLink = (link: string) => {
+    if (link.trim() === '') return
+
+    setPolicyMdDocumentLinks((prev) => [...prev, link])
+    setPolicyMdDocumentLink('')
+  }
+
+  const handleDeleteLink = (index: number) => {
+    setPolicyMdDocumentLinks((prev) => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -64,39 +170,66 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
       ) : (
         <DialogTrigger asChild>
           <Button icon={<Import />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-            Import existing document
+            Import Existing Policy(s)
           </Button>
         </DialogTrigger>
       )}
-
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import existing document</DialogTitle>
+          <DialogTitle>Import Existing Policy(s)</DialogTitle>
         </DialogHeader>
-        <Card className="mt-6 p-4 flex gap-3">
-          <Info className="mt-1" width={16} height={16} />
-          <div>
-            <p className="font-semibold">Column format</p>
-            <p className="text-sm">
-              You can upload a csv containing policies. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#policies`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-                documentation
-              </a>{' '}
-              for column format. We also provide a <span className="text-brand hover:underline">template csv file</span> for you to fill out.
-            </p>
+        <Tabs variant="solid" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
+          <TabsList>
+            <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
+              Upload
+            </TabsTrigger>
+            <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.DirectLink}>
+              Direct Link
+            </TabsTrigger>
+          </TabsList>
+          <UploadTab
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+            acceptedFileTypesShort={['TXT', 'DOCX', 'MD', 'MDX']}
+            uploadedFile={handleUploadedFile}
+          />
+          <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} />
+          <SystemTooltip
+            side="top"
+            icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+            content={
+              <p>
+                You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be
+                imported separately and create its own policy
+              </p>
+            }
+          />
+        </Tabs>
+        {policyMdDocumentLinks.map((link, index) => (
+          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
+            <div>
+              <div className="font-semibold">
+                <div className="truncate max-w-sm">{link}</div>
+              </div>
+              <div className="text-sm">Direct link</div>
+            </div>
+            <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteLink(index)} />
           </div>
-        </Card>
-        <FileUpload
-          acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
-          acceptedFileTypesShort={['TXT', 'MD', 'DOCX']}
-          maxFileSizeInMb={1}
-          onFileUpload={handleUploadedFile}
-          multipleFiles={false}
-          acceptedFilesClass="flex justify-between text-sm"
-        />
+        ))}
+        {uploadedFiles.map((file, index) => (
+          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
+            <div className="mr-2">
+              <FileUp className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="font-semibold">{file.name}</div>
+              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+            </div>
+            <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteFile(index)} />
+          </div>
+        ))}
         <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
-            {isSubmitting ? 'Uploading...' : 'Upload'}
+          <Button onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
+            {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
           </Button>
         </div>
       </DialogContent>

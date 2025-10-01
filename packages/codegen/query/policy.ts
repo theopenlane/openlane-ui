@@ -274,6 +274,7 @@ export const CREATE_UPLOAD_POLICY = gql`
     createUploadInternalPolicy(policyFile: $policyFile) {
       internalPolicy {
         fileID
+        id
       }
     }
   }

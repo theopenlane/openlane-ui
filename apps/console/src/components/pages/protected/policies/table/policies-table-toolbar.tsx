@@ -14,6 +14,7 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -98,7 +99,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {/* {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreatePolicyUploadDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1">
@@ -107,7 +108,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                           </div>
                         }
                       />
-                    )} */}
+                    )}
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <BulkCSVCreatePolicyDialog
                         trigger={
