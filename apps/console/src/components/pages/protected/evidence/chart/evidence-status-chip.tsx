@@ -3,11 +3,13 @@ import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { CircleQuestionMark, Fingerprint, Folder } from 'lucide-react'
-import Link from 'next/link'
 import { TChardData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
 import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum.tsx'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { EvidenceWhereInput } from '@repo/codegen/src/schema'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import Link from 'next/link'
 
 type TEvidenceStatusChipProps = {
   data: TChardData
@@ -55,17 +57,6 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
     return <p className="text-xs">Loading details…</p>
   }
 
-  const filters = [
-    {
-      field: 'status',
-      value: evidenceData.status,
-      type: 'selectIs',
-      operator: 'EQ',
-      label: 'Status',
-    },
-  ]
-
-  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
   const evidences = data?.evidences?.edges || []
   const columnClassMap = {
     1: 'grid-cols-1',
@@ -75,6 +66,15 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
 
   const columns = Math.min(Math.max(evidences.length, 1), 3) as 1 | 2 | 3
   const columnClass = columnClassMap[columns]
+
+  const handleClick = () => {
+    const filters: TFilterState = {
+      ...(programId ? { hasProgramsWith: [programId] } : {}),
+      status: [evidenceData.status],
+    }
+
+    saveFilters(TableFilterKeysEnum.EVIDENCE, filters)
+  }
 
   return (
     <div className="bg-background-secondary p-3 rounded-md text-xs">
@@ -92,8 +92,8 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
           <span className="font-medium">Browse by filter</span>
         </div>
         <div className="w-full border-b">
-          <Link href={`/evidence?${programId ? `programId=${programId}&` : ''}regularFilters=${encodedFilters}&filterActive=1`}>
-            <span className="text-brand size-fit pl-3 pb-2 hover:underline flex items-center gap-1 cursor-pointer">{evidenceData.name}</span>
+          <Link href={`/evidence`} onClick={handleClick}>
+            <span className="text-primary size-fit pl-3 pb-2 hover:underline flex items-center gap-1 cursor-pointer">{evidenceData.name}</span>
           </Link>
         </div>
 

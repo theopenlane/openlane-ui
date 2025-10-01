@@ -251,7 +251,7 @@ export default function CreateControlForm() {
     reset()
   }
 
-  if (!permissionsLoading && createAllowed === false) {
+  if (!permissionsLoading && !createAllowed) {
     return <ProtectedArea />
   }
 
