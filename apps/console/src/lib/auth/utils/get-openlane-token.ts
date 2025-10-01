@@ -66,7 +66,7 @@ export const checkSSOEnforcement = async (email: string): Promise<{ redirect_uri
   return null
 }
 
-export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promise<{ success: true; data: any } | { success: false; message: string; status?: number; error_code?: string }> => {
+export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promise<{ success: true; data: any } | { success: false; message: string; status?: number }> => {
   try {
     const payload = {
       externalUserId: reqBody.externalUserID?.toString(),
@@ -88,7 +88,6 @@ export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promis
       return {
         success: false,
         message: json?.message || json?.error || `Openlane API failed: ${response.status}`,
-        error_code: json?.error_code,
         status: response.status,
       }
     }
@@ -97,7 +96,6 @@ export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promis
       return {
         success: false,
         message: json?.error || 'Unknown error',
-        error_code: json?.error_code,
       }
     }
 
