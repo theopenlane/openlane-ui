@@ -1,4 +1,5 @@
 import { errorCodeMessages, GraphQlResponseError } from '@/constants/graphQlResponseError'
+import { ClientError } from 'graphql-request'
 
 export interface GraphQLErrorExtension {
   code: GraphQlResponseError
@@ -44,6 +45,11 @@ export const parseErrorMessage = (error: unknown): string => {
     const message = error[0].message as string
     if (message === 'organization already exists') return errorCodeMessages['ORG_ALREADY_EXISTS']
     return errorCodeMessages[code]
+  }
+
+  if (error instanceof ClientError) {
+    const message = error.response.errors?.[0]?.message
+    if (message) return message
   }
 
   return 'Something went wrong. Please try again.'

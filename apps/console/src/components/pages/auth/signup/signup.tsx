@@ -34,11 +34,14 @@ export const SignupPage = () => {
   }
 
   const google = async () => {
-    await signIn('google', { redirectTo: '/' })
+    await signIn('google', {
+      redirect: true,
+      redirectTo: '/signup',
+    })
   }
 
   async function validateEmail(payload: RegisterUser) {
-    return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
+    return allowedLoginDomains.length === 0 || allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
   return (

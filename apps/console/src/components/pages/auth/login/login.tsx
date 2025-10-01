@@ -29,7 +29,6 @@ export const LoginPage = () => {
   const [signInError, setSignInError] = useState(false)
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
-  const showLoginError = !signInLoading && signInError
   const [email, setEmail] = useState('')
   const [webfingerResponse, setWebfingerResponse] = useState<{
     success: boolean
@@ -45,6 +44,9 @@ export const LoginPage = () => {
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
   const redirect = searchParams?.get('redirect')
+  const urlErrorMessage = searchParams.get('error')
+  const showLoginError = !signInLoading && signInError
+
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const isValidEmail = (email: string): boolean => {
@@ -326,6 +328,14 @@ export const LoginPage = () => {
     }
   }
 
+  useEffect(() => {
+    if (urlErrorMessage) {
+      setSignInErrorMessage(urlErrorMessage)
+      setSignInError(true)
+      router.replace('/login')
+    }
+  }, [urlErrorMessage, router])
+
   return (
     <>
       <div className="flex flex-col self-center">
@@ -431,7 +441,7 @@ export const LoginPage = () => {
                       <span>Login</span>
                       <ArrowRightCircle size={16} />
                     </button>
-                    <Link href="/forgot-password" className="text-base text-xs underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition">
+                    <Link href="/forgot-password" className="text-xs underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition">
                       Forgot password?
                     </Link>
                   </>
