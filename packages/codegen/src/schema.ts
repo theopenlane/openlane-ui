@@ -23046,17 +23046,11 @@ export interface OrgSubscription extends Node {
   events: EventConnection
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
   expiresAt?: Maybe<Scalars['Time']['output']>
-  /** the feature lookup keys associated with the subscription */
-  featureLookupKeys?: Maybe<Array<Scalars['String']['output']>>
-  /** the features associated with the subscription */
-  features?: Maybe<Array<Scalars['String']['output']>>
   id: Scalars['ID']['output']
   managePaymentMethods?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** the price of the product tier */
-  productPrice?: Maybe<Scalars['Price']['output']>
   /** the stripe subscription id */
   stripeSubscriptionID?: Maybe<Scalars['String']['output']>
   /** the status of the subscription in stripe -- see https://docs.stripe.com/api/subscriptions/object#subscription_object-status */
@@ -23108,17 +23102,11 @@ export interface OrgSubscriptionHistory extends Node {
   daysUntilDue?: Maybe<Scalars['String']['output']>
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
   expiresAt?: Maybe<Scalars['Time']['output']>
-  /** the feature lookup keys associated with the subscription */
-  featureLookupKeys?: Maybe<Array<Scalars['String']['output']>>
-  /** the features associated with the subscription */
-  features?: Maybe<Array<Scalars['String']['output']>>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: OrgSubscriptionHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
-  /** the price of the product tier */
-  productPrice?: Maybe<Scalars['Price']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the stripe subscription id */
   stripeSubscriptionID?: Maybe<Scalars['String']['output']>
@@ -46132,6 +46120,7 @@ export type CreateEvidenceMutationVariables = Exact<{
 export type CreateEvidenceMutation = { __typename?: 'Mutation'; createEvidence: { __typename?: 'EvidenceCreatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
 
 export type GetEvidenceFilesQueryVariables = Exact<{
+  where?: InputMaybe<FileWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -47062,16 +47051,7 @@ export type GetOrganizationBillingQuery = {
   organization: {
     __typename?: 'Organization'
     personalOrg?: boolean | null
-    orgSubscriptions?: Array<{
-      __typename?: 'OrgSubscription'
-      active: boolean
-      expiresAt?: any | null
-      stripeSubscriptionStatus?: string | null
-      productPrice?: any | null
-      features?: Array<string> | null
-      managePaymentMethods?: string | null
-      trialExpiresAt?: any | null
-    }> | null
+    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; active: boolean; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; trialExpiresAt?: any | null }> | null
   }
 }
 

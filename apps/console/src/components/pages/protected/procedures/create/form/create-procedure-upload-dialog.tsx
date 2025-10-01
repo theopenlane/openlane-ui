@@ -10,10 +10,11 @@ import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
-import DirectLinkCreateTab from './create-procedure-via-direct-link'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
 import { CreateProcedureInput } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
+import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
+import PolicyProcedureExistingFiles from '@/components/shared/policy-procedure-shared-tabs/policy-procedure-existing-files'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -37,7 +38,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
   const [procedureMdDocumentLink, setProcedureMdDocumentLink] = useState<string>('')
   const [procedureMdDocumentLinks, setProcedureMdDocumentLinks] = useState<string[]>([])
   const hasSingleFileOrLink = procedureMdDocumentLinks.length + uploadedFiles.length === 1
-
+  console.log(uploadedFiles)
   const handleUpload = async () => {
     if (uploadedFiles.length > 0) {
       await handleFileUpload()
@@ -46,6 +47,8 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     if (procedureMdDocumentLinks.length > 0) {
       await handleLinkUpload()
     }
+
+    setIsOpen(true)
   }
 
   const handleLinkUpload = async () => {
@@ -79,7 +82,6 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
           title: 'Procedure Created',
           description: 'Procedure(s) have been successfully created',
         })
-        clearState()
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({
@@ -93,7 +95,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
   const handleFileUpload = async () => {
     if (hasSingleFileOrLink) {
       try {
-        const createdProcedure = await createUploadProcedure({ procedureFile: uploadedFiles[0].file! })
+        const createdProcedure = await createUploadProcedure({ procedureFile: uploadedFiles[0].file })
         successNotification({
           title: 'Procedure Created',
           description: 'Procedure has been successfully created',
@@ -115,7 +117,6 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
           title: 'Procedure Created',
           description: 'Procedure(s) have been successfully created',
         })
-        clearState()
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({
@@ -193,7 +194,8 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             acceptedFileTypesShort={['TXT', 'DOCX']}
             uploadedFile={handleUploadedFile}
           />
-          <DirectLinkCreateTab setProcedureMdDocumentLink={setProcedureMdDocumentLink} procedureMdDocumentLink={procedureMdDocumentLink} onAddLink={handleAddLink}></DirectLinkCreateTab>
+          <DirectLinkCreatePolicyProcedureTab setLink={setProcedureMdDocumentLink} link={procedureMdDocumentLink} onAddLink={handleAddLink} />
+          <PolicyProcedureExistingFiles onAddExistingFile={handleUploadedFile} />
         </Tabs>
         {procedureMdDocumentLinks.map((link, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
@@ -211,10 +213,21 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             <div className="mr-2">
               <FileUp className="w-8 h-8" />
             </div>
-            <div>
-              <div className="font-semibold">{file.name}</div>
-              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
-            </div>
+            {file.type === 'existingFile' ? (
+              <div>
+                <div className="font-semibold">{file.name}</div>
+                <div className="text-sm">
+                  Existing file{file.category ? `, ${file.category}` : ''}
+                  {file.createdAt ? `, ${file.createdAt}` : ''}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="font-semibold">{file.name}</div>
+                <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+              </div>
+            )}
+
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteFile(index)} />
           </div>
         ))}
