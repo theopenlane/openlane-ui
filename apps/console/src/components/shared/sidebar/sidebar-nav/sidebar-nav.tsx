@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
 import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText } from 'lucide-react'
@@ -46,6 +46,13 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   const router = useRouter()
   const sidebarItems = [...navItems, ...footerNavItems]
 
+  useEffect(() => {
+    if (!openPanel) {
+      const firstItem = navItems.filter((item): item is NavItem => 'title' in item).filter((item) => item?.children && item.children.length > 0)[0]
+      onToggleAction(firstItem.title.toLowerCase() as PanelKey)
+    }
+  }, [navItems, onToggleAction, openPanel])
+
   const handleNavigate = (href: string) => {
     router.push(href)
     onToggleAction(null)
@@ -81,8 +88,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
       if ('icon' in item && item.icon) {
         const Icon = item.icon
         const isExpandable = !!item.children
-        const isActive = openPanel === (item.title?.toLowerCase() as PanelKey) || pathname === item.href
-        const isFullActive = activeNav?.title === item.title
+        const isActive = activeNav?.title === item.title
         const url = item.params ? item.href + item.params : item.href
 
         return (
@@ -90,7 +96,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="relative flex items-center">
-                  {isFullActive && <span className="absolute -left-[11.2px] w-[2px] h-full bg-foreground dark:bg-primary rounded-r-md" />}
+                  {isActive && <span className="absolute -left-[11.2px] w-[2px] h-full bg-foreground dark:bg-primary rounded-r-md" />}
 
                   <button
                     onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(url))}
