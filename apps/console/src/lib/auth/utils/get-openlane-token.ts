@@ -82,7 +82,6 @@ export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promis
       body: JSON.stringify(payload),
     })
 
-    // ✅ parse JSON once
     const json = await response.json()
 
     if (!response.ok) {
