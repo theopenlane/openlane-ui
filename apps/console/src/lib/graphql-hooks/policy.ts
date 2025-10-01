@@ -148,7 +148,7 @@ export const useCreateBulkCSVInternalPolicy = () => {
 
 export const useCreateUploadInternalPolicy = () => {
   const { queryClient } = useGraphQLClient()
-  console.log('useCreateUploadInternalPolicy')
+
   return useMutation<CreateUploadInternalPolicyMutation, unknown, CreateUploadInternalPolicyMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_UPLOAD_POLICY, variables }),
     onSuccess: () => {
