@@ -38,7 +38,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
   const [procedureMdDocumentLink, setProcedureMdDocumentLink] = useState<string>('')
   const [procedureMdDocumentLinks, setProcedureMdDocumentLinks] = useState<string[]>([])
   const hasSingleFileOrLink = procedureMdDocumentLinks.length + uploadedFiles.length === 1
-  console.log(uploadedFiles)
+
   const handleUpload = async () => {
     if (uploadedFiles.length > 0) {
       await handleFileUpload()
