@@ -41,7 +41,7 @@ export const SignupPage = () => {
   }
 
   async function validateEmail(payload: RegisterUser) {
-    return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
+    return allowedLoginDomains.length === 0 || allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
   return (
