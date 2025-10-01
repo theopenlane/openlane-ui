@@ -88,8 +88,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
       if ('icon' in item && item.icon) {
         const Icon = item.icon
         const isExpandable = !!item.children
-        const isActive = openPanel === (item.title?.toLowerCase() as PanelKey) || pathname === item.href
-        const isFullActive = activeNav?.title === item.title
+        const isActive = activeNav?.title === item.title
         const url = item.params ? item.href + item.params : item.href
 
         return (
@@ -97,7 +96,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="relative flex items-center">
-                  {isFullActive && <span className="absolute -left-[11.2px] w-[2px] h-full bg-foreground dark:bg-primary rounded-r-md" />}
+                  {isActive && <span className="absolute -left-[11.2px] w-[2px] h-full bg-foreground dark:bg-primary rounded-r-md" />}
 
                   <button
                     onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(url))}
