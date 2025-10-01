@@ -159,6 +159,8 @@
   --color-info: hsl(207, 100%, 33%);
   --color-separator: #E1E7EA;
   --color-border: #E1E7EA;
+
+  --color-avatar-transparent: #9AA5B0;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -200,6 +202,8 @@
   --color-btn-primary-hover: #4C5E69;
   --color-btn-primary-text: #FFFFFF;
   --color-btn-primary-text-disabled:#FFFFFF70;
+
+  --color-avatar-transparent: #394B58;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -234,21 +238,22 @@
 @theme inline {
   /* Trial */
   --color-gold-trial: #d9ae40;
+  --color-divider: #233440;
 
   /* standards */
-  --color-standard-iso27001: #4d77b0;
+  --color-standard-iso27001: #5C8FD4;
   --color-standard-nist80053: #388426;
-  --color-standard-nistcsf: #388426;
-  --color-standard-soc2: #4ab1bd;
+  --color-standard-nistcsf: #49AA32;
+  --color-standard-soc2: #53CEDD;
   --color-standard-nistssdf: #388426;
-  --color-standard-gdpr: #d9ae40;
-  --color-standard-cis: #00549f;
-  --color-standard-ccm: #f6a15b;
-  --color-standard-hipaa: #3578be;
-  --color-standard-sox: #a42f00;
-  --color-standard-pci: #2c6f76;
-  --color-standard-custom: #d9ae40;
-  --color-standard-masvs: #535353;
+  --color-standard-gdpr: #105FFB;
+  --color-standard-cis: #0067C3;
+  --color-standard-ccm: #F6A15B;
+  --color-standard-hipaa: #418EDE;
+  --color-standard-sox: #C83B03;
+  --color-standard-pci: #43B4C0;
+  --color-standard-custom: #F6C444;
+  --color-standard-masvs: #9D9D9D;
   --color-standard-ccpa: #003162;
   --color-standard-nerc: #00437a;
   --color-standard-cobit: #62c5ec;
