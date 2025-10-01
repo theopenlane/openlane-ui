@@ -7,7 +7,6 @@ import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 
 type TCreateItemsFromPolityProps = {

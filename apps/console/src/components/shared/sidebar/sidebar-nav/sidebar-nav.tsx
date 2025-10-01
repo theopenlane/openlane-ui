@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { NavHeading, NavItem, Separator } from '@/types'
 import Link from 'next/link'
 import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText } from 'lucide-react'
@@ -45,6 +45,13 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   const pathname = usePathname()
   const router = useRouter()
   const sidebarItems = [...navItems, ...footerNavItems]
+
+  useEffect(() => {
+    if (!openPanel) {
+      const firstItem = navItems.filter((item): item is NavItem => 'title' in item).filter((item) => item?.children && item.children.length > 0)[0]
+      onToggleAction(firstItem.title.toLowerCase() as PanelKey)
+    }
+  }, [navItems, onToggleAction, openPanel])
 
   const handleNavigate = (href: string) => {
     router.push(href)
