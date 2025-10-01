@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, Import, InfoIcon, Trash2 } from 'lucide-react'
+import { FileUp, Import, Info, Trash2 } from 'lucide-react'
 import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
@@ -14,7 +14,7 @@ import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-p
 import { CreateProcedureInput } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Card } from '@repo/ui/cardpanel'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -178,6 +178,15 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
         <DialogHeader>
           <DialogTitle>Import Existing Procedure(s)</DialogTitle>
         </DialogHeader>
+        <Card className="mt-6 p-4 flex gap-3">
+          <Info className="mt-1" width={16} height={16} />
+          <div>
+            <p className="text-sm">
+              You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be imported
+              separately and create its own procedure
+            </p>
+          </div>
+        </Card>
         <Tabs variant="solid" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
           <TabsList>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
@@ -187,22 +196,8 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
               Direct Link
             </TabsTrigger>
           </TabsList>
-          <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
-            acceptedFileTypesShort={['TXT', 'DOCX', 'MD', 'MDX']}
-            uploadedFile={handleUploadedFile}
-          />
+          <UploadTab acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx']} acceptedFileTypesShort={['TXT', 'MD', 'MDX']} uploadedFile={handleUploadedFile} />
           <DirectLinkCreatePolicyProcedureTab setLink={setProcedureMdDocumentLink} link={procedureMdDocumentLink} onAddLink={handleAddLink} />
-          <SystemTooltip
-            side="top"
-            icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-            content={
-              <p>
-                You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be
-                imported separately and create its own procedure
-              </p>
-            }
-          />
         </Tabs>
         {procedureMdDocumentLinks.map((link, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
