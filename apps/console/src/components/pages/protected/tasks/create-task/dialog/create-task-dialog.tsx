@@ -26,7 +26,9 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger className={className ?? ''}>{trigger}</DialogTrigger>
+        <DialogTrigger className={className ?? ''} asChild>
+          {trigger}
+        </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
           <Button className={className ?? 'h-8 !px-2'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
