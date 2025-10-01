@@ -21,7 +21,6 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import Github from '@/assets/Github'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
-import { getErrorMessage } from '@/constants/restResponseError'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -45,7 +44,7 @@ export const LoginPage = () => {
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
   const redirect = searchParams?.get('redirect')
-  const errorCode = searchParams.get('error')
+  const urlErrorMessage = searchParams.get('error')
   const showLoginError = !signInLoading && signInError
 
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
@@ -330,11 +329,12 @@ export const LoginPage = () => {
   }
 
   useEffect(() => {
-    if (errorCode) {
-      setSignInErrorMessage(getErrorMessage(errorCode))
+    if (urlErrorMessage) {
+      setSignInErrorMessage(urlErrorMessage)
       setSignInError(true)
+      router.replace('/login')
     }
-  }, [errorCode])
+  }, [urlErrorMessage, router])
 
   return (
     <>
