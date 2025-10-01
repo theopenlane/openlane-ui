@@ -17,6 +17,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import { Loading } from '@/components/shared/loading/loading'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -30,7 +31,7 @@ const TasksPage: React.FC = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { data: session } = useSession()
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
@@ -152,6 +153,10 @@ const TasksPage: React.FC = () => {
 
   const handleBulkEdit = () => {
     setSelectedTasks([])
+  }
+
+  if (isMembersLoading) {
+    return <Loading />
   }
 
   return (
