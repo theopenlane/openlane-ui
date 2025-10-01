@@ -119,9 +119,9 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         <TableCardView activeTab={activeTab} onTabChange={handleTabChange} />
         <div className="grow flex flex-row items-center gap-2">
           <p>Show completed tasks</p>
-          <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
-          <p>Show my tasks</p>
           <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
+          <p>Show my tasks</p>
+          <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
           <Menu
@@ -177,7 +177,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
           )}
         </div>
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }

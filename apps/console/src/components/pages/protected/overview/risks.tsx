@@ -17,6 +17,8 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { FormattedRisk, getRiskColumns } from './risks-table-config'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 const Risks = () => {
   const { data: session } = useSession()
@@ -72,18 +74,6 @@ const Risks = () => {
       }
     }) || []
 
-  const filters = [
-    {
-      field: 'hasProgramsWith',
-      value: programId,
-      type: 'selectIs',
-      operator: 'EQ',
-    },
-  ]
-
-  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
-  const risksRedirectURL = programId ? `/risks?regularFilters=${encodedFilters}` : '/risks'
-
   const hasData = formattedRisks.length > 0
 
   const userIds = useMemo(() => {
@@ -107,6 +97,18 @@ const Risks = () => {
     })
     return map
   }, [users])
+
+  const handleClick = () => {
+    if (!programId) {
+      return
+    }
+
+    const filters: TFilterState = {
+      hasProgramsWith: [programId],
+    }
+
+    saveFilters(TableFilterKeysEnum.RISK, filters)
+  }
 
   const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap }), [userMap])
 
@@ -170,7 +172,7 @@ const Risks = () => {
               <div className="flex flex-col items-center justify-center text-center py-16">
                 <AlertTriangle height={45} width={45} strokeWidth={1} className="text-border mb-4" />
                 <h2 className="text-lg font-semibold">You have no risks</h2>
-                <Link href={risksRedirectURL} className="mt-4">
+                <Link href="/risks" className="mt-4" onClick={handleClick}>
                   <Button variant="outline">Take me there</Button>
                 </Link>
               </div>

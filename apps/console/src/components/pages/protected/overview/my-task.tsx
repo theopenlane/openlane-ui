@@ -13,6 +13,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 const now = new Date()
 const dueSoonLimit = addDays(now, 7)
@@ -51,18 +53,14 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   const upcomingCount = upcomingTasks.length
   const overdueCount = overdueTasks.length
 
-  const filters = [
-    {
-      field: 'hasProgramsWith',
-      value: programId,
-      type: 'selectIs',
-      operator: 'EQ',
-      label: 'Program Name',
-    },
-  ]
+  const handleClick = () => {
+    const filters: TFilterState = {
+      ...(programId ? { hasProgramsWith: [programId] } : {}),
+      showMyTasks: true,
+    }
 
-  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
-  const tasksRedirectURL = programId ? `/tasks?showMyTasks=true&regularFilters=${encodedFilters}` : '/tasks?showMyTasks=true'
+    saveFilters(TableFilterKeysEnum.TASK, filters)
+  }
 
   return (
     <TooltipProvider>
@@ -128,8 +126,8 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             })}
           </div>
 
-          <Button onClick={() => router.push(tasksRedirectURL)} className="mt-7 text-sm flex items-center cursor-pointer">
-            Show more Tasks <ChevronRight size={16} className="ml-1" />
+          <Button icon={<ChevronRight size={16} />} onClick={handleClick} className="mt-4">
+            <Link href="/tasks?showMyTasks=true">Show more Tasks</Link>
           </Button>
         </CardContent>
       </Card>

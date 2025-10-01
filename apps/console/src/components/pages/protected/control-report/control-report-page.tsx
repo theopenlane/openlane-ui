@@ -24,6 +24,8 @@ import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type TControlReportPageProps = {
   active: 'report' | 'controls'
@@ -95,30 +97,15 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   const handleRedirectWithFilter = (status: ControlControlStatus) => {
     if (!referenceFramework) return
-    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'Custom'
-    const advancedFilters = [
-      {
-        field: 'standard',
-        value: standardId,
-        type: 'selectIs',
-        operator: 'EQ',
-        label: 'Standard',
-      },
-      {
-        field: 'status',
-        value: status,
-        type: 'select',
-        operator: 'EQ',
-        label: 'Status',
-      },
-    ]
+    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'CUSTOM'
 
-    const searchParams = new URLSearchParams({
-      filterActive: '1',
-      advancedFilters: JSON.stringify(advancedFilters),
-    })
+    const filters: TFilterState = {
+      standard: [standardId],
+      status: [status],
+    }
 
-    router.push(`/controls?${searchParams.toString()}`)
+    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    setActive('controls')
   }
 
   useEffect(() => {
@@ -269,7 +256,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                               </div>
                               <div className="text-xs">
                                 <span>Total:&nbsp;</span>
-                                <span onClick={() => handleRedirectWithFilter(status)} className="text-brand cursor-pointer">
+                                <span onClick={() => handleRedirectWithFilter(status)} className="text-primary cursor-pointer">
                                   {controlsForStatus.length} controls
                                 </span>
                               </div>

@@ -6,6 +6,8 @@ import { DonutChart } from '@repo/ui/donut-chart'
 import { Settings2 } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 
 const chartColors = ['#4ADE80', '#EAB308', '#EF4444', '#107565', '#017BFE']
 
@@ -33,25 +35,25 @@ export function ControlsSummaryCard() {
 
   // 🛠️ If everything is 0, render 1 dummy slice
   const donutChartData = totalValue > 0 ? chartData : [{ name: 'No data', value: 1 }]
-  const donutChartColors = totalValue > 0 ? chartColors : ['#E5E7EB'] // Tailwind gray-200
+  const donutChartColors = totalValue > 0 ? chartColors : ['#E5E7EB']
 
-  const filters = [
-    {
-      field: 'hasProgramsWith',
-      value: programId,
-      type: 'selectIs',
-      label: 'Program Name',
-      operator: 'EQ',
-    },
-  ]
+  const handleClick = () => {
+    if (!programId) {
+      return
+    }
 
-  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+    const filters: TFilterState = {
+      hasProgramsWith: [programId],
+    }
+
+    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+  }
 
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center">
         <p className="text-lg">Control status</p>
-        <Link href={`/controls?regularFilters=${encodedFilters}`}>
+        <Link href={`/controls?tab=controls`} onClick={handleClick}>
           <Button iconPosition="left" icon={<Settings2 size={16} />}>
             Go to controls
           </Button>

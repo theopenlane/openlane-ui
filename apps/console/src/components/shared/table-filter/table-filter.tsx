@@ -13,17 +13,13 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { Separator as Hr } from '@repo/ui/separator'
-
-type TFilterValue = string | string[] | number | boolean | Date | undefined
-type TFilterState = Record<string, TFilterValue>
+import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
   pageKey: TableFilterKeysEnum
   onFilterChange?: (whereCondition: WhereCondition) => void
 }
-
-const STORAGE_PREFIX = 'filters:'
 
 const handleDateEQOperator = (value: Date, field: string): Condition[] => {
   const start = format(startOfDay(value), "yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -99,28 +95,40 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [])
 
   useEffect(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}${pageKey}`)
+    const saved = loadFilters(pageKey)
     if (saved) {
-      try {
-        const parsed: TFilterState = JSON.parse(saved, (key, value) => {
-          if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
-            return new Date(value)
-          }
-          return value
-        })
-        setValues(parsed)
-        onFilterChange?.(buildWhereCondition(parsed, filterFields)) // use parsed, not values
-        return
-      } catch {
-        console.log('Filters not passed correctly.')
-      }
+      setValues(saved)
+      onFilterChange?.(buildWhereCondition(saved, filterFields))
+    } else {
+      onFilterChange?.({})
     }
-    onFilterChange?.({})
+
+    const listener = (e: CustomEvent) => {
+      const updatedFilters = e.detail as TFilterState
+      setValues(updatedFilters)
+      onFilterChange?.(buildWhereCondition(updatedFilters, filterFields))
+    }
+
+    window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
+    return () => window.removeEventListener(`filters-updated:${pageKey}`, listener as EventListener)
   }, [pageKey, buildWhereCondition, onFilterChange, filterFields])
 
   const handleChange = useCallback((key: string, value: TFilterValue) => {
     setValues((prev) => ({ ...prev, [key]: value }))
   }, [])
+
+  const applyFilters = useCallback(() => {
+    saveFilters(pageKey, values)
+    onFilterChange?.(buildWhereCondition(values, filterFields))
+    setOpen(false)
+  }, [pageKey, values, onFilterChange, buildWhereCondition, filterFields])
+
+  const resetFilters = useCallback(() => {
+    setValues({})
+    clearFilters(pageKey)
+    onFilterChange?.({})
+    setOpen(false)
+  }, [pageKey, onFilterChange])
 
   const renderField = useCallback(
     (field: FilterField) => {
@@ -156,8 +164,11 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             )
           }
 
+          const value = values[field.key]
+          const selectValue = Array.isArray(value) ? value[0] : value !== undefined && value !== null ? String(value) : ''
+
           return (
-            <Select value={(values[field.key] as string) ?? ''} onValueChange={(val: string) => handleChange(field.key, val)}>
+            <Select value={selectValue} onValueChange={(val: string) => handleChange(field.key, val)}>
               <SelectTrigger>
                 <SelectValue placeholder={`Select ${field.label}`} />
               </SelectTrigger>
@@ -198,19 +209,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     },
     [values, handleChange],
   )
-
-  const applyFilters = useCallback(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}${pageKey}`, JSON.stringify(values))
-    onFilterChange?.(buildWhereCondition(values, filterFields))
-    setOpen(false)
-  }, [pageKey, values, onFilterChange, buildWhereCondition, filterFields])
-
-  const resetFilters = useCallback(() => {
-    setValues({})
-    localStorage.removeItem(`${STORAGE_PREFIX}${pageKey}`)
-    onFilterChange?.({})
-    setOpen(false)
-  }, [pageKey, onFilterChange])
 
   const activeFilterCount = Object.values(values).filter((v) => {
     if (v === undefined || v === null || v === '') return false
