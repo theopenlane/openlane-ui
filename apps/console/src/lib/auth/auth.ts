@@ -66,6 +66,7 @@ export const config = {
       if ('error' in user && typeof user.error === 'string') {
         throw new InvalidLoginError(user.error)
       }
+
       const email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
@@ -107,20 +108,28 @@ export const config = {
             return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
           }
 
-          const data = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
-          const dashboardData = await getDashboardData(data.access_token, data.session)
+          const result = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
 
-          if (!data) throw new Error(' ❌ Failed to fetch Openlane token')
+          if (!result.success) {
+            return `/login?error=${encodeURIComponent(result.message)}`
+          }
+
+          const apiData = result.data
+
+          const dashboardData = await getDashboardData(apiData.access_token, apiData.session)
+
+          if (!apiData) throw new Error(' ❌ Failed to fetch Openlane token')
+
           Object.assign(user, {
-            accessToken: data.access_token,
-            refreshToken: data.refresh_token,
-            session: data.session,
-            isTfaEnabled: data.tfa_enabled,
-            isOnboarding: dashboardData?.organizations?.edges?.length == 1,
+            accessToken: apiData.access_token,
+            refreshToken: apiData.refresh_token,
+            session: apiData.session,
+            isTfaEnabled: apiData.tfa_enabled,
+            isOnboarding: dashboardData?.organizations?.edges?.length === 1,
           })
 
           // Store session in a cookie
-          setSessionCookie(data.session)
+          setSessionCookie(apiData.session)
         } catch (error) {
           console.error('❌ OAuth sign-in error:', error)
           return false

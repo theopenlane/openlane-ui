@@ -34,7 +34,10 @@ export const SignupPage = () => {
   }
 
   const google = async () => {
-    await signIn('google', { redirectTo: '/' })
+    await signIn('google', {
+      redirect: true,
+      redirectTo: '/signup',
+    })
   }
 
   async function validateEmail(payload: RegisterUser) {

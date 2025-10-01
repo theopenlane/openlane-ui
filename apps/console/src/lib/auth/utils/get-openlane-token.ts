@@ -66,28 +66,45 @@ export const checkSSOEnforcement = async (email: string): Promise<{ redirect_uri
   return null
 }
 
-export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest) => {
+export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promise<{ success: true; data: any } | { success: false; message: string; status?: number }> => {
   try {
-    const response = await secureFetch(`${openlaneAPIUrl}/oauth/register`, {
-      method: 'POST',
-      body: JSON.stringify({
-        externalUserId: reqBody.externalUserID.toString() as string,
-        email: reqBody.email as string,
-        name: reqBody.name as string,
-        image: reqBody.image as string,
-        authProvider: reqBody.authProvider as string,
-        clientToken: reqBody.accessToken as string,
-      }),
-    })
-
-    if (!response.ok) {
-      console.error('❌Error response from API', response)
-      throw new Error(`Error response from API`)
+    const payload = {
+      externalUserId: reqBody.externalUserID?.toString(),
+      email: reqBody.email,
+      name: reqBody.name,
+      image: reqBody.image,
+      authProvider: reqBody.authProvider,
+      clientToken: reqBody.accessToken,
     }
 
-    return await response.json()
+    const response = await secureFetch(`${openlaneAPIUrl}/oauth/register`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+
+    const json = await response.json()
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: json?.message || json?.error || `Openlane API failed: ${response.status}`,
+        status: response.status,
+      }
+    }
+
+    if (json && !json.success) {
+      return {
+        success: false,
+        message: json?.error || 'Unknown error',
+      }
+    }
+
+    return { success: true, data: json }
   } catch (error) {
-    console.error('❌Error response from API:', error)
-    throw error
+    console.error('❌ Error in getTokenFromOpenlaneAPI:', error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error contacting Openlane',
+    }
   }
 }
