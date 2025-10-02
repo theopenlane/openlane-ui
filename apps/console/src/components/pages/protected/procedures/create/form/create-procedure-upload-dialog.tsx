@@ -197,7 +197,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             </TabsTrigger>
           </TabsList>
           <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx', '.mdx', '.md']}
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md']}
             acceptedFileTypesShort={['TXT', 'MD', 'MDX']}
             uploadedFile={handleUploadedFile}
           />
