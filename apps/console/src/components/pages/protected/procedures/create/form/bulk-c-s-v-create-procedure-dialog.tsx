@@ -55,7 +55,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger>
+        <DialogTrigger className="bg-transparent">
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,
@@ -70,7 +70,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
       )}
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import existing document</DialogTitle>
+          <DialogTitle>Bulk upload</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
           <Info className="mt-1" width={16} height={16} />

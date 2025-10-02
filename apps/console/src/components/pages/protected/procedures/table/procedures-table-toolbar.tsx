@@ -13,6 +13,7 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
 import { Button } from '@repo/ui/button'
+import CreateProcedureUploadDialog from '../create/form/create-procedure-upload-dialog'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config.ts'
 
@@ -102,17 +103,27 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 content={(close) => (
                   <>
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                      <BulkCSVCreateProcedureDialog
+                      <CreateProcedureUploadDialog
                         trigger={
-                          <div className="flex items-center space-x-2 ">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>
                         }
                       />
                     )}
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                      <BulkCSVCreateProcedureDialog
+                        trigger={
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
+                            <Import size={16} strokeWidth={2} />
+                            <span>Bulk upload</span>
+                          </div>
+                        }
+                      />
+                    )}
                     <div
-                      className={`flex items-center space-x-2  cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()

@@ -12,8 +12,8 @@ export const CREATE_EVIDENCE = gql`
 `
 
 export const GET_EVIDENCE_FILES = gql`
-  query GetEvidenceFiles($first: Int, $last: Int, $before: Cursor, $after: Cursor) {
-    files(first: $first, last: $last, before: $before, after: $after) {
+  query GetEvidenceFiles($where: FileWhereInput, $first: Int, $last: Int, $before: Cursor, $after: Cursor) {
+    files(where: $where, first: $first, last: $last, before: $before, after: $after) {
       pageInfo {
         endCursor
         hasNextPage

@@ -6,12 +6,20 @@ import { acceptedFileTypes, acceptedFileTypesShort } from './evidence-upload-con
 import { TUploadedFile } from './types/TUploadedFile'
 type TProps = {
   uploadedFile: (uploadedFile: TUploadedFile) => void
+  acceptedFileTypes?: string[]
+  acceptedFileTypesShort?: string[]
 }
 
 const UploadTab: React.FC<TProps> = (props: TProps) => {
   return (
     <TabsContent value="upload">
-      <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={props.uploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={100} multipleFiles={true} />
+      <FileUpload
+        acceptedFileTypes={props.acceptedFileTypes ?? acceptedFileTypes}
+        onFileUpload={props.uploadedFile}
+        acceptedFileTypesShort={props.acceptedFileTypesShort ?? acceptedFileTypesShort}
+        maxFileSizeInMb={100}
+        multipleFiles={true}
+      />
     </TabsContent>
   )
 }

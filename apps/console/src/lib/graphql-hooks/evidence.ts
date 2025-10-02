@@ -44,13 +44,13 @@ import {
   GetEvidenceFilesByIdQuery,
   GetEvidenceCountsByStatusAllProgramsQuery,
   EvidenceSuggestedActionsQuery,
+  FileWhereInput,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
 
 export function useCreateEvidence() {
   const { queryClient } = useGraphQLClient()
-
   return useMutation<CreateEvidenceMutation, unknown, CreateEvidenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_EVIDENCE, variables }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getEvidenceFiles'] }),
@@ -59,15 +59,17 @@ export function useCreateEvidence() {
 
 type TEvidenceFilesProps = {
   pagination?: TPagination
+  where?: FileWhereInput
 }
 
-export function useGetEvidenceFiles({ pagination }: TEvidenceFilesProps) {
+export function useGetEvidenceFiles({ where, pagination }: TEvidenceFilesProps) {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetEvidenceFilesQuery>({
-    queryKey: ['getEvidenceFiles', pagination?.page, pagination?.pageSize],
+    queryKey: ['getEvidenceFiles', where, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
       client.request<GetEvidenceFilesQuery>(GET_EVIDENCE_FILES, {
+        where,
         ...pagination?.query,
       }),
   })
