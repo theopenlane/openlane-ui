@@ -2,12 +2,12 @@ import { Archive, Circle, FilePenLine, RefreshCw, RouteOff, ScanEye, Stamp, Thum
 import { ControlControlStatus, ControlControlType, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
-  [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} />,
-  [ControlControlStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} />,
-  [ControlControlStatus.CHANGES_REQUESTED]: <RefreshCw height={16} width={16} />,
-  [ControlControlStatus.ARCHIVED]: <Archive height={16} width={16} />,
-  [ControlControlStatus.NOT_IMPLEMENTED]: <RouteOff height={16} width={16} />,
-  [ControlControlStatus.PREPARING]: <Circle height={16} width={16} />,
+  [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} className="text-control-approved" />,
+  [ControlControlStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-control-needs-approval" />,
+  [ControlControlStatus.CHANGES_REQUESTED]: <RefreshCw height={16} width={16} className="text-control-changes-requested" />,
+  [ControlControlStatus.ARCHIVED]: <Archive height={16} width={16} className="text-control-archived" />,
+  [ControlControlStatus.NOT_IMPLEMENTED]: <RouteOff height={16} width={16} className="text-control-not-implemented" />,
+  [ControlControlStatus.PREPARING]: <Circle height={16} width={16} className="text-control-preparing" />,
 }
 
 export const ControlIconMapper: Record<ControlControlStatus, React.ElementType> = {
