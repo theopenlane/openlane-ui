@@ -197,7 +197,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             </TabsTrigger>
           </TabsList>
           <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx', '.mdx']}
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx', '.mdx', '.md']}
             acceptedFileTypesShort={['TXT', 'MD', 'MDX']}
             uploadedFile={handleUploadedFile}
           />
