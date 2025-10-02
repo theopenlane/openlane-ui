@@ -69,9 +69,18 @@ const GroupsPage = () => {
     }
     const modifiedWhereFilters = { ...whereFilters }
 
-    if ('visibility' in modifiedWhereFilters) {
-      modifiedWhereFilters.hasSettingWith = [{ visibility: modifiedWhereFilters.visibility as GroupSettingVisibility }]
-      delete modifiedWhereFilters.visibility
+    if ('visibilityIn' in modifiedWhereFilters) {
+      modifiedWhereFilters.hasSettingWith = [{ visibilityIn: [modifiedWhereFilters.visibilityIn as GroupSettingVisibility] }]
+      delete modifiedWhereFilters.visibilityIn
+    } else if ('and' in modifiedWhereFilters && Array.isArray(modifiedWhereFilters.and)) {
+      modifiedWhereFilters.and = modifiedWhereFilters.and.map((cond: GroupWhereInput) => {
+        if ('visibilityIn' in cond) {
+          return {
+            hasSettingWith: [{ visibilityIn: cond.visibilityIn as GroupSettingVisibility[] }],
+          }
+        }
+        return cond
+      })
     }
 
     const conditions: GroupWhereInput = {
