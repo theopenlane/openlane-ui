@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useState } from 'react'
-import { CirclePlus, DownloadIcon, FileText, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
+import { DownloadIcon, FileText, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { RISKS_FILTER_FIELDS } from './table-config'
 import { FilterField } from '@/types'

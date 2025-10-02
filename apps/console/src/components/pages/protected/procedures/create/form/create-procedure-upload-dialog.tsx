@@ -49,7 +49,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
       await handleLinkUpload()
     }
 
-    setIsOpen(true)
+    setIsOpen(false)
   }
 
   const handleLinkUpload = async () => {

@@ -3,13 +3,23 @@ import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 
 export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode> = {
-  [EvidenceEvidenceStatus.APPROVED]: <Stamp height={16} width={16} />,
-  [EvidenceEvidenceStatus.REJECTED]: <ArchiveX height={16} width={16} />,
-  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: <RefreshCw height={16} width={16} />,
-  [EvidenceEvidenceStatus.READY]: <FileArchive height={16} width={16} />,
-  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: <FileSearch height={16} width={16} />,
-  [EvidenceEvidenceStatus.SUBMITTED]: <FileSearch height={16} width={16} />,
-  [EvidenceEvidenceStatus.IN_REVIEW]: <FileSearch height={16} width={16} />,
+  [EvidenceEvidenceStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
+  [EvidenceEvidenceStatus.REJECTED]: <ArchiveX height={16} width={16} className="text-rejected" />,
+  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: <RefreshCw height={16} width={16} className="text-needs-renewal" />,
+  [EvidenceEvidenceStatus.READY]: <FileArchive height={16} width={16} className="text-ready" />,
+  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: <FileSearch height={16} width={16} className="text-missing-artifact" />,
+  [EvidenceEvidenceStatus.SUBMITTED]: <FileSearch height={16} width={16} className="text-approved" />,
+  [EvidenceEvidenceStatus.IN_REVIEW]: <FileSearch height={16} width={16} className="text-missing-artifact" />,
+}
+
+export const EvidenceStatusMapper: Record<EvidenceEvidenceStatus, string> = {
+  [EvidenceEvidenceStatus.APPROVED]: 'Approved',
+  [EvidenceEvidenceStatus.REJECTED]: 'Rejected',
+  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: 'Needs renewal',
+  [EvidenceEvidenceStatus.READY]: 'Ready',
+  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: 'Missing artifact',
+  [EvidenceEvidenceStatus.SUBMITTED]: 'Submitted',
+  [EvidenceEvidenceStatus.IN_REVIEW]: 'In review',
 }
 
 export const ChartColorsSequence = ['#16A34A', '#15803D', '#CA8A04', '#EF4444', '#B91C1C', '#2563EB', '#D97706']
