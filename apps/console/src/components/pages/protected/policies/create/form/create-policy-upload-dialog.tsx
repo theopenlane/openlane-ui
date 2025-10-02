@@ -196,7 +196,11 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
               Direct Link
             </TabsTrigger>
           </TabsList>
-          <UploadTab acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx']} acceptedFileTypesShort={['TXT', 'MD', 'MDX']} uploadedFile={handleUploadedFile} />
+          <UploadTab
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx', '.mdx']}
+            acceptedFileTypesShort={['TXT', 'MD', 'MDX']}
+            uploadedFile={handleUploadedFile}
+          />
           <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} />
         </Tabs>
         {policyMdDocumentLinks.map((link, index) => (
