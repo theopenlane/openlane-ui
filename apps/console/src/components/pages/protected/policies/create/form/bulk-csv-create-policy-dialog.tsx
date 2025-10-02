@@ -71,7 +71,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
 
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import existing document</DialogTitle>
+          <DialogTitle>Bulk upload</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
           <Info className="mt-1" width={16} height={16} />

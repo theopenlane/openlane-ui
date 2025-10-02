@@ -14,6 +14,7 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -99,11 +100,21 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 content={(close) => (
                   <>
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                      <BulkCSVCreatePolicyDialog
+                      <CreatePolicyUploadDialog
                         trigger={
-                          <div className="flex items-center space-x-2 px-1">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
+                          </div>
+                        }
+                      />
+                    )}
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                      <BulkCSVCreatePolicyDialog
+                        trigger={
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
+                            <Import size={16} strokeWidth={2} />
+                            <span>Bulk upload</span>
                           </div>
                         }
                       />
