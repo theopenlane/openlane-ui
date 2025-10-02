@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { Evidence, EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
+import { Evidence, User } from '@repo/codegen/src/schema.ts'
 import React from 'react'
-import { EvidenceBadgeMapper } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceIconMapper, EvidenceStatusMapper } from '@/components/shared/enum-mapper/evidence-enum'
 import { Check, Minus } from 'lucide-react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
 import { formatDate } from '@/utils/date.ts'
@@ -73,11 +73,16 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ cell }) => {
-        return <div className="flex items-center space-x-2">{EvidenceBadgeMapper[cell.getValue() as EvidenceEvidenceStatus]}</div>
+      cell: ({ row }) => {
+        const status = row.original.status!
+        return (
+          <div className="flex items-center space-x-2">
+            {EvidenceIconMapper[status]}
+            <p>{EvidenceStatusMapper[status]}</p>
+          </div>
+        )
       },
-      minSize: 100,
-      size: 180,
+      size: 100,
     },
     {
       accessorKey: 'isAutomated',

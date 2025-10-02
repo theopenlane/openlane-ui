@@ -2,8 +2,7 @@ import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp } 
 
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
-import { RisksStatusMapper } from '@/components/pages/protected/risks/risks.ts'
+import { RiskIconMapper, RiskStatusMapper } from '@/components/shared/enum-mapper/risk-enum'
 import { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 
@@ -198,7 +197,7 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
     return (
       <div className="flex gap-2 items-center text-sm">
         {RiskIconMapper[status]}
-        {RisksStatusMapper[status]}
+        {RiskStatusMapper[status]}
       </div>
     )
   }

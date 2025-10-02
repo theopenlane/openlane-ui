@@ -3,11 +3,11 @@ import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/cod
 import { Badge } from '@repo/ui/badge'
 
 export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {
-  [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} className="text-document-approved" />,
-  [InternalPolicyDocumentStatus.DRAFT]: <FilePen height={16} width={16} className="text-document-draft" />,
-  [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-document-needs-approval" />,
-  [InternalPolicyDocumentStatus.PUBLISHED]: <FileCheck2 height={16} width={16} className="text-document-published" />,
-  [InternalPolicyDocumentStatus.ARCHIVED]: <Archive height={16} width={16} className="text-document-archived" />,
+  [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
+  [InternalPolicyDocumentStatus.DRAFT]: <FilePen height={16} width={16} className="text-draft" />,
+  [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-needs-approval" />,
+  [InternalPolicyDocumentStatus.PUBLISHED]: <FileCheck2 height={16} width={16} className="text-published" />,
+  [InternalPolicyDocumentStatus.ARCHIVED]: <Archive height={16} width={16} className="text-archived" />,
 }
 
 export const DocumentStatusMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {

@@ -49,7 +49,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
       await handleLinkUpload()
     }
 
-    setIsOpen(true)
+    setIsOpen(false)
   }
 
   const handleLinkUpload = async () => {

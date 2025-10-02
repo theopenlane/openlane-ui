@@ -281,28 +281,32 @@
   --color-logo-dark: #303e4a;
   --color-logo-light: #b4c1d5;
 
-  /* Task */
-  --color-task-in-review: #f97316;
-  --color-task-in-progress: #3b82f6;
-  --color-task-open: #8f46f5;
-  --color-task-completed: #22c55e;
-  --task-wont-do: #94a3b8;
-
-  /* Control */
-  --color-control-not-implemented: #8f46f5;
-  --color-control-preparing: #3b82f6;
-  --color-control-needs-approval: #f97316;
-  --color-control-changes-requested: #dc2626;
-  --color-control-approved: #22c55e;
-  --color-control-archived: #94a3b8;
-
-  /* Evidence */
-  --color-evidence-needs-renewal: #f97316;
-  --color-evidence-rejected: #dc2626;
-  --color-evidence-needs-approval: #f97316;
-  --color-evidence-missing-artifact: #f97316;
-  --color-evidence-approved: #22c55e;
-  --color-evidence-ready: #3b82f6;
+  /* Status colors */
+  --color-needs-renewal: #f97316;
+  --color-rejected: #dc2626;
+  --color-needs-approval: #f97316;
+  --color-missing-artifact: #f97316;
+  --color-approved: #22c55e;
+  --color-ready: #3b82f6;
+  --color-archived: #94a3b8;
+  --color-preparing: #3b82f6;
+  --color-not-implemented: #8f46f5;
+  --color-changes-requested: #dc2626;
+  --color-published: #22c55e;
+  --color-draft: #3b82f6;
+  --color-in-review: #f97316;
+  --color-in-progress: #3b82f6;
+  --color-open: #8f46f5;
+  --color-completed: #22c55e;
+  --color-wont-do: #94a3b8;
+  --color-action-required: #f97316;
+  --color-ready-for-auditor: #22c55e;
+  --color-not-started: #a855f7;
+  --color-ongoing: #f97316;
+  --color-mitigated: #22c55e;
+  --color-invitation-sent: #a855f7;
+  --color-invitation-accepted: #22c55e;
+  --color-invitation-expired: #94a3b8;
 
   /* Document Status */
   --color-document-draft: #3b82f6;

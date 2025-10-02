@@ -2,11 +2,19 @@ import { Archive, Circle, CirclePlay, Split, Timer } from 'lucide-react'
 import { RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 
 export const RiskIconMapper: Record<RiskRiskStatus, React.ReactNode> = {
-  [RiskRiskStatus.ARCHIVED]: <Archive height={16} width={16} />,
-  [RiskRiskStatus.MITIGATED]: <Split height={16} width={16} />,
-  [RiskRiskStatus.IN_PROGRESS]: <Timer height={16} width={16} />,
-  [RiskRiskStatus.OPEN]: <Circle height={16} width={16} />,
-  [RiskRiskStatus.ONGOING]: <CirclePlay height={16} width={16} />,
+  [RiskRiskStatus.ARCHIVED]: <Archive height={16} width={16} className="text-approved" />,
+  [RiskRiskStatus.MITIGATED]: <Split height={16} width={16} className="text-mitigated" />,
+  [RiskRiskStatus.IN_PROGRESS]: <Timer height={16} width={16} className="text-in-progress" />,
+  [RiskRiskStatus.OPEN]: <Circle height={16} width={16} className="text-open" />,
+  [RiskRiskStatus.ONGOING]: <CirclePlay height={16} width={16} className="text-ongoing" />,
+}
+
+export const RiskStatusMapper: Record<RiskRiskStatus, string> = {
+  [RiskRiskStatus.ARCHIVED]: 'Archived',
+  [RiskRiskStatus.MITIGATED]: 'Mitigated',
+  [RiskRiskStatus.IN_PROGRESS]: 'In progress',
+  [RiskRiskStatus.OPEN]: 'Open',
+  [RiskRiskStatus.ONGOING]: 'On going',
 }
 
 export const RiskLikelihoodOptions = Object.values(RiskRiskLikelihood).map((value) => ({

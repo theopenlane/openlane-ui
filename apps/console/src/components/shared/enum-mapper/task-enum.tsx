@@ -4,11 +4,19 @@ import React from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 
 export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
-  [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-task-completed" />,
-  [TaskTaskStatus.IN_PROGRESS]: <Timer height={16} width={16} className="text-task-in-progress" />,
-  [TaskTaskStatus.IN_REVIEW]: <ScanEye height={16} width={16} className="text-task-in-review" />,
-  [TaskTaskStatus.OPEN]: <Circle height={16} width={16} className="text-task-open" />,
-  [TaskTaskStatus.WONT_DO]: <CircleOff height={16} width={16} className="text-task-wont-do" />,
+  [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-completed" />,
+  [TaskTaskStatus.IN_PROGRESS]: <Timer height={16} width={16} className="text-in-progress" />,
+  [TaskTaskStatus.IN_REVIEW]: <ScanEye height={16} width={16} className="text-in-review" />,
+  [TaskTaskStatus.OPEN]: <Circle height={16} width={16} className="text-open" />,
+  [TaskTaskStatus.WONT_DO]: <CircleOff height={16} width={16} className="text-wont-do" />,
+}
+
+export const TaskStatusMapper: Record<TaskTaskStatus, string> = {
+  [TaskTaskStatus.COMPLETED]: 'Completed',
+  [TaskTaskStatus.IN_PROGRESS]: 'In progress',
+  [TaskTaskStatus.IN_REVIEW]: 'In review',
+  [TaskTaskStatus.OPEN]: 'Open',
+  [TaskTaskStatus.WONT_DO]: "Won't do",
 }
 
 // Status options for select dropdowns
