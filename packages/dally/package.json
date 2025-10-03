@@ -28,6 +28,6 @@
     "eslint": "^9.28.0",
     "react": "latest",
     "tsup": "latest",
-    "typescript": "5.8.3"
+    "typescript": "5.9.3"
   }
 }
