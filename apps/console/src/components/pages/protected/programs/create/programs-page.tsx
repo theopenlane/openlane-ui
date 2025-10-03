@@ -2,11 +2,11 @@
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
-import Soc2Illustration from './ilustrations/soc2-ilustration'
-import RiskAssessmentIllustration from './ilustrations/risk-assesment-ilustration'
-import FrameworkBasedIllustration from './ilustrations/framework-based-ilustration'
 import { FilePlus2, Wrench } from 'lucide-react'
 import Link from 'next/link'
+import Soc2Illustration from './ilustrations/soc2-illustration'
+import RiskAssessmentIllustration from './ilustrations/risk-assessment-illustration'
+import FrameworkBasedIllustration from './ilustrations/framework-based-illustration'
 
 const quickstartOptions = [
   {
