@@ -34,17 +34,19 @@ const customOptions = [
     title: 'Generic Program',
     description: 'Start with a blank program structure',
     icon: <FilePlus2 className="text-btn-secondary" size={20} />,
+    url: '/programs/create/generic-program',
   },
   {
     title: 'Advanced Setup',
     description: 'Manually configure everything from the ground up.',
     icon: <Wrench className="text-btn-secondary" size={20} />,
+    url: '/programs/create/advanced-setup',
   },
 ]
 
 export default function ProgramsCreate() {
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
+    <div className="max-w-6xl mx-auto px-6 py-2">
       <h1 className="text-2xl font-medium tracking-tight mb-6">Create New Program</h1>
       <Separator className="" separatorClass="bg-card" />
 
@@ -88,13 +90,15 @@ export default function ProgramsCreate() {
         <h2 className="mt-6 mb-3">Custom</h2>
         <div className="flex gap-6 flex-wrap max-w-[1092px]">
           {customOptions.map((option) => (
-            <Card key={option.title} className="flex flex-1 items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer">
-              <div className="flex items-center justify-center w-12 h-12 rounded-md bg-secondary border">{option.icon}</div>
-              <div>
-                <h3 className="font-medium">{option.title}</h3>
-                <p className="text-sm text-muted-foreground">{option.description}</p>
-              </div>
-            </Card>
+            <Link className="flex flex-1" key={option.title} href={option.url}>
+              <Card className="flex w-full items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer">
+                <div className="flex items-center justify-center w-12 h-12 rounded-md bg-secondary border">{option.icon}</div>
+                <div>
+                  <h3 className="font-medium">{option.title}</h3>
+                  <p className="text-sm text-muted-foreground">{option.description}</p>
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

@@ -4,7 +4,7 @@ import { Rocket, SearchCheck } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 
-export default function Step3() {
+export default function SOC2Step3() {
   const [selected, setSelected] = useState<'ready' | 'gap' | null>(null)
 
   return (

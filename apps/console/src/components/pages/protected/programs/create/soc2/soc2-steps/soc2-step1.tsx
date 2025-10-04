@@ -2,7 +2,7 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 
-export default function Step1() {
+export default function SOC2Step1() {
   return (
     <div className="space-y-6">
       <div>
