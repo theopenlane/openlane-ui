@@ -123,7 +123,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
       {infoItems.map((item) => (
         <AccordionItem key={item.label} value={item.label}>
           <AccordionTrigger asChild>
-            <button className="group flex items-center py-2 text-left gap-3">
+            <button className="group flex items-center py-2 bg-transparent text-left gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-base font-medium">{item.label}</span>
               </div>
