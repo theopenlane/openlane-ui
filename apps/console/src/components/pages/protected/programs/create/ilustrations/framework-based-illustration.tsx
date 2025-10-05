@@ -13,7 +13,7 @@ const FrameworkBasedIllustration = () => {
         </div>
         <div className="flex gap-3 h-full">
           <div className="flex-1 bg-border rounded-sm"></div>
-          <div className="flex-1 bg-border rounded-sm border border-btn-secondary shadow-primary"></div>
+          <div className="flex-1 bg-border rounded-sm border border-btn-secondary shadow-primary16"></div>
           <div className="flex-1 bg-border rounded-sm"></div>
           <div className="flex-1 bg-border rounded-sm"></div>
         </div>

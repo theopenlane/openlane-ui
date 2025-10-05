@@ -11,7 +11,7 @@ const Soc2Illustration = () => {
           <ShieldCheck size={16} className="text-btn-secondary" />
           <div className="h-3 w-3 bg-border rounded-full" />
         </div>
-        <div className=" mt-4  w-2/3 rounded-md border border-btn-secondary bg-transparent shadow-primary h-4.5" />
+        <div className=" mt-4  w-2/3 rounded-md border border-btn-secondary bg-transparent shadow-primary16 h-4.5" />
         <div className="mt-4 h-2 w-4/5 rounded-full bg-muted" />
         <div className="mt-2.5  h-2 w-3/5 rounded-full bg-border" />
       </Card>

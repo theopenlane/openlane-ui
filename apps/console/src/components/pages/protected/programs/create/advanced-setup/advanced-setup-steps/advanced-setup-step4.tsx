@@ -22,9 +22,9 @@ const AdvancedSetupStep4 = () => {
 
       {/* Tips card */}
       <div className="p-4 rounded-md border border-tip-border bg-tip-background">
-        <div className="flex gap-2 items-start mb-1">
-          <Lightbulb className="text-tip-text mt-0.5" size={18} />
-          <span className="text-sm font-medium text-tip-text">Tips</span>
+        <div className="flex gap-2 items-start mb-3">
+          <Lightbulb className="text-tip-text" size={18} />
+          <span className="text-sm text-tip-text">Tips</span>
         </div>
         <p className="text-sm text-tip-text">
           Admins have complete control to manage program data, while members can only edit their assigned sections. Groups with Edit Access can both read and write, whereas those with Read-Only Access
@@ -35,26 +35,26 @@ const AdvancedSetupStep4 = () => {
       {/* Form */}
       <div className="space-y-5">
         {/* Program Admins */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">Program Admins</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Program Admins</label>
           <MultipleSelector placeholder="Search users..." value={admins} onChange={(val) => setValue('programAdmins', val)} />
         </div>
 
         {/* Program Members */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">Program Members</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Program Members</label>
           <MultipleSelector placeholder="Search users..." value={members} onChange={(val) => setValue('programMembers', val)} />
         </div>
 
         {/* Groups with Edit Access */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">Groups with Edit Access</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Groups with Edit Access</label>
           <MultipleSelector placeholder="Search groups..." value={editGroups} onChange={(val) => setValue('editAccessGroups', val)} />
         </div>
 
         {/* Groups with Read Only Access */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">Groups with Read Only Access</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Groups with Read Only Access</label>
           <MultipleSelector placeholder="Search groups..." value={readOnlyGroups} onChange={(val) => setValue('readOnlyGroups', val)} />
         </div>
       </div>

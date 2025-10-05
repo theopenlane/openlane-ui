@@ -90,67 +90,67 @@ export default function AdvancedSetupWizard() {
           </div>
           {/* Right side — Your Program Summary */}
           <div className="space-y-3 w-[400px] shrink-0">
-            <h3 className="text-base font-medium">Your Program</h3>
+            <h3 className="text-base font-medium mb-6">Your Program</h3>
 
             <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-1">Basic Information</p>
-              <div className="text-xs text-muted-foreground space-y-0.5">
+              <p className="text-sm font-medium mb-3">Basic Information</p>
+              <div className="text-xs space-y-3">
                 <div className="flex justify-between">
-                  <span>Type</span>
-                  <span>{'Empty'}</span>
+                  <span className="text-sm text-muted-foreground">Type</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Program Name</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Program Name</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Start Date</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Start Date</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>End Date</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">End Date</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
               </div>
             </div>
 
             <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-1">Audit Information</p>
-              <div className="text-xs text-muted-foreground space-y-0.5">
+              <p className="text-sm font-medium mb-3">Audit Information</p>
+              <div className="text-xs space-y-3">
                 <div className="flex justify-between">
-                  <span>Audit Partner</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Audit Partner</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Audit Firm</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Audit Firm</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Audit Partner Email</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Audit Partner Email</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
               </div>
             </div>
 
             <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-1">Team</p>
-              <p className="text-xs text-muted-foreground">Add team members to this program</p>
+              <p className="text-sm font-medium mb-3">Team</p>
+              <p className="text-xs text-inverted-muted-foreground">Add team members to this program</p>
             </div>
 
             <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-1">Associate Existing Objects</p>
-              <div className="text-xs text-muted-foreground space-y-0.5">
+              <p className="text-sm font-medium mb-3">Associate Existing Objects</p>
+              <div className="text-xs space-y-3">
                 <div className="flex justify-between">
-                  <span>Associate Existing Risks</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Associate Existing Risks</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Associate Existing Policies</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Associate Existing Policies</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Audit Partner Email</span>
-                  <span>Empty</span>
+                  <span className="text-sm text-muted-foreground">Audit Partner Email</span>
+                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
                 </div>
               </div>
             </div>

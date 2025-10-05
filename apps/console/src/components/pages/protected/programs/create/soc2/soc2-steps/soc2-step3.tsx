@@ -31,7 +31,7 @@ export default function SOC2Step3() {
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                Jump straight into the audit process. This doesn’t mean everything is already in place — just that you’re preparing to begin the audit soon.
+                Jump straight into the audit process. This doesn&apos;t mean everything is already in place — just that you&apos;re preparing to begin the audit soon.
               </p>
             </div>
           </div>

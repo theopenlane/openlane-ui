@@ -33,8 +33,8 @@ export default function SOC2Step2() {
         <>
           <div className="space-y-6">
             <Card className="p-4 flex flex-col items-start gap-3 border-tip-border bg-tip-background">
-              <div className="flex gap-2 items-center">
-                <Lightbulb className="text-tip-text mt-0.5" size={20} />
+              <div className="flex gap-2 items-center mb-3">
+                <Lightbulb className="text-tip-text" size={20} />
                 <span className="text-sm text-tip-text">Tips</span>
               </div>
               <p className="text-sm text-tip-text">

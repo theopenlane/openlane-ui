@@ -14,18 +14,21 @@ const quickstartOptions = [
     description: "We'll set up a SOC 2 program for you in under 2 minutes.",
     details: ['Select core trust principles.', 'Choose templates or your own policies.', 'Invite your team now or later.'],
     illustration: <Soc2Illustration />,
+    url: '/programs/create/soc2',
   },
   {
     title: 'Risk Assessment',
     description: 'Easily create a risk register with built-in scoring & reporting.',
     details: ['Default risk scoring (likelihood × impact)', 'Standard risk categories', 'Sample controls pre-loaded'],
     illustration: <RiskAssessmentIllustration />,
+    url: '/programs/create/risk-asssesment',
   },
   {
     title: 'Framework Based',
     description: 'Choose the compliance standard and we’ll get you started.',
     details: ['Select from any existing compliance standard', 'Choose templates or bring your own policies', 'Invite your team now or later'],
     illustration: <FrameworkBasedIllustration />,
+    url: '/programs/create/framework-based',
   },
 ]
 
@@ -55,7 +58,7 @@ export default function ProgramsCreate() {
         <h2 className="mb-3 mt-4">Quickstart</h2>
         <div className="flex gap-6">
           {quickstartOptions.map((option) => (
-            <Link key={option.title} href={option.title === 'SOC 2' ? '/programs/create/soc2' : '#'}>
+            <Link key={option.title} href={option.url}>
               <Card className="rounded-xl overflow-hidden hover:border-primary transition cursor-pointer p-4 min-w-[300px] max-w-[348px]">
                 {/* Top area using HTML + CSS */}
                 {option.illustration}

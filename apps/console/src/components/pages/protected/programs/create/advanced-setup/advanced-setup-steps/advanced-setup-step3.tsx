@@ -22,9 +22,9 @@ const AdvancedSetupStep3 = () => {
 
       {/* Tips card */}
       <div className="p-4 rounded-md border border-tip-border bg-tip-background">
-        <div className="flex gap-2 items-start mb-1">
-          <Lightbulb className="text-tip-text mt-0.5" size={18} />
-          <span className="text-sm font-medium text-tip-text">Tips</span>
+        <div className="flex gap-2 items-start mb-3">
+          <Lightbulb className="text-tip-text" size={18} />
+          <span className="text-sm text-tip-text">Tips</span>
         </div>
         <p className="text-sm text-tip-text">
           A well-structured compliance program has the potential to completely transform your organization, enhancing its operational efficiency and fostering a culture of integrity and
@@ -35,22 +35,22 @@ const AdvancedSetupStep3 = () => {
       {/* Form */}
       <div className="space-y-4">
         {/* Audit Partner */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Audit Partner</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Audit Partner</label>
           <Input placeholder="Luke Dalton" {...register('auditPartner', { required: 'Audit Partner is required' })} />
           {errors.auditPartner && <span className="text-xs text-destructive">{String(errors.auditPartner.message)}</span>}
         </div>
 
         {/* Audit Firm */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Audit Firm</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Audit Firm</label>
           <Input placeholder="Exalt Studio" {...register('auditFirm', { required: 'Audit Firm is required' })} />
           {errors.auditFirm && <span className="text-xs text-destructive">{String(errors.auditFirm.message)}</span>}
         </div>
 
         {/* Audit Partner Email */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Audit Partner Email</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Audit Partner Email</label>
           <Input
             placeholder="Enter a contact email for the audit partner"
             type="email"

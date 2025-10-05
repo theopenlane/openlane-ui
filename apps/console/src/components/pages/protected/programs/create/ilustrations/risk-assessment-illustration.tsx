@@ -12,7 +12,7 @@ const RiskAssessmentIllustration = () => {
           <div className="h-3 w-3 bg-border rounded-full" />
         </div>
         <div className="flex items-center gap-2 mt-4">
-          <div className="rounded-full border border-btn-secondary bg-transparent shadow-primary h-5 w-5 flex items-center justify-center">
+          <div className="rounded-full border border-btn-secondary bg-transparent shadow-primary16 h-5 w-5 flex items-center justify-center">
             <Check size={12} className="text-btn-secondary" />
           </div>
           <div className="h-2 w-3/5 rounded-full bg-border" />
