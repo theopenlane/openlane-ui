@@ -1,22 +1,20 @@
 import React from 'react'
 import StepIndicator from '@/components/shared/step-indicator/step-indicator'
+import { Stepper, Step } from '@stepperize/react'
 
-interface StepHeader {
-  stepper: {
-    all: { id: string; label: string }[]
-    current: { id: string }
-  }
+interface StepHeaderProps<T extends Step[] = Step[]> {
+  stepper: Stepper<T>
   currentIndex: number
 }
 
-export const StepHeader: React.FC<StepHeader> = ({ stepper, currentIndex }) => {
+export function StepHeader<T extends Step[]>({ stepper, currentIndex }: StepHeaderProps<T>) {
   return (
     <div className="flex justify-between items-center mb-6">
-      <div className="flex items-center gap-5 ">
+      <div className="flex items-center gap-5">
         {stepper.all.map((s, index) => {
           const isActive = index === currentIndex
           return (
-            <div key={s.id} className="flex items-center">
+            <div key={s.id} onClick={() => stepper.goTo(s.id)} className="flex items-center cursor-pointer">
               <StepIndicator active={isActive} />
             </div>
           )

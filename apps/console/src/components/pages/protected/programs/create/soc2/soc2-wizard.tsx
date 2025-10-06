@@ -6,12 +6,13 @@ import { Button } from '@repo/ui/button'
 
 import React, { useState } from 'react'
 import SOC2Step1 from './soc2-steps/soc2-step1'
-import SOC2Step2 from './soc2-steps/soc2-step2'
+import SOC2Step2, { programInviteSchema } from './soc2-steps/soc2-step2'
 import SOC2Step3 from './soc2-steps/soc2-step3'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
+import { ProgramProgramType } from '@repo/codegen/src/schema'
 
 export default function Soc2Wizard() {
   const [isLoading, setIsLoading] = useState(false)
@@ -20,16 +21,14 @@ export default function Soc2Wizard() {
   const step1Schema = z.object({
     // ovdje dodaj polja iz Step1
   })
-  const step2Schema = z.object({
-    // polja iz Step2
-  })
+
   const step3Schema = z.object({
-    // polja iz Step3
+    programType: z.nativeEnum(ProgramProgramType),
   })
 
   const { useStepper, steps } = defineStepper(
     { id: '0', label: 'Pick Categories', schema: step1Schema },
-    { id: '1', label: 'Team Setup', schema: step2Schema },
+    { id: '1', label: 'Team Setup', schema: programInviteSchema },
     { id: '2', label: 'Access Control', schema: step3Schema },
   )
   const stepper = useStepper()
@@ -41,6 +40,9 @@ export default function Soc2Wizard() {
 
   const handleNext = async () => {
     const isValid = await methods.trigger()
+    console.log('isValid:', isValid)
+    console.log('form values:', methods.getValues())
+    console.log('form errors:', methods.formState.errors)
     if (!isValid) return
     if (!stepper.isLast) {
       stepper.next()
