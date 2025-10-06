@@ -5,16 +5,21 @@ export const featureUtil = {
   notAvailableText: 'Not available in your current plan',
   notAvailableFullText: 'Forbidden. This feature is not available in your current subscription plan. Please upgrade your plan from your billing settings to access this feature.',
   baseModule: () => [
-    FeatureEnum.ASSETS,
-    FeatureEnum.CONTROL_REPORT,
-    FeatureEnum.CONTROLS,
     FeatureEnum.DASHBOARD,
-    FeatureEnum.ENTITIES,
-    FeatureEnum.EVIDENCE,
     FeatureEnum.GROUPS,
     FeatureEnum.ONBOARDING,
     FeatureEnum.ORGANIZATION,
     FeatureEnum.ORGANIZATION_SETTINGS,
+    FeatureEnum.SUBSCRIPTION,
+    FeatureEnum.TASKS,
+    FeatureEnum.USER_SETTINGS,
+  ],
+  complianceModule: () => [
+    ...featureUtil.baseModule(),
+    FeatureEnum.ASSETS,
+    FeatureEnum.CONTROLS,
+    FeatureEnum.ENTITIES,
+    FeatureEnum.EVIDENCE,
     FeatureEnum.POLICIES,
     FeatureEnum.PROCEDURES,
     FeatureEnum.PROGRAMS,
@@ -22,12 +27,8 @@ export const featureUtil = {
     FeatureEnum.REPORTING,
     FeatureEnum.RISKS,
     FeatureEnum.STANDARDS,
-    FeatureEnum.SUBSCRIPTION,
-    FeatureEnum.TASKS,
-    FeatureEnum.USER_SETTINGS,
   ],
   trustCenterModule: () => [...featureUtil.baseModule(), FeatureEnum.TRUST_CENTER],
-  complianceModule: () => [...featureUtil.baseModule()],
   entityManagementModule: () => [...featureUtil.baseModule()],
   vulnerabilityManagementModule: () => [...featureUtil.baseModule()],
   getPlanFeatures: (plan: PlanEnum) => {
@@ -56,6 +57,8 @@ export const featureUtil = {
         return 'Identify and track security vulnerabilities across your systems. Stay ahead of potential threats with continuous monitoring.'
       case PlanEnum.COMPLIANCE_MODULE:
         return 'Automate evidence collection and task tracking to simplify SOC 2, ISO 27001, and other certification workflows.'
+      default:
+        return 'This module offers in-depth security measures. Ready to dive deeper?'
     }
   },
   getPlanName: (plan: PlanEnum) => {
@@ -70,6 +73,8 @@ export const featureUtil = {
         return 'Vulnerability Management'
       case PlanEnum.COMPLIANCE_MODULE:
         return 'Compliance'
+      default:
+        return 'Base'
     }
   },
   planHasFeature: (plan: PlanEnum, feature: FeatureEnum) => {

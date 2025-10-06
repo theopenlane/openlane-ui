@@ -61,7 +61,7 @@ const ProgramsPage: React.FC = () => {
     }
     return {}
   }, [showAllPrograms])
-  const { data, isLoading, error } = useGetAllPrograms({
+  const { data, isLoading } = useGetAllPrograms({
     orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
     where,
   })
@@ -156,6 +156,7 @@ const ProgramsPage: React.FC = () => {
               <>
                 <p className="text-sm text-muted-foreground">Ready to get started?</p>
                 <ProgramCreate
+                  className="bg-unset"
                   trigger={
                     <div className="text-blue-500 flex items-center gap-1">
                       <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
