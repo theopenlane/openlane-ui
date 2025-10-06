@@ -49,7 +49,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   useEffect(() => {
     if (!openPanel) {
       const firstItem = navItems.filter((item): item is NavItem => 'title' in item).filter((item) => item?.children && item.children.length > 0)[0]
-      onToggleAction(firstItem.title.toLowerCase() as PanelKey)
+      onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
     }
   }, [navItems, onToggleAction, openPanel])
 
@@ -59,7 +59,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   }
 
   const handleToggle = (isActive: boolean, item: NavItem) => {
-    onToggleAction(isActive ? openPanel : (item.title.toLowerCase() as PanelKey))
+    onToggleAction(isActive ? openPanel : (item?.title?.toLowerCase() as PanelKey))
   }
 
   const findActiveNavItem = (items: (NavItem | Separator | NavHeading)[], pathname: string): NavItem | undefined => {
