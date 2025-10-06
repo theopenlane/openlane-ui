@@ -8,13 +8,14 @@ type THeadsUpDisplayProps = {
   displayIDs: string[]
   descriptionText: string
   accordionLabel: string
+  title?: string
 }
 
-const HeadsUpDisplay = ({ displayIDs, descriptionText, accordionLabel }: THeadsUpDisplayProps) => {
+const HeadsUpDisplay = ({ displayIDs, descriptionText, accordionLabel, title = 'Heads up!' }: THeadsUpDisplayProps) => {
   return (
     <Card className="p-4 flex gap-3 bg-note">
       <div>
-        <p className="font-semibold">Heads up!</p>
+        <p className="font-semibold">{title}</p>
         <p className="text-sm ">{descriptionText}</p>
         <div className="w-3/5 pt-3">
           <Accordion type="single" collapsible className="w-full">

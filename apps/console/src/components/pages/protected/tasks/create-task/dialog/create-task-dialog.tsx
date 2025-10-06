@@ -13,9 +13,10 @@ interface Props {
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
   trigger?: React.ReactElement
+  className?: string
 }
 
-const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, trigger }: Props) => {
+const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, trigger, className }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleSuccess = () => {
@@ -25,11 +26,13 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger>{trigger}</DialogTrigger>
+        <DialogTrigger className={className ?? ''} asChild>
+          {trigger}
+        </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
-            Create Task
+          <Button className={className ?? 'h-8 !px-2'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
+            Create
           </Button>
         </DialogTrigger>
       )}

@@ -9,6 +9,7 @@ import {
   CREATE_CSV_BULK_PROCEDURE,
   GET_TABLE_PROCEDURES,
   BULK_EDIT_PROCEDURE,
+  CREATE_UPLOAD_PROCEDURE,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -28,6 +29,8 @@ import {
   GetProceduresTableListQuery,
   UpdateBulkProcedureMutation,
   UpdateBulkProcedureMutationVariables,
+  CreateUploadProcedureMutation,
+  CreateUploadProcedureMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -141,6 +144,17 @@ export const useCreateBulkCSVProcedure = () => {
 
   return useMutation<CreateBulkCsvProcedureMutation, unknown, CreateBulkCsvProcedureMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_PROCEDURE, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+    },
+  })
+}
+
+export const useCreateUploadProcedure = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateUploadProcedureMutation, unknown, CreateUploadProcedureMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_UPLOAD_PROCEDURE, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
     },

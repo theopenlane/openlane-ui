@@ -12,7 +12,7 @@ const AssociatedObjectsAccordion: React.FC = () => {
 
   const SectionTrigger = ({ label, count }: { label: string; count: number }) => (
     <AccordionTrigger asChild>
-      <button className="group flex items-center py-2 text-left gap-3 w-full">
+      <button className="group flex items-center py-2 text-left gap-3 w-full bg-unset">
         <div className="flex items-center gap-2">
           <ChevronDown className="h-4 w-4 text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
           <span className="text-base font-medium">{label}</span>
@@ -34,7 +34,7 @@ const AssociatedObjectsAccordion: React.FC = () => {
                 <div className="flex gap-[5px]">
                   {refCodes!.map((refCode, index) => (
                     <Fragment key={`${refCode}-${index}`}>
-                      <Badge className="bg-background-secondary mr-1" variant="outline">
+                      <Badge className="bg-secondary mr-1" variant="outline">
                         {refCode}
                       </Badge>
                     </Fragment>

@@ -297,7 +297,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
 
         <GridRow columns={1}>
           <GridCell>
-            <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
+            <Button className="btn-secondary" onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
               {isSubmitting ? 'Submitting...' : 'Create task'}
             </Button>
           </GridCell>

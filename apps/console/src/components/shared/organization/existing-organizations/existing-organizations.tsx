@@ -3,7 +3,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { existingOrganizationsStyles } from './existing-organizations.styles'
 import { Button } from '@repo/ui/button'
 import { Tag } from '@repo/ui/tag'
-import { switchOrganization } from '@/lib/user'
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
@@ -46,6 +46,10 @@ export const ExistingOrganizations = () => {
         target_organization_id: orgId,
       })
 
+      if (handleSSORedirect(response)) {
+        return
+      }
+
       if (sessionData && response) {
         await updateSession({
           ...response.session,
@@ -80,6 +84,10 @@ export const ExistingOrganizations = () => {
         const response = await switchOrganization({
           target_organization_id: nextOrg,
         })
+
+        if (handleSSORedirect(response)) {
+          return
+        }
 
         if (sessionData && response) {
           await updateSession({

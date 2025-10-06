@@ -15,7 +15,7 @@ import { z } from 'zod'
 import { InfoIcon } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useCreateOrganization } from '@/lib/graphql-hooks/organization'
-import { switchOrganization } from '@/lib/user'
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useQueryClient } from '@tanstack/react-query'
 import { ClientError } from 'graphql-request'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -67,6 +67,11 @@ export const CreateOrganizationForm = () => {
         const switchResponse = await switchOrganization({
           target_organization_id: response.data.createOrganization.organization.id,
         })
+
+        if (handleSSORedirect(switchResponse)) {
+          return
+        }
+
         if (switchResponse) {
           await update({
             ...switchResponse.session,

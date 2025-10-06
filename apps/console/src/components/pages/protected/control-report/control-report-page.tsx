@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Settings2 } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, Settings2, SquarePlus } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -17,15 +17,22 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 import { useRouter } from 'next/navigation'
-import { CreateButton } from '@/components/shared/create-button/create-button'
 
 import { useSession } from 'next-auth/react'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import Loading from '@/app/(protected)/control-report/loading'
+import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
+import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
-const ControlReportPage = () => {
+type TControlReportPageProps = {
+  active: 'report' | 'controls'
+  setActive: (tab: 'report' | 'controls') => void
+}
+
+const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
@@ -90,36 +97,21 @@ const ControlReportPage = () => {
 
   const handleRedirectWithFilter = (status: ControlControlStatus) => {
     if (!referenceFramework) return
-    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'Custom'
-    const advancedFilters = [
-      {
-        field: 'standard',
-        value: standardId,
-        type: 'selectIs',
-        operator: 'EQ',
-        label: 'Standard',
-      },
-      {
-        field: 'status',
-        value: status,
-        type: 'select',
-        operator: 'EQ',
-        label: 'Status',
-      },
-    ]
+    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'CUSTOM'
 
-    const searchParams = new URLSearchParams({
-      filterActive: '1',
-      advancedFilters: JSON.stringify(advancedFilters),
-    })
+    const filters: TFilterState = {
+      standard: [standardId],
+      status: [status],
+    }
 
-    router.push(`/controls?${searchParams.toString()}`)
+    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    setActive('controls')
   }
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Control Report', href: '/control-report' },
+      { label: 'Controls', href: '/controls' },
     ])
   }, [setCrumbs])
 
@@ -135,17 +127,19 @@ const ControlReportPage = () => {
       setReferenceFramework(first || 'Custom')
     }
   }, [standardOptions, isSuccessStandards])
+
   if (isLoading || !data) {
-    return <Loading />
+    return <ControlReportPageSkeleton />
   }
 
   return (
-    <TooltipProvider>
+    <div>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="text-3xl tracking-[-0.056rem] text-header">All Controls</h1>
+          <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
+          <TabSwitcher active={active} setActive={setActive} />
           <Select onValueChange={setReferenceFramework} value={referenceFramework}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-48 h-7.5">
               <SelectValue placeholder="Select Framework" />
             </SelectTrigger>
             <SelectContent>
@@ -157,7 +151,7 @@ const ControlReportPage = () => {
               <SelectItem value="Custom">Custom</SelectItem>
             </SelectContent>
           </Select>
-          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+          <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
@@ -165,15 +159,18 @@ const ControlReportPage = () => {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          {createAllowed && <CreateButton type="control" leftIconSize={18} href="/controls/create-control" />}
-          <Link href={'/controls'}>
-            <Button className="h-8 p-2">View All Controls</Button>
-          </Link>
+          {createAllowed && (
+            <Link href="/controls/create-control" aria-label="Create Control">
+              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                Create
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
       <div className="space-y-2">
         {isLoading || isFetching ? (
-          <Loading />
+          <ControlReportPageSkeleton />
         ) : !data || data.length === 0 ? (
           <>
             <div className="flex flex-col items-center justify-center mt-16 gap-6">
@@ -223,7 +220,7 @@ const ControlReportPage = () => {
               return (
                 <AccordionItem className="mt-4" key={category} value={category}>
                   <div className="flex justify-between items-center">
-                    <AccordionTrigger asChild>
+                    <AccordionTrigger asChild className="bg-unset">
                       <button className="size-fit group flex items-center gap-2">
                         <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
                         <span className="text-xl">{category}</span>
@@ -245,19 +242,21 @@ const ControlReportPage = () => {
                           <div key={status} className={`flex gap-4 ${!isLast ? 'border-b pb-4' : 'pb-0'}`}>
                             <div className="flex gap-2 flex-col min-w-48">
                               <div className="flex items-center gap-2 text-sm">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="flex items-center gap-2 cursor-help">
-                                      <Icon className="w-4 h-4" />
-                                      <span>{ControlStatusLabels[status]}</span>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>{ControlStatusTooltips[status]}</TooltipContent>
-                                </Tooltip>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-2 cursor-help">
+                                        <Icon className="w-4 h-4" />
+                                        <span>{ControlStatusLabels[status]}</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>{ControlStatusTooltips[status]}</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                               <div className="text-xs">
                                 <span>Total:&nbsp;</span>
-                                <span onClick={() => handleRedirectWithFilter(status)} className="text-brand cursor-pointer">
+                                <span onClick={() => handleRedirectWithFilter(status)} className="text-primary cursor-pointer">
                                   {controlsForStatus.length} controls
                                 </span>
                               </div>
@@ -278,7 +277,7 @@ const ControlReportPage = () => {
           </Accordion>
         )}
       </div>
-    </TooltipProvider>
+    </div>
   )
 }
 

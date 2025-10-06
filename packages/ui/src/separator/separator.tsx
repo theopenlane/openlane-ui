@@ -5,11 +5,11 @@ import { cn } from '../../lib/utils'
 export interface SeparatorProps extends SeparatorVariants, HTMLAttributes<HTMLDivElement> {
   label?: string
   login?: boolean
+  separatorClass?: string
 }
 
-export const Separator = ({ label, programStep, full, className, login, ...rest }: SeparatorProps) => {
-  // Apply variants to the styles
-  const { base, line, text } = separatorStyles({ programStep, full, login })
+export const Separator = ({ label, programStep, full, className, login, separatorClass, ...rest }: SeparatorProps) => {
+  const { base, vertical, line, text } = separatorStyles({ programStep, full, login })
 
   if (label) {
     return (
@@ -23,7 +23,7 @@ export const Separator = ({ label, programStep, full, className, login, ...rest 
 
   return (
     <div className={cn(base(), className)} {...rest}>
-      <div className={line()}></div>
+      <div className={cn(vertical(), className, separatorClass)}></div>
     </div>
   )
 }

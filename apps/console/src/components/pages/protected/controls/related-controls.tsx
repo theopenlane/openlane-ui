@@ -40,7 +40,16 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
   // we cannot use the control ID because this is unique to the control and not the refCode for the control within the organization
   const withFilter = { refCode: refCode, referenceFramework: sourceFramework }
   const suggestedControlWhere = {
-    and: [{ source: MappedControlMappingSource.SUGGESTED }, subcontrolId ? { hasFromSubcontrolsWith: [withFilter] } : { hasFromControlsWith: [withFilter] }],
+    and: [
+      { source: MappedControlMappingSource.SUGGESTED },
+      subcontrolId
+        ? {
+            or: [{ hasFromSubcontrolsWith: [withFilter] }, { hasToSubcontrolsWith: [withFilter] }],
+          }
+        : {
+            or: [{ hasFromControlsWith: [withFilter] }, { hasToControlsWith: [withFilter] }],
+          },
+    ],
   }
   const where = subcontrolId
     ? {

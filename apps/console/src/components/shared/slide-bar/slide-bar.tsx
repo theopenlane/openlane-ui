@@ -76,11 +76,12 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
         />
       </div>
       <div
-        className="fixed right-0  bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-background"
+        className="fixed right-0 mt-[4px] mb-[8px] rounded-md bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-secondary"
         style={{
           top: bannerText ? '6rem' : '4rem',
           width: open ? `${width}px` : 0,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
+          marginRight: open ? '8px' : '0',
         }}
       >
         {sidebarTitle ? (

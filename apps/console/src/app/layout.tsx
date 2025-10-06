@@ -2,10 +2,10 @@ import { outfit, mincho, jetBrainsMono } from '../fonts'
 import { SessionProvider } from 'next-auth/react'
 import { Toaster } from '@repo/ui/toaster'
 import Providers from './providers'
-import './globals.css'
 import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
 import type { Metadata } from 'next'
+import '@repo/ui/styles.css'
 
 const imageWidth = '1200'
 const imageHeight = '628'
@@ -42,7 +42,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>
         {recaptchaSiteKey && <Script src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`} strategy="lazyOnload" />}
-        <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
         {pirschAnalyticsKey && <script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey}></script>}
         <Script src={`https://plug-platform.devrev.ai/static/plug.js`} typeof="text/javascript"></Script>
       </head>

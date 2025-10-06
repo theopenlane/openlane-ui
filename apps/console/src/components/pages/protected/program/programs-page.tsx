@@ -213,8 +213,13 @@ const ProgramsPage: React.FC = () => {
                 trigger={CreateBtn}
                 content={
                   <>
-                    <ProgramCreate trigger={ProgramCreateIconBtn} />
-                    <CreateTaskDialog initialData={initialData} objectAssociationsDisplayIDs={basicInfoData?.program.displayID ? [basicInfoData?.program.displayID] : []} trigger={TaskIconBtn} />
+                    <ProgramCreate trigger={ProgramCreateIconBtn} className="bg-transparent px-1" />
+                    <CreateTaskDialog
+                      className="bg-transparent px-1"
+                      initialData={initialData}
+                      objectAssociationsDisplayIDs={basicInfoData?.program.displayID ? [basicInfoData?.program.displayID] : []}
+                      trigger={TaskIconBtn}
+                    />
                   </>
                 }
               />

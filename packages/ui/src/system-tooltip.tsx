@@ -5,14 +5,17 @@ type TProps = {
   icon: React.ReactNode
   content: React.ReactNode | string
   disableHoverableContent?: boolean
+  side?: 'bottom' | 'top' | 'right' | 'left' | undefined
 }
 
 const SystemTooltip: React.FC<TProps> = (props: TProps) => {
   return (
     <TooltipProvider disableHoverableContent={props.disableHoverableContent === undefined ? true : props.disableHoverableContent}>
       <Tooltip>
-        <TooltipTrigger type="button">{props.icon}</TooltipTrigger>
-        <TooltipContent className="max-w-xs whitespace-normal break-words" align="start" side="bottom">
+        <TooltipTrigger type="button" asChild className="bg-unset">
+          {props.icon}
+        </TooltipTrigger>
+        <TooltipContent className="max-w-xs whitespace-normal break-words" align="start" side={props.side || 'bottom'}>
           {typeof props.content === 'string' ? <p>{props.content}</p> : props.content}
         </TooltipContent>
       </Tooltip>

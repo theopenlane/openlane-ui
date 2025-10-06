@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
 import { ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
@@ -40,7 +40,20 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
 
-  const creator = new SurveyCreator(creatorOptions)
+  const creatorRef = useRef<SurveyCreator>(new SurveyCreator(creatorOptions))
+
+  if (!creatorRef.current) {
+    creatorRef.current = new SurveyCreator(creatorOptions)
+    creatorRef.current.toolbox.forceCompact = false
+
+    const themeTabPlugin = creatorRef.current.themeEditor
+    if (lightTheme.themeName) enLocale.theme.names[lightTheme.themeName] = customThemeName
+    if (darkTheme.themeName) enLocale.theme.names[darkTheme.themeName] = customThemeName
+    themeTabPlugin.addTheme(lightTheme, true)
+    themeTabPlugin.addTheme(darkTheme as ITheme, true)
+  }
+
+  const creator = creatorRef.current
   const themeTabPlugin = creator.themeEditor
   creator.toolbox.forceCompact = false
 
@@ -76,9 +89,11 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
 
   const { data: templateResult } = useGetTemplate(input.existingId || input.templateId)
 
-  if (templateResult) {
-    creator.JSON = templateResult.template.jsonconfig
-  }
+  useEffect(() => {
+    if (templateResult?.template?.jsonconfig) {
+      creator.JSON = templateResult.template.jsonconfig
+    }
+  }, [templateResult, creator])
 
   const { mutateAsync: createTemplateData } = useCreateTemplate()
   const { mutateAsync: updateTemplateData } = useUpdateTemplate()
@@ -132,7 +147,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   }
 
   return (
-    <Panel className="flex h-full bg-panel-bg border-oxford-blue-100 dark:border-oxford-blue-900 p-0">
+    <Panel className="flex h-full bg-card border-oxford-blue-100 dark:border-oxford-blue-900 p-0">
       <SurveyCreatorComponent creator={creator} />
     </Panel>
   )

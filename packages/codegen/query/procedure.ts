@@ -276,3 +276,14 @@ export const CREATE_CSV_BULK_PROCEDURE = gql`
     }
   }
 `
+
+export const CREATE_UPLOAD_PROCEDURE = gql`
+  mutation CreateUploadProcedure($procedureFile: Upload!) {
+    createUploadProcedure(procedureFile: $procedureFile) {
+      procedure {
+        fileID
+        id
+      }
+    }
+  }
+`

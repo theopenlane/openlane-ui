@@ -1,12 +1,13 @@
 import { Archive, FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { Badge } from '@repo/ui/badge'
 
 export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {
-  [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} />,
-  [InternalPolicyDocumentStatus.DRAFT]: <FilePen height={16} width={16} />,
-  [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} />,
-  [InternalPolicyDocumentStatus.PUBLISHED]: <FileCheck2 height={16} width={16} />,
-  [InternalPolicyDocumentStatus.ARCHIVED]: <Archive height={16} width={16} />,
+  [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
+  [InternalPolicyDocumentStatus.DRAFT]: <FilePen height={16} width={16} className="text-draft" />,
+  [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-needs-approval" />,
+  [InternalPolicyDocumentStatus.PUBLISHED]: <FileCheck2 height={16} width={16} className="text-published" />,
+  [InternalPolicyDocumentStatus.ARCHIVED]: <Archive height={16} width={16} className="text-archived" />,
 }
 
 export const DocumentStatusMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
@@ -15,6 +16,22 @@ export const DocumentStatusMapper: Record<InternalPolicyDocumentStatus | Procedu
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'Needs Approval',
   [InternalPolicyDocumentStatus.PUBLISHED]: 'Published',
   [InternalPolicyDocumentStatus.ARCHIVED]: 'Archived',
+}
+
+const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
+  [InternalPolicyDocumentStatus.DRAFT]: 'text-document-draft bg-document-draft-muted border-document-draft-border',
+  [InternalPolicyDocumentStatus.APPROVED]: 'text-document-approved bg-document-approved-muted border-document-approved-border',
+  [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'text-document-needs-approval bg-document-needs-approval-muted border-document-needs-approval-border',
+  [InternalPolicyDocumentStatus.PUBLISHED]: 'text-document-published bg-document-published-muted border-document-published-border',
+  [InternalPolicyDocumentStatus.ARCHIVED]: 'text-document-archived bg-document-archived-muted border-document-archived-border',
+}
+
+export function DocumentStatusBadge({ status }: { status: InternalPolicyDocumentStatus | ProcedureDocumentStatus }) {
+  return (
+    <Badge variant="outline" className={`flex items-center text-center gap-2 ${DocumentStatusColorMapper[status]}`}>
+      {DocumentStatusMapper[status]}
+    </Badge>
+  )
 }
 
 export const DocumentStatusTooltips: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {

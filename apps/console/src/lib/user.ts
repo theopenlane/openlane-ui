@@ -195,6 +195,18 @@ export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
   }
 }
 
+// this handles SSO redirect if required by the response
+//
+// The response from switchOrganization or similar auth functions
+export function handleSSORedirect(response: { needs_sso?: boolean; redirect_uri?: string }): boolean {
+  if (response?.needs_sso && response?.redirect_uri) {
+    window.location.href = response.redirect_uri
+    return true
+  }
+
+  return false
+}
+
 export async function switchOrganization<T>(arg: SwitchOrganization) {
   const fData: HttpResponse<T> = await fetch('/api/auth/switch-organization', {
     method: 'POST',

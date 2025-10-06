@@ -1,6 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { StretchVertical } from 'lucide-react'
+import { Columns3 } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { VisibilityState } from '@tanstack/react-table'
 
@@ -17,7 +17,7 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button icon={<StretchVertical size={16} />} iconPosition="left" variant="outline" size="md" className="size-fit py-1.5 px-2">
+        <Button icon={<Columns3 size={16} />} iconPosition="left" variant="outline" size="md" className="size-fit py-1.5 px-2">
           Column
         </Button>
       </DropdownMenuTrigger>

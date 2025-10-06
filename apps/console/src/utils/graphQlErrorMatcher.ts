@@ -1,4 +1,5 @@
 import { errorCodeMessages, GraphQlResponseError } from '@/constants/graphQlResponseError'
+import { ClientError } from 'graphql-request'
 
 export interface GraphQLErrorExtension {
   code: GraphQlResponseError
@@ -56,6 +57,11 @@ const parseError = (error: unknown): TParseError | undefined => {
 
 export const parseErrorMessage = (error: unknown): string => {
   const unknownMessage = 'Something went wrong. Please try again.'
+  if (error instanceof ClientError) {
+    const message = error.response.errors?.[0]?.message
+    if (message) return message
+  }
+
   const parsed = parseError(error)
 
   if (parsed) {
@@ -78,4 +84,10 @@ export const hasModuleError = (error: unknown): boolean => {
 
   const { code } = parsed
   return code === 'MODULE_NO_ACCESS'
+  if (error instanceof ClientError) {
+    const message = error.response.errors?.[0]?.message
+    if (message) return message
+  }
+
+  return 'Something went wrong. Please try again.'
 }

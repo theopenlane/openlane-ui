@@ -15,7 +15,7 @@ const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpe
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         header={
           <SheetHeader>
             <SheetTitle className="self-start">Mapped relationships</SheetTitle>

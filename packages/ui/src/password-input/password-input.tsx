@@ -15,7 +15,7 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...
       <Input type={showPassword ? 'text' : 'password'} className={cn('hide-password-toggle pr-10', className)} ref={ref} {...props} />
       <button
         type="button"
-        className="absolute z-20 right-0 top-0 h-full px-3 py-2 "
+        className="absolute z-20 right-0 top-0 h-full px-3 py-2 bg-unset"
         onClick={() => {
           setShowPassword((prev) => !prev)
         }}

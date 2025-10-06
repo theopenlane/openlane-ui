@@ -16,8 +16,8 @@ import TitleField from '@/components/pages/protected/controls/form-fields/title-
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
-import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
-import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import Menu from '@/components/shared/menu/menu'
@@ -254,13 +254,13 @@ const ControlDetailsPage: React.FC = () => {
             content={
               <>
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
-                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2  cursor-pointer">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Implementation</span>
                   </div>
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
-                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2  cursor-pointer">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Objective</span>
                   </div>
@@ -294,7 +294,7 @@ const ControlDetailsPage: React.FC = () => {
                 />
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
                   <Link href={`/controls/${id}/${subcontrolId}/map-control`}>
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <div className="flex items-center space-x-2 ">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Map Control</span>
                     </div>
@@ -348,11 +348,15 @@ const ControlDetailsPage: React.FC = () => {
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
+          controlID: subcontrol?.control.id,
+          subcontrolID: subcontrol?.id,
           displayID: subcontrol?.refCode,
-          tags: subcontrol.tags ?? [],
+          subcontrolRefCodes: [subcontrol?.refCode],
+          subcontrolReferenceFramework: {
+            [subcontrol?.id ?? 'default']: subcontrol?.referenceFramework ?? '',
+          },
           objectAssociations: {
-            controlIDs: [subcontrol?.id],
-            taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            subcontrolIDs: [subcontrol?.id],
             controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [

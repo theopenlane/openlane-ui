@@ -154,7 +154,7 @@ const ControlDetailsSheet = () => {
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         onOpenAutoFocus={(e) => e.preventDefault()}
         header={
           <SheetHeader>
@@ -203,8 +203,7 @@ const ControlDetailsSheet = () => {
                   <h3 className="font-semibold min-w-24 text-text-informational text-xs">{framework}</h3>
                   <div className="flex gap-2.5 flex-wrap">
                     {nodes.map((node) => {
-                      const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-                      return <RelatedControlChip key={node.id} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
+                      return <RelatedControlChip key={node.id} refCode={node.refCode} mappingType={node.mappingType} relation={node.relation} source={node.source} />
                     })}
                   </div>
                 </div>

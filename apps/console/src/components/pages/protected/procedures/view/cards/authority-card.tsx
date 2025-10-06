@@ -10,6 +10,7 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { Card } from '@repo/ui/cardpanel'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -19,9 +20,10 @@ type TAuthorityCardProps = {
   editAllowed: boolean
   handleUpdate?: (val: UpdateProcedureInput) => void
   inputClassName?: string
+  isCreate?: boolean
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approver, delegate, editAllowed, handleUpdate, inputClassName }) => {
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreate, approver, delegate, editAllowed, handleUpdate, inputClassName }) => {
   const [editingField, setEditingField] = useState<'approver' | 'delegate' | null>(null)
 
   const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
@@ -91,7 +93,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
             <Tooltip>
               <TooltipTrigger
                 type="button"
-                className={`min-w-[160px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                className={`min-w-[160px] bg-unset ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) {
                     setEditingField(editingKey)
@@ -111,11 +113,20 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
     )
   }
 
+  if (!isCreate) {
+    return (
+      <div className="flex flex-col gap-4 pb-4">
+        {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
+        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col gap-4 pb-4">
-      {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
-      {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
-    </div>
+    <Card className="p-4">
+      <div className="m-1">{renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}</div>
+      <div className="m-1">{renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}</div>
+    </Card>
   )
 }
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
+import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -9,11 +9,12 @@ import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -65,19 +66,13 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   return (
     <>
       <div className="relative flex items-center gap-2 my-2">
-        <div className="grow flex flex-row items-center gap-2">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
-          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} />}
-          <Input
-            icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.currentTarget.value)}
-            variant="searchTable"
-          />
-        </div>
+        <Input
+          icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.currentTarget.value)}
+          variant="searchTable"
+        />
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {isBulkEditing ? (
@@ -100,33 +95,32 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
             </>
           ) : (
             <>
-              {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                <Menu
-                  trigger={CreateBtn}
-                  content={
-                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Policy</span>
-                    </div>
-                  }
-                />
-              )}
               <Menu
                 closeOnSelect={true}
                 content={(close) => (
                   <>
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                      <BulkCSVCreatePolicyDialog
+                      <CreatePolicyUploadDialog
                         trigger={
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>
                         }
                       />
                     )}
-                    <div
-                      className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                      <BulkCSVCreatePolicyDialog
+                        trigger={
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
+                            <Import size={16} strokeWidth={2} />
+                            <span>Bulk upload</span>
+                          </div>
+                        }
+                      />
+                    )}
+                    <button
+                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()
@@ -134,15 +128,25 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </div>
+                    </button>
                   </>
                 )}
               />
+
+              {mappedColumns && columnVisibility && setColumnVisibility && (
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              )}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
+
+              {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                  Create
+                </Button>
+              )}
             </>
           )}
         </div>
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }

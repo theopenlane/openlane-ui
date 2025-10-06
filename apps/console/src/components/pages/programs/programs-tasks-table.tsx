@@ -11,11 +11,13 @@ import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput, User } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config'
+import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config.ts'
 import { useSearchParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 type FormattedTask = {
   id: string
@@ -113,22 +115,23 @@ const TasksTable = () => {
     }))
   }, [tasks])
 
-  const filters = [
-    {
-      field: 'hasProgramsWith',
-      value: programId,
-      type: 'selectIs',
-      operator: 'EQ',
-    },
-  ]
+  const handleClick = () => {
+    if (!programId) {
+      return
+    }
 
-  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+    const filters: TFilterState = {
+      hasProgramsWith: [programId],
+    }
+
+    saveFilters(TableFilterKeysEnum.TASK, filters)
+  }
 
   return (
-    <div className="p-6 bg-muted rounded-lg">
+    <div className="p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href={`/tasks?regularFilters=${encodedFilters}`}>
+        <Link href={`/tasks`} onClick={handleClick}>
           <Button icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>

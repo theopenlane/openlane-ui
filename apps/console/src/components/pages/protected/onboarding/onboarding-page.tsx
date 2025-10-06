@@ -14,7 +14,7 @@ import Step3, { step3Schema } from '@/components/pages/protected/onboarding/step
 import { useRef } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
-import { switchOrganization } from '@/lib/user'
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -83,6 +83,10 @@ export default function MultiStepForm() {
         const response = await switchOrganization({
           target_organization_id: orgId,
         })
+
+        if (handleSSORedirect(response)) {
+          return
+        }
 
         if (sessionData && response) {
           await updateSession({

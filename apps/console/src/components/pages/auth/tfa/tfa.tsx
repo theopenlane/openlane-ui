@@ -31,7 +31,7 @@ const TfaPage: React.FC = () => {
                   setOtpValue('')
                   setError('')
                 }}
-                className="text-sm underline cursor-pointer text-accent-secondary"
+                className="text-sm underline cursor-pointer text-primary"
               >
                 here
               </p>
@@ -50,7 +50,7 @@ const TfaPage: React.FC = () => {
                   setOtpValue('')
                   setError('')
                 }}
-                className="text-sm underline cursor-pointer text-accent-secondary"
+                className="text-sm underline cursor-pointer text-primary"
               >
                 here
               </p>
@@ -62,7 +62,7 @@ const TfaPage: React.FC = () => {
 
   const onVerified = async () => {
     if (!sessionData || !sessionData.user) {
-      errorNotification({ title: 'Session is not available', variant: 'destructive' })
+      errorNotification({ title: 'Session is not available', variant: 'error' })
       return
     }
 

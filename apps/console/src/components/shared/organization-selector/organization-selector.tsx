@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
 import { Button } from '@repo/ui/button'
-import { BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
+import { BriefcaseBusiness, Check, SearchIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { switchOrganization } from '@/lib/user'
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
@@ -31,7 +31,7 @@ export const OrganizationSelector = () => {
   const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
-  const { container, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
+  const { container, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
   const filteredOrgs = orgs
     .filter((org) => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
@@ -73,6 +73,10 @@ export const OrganizationSelector = () => {
     if (orgId && orgId !== currentOrgId) {
       const response = await switchOrganization({ target_organization_id: orgId })
 
+      if (handleSSORedirect(response)) {
+        return
+      }
+
       if (sessionData && response) {
         await updateSession({
           ...response.session,
@@ -100,12 +104,8 @@ export const OrganizationSelector = () => {
     <div className={container()}>
       <div>
         <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
-          <PopoverTrigger>
-            <div className={organizationDropdown()}>
-              <Avatar entity={currentOrg as Organization} />
-              <span>{currentOrg?.displayName}</span>
-              <ChevronsUpDown className="shrink-0" size={12} />
-            </div>
+          <PopoverTrigger className="bg-unset">
+            <Avatar entity={currentOrg as Organization} />
           </PopoverTrigger>
           <PopoverContent align="start" className={popoverContent()}>
             <div className={searchWrapper()}>

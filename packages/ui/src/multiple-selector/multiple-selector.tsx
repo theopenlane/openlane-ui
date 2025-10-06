@@ -146,7 +146,7 @@ const CommandEmpty = forwardRef<HTMLDivElement, React.ComponentProps<typeof Comm
 
   if (!render) return null
 
-  return <div ref={forwardedRef} className={cn('py-6 text-center text-sm rounded-md border bg-input-background shadow-md', className)} cmdk-empty="" role="presentation" {...props} />
+  return <div ref={forwardedRef} className={cn('py-6 text-center text-sm rounded-md border bg-input shadow-md', className)} cmdk-empty="" role="presentation" {...props} />
 })
 
 CommandEmpty.displayName = 'CommandEmpty'
@@ -410,7 +410,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       >
         <div
           className={cn(
-            'min-h-10 rounded-md border bg-input-background text-base md:text-sm px-3 py-2',
+            'min-h-10 rounded-md border bg-input text-base md:text-sm px-3 py-2',
             {
               'cursor-text': !disabled && selected.length !== 0,
             },
@@ -427,8 +427,8 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 <Badge
                   key={option.value}
                   className={cn(
-                    'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
-                    'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
+                    'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted-foreground data-[disabled]:text-muted-foreground',
+                    'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted-foreground data-[fixed]:text-muted-foreground',
                     badgeClassName,
                   )}
                   data-fixed={option.fixed}
@@ -436,7 +436,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 >
                   {option.label}
                   <button
-                    className={cn('ml-1 rounded-full outline-hidden ', (disabled || option.fixed) && 'hidden')}
+                    className={cn('ml-1 rounded-full outline-hidden bg-unset', (disabled || option.fixed) && 'hidden')}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         handleUnselect(option)
@@ -448,7 +448,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                     }}
                     onClick={() => handleUnselect(option)}
                   >
-                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                    <X className="h-3 w-3 text-input" />
                   </button>
                 </Badge>
               )
@@ -495,7 +495,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
               }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
-                'p-0 text-sm flex-1 bg-transparent outline-hidden placeholder:text-muted-foreground border-none',
+                'p-0 text-sm flex-1 bg-input outline-hidden placeholder:text-muted-foreground border-none',
                 {
                   'w-full': hidePlaceholderWhenSelected,
                   'ml-1': selected.length !== 0,
@@ -510,7 +510,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 setSelected(selected.filter((s) => s.fixed))
                 onChange?.(selected.filter((s) => s.fixed))
               }}
-              className={cn('absolute right-0 h-6 w-6 p-0', (hideClearAllButton || disabled || selected.length < 1 || selected.filter((s) => s.fixed).length === selected.length) && 'hidden')}
+              className={cn('absolute right-0 h-5 w-5 p-0 bg-unset', (hideClearAllButton || disabled || selected.length < 1 || selected.filter((s) => s.fixed).length === selected.length) && 'hidden')}
             >
               <X />
             </button>

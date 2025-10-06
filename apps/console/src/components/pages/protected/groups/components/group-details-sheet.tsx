@@ -156,7 +156,7 @@ const GroupDetailsSheet = () => {
   return (
     <Sheet open={!!selectedGroup} onOpenChange={handleSheetClose}>
       <SheetContent
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">

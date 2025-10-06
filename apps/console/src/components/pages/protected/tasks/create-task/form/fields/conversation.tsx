@@ -68,8 +68,8 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   useEffect(() => {
     if (taskData && userData && userData?.users?.edges?.length) {
       const comments = (taskData?.comments || [])?.edges?.map((item) => {
-        const user = userData.users!.edges!.find((user) => user!.node!.id === item?.node?.createdBy)?.node
-        const avatarUrl = user!.avatarFile?.presignedURL || user?.avatarRemoteURL
+        const user = userData?.users?.edges?.find((user) => user?.node?.id === item?.node?.createdBy)?.node
+        const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
         return {
           comment: item?.node?.text,
           avatarUrl,
@@ -91,7 +91,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
       <div className="flex justify-between items-end mb-2">
         <p className="text-lg">Conversation</p>
         <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
-          {commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-accent-secondary" />}
+          {commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-primary" />}
           <p className="text-sm">Newest at bottom</p>
         </div>
       </div>

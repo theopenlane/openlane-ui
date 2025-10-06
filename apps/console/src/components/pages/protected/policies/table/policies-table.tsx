@@ -11,7 +11,6 @@ import {
   InternalPolicyDocumentStatus,
   InternalPolicyOrderField,
   InternalPolicyWhereInput,
-  Maybe,
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
@@ -34,7 +33,6 @@ export const PoliciesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
-  const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: session } = useSession()
@@ -63,6 +61,20 @@ export const PoliciesTable = () => {
     return conditions
   }, [filters, debouncedSearch])
 
+  const orderByFilter = useMemo(() => {
+    return orderBy || undefined
+  }, [orderBy])
+
+  const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
+
+  const memberIds = useMemo(() => {
+    if (!policies || policies.length === 0) {
+      return []
+    }
+
+    return [...new Set(policies.map((item) => item.updatedBy).filter(Boolean))]
+  }, [policies])
+
   const userListWhere = useMemo(() => {
     if (!memberIds) {
       return {}
@@ -86,12 +98,6 @@ export const PoliciesTable = () => {
 
     return conditions
   }, [memberIds])
-
-  const orderByFilter = useMemo(() => {
-    return orderBy || undefined
-  }, [orderBy])
-
-  const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
@@ -151,18 +157,6 @@ export const PoliciesTable = () => {
       { label: 'Policies', href: '/policies' },
     ])
   }, [setCrumbs])
-
-  useEffect(() => {
-    if (!policies || policies.length === 0) {
-      return
-    }
-    if (memberIds && memberIds.length > 0) {
-      return
-    }
-
-    const userIds = [...new Set(policies.map((item) => item.updatedBy).filter(Boolean))]
-    setMemberIds(userIds)
-  }, [policies, memberIds])
 
   const handleBulkEdit = () => {
     setSelectedPolicies([])

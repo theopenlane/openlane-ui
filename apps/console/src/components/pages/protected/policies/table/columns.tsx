@@ -6,7 +6,7 @@ import { KeyRound } from 'lucide-react'
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { DocumentIconMapper, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
+import { DocumentIconMapper, DocumentStatusBadge, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 
 type TPoliciesColumnsProps = {
@@ -61,26 +61,20 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => (
-        <div>
+        <div className="flex items-center gap-2">
           <div className="font-bold">{cell.getValue() as string}</div>
-          <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-            {cell.row.original.status && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant={'outline'}>
-                      <span className="flex items-center gap-2">
-                        {DocumentIconMapper[cell.row.original.status]} {DocumentStatusMapper[cell.row.original.status]}
-                      </span>
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{DocumentStatusTooltips[cell.row.original.status]}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
+          {cell.row.original.status && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DocumentStatusBadge status={cell.row.original.status} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{DocumentStatusTooltips[cell.row.original.status]}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       ),
       minSize: 100,
@@ -171,11 +165,16 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'status',
       header: 'Status',
-      size: 120,
-      cell: ({ cell }) => {
-        const value = cell.getValue<string>()
-        return <span className="capitalize">{value ? value.split('_').join(' ').toLowerCase() : '-'}</span>
+      cell: ({ row }) => {
+        const status = row.original.status!
+        return (
+          <div className="flex items-center space-x-2">
+            {DocumentIconMapper[status]}
+            <p>{DocumentStatusMapper[status]}</p>
+          </div>
+        )
       },
+      size: 100,
     },
     {
       accessorKey: 'tags',

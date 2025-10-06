@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { Group, RiskFieldsFragment, UpdateRiskInput } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
 import { Stamp, CircleArrowRight } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
@@ -35,7 +34,17 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
 
   const handleSelect = (field: keyof EditRisksFormData, value: string) => {
     if (!isEditing && handleUpdate && risk) {
-      const currentValue = field === 'stakeholderID' ? risk.stakeholder?.id ?? null : field === 'delegateID' ? risk.delegate?.id ?? null : null
+      let currentValue: string | null
+      switch (field) {
+        case 'stakeholderID':
+          currentValue = risk.stakeholder?.id ?? null
+          break
+        case 'delegateID':
+          currentValue = risk.delegate?.id ?? null
+          break
+        default:
+          currentValue = null
+      }
       // only call handleUpdate if the value actually changed
       if (currentValue !== value) {
         handleUpdate({ [field]: value })
@@ -79,7 +88,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
             <Tooltip>
               <TooltipTrigger
                 type="button"
-                className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                 onDoubleClick={() => {
                   if (!isEditing && isEditAllowed) setEditingField(editingKey)
                 }}
@@ -98,13 +107,13 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
   }
 
   return (
-    <Card className="p-4 !mt-2">
-      <h3 className="text-lg font-medium mb-2">Authority</h3>
+    <div>
+      <h3 className="text-lg font-medium mb-2">Properties</h3>
       <div className="flex flex-col gap-4">
         {renderField('stakeholderID', 'Stakeholder', <Stamp size={16} className="text-brand" />, stakeholder as Group, 'stakeholder')}
         {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
       </div>
-    </Card>
+    </div>
   )
 }
 

@@ -8,19 +8,18 @@ import { OrgMembershipRole } from '@repo/codegen/src/schema.ts'
 import { useRouter } from 'next/navigation'
 import { SUPPORT_EMAIL } from '@/constants'
 import Link from 'next/link'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 const ProtectedArea: React.FC = () => {
   const router = useRouter()
-  const filters = [
-    {
-      field: 'role',
-      value: OrgMembershipRole.OWNER,
-      type: 'select',
-      operator: 'EQ',
-    },
-  ]
+  const handleClick = () => {
+    const filters: TFilterState = {
+      role: [OrgMembershipRole.OWNER],
+    }
 
-  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+    saveFilters(TableFilterKeysEnum.MEMBER, filters)
+  }
 
   return (
     <div className="flex m-[146px]">
@@ -33,7 +32,7 @@ const ProtectedArea: React.FC = () => {
         <p className="text-3xl font-semibold mb-3 leading-9">This page is part of a protected area, and it looks like your account doesn&apos;t have permission to enter right meow.</p>
         <p className="text-sm mb-6">
           If you think this is a mistake,{' '}
-          <Link href={`/organization-settings/members?regularFilters=${encodedFilters}`} className="underline">
+          <Link href={`/organization-settings/members`} className="underline" onClick={handleClick}>
             reach out to your org owner
           </Link>{' '}
           or{' '}

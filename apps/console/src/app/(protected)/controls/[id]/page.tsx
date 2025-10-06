@@ -21,8 +21,8 @@ import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
-import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
-import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
@@ -247,16 +247,16 @@ const ControlDetailsPage: React.FC = () => {
             content={
               <>
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
-                  <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <button onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 bg-transparent cursor-pointer px-1">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Implementation</span>
-                  </div>
+                  </button>
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
-                  <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <button onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 bg-transparent cursor-pointer px-1">
                     <CirclePlus size={16} strokeWidth={2} />
                     <span>Control Objective</span>
-                  </div>
+                  </button>
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
                   <CreateControlObjectiveSheet
@@ -276,14 +276,15 @@ const ControlDetailsPage: React.FC = () => {
                 )}
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) && (
                   <Link href={`/controls/${id}/create-subcontrol`}>
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <button className="flex items-center space-x-2 bg-transparent px-1">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Subcontrol</span>
-                    </div>
+                    </button>
                   </Link>
                 )}
                 <CreateTaskDialog
                   trigger={TaskIconBtn}
+                  className="px-1 bg-transparent"
                   defaultSelectedObject={ObjectTypeObjects.CONTROL}
                   initialData={{
                     programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
@@ -296,10 +297,10 @@ const ControlDetailsPage: React.FC = () => {
                 />
                 {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
                   <Link href={`/controls/${id}/map-control`}>
-                    <div className="flex items-center space-x-2 hover:bg-muted">
+                    <button className="flex items-center space-x-2 px-1 bg-transparent">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Map Control</span>
-                    </div>
+                    </button>
                   </Link>
                 )}
               </>
@@ -354,18 +355,19 @@ const ControlDetailsPage: React.FC = () => {
         canEdit={canEdit(permission?.roles)}
         control={{
           displayID: control?.refCode,
-          tags: control.tags ?? [],
+          controlID: control.id,
+          controlRefCodes: [control?.refCode],
+          referenceFramework: {
+            [control?.id ?? 'default']: control?.referenceFramework ?? '',
+          },
+          programDisplayIDs: (control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
           objectAssociations: {
             controlIDs: [control?.id],
             programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-            taskIDs: (control?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-            subcontrolIDs: (control?.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
             controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [
             ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...((control?.subcontrols?.edges?.map((e) => e?.node?.refCode).filter(Boolean) as string[]) ?? []),
             ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...(control.refCode ? [control.refCode] : []),
           ],

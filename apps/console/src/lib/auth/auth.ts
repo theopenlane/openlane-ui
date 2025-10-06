@@ -6,7 +6,7 @@ import { isDevelopment } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { getTokenFromOpenlaneAPI, OAuthUserRequest } from './utils/get-openlane-token'
+import { checkWebfinger, getTokenFromOpenlaneAPI, OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
@@ -68,6 +68,7 @@ export const config = {
       if ('error' in user && typeof user.error === 'string') {
         throw new InvalidLoginError(user.error)
       }
+
       const email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
@@ -77,8 +78,26 @@ export const config = {
         return '/waitlist'
       }
 
-      // If OAuth authentication
+      // if OAuth authentication or passkey
+      // we cannot use account?.type === 'credentials' as we already handle sso login differently on the
+      // UI by showing the user a button that takes them to the sso auth page
+      // else we will get into a non ending loop
+
+      const checkSSO = await checkWebfinger(email)
+
+      if (account?.provider === 'passkey' && checkSSO?.enforced) {
+        return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
+      }
+
       if (account?.type === 'oauth' || account?.type === 'oidc') {
+        // if the user clicked the oauth signin buttons or passkey button this will be set to true
+        // and if true, we need to check for sso enforcement
+        //
+        // This is also needed to rightfully know when a user is coming in via the login page
+        // else we will be stuck in an endless loop for all sso verifications/login
+        const cookieStore = await cookies()
+        const isDirectOAuth = cookieStore.has('direct_oauth')
+
         const oauthUser = {
           ...user,
           externalUserID: account.providerAccountId,
@@ -87,20 +106,32 @@ export const config = {
         }
 
         try {
-          const data = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
-          const dashboardData = await getDashboardData(data.access_token, data.session)
+          if (isDirectOAuth && checkSSO?.enforced) {
+            return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
+          }
 
-          if (!data) throw new Error(' ❌ Failed to fetch Openlane token')
+          const result = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
+
+          if (!result.success) {
+            return `/login?error=${encodeURIComponent(result.message)}`
+          }
+
+          const apiData = result.data
+
+          const dashboardData = await getDashboardData(apiData.access_token, apiData.session)
+
+          if (!apiData) throw new Error(' ❌ Failed to fetch Openlane token')
+
           Object.assign(user, {
-            accessToken: data.access_token,
-            refreshToken: data.refresh_token,
-            session: data.session,
-            isTfaEnabled: data.tfa_enabled,
-            isOnboarding: dashboardData?.organizations?.edges?.length == 1,
+            accessToken: apiData.access_token,
+            refreshToken: apiData.refresh_token,
+            session: apiData.session,
+            isTfaEnabled: apiData.tfa_enabled,
+            isOnboarding: dashboardData?.organizations?.edges?.length === 1,
           })
 
           // Store session in a cookie
-          setSessionCookie(data.session)
+          setSessionCookie(apiData.session)
         } catch (error) {
           console.error('❌ OAuth sign-in error:', error)
           return false

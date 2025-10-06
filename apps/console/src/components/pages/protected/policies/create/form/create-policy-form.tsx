@@ -243,9 +243,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
     <>
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Internal Policies - ${policy?.name}`}</title>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-          <div className="space-y-6">
-            {isEditable && (
+        <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="flex flex-col lg:flex-row gap-6 w-full">
+          <div className="flex-1 space-y-6 min-w-0">
+            {isEditable ? (
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertTitle>Edit & draft approval process</AlertTitle>
@@ -253,15 +253,14 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                   <p>Editing Title, Policy will trigger a draft creation and require approval procedure.</p>
                 </AlertDescription>
               </Alert>
-            )}
-            {!isEditable && (
+            ) : (
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertTitle>Not sure what to write?</AlertTitle>
                 <AlertDescription>
                   <p>
                     For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${DOCS_URL}/docs/platform/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer">
+                    <a className="text-blue-600" href={`${DOCS_URL}/docs/platform/compliance-management/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer">
                       documentation
                     </a>
                     .
@@ -269,19 +268,19 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                 </AlertDescription>
               </Alert>
             )}
-            {/* Title Field */}
+
             <InputRow className="w-full">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full min-w-0">
                     <div className="flex items-center">
                       <FormLabel>Title</FormLabel>
                       <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the policy later.</p>} />
                     </div>
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-full" />
+                      <Input variant="medium" {...field} className="w-full min-w-0" />
                     </FormControl>
                     {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
                   </FormItem>
@@ -295,7 +294,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                 control={form.control}
                 name="details"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full min-w-0">
                     <FormLabel>Policy</FormLabel>
                     <SystemTooltip
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
@@ -308,12 +307,13 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
               />
             </InputRow>
 
-            <Button className="mt-4" type="submit" variant="filled" disabled={isSubmitting}>
+            <Button className="mt-4 btn-secondary" type="submit" variant="filled" disabled={isSubmitting}>
               {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
             </Button>
           </div>
-          <div className="space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" editAllowed={true} />
+
+          <div className="flex-shrink-0 w-[380px] space-y-4">
+            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />
             <TagsCard form={form} />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
+import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-c-s-v-create-procedure-dialog.tsx'
@@ -8,13 +8,14 @@ import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { ProcedureWhereInput } from '@repo/codegen/src/schema'
-import { usePoliciesFilters } from '../../policies/table/table-config'
 import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
 import { Button } from '@repo/ui/button'
+import CreateProcedureUploadDialog from '../create/form/create-procedure-upload-dialog'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config.ts'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -56,7 +57,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   permission,
 }) => {
   const isSearching = useDebounce(searching, 200)
-  const filters = usePoliciesFilters()
+  const filters = useProceduresFilters()
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
 
   useEffect(() => {
@@ -67,10 +68,6 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
     <>
       <div className="flex items-center gap-2 my-2">
         <div className="grow flex flex-row items-center gap-2">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
-          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} />}
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"
@@ -101,33 +98,32 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
             </>
           ) : (
             <>
-              {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-                <Menu
-                  trigger={CreateBtn}
-                  content={
-                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Procedure</span>
-                    </div>
-                  }
-                />
-              )}
               <Menu
                 closeOnSelect={true}
                 content={(close) => (
                   <>
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                      <BulkCSVCreateProcedureDialog
+                      <CreateProcedureUploadDialog
                         trigger={
-                          <div className="flex items-center space-x-2 hover:bg-muted">
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>
                         }
                       />
                     )}
+                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                      <BulkCSVCreateProcedureDialog
+                        trigger={
+                          <div className="flex items-center bg-transparent space-x-2 px-1">
+                            <Import size={16} strokeWidth={2} />
+                            <span>Bulk upload</span>
+                          </div>
+                        }
+                      />
+                    )}
                     <div
-                      className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()
@@ -141,9 +137,17 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
               />
             </>
           )}
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
+          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
+          {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
+            <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+              Create
+            </Button>
+          )}
         </div>
       </div>
-      <div id="datatable-filter-portal" />
     </>
   )
 }

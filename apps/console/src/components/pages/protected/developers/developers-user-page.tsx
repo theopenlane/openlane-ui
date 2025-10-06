@@ -2,7 +2,6 @@
 
 import React, { useContext, useEffect } from 'react'
 import { PanelHeader } from '@repo/ui/panel'
-import PersonalApiKeyDialog from './personal-access-token-create-dialog'
 import { usePathname } from 'next/navigation'
 import { PersonalAccessTokenTable } from './table/personal-access-tokens-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -24,7 +23,6 @@ const DevelopersPage: React.FC = () => {
     <div>
       <div className="flex justify-between items-center ">
         <PanelHeader heading={heading} noBorder />
-        <PersonalApiKeyDialog />
       </div>
       <PersonalAccessTokenTable />
     </div>

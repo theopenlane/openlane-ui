@@ -1,5 +1,5 @@
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
-import { CreditCard as CardIcon, Table as TableIcon } from 'lucide-react'
+import { LayoutGrid, Table as TableIcon } from 'lucide-react'
 
 type TTableCardViewProps = {
   onTabChange: (tab: 'table' | 'card') => void
@@ -21,7 +21,7 @@ const TableCardView = ({ onTabChange, activeTab }: TTableCardViewProps) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <div aria-label="Card view" className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'card' ? 'bg-card' : 'bg-transparent'}`} onClick={() => onTabChange('card')}>
-              <CardIcon size={16} />
+              <LayoutGrid size={16} />
             </div>
           </TooltipTrigger>
           <TooltipContent>Card view</TooltipContent>

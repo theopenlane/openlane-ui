@@ -26,7 +26,7 @@ interface AccordionItemComponentProps {
 
 const AccordionItemComponent = ({ value, label, icon, description, link, onClick }: AccordionItemComponentProps) => (
   <AccordionItem value={value} className="border-b">
-    <AccordionTrigger className="py-4 w-full flex justify-between items-center group">
+    <AccordionTrigger className="py-4 w-full flex justify-between items-center group bg-unset">
       <div className="flex items-center gap-2">
         {icon}
         <span className="font-semibold">{label}</span>

@@ -12,6 +12,9 @@ import clsx from 'clsx'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import { Button } from '@repo/ui/button'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 const now = new Date()
 const dueSoonLimit = addDays(now, 7)
@@ -50,52 +53,13 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   const upcomingCount = upcomingTasks.length
   const overdueCount = overdueTasks.length
 
-  const filters = [
-    {
-      field: 'hasProgramsWith',
-      value: programId,
-      type: 'selectIs',
-      operator: 'EQ',
-      label: 'Program Name',
-    },
-  ]
+  const handleClick = () => {
+    const filters: TFilterState = {
+      ...(programId ? { hasProgramsWith: [programId] } : {}),
+      showMyTasks: true,
+    }
 
-  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
-  const tasksRedirectURL = programId ? `/tasks?showMyTasks=true&regularFilters=${encodedFilters}` : '/tasks?showMyTasks=true'
-
-  if (dueSoonCount === 0 && upcomingCount === 0 && overdueCount === 0) {
-    return (
-      //TODO: add size fit when we have pending actions, currently no api
-      <TooltipProvider>
-        <Card>
-          <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
-          <CardContent className="flex flex-col items-center text-center">
-            <div className="grid grid-cols-2 gap-6 mb-6 w-full">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg w-40 cursor-help">
-                    <span className="text-sm">Due soon</span>
-                    <span className="text-2xl font-bold">0</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>Tasks that are overdue or due within the next 7 days</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg w-40 cursor-help">
-                    <span className="text-sm">Upcoming</span>
-                    <span className="text-2xl font-bold">0</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>Tasks due within the next 30 days (excluding overdue and due soon tasks)</TooltipContent>
-              </Tooltip>
-            </div>
-            <p className="text-lg font-medium">🎉 Yay! You&apos;re all caught up!</p>
-            <p className="text-sm text-muted-foreground mt-1">No tasks to do—enjoy the peace and quiet.</p>
-          </CardContent>
-        </Card>
-      </TooltipProvider>
-    )
+    saveFilters(TableFilterKeysEnum.TASK, filters)
   }
 
   return (
@@ -162,9 +126,9 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             })}
           </div>
 
-          <div onClick={() => router.push(tasksRedirectURL)} className="mt-7 text-sm text-primary flex items-center cursor-pointer">
-            Show more Tasks <ChevronRight size={16} className="ml-1" />
-          </div>
+          <Button icon={<ChevronRight size={16} />} onClick={handleClick} className="mt-4">
+            <Link href="/tasks?showMyTasks=true">Show more Tasks</Link>
+          </Button>
         </CardContent>
       </Card>
     </TooltipProvider>

@@ -3,84 +3,79 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
-
 import { cn } from '../../lib/utils'
 import { dialogStyles } from './dialog.styles'
 
-const Dialog = DialogPrimitive.Root
-
-const DialogTrigger = DialogPrimitive.Trigger
-
-const DialogPortal = DialogPrimitive.Portal
-
-const DialogClose = DialogPrimitive.Close
-
 const { overlay, content, header, footer, title, description, close, closeIcon } = dialogStyles()
 
-const DialogOverlay = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Overlay>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> & { isClosable?: boolean }>(
-  ({ className, isClosable = true, ...props }, ref) => (
-    <DialogPrimitive.Overlay
-      ref={ref}
-      className={cn(overlay(), className)}
-      {...props}
-      onPointerDown={(e) => {
-        if (!isClosable) {
-          e.stopPropagation() // Prevent closing when overlay is clicked
-        }
-      }}
-    />
-  ),
-)
+function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+}
+Dialog.displayName = DialogPrimitive.Dialog.displayName
+
+function DialogTrigger({ ...props }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+}
+DialogTrigger.displayName = DialogPrimitive.Trigger.displayName
+
+function DialogPortal({ ...props }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+}
+DialogPortal.displayName = DialogPrimitive.Portal.displayName
+
+function DialogClose({ ...props }: React.ComponentProps<typeof DialogPrimitive.Close>) {
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
+}
+DialogClose.displayName = DialogPrimitive.Close.displayName
+
+function DialogOverlay({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
+  return <DialogPrimitive.Overlay data-slot="dialog-overlay" className={cn(overlay(), className)} {...props} />
+}
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
-const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Content>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { isClosable?: boolean }>(
-  ({ className, children, isClosable = true, autoFocus = false, ...props }, ref) => (
-    <DialogPortal>
-      <DialogOverlay isClosable={isClosable} />
-      <DialogPrimitive.Content
-        ref={ref}
-        className={cn(content(), className)}
-        {...props}
-        onEscapeKeyDown={(e) => {
-          if (!isClosable) {
-            e.preventDefault() // Prevent closing on Escape key
-          }
-        }}
-      >
+function DialogContent({
+  className,
+  children,
+  showCloseButton = true,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  showCloseButton?: boolean
+}) {
+  return (
+    <DialogPortal data-slot="dialog-portal">
+      <DialogOverlay />
+      <DialogPrimitive.Content data-slot="dialog-content" className={cn(content(), className)} {...props}>
         {children}
-        {isClosable && (
-          <DialogPrimitive.Close className={cn(close(), className)}>
-            <X className={cn(closeIcon(), className)} />
+        {showCloseButton && (
+          <DialogPrimitive.Close data-slot="dialog-close" className={cn(close())}>
+            <X className={cn(closeIcon())} />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>
     </DialogPortal>
-  ),
-)
+  )
+}
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn(header(), className)} {...props} />
+function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div data-slot="dialog-header" className={cn(header(), className)} {...props} />
+}
 DialogHeader.displayName = 'DialogHeader'
 
-const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn(footer(), className)} {...props} />
+function DialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div data-slot="dialog-footer" className={cn(footer(), className)} {...props} />
+}
 DialogFooter.displayName = 'DialogFooter'
 
-const DialogTitle = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Title>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>>(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title
-    onFocusCapture={(e) => {
-      e.stopPropagation()
-    }}
-    ref={ref}
-    className={cn(title(), className)}
-    {...props}
-  />
-))
+function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
+  return <DialogPrimitive.Title data-slot="dialog-title" className={cn(title(), className)} {...props} />
+}
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 
-const DialogDescription = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Description>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>>(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description ref={ref} className={cn(description(), className)} {...props} />
-))
+function DialogDescription({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Description>) {
+  return <DialogPrimitive.Description data-slot="dialog-description" className={cn(description(), className)} {...props} />
+}
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
-export { Dialog, DialogPortal, DialogOverlay, DialogClose, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription }
+export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger }

@@ -28,8 +28,14 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import TabSwitcher from '@/components/shared/control-switcher/tab-switcher.tsx'
 
-const ControlsTable: React.FC = () => {
+type TControlsTableProps = {
+  active: 'report' | 'controls'
+  setActive: (tab: 'report' | 'controls') => void
+}
+
+const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => {
   const { push } = useRouter()
   const { convertToReadOnly } = usePlateEditor()
   const [filters, setFilters] = useState<ControlWhereInput | null>(null)
@@ -67,15 +73,15 @@ const ControlsTable: React.FC = () => {
   const whereFilter = useMemo(() => {
     const conditions: ControlWhereInput = {}
 
-    const mapCustomKey = (key: string, value: string): Partial<ControlWhereInput> => {
+    const mapCustomKey = (key: string, value: string | string[]): Partial<ControlWhereInput> => {
       if (key === 'programContains') {
         return { hasProgramsWith: [{ nameContainsFold: value as string }] }
       }
-      if (key === 'standard' && value === 'CUSTOM') {
+      if (key === 'standardIn' && Array.isArray(value) && value[0] === 'CUSTOM') {
         return { referenceFrameworkIsNil: true }
       }
-      if (key === 'standard') {
-        return { hasStandardWith: [{ id: value }] }
+      if (key === 'standardIn' && Array.isArray(value)) {
+        return { hasStandardWith: value.map((v) => ({ id: v })) }
       }
 
       return { [key]: value } as Partial<ControlWhereInput>
@@ -201,6 +207,12 @@ const ControlsTable: React.FC = () => {
 
   return (
     <div>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
+          <TabSwitcher active={active} setActive={setActive} />
+        </div>
+      </div>
       <ControlsTableToolbar
         handleExport={handleExportFile}
         handleBulkEdit={handleBulkEdit}

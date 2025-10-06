@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState, useMemo, useEffect, useContext } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { CheckCircleIcon, Settings2, SettingsIcon, SearchIcon } from 'lucide-react'
+import { BookKey, BookLock, Bubbles, Calendar, CheckCircleIcon, SearchIcon, Settings2, SettingsIcon, UserRound } from 'lucide-react'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Input } from '@repo/ui/input'
@@ -18,14 +18,15 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import Loading from '@/app/(protected)/standards/loading'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 
 const filterFields: FilterField[] = [
-  { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
-  { key: 'updatedAt', label: 'Updated At', type: 'date' },
-  { key: 'createdAt', label: 'Created At', type: 'date' },
-  { key: 'version', label: 'Version', type: 'text' },
-  { key: 'revision', label: 'Revision', type: 'text' },
-  { key: 'governingBody', label: 'Governing Body', type: 'text' },
+  { key: 'systemOwned', label: 'System Owned', type: 'boolean', icon: UserRound },
+  { key: 'updatedAt', label: 'Updated At', type: 'date', icon: Calendar },
+  { key: 'createdAt', label: 'Created At', type: 'date', icon: Calendar },
+  { key: 'version', label: 'Version', type: 'text', icon: BookKey },
+  { key: 'revision', label: 'Revision', type: 'text', icon: BookLock },
+  { key: 'governingBody', label: 'Governing Body', type: 'text', icon: Bubbles },
 ]
 
 const StandardsPage = () => {
@@ -64,7 +65,6 @@ const StandardsPage = () => {
       <PageHeading heading="Standards Catalog" />
       <div className="my-2 flex justify-between items-center gap-5">
         <div className="flex gap-4">
-          <TableFilter filterFields={filterFields} onFilterChange={setFilters} />
           <Input
             value={searchQuery}
             name="standardSearch"
@@ -74,9 +74,10 @@ const StandardsPage = () => {
             iconPosition="left"
             variant="searchTable"
           />
+          <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.STANDARD_CATALOG} />
         </div>
       </div>
-      <div id="datatable-filter-portal" />
+
       <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {data?.standards?.edges?.map((standard) => (
           <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow">
@@ -112,7 +113,7 @@ const StandardsPage = () => {
             </div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`}>
-              <Button className="mt-auto py-2 px-4 rounded">Details</Button>
+              <Button className="mt-auto py-2 px-4 btn-secondary">Details</Button>
             </Link>
           </Card>
         ))}

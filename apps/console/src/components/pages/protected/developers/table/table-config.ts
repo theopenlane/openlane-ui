@@ -1,10 +1,11 @@
 import { FilterField } from '@/types'
 import { OrderDirection } from '@repo/codegen/src/schema'
+import { Calendar, FileText } from 'lucide-react'
 
 export const TOKEN_FILTER_FIELDS: FilterField[] = [
-  { key: 'name', label: 'Name', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'expiresAt', label: 'Expires At', type: 'date' },
+  { key: 'name', label: 'Name', type: 'text', icon: FileText },
+  { key: 'description', label: 'Description', type: 'text', icon: FileText },
+  { key: 'expiresAt', label: 'Expires At', type: 'date', icon: Calendar },
 ]
 
 export const TOKEN_SORT_FIELDS = [

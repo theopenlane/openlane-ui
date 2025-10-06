@@ -199,7 +199,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     <Sheet open={isMemberSheetOpen} onOpenChange={setIsMemberSheetOpen}>
       <SheetContent
         initialWidth={846}
-        className="bg-card flex flex-col"
+        className="flex flex-col"
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">

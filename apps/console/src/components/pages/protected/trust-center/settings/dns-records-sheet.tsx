@@ -29,7 +29,7 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
 
   const cnameRecord = trustCenter?.node?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.').slice(0, -2).join('.') : ''
-  const cnameTarget = trustCenter?.node?.customDomain?.mappableDomain?.name || "UNKNOWN";
+  const cnameTarget = trustCenter?.node?.customDomain?.mappableDomain?.name || 'UNKNOWN'
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -99,13 +99,13 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
     },
     ...(dnsVerification
       ? [
-        {
-          type: 'TXT',
-          name: dnsVerification.dnsTxtRecord ?? '',
-          value: dnsVerification.dnsTxtValue ?? '',
-          status: dnsVerification.dnsVerificationStatus,
-        },
-      ]
+          {
+            type: 'TXT',
+            name: dnsVerification.dnsTxtRecord ?? '',
+            value: dnsVerification.dnsTxtValue ?? '',
+            status: dnsVerification.dnsVerificationStatus,
+          },
+        ]
       : []),
   ]
 
