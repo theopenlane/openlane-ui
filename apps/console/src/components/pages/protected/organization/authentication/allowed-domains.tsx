@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Switch } from '@repo/ui/switch'
 
 const isValidDomain = (domain: string) => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
 
@@ -27,6 +28,13 @@ const AllowedDomains = () => {
   const [newDomain, setNewDomain] = useState('')
   const queryClient = useQueryClient()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const [allowAutoJoin, setAllowAutoJoin] = useState(false)
+
+  useEffect(() => {
+    setAllowAutoJoin((data?.organization?.setting?.allowedEmailDomains?.length ?? 0) > 0)
+  }, [data])
+
+  const domainCount = domains.length
 
   useEffect(() => {
     setCrumbs([
@@ -65,7 +73,13 @@ const AllowedDomains = () => {
   }
 
   const removeDomain = (domainToRemove: string) => {
-    setDomains((prev) => prev.filter((d) => d !== domainToRemove))
+    setDomains((prev) => {
+      const updated = prev.filter((d) => d !== domainToRemove)
+      if (updated.length === 0) {
+        onSwitchChange(false)
+      }
+      return updated
+    })
   }
 
   const saveChanges = async () => {
@@ -73,8 +87,9 @@ const AllowedDomains = () => {
     try {
       await update({
         updateOrganizationSettingId: settingId,
-        input: { allowedEmailDomains: domains },
+        input: { allowedEmailDomains: domains, allowMatchingDomainsAutojoin: allowAutoJoin },
       })
+
       await queryClient.invalidateQueries({
         queryKey: ['organizationSetting', currentOrgId],
       })
@@ -91,48 +106,66 @@ const AllowedDomains = () => {
     }
   }
 
+  const onSwitchChange = (checked: boolean) => {
+    if (domainCount === 0) {
+      setAllowAutoJoin(false)
+      return
+    }
+    setAllowAutoJoin(checked)
+  }
+
   if (isLoading) return <p className="text-sm text-muted">Loading allowed domains...</p>
 
   return (
-    <Panel>
-      <PanelHeader heading="Allowed domains" subheading="Restrict user logins to the organization by email domain" noBorder />
+    <>
+      <Panel>
+        <PanelHeader heading="Allowed domains" subheading="Restrict user logins to the organization by email domain" noBorder />
 
-      <div>
-        <div className="flex flex-col gap-4 mb-2">
-          {domains.map((domain) => (
-            <div key={domain} className="flex items-center gap-1">
-              {domain}
-              <button onClick={() => removeDomain(domain)} className="ml-1">
-                <X className="w-3 h-3 hover:text-red-500" />
-              </button>
-            </div>
-          ))}
+        <div>
+          <div className="flex flex-col gap-4 mb-2">
+            {domains.map((domain) => (
+              <div key={domain} className="flex items-center gap-1">
+                {domain}
+                <button onClick={() => removeDomain(domain)} className="ml-1">
+                  <X className="w-3 h-3 hover:text-red-500" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <form className="flex items-center gap-2 mt-4" onSubmit={addDomain}>
+            <Input
+              type="text"
+              className="h-7 p-2.5"
+              placeholder="example.com"
+              value={newDomain}
+              onChange={(e) => {
+                setNewDomain(e.target.value)
+                if (inputError) setInputError(null)
+              }}
+            />
+
+            <button>
+              <CirclePlus size={16} className="text-brand cursor-pointer" />
+            </button>
+          </form>
+
+          {inputError && <p className="mt-2 text-sm text-destructive">{inputError}</p>}
+
+          <Button className="h-8 p-2 mt-4" variant="outline" onClick={saveChanges} disabled={isPending}>
+            Save
+          </Button>
         </div>
-
-        <form className="flex items-center gap-2 mt-4" onSubmit={addDomain}>
-          <Input
-            type="text"
-            className="h-7 p-2.5"
-            placeholder="example.com"
-            value={newDomain}
-            onChange={(e) => {
-              setNewDomain(e.target.value)
-              if (inputError) setInputError(null)
-            }}
-          />
-
-          <button>
-            <CirclePlus size={16} className="text-brand cursor-pointer" />
-          </button>
-        </form>
-
-        {inputError && <p className="mt-2 text-sm text-destructive">{inputError}</p>}
-
-        <Button className="h-8 p-2 mt-4" variant="outline" onClick={saveChanges} disabled={isPending}>
-          Save
-        </Button>
-      </div>
-    </Panel>
+      </Panel>
+      <Panel>
+        <PanelHeader
+          heading="Auto-join on organization"
+          subheading="Allow users who can successfully confirm their email or who login via social providers or SSO (if enabled) with an email that matches the organizations configured allowed domain to auto-join the organization"
+          noBorder
+        />
+        <Switch checked={allowAutoJoin} onCheckedChange={onSwitchChange} disabled={domainCount === 0} />
+      </Panel>
+    </>
   )
 }
 
