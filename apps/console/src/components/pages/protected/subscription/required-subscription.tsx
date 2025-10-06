@@ -5,6 +5,7 @@ import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { featureUtil } from '@/lib/subscription-plan/plans.ts'
+import { useOpenlaneProductsQuery } from '@/lib/query-hooks/stripe.ts'
 
 type TRequiredSubscriptionProps = {
   module: PlanEnum
@@ -12,7 +13,8 @@ type TRequiredSubscriptionProps = {
 
 const RequiredSubscription: React.FC<TRequiredSubscriptionProps> = ({ module }: TRequiredSubscriptionProps) => {
   const router = useRouter()
-  const moduleDescription = featureUtil.getPlanDescription(module)
+  const { data: openlaneProducts } = useOpenlaneProductsQuery(true)
+  const moduleDescription = featureUtil.getPlanDescription(module, openlaneProducts)
   const moduleName = featureUtil.getPlanName(module)
 
   return (

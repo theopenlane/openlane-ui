@@ -104,11 +104,11 @@ export function useRenewSubscriptionMutation() {
   })
 }
 
-export function useOpenlaneProductsQuery() {
+export function useOpenlaneProductsQuery(includeBeta: boolean = false) {
   return useQuery<OpenlaneProductsResponse>({
     queryKey: ['products'],
     queryFn: async () => {
-      const res = await fetch(`${openlaneAPIUrl}/v1/products`, {
+      const res = await fetch(`${openlaneAPIUrl}/v1/products${includeBeta ? '?include_beta=true' : ''}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

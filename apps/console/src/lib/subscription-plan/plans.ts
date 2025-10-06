@@ -1,5 +1,6 @@
 import { FeatureEnum } from './feature-enum'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { OpenlaneProductsResponse } from '@/types/stripe.ts'
 
 export const featureUtil = {
   notAvailableText: 'Not available in your current plan',
@@ -45,21 +46,8 @@ export const featureUtil = {
         return featureUtil.baseModule()
     }
   },
-  getPlanDescription: (plan: PlanEnum) => {
-    switch (plan) {
-      case PlanEnum.BASE_MODULE:
-        return 'This module offers in-depth security measures. Ready to dive deeper?'
-      case PlanEnum.TRUST_CENTER_MODULE:
-        return 'Build customer trust with a professional security portal. Share compliance documentation securely with stakeholders.'
-      case PlanEnum.ENTITY_MANAGEMENT_MODULE:
-        return 'This module offers in-depth security measures. Ready to dive deeper?'
-      case PlanEnum.VULNERABILITY_MANAGEMENT_MODULE:
-        return 'Identify and track security vulnerabilities across your systems. Stay ahead of potential threats with continuous monitoring.'
-      case PlanEnum.COMPLIANCE_MODULE:
-        return 'Automate evidence collection and task tracking to simplify SOC 2, ISO 27001, and other certification workflows.'
-      default:
-        return 'This module offers in-depth security measures. Ready to dive deeper?'
-    }
+  getPlanDescription: (plan: PlanEnum, products: OpenlaneProductsResponse | undefined) => {
+    return products?.modules[plan].marketing_description ?? products?.modules[plan].description
   },
   getPlanName: (plan: PlanEnum) => {
     switch (plan) {

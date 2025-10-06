@@ -90,7 +90,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
       }
 
       if (item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
-        return <></>
+        return <React.Fragment key={item?.plan}></React.Fragment>
       }
 
       if ('icon' in item && item.icon) {
