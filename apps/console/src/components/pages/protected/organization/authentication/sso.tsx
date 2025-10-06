@@ -136,13 +136,13 @@ const SSOPage = () => {
 
   const getProviderDisplayName = (provider: string): string => {
     return provider
-      .replace(/([A-Z][a-z]+)/g, '$1 ')
+      .replace(/_/g, ' ')
+      .replace(/([A-Z][a-z]+)/g, ' $1')
       .trim()
-      .split(' ')
+      .split(/\s+/)
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ')
   }
-
   const formSchema = useMemo(
     () =>
       z.object({
