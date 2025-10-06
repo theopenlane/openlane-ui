@@ -18,6 +18,8 @@ import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx
 import Menu from '@/components/shared/menu/menu.tsx'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { CONTRIBUTE_URL, DOCS_URL, OPENLANE_WEBSITE_URL, SUPPORT_EMAIL } from '@/constants'
+import { useSession } from 'next-auth/react'
+import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
@@ -41,6 +43,7 @@ const PANEL_WIDTH = 240
 export const PANEL_WIDTH_PX = PANEL_WIDTH
 
 export default function SideNav({ navItems, footerNavItems, openPanel, expanded, onToggleAction, onExpandToggleAction, isOrganizationSelected }: TSideNavProps) {
+  const { data: session } = useSession()
   const panelWidth = expanded ? PANEL_WIDTH : null
   const pathname = usePathname()
   const router = useRouter()
@@ -79,10 +82,15 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   }
 
   const displayMenu = (navItems: (NavItem | Separator | NavHeading)[]) => {
+    const modules = session?.user?.modules ?? []
     const activeNav = findActiveNavItem(navItems, pathname)
     return navItems.map((item, idx) => {
       if ('type' in item && (item.type === 'separator' || item.type === 'heading')) {
         return <Hr key={idx} />
+      }
+
+      if (item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
+        return <React.Fragment key={item?.plan}></React.Fragment>
       }
 
       if ('icon' in item && item.icon) {

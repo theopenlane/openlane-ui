@@ -1,4 +1,5 @@
 import { type LucideIcon } from 'lucide-react'
+import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 
 export interface NavItem {
   title: string
@@ -9,6 +10,7 @@ export interface NavItem {
   isChildren?: boolean
   children?: NavItem[]
   hidden?: boolean
+  plan?: PlanEnum
 }
 
 export interface Separator {

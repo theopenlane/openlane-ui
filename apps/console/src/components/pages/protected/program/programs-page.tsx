@@ -120,6 +120,7 @@ const ProgramsPage: React.FC = () => {
   if (isBasicInfoLoading || isLoading) {
     return <Loading />
   }
+
   if (!data?.programs.edges?.length) {
     return (
       <>
@@ -155,6 +156,7 @@ const ProgramsPage: React.FC = () => {
               <>
                 <p className="text-sm text-muted-foreground">Ready to get started?</p>
                 <ProgramCreate
+                  className="bg-unset"
                   trigger={
                     <div className="text-blue-500 flex items-center gap-1">
                       <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
