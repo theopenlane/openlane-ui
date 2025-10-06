@@ -75,19 +75,3 @@ export const parseErrorMessage = (error: unknown): string => {
 
   return unknownMessage
 }
-
-export const hasModuleError = (error: unknown): boolean => {
-  const parsed = parseError(error)
-  if (!parsed) {
-    return false
-  }
-
-  const { code } = parsed
-  return code === 'MODULE_NO_ACCESS'
-  if (error instanceof ClientError) {
-    const message = error.response.errors?.[0]?.message
-    if (message) return message
-  }
-
-  return 'Something went wrong. Please try again.'
-}
