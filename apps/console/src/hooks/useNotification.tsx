@@ -36,6 +36,27 @@ export function useNotification() {
     [handleShowNotification],
   )
 
+  const handleWarning = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'warning')
+    },
+    [handleShowNotification],
+  )
+
+  const handleInfo = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info')
+    },
+    [handleShowNotification],
+  )
+
+  const handleInfo2 = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info2')
+    },
+    [handleShowNotification],
+  )
+
   const handleError = useCallback(
     (props: TErrorProps) => {
       let description = props.description ?? ''
@@ -64,5 +85,8 @@ export function useNotification() {
   return {
     successNotification: handleSuccess,
     errorNotification: handleError,
+    warningNotification: handleWarning,
+    infoNotification: handleInfo,
+    info2Notification: handleInfo2,
   }
 }
