@@ -80,4 +80,7 @@ export const featureUtil = {
   planHasFeature: (plan: PlanEnum, feature: FeatureEnum) => {
     return featureUtil.getPlanFeatures(plan).includes(feature)
   },
+  hasModule(userModules: PlanEnum[], requiredModule: PlanEnum): boolean {
+    return userModules.includes(requiredModule)
+  },
 }

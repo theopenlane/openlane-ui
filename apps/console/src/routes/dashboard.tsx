@@ -1,28 +1,29 @@
 import {
-  SettingsIcon,
-  Users,
-  ShieldCheck,
   AlertTriangle,
-  Fingerprint,
-  ListChecks,
-  Settings2,
-  ScrollText,
-  Workflow,
-  NotebookPen,
-  FileBadge2,
-  House,
-  UserCog,
-  KeyRound,
-  UserRoundPlus,
-  GlobeLock,
-  MailCheck,
-  History,
-  DollarSign,
-  Handshake,
   Bot,
+  DollarSign,
+  FileBadge2,
+  Fingerprint,
+  GlobeLock,
+  Handshake,
+  History,
+  House,
+  KeyRound,
+  ListChecks,
+  MailCheck,
+  NotebookPen,
+  ScrollText,
+  Settings2,
+  SettingsIcon,
+  ShieldCheck,
+  UserCog,
   UserRoundPen,
+  UserRoundPlus,
+  Users,
+  Workflow,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
+import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 
 export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
@@ -40,6 +41,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   },
   {
     title: 'Compliance',
+    plan: PlanEnum.COMPLIANCE_MODULE,
     icon: ShieldCheck,
     href: '/',
     children: [
@@ -88,6 +90,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   },
   {
     title: 'Trust center',
+    plan: PlanEnum.TRUST_CENTER_MODULE,
     hidden: true,
     href: '/trust-center',
     icon: Handshake,
