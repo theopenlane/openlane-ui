@@ -6,7 +6,7 @@ import { Badge } from '@repo/ui/badge'
 import { useFormContext, Controller } from 'react-hook-form'
 import { ProgramProgramType } from '@repo/codegen/src/schema'
 
-export default function SOC2Step3() {
+export default function StartTypeStep() {
   const { control, watch } = useFormContext<{ programType?: ProgramProgramType }>()
   const selected = watch('programType')
 

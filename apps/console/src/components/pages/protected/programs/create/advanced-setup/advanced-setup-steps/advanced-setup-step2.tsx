@@ -1,22 +1,21 @@
 'use client'
 import React from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
-// ako koristiš custom inpute iz @repo/ui ili nešto drugo, možeš prilagoditi
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { DateSelect } from '../../shared/form-fields/date-select'
+import StandardSelect from '../../shared/form-fields/standard-select'
+import { ProgramProgramType } from '@repo/codegen/src/schema'
 
 const AdvancedSetupStep2 = () => {
   const {
     register,
     formState: { errors },
-    setValue,
-    watch,
+    control,
   } = useFormContext()
 
-  const startDate = watch('startDate')
-  const endDate = watch('endDate')
+  const programType = useWatch({ control, name: 'programType' })
 
   return (
     <div className="space-y-6">
@@ -40,13 +39,21 @@ const AdvancedSetupStep2 = () => {
 
       {/* Form */}
       <div className="space-y-4">
+        {programType === ProgramProgramType.FRAMEWORK && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm">
+              Framework<span className="text-destructive">*</span>
+            </label>
+            <StandardSelect />
+          </div>
+        )}
         {/* Program Name */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">
             Program Name<span className="text-destructive">*</span>
           </label>
-          <Input placeholder="Program Test" {...register('programName', { required: 'Program name is required' })} />
-          {errors.programName && <span className="text-xs text-destructive">{String(errors.programName.message)}</span>}
+          <Input placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
+          {errors.name && <span className="text-xs text-destructive">{String(errors.name.message)}</span>}
         </div>
 
         {/* Description */}
@@ -59,15 +66,11 @@ const AdvancedSetupStep2 = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm">Start Date</label>
-            <CalendarPopover />
-
-            {/* <DatePicker selected={startDate} onSelect={(date) => setValue('startDate', date)} placeholderText="Select start date" /> */}
+            <DateSelect name="startDate" />
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm">End Date</label>
-            <CalendarPopover />
-
-            {/* <DatePicker selected={endDate} onSelect={(date) => setValue('endDate', date)} placeholderText="Select end date" /> */}
+            <DateSelect name="endDate" />
           </div>
         </div>
       </div>

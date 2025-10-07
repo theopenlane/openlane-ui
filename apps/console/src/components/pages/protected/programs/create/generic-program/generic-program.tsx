@@ -1,90 +1,114 @@
 'use client'
 import React from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, FormProvider } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Button } from '@repo/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import ProgramTypeSelect from '../shared/form-fields/program-select'
+
+// GraphQL + utils
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
+import { CreateProgramWithMembersInput, ProgramProgramType } from '@repo/codegen/src/schema'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type ProgramFormValues = {
   programType: string
-  programName: string
+  name: string
   description: string
 }
 
 const GenericProgram = () => {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<ProgramFormValues>({
+  const methods = useForm<ProgramFormValues>({
     defaultValues: {
       programType: '',
-      programName: '',
+      name: '',
       description: '',
     },
   })
 
-  const onSubmit = (data: ProgramFormValues) => {
-    console.log('Form submitted:', data)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = methods
+
+  const router = useRouter()
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: createProgram } = useCreateProgramWithMembers()
+
+  const onSubmit = async (data: ProgramFormValues) => {
+    try {
+      const input: CreateProgramWithMembersInput = {
+        program: {
+          name: data.name,
+          description: data.description,
+          programType: data.programType as ProgramProgramType,
+        },
+      }
+
+      const resp = await createProgram({ input })
+
+      successNotification({
+        title: 'Program Created',
+        description: `Your program "${resp?.createProgramWithMembers?.program?.name}" has been successfully created.`,
+      })
+
+      router.push(`/programs?id=${resp?.createProgramWithMembers?.program?.id}`)
+    } catch (e) {
+      const errorMessage = parseErrorMessage(e)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl m-auto">
-      {/* Header */}
-      <div>
-        <h2 className="text-lg font-medium">Create a Generic Program</h2>
-        <p className="text-sm text-muted-foreground">Start with a blank program you can shape to your needs. Just give it a name and choose a type to get started.</p>
-      </div>
-
-      {/* Form */}
-      <div className="space-y-4">
-        {/* Program Type */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm">
-            Program Type<span className="text-destructive">*</span>
-          </label>
-          <Select onValueChange={(val) => setValue('programType', val)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select program type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="SOC2 - 2025">SOC2 - 2025</SelectItem>
-              <SelectItem value="ISO 27001 - 2025">ISO 27001 - 2025</SelectItem>
-              <SelectItem value="Custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.programType && <span className="text-xs text-destructive">{String(errors.programType.message)}</span>}
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl m-auto">
+        {/* Header */}
+        <div>
+          <h2 className="text-lg font-medium">Create a Generic Program</h2>
+          <p className="text-sm text-muted-foreground">Start with a blank program you can shape to your needs. Just give it a name and choose a type to get started.</p>
         </div>
 
-        {/* Program Name */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm">
-            Program Name<span className="text-destructive">*</span>
-          </label>
-          <Input placeholder="Program Test" {...register('programName', { required: 'Program name is required' })} />
-          {errors.programName && <span className="text-xs text-destructive">{String(errors.programName.message)}</span>}
+        <div className="space-y-1.5">
+          {/* Program Type */}
+          <div className="flex flex-col">
+            <ProgramTypeSelect />
+            {errors.programType && <span className="text-xs text-destructive">{errors.programType.message as string}</span>}
+          </div>
+
+          {/* Program Name */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm">
+              Program Name<span className="text-destructive">*</span>
+            </label>
+            <Input placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
+            {errors.name && <span className="text-xs text-destructive">{errors.name.message as string}</span>}
+          </div>
+
+          {/* Description */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm">Description</label>
+            <Textarea placeholder="Enter a description for this program" {...register('description')} />
+          </div>
         </div>
 
-        {/* Description */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Description</label>
-          <Textarea placeholder="Enter a description for this program" {...register('description')} />
+        {/* Actions */}
+        <div className="flex justify-between pt-4">
+          <Link href="/programs/create">
+            <Button type="button" variant="back">
+              Back
+            </Button>
+          </Link>
+          <Button type="submit">Create Program</Button>
         </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-between pt-4">
-        <Link href="/programs/create">
-          <Button type="button" variant="back">
-            Back
-          </Button>
-        </Link>
-        <Button type="submit">Create Program</Button>
-      </div>
-    </form>
+      </form>
+    </FormProvider>
   )
 }
 

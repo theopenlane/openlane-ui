@@ -10,7 +10,7 @@ import { z, infer as zInfer } from 'zod'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 
-export default function SOC2Step2() {
+export default function TeamSetupStep() {
   const [showInviteForm, setShowInviteForm] = useState(false)
   const { userOptions } = useUserSelect()
   const { groupOptions } = useGroupSelect()

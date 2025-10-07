@@ -1,4 +1,3 @@
-// app/programs/create/page.tsx
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
@@ -21,7 +20,7 @@ const quickstartOptions = [
     description: 'Easily create a risk register with built-in scoring & reporting.',
     details: ['Default risk scoring (likelihood × impact)', 'Standard risk categories', 'Sample controls pre-loaded'],
     illustration: <RiskAssessmentIllustration />,
-    url: '/programs/create/risk-asssesment',
+    url: '/programs/create/risk-assessment',
   },
   {
     title: 'Framework Based',

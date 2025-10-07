@@ -37,31 +37,21 @@ const AdvancedSetupStep3 = () => {
         {/* Audit Partner */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Audit Partner</label>
-          <Input placeholder="Luke Dalton" {...register('auditPartner', { required: 'Audit Partner is required' })} />
-          {errors.auditPartner && <span className="text-xs text-destructive">{String(errors.auditPartner.message)}</span>}
+          <Input placeholder="Luke Dalton" {...register('auditPartnerName')} />
+          {errors.auditPartnerName && <span className="text-xs text-destructive">{String(errors.auditPartnerName.message)}</span>}
         </div>
 
         {/* Audit Firm */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Audit Firm</label>
-          <Input placeholder="Exalt Studio" {...register('auditFirm', { required: 'Audit Firm is required' })} />
+          <Input placeholder="Exalt Studio" {...register('auditFirm')} />
           {errors.auditFirm && <span className="text-xs text-destructive">{String(errors.auditFirm.message)}</span>}
         </div>
 
         {/* Audit Partner Email */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Audit Partner Email</label>
-          <Input
-            placeholder="Enter a contact email for the audit partner"
-            type="email"
-            {...register('auditPartnerEmail', {
-              required: 'Audit Partner Email is required',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Invalid email address',
-              },
-            })}
-          />
+          <Input placeholder="Enter a contact email for the audit partner" type="email" {...register('auditPartnerEmail')} />
           {errors.auditPartnerEmail && <span className="text-xs text-destructive">{String(errors.auditPartnerEmail.message)}</span>}
         </div>
       </div>

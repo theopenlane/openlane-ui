@@ -1,16 +1,15 @@
 'use client'
 import React from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
+import { useUserSelect } from '@/lib/graphql-hooks/members'
+import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 
 const AdvancedSetupStep4 = () => {
-  const { setValue, watch } = useFormContext()
-
-  const admins = watch('programAdmins') || []
-  const members = watch('programMembers') || []
-  const editGroups = watch('editAccessGroups') || []
-  const readOnlyGroups = watch('readOnlyGroups') || []
+  const { control } = useFormContext()
+  const { userOptions } = useUserSelect()
+  const { groupOptions } = useGroupSelect()
 
   return (
     <div className="space-y-6">
@@ -37,25 +36,69 @@ const AdvancedSetupStep4 = () => {
         {/* Program Admins */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Program Admins</label>
-          <MultipleSelector placeholder="Search users..." value={admins} onChange={(val) => setValue('programAdmins', val)} />
+          <Controller
+            control={control}
+            name="programAdmins"
+            render={({ field }) => (
+              <MultipleSelector
+                placeholder="Search users..."
+                options={userOptions}
+                value={userOptions.filter((o) => field.value?.includes(o.value))}
+                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+              />
+            )}
+          />
         </div>
 
         {/* Program Members */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Program Members</label>
-          <MultipleSelector placeholder="Search users..." value={members} onChange={(val) => setValue('programMembers', val)} />
+          <Controller
+            control={control}
+            name="programMembers"
+            render={({ field }) => (
+              <MultipleSelector
+                placeholder="Search users..."
+                options={userOptions}
+                value={userOptions.filter((o) => field.value?.includes(o.value))}
+                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+              />
+            )}
+          />
         </div>
 
         {/* Groups with Edit Access */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Groups with Edit Access</label>
-          <MultipleSelector placeholder="Search groups..." value={editGroups} onChange={(val) => setValue('editAccessGroups', val)} />
+          <Controller
+            control={control}
+            name="editAccessGroups"
+            render={({ field }) => (
+              <MultipleSelector
+                placeholder="Search groups..."
+                options={groupOptions}
+                value={groupOptions.filter((o) => field.value?.includes(o.value))}
+                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+              />
+            )}
+          />
         </div>
 
         {/* Groups with Read Only Access */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Groups with Read Only Access</label>
-          <MultipleSelector placeholder="Search groups..." value={readOnlyGroups} onChange={(val) => setValue('readOnlyGroups', val)} />
+          <Controller
+            control={control}
+            name="readOnlyGroups"
+            render={({ field }) => (
+              <MultipleSelector
+                placeholder="Search groups..."
+                options={groupOptions}
+                value={groupOptions.filter((o) => field.value?.includes(o.value))}
+                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+              />
+            )}
+          />
         </div>
       </div>
     </div>

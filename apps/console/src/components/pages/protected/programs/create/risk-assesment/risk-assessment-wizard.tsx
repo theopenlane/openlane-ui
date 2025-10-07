@@ -11,23 +11,21 @@ import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { ProgramProgramType } from '@repo/codegen/src/schema'
-import SOC2CategoryStep from './soc2-category-step'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
+import SelectFrameworkStep from '../shared/steps/select-framework-step'
+import { selectFrameworkSchema } from './risk-assessment-wizard-config'
+import AssociateRisksStep from './associate-risk-step'
 
-export default function Soc2Wizard() {
+export default function RiskAssessmentWizard() {
   const router = useRouter()
-
-  const step1Schema = z.object({
-    // ovdje dodaj polja iz Step1
-  })
 
   const step3Schema = z.object({
     programType: z.nativeEnum(ProgramProgramType),
   })
 
-  const { useStepper, steps } = defineStepper(
-    { id: '0', label: 'Pick Categories', schema: step1Schema },
+  const { useStepper } = defineStepper(
+    { id: '0', label: 'Pick Categories', schema: selectFrameworkSchema },
     { id: '1', label: 'Team Setup', schema: programInviteSchema },
     { id: '2', label: 'Access Control', schema: step3Schema },
   )
@@ -68,9 +66,9 @@ export default function Soc2Wizard() {
         <FormProvider {...methods}>
           <div className="py-6">
             {stepper.switch({
-              0: () => <SOC2CategoryStep />,
+              0: () => <SelectFrameworkStep />,
               1: () => <TeamSetupStep />,
-              2: () => <StartTypeStep />,
+              2: () => <AssociateRisksStep />,
             })}
             <div className="flex justify-between mt-8">
               <Button variant="outline" onClick={handleBack} iconPosition="left">
