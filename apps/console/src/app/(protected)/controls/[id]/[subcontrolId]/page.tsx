@@ -58,6 +58,7 @@ interface FormValues {
   controlType?: SubcontrolControlType
   referenceID?: string
   auditorReferenceID?: string
+  title: string
 }
 
 interface SheetData {
@@ -74,6 +75,7 @@ const initialDataObj = {
   subcategory: '',
   status: SubcontrolControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
+  title: '',
 }
 
 const ControlDetailsPage: React.FC = () => {
@@ -222,6 +224,7 @@ const ControlDetailsPage: React.FC = () => {
         source: data.subcontrol.source || undefined,
         referenceID: data.subcontrol.referenceID || undefined,
         auditorReferenceID: data.subcontrol.auditorReferenceID || undefined,
+        title: data.subcontrol.title ? `${data.subcontrol.refCode} ${data.subcontrol.title}` : data.subcontrol.refCode,
       }
 
       form.reset(newValues)
@@ -325,7 +328,7 @@ const ControlDetailsPage: React.FC = () => {
           isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
           isEditing={isEditing}
           handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
-          initialValue={initialValues.refCode}
+          initialValue={initialValues.title}
           referenceFramework={subcontrol.referenceFramework}
         />
 

@@ -8,6 +8,7 @@ export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> 
   [ControlControlStatus.ARCHIVED]: <Archive height={16} width={16} className="text-archived" />,
   [ControlControlStatus.NOT_IMPLEMENTED]: <RouteOff height={16} width={16} className="text-not-implemented" />,
   [ControlControlStatus.PREPARING]: <Circle height={16} width={16} className="text-preparing" />,
+  [ControlControlStatus.NOT_APPLICABLE]: <Circle height={16} width={16} className="text-preparing" />,
 }
 
 export const ControlIconMapper: Record<ControlControlStatus, React.ElementType> = {
@@ -17,6 +18,7 @@ export const ControlIconMapper: Record<ControlControlStatus, React.ElementType> 
   [ControlControlStatus.CHANGES_REQUESTED]: RefreshCw,
   [ControlControlStatus.APPROVED]: Stamp,
   [ControlControlStatus.ARCHIVED]: Circle,
+  [ControlControlStatus.NOT_APPLICABLE]: Circle,
 }
 
 export const ControlImplementationIconMap: Record<ControlImplementationDocumentStatus, React.ReactNode> = {
@@ -43,6 +45,7 @@ export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.CHANGES_REQUESTED]: 'Changes Requested',
   [ControlControlStatus.APPROVED]: 'Approved',
   [ControlControlStatus.ARCHIVED]: 'Archived',
+  [ControlControlStatus.NOT_APPLICABLE]: 'Not applicable',
 }
 
 // Tooltip explanations for control statuses
@@ -54,6 +57,7 @@ export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
   [ControlControlStatus.CHANGES_REQUESTED]: 'Control was reviewed but changes were requested. Updates are needed before approval.',
   [ControlControlStatus.APPROVED]: 'Control has been reviewed and approved. Implementation meets requirements and is ready to be used in an audit program.',
   [ControlControlStatus.ARCHIVED]: 'Control is no longer active or relevant. Archived for historical reference.',
+  [ControlControlStatus.NOT_APPLICABLE]: 'Not applicable',
 }
 
 export const ControlTypeLabels: Record<ControlControlType, string> = {

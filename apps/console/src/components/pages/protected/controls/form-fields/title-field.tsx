@@ -18,7 +18,6 @@ interface TitleFieldProps {
 const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue, referenceFramework }: TitleFieldProps) => {
   const { register, getValues, setValue } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
-
   const handleClick = () => {
     if (!isEditing && isEditAllowed) {
       setInternalEditing(true)
@@ -64,7 +63,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
     <div className="flex gap-2 items-center">
       {referenceFramework && <StandardsIconMapper height={40} width={42} shortName={referenceFramework} />}
       <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-        {getValues('refCode')}
+        {getValues('title')}
       </h1>
     </div>
   )
