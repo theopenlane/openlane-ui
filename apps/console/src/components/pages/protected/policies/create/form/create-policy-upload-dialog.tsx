@@ -96,7 +96,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const handleFileUpload = async () => {
     if (hasSingleFileOrLink) {
       try {
-        const policy = await createUploadPolicy({ policyFile: uploadedFiles[0].file })
+        const policy = await createUploadPolicy({ internalPolicyFile: uploadedFiles[0].file })
         successNotification({
           title: 'Policy Created',
           description: 'Policy has been successfully created',
@@ -112,7 +112,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     } else {
       try {
         for (const uploadedFile of uploadedFiles) {
-          await createUploadPolicy({ policyFile: uploadedFile.file! })
+          await createUploadPolicy({ internalPolicyFile: uploadedFile.file! })
         }
         successNotification({
           title: 'Policy Created',
