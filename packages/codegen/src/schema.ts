@@ -46015,6 +46015,7 @@ export type ControlDetailsFieldsFragment = {
   auditorReferenceID?: string | null
   referenceID?: string | null
   referenceFramework?: string | null
+  title?: string | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{
@@ -46176,6 +46177,7 @@ export type GetControlByIdQuery = {
     auditorReferenceID?: string | null
     referenceID?: string | null
     referenceFramework?: string | null
+    title?: string | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -46362,6 +46364,7 @@ export type GetControlByIdMinifiedQuery = {
     subcategory?: string | null
     description?: string | null
     referenceFramework?: string | null
+    title?: string | null
   }
 }
 
@@ -48756,6 +48759,7 @@ export type GetSubcontrolByIdQuery = {
     auditorReferenceID?: string | null
     referenceID?: string | null
     referenceFramework?: string | null
+    title?: string | null
     control: { __typename?: 'Control'; refCode: string; id: string }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
@@ -48894,6 +48898,7 @@ export type GetSubcontrolByIdMinifiedQuery = {
     subcategory?: string | null
     description?: string | null
     referenceFramework?: string | null
+    title?: string | null
     control: { __typename?: 'Control'; id: string; standardID?: string | null }
   }
 }

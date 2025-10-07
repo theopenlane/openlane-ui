@@ -5,6 +5,12 @@ import { PlanEnum } from '@/lib/subscription-plan/plan-enum'
 
 export async function hasFeature(feature: FeatureEnum): Promise<boolean> {
   const session = await auth()
+  const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
+
+  if (featureEnabled === 'false') {
+    return true
+  }
+
   if (!session) {
     return false
   }

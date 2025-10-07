@@ -133,10 +133,10 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
         </div>
         <div className="w-full border-b">
           {disableHref ? (
-            <span className="pl-3">{details.refCode}</span>
+            <span className="pl-3">{details.title ? `${details.refCode} ${details.title}` : details.refCode}</span>
           ) : (
             <Link href={nameHref} className="size-fit pl-3 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-              <span className="text-brand">{details.refCode}</span>
+              <span className="text-brand">{details.title ? `${details.refCode} ${details.title}` : details.refCode}</span>
               <ExternalLink size={12} />
             </Link>
           )}

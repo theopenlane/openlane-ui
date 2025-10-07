@@ -82,6 +82,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   }
 
   const displayMenu = (navItems: (NavItem | Separator | NavHeading)[]) => {
+    const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
     const modules = session?.user?.modules ?? []
     const activeNav = findActiveNavItem(navItems, pathname)
     return navItems.map((item, idx) => {
@@ -89,7 +90,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
         return <Hr key={idx} />
       }
 
-      if (item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
+      if (featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
         return <React.Fragment key={item?.plan}></React.Fragment>
       }
 

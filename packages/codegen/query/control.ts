@@ -80,6 +80,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     auditorReferenceID
     referenceID
     referenceFramework
+    title
     __typename
     controlObjectives {
       edges {
@@ -358,6 +359,7 @@ export const GET_CONTROL_BY_ID_MINIFIED = gql`
       subcategory
       description
       referenceFramework
+      title
     }
   }
 `
