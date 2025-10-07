@@ -7,22 +7,25 @@ import { useDeleteApiToken, useDeletePersonalAccessToken } from '@/lib/graphql-h
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import PersonalAccessTokenEdit from '../personal-access-token-edit-dialog'
 
 type TokenActionProps = {
   tokenId: string
   tokenName: string
+  tokenDescription?: string
+  tokenExpiration: string
+  tokenAuthorizedOrganizations?: { id: string; name: string }[]
 }
 
 const ICON_SIZE = 16
 
-export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
+export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations }: TokenActionProps) => {
   const { mutateAsync: deletePersonalToken } = useDeletePersonalAccessToken()
   const { mutateAsync: deleteApiToken } = useDeleteApiToken()
   const { successNotification, errorNotification } = useNotification()
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-
   const handleDeleteToken = async () => {
     try {
       if (isOrg) {
@@ -47,8 +50,10 @@ export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
 
   return (
     <>
-      <div className="flex items-center gap-2 justify-end">
+      <div className="flex items-center gap-4 justify-end">
+        <PersonalAccessTokenEdit tokenDescription={tokenDescription} tokenExpiration={tokenExpiration} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} />
         <Trash2
+          style={{ color: 'var(--destructive)' }}
           size={ICON_SIZE}
           onClick={(e) => {
             e.stopPropagation()

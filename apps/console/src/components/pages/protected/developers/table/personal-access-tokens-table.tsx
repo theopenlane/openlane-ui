@@ -187,7 +187,15 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} tokenName={cell.row.original.name} />,
+      cell: ({ cell }) => (
+        <TokenAction
+          tokenId={cell.getValue() as string}
+          tokenName={cell.row.original.name}
+          tokenDescription={cell.row.original.description}
+          tokenExpiration={formatDate(cell.row.original.expiresAt)}
+          tokenAuthorizedOrganizations={cell.row.original.organizations}
+        />
+      ),
     },
   ]
 
