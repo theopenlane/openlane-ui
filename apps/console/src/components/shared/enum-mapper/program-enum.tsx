@@ -4,12 +4,12 @@ import React from 'react'
 import Link from 'next/link'
 
 export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = {
-  [ProgramProgramStatus.ACTION_REQUIRED]: <FolderInput height={16} width={16} />,
-  [ProgramProgramStatus.COMPLETED]: <FolderCheck height={16} width={16} />,
-  [ProgramProgramStatus.IN_PROGRESS]: <FolderClock height={16} width={16} />,
-  [ProgramProgramStatus.NOT_STARTED]: <Folder height={16} width={16} />,
-  [ProgramProgramStatus.READY_FOR_AUDITOR]: <FolderOutput height={16} width={16} />,
-  [ProgramProgramStatus.ARCHIVED]: <FolderOutput height={16} width={16} />,
+  [ProgramProgramStatus.ACTION_REQUIRED]: <FolderInput height={16} width={16} className="text-action-required" />,
+  [ProgramProgramStatus.COMPLETED]: <FolderCheck height={16} width={16} className="text-completed" />,
+  [ProgramProgramStatus.IN_PROGRESS]: <FolderClock height={16} width={16} className="text-in-progress" />,
+  [ProgramProgramStatus.NOT_STARTED]: <Folder height={16} width={16} className="text-not-started" />,
+  [ProgramProgramStatus.READY_FOR_AUDITOR]: <FolderOutput height={16} width={16} className="text-ready-for-auditor" />,
+  [ProgramProgramStatus.ARCHIVED]: <FolderOutput height={16} width={16} className="text-archived" />,
 }
 
 export const ProgramStatusLabels: Record<ProgramProgramStatus, string> = {

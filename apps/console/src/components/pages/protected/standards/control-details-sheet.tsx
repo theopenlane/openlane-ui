@@ -167,7 +167,7 @@ const ControlDetailsSheet = () => {
           </SheetHeader>
         }
       >
-        <SheetTitle className="text-2xl text-start">{data?.control.refCode}</SheetTitle>
+        <SheetTitle className="text-2xl text-start">{data?.control.title ? `${data?.control.refCode} ${data.control.title}` : data?.control.refCode}</SheetTitle>
         <div className="flex flex-col gap-8">
           {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string)}</div>}
           <div className="flex flex-col gap-2.5">

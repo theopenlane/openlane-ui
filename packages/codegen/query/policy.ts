@@ -270,8 +270,8 @@ export const BULK_EDIT_INTERNAL_POLICY = gql`
 `
 
 export const CREATE_UPLOAD_POLICY = gql`
-  mutation CreateUploadInternalPolicy($policyFile: Upload!) {
-    createUploadInternalPolicy(policyFile: $policyFile) {
+  mutation CreateUploadInternalPolicy($internalPolicyFile: Upload!) {
+    createUploadInternalPolicy(internalPolicyFile: $internalPolicyFile) {
       internalPolicy {
         fileID
         id

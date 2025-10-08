@@ -49,7 +49,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
       await handleLinkUpload()
     }
 
-    setIsOpen(true)
+    setIsOpen(false)
   }
 
   const handleLinkUpload = async () => {
@@ -196,7 +196,11 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
               Direct Link
             </TabsTrigger>
           </TabsList>
-          <UploadTab acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx']} acceptedFileTypesShort={['TXT', 'MD', 'MDX']} uploadedFile={handleUploadedFile} />
+          <UploadTab
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md']}
+            acceptedFileTypesShort={['TXT', 'MD', 'MDX']}
+            uploadedFile={handleUploadedFile}
+          />
           <DirectLinkCreatePolicyProcedureTab setLink={setProcedureMdDocumentLink} link={procedureMdDocumentLink} onAddLink={handleAddLink} />
         </Tabs>
         {procedureMdDocumentLinks.map((link, index) => (

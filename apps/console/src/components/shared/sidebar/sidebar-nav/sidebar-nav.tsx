@@ -18,6 +18,8 @@ import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx
 import Menu from '@/components/shared/menu/menu.tsx'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { CONTRIBUTE_URL, DOCS_URL, OPENLANE_WEBSITE_URL, SUPPORT_EMAIL } from '@/constants'
+import { useSession } from 'next-auth/react'
+import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
@@ -41,6 +43,7 @@ const PANEL_WIDTH = 240
 export const PANEL_WIDTH_PX = PANEL_WIDTH
 
 export default function SideNav({ navItems, footerNavItems, openPanel, expanded, onToggleAction, onExpandToggleAction, isOrganizationSelected }: TSideNavProps) {
+  const { data: session } = useSession()
   const panelWidth = expanded ? PANEL_WIDTH : null
   const pathname = usePathname()
   const router = useRouter()
@@ -49,7 +52,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   useEffect(() => {
     if (!openPanel) {
       const firstItem = navItems.filter((item): item is NavItem => 'title' in item).filter((item) => item?.children && item.children.length > 0)[0]
-      onToggleAction(firstItem.title.toLowerCase() as PanelKey)
+      onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
     }
   }, [navItems, onToggleAction, openPanel])
 
@@ -59,7 +62,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   }
 
   const handleToggle = (isActive: boolean, item: NavItem) => {
-    onToggleAction(isActive ? openPanel : (item.title.toLowerCase() as PanelKey))
+    onToggleAction(isActive ? openPanel : (item?.title?.toLowerCase() as PanelKey))
   }
 
   const findActiveNavItem = (items: (NavItem | Separator | NavHeading)[], pathname: string): NavItem | undefined => {
@@ -79,10 +82,16 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
   }
 
   const displayMenu = (navItems: (NavItem | Separator | NavHeading)[]) => {
+    const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
+    const modules = session?.user?.modules ?? []
     const activeNav = findActiveNavItem(navItems, pathname)
     return navItems.map((item, idx) => {
       if ('type' in item && (item.type === 'separator' || item.type === 'heading')) {
         return <Hr key={idx} />
+      }
+
+      if (featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
+        return <React.Fragment key={item?.plan}></React.Fragment>
       }
 
       if ('icon' in item && item.icon) {

@@ -46,6 +46,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       auditorReferenceID
       referenceID
       referenceFramework
+      title
       control {
         refCode
         id
@@ -242,6 +243,7 @@ export const GET_SUBCONTROL_BY_ID_MINIFIED = gql`
       subcategory
       description
       referenceFramework
+      title
     }
   }
 `

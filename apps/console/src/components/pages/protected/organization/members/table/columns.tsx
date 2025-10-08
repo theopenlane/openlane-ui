@@ -4,7 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { AllGroupsPaginatedFieldsFragment, InviteInviteStatus, InviteRole } from '@repo/codegen/src/schema.ts'
 import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'
-import { InvitationIconMapper } from '@/components/shared/enum-mapper/invitation-enum'
+import { InvitationIconMapper, InvitationStatusMapper } from '@/components/shared/enum-mapper/invitation-enum'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { GlobeIcon, LockIcon, StarsIcon, Copy } from 'lucide-react'
 import React from 'react'
@@ -75,25 +75,10 @@ export const InvitesColumns = () => {
       header: 'Status',
       cell: ({ cell }) => {
         const status = cell.getValue() as InviteInviteStatus
-        let statusLabel
-        switch (status) {
-          case InviteInviteStatus.APPROVAL_REQUIRED:
-            statusLabel = 'Approval required'
-            break
-          case InviteInviteStatus.INVITATION_ACCEPTED:
-            statusLabel = 'Accepted'
-            break
-          case InviteInviteStatus.INVITATION_EXPIRED:
-            statusLabel = 'Expired'
-            break
-          case InviteInviteStatus.INVITATION_SENT:
-            statusLabel = 'Outstanding'
-            break
-        }
         return (
           <div className="flex gap-2 items-center">
             {InvitationIconMapper[status]}
-            {statusLabel}
+            {InvitationStatusMapper[status]}
           </div>
         )
       },

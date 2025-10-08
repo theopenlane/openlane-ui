@@ -49,7 +49,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
       await handleLinkUpload()
     }
 
-    setIsOpen(true)
+    setIsOpen(false)
   }
 
   const handleLinkUpload = async () => {
@@ -96,7 +96,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const handleFileUpload = async () => {
     if (hasSingleFileOrLink) {
       try {
-        const policy = await createUploadPolicy({ policyFile: uploadedFiles[0].file })
+        const policy = await createUploadPolicy({ internalPolicyFile: uploadedFiles[0].file })
         successNotification({
           title: 'Policy Created',
           description: 'Policy has been successfully created',
@@ -112,7 +112,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     } else {
       try {
         for (const uploadedFile of uploadedFiles) {
-          await createUploadPolicy({ policyFile: uploadedFile.file! })
+          await createUploadPolicy({ internalPolicyFile: uploadedFile.file! })
         }
         successNotification({
           title: 'Policy Created',
@@ -196,7 +196,11 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
               Direct Link
             </TabsTrigger>
           </TabsList>
-          <UploadTab acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/mdx']} acceptedFileTypesShort={['TXT', 'MD', 'MDX']} uploadedFile={handleUploadedFile} />
+          <UploadTab
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md']}
+            acceptedFileTypesShort={['TXT', 'MD', 'MDX']}
+            uploadedFile={handleUploadedFile}
+          />
           <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} />
         </Tabs>
         {policyMdDocumentLinks.map((link, index) => (

@@ -6,7 +6,7 @@ import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
+import { DocumentIconMapper, DocumentStatusBadge, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 
 type TProceduresColumnsProps = {
@@ -163,11 +163,16 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'status',
       header: 'Status',
-      size: 120,
-      cell: ({ cell }) => {
-        const value = cell.getValue<string>()
-        return <span className="capitalize">{value ? value.split('_').join(' ').toLowerCase() : '-'}</span>
+      cell: ({ row }) => {
+        const status = row.original.status!
+        return (
+          <div className="flex items-center space-x-2">
+            {DocumentIconMapper[status]}
+            <p>{DocumentStatusMapper[status]}</p>
+          </div>
+        )
       },
+      size: 100,
     },
     {
       accessorKey: 'tags',
