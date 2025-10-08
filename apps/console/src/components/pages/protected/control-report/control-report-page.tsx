@@ -16,8 +16,6 @@ import { ControlStatusOrder, ControlStatusTooltips, ControlIconMapper, ControlSt
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
-import { useRouter } from 'next/navigation'
-
 import { useSession } from 'next-auth/react'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
@@ -37,7 +35,6 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
-  const router = useRouter()
   const { data: sessionData } = useSession()
 
   const { data: permission } = useOrganizationRole(sessionData)

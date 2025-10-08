@@ -101,3 +101,23 @@ export const GET_API_TOKENS_BY_IDS = gql`
     }
   }
 `
+
+export const UPDATE_API_TOKEN = gql`
+  mutation UpdateAPIToken($updateApiTokenId: ID!, $input: UpdateAPITokenInput!) {
+    updateAPIToken(id: $updateApiTokenId, input: $input) {
+      apiToken {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_PERSONAL_ACCESS_TOKEN = gql`
+  mutation UpdatePersonalAccessToken($updatePersonalAccessTokenId: ID!, $input: UpdatePersonalAccessTokenInput!) {
+    updatePersonalAccessToken(id: $updatePersonalAccessTokenId, input: $input) {
+      personalAccessToken {
+        id
+      }
+    }
+  }
+`

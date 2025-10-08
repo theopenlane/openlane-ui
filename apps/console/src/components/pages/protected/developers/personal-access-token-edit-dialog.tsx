@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -13,17 +13,26 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuChe
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Organization } from '@repo/codegen/src/schema'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
+import { buildOrganizationsInput } from './utils'
 
 type PersonalAccessTokenEditProps = {
+  tokenId: string
   tokenDescription?: string
   tokenExpiration: string
   tokenAuthorizedOrganizations?: { id: string; name: string }[]
 }
 
-const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ tokenDescription, tokenExpiration, tokenAuthorizedOrganizations }) => {
+const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ tokenId, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations }) => {
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
   const [open, setOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: updatePersonalAccessToken } = useUpdatePersonalAccessToken()
+  const { mutateAsync: updateApiToken } = useUpdateApiToken()
   const { allOrgs: orgs } = useOrganization()
 
   const formSchema = z
@@ -48,6 +57,17 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
     },
   })
 
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'noExpire' && value.noExpire) {
+        form.setValue('expiryDate', undefined)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
+
+  const initialOrganizations = useMemo(() => tokenAuthorizedOrganizations?.map((org) => org.id) || [], [tokenAuthorizedOrganizations])
+
   const formatDateToLocal = (date?: Date) => {
     if (!date || !(date instanceof Date) || isNaN(date.getTime())) return ''
     const year = date.getFullYear()
@@ -56,8 +76,47 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
     return `${year}-${month}-${day}`
   }
 
-  const handleSubmit = (data: FormData) => {
-    console.log('Form submitted:', data)
+  const handleSubmit = async (data: FormData) => {
+    const organizationInput = buildOrganizationsInput(initialOrganizations, data.organizationIDs || [], 'OrganizationIDs')
+
+    try {
+      setIsSubmitting(true)
+      if (isOrg) {
+        await updateApiToken({
+          updateApiTokenId: tokenId,
+          input: {
+            ...(data.description ? { description: data.description } : { clearDescription: true }),
+          },
+        })
+      } else {
+        await updatePersonalAccessToken({
+          updatePersonalAccessTokenId: tokenId,
+          input: {
+            ...(data.description ? { description: data.description } : { clearDescription: true }),
+            ...organizationInput,
+          },
+        })
+      }
+
+      successNotification({
+        title: 'Token updated successfully!',
+        description: 'Copy your token now, as you will not be able to see it again.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+    setOpen(false)
+  }
+
+  const handleCloseDialog = () => {
+    if (isSubmitting) return
+    form.reset()
     setOpen(false)
   }
 
@@ -69,13 +128,13 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md max-h-[600px]">
+      <DialogContent className="max-w-md max-h-[600px] max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-[hsl(var(--foreground))]">Edit Personal Access Token</DialogTitle>
         </DialogHeader>
         <FormProvider {...form}>
           <form id="edit-token-form" className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className="space-y-4 py-4">
+            <div className="space-y-2 py-4">
               <div>
                 <FormField
                   name="description"
@@ -97,17 +156,21 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Token expiration</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          value={formatDateToLocal(field.value)}
-                          onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                          disabled={form.watch('noExpire')}
-                          className="mt-1"
-                        />
-                      </FormControl>
-                      <FormMessage />
+                      {!form.watch('noExpire') && (
+                        <>
+                          <FormLabel>Token expiration</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              value={formatDateToLocal(field.value)}
+                              onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                              disabled={form.watch('noExpire')}
+                              className="mt-1"
+                            />
+                          </FormControl>
+                          <FormMessage reserveSpace={false} />
+                        </>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -174,11 +237,11 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
           </form>
         </FormProvider>
         <DialogFooter>
-          <Button onClick={() => setOpen(false)} className="text-[hsl(var(--muted-foreground))]">
+          <Button onClick={handleCloseDialog} className="text-[hsl(var(--muted-foreground))]">
             Cancel
           </Button>
-          <Button type="submit" form="edit-token-form" className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
-            Save Changes
+          <Button type="submit" disabled={isSubmitting} form="edit-token-form" className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+            {isSubmitting ? 'Saving' : 'Save Changes'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -8,6 +8,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import PersonalAccessTokenEdit from '../personal-access-token-edit-dialog'
+import SsoAuthorizationDropdown from '../sso-authorization-dropdown'
 
 type TokenActionProps = {
   tokenId: string
@@ -51,7 +52,8 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpirat
   return (
     <>
       <div className="flex items-center gap-4 justify-end">
-        <PersonalAccessTokenEdit tokenDescription={tokenDescription} tokenExpiration={tokenExpiration} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} />
+        <PersonalAccessTokenEdit tokenId={tokenId} tokenDescription={tokenDescription} tokenExpiration={tokenExpiration} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} />
+        <SsoAuthorizationDropdown tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} />
         <Trash2
           style={{ color: 'var(--destructive)' }}
           size={ICON_SIZE}
