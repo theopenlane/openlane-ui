@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { defineStepper } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,12 +13,13 @@ import AdvancedSetupStep2 from './advanced-setup-steps/advanced-setup-step2'
 import AdvancedSetupStep3 from './advanced-setup-steps/advanced-setup-step3'
 import AdvancedSetupStep4 from './advanced-setup-steps/advanced-setup-step4'
 import AdvancedSetupStep5 from './advanced-setup-steps/advanced-setup-step5'
-import { fullSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, WizardValues } from './advanced-setup-wizard-config'
+import { fullSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, validateFullAndNotify, validateStepAndNotify, WizardValues } from './advanced-setup-wizard-config'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
+import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
 
 const today = new Date()
 const oneYearFromToday = addYears(new Date(), 1)
@@ -27,6 +28,7 @@ export default function AdvancedSetupWizard() {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const router = useRouter()
+  const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
@@ -61,16 +63,14 @@ export default function AdvancedSetupWizard() {
   })
 
   const handleNext = async () => {
-    const isValid = await form.trigger()
-    console.log('form.getValues()', form.getValues())
-    console.log('form.formState.errors', form.formState.errors)
-
-    if (!isValid) return
-
     if (!stepper.isLast) {
+      const valid = await validateStepAndNotify(form, stepper.current.id, errorNotification)
+      if (!valid) return
       stepper.next()
     } else {
-      handleFormSubmit()
+      const validAll = await validateFullAndNotify(form, errorNotification)
+      if (!validAll) return
+      await handleFormSubmit()
     }
   }
 
@@ -95,14 +95,14 @@ export default function AdvancedSetupWizard() {
     const data = parsed.data
 
     const programMembers =
-      data.programMembers?.map((userId) => ({
-        userID: userId,
+      data.programMembers?.map((member) => ({
+        userID: member.user.id,
         role: ProgramMembershipRole.MEMBER,
       })) ?? []
 
     const programAdmins =
-      data.programAdmins?.map((userId) => ({
-        userID: userId,
+      data.programAdmins?.map((admin) => ({
+        userID: admin.user.id,
         role: ProgramMembershipRole.ADMIN,
       })) ?? []
 
@@ -119,9 +119,9 @@ export default function AdvancedSetupWizard() {
         auditor: data.auditPartnerName,
         auditorEmail: data.auditPartnerEmail || undefined,
         auditFirm: data.auditFirm,
-        riskIDs: data.riskIDs,
-        internalPolicyIDs: data.internalPolicyIDs,
-        procedureIDs: data.procedureIDs,
+        riskIDs: data.riskIDs?.map((r) => r.value) ?? [],
+        internalPolicyIDs: data.internalPolicyIDs?.map((p) => p.value) ?? [],
+        procedureIDs: data.procedureIDs?.map((pr) => pr.value) ?? [],
         frameworkName: data.framework,
       },
       members: [...programMembers, ...programAdmins],
@@ -145,12 +145,14 @@ export default function AdvancedSetupWizard() {
 
   const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
 
+  useEffect(() => {
+    setSummaryData(form.getValues() as WizardValues)
+  }, [currentIndex, form])
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-2">
       <StepHeader stepper={stepper} currentIndex={currentIndex} />
       <Separator separatorClass="bg-card" />
-
-      {/* key remounts the form when step changes so the resolver updates */}
       <FormProvider {...form} key={stepper.current.id}>
         <div className="py-6 flex gap-16">
           <div className="flex flex-col flex-1">
@@ -171,73 +173,7 @@ export default function AdvancedSetupWizard() {
               </Button>
             </div>
           </div>
-          {/* Right side — Your Program Summary */}
-          <div className="space-y-3 w-[400px] shrink-0">
-            <h3 className="text-base font-medium mb-6">Your Program</h3>
-
-            <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-3">Basic Information</p>
-              <div className="text-xs space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Type</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Program Name</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Start Date</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">End Date</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-3">Audit Information</p>
-              <div className="text-xs space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Audit Partner</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Audit Firm</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Audit Partner Email</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-3">Team</p>
-              <p className="text-xs text-inverted-muted-foreground">Add team members to this program</p>
-            </div>
-
-            <div className="rounded-md border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-3">Associate Existing Objects</p>
-              <div className="text-xs space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Associate Existing Risks</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Associate Existing Policies</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Audit Partner Email</span>
-                  <span className="text-sm text-inverted-muted-foreground">Empty</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <AdvancedSetupFormSummary summaryData={summaryData} />
         </div>
       </FormProvider>
     </div>

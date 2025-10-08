@@ -5,11 +5,12 @@ import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { WizardValues } from '../advanced-setup-wizard-config'
 
 const AdvancedSetupStep4 = () => {
-  const { control } = useFormContext()
-  const { userOptions } = useUserSelect()
-  const { groupOptions } = useGroupSelect()
+  const { control } = useFormContext<WizardValues>()
+  const { members, userOptions } = useUserSelect()
+  const { groups, groupOptions } = useGroupSelect()
 
   return (
     <div className="space-y-6">
@@ -43,8 +44,13 @@ const AdvancedSetupStep4 = () => {
               <MultipleSelector
                 placeholder="Search users..."
                 options={userOptions}
-                value={userOptions.filter((o) => field.value?.includes(o.value))}
-                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+                value={
+                  field.value?.map((m) => ({
+                    label: m.user.displayName,
+                    value: m.user.id,
+                  })) ?? []
+                }
+                onChange={(selected) => field.onChange(members.filter((m) => selected.some((s) => s.value === m.user.id)))}
               />
             )}
           />
@@ -60,8 +66,13 @@ const AdvancedSetupStep4 = () => {
               <MultipleSelector
                 placeholder="Search users..."
                 options={userOptions}
-                value={userOptions.filter((o) => field.value?.includes(o.value))}
-                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+                value={
+                  field.value?.map((m) => ({
+                    label: m.user.displayName,
+                    value: m.user.id,
+                  })) ?? []
+                }
+                onChange={(selected) => field.onChange(members.filter((m) => selected.some((s) => s.value === m.user.id)))}
               />
             )}
           />
@@ -77,8 +88,13 @@ const AdvancedSetupStep4 = () => {
               <MultipleSelector
                 placeholder="Search groups..."
                 options={groupOptions}
-                value={groupOptions.filter((o) => field.value?.includes(o.value))}
-                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+                value={
+                  field.value?.map((g) => ({
+                    label: g.name,
+                    value: g.id,
+                  })) ?? []
+                }
+                onChange={(selected) => field.onChange(groups.filter((g) => selected.some((s) => s.value === g.id)))}
               />
             )}
           />
@@ -94,8 +110,13 @@ const AdvancedSetupStep4 = () => {
               <MultipleSelector
                 placeholder="Search groups..."
                 options={groupOptions}
-                value={groupOptions.filter((o) => field.value?.includes(o.value))}
-                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
+                value={
+                  field.value?.map((g) => ({
+                    label: g.name,
+                    value: g.id,
+                  })) ?? []
+                }
+                onChange={(selected) => field.onChange(groups.filter((g) => selected.some((s) => s.value === g.id)))}
               />
             )}
           />

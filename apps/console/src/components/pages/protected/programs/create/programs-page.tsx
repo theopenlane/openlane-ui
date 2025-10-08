@@ -18,13 +18,13 @@ const quickstartOptions = [
   {
     title: 'Risk Assessment',
     description: 'Easily create a risk register with built-in scoring & reporting.',
-    details: ['Default risk scoring (likelihood × impact)', 'Standard risk categories', 'Sample controls pre-loaded'],
+    details: ['Default risk scoring (likelihood x impact)', 'Standard risk categories', 'Sample controls pre-loaded'],
     illustration: <RiskAssessmentIllustration />,
     url: '/programs/create/risk-assessment',
   },
   {
     title: 'Framework Based',
-    description: 'Choose the compliance standard and we’ll get you started.',
+    description: "Choose the compliance standard and we'll get you started.",
     details: ['Select from any existing compliance standard', 'Choose templates or bring your own policies', 'Invite your team now or later'],
     illustration: <FrameworkBasedIllustration />,
     url: '/programs/create/framework-based',

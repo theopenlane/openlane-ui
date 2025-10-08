@@ -8,14 +8,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ProgramTypeSelect from '../shared/form-fields/program-select'
 
-// GraphQL + utils
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { CreateProgramWithMembersInput, ProgramProgramType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type ProgramFormValues = {
-  programType: string
+  programType: ProgramProgramType
   name: string
   description: string
 }
@@ -23,7 +22,7 @@ type ProgramFormValues = {
 const GenericProgram = () => {
   const methods = useForm<ProgramFormValues>({
     defaultValues: {
-      programType: '',
+      programType: undefined,
       name: '',
       description: '',
     },
@@ -45,7 +44,7 @@ const GenericProgram = () => {
         program: {
           name: data.name,
           description: data.description,
-          programType: data.programType as ProgramProgramType,
+          programType: data.programType,
         },
       }
 

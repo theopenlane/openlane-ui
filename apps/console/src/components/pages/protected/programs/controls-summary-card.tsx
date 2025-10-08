@@ -33,7 +33,6 @@ export function ControlsSummaryCard() {
 
   const totalValue = chartData.reduce((acc, item) => acc + item.value, 0)
 
-  // 🛠️ If everything is 0, render 1 dummy slice
   const donutChartData = totalValue > 0 ? chartData : [{ name: 'No data', value: 1 }]
   const donutChartColors = totalValue > 0 ? chartColors : ['#E5E7EB']
 

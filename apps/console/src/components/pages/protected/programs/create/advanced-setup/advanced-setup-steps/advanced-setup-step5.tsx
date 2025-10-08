@@ -44,14 +44,7 @@ const AdvancedSetupStep5 = () => {
           <Controller
             control={control}
             name="riskIDs"
-            render={({ field }) => (
-              <MultipleSelector
-                placeholder="Select risks from the list"
-                options={riskOptions}
-                value={riskOptions.filter((o) => field.value?.includes(o.value))}
-                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
-              />
-            )}
+            render={({ field }) => <MultipleSelector placeholder="Search risks..." options={riskOptions} value={field.value ?? []} onChange={field.onChange} />}
           />
         </div>
 
@@ -61,14 +54,7 @@ const AdvancedSetupStep5 = () => {
           <Controller
             control={control}
             name="internalPolicyIDs"
-            render={({ field }) => (
-              <MultipleSelector
-                placeholder="Select policies from the list"
-                options={policyOptions}
-                value={policyOptions.filter((o) => field.value?.includes(o.value))}
-                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
-              />
-            )}
+            render={({ field }) => <MultipleSelector placeholder="Select policies from the list" options={policyOptions} value={field.value ?? []} onChange={field.onChange} />}
           />
         </div>
 
@@ -78,14 +64,7 @@ const AdvancedSetupStep5 = () => {
           <Controller
             control={control}
             name="procedureIDs"
-            render={({ field }) => (
-              <MultipleSelector
-                placeholder="Select procedures from the list"
-                options={procedureOptions}
-                value={procedureOptions.filter((o) => field.value?.includes(o.value))}
-                onChange={(selected) => field.onChange(selected.map((o) => o.value))}
-              />
-            )}
+            render={({ field }) => <MultipleSelector placeholder="Select procedures from the list" options={procedureOptions} value={field.value ?? []} onChange={field.onChange} />}
           />
         </div>
       </div>

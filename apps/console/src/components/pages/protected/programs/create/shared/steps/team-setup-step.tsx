@@ -6,7 +6,6 @@ import { Card } from '@repo/ui/cardpanel'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { useFormContext } from 'react-hook-form'
-import { z, infer as zInfer } from 'zod'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 
@@ -62,24 +61,15 @@ export default function TeamSetupStep() {
   )
 }
 
-export const programInviteSchema = z.object({
-  programAdmins: z.array(z.string()).optional(),
-  programMembers: z.array(z.string()).optional(),
-  groupEditors: z.array(z.string()).optional(),
-  groupViewers: z.array(z.string()).optional(),
-})
-
-type ProgramInviteValues = zInfer<typeof programInviteSchema>
-
 type AddSelectDropdownProps = {
-  fieldName: keyof ProgramInviteValues
+  fieldName: string
   formLabel: string
   placeholder: string
   options: { label: string; value: string }[]
 }
 
 export const AddSelectDropdown = ({ fieldName, formLabel, placeholder, options }: AddSelectDropdownProps) => {
-  const { register, control } = useFormContext<ProgramInviteValues>()
+  const { register, control } = useFormContext()
 
   return (
     <FormField

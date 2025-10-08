@@ -1,9 +1,43 @@
+// framework-based-wizard-config.ts
+import { TErrorProps } from '@/hooks/useNotification'
+import { ProgramProgramType } from '@repo/codegen/src/schema'
 import { z } from 'zod'
+import { UseFormReturn } from 'react-hook-form'
+
 export const selectFrameworkSchema = z.object({
-  framework: z
-    .string({
-      required_error: 'Framework is required',
-    })
-    .min(1, { message: 'Framework is required' }),
+  framework: z.string({ required_error: 'Framework is required' }).min(1, { message: 'Framework is required' }),
   standardID: z.string().optional(),
+  name: z.string().optional(),
 })
+
+export const programInviteSchema = z.object({
+  programAdmins: z.array(z.string()).optional(),
+  programMembers: z.array(z.string()).optional(),
+  editAccessGroups: z.array(z.string()).optional(),
+  readOnlyGroups: z.array(z.string()).optional(),
+})
+
+export const programTypeSchema = z.object({
+  programType: z.nativeEnum(ProgramProgramType, {
+    required_error: 'Please choose a program type',
+  }),
+})
+
+export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(programTypeSchema)
+
+export type WizardValues = z.infer<typeof wizardSchema>
+
+export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> {
+  const values = methods.getValues()
+  const result = wizardSchema.safeParse(values)
+
+  if (!result.success) {
+    const firstIssue = result.error.issues[0]
+    if (firstIssue?.message) {
+      notify({ title: 'Error', description: firstIssue.message })
+    }
+    return false
+  }
+
+  return true
+}

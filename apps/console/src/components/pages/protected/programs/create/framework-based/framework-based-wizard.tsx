@@ -3,81 +3,106 @@ import { defineStepper } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
-
 import React from 'react'
-import { programInviteSchema } from '../shared/steps/team-setup-step'
-import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
-import { selectFrameworkSchema } from './framework-based-wizard-config'
+import { programInviteSchema, programTypeSchema, selectFrameworkSchema, validateFullAndNotify, WizardValues } from './framework-based-wizard-config'
+import { ProgramMembershipRole, CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
+import { useNotification } from '@/hooks/useNotification'
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export default function FrameworkBasedWizard() {
   const router = useRouter()
-
-  const step3Schema = z.object({
-    programType: z.nativeEnum(ProgramProgramType),
-  })
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
 
   const { useStepper } = defineStepper(
-    { id: '0', label: 'Pick Categories', schema: selectFrameworkSchema },
+    { id: '0', label: 'Select Framework', schema: selectFrameworkSchema },
     { id: '1', label: 'Team Setup', schema: programInviteSchema },
-    { id: '2', label: 'Access Control', schema: step3Schema },
+    { id: '2', label: 'Program Type', schema: programTypeSchema },
   )
   const stepper = useStepper()
 
-  const methods = useForm({
+  const methods = useForm<WizardValues>({
     resolver: zodResolver(stepper.current.schema),
     mode: 'onChange',
   })
 
   const handleNext = async () => {
-    const isValid = await methods.trigger()
-    console.log('isValid:', isValid)
-    console.log('form values:', methods.getValues())
-    console.log('form errors:', methods.formState.errors)
-    if (!isValid) return
     if (!stepper.isLast) {
+      const isValid = await methods.trigger()
+      if (!isValid) return
       stepper.next()
     } else {
-      // TODO: handle submit
+      const validAll = await validateFullAndNotify(methods, errorNotification)
+      if (!validAll) return
+      await handleSubmit()
+    }
+  }
+
+  const handleSubmit = async () => {
+    const values = methods.getValues()
+    const currentYear = new Date().getFullYear()
+
+    const toMembers = (ids?: string[], role?: ProgramMembershipRole) => ids?.map((userID) => ({ userID, role })) ?? []
+
+    const input: CreateProgramWithMembersInput = {
+      program: {
+        name: values.name || `Risk Assessment - ${currentYear}`,
+        frameworkName: values.framework,
+        programType: values.programType,
+      },
+      members: [...toMembers(values.programMembers, ProgramMembershipRole.MEMBER), ...toMembers(values.programAdmins, ProgramMembershipRole.ADMIN)],
+    }
+
+    try {
+      const resp = await createProgram({ input })
+      successNotification({
+        title: 'Program Created',
+        description: `Your program, ${input.program.name}, has been successfully created`,
+      })
+      router.push(`/programs?id=${resp.createProgramWithMembers.program.id}`)
+    } catch (e) {
+      errorNotification({
+        title: 'Error',
+        description: parseErrorMessage(e),
+      })
     }
   }
 
   const handleBack = () => {
-    if (stepper.isFirst) {
-      return router.push('/programs/create')
-    }
+    if (stepper.isFirst) return router.push('/programs/create')
     stepper.prev()
   }
 
-  const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
+  const currentIndex = stepper.all.findIndex((i) => i.id === stepper.current.id)
 
   return (
-    <>
-      <div className="max-w-3xl mx-auto px-6 py-2">
-        <StepHeader stepper={stepper} currentIndex={currentIndex} />
-        <Separator className="" separatorClass="bg-card" />
-        <FormProvider {...methods}>
-          <div className="py-6">
-            {stepper.switch({
-              0: () => <SelectFrameworkStep />,
-              1: () => <TeamSetupStep />,
-              2: () => <StartTypeStep />,
-            })}
-            <div className="flex justify-between mt-8">
-              <Button variant="outline" onClick={handleBack} iconPosition="left">
-                Back
-              </Button>
-              <Button onClick={handleNext}>{stepper.isLast ? 'Create' : 'Continue'}</Button>
-            </div>
+    <div className="max-w-3xl mx-auto px-6 py-2">
+      <StepHeader stepper={stepper} currentIndex={currentIndex} />
+      <Separator className="" separatorClass="bg-card" />
+      <FormProvider {...methods}>
+        <div className="py-6">
+          {stepper.switch({
+            0: () => <SelectFrameworkStep />,
+            1: () => <TeamSetupStep />,
+            2: () => <StartTypeStep />,
+          })}
+          <div className="flex justify-between mt-8">
+            <Button variant="outline" onClick={handleBack} iconPosition="left">
+              Back
+            </Button>
+            <Button onClick={handleNext} disabled={isPending} loading={isPending}>
+              {stepper.isLast ? 'Create' : 'Continue'}
+            </Button>
           </div>
-        </FormProvider>
-      </div>
-    </>
+        </div>
+      </FormProvider>
+    </div>
   )
 }
