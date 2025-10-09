@@ -7,13 +7,12 @@ import { Button } from '@repo/ui/button'
 import { Card, CardTitle } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
-import { exportCSV } from '@/lib/export'
-import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
-import { useCreateBulkCSVRisk } from '@/lib/graphql-hooks/risks.ts'
+import { DOCS_URL } from '@/constants'
+import { useCloneBulkCSVControl } from '@/lib/graphql-hooks/controls.ts'
 import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-type BulkCsvCreateRiskDialogProps = {
+type BulkCsvCreateControlDialogProps = {
   trigger?: React.ReactElement<
     Partial<{
       onClick: React.MouseEventHandler
@@ -23,11 +22,11 @@ type BulkCsvCreateRiskDialogProps = {
   >
 }
 
-const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigger }) => {
+const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createBulkRisk, isPending: isSubmitting } = useCreateBulkCSVRisk()
+  const { mutateAsync: cloneBulkControl, isPending: isSubmitting } = useCloneBulkCSVControl()
 
   const handleFileUpload = async () => {
     if (!uploadedFile) {
@@ -35,10 +34,10 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
     }
 
     try {
-      await createBulkRisk({ input: uploadedFile.file! })
+      await cloneBulkControl({ input: uploadedFile.file! })
       successNotification({
-        title: 'Risks Created',
-        description: `Risks has been successfully created`,
+        title: 'Controls Created',
+        description: `Controls have been successfully created`,
       })
       setIsOpen(false)
     } catch (error) {
@@ -54,10 +53,6 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
     setUploadedFile(uploadedFile)
   }
 
-  const handleCSVExport = async () => {
-    await exportCSV({ filename: 'risk' })
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
@@ -70,29 +65,27 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
       ) : (
         <DialogTrigger asChild>
           <Button icon={<Upload />} className="h-8 !px-2 bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-            Bulk Upload
+            Bulk Upload From Standards
           </Button>
         </DialogTrigger>
       )}
 
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Bulk Upload</DialogTitle>
+          <DialogTitle>Bulk Upload From Standards</DialogTitle>
         </DialogHeader>
-        <Card className="mt-6 p-4 flex gap-3">
+        <Card className="p-4 flex gap-3">
           <CardTitle className="py-2 px-2">
             <Info width={16} height={16} />
           </CardTitle>
+
           <p className="text-sm">
-            You can upload a csv containing risks. Please refer to our{' '}
-            <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#risk`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+            Upload your existing controls using a CSV file based on one of our supported standards. This allows you to import your controls while ensuring they stay up to date as future changes are
+            published to the upstream standard. Refer to our{' '}
+            <a href={`${DOCS_URL}/docs/platform/compliance-management/controls/onboarding`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
               documentation
             </a>{' '}
-            for column format. We also provide a{' '}
-            <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-              template csv file
-            </span>{' '}
-            for you to fill out.
+            for the required column format, where you can also download a CSV template to fill out.
           </p>
         </Card>
         <FileUpload
@@ -113,4 +106,4 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
   )
 }
 
-export default BulkCSVCreateRiskDialog
+export { BulkCSVCloneControlDialog }

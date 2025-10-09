@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Info, Upload } from 'lucide-react'
 import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
+import { Card, CardTitle } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/tasks'
 import { useNotification } from '@/hooks/useNotification'
@@ -80,21 +80,20 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
           <DialogTitle>Bulk Upload</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
-          <Info className="mt-1" width={16} height={16} />
-          <div>
-            <p className="font-semibold">Column format</p>
-            <p className="text-sm">
-              You can upload a csv containing tasks. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-                documentation
-              </a>{' '}
-              for column format. We also provide a{' '}
-              <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-                template csv file
-              </span>{' '}
-              for you to fill out.
-            </p>
-          </div>
+          <CardTitle className="py-2 px-2">
+            <Info width={16} height={16} />
+          </CardTitle>
+          <p className="text-sm">
+            You can upload a csv containing tasks. Please refer to our{' '}
+            <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+              documentation
+            </a>{' '}
+            for column format. We also provide a{' '}
+            <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+              template csv file
+            </span>{' '}
+            for you to fill out.
+          </p>
         </Card>
         <FileUpload
           acceptedFileTypes={['text/csv']}
