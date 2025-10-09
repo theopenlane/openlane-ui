@@ -105,13 +105,12 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="relative flex items-center">
-                  {isActive && <span className="absolute -left-[11.2px] w-[2px] h-full bg-foreground dark:bg-primary rounded-r-md" />}
-
+                  {isActive && <span className="absolute -left-[7px] w-[2px] h-full bg-foreground dark:bg-primary" />}
                   <button
                     onClick={() => (isExpandable ? handleToggle(isActive, item) : handleNavigate(url))}
-                    className={`btn-card text-muted-foreground p-1 ${isActive ? 'is-active text-paragraph' : ''}`}
+                    className={`btn-card text-muted-foreground p-1 h-8 w-8 ${isActive ? 'is-active text-paragraph' : ''}`}
                   >
-                    <Icon size={18} />
+                    <Icon size={20} />
                   </button>
                 </div>
               </TooltipTrigger>
@@ -134,10 +133,10 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
     const link = (
       <Link
         href={child.href ?? '#'}
-        className={`flex items-center gap-2 p-1 mb-2 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
+        className={`flex items-center gap-2 p-1 mb-2 h-[32px] rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
       >
-        {child.icon && <child.icon size={20} />}
-        {expanded && <span className="text-sm font-medium">{child.title}</span>}
+        {child.icon && <child.icon size={16} />}
+        {expanded && <span className="text-sm font-normal leading-5">{child.title}</span>}
       </Link>
     )
 
