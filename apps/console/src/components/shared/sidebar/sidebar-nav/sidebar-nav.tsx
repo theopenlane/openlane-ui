@@ -192,7 +192,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
               <TooltipTrigger asChild>
                 <button className="btn-card text-muted-foreground p-1">
                   <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer">
-                    <BookText size={18} className={`btn-card text-muted-foreground`} />
+                    <BookText size={20} className={`btn-card text-muted-foreground`} />
                   </Link>
                 </button>
               </TooltipTrigger>
@@ -207,7 +207,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
               <TooltipTrigger asChild>
                 <button className="btn-card text-muted-foreground p-1">
                   <Link href={SUPPORT_EMAIL}>
-                    <MessageSquareText size={18} className={`btn-card text-muted-foreground`} />
+                    <MessageSquareText size={20} className={`btn-card text-muted-foreground`} />
                   </Link>
                 </button>
               </TooltipTrigger>
@@ -222,7 +222,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
               <TooltipTrigger asChild>
                 <button className="btn-card text-muted-foreground p-1">
                   <Link href={CONTRIBUTE_URL} target="_blank" rel="noopener noreferrer">
-                    <Github size={18} className="btn-card text-muted-foreground" />
+                    <Github size={20} className="btn-card text-muted-foreground" />
                   </Link>
                 </button>
               </TooltipTrigger>
