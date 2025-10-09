@@ -22,7 +22,7 @@ import { addYears } from 'date-fns'
 import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
 
 const today = new Date()
-const oneYearFromToday = addYears(new Date(), 1)
+const oneYearFromToday = addYears(today, 1)
 
 export default function AdvancedSetupWizard() {
   const { errorNotification, successNotification } = useNotification()

@@ -5,6 +5,7 @@ import { TErrorProps } from '@/hooks/useNotification'
 
 export const step1Schema = z.object({
   categories: z.array(z.string()).min(1, 'You need to choose at least one category'),
+  standardID: z.string().optional(),
 })
 
 export const programInviteSchema = z.object({
@@ -44,14 +45,14 @@ export async function validateStepAndNotify<T extends FieldValues>(methods: UseF
     const [firstErrorKey] = Object.keys(methods.formState.errors) as Path<T>[]
     if (firstErrorKey) {
       const { error } = methods.getFieldState(firstErrorKey)
-      if (error?.message) notify({ title: 'Greška', description: error.message })
+      if (error?.message) notify({ title: 'Error', description: error.message })
     }
     return false
   }
 
   if (fieldName) {
     const { error } = methods.getFieldState(fieldName)
-    if (error?.message) notify({ title: 'Greška', description: error.message })
+    if (error?.message) notify({ title: 'Error', description: error.message })
   }
 
   return false
@@ -64,7 +65,7 @@ export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>
   if (!result.success) {
     const firstIssue = result.error.issues[0]
     if (firstIssue?.message) {
-      notify({ title: 'Greška', description: firstIssue.message })
+      notify({ title: 'Error', description: firstIssue.message })
     }
     return false
   }

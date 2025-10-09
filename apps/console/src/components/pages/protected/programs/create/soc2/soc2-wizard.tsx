@@ -16,9 +16,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
-import { getYear } from 'date-fns'
+import { addYears, getYear } from 'date-fns'
 
-const currentYear = getYear(new Date())
+const today = new Date()
+const oneYearFromToday = addYears(today, 1)
+const currentYear = getYear(today)
 
 export default function Soc2Wizard() {
   const router = useRouter()
@@ -36,7 +38,7 @@ export default function Soc2Wizard() {
     resolver: zodResolver(stepper.current.schema),
     mode: 'onChange',
     defaultValues: {
-      categories: [],
+      categories: ['Availability'],
       programType: undefined,
     },
   })
@@ -60,7 +62,10 @@ export default function Soc2Wizard() {
       program: {
         name: `SOC2 - ${currentYear}`,
         programType: data.programType,
+        startDate: today,
+        endDate: oneYearFromToday,
       },
+      standardID: data.standardID,
       categories: data.categories,
       members: [...programMembers, ...programAdmins],
     }
@@ -81,7 +86,8 @@ export default function Soc2Wizard() {
     }
   }
 
-  const handleNext = async () => {
+  const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault()
     if (!stepper.isLast) {
       const valid = await validateStepAndNotify(methods, stepper.current.id, errorNotification)
       if (!valid) return
@@ -108,21 +114,23 @@ export default function Soc2Wizard() {
       <StepHeader stepper={stepper} currentIndex={currentIndex} />
       <Separator className="" separatorClass="bg-card" />
       <FormProvider {...methods}>
-        <div className="py-6">
-          {stepper.switch({
-            0: () => <SOC2CategoryStep />,
-            1: () => <TeamSetupStep />,
-            2: () => <StartTypeStep />,
-          })}
-          <div className="flex justify-between mt-8">
-            <Button variant="outline" onClick={handleBack} iconPosition="left">
-              Back
-            </Button>
-            <Button onClick={handleNext} disabled={isPending} loading={isPending}>
-              {stepper.isLast ? 'Create' : 'Continue'}
-            </Button>
+        <form onSubmit={handleNext}>
+          <div className="py-6">
+            {stepper.switch({
+              0: () => <SOC2CategoryStep />,
+              1: () => <TeamSetupStep />,
+              2: () => <StartTypeStep />,
+            })}
+            <div className="flex justify-between mt-8">
+              <Button type="button" variant="outline" onClick={handleBack} iconPosition="left">
+                Back
+              </Button>
+              <Button type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+                {stepper.isLast ? 'Create' : 'Continue'}
+              </Button>
+            </div>
           </div>
-        </div>
+        </form>
       </FormProvider>
     </div>
   )

@@ -12,6 +12,10 @@ import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { CreateProgramWithMembersInput, ProgramProgramType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { addYears } from 'date-fns'
+
+const today = new Date()
+const oneYearFromToday = addYears(today, 1)
 
 type ProgramFormValues = {
   programType: ProgramProgramType
@@ -45,6 +49,8 @@ const GenericProgram = () => {
           name: data.name,
           description: data.description,
           programType: data.programType,
+          startDate: today,
+          endDate: oneYearFromToday,
         },
       }
 

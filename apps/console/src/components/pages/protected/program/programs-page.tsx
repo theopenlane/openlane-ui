@@ -4,7 +4,6 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
-import { ProgramCreate } from '@/components/pages/protected/program/program-create'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
@@ -30,6 +29,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import Loading from '@/app/(protected)/programs/loading'
 import { Checkbox } from '@repo/ui/checkbox'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import Link from 'next/link'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -155,14 +155,10 @@ const ProgramsPage: React.FC = () => {
             {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
               <>
                 <p className="text-sm text-muted-foreground">Ready to get started?</p>
-                <ProgramCreate
-                  className="bg-unset"
-                  trigger={
-                    <div className="text-blue-500 flex items-center gap-1">
-                      <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
-                    </div>
-                  }
-                />
+
+                <Link href="programs/create/" className="text-blue-500 flex items-center gap-1">
+                  <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
+                </Link>
               </>
             )}
           </div>
@@ -214,7 +210,9 @@ const ProgramsPage: React.FC = () => {
                 trigger={CreateBtn}
                 content={
                   <>
-                    <ProgramCreate trigger={ProgramCreateIconBtn} className="bg-transparent px-1" />
+                    <Link href="programs/create/" className="px-1">
+                      {ProgramCreateIconBtn}
+                    </Link>
                     <CreateTaskDialog
                       className="bg-transparent px-1"
                       initialData={initialData}

@@ -8,7 +8,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
-import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramType } from '@repo/codegen/src/schema'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
 import { programInviteSchema, selectFrameworkSchema, step3Schema, wizardSchema, WizardValues } from './risk-assessment-wizard-config'
@@ -16,9 +16,11 @@ import AssociateRisksStep from './associate-risk-step'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { getYear } from 'date-fns'
+import { addYears, getYear } from 'date-fns'
 
-const currentYear = getYear(new Date())
+const today = new Date()
+const oneYearFromToday = addYears(today, 1)
+const currentYear = getYear(today)
 
 export default function RiskAssessmentWizard() {
   const router = useRouter()
@@ -43,6 +45,7 @@ export default function RiskAssessmentWizard() {
       programMembers: [],
       programAdmins: [],
       riskIDs: [],
+      programType: ProgramProgramType.RISK_ASSESSMENT,
     },
   })
 
@@ -66,7 +69,11 @@ export default function RiskAssessmentWizard() {
         name: values.name || `Risk Assessment - ${currentYear}`,
         riskIDs: values.riskIDs,
         frameworkName: values.framework,
+        programType: values.programType,
+        startDate: today,
+        endDate: oneYearFromToday,
       },
+      standardID: values.standardID,
       members: [...programMembers, ...programAdmins],
     }
 
@@ -86,7 +93,8 @@ export default function RiskAssessmentWizard() {
     }
   }
 
-  const handleNext = async () => {
+  const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault()
     const isValid = await methods.trigger()
     if (!isValid) return
 
@@ -110,21 +118,23 @@ export default function RiskAssessmentWizard() {
         <StepHeader stepper={stepper} currentIndex={currentIndex} />
         <Separator className="" separatorClass="bg-card" />
         <FormProvider {...methods}>
-          <div className="py-6">
-            {stepper.switch({
-              0: () => <SelectFrameworkStep />,
-              1: () => <TeamSetupStep />,
-              2: () => <AssociateRisksStep />,
-            })}
-            <div className="flex justify-between mt-8">
-              <Button variant="outline" onClick={handleBack} iconPosition="left">
-                Back
-              </Button>
-              <Button onClick={handleNext} disabled={isPending} loading={isPending}>
-                {stepper.isLast ? 'Create' : 'Continue'}
-              </Button>
+          <form onSubmit={handleNext}>
+            <div className="py-6">
+              {stepper.switch({
+                0: () => <SelectFrameworkStep />,
+                1: () => <TeamSetupStep />,
+                2: () => <AssociateRisksStep />,
+              })}
+              <div className="flex justify-between mt-8">
+                <Button type="button" variant="outline" onClick={handleBack} iconPosition="left">
+                  Back
+                </Button>
+                <Button type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+                  {stepper.isLast ? 'Create' : 'Continue'}
+                </Button>
+              </div>
             </div>
-          </div>
+          </form>
         </FormProvider>
       </div>
     </>

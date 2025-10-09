@@ -15,6 +15,10 @@ import { ProgramMembershipRole, CreateProgramWithMembersInput } from '@repo/code
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { addYears } from 'date-fns'
+
+const today = new Date()
+const oneYearFromToday = addYears(today, 1)
 
 export default function FrameworkBasedWizard() {
   const router = useRouter()
@@ -33,7 +37,8 @@ export default function FrameworkBasedWizard() {
     mode: 'onChange',
   })
 
-  const handleNext = async () => {
+  const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault()
     if (!stepper.isLast) {
       const isValid = await methods.trigger()
       if (!isValid) return
@@ -56,6 +61,8 @@ export default function FrameworkBasedWizard() {
         name: values.name || `Risk Assessment - ${currentYear}`,
         frameworkName: values.framework,
         programType: values.programType,
+        startDate: today,
+        endDate: oneYearFromToday,
       },
       members: [...toMembers(values.programMembers, ProgramMembershipRole.MEMBER), ...toMembers(values.programAdmins, ProgramMembershipRole.ADMIN)],
     }
@@ -87,21 +94,23 @@ export default function FrameworkBasedWizard() {
       <StepHeader stepper={stepper} currentIndex={currentIndex} />
       <Separator className="" separatorClass="bg-card" />
       <FormProvider {...methods}>
-        <div className="py-6">
-          {stepper.switch({
-            0: () => <SelectFrameworkStep />,
-            1: () => <TeamSetupStep />,
-            2: () => <StartTypeStep />,
-          })}
-          <div className="flex justify-between mt-8">
-            <Button variant="outline" onClick={handleBack} iconPosition="left">
-              Back
-            </Button>
-            <Button onClick={handleNext} disabled={isPending} loading={isPending}>
-              {stepper.isLast ? 'Create' : 'Continue'}
-            </Button>
+        <form onSubmit={handleNext}>
+          <div className="py-6">
+            {stepper.switch({
+              0: () => <SelectFrameworkStep />,
+              1: () => <TeamSetupStep />,
+              2: () => <StartTypeStep />,
+            })}
+            <div className="flex justify-between mt-8">
+              <Button type="button" variant="outline" onClick={handleBack} iconPosition="left">
+                Back
+              </Button>
+              <Button type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+                {stepper.isLast ? 'Create' : 'Continue'}
+              </Button>
+            </div>
           </div>
-        </div>
+        </form>
       </FormProvider>
     </div>
   )
