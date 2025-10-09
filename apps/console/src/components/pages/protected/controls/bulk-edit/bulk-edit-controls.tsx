@@ -21,7 +21,7 @@ import {
   SelectOptionBulkEditControls,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs' // ✅ ADD THIS IMPORT
+import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
