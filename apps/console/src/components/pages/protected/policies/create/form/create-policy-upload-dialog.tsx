@@ -14,7 +14,7 @@ import { FileUp, Import, Info, Trash2 } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
-import { Card } from '@repo/ui/cardpanel'
+import { Card, CardTitle } from '@repo/ui/cardpanel'
 
 type TCreatePolicyUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -179,13 +179,13 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           <DialogTitle>Import Existing Policy(s)</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
-          <Info className="mt-1" width={16} height={16} />
-          <div>
-            <p className="text-sm">
-              You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be imported
-              separately and create its own policy
-            </p>
-          </div>
+          <CardTitle className="py-2 px-2">
+            <Info width={16} height={16} />
+          </CardTitle>
+          <p className="text-sm">
+            You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be imported
+            separately and create its own policy
+          </p>
         </Card>
         <Tabs variant="solid" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
           <TabsList>

@@ -31,7 +31,7 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
         groups.map((group) => (
           <Card key={group.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(group as Group)}>
             <div className="flex py-1.5 px-4 justify-between items-center mb-2 border-b gap-2">
-              <h3 className="font-semibold truncate">{group.name}</h3>
+              <h3 className="font-semibold truncate">{group.displayName || group.name}</h3>
               <div className="flex gap-2  items-center">
                 {group.isManaged && <p className="text-text-light text-normal">Prebuilt</p>}
                 {group.setting?.visibility === 'PUBLIC' ? <GlobeIcon className="h-5 w-5 " /> : <LockIcon className="h-5 w-5 " />}

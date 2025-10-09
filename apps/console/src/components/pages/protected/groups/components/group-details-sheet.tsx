@@ -56,7 +56,7 @@ const GroupDetailsSheet = () => {
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
-  const { name, description, members, setting, tags, id, isManaged } = data?.group || {}
+  const { name, displayName, description, members, setting, tags, id, isManaged } = data?.group || {}
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
@@ -106,6 +106,7 @@ const GroupDetailsSheet = () => {
         updateGroupId: id,
         input: {
           name: data.groupName,
+          displayName: data.groupName,
           description: data.description,
           tags: data.tags.map((t) => t.value),
           updateGroupSettings: {
@@ -134,7 +135,7 @@ const GroupDetailsSheet = () => {
   useEffect(() => {
     if (data) {
       reset({
-        groupName: name || '',
+        groupName: displayName || name || '',
         description: description || '',
         visibility: setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private',
         tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
@@ -144,7 +145,7 @@ const GroupDetailsSheet = () => {
         setIsAdmin(userRole === GroupMembershipRole.ADMIN)
       }
     }
-  }, [data, reset, name, description, setting, tags, sessionData?.user.userId, setIsAdmin])
+  }, [data, reset, name, displayName, description, setting, tags, sessionData?.user.userId, setIsAdmin])
 
   useEffect(() => {
     const groupId = searchParams.get('id')
@@ -192,7 +193,7 @@ const GroupDetailsSheet = () => {
         ) : (
           <>
             <form onSubmit={handleSubmit(onSubmit)}>
-              <SheetTitle>{isEditing ? <Controller name="groupName" control={control} render={({ field }) => <Input {...field} placeholder="Group name" />} /> : name}</SheetTitle>
+              <SheetTitle>{isEditing ? <Controller name="groupName" control={control} render={({ field }) => <Input {...field} placeholder="Group name" />} /> : displayName || name}</SheetTitle>
               <SheetDescription>
                 {isEditing ? <Controller name="description" control={control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : description}
               </SheetDescription>

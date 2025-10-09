@@ -20,6 +20,7 @@ import { TAccessRole, TData } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -152,6 +153,22 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
+                    <BulkCSVCloneControlDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Upload From Standard</span>
+                        </div>
+                      }
+                    />
+                    <BulkCSVCreateControlDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Upload Custom Controls</span>
+                        </div>
+                      }
+                    />
                     <button
                       className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
@@ -162,14 +179,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
                     </button>
-                    <BulkCSVCreateControlDialog
-                      trigger={
-                        <div className="flex items-center space-x-2 px-1">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Bulk Upload</span>
-                        </div>
-                      }
-                    />
                   </>
                 )}
               />

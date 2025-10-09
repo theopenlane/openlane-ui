@@ -8,6 +8,7 @@ export const GET_ALL_GROUPS = gql`
           id
           description
           name
+          displayName
           gravatarLogoURL
           logoURL
           members {
@@ -136,6 +137,7 @@ export const GET_GROUP_PERMISSIONS = gql`
           node {
             id
             name
+            displayName
             objectType
             permissions
           }
