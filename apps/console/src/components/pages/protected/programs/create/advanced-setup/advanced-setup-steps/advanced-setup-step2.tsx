@@ -17,6 +17,8 @@ const AdvancedSetupStep2 = () => {
 
   const programType = useWatch({ control, name: 'programType' })
 
+  console.log('errors', errors)
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -39,14 +41,11 @@ const AdvancedSetupStep2 = () => {
 
       {/* Form */}
       <div className="space-y-4">
-        {programType === ProgramProgramType.FRAMEWORK && (
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm">
-              Framework<span className="text-destructive">*</span>
-            </label>
-            <StandardSelect />
-          </div>
-        )}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm">Framework{programType === ProgramProgramType.FRAMEWORK && <span className="text-destructive">*</span>}</label>
+          <StandardSelect />
+          {errors.framework && <span className="text-xs text-destructive">{String(errors.framework.message)}</span>}
+        </div>
         {/* Program Name */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">

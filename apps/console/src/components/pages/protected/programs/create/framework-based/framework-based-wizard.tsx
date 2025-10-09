@@ -3,7 +3,7 @@ import { defineStepper } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
@@ -16,6 +16,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -24,6 +25,7 @@ export default function FrameworkBasedWizard() {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select Framework', schema: selectFrameworkSchema },
@@ -86,6 +88,15 @@ export default function FrameworkBasedWizard() {
     if (stepper.isFirst) return router.push('/programs/create')
     stepper.prev()
   }
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: 'Create', href: '/programs/create' },
+      { label: 'Framework based', href: '/programs/create/framework-based' },
+    ])
+  }, [setCrumbs])
 
   const currentIndex = stepper.all.findIndex((i) => i.id === stepper.current.id)
 

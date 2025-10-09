@@ -39,7 +39,7 @@ const ProgramsPage: React.FC = () => {
 
   const [selectedProgram, setSelectedProgram] = useState<string>('')
 
-  const { data: basicInfoData, isLoading: isBasicInfoLoading } = useGetProgramBasicInfo(programId)
+  const { data: basicInfoData, isLoading: isBasicInfoLoading, isError } = useGetProgramBasicInfo(programId)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
@@ -102,14 +102,14 @@ const ProgramsPage: React.FC = () => {
       const program = data.programs.edges.find((edge) => edge?.node?.id === programId)?.node
       if (program) {
         setSelectedProgram(program.name)
-      } else {
-        if (firstProgram?.id) {
-          router.replace(`/programs?id=${firstProgram.id}`)
-          setSelectedProgram(firstProgram.name)
-        }
       }
     }
-  }, [programId, data?.programs?.edges, router])
+
+    if (firstProgram?.id && isError) {
+      router.replace(`/programs?id=${firstProgram.id}`)
+      setSelectedProgram(firstProgram.name)
+    }
+  }, [programId, data?.programs?.edges, router, isError])
 
   const handleSelectChange = (val: string) => {
     const programName = programMap[val] ?? 'Unknown Program'

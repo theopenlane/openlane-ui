@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { defineStepper } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,6 +20,7 @@ import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -29,6 +30,7 @@ export default function AdvancedSetupWizard() {
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const router = useRouter()
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
@@ -148,6 +150,15 @@ export default function AdvancedSetupWizard() {
   useEffect(() => {
     setSummaryData(form.getValues() as WizardValues)
   }, [currentIndex, form])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: 'Create', href: '/programs/create' },
+      { label: 'Advanced Setup', href: '/programs/create/advanced-setup' },
+    ])
+  }, [setCrumbs])
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-2">

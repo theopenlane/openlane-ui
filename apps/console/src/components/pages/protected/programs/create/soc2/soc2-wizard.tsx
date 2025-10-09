@@ -4,7 +4,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
@@ -17,6 +17,7 @@ import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/code
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { addYears, getYear } from 'date-fns'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -26,6 +27,7 @@ export default function Soc2Wizard() {
   const router = useRouter()
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Pick Categories', schema: step1Schema },
@@ -104,6 +106,15 @@ export default function Soc2Wizard() {
     }
     stepper.prev()
   }
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: 'Create', href: '/programs/create' },
+      { label: 'SOC2', href: '/programs/create/soc2' },
+    ])
+  }, [setCrumbs])
 
   const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
 

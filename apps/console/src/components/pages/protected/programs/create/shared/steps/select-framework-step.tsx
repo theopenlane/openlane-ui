@@ -10,8 +10,10 @@ const SelectFrameworkStep = () => {
   return (
     <div>
       <div>
-        <h2 className="text-lg font-medium">Select a Framework</h2>
-        <p className="text-sm text-muted-foreground">Choose the compliance framework this program will follow. This determines the controls, policies, and structure inside your program.</p>
+        <h2 className="text-lg font-medium">Select an Optional Framework</h2>
+        <p className="text-sm text-muted-foreground">
+          You can optionally base this risk assessment on an existing framework. Doing so helps you structure your program and evaluate risks according to established criteria.
+        </p>
       </div>
 
       {/* Select Framework */}

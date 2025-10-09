@@ -1,3 +1,4 @@
+'use client'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
@@ -6,6 +7,8 @@ import Link from 'next/link'
 import Soc2Illustration from './ilustrations/soc2-illustration'
 import RiskAssessmentIllustration from './ilustrations/risk-assessment-illustration'
 import FrameworkBasedIllustration from './ilustrations/framework-based-illustration'
+import React, { useEffect, useContext } from 'react'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const quickstartOptions = [
   {
@@ -47,6 +50,15 @@ const customOptions = [
 ]
 
 export default function ProgramsCreate() {
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: 'Create', href: '/programs/create' },
+    ])
+  }, [setCrumbs])
   return (
     <div className="max-w-6xl mx-auto px-6 py-2">
       <h1 className="text-2xl font-medium tracking-tight mb-6">Create New Program</h1>

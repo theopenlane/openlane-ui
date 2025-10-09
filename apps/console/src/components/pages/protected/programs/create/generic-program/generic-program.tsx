@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -13,6 +13,7 @@ import { CreateProgramWithMembersInput, ProgramProgramType } from '@repo/codegen
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -41,6 +42,7 @@ const GenericProgram = () => {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram } = useCreateProgramWithMembers()
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const onSubmit = async (data: ProgramFormValues) => {
     try {
@@ -70,6 +72,15 @@ const GenericProgram = () => {
       })
     }
   }
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: 'Create', href: '/programs/create' },
+      { label: 'Generic based', href: '/programs/create/generic-program' },
+    ])
+  }, [setCrumbs])
 
   return (
     <FormProvider {...methods}>
