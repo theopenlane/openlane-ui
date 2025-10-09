@@ -47,7 +47,7 @@ const bulkEditControlsSchema = z.object({
 
 export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setIsBulkEditing, setSelectedControls }) => {
   const [open, setOpen] = useState(false)
-  const [selectedProgram, setSelectedProgram] = useState<string | undefined>(undefined) // ✅ NEW STATE
+  const [selectedProgram, setSelectedProgram] = useState<string | undefined>(undefined)
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
   const { errorNotification, successNotification } = useNotification()
   const form = useForm<BulkEditDialogFormValues>({
