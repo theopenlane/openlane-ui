@@ -17,11 +17,10 @@ import {
   BulkEditDialogFormValues,
   BulkEditControlsDialogProps,
   defaultObject,
-  getAllSelectOptionsForBulkEditControls,
   SelectOptionBulkEditControls,
+  useGetAllSelectOptionsForBulkEditControls,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -47,7 +46,6 @@ const bulkEditControlsSchema = z.object({
 
 export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setIsBulkEditing, setSelectedControls }) => {
   const [open, setOpen] = useState(false)
-  const [selectedProgram, setSelectedProgram] = useState<string | undefined>(undefined)
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
   const { errorNotification, successNotification } = useNotification()
   const form = useForm<BulkEditDialogFormValues>({
@@ -56,21 +54,17 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
   })
 
   const { data } = useGetAllGroups({ where: {} })
-  const { programOptions } = useProgramSelect({})
 
   const groups = useMemo(() => {
     if (!data) return
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
-  const allOptionSelects = useMemo(() => {
-    if (!groups) return []
-    return getAllSelectOptionsForBulkEditControls(groups.filter(Boolean) as Group[])
-  }, [groups])
+  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls((groups?.filter(Boolean) as Group[]) || [])
 
   const { control, handleSubmit, watch } = form
   const watchedFields = watch('fieldsArray') || []
-  const hasFieldsToUpdate = watchedFields.some((field) => field.selectedObject && field.selectedValue) || !!selectedProgram
+  const hasFieldsToUpdate = watchedFields.some((field) => field.selectedObject && field.selectedValue)
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
@@ -105,7 +99,6 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
         ids,
         input: {
           ...input,
-          ...(selectedProgram ? { addProgramIDs: [selectedProgram] } : {}),
         },
       })
       successNotification({
@@ -113,7 +106,6 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
       })
       setIsBulkEditing(false)
       setSelectedControls([])
-      setSelectedProgram(undefined)
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
@@ -213,22 +205,6 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                   Add field
                 </Button>
               ) : null}
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Add a Program</label>
-                <Select value={selectedProgram} onValueChange={(value) => setSelectedProgram(value)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a program..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {programOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <DialogFooter className="mt-6 flex gap-2">
@@ -239,7 +215,6 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                 variant="outline"
                 onClick={() => {
                   setOpen(false)
-                  setSelectedProgram(undefined)
                   replace([])
                 }}
               >
