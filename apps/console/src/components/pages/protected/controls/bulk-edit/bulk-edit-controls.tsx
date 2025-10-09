@@ -56,7 +56,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
   })
 
   const { data } = useGetAllGroups({ where: {} })
-  const { programOptions } = useProgramSelect({}) // ✅ GET PROGRAMS
+  const { programOptions } = useProgramSelect({})
 
   const groups = useMemo(() => {
     if (!data) return
