@@ -105,7 +105,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
         ids,
         input: {
           ...input,
-          ...(selectedProgram ? { addProgramIDs: [selectedProgram] } : {}), // ✅ ADD PROGRAM
+          ...(selectedProgram ? { addProgramIDs: [selectedProgram] } : {}),
         },
       })
       successNotification({
