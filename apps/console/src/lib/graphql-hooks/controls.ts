@@ -49,6 +49,7 @@ import {
   UpdateBulkControlMutation,
   UpdateBulkControlMutationVariables,
   CloneBulkCsvControlMutation,
+  CloneBulkCsvControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -149,7 +150,7 @@ export const useCreateBulkCSVControl = () => {
 export const useCloneBulkCSVControl = () => {
   const { queryClient } = useGraphQLClient()
 
-  return useMutation<CloneBulkCsvControlMutation, unknown, CloneBulkCsvControlMutation>({
+  return useMutation<CloneBulkCsvControlMutation, unknown, CloneBulkCsvControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CLONE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
