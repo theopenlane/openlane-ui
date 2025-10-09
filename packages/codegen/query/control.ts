@@ -428,3 +428,20 @@ export const BULK_EDIT_CONTROL = gql`
     }
   }
 `
+
+export const GET_CONTROLS_BY_REFCODE = gql`
+  query GetControlsByRefCode($refCodeIn: [String!]) {
+    controls(where: { refCodeIn: $refCodeIn }) {
+      edges {
+        node {
+          id
+          refCode
+          referenceFramework
+          standardID
+          ownerID
+          systemOwned
+        }
+      }
+    }
+  }
+`
