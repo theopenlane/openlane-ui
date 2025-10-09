@@ -214,8 +214,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                 </Button>
               ) : null}
 
-              {/* ✅ ADD PROGRAM SELECT HERE */}
-              <div className="flex flex-col gap-2 mt-4">
+              <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Add a Program</label>
                 <Select value={selectedProgram} onValueChange={(value) => setSelectedProgram(value)}>
                   <SelectTrigger className="w-full">
