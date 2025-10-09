@@ -21,16 +21,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'token_type must be either "api" or "personal"' }, { status: 400 })
     }
 
-    const cookies = request.headers.get('cookie')
     const session = await auth()
     const accessToken = session?.user?.accessToken
 
     const headers: HeadersInit = {
       Authorization: `Bearer ${accessToken}`,
-    }
-
-    if (cookies) {
-      headers['cookie'] = cookies
     }
 
     const ssoData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/token/authorize`, {
