@@ -127,6 +127,7 @@ export default function AdvancedSetupWizard() {
         frameworkName: data.framework,
       },
       members: [...programMembers, ...programAdmins],
+      standardID: data.standardID,
     }
 
     try {
