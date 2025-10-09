@@ -16,11 +16,12 @@ type TokenActionProps = {
   tokenDescription?: string
   tokenExpiration: string
   tokenAuthorizedOrganizations?: { id: string; name: string }[]
+  tokenSsoAuthorizations?: Record<string, string> | null
 }
 
 const ICON_SIZE = 16
 
-export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations }: TokenActionProps) => {
+export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations, tokenSsoAuthorizations }: TokenActionProps) => {
   const { mutateAsync: deletePersonalToken } = useDeletePersonalAccessToken()
   const { mutateAsync: deleteApiToken } = useDeleteApiToken()
   const { successNotification, errorNotification } = useNotification()
@@ -53,7 +54,7 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpirat
     <>
       <div className="flex items-center gap-4 justify-end">
         <PersonalAccessTokenEdit tokenId={tokenId} tokenDescription={tokenDescription} tokenExpiration={tokenExpiration} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} />
-        <SsoAuthorizationDropdown tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} />
+        <SsoAuthorizationDropdown tokenId={tokenId} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} tokenSsoAuthorizations={tokenSsoAuthorizations} />
         <Trash2
           style={{ color: 'var(--destructive)' }}
           size={ICON_SIZE}

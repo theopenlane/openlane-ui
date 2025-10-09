@@ -21,6 +21,7 @@ export const GET_PERSONAL_ACCESS_TOKENS = gql`
           description
           expiresAt
           lastUsedAt
+          ssoAuthorizations
           organizations {
             edges {
               node {
@@ -70,6 +71,7 @@ export const GET_API_TOKENS = gql`
           scopes
           expiresAt
           lastUsedAt
+          ssoAuthorizations
         }
       }
       pageInfo {

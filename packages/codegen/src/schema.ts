@@ -2139,14 +2139,56 @@ export interface AuditLogWhereInput {
  * under an organization (ownerID)
  */
 export interface CloneControlInput {
-  /** controlIDs are the ids of the control to clone. If standardID is passed, this is ignored */
+  /** categories to limit the controls that are cloned from a standard. If standardID is empty, this field is ignored */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>
+  /** controlIDs are the ids of the control to clone. If standardID or standardShortName are passed, this is ignored */
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** organization ID that the controls will be under */
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** optional program ID to associate to the controls */
   programID?: InputMaybe<Scalars['ID']['input']>
+  /** refCodes are the refCodes to control. A standardID must be provided to lookup the refCode from. */
+  refCodes?: InputMaybe<Array<Scalars['String']['input']>>
   /** standardID to clone all controls from into the organization */
   standardID?: InputMaybe<Scalars['ID']['input']>
+  /** standardShortName to clone all controls from into the organization, if the standardID is provided that will take precedence */
+  standardShortName?: InputMaybe<Scalars['String']['input']>
+  /** standardVersion is the version of the standard to use when filtering by short name, if not provided, the latest version will be used */
+  standardVersion?: InputMaybe<Scalars['String']['input']>
+}
+
+/**
+ * CloneControlUploadInput is used to clone controls and their subcontrols
+ * under an organization using a csv upload
+ */
+export interface CloneControlUploadInput {
+  /** comment to associate with the control that was created */
+  comment?: InputMaybe<Scalars['String']['input']>
+  /** controlID is the id of the control to clone. If standardID or standardShortName are passed, this is ignored */
+  controlID?: InputMaybe<Scalars['ID']['input']>
+  /** controlImplementation is the implementation details of the control */
+  controlImplementation?: InputMaybe<Scalars['String']['input']>
+  /**
+   * controlInput includes all the standard settings you can set on create of a control that can also be set during the creation via clone. Note that some fields like refCode, description, category, will be ignored
+   * if the control is being clone from a system owned standard
+   */
+  controlInput?: InputMaybe<CreateControlInput>
+  /** controlObjective is the objective details of the control */
+  controlObjective?: InputMaybe<Scalars['String']['input']>
+  /** implementationGuidance is guidance details on the implementation of the control */
+  implementationGuidance?: InputMaybe<Scalars['String']['input']>
+  /** internalPolicyIDs to associate with the created control */
+  internalPolicyID?: InputMaybe<Scalars['ID']['input']>
+  /** organization ID that the controls will be under */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** refCodes are the refCodes to control. A standardID must be provided to lookup the refCode from. */
+  refCode?: InputMaybe<Scalars['String']['input']>
+  /** standardID to clone all controls from into the organization */
+  standardID?: InputMaybe<Scalars['ID']['input']>
+  /** standardShortName to clone all controls from into the organization, if the standardID is provided that will take precedence */
+  standardShortName?: InputMaybe<Scalars['String']['input']>
+  /** standardVersion is the version of the standard to use when filtering by short name, if not provided, the latest version will be used */
+  standardVersion?: InputMaybe<Scalars['String']['input']>
 }
 
 export interface Contact extends Node {
@@ -2847,6 +2889,8 @@ export interface Control extends Node {
   refCode: Scalars['String']['output']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
   referenceFramework?: Maybe<Scalars['String']['output']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -3212,6 +3256,8 @@ export interface ControlHistory extends Node {
   refCode: Scalars['String']['output']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
   referenceFramework?: Maybe<Scalars['String']['output']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -3570,6 +3616,22 @@ export interface ControlHistoryWhereInput {
   referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
   referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework_revision field predicates */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkRevisionLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -5611,6 +5673,22 @@ export interface ControlWhereInput {
   referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
   referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework_revision field predicates */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkRevisionLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -5978,6 +6056,8 @@ export interface CreateControlInput {
   refCode: Scalars['String']['input']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
   referenceFramework?: InputMaybe<Scalars['String']['input']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -7002,9 +7082,18 @@ export interface CreateProgramMembershipInput {
 }
 
 export interface CreateProgramWithMembersInput {
+  /** categories to limit the controls that are cloned from a standard. If standardID is empty, this field is ignored */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>
+  /** members to add to the program */
   members?: InputMaybe<Array<CreateMemberWithProgramInput>>
+  /** program input for the base program details */
   program: CreateProgramInput
+  /** standardID to clone all controls from into the organization and associated with the program */
   standardID?: InputMaybe<Scalars['ID']['input']>
+  /** standardShortName to clone all controls from into the organization, if the standardID is provided that will take precedence */
+  standardShortName?: InputMaybe<Scalars['String']['input']>
+  /** standardVersion is the version of the standard to use when filtering by short name, if not provided, the latest version will be used */
+  standardVersion?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -7206,6 +7295,8 @@ export interface CreateSubcontrolInput {
   refCode: Scalars['String']['input']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
   referenceFramework?: InputMaybe<Scalars['String']['input']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -19963,6 +20054,8 @@ export interface MappedControlWhereInput {
 
 export interface Mutation {
   __typename?: 'Mutation'
+  /** Create multiple new controls via a clone from a standard using a CSV */
+  cloneBulkCSVControl: ControlBulkCreatePayload
   /** Create a new apiToken */
   createAPIToken: ApiTokenCreatePayload
   /** Create a new actionPlan */
@@ -20501,6 +20594,10 @@ export interface Mutation {
   updateUser: UserUpdatePayload
   /** Update an existing userSetting */
   updateUserSetting: UserSettingUpdatePayload
+}
+
+export interface MutationCloneBulkCsvControlArgs {
+  input: Scalars['Upload']['input']
 }
 
 export interface MutationCreateApiTokenArgs {
@@ -34419,6 +34516,8 @@ export interface Subcontrol extends Node {
   refCode: Scalars['String']['output']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
   referenceFramework?: Maybe<Scalars['String']['output']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -34663,6 +34762,8 @@ export interface SubcontrolHistory extends Node {
   refCode: Scalars['String']['output']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
   referenceFramework?: Maybe<Scalars['String']['output']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -35033,6 +35134,22 @@ export interface SubcontrolHistoryWhereInput {
   referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
   referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework_revision field predicates */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkRevisionLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -35480,6 +35597,22 @@ export interface SubcontrolWhereInput {
   referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
   referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework_revision field predicates */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkRevisionLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkRevisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkRevisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -41721,6 +41854,7 @@ export interface UpdateControlInput {
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearReferenceFrameworkRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
@@ -41754,6 +41888,8 @@ export interface UpdateControlInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -43691,6 +43827,7 @@ export interface UpdateSubcontrolInput {
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
+  clearReferenceFrameworkRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
@@ -43722,6 +43859,8 @@ export interface UpdateSubcontrolInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
+  /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
+  referenceFrameworkRevision?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -49333,6 +49472,7 @@ export type GetPersonalAccessTokensQuery = {
         description?: string | null
         expiresAt?: any | null
         lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
         organizations: {
           __typename?: 'OrganizationConnection'
           edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null
@@ -49367,7 +49507,16 @@ export type GetApiTokensQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null; lastUsedAt?: any | null } | null
+      node?: {
+        __typename?: 'APIToken'
+        id: string
+        name: string
+        description?: string | null
+        scopes?: Array<string> | null
+        expiresAt?: any | null
+        lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }

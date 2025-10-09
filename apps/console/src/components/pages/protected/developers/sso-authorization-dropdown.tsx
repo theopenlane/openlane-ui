@@ -7,12 +7,15 @@ import { KeyRound } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import React, { useState } from 'react'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
+import { useNotification } from '@/hooks/useNotification'
 
 type SsoAuthorizationDropdownProps = {
+  tokenId: string
   tokenAuthorizedOrganizations?: { id: string; name: string }[]
+  tokenSsoAuthorizations?: Record<string, string> | null
 }
 
-const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tokenAuthorizedOrganizations }: SsoAuthorizationDropdownProps) => {
+const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tokenAuthorizedOrganizations, tokenId, tokenSsoAuthorizations }: SsoAuthorizationDropdownProps) => {
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
   const { currentOrgId, allOrgs, getOrganizationByID } = useOrganization()
@@ -20,6 +23,52 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
 
   const currentOrganization = getOrganizationByID(currentOrgId || '')
   const [isSsoDropdownOpened, setIsSsoDropdownOpened] = useState(false)
+  const [isAuthorizingSSO, setIsAuthorizingSSO] = useState<boolean>(false)
+  const { errorNotification } = useNotification()
+
+  const handleSSOAuthorize = async () => {
+    try {
+      setIsAuthorizingSSO(true)
+
+      localStorage.setItem(
+        'api_token',
+        JSON.stringify({
+          tokenType: isOrg ? 'api' : 'personal',
+          isOrg,
+        }),
+      )
+
+      const response = await fetch('/api/auth/sso/authorize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          organization_id: currentOrgId,
+          token_id: tokenId,
+          token_type: isOrg ? 'api' : 'personal',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success && data.redirect_uri) {
+        window.location.href = data.redirect_uri
+      } else {
+        throw new Error(data.error || 'SSO authorization failed')
+      }
+    } catch (error) {
+      console.error('SSO authorization error:', error)
+      errorNotification({
+        title: 'SSO Authorization Failed',
+        description: error instanceof Error ? error.message : 'An error occurred during SSO authorization',
+      })
+    } finally {
+      setIsAuthorizingSSO(false)
+    }
+  }
+
   return (
     <DropdownMenu open={isSsoDropdownOpened} onOpenChange={setIsSsoDropdownOpened}>
       <DropdownMenuTrigger asChild>
@@ -35,11 +84,12 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
                   <Avatar entity={currentOrganization as Organization} variant="small" />
                   {currentOrganization?.node?.displayName}
                 </div>
-                {data?.organization?.setting?.identityProviderLoginEnforced && (
-                  <Button type="button" variant="outline" className="!p-1 bg-card">
-                    Authorize
-                  </Button>
-                )}
+                {data?.organization?.setting?.identityProviderLoginEnforced ||
+                  (!tokenSsoAuthorizations && (
+                    <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
+                      {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
+                    </Button>
+                  ))}
               </div>
             </div>
           ) : (
@@ -54,11 +104,12 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
                           <Avatar entity={org as Organization} variant="small" />
                           {org?.node?.displayName}
                         </div>
-                        {org?.node?.setting?.identityProviderLoginEnforced && (
-                          <Button type="button" variant="outline" className="!p-1 bg-card">
-                            Authorize
-                          </Button>
-                        )}
+                        {org?.node?.setting?.identityProviderLoginEnforced ||
+                          (!tokenSsoAuthorizations && (
+                            <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
+                              {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
+                            </Button>
+                          ))}
                       </div>
                     )
                   })}

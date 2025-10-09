@@ -12,11 +12,12 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@repo/ui/dropdown-menu'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useOrganization } from '@/hooks/useOrganization'
-import { Organization } from '@repo/codegen/src/schema'
+import { Organization, OrganizationSetting } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { buildOrganizationsInput } from './utils'
+import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 
 type PersonalAccessTokenEditProps = {
   tokenId: string
@@ -33,7 +34,12 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updatePersonalAccessToken } = useUpdatePersonalAccessToken()
   const { mutateAsync: updateApiToken } = useUpdateApiToken()
-  const { allOrgs: orgs } = useOrganization()
+  const { allOrgs: orgs, currentOrgId } = useOrganization()
+
+  const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
+
+  const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
+  const [isAuthorizingSSO, setIsAuthorizingSSO] = useState<boolean>(false)
 
   const formSchema = z
     .object({
@@ -74,6 +80,49 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const day = date.getDate().toString().padStart(2, '0')
     return `${year}-${month}-${day}`
+  }
+
+  const handleSSOAuthorize = async () => {
+    try {
+      setIsAuthorizingSSO(true)
+
+      localStorage.setItem(
+        'api_token',
+        JSON.stringify({
+          tokenType: isOrg ? 'api' : 'personal',
+          isOrg,
+        }),
+      )
+
+      const response = await fetch('/api/auth/sso/authorize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          organization_id: currentOrgId,
+          token_id: tokenId,
+          token_type: isOrg ? 'api' : 'personal',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success && data.redirect_uri) {
+        window.location.href = data.redirect_uri
+      } else {
+        throw new Error(data.error || 'SSO authorization failed')
+      }
+    } catch (error) {
+      console.error('SSO authorization error:', error)
+      errorNotification({
+        title: 'SSO Authorization Failed',
+        description: error instanceof Error ? error.message : 'An error occurred during SSO authorization',
+      })
+    } finally {
+      setIsAuthorizingSSO(false)
+    }
   }
 
   const handleSubmit = async (data: FormData) => {
@@ -237,6 +286,11 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
           </form>
         </FormProvider>
         <DialogFooter>
+          {!isOrg && currentSetting?.identityProviderLoginEnforced && (
+            <Button disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize}>
+              {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
+            </Button>
+          )}
           <Button onClick={handleCloseDialog} className="text-[hsl(var(--muted-foreground))]">
             Cancel
           </Button>
