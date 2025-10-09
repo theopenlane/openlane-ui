@@ -11,7 +11,6 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
 import { Organization, SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
-import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Dialog, DialogContent, DialogTrigger } from '@repo/ui/dialog'
 import { generateSelectOptions, getSearchResultCount, searchTypeIcons } from './search-config'
@@ -147,9 +146,9 @@ export const GlobalSearch = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={`p-1 rounded-md`}>
+      <DialogTrigger className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}>
         <Search
-          size={18}
+          size={16}
           onClick={() => {
             setOpen(true)
           }}

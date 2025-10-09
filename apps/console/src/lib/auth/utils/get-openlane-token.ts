@@ -66,6 +66,7 @@ export const checkSSOEnforcement = async (email: string): Promise<{ redirect_uri
   return null
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promise<{ success: true; data: any } | { success: false; message: string; status?: number }> => {
   try {
     const payload = {

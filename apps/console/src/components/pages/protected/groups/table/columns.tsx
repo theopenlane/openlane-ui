@@ -24,12 +24,12 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
               <div className="flex gap-1">
                 <StarsIcon className="mt-0.5" width={16} height={16} />
                 <div className="flex flex-col gap-1">
-                  <span className="text-sm whitespace-nowrap">{row.getValue('name')}</span>
+                  <span className="text-sm whitespace-nowrap">{row.original.displayName || row.getValue('name')}</span>
                   <p className="text-xs text-text-light">Prebuilt</p>
                 </div>
               </div>
             ) : (
-              <span>{row.getValue('name')}</span>
+              <span>{row.original.displayName || row.original.name}</span>
             )}
           </div>
         )

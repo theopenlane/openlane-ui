@@ -335,8 +335,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-          ? oldValue.getTime() === newValue.getTime()
-          : oldValue === newValue
+        ? oldValue.getTime() === newValue.getTime()
+        : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -402,11 +402,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       return <span className="text-gray-500">no tags provided</span>
     }
     return (
-      <div className="flex flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => (
-          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
-        ))}
-      </div>
+      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
   }
 
