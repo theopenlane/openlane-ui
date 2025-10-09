@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Info, Upload } from 'lucide-react'
 import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
+import { Card, CardTitle } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
@@ -38,7 +38,7 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
       await createBulkControl({ input: uploadedFile.file! })
       successNotification({
         title: 'Controls Created',
-        description: `Controls has been successfully created`,
+        description: `Controls have been successfully created`,
       })
       setIsOpen(false)
     } catch (error) {
@@ -77,24 +77,23 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
 
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Bulk Upload</DialogTitle>
+          <DialogTitle>Bulk Upload Custom Controls</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
-          <Info className="mt-1" width={16} height={16} />
-          <div>
-            <p className="font-semibold">Column format</p>
-            <p className="text-sm">
-              You can upload a csv containing controls. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#control`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-                documentation
-              </a>{' '}
-              for column format. We also provide a{' '}
-              <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-                template csv file
-              </span>{' '}
-              for you to fill out.
-            </p>
-          </div>
+          <CardTitle className="py-2 px-2">
+            <Info width={16} height={16} />
+          </CardTitle>
+          <p className="text-sm">
+            You can upload a csv containing controls. Please refer to our{' '}
+            <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#control`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+              documentation
+            </a>{' '}
+            for column format. We also provide a{' '}
+            <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+              template csv file
+            </span>{' '}
+            for you to fill out.
+          </p>
         </Card>
         <FileUpload
           acceptedFileTypes={['text/csv']}

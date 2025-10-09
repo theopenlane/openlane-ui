@@ -281,6 +281,16 @@ export const CREATE_CSV_BULK_CONTROL = gql`
   }
 `
 
+export const CLONE_CSV_BULK_CONTROL = gql`
+  mutation CloneBulkCSVControl($input: Upload!) {
+    cloneBulkCSVControl(input: $input) {
+      controls {
+        id
+      }
+    }
+  }
+`
+
 export const DELETE_CONTROL = gql`
   mutation DeleteControl($deleteControlId: ID!) {
     deleteControl(id: $deleteControlId) {

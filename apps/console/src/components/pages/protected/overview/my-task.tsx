@@ -9,7 +9,7 @@ import { addDays, formatDistanceToNowStrict, isAfter, isBefore, parseISO } from 
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { Task, TaskTaskStatus } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
@@ -32,8 +32,6 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   }
 
   const { data } = useTasksWithFilter({ where })
-
-  const router = useRouter()
 
   const tasks = data?.tasks?.edges?.map((edge) => edge?.node ?? ({} as Task)) || []
 

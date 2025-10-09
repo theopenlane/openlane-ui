@@ -80,9 +80,8 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
           <DialogTitle>Bulk Upload</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
-          <Info className="mt-1" width={16} height={16} />
+          <Info width={16} height={16} />
           <div>
-            <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing subscribers. Please refer to our{' '}
               <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#subscriber`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
