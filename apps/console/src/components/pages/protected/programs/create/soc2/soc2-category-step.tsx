@@ -24,7 +24,7 @@ export default function SOC2CategoryStep() {
   return (
     <>
       <div>
-        <h2 className="text-lg font-semibold">Pick Trust Service Categories</h2>
+        <h2 className="text-lg font-semibold">Add Trust Service Categories</h2>
         <p className="text-sm text-muted-foreground">Security is always required. Add others now or later.</p>
       </div>
 

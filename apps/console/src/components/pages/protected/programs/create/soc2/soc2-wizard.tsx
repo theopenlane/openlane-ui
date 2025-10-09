@@ -11,7 +11,7 @@ import { StepHeader } from '@/components/shared/step-header/step-header'
 import SOC2CategoryStep from './soc2-category-step'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
-import { programInviteSchema, step1Schema, step3Schema, validateFullAndNotify, validateStepAndNotify, WizardValues } from './sco2-wizard-config'
+import { programInviteSchema, step1Schema, step3Schema, validateFullAndNotify, WizardValues } from './sco2-wizard-config'
 import { useNotification } from '@/hooks/useNotification'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -38,7 +38,7 @@ export default function Soc2Wizard() {
     resolver: zodResolver(stepper.current.schema),
     mode: 'onChange',
     defaultValues: {
-      categories: ['Availability'],
+      categories: ['Security'],
       programType: undefined,
     },
   })
@@ -89,8 +89,6 @@ export default function Soc2Wizard() {
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
     if (!stepper.isLast) {
-      const valid = await validateStepAndNotify(methods, stepper.current.id, errorNotification)
-      if (!valid) return
       stepper.next()
     } else {
       const validAll = await validateFullAndNotify(methods, errorNotification)
