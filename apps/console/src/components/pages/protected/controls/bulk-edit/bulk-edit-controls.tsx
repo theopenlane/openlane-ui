@@ -17,8 +17,8 @@ import {
   BulkEditDialogFormValues,
   BulkEditControlsDialogProps,
   defaultObject,
-  getAllSelectOptionsForBulkEditControls,
   SelectOptionBulkEditControls,
+  useGetAllSelectOptionsForBulkEditControls,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 
@@ -52,21 +52,20 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     resolver: zodResolver(bulkEditControlsSchema),
     defaultValues: defaultObject,
   })
+
   const { data } = useGetAllGroups({ where: {} })
+
   const groups = useMemo(() => {
     if (!data) return
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
-  const allOptionSelects = useMemo(() => {
-    if (!groups) return []
-    return getAllSelectOptionsForBulkEditControls(groups.filter(Boolean) as Group[])
-  }, [groups])
+  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls((groups?.filter(Boolean) as Group[]) || [])
 
   const { control, handleSubmit, watch } = form
-
   const watchedFields = watch('fieldsArray') || []
   const hasFieldsToUpdate = watchedFields.some((field) => field.selectedObject && field.selectedValue)
+
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
@@ -86,8 +85,8 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     const ids = selectedControls.map((control) => control.id)
     const input: Record<string, string> = {}
     if (watchedFields.length === 0) return
-
     if (ids.length === 0) return
+
     watchedFields.forEach((field) => {
       const key = field.selectedObject?.name
       if (key && field?.selectedValue && field?.value) {
@@ -97,8 +96,10 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
     try {
       await bulkEditControl({
-        ids: ids,
-        input,
+        ids,
+        input: {
+          ...input,
+        },
       })
       successNotification({
         title: 'Successfully bulk updated selected controls.',
@@ -184,10 +185,11 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         />
                       </div>
                     )}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="outline" onClick={() => remove(index)}></Button>
+                    <Button icon={<Trash2 />} iconPosition="center" variant="outline" onClick={() => remove(index)} />
                   </div>
                 )
               })}
+
               {fields.length < 3 ? (
                 <Button
                   icon={<Plus />}
@@ -204,6 +206,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                 </Button>
               ) : null}
             </div>
+
             <DialogFooter className="mt-6 flex gap-2">
               <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
                 Save

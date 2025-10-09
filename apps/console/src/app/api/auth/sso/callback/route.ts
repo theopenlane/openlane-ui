@@ -17,6 +17,10 @@ export async function POST(request: NextRequest) {
 
     const cookies = request.headers.get('cookie')
 
+    // unlike authorize route, it is fine to pass in the cookies here because :
+    // 1. state, nonce, token id and organization_id are stored in cookies
+    // 2. all other cookies are already removed with parseAndSetResponseCookies from the authorize route so
+    // secureFetch uses a fresh csrf one
     const headers: HeadersInit = {
       ...(cookies ? { cookie: cookies } : {}),
     }
