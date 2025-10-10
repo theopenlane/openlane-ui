@@ -36,7 +36,7 @@ const AdvancedSetupStep3 = () => {
         {/* Audit Partner */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Audit Partner</label>
-          <Input placeholder="Luke Dalton" {...register('auditPartnerName')} />
+          <Input placeholder="Auditor Contact" {...register('auditPartnerName')} />
           {errors.auditPartnerName && <span className="text-xs text-destructive">{String(errors.auditPartnerName.message)}</span>}
         </div>
 
