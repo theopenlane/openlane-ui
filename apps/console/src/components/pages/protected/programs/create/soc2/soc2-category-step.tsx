@@ -25,7 +25,7 @@ export default function SOC2CategoryStep() {
     <>
       <div>
         <h2 className="text-lg font-semibold">Add Trust Service Categories</h2>
-        <p className="text-sm text-muted-foreground">Security is always required. Add others now or later.</p>
+        <p className="text-sm text-muted-foreground">Security is automatically included. Add additional categories to expand your SOC 2 coverage.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mt-7">
