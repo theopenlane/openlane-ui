@@ -402,7 +402,6 @@
     @apply mb-1;
   }
 
-  /* Use plain CSS for nested circles since Tailwind doesn't include list-circle */
   .t-list-disc ul ul {
     list-style-type: circle;
     @apply pl-6 mt-1;
