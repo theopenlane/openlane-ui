@@ -33,9 +33,6 @@ export default function TeamSetupStep() {
             type="submit"
             variant="outline"
             className="h-28"
-            onClick={() => {
-              console.log('first')
-            }}
           >
             <div className="flex flex-col items-center justify-center gap-1">
               <Clock className="!h-5 !w-5" size={20} />
