@@ -33,7 +33,7 @@ const AdvancedSetupStep5 = () => {
           <Lightbulb className="text-tip-text" size={18} />
           <span className="text-sm text-tip-text">Tips</span>
         </div>
-        <p className="text-sm text-tip-text">Users can import or create new objects later if they don’t have any available today.</p>
+        <p className="text-sm text-tip-text">If you already have policies, procedures, or risk registers in place, add them here to build on your existing work. You can always edit or expand them later.</p>
       </div>
 
       {/* Form */}
