@@ -17,7 +17,6 @@ const AdvancedSetupStep2 = () => {
 
   const programType = useWatch({ control, name: 'programType' })
 
-  console.log('errors', errors)
 
   return (
     <div className="space-y-6">
