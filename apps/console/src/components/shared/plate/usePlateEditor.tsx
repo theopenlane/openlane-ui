@@ -109,7 +109,7 @@ const usePlateEditor = () => {
 
       const finalStyle = style ? style! : { padding }
 
-      return <PlateStatic editor={editor} style={finalStyle} className="plate-static" />
+      return <PlateStatic editor={editor} style={finalStyle} className="plate-static " />
     },
   }
 }

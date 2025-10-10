@@ -390,6 +390,23 @@
   .text-paragraph {
     color: var(--color-text-paragraph);
   }
+  .t-list-disc {
+    @apply list-disc pl-6 space-y-2 text-base leading-relaxed;
+  }
+
+  .t-list-disc ul {
+    @apply list-disc pl-6 space-y-1;
+  }
+
+  .t-list-disc li {
+    @apply mb-1;
+  }
+
+  /* Use plain CSS for nested circles since Tailwind doesn't include list-circle */
+  .t-list-disc ul ul {
+    list-style-type: circle;
+    @apply pl-6 mt-1;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────
