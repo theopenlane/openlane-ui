@@ -21,9 +21,11 @@ type RelationCardProps = {
     relation: string
     id: string
   }
+  controlHrefMap: Record<string, string>
+  subcontrolHrefMap: Record<string, string>
 }
 
-const RelationCard = ({ data }: RelationCardProps) => {
+const RelationCard = ({ data, controlHrefMap, subcontrolHrefMap }: RelationCardProps) => {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
@@ -90,9 +92,11 @@ const RelationCard = ({ data }: RelationCardProps) => {
                   <div key={framework} className={`flex gap-2 w-full pb-2 ${index < array.length - 1 ? 'border-b border-dotted' : ''}`}>
                     <StandardChip referenceFramework={framework ?? ''} />
                     <div className="flex flex-wrap gap-2">
-                      {controls.map((control) => (
-                        <ControlChip key={control.id} control={control} hideStandard hideHexagon />
-                      ))}
+                      {controls.map((control) => {
+                        const href = control.__typename === 'Subcontrol' ? subcontrolHrefMap[control.refCode] || '' : controlHrefMap[control.refCode] || ''
+                        console.log(href)
+                        return <ControlChip key={control.id} forceHref={href} control={control} hideStandard hideHexagon />
+                      })}
                     </div>
                   </div>
                 ))}

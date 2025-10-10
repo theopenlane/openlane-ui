@@ -129,6 +129,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
     const pathname = usePathname()
     const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
 
+    if (child.hidden) return null
     const link = (
       <Link
         href={child.href ?? '#'}

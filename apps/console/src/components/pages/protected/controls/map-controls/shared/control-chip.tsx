@@ -27,6 +27,7 @@ export interface ControlChipProps {
   clickable?: boolean
   disableHref?: boolean
   hideHexagon?: boolean
+  forceHref?: string
 }
 
 const ControlChip: React.FC<ControlChipProps> = ({
@@ -44,13 +45,14 @@ const ControlChip: React.FC<ControlChipProps> = ({
   clickable = true,
   disableHref,
   hideHexagon,
+  forceHref,
 }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
   const baseClasses = 'bg-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
   const borderClass = selected ? 'border-brand ring-1 ring-brand' : 'border-border'
-  const href = control.__typename === 'Subcontrol' ? `/controls/${control.controlID}/${control.id}` : `/controls/${control.id}`
+  const href = forceHref || (control.__typename === 'Subcontrol' ? `/controls/${control.controlID}/${control.id}` : `/controls/${control.id}`)
 
   if (!control) {
     return
@@ -98,7 +100,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
         <TooltipTrigger asChild>{!disableHref && clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
         {tooltipOpen && (
           <TooltipContent side="top" collisionPadding={64}>
-            <ControlTooltipContent control={control} disableHref={disableHref} />
+            <ControlTooltipContent control={control} disableHref={disableHref} forceHref={forceHref} />
           </TooltipContent>
         )}
       </Tooltip>
@@ -108,7 +110,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
 
 export default React.memo(ControlChip)
 
-const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['control']>; disableHref?: boolean }> = ({ control, disableHref }) => {
+const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['control']>; disableHref?: boolean; forceHref?: string }> = ({ control, disableHref, forceHref }) => {
   const { convertToReadOnly } = usePlateEditor()
 
   const { data: ctrlData, isLoading: ctrlLoading } = useGetControlMinifiedById(control.__typename === 'Control' ? control.id : undefined)
@@ -117,7 +119,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
   const loading = ctrlLoading || subLoading
   const details = ctrlData?.control || subData?.subcontrol
 
-  const nameHref = control.__typename === 'Control' ? `/controls/${ctrlData?.control.id}` : `/controls/${subData?.subcontrol.control.id}/${subData?.subcontrol.id}`
+  const nameHref = forceHref || (control.__typename === 'Control' ? `/controls/${ctrlData?.control.id}` : `/controls/${subData?.subcontrol.control.id}/${subData?.subcontrol.id}`)
 
   const standardHref = control.__typename === 'Subcontrol' ? `/standards/${subData?.subcontrol?.control?.standardID}` : `/standards/${ctrlData?.control.standardID}`
 

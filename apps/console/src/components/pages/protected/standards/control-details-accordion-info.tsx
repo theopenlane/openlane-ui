@@ -38,7 +38,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
             ),
         },
         {
-          label: 'Example evidence',
+          label: 'Evidence Requests',
           hasData: Array.isArray(exampleEvidence) ? exampleEvidence.length > 0 : !!exampleEvidence,
           render: () =>
             Array.isArray(exampleEvidence) ? (

@@ -247,3 +247,21 @@ export const GET_SUBCONTROL_BY_ID_MINIFIED = gql`
     }
   }
 `
+
+export const GET_SUBCONTROLS_BY_REFCODE = gql`
+  query GetSubcontrolsByRefCode($refCodeIn: [String!]) {
+    subcontrols(where: { refCodeIn: $refCodeIn }) {
+      edges {
+        node {
+          id
+          refCode
+          systemOwned
+          controlID
+          control {
+            standardID
+          }
+        }
+      }
+    }
+  }
+`

@@ -17,6 +17,7 @@ import {
   GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER,
   BULK_EDIT_CONTROL,
   CLONE_CSV_BULK_CONTROL,
+  GET_CONTROLS_BY_REFCODE,
 } from '@repo/codegen/query/control'
 
 import {
@@ -50,6 +51,7 @@ import {
   UpdateBulkControlMutationVariables,
   CloneBulkCsvControlMutation,
   CloneBulkCsvControlMutationVariables,
+  GetControlsByRefCodeQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -408,5 +410,21 @@ export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { wh
         controls,
       }))
     },
+  })
+}
+
+type UseGetControlsByRefCodeArgs = {
+  refCodeIn: string[]
+  enabled?: boolean
+}
+
+export const useGetControlsByRefCode = ({ refCodeIn, enabled = true }: UseGetControlsByRefCodeArgs) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlsByRefCodeQuery, unknown>({
+    queryKey: ['controls', refCodeIn],
+    queryFn: async () => await client.request(GET_CONTROLS_BY_REFCODE, { refCodeIn }),
+
+    enabled: enabled && refCodeIn.length > 0,
   })
 }
