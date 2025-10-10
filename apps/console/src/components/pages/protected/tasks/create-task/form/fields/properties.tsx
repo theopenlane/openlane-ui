@@ -17,6 +17,7 @@ import { TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
 import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -120,13 +121,14 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       <div className="flex items-center gap-4">
         <CircleUser className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Assigner</p>
-        <p className="capitalize text-sm">{taskData?.assigner?.displayName}</p>
+        <p className="capitalize text-sm cursor-not-allowed">{taskData?.assigner?.displayName}</p>
       </div>
 
       {/* Assignee */}
-      <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>
+      <div className="flex items-center gap-4">
         <UserRoundPen className="text-primary" size={16} />
         <p className="text-sm w-[120px] shrink-0">Assignee</p>
+
         {isEditing || internalEditing === 'assigneeID' ? (
           <Controller
             name="assigneeID"
@@ -158,14 +160,17 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <p className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm`}>{taskData?.assignee?.displayName}</p>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm pr-5`}>
+            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>{taskData?.assignee?.displayName || 'Unassigned'}</p>
+          </HoverPencilWrapper>
         )}
       </div>
 
       {/* Due Date */}
-      <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}>
+      <div className="flex items-center gap-4">
         <CalendarCheck2 className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Due Date</p>
+
         {isEditing || internalEditing === 'due' ? (
           <Controller
             name="due"
@@ -189,14 +194,17 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <p className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm`}>{formatDate(taskData?.due)}</p>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
+            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}>{formatDate(taskData?.due) || 'No due date'}</p>
+          </HoverPencilWrapper>
         )}
       </div>
 
       {/* Status */}
-      <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>
+      <div className="flex items-center gap-4">
         <Circle className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Status</p>
+
         {isEditing || internalEditing === 'status' ? (
           <Controller
             name="status"
@@ -225,14 +233,17 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <div className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2`}>{taskData?.status && TaskStatusMapper[taskData.status]}</div>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 pr-5`}>
+            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>{taskData?.status ? TaskStatusMapper[taskData.status] : 'No status'}</div>
+          </HoverPencilWrapper>
         )}
       </div>
 
       {/* Task Type */}
-      <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('category')}>
+      <div className="flex items-center gap-4">
         <Folder className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Task Type</p>
+
         {isEditing || internalEditing === 'category' ? (
           <Controller
             name="category"
@@ -261,14 +272,17 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <p className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm`}>{taskData?.category}</p>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
+            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('category')}>{taskData?.category || 'No category'}</p>
+          </HoverPencilWrapper>
         )}
       </div>
 
       {/* Tags */}
-      <div className="flex items-center gap-4" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}>
+      <div className="flex items-center gap-4">
         <Tag className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Tags</p>
+
         {isEditing || internalEditing === 'tags' ? (
           <Controller
             name="tags"
@@ -291,12 +305,13 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          renderTags()
+          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} pr-5`}>
+            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}>{renderTags()}</div>
+          </HoverPencilWrapper>
         )}
       </div>
 
       {/* Related Objects */}
-
       {!isEditing && (
         <div className="flex items-center gap-4">
           <BookText className="text-primary w-[16px] h-[16px] shrink-0" />

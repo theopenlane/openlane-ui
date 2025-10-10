@@ -10,6 +10,7 @@ import { UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { Separator } from '@repo/ui/separator'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TTitleFieldProps = {
   isEditing: boolean
@@ -77,9 +78,16 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
     </div>
   ) : (
     <>
-      <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-        {form.getValues('name')}
-      </h1>
+      <HoverPencilWrapper showPencil={editAllowed} className={`inline-block ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+        <h1
+          onDoubleClick={() => {
+            if (editAllowed) handleClick()
+          }}
+          className="text-3xl font-semibold pr-5"
+        >
+          {form.getValues('name')}
+        </h1>
+      </HoverPencilWrapper>
       <Separator separatorClass="bg-divider mt-[24px]" />
     </>
   )

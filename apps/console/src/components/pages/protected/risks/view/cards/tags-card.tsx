@@ -11,6 +11,7 @@ import { Badge } from '@repo/ui/badge'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import useClickOutside from '@/hooks/useClickOutside'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TTagsCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -99,26 +100,28 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                 />
               </InputRow>
             ) : (
-              <div
-                className={`flex gap-2 flex-wrap ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onDoubleClick={() => {
-                  if (!isEditing && isEditAllowed) {
-                    setInternalEditing(true)
-                  }
-                }}
-              >
-                {risk.tags?.length ? (
-                  risk.tags.map((item, index) => (
-                    <Fragment key={index}>
-                      <Badge className="bg-background-secondary mr-1" variant="outline">
-                        {item}
-                      </Badge>
-                    </Fragment>
-                  ))
-                ) : (
-                  <span className="text-muted-foreground text-sm italic">No tags</span>
-                )}
-              </div>
+              <HoverPencilWrapper showPencil={isEditAllowed} className={`flex gap-2 w-full flex-wrap ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                <div
+                  className="w-full"
+                  onDoubleClick={() => {
+                    if (!isEditing && isEditAllowed) {
+                      setInternalEditing(true)
+                    }
+                  }}
+                >
+                  {risk.tags?.length ? (
+                    risk.tags.map((item, index) => (
+                      <Fragment key={index}>
+                        <Badge className="bg-background-secondary mr-1" variant="outline">
+                          {item}
+                        </Badge>
+                      </Fragment>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground text-sm italic">No tags</span>
+                  )}
+                </div>
+              </HoverPencilWrapper>
             )}
           </div>
         </div>

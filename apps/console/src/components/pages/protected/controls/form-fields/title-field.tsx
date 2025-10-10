@@ -6,6 +6,7 @@ import { Input } from '@repo/ui/input'
 import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 interface TitleFieldProps {
   isEditing: boolean
@@ -62,9 +63,11 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
   ) : (
     <div className="flex gap-2 items-center">
       {referenceFramework && <StandardsIconMapper height={40} width={42} shortName={referenceFramework} />}
-      <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-        {getValues('title')}
-      </h1>
+      <HoverPencilWrapper showPencil={isEditAllowed}>
+        <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold pr-5 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+          {getValues('title')}
+        </h1>
+      </HoverPencilWrapper>
     </div>
   )
 }

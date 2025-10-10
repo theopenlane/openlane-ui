@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { Card } from '@repo/ui/cardpanel'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -91,21 +92,23 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
         ) : (
           <TooltipProvider disableHoverableContent>
             <Tooltip>
-              <TooltipTrigger
-                type="button"
-                className={`min-w-[160px] bg-unset ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onDoubleClick={() => {
-                  if (!isEditing && editAllowed) {
-                    setEditingField(editingKey)
-                  }
-                }}
-              >
-                <div className="flex gap-2 items-center">
-                  <Avatar entity={value as Group} variant="small" />
-                  <span className="truncate">{displayName}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{displayName}</TooltipContent>
+              <HoverPencilWrapper showPencil={editAllowed} className={`min-w-[160px] w-full bg-unset`}>
+                <TooltipTrigger
+                  type="button"
+                  onDoubleClick={() => {
+                    if (!isEditing && editAllowed) {
+                      setEditingField(editingKey)
+                    }
+                  }}
+                  className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} bg-unset w-full`}
+                >
+                  <div className="flex gap-2 items-center">
+                    <Avatar entity={value as Group} variant="small" />
+                    <span className="truncate">{displayName}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{displayName}</TooltipContent>
+              </HoverPencilWrapper>
             </Tooltip>
           </TooltipProvider>
         )}

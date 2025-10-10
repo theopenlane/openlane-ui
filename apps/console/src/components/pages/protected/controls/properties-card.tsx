@@ -23,6 +23,7 @@ import { Group } from '@repo/codegen/src/schema'
 import { Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 interface PropertiesCardProps {
   isEditing: boolean
@@ -158,13 +159,15 @@ const Property = ({ label, value }: { label: string; value?: string | null }) =>
       <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
     </div>
-    <div className="text-sm whitespace-pre-line">
+    <div className="text-sm whitespace-pre-line relative group">
       {label === 'Framework' ? (
         <div className="cursor-not-allowed">
           <StandardChip referenceFramework={value ?? ''} />
         </div>
       ) : (
-        <div className="text-sm whitespace-pre-line">{value || '-'}</div>
+        <HoverPencilWrapper>
+          <div className="text-sm whitespace-pre-line">{value || '-'}</div>
+        </HoverPencilWrapper>
       )}
     </div>
   </div>
@@ -271,9 +274,9 @@ const EditableSelect = ({
             )}
           />
         ) : (
-          <div className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onDoubleClick={handleClick}>
-            {labels[getValues(name)] ?? '-'}
-          </div>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+            <div onDoubleClick={isEditAllowed ? handleClick : undefined}>{labels[getValues(name)] ?? '-'}</div>
+          </HoverPencilWrapper>
         )}
       </div>
     </div>
@@ -301,7 +304,7 @@ const ReferenceProperty = ({
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const isEditable = isEditing || internalEditing
+  const editing = isEditing || internalEditing
 
   const handleClick = () => {
     if (!isEditing) {
@@ -340,7 +343,7 @@ const ReferenceProperty = ({
         </div>
       </div>
       <div className="text-sm w-full">
-        {isEditable ? (
+        {editing ? (
           <Controller
             control={control}
             name={name}
@@ -368,30 +371,34 @@ const ReferenceProperty = ({
               />
             )}
           />
-        ) : value ? (
-          <div className={'flex items-center gap-2 cursor-pointer'} onDoubleClick={handleClick}>
-            <span>{value}</span>
-            <TooltipProvider disableHoverableContent>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleCopy()
-                    }}
-                  >
-                    <CopyIcon className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Copy</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
         ) : (
-          <span className={'cursor-pointer'} onDoubleClick={handleClick}>
-            -
-          </span>
+          <HoverPencilWrapper>
+            {value ? (
+              <div className="flex items-center gap-2 cursor-pointer" onDoubleClick={handleClick}>
+                <span>{value}</span>
+                <TooltipProvider disableHoverableContent>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleCopy()
+                        }}
+                      >
+                        <CopyIcon className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Copy</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            ) : (
+              <span className="cursor-pointer" onDoubleClick={handleClick}>
+                -
+              </span>
+            )}
+          </HoverPencilWrapper>
         )}
       </div>
     </div>
@@ -454,7 +461,7 @@ export const EditableSelectFromQuery = ({
           name={name}
           control={control}
           render={({ field }) => {
-            const isEditable = isEditAllowed && (isEditing || internalEditing)
+            const editing = isEditAllowed && (isEditing || internalEditing)
 
             const handleChange = (val: string) => {
               if (getValues(name) === val) {
@@ -468,11 +475,18 @@ export const EditableSelectFromQuery = ({
               field.onChange(val)
               setInternalEditing(false)
             }
-            if (!isEditable) {
+            if (!editing) {
               return (
-                <span className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onDoubleClick={() => setInternalEditing(true)}>
-                  {field.value || '-'}
-                </span>
+                <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                  <span
+                    className="w-full block"
+                    onDoubleClick={() => {
+                      if (isEditAllowed) setInternalEditing(true)
+                    }}
+                  >
+                    {field.value || '-'}
+                  </span>
+                </HoverPencilWrapper>
               )
             }
 
@@ -550,7 +564,7 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
   const { control, getValues } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
-  const isEditable = isEditing || internalEditing
+  const editing = isEditing || internalEditing
 
   const handleChange = (val: ControlControlStatus | SubcontrolControlStatus) => {
     if (getValues('status') === val) {
@@ -594,7 +608,7 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
         <div className="text-sm">Status</div>
       </div>
       <div ref={triggerRef} className="text-sm">
-        {isEditable ? (
+        {editing ? (
           <Controller
             control={control}
             name="status"
@@ -620,10 +634,12 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
             )}
           />
         ) : (
-          <div className="flex items-center space-x-2 cursor-pointer" onDoubleClick={handleClick}>
-            {ControlIconMapper16[data?.status as ControlControlStatus]}
-            <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>
-          </div>
+          <HoverPencilWrapper>
+            <div className="flex items-center space-x-2 cursor-pointer" onDoubleClick={handleClick}>
+              {ControlIconMapper16[data?.status as ControlControlStatus]}
+              <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>
+            </div>
+          </HoverPencilWrapper>
         )}
       </div>
     </div>
@@ -632,7 +648,7 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
 
 const MappedCategories = ({ isEditing, data }: { isEditing: boolean; data?: Control | Subcontrol }) => {
   const [internalEditing, setInternalEditing] = useState(false)
-  const isEditable = isEditing || internalEditing
+  const editing = isEditing || internalEditing
 
   const handleClick = () => {
     if (!isEditing) {
@@ -644,7 +660,7 @@ const MappedCategories = ({ isEditing, data }: { isEditing: boolean; data?: Cont
     if (internalEditing) setInternalEditing(false)
   })
 
-  if (isEditable) {
+  if (editing) {
     return <MappedCategoriesDialog onClose={() => setInternalEditing(false)} />
   }
 
@@ -683,7 +699,7 @@ const AuthorityField = ({
   const { control, getValues } = useFormContext()
 
   const displayName = value?.displayName || `No ${label}`
-  const showEditable = isEditAllowed && (isEditing || editingField === editingKey)
+  const editing = isEditAllowed && (isEditing || editingField === editingKey)
 
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3">
@@ -692,7 +708,7 @@ const AuthorityField = ({
         <div className="text-sm">{label}</div>
       </div>
 
-      {showEditable ? (
+      {editing ? (
         <Controller
           control={control}
           name={fieldKey}
@@ -713,23 +729,25 @@ const AuthorityField = ({
           )}
         />
       ) : (
-        <TooltipProvider disableHoverableContent>
-          <Tooltip>
-            <TooltipTrigger
-              type="button"
-              className={`w-[200px] ${isEditAllowed ? 'cursor-pointer bg-unset' : 'cursor-not-allowed'} `}
-              onDoubleClick={() => {
-                if (!isEditing && isEditAllowed) setEditingField(editingKey)
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <Avatar entity={value as Group} variant="small" />
-                <span className="truncate">{displayName}</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{displayName}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <HoverPencilWrapper>
+          <TooltipProvider disableHoverableContent>
+            <Tooltip>
+              <TooltipTrigger
+                type="button"
+                className={`w-[200px] ${isEditAllowed ? 'cursor-pointer ' : 'cursor-not-allowed'} bg-unset `}
+                onDoubleClick={() => {
+                  if (!isEditing && isEditAllowed) setEditingField(editingKey)
+                }}
+              >
+                <div className="flex gap-2 items-center">
+                  <Avatar entity={value as Group} variant="small" />
+                  <span className="truncate">{displayName}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{displayName}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </HoverPencilWrapper>
       )}
     </div>
   )
