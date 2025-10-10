@@ -2,6 +2,8 @@ import React from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { GetMappedControlsQuery, MappedControlMappingSource, MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
 import RelationCard from './mapped-relations-card'
+import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 
 type MappedRelationsSheetProps = {
   open: boolean
@@ -11,6 +13,46 @@ type MappedRelationsSheetProps = {
 
 const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpenChange, queryData }) => {
   const mappings = queryData?.mappedControls?.edges?.filter((e) => e?.node?.source !== MappedControlMappingSource.SUGGESTED).map((e) => e?.node)
+
+  const controlRefCodes = new Set<string>()
+  const subcontrolRefCodes = new Set<string>()
+
+  mappings?.forEach((mapping) => {
+    mapping?.fromControls?.edges?.forEach((e) => e?.node?.refCode && controlRefCodes.add(e.node.refCode))
+    mapping?.toControls?.edges?.forEach((e) => e?.node?.refCode && controlRefCodes.add(e.node.refCode))
+    mapping?.fromSubcontrols?.edges?.forEach((e) => e?.node?.refCode && subcontrolRefCodes.add(e.node.refCode))
+    mapping?.toSubcontrols?.edges?.forEach((e) => e?.node?.refCode && subcontrolRefCodes.add(e.node.refCode))
+  })
+  const allControlRefCodes = Array.from(controlRefCodes)
+  const allSubcontrolRefCodes = Array.from(subcontrolRefCodes)
+
+  const { data: refcodeData } = useGetControlsByRefCode({ refCodeIn: allControlRefCodes })
+  const { data: subcontrolRefcodeData } = useGetSubcontrolsByRefCode({ refCodeIn: allSubcontrolRefCodes })
+
+  const controlHrefMap: Record<string, string> = {}
+  const subcontrolHrefMap: Record<string, string> = {}
+
+  refcodeData?.controls?.edges?.forEach((edge) => {
+    const node = edge?.node
+    if (!node) return
+
+    if (!node.systemOwned) {
+      controlHrefMap[node.refCode] = `/controls/${node.id}`
+    } else if (node.standardID) {
+      controlHrefMap[node.refCode] = `/standards/${node.standardID}?controlId=${node.id}`
+    }
+  })
+
+  subcontrolRefcodeData?.subcontrols?.edges?.forEach((edge) => {
+    const node = edge?.node
+    if (!node) return
+
+    if (!node.systemOwned) {
+      subcontrolHrefMap[node.refCode] = `/controls/${node.controlID}/${node.id}`
+    } else if (node.control?.standardID) {
+      subcontrolHrefMap[node.refCode] = `/standards/${node.control.standardID}?controlId=${node.id}`
+    }
+  })
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -67,6 +109,8 @@ const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpe
                 relation: mapping?.relation ?? '',
                 id: mapping?.id ?? '',
               }}
+              controlHrefMap={controlHrefMap}
+              subcontrolHrefMap={subcontrolHrefMap}
             />
           )
         })}

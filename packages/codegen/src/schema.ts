@@ -5855,8 +5855,6 @@ export interface CreateApiTokenInput {
   /** the reason the token was revoked */
   revokedReason?: InputMaybe<Scalars['String']['input']>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
-  /** SSO verification time for the owning organization */
-  ssoAuthorizations?: InputMaybe<Scalars['SSOAuthorizationMap']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -6958,8 +6956,6 @@ export interface CreatePersonalAccessTokenInput {
   name: Scalars['String']['input']
   organizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
-  /** SSO authorization timestamps by organization id */
-  ssoAuthorizations?: InputMaybe<Scalars['SSOAuthorizationMap']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -7068,6 +7064,7 @@ export interface CreateProgramInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  userID?: InputMaybe<Scalars['ID']['input']>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -7594,6 +7591,7 @@ export interface CreateUserInput {
   password?: InputMaybe<Scalars['String']['input']>
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  programOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** the user's role */
   role?: InputMaybe<UserRole>
   settingID: Scalars['ID']['input']
@@ -27513,6 +27511,8 @@ export interface Program extends Node {
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   procedures: ProcedureConnection
+  /** the id of the user who is responsible for this program */
+  programOwnerID?: Maybe<Scalars['ID']['output']>
   /** the type of the program */
   programType: ProgramProgramType
   risks: RiskConnection
@@ -27526,6 +27526,7 @@ export interface Program extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
   users: UserConnection
   viewers: GroupConnection
 }
@@ -27755,6 +27756,8 @@ export interface ProgramHistory extends Node {
   operation: ProgramHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** the id of the user who is responsible for this program */
+  programOwnerID?: Maybe<Scalars['String']['output']>
   /** the type of the program */
   programType: ProgramHistoryProgramType
   ref?: Maybe<Scalars['String']['output']>
@@ -28038,6 +28041,22 @@ export interface ProgramHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** program_owner_id field predicates */
+  programOwnerID?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDContains?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDGT?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDGTE?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  programOwnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  programOwnerIDLT?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDLTE?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  programOwnerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  programOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** program_type field predicates */
   programType?: InputMaybe<ProgramHistoryProgramType>
   programTypeIn?: InputMaybe<Array<ProgramHistoryProgramType>>
@@ -28711,6 +28730,9 @@ export interface ProgramWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** user edge predicates */
+  hasUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** users edge predicates */
   hasUsers?: InputMaybe<Scalars['Boolean']['input']>
   hasUsersWith?: InputMaybe<Array<UserWhereInput>>
@@ -28760,6 +28782,22 @@ export interface ProgramWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** program_owner_id field predicates */
+  programOwnerID?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDContains?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDGT?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  programOwnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  programOwnerIDLT?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  programOwnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  programOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** program_type field predicates */
   programType?: InputMaybe<ProgramProgramType>
   programTypeIn?: InputMaybe<Array<ProgramProgramType>>
@@ -41522,7 +41560,6 @@ export interface UpdateApiTokenInput {
   clearRevokedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearRevokedBy?: InputMaybe<Scalars['Boolean']['input']>
   clearRevokedReason?: InputMaybe<Scalars['Boolean']['input']>
-  clearSSOAuthorizations?: InputMaybe<Scalars['Boolean']['input']>
   clearScopes?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
@@ -41540,8 +41577,6 @@ export interface UpdateApiTokenInput {
   /** the reason the token was revoked */
   revokedReason?: InputMaybe<Scalars['String']['input']>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
-  /** SSO verification time for the owning organization */
-  ssoAuthorizations?: InputMaybe<Scalars['SSOAuthorizationMap']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -43315,7 +43350,6 @@ export interface UpdatePersonalAccessTokenInput {
   clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
   clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
-  clearSSOAuthorizations?: InputMaybe<Scalars['Boolean']['input']>
   clearScopes?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
@@ -43328,8 +43362,6 @@ export interface UpdatePersonalAccessTokenInput {
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
-  /** SSO authorization timestamps by organization id */
-  ssoAuthorizations?: InputMaybe<Scalars['SSOAuthorizationMap']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -43494,6 +43526,7 @@ export interface UpdateProgramInput {
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  clearUser?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the program */
   description?: InputMaybe<Scalars['String']['input']>
@@ -43528,6 +43561,7 @@ export interface UpdateProgramInput {
   status?: InputMaybe<ProgramProgramStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  userID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -44280,6 +44314,7 @@ export interface UpdateUserInput {
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
   clearPassword?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
   clearSub?: InputMaybe<Scalars['Boolean']['input']>
@@ -44298,6 +44333,7 @@ export interface UpdateUserInput {
   lastSeen?: InputMaybe<Scalars['Time']['input']>
   /** user password hash */
   password?: InputMaybe<Scalars['String']['input']>
+  programOwnerID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -44388,6 +44424,7 @@ export interface User extends Node {
   organizations: OrganizationConnection
   personalAccessTokens: PersonalAccessTokenConnection
   programMemberships: ProgramMembershipConnection
+  programOwner?: Maybe<Program>
   programs: ProgramConnection
   /** the user's role */
   role?: Maybe<UserRole>
@@ -45640,6 +45677,9 @@ export interface UserWhereInput {
   /** program_memberships edge predicates */
   hasProgramMemberships?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramMembershipsWith?: InputMaybe<Array<ProgramMembershipWhereInput>>
+  /** program_owner edge predicates */
+  hasProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasProgramOwnerWith?: InputMaybe<Array<ProgramWhereInput>>
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
@@ -46578,6 +46618,21 @@ export type UpdateBulkControlMutationVariables = Exact<{
 
 export type UpdateBulkControlMutation = { __typename?: 'Mutation'; updateBulkControl: { __typename?: 'ControlBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
+export type GetControlsByRefCodeQueryVariables = Exact<{
+  refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+}>
+
+export type GetControlsByRefCodeQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null; standardID?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
+    } | null> | null
+  }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -46975,6 +47030,7 @@ export type GetAllGroupsQuery = {
         id: string
         description?: string | null
         name: string
+        displayName: string
         gravatarLogoURL?: string | null
         logoURL?: string | null
         updatedAt?: any | null
@@ -49045,6 +49101,21 @@ export type GetSubcontrolByIdMinifiedQuery = {
     referenceFramework?: string | null
     title?: string | null
     control: { __typename?: 'Control'; id: string; standardID?: string | null }
+  }
+}
+
+export type GetSubcontrolsByRefCodeQueryVariables = Exact<{
+  refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+}>
+
+export type GetSubcontrolsByRefCodeQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; systemOwned?: boolean | null; controlID: string; control: { __typename?: 'Control'; standardID?: string | null } } | null
+    } | null> | null
   }
 }
 

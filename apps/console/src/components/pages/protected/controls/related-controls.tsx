@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, usePathname, useSearchParams } from 'next/navigation'
+import React, { useState } from 'react'
+import { useParams, usePathname } from 'next/navigation'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { Button } from '@repo/ui/button'
 import { PanelRightOpen } from 'lucide-react'
@@ -9,6 +9,8 @@ import MappedRelationsSheet from './mapped-relationships-sheet'
 import { RelatedControlChip } from './shared/related-control-chip'
 import Link from 'next/link'
 import StandardChip from '../standards/shared/standard-chip'
+import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 
 export type RelatedNode = {
   type: 'Control' | 'Subcontrol'
@@ -32,8 +34,6 @@ type Props = {
 const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const [sheetOpen, setSheetOpen] = useState(false)
-  const searchParams = useSearchParams()
-  const openRelationsParam = searchParams.get('openRelations') === 'true'
   const path = usePathname()
 
   // fetch suggested mapped controls, which are the ones created by the system based on control references
@@ -167,11 +167,45 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
     })
   })
 
-  useEffect(() => {
-    if (openRelationsParam) {
-      setSheetOpen(true)
+  const allControlRefCodes = Object.values(grouped)
+    .flatMap((nodes) => nodes.filter((n) => n.type === 'Control').map((n) => n.refCode))
+    .filter(Boolean)
+
+  const allSubcontrolRefCodes = Object.values(grouped)
+    .flatMap((nodes) => nodes.filter((n) => n.type === 'Subcontrol').map((n) => n.refCode))
+    .filter(Boolean)
+
+  const { data: refcodeData } = useGetControlsByRefCode({ refCodeIn: allControlRefCodes })
+  const { data: subcontrolRefcodeData } = useGetSubcontrolsByRefCode({ refCodeIn: allSubcontrolRefCodes })
+
+  const generateControlHref = (node: RelatedNode) => {
+    const controls = refcodeData?.controls?.edges?.filter((control) => control?.node?.refCode === node.refCode) || []
+    const orgOwnedControl = controls?.find((control) => !control?.node?.systemOwned)?.node
+    if (orgOwnedControl) {
+      return `/controls/${orgOwnedControl.id}`
     }
-  }, [openRelationsParam])
+
+    const systemOwnedControl = controls?.find((control) => control?.node?.systemOwned)?.node
+
+    if (systemOwnedControl) {
+      return `/standards/${systemOwnedControl?.standardID}?controlId=${systemOwnedControl?.id}`
+    }
+    return ''
+  }
+
+  const generateSubcontrolHref = (node: RelatedNode) => {
+    const controls = subcontrolRefcodeData?.subcontrols?.edges?.filter((control) => control?.node?.refCode === node.refCode) || []
+    const orgOwnedControl = controls?.find((control) => !control?.node?.systemOwned)?.node
+    if (orgOwnedControl) {
+      return `/controls/${orgOwnedControl.controlID}/${orgOwnedControl.id}`
+    }
+    const systemOwnedControl = controls?.find((control) => control?.node?.systemOwned)?.node
+
+    if (systemOwnedControl) {
+      return `/standards/${systemOwnedControl.control.standardID}?controlId=${systemOwnedControl.id}`
+    }
+    return ''
+  }
 
   if (!data) {
     return null
@@ -202,7 +236,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
           <StandardChip referenceFramework={framework ?? ''} />{' '}
           <div className="flex gap-2.5 flex-wrap">
             {nodes.map((node) => {
-              const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
+              const href = node.type === 'Subcontrol' ? generateSubcontrolHref(node) : generateControlHref(node)
               return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
             })}
           </div>
