@@ -27,8 +27,7 @@ const AdvancedSetupStep3 = () => {
           <span className="text-sm text-tip-text">Tips</span>
         </div>
         <p className="text-sm text-tip-text">
-          A well-structured compliance program has the potential to completely transform your organization, enhancing its operational efficiency and fostering a culture of integrity and
-          accountability.
+          Identify your audit partner for reference and reporting purposes. You can invite them or share access later when you’re ready.
         </p>
       </div>
 
