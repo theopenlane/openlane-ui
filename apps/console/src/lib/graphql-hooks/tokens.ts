@@ -8,6 +8,8 @@ import {
   GET_API_TOKENS,
   DELETE_API_TOKEN,
   GET_API_TOKENS_BY_IDS,
+  UPDATE_API_TOKEN,
+  UPDATE_PERSONAL_ACCESS_TOKEN,
 } from '@repo/codegen/query/tokens'
 import {
   GetPersonalAccessTokensQuery,
@@ -25,6 +27,10 @@ import {
   GetApiTokensByIdsQuery,
   GetApiTokensByIdsQueryVariables,
   ApiToken,
+  UpdatePersonalAccessTokenMutation,
+  UpdatePersonalAccessTokenMutationVariables,
+  UpdateApiTokenMutation,
+  UpdateApiTokenMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -53,6 +59,16 @@ export const useCreatePersonalAccessToken = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<CreatePersonalAccessTokenMutation, unknown, CreatePersonalAccessTokenMutationVariables>({
     mutationFn: async (input) => client.request(CREATE_PERSONAL_ACCESS_TOKEN, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['personalAccessTokens'] })
+    },
+  })
+}
+
+export const useUpdatePersonalAccessToken = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<UpdatePersonalAccessTokenMutation, unknown, UpdatePersonalAccessTokenMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_PERSONAL_ACCESS_TOKEN, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['personalAccessTokens'] })
     },
@@ -94,6 +110,16 @@ export const useCreateAPIToken = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<CreateApiTokenMutation, unknown, CreateApiTokenMutationVariables>({
     mutationFn: async (input) => client.request(CREATE_API_TOKEN, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apiTokens'] })
+    },
+  })
+}
+
+export const useUpdateApiToken = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<UpdateApiTokenMutation, unknown, UpdateApiTokenMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_API_TOKEN, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['apiTokens'] })
     },

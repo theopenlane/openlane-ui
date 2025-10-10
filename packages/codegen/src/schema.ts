@@ -47461,6 +47461,7 @@ export type GetAllOrganizationsQuery = {
         personalOrg?: boolean | null
         stripeCustomerID?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
       } | null
     } | null> | null
   }
@@ -49548,6 +49549,7 @@ export type GetPersonalAccessTokensQuery = {
         description?: string | null
         expiresAt?: any | null
         lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
         organizations: {
           __typename?: 'OrganizationConnection'
           edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null
@@ -49582,7 +49584,16 @@ export type GetApiTokensQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null; lastUsedAt?: any | null } | null
+      node?: {
+        __typename?: 'APIToken'
+        id: string
+        name: string
+        description?: string | null
+        scopes?: Array<string> | null
+        expiresAt?: any | null
+        lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
@@ -49602,6 +49613,23 @@ export type GetApiTokensByIdsQueryVariables = Exact<{
 export type GetApiTokensByIdsQuery = {
   __typename?: 'Query'
   apiTokens: { __typename?: 'APITokenConnection'; edges?: Array<{ __typename?: 'APITokenEdge'; node?: { __typename?: 'APIToken'; id: string; name: string } | null } | null> | null }
+}
+
+export type UpdateApiTokenMutationVariables = Exact<{
+  updateApiTokenId: Scalars['ID']['input']
+  input: UpdateApiTokenInput
+}>
+
+export type UpdateApiTokenMutation = { __typename?: 'Mutation'; updateAPIToken: { __typename?: 'APITokenUpdatePayload'; apiToken: { __typename?: 'APIToken'; id: string } } }
+
+export type UpdatePersonalAccessTokenMutationVariables = Exact<{
+  updatePersonalAccessTokenId: Scalars['ID']['input']
+  input: UpdatePersonalAccessTokenInput
+}>
+
+export type UpdatePersonalAccessTokenMutation = {
+  __typename?: 'Mutation'
+  updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
