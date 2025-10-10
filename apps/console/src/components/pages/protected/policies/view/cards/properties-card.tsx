@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -93,7 +94,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div ref={triggerRef} className="min-w-[160px]">
+        <div ref={triggerRef} className="min-w-[160px] w-full">
           {isEditing || editingField === 'status' ? (
             <Controller
               name="status"
@@ -120,15 +121,19 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <div
-              className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-              onDoubleClick={() => {
-                if (!isEditing && editAllowed) setEditingField('status')
-              }}
-            >
-              {DocumentIconMapper[policy.status as InternalPolicyDocumentStatus]}
-              <p>{InternalPolicyStatusOptions.find((item) => item.value === policy.status)?.label}</p>
-            </div>
+            <HoverPencilWrapper showPencil={editAllowed} className={`w-full  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+              <div
+                className="flex items-center space-x-2 w-full"
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) {
+                    setEditingField('status')
+                  }
+                }}
+              >
+                {DocumentIconMapper[policy.status as InternalPolicyDocumentStatus]}
+                <p>{InternalPolicyStatusOptions.find((item) => item.value === policy.status)?.label}</p>
+              </div>
+            </HoverPencilWrapper>
           )}
         </div>
       </div>
@@ -175,7 +180,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div className="min-w-[160px]">
+        <div className="min-w-[160px] w-full">
           {isEditing || editingField === 'policyType' ? (
             <FormField
               control={form.control}
@@ -200,14 +205,15 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <div
-              className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
-              onDoubleClick={() => {
-                if (!isEditing && editAllowed) setEditingField('policyType')
-              }}
-            >
-              <span className="w-full block min-h-6">{policy?.policyType}</span>
-            </div>
+            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}>
+              <div
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('policyType')
+                }}
+              >
+                <span className="w-full block min-h-6">{policy?.policyType}</span>
+              </div>
+            </HoverPencilWrapper>
           )}
         </div>
       </div>
@@ -231,7 +237,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div ref={reviewTriggerRef} className="min-w-[160px]">
+        <div ref={reviewTriggerRef} className="min-w-[160px] w-full">
           {isEditing || editingField === 'reviewDue' ? (
             <Controller
               name="reviewDue"
@@ -256,14 +262,15 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <div
-              className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
-              onDoubleClick={() => {
-                if (!isEditing && editAllowed) setEditingField('reviewDue')
-              }}
-            >
-              <span className="block min-h-6">{formatDate(policy?.reviewDue) || '\u00A0'}</span>
-            </div>
+            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}>
+              <div
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('reviewDue')
+                }}
+              >
+                <span className="block min-h-6">{formatDate(policy?.reviewDue) || '\u00A0'}</span>
+              </div>
+            </HoverPencilWrapper>
           )}
         </div>
       </div>

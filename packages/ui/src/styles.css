@@ -103,7 +103,6 @@
     border: 1px solid transparent;
     transition: all 0.5s ease;
   }
-
   button.bg-transparent:hover,
   button.bg-transparent.is-active {
     background-color: var(--color-btn-primary-hover) !important;

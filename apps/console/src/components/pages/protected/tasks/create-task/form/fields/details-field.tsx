@@ -44,7 +44,7 @@ const DetailsField: React.FC<DetailsFieldProps> = ({ isEditing, initialValue }) 
       )}
     />
   ) : (
-    initialValue && <div className="my-4">{convertToReadOnly(initialValue as string)}</div>
+    initialValue && <div className="my-4 cursor-not-allowed">{convertToReadOnly(initialValue as string)}</div>
   )
 }
 

@@ -73,6 +73,7 @@ import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/ob
 import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
 import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -402,7 +403,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       return <span className="text-gray-500">no tags provided</span>
     }
     return (
-      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex justify-end flex-wrap gap-2">
+        {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
+      </div>
     )
   }
 
@@ -542,9 +545,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 ) : (
                   <div className="mt-5">
                     <FormLabel className="font-bold">Description</FormLabel>
-                    <div onDoubleClick={() => handleDoubleClick('description')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
-                      {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
-                    </div>
+                    <HoverPencilWrapper pencilClass="!-right-5" showPencil={editAllowed} className={`w-fit ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                      <div onDoubleClick={() => editAllowed && handleDoubleClick('description')}>
+                        {evidence?.description ? <p>{evidence.description}</p> : <p className="text-gray-500">no description provided</p>}
+                      </div>
+                    </HoverPencilWrapper>
                   </div>
                 )}
 
@@ -566,11 +571,16 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   />
                 ) : (
-                  <div className={`mt-5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('collectionProcedure')}>
+                  <div className="mt-5">
                     <FormLabel className="font-bold">Collection Procedure</FormLabel>
-                    {evidence?.collectionProcedure ? <p>{evidence?.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
+                    <HoverPencilWrapper pencilClass="!-right-5" showPencil={editAllowed} className={`w-fit ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                      <div onDoubleClick={() => editAllowed && handleDoubleClick('collectionProcedure')}>
+                        {evidence?.collectionProcedure ? <p>{evidence.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
+                      </div>
+                    </HoverPencilWrapper>
                   </div>
                 )}
+
                 <div className="mt-6 mb-8">
                   <Card className={wrapper()}>
                     <CardContent className={content()}>
@@ -581,6 +591,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <CircuitBoard size={16} className="text-accent-secondary" />
                             Source
                           </div>
+
                           <div className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'source' ? (
                               <InputRow className="w-full">
@@ -598,9 +609,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 />
                               </InputRow>
                             ) : (
-                              <p className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('source')}>
-                                {evidence?.source || <span className="text-gray-500">no source provided</span>}
-                              </p>
+                              <HoverPencilWrapper showPencil={editAllowed} pencilClass="!-right-5" className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                                <p onDoubleClick={() => handleDoubleClick('source')}>{evidence?.source || <span className="text-gray-500">no source provided</span>}</p>
+                              </HoverPencilWrapper>
                             )}
                           </div>
                         </div>
@@ -629,20 +640,26 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 />
                               </InputRow>
                             ) : (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className={`flex items-center justify-end w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
-                                      <span className="truncate overflow-hidden whitespace-nowrap text-right">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <NextLink href={evidence?.url ?? '#'} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                      {evidence?.url}
-                                    </NextLink>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                              <HoverPencilWrapper showPencil={editAllowed} pencilClass="!-right-5" className={`w-[250px] text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center justify-end w-full" onDoubleClick={() => handleDoubleClick('url')}>
+                                        <span className="truncate overflow-hidden whitespace-nowrap text-right">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {evidence?.url ? (
+                                        <NextLink href={evidence.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                          {evidence.url}
+                                        </NextLink>
+                                      ) : (
+                                        <span>No URL</span>
+                                      )}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </HoverPencilWrapper>
                             )}
                           </div>
                         </div>
@@ -681,13 +698,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 )}
                               />
                             ) : (
-                              <div
-                                className={`flex items-center justify-end space-x-2 w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onDoubleClick={() => handleDoubleClick('status')}
-                              >
-                                {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
-                                <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
-                              </div>
+                              <HoverPencilWrapper pencilClass="!-right-5" showPencil={editAllowed} className={` space-x-2 w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                                <div className="flex justify-end items-center " onDoubleClick={() => editAllowed && handleDoubleClick('status')}>
+                                  {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
+                                  <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
+                                </div>
+                              </HoverPencilWrapper>
                             )}
                           </div>
                         </div>
@@ -698,6 +714,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <Calendar size={16} className="text-accent-secondary" />
                             Creation Date
                           </div>
+
                           <div ref={triggerRef} className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'creationDate' ? (
                               <FormField
@@ -719,9 +736,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 )}
                               />
                             ) : (
-                              <p className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('creationDate')}>
-                                {formatDate(evidence?.creationDate)}
-                              </p>
+                              <HoverPencilWrapper showPencil={editAllowed} pencilClass="!-right-5" className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                                <p onDoubleClick={() => handleDoubleClick('creationDate')}>{formatDate(evidence?.creationDate) || <span className="text-gray-500">no date provided</span>}</p>
+                              </HoverPencilWrapper>
                             )}
                           </div>
                         </div>
@@ -732,6 +749,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <Calendar size={16} className="text-accent-secondary" />
                             Renewal Date
                           </div>
+
                           <div ref={triggerRef} className="text-sm text-right w-[250px]">
                             {isEditing || editField === 'renewalDate' ? (
                               <FormField
@@ -752,9 +770,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 )}
                               />
                             ) : (
-                              <p className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('renewalDate')}>
-                                {formatDate(evidence?.renewalDate)}
-                              </p>
+                              <HoverPencilWrapper showPencil={editAllowed} pencilClass="!-right-5" className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                                <p onDoubleClick={() => handleDoubleClick('renewalDate')}>{formatDate(evidence?.renewalDate) || <span className="text-gray-500">no date provided</span>}</p>
+                              </HoverPencilWrapper>
                             )}
                           </div>
                         </div>
@@ -795,9 +813,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 )}
                               />
                             ) : (
-                              <div onDoubleClick={() => handleDoubleClick('tags')} className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-                                {handleTags()}
-                              </div>
+                              <HoverPencilWrapper pencilClass="!-right-5" showPencil={editAllowed} className={`w-[250px]  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                                <div className="" onDoubleClick={() => editAllowed && handleDoubleClick('tags')}>
+                                  {handleTags()}
+                                </div>
+                              </HoverPencilWrapper>
                             )}
                           </div>
                         </div>
