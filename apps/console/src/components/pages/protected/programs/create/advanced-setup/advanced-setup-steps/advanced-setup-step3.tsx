@@ -50,7 +50,7 @@ const AdvancedSetupStep3 = () => {
         {/* Audit Partner Email */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Audit Partner Email</label>
-          <Input placeholder="Enter a contact email for the audit partner" type="email" {...register('auditPartnerEmail')} />
+          <Input placeholder="Enter a primary contact email for the audit partner" type="email" {...register('auditPartnerEmail')} />
           {errors.auditPartnerEmail && <span className="text-xs text-destructive">{String(errors.auditPartnerEmail.message)}</span>}
         </div>
       </div>
