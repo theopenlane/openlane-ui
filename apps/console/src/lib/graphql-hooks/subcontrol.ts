@@ -1,4 +1,5 @@
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_SUBCONTROL,
@@ -7,6 +8,7 @@ import {
   GET_SUBCONTROL_BY_ID,
   GET_SUBCONTROL_BY_ID_MINIFIED,
   GET_SUBCONTROL_SELECT_OPTIONS,
+  GET_SUBCONTROLS_BY_REFCODE,
   GET_SUBCONTROLS_PAGINATED,
   UPDATE_SUBCONTROL,
 } from '@repo/codegen/query/subcontrol'
@@ -20,6 +22,7 @@ import {
   GetSubcontrolByIdMinifiedQuery,
   GetSubcontrolByIdMinifiedQueryVariables,
   GetSubcontrolByIdQuery,
+  GetSubcontrolsByRefCodeQuery,
   GetSubcontrolSelectOptionsQuery,
   GetSubcontrolSelectOptionsQueryVariables,
   GetSubcontrolsPaginatedQuery,
@@ -199,5 +202,21 @@ export function useGetSubcontrolMinifiedById(subcontrolId?: string, enabled = tr
       return data
     },
     enabled: !!subcontrolId && enabled,
+  })
+}
+
+type UseGetSubcontrolsByRefCodeArgs = {
+  refCodeIn: string[]
+  enabled?: boolean
+}
+
+export const useGetSubcontrolsByRefCode = ({ refCodeIn, enabled = true }: UseGetSubcontrolsByRefCodeArgs) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetSubcontrolsByRefCodeQuery, unknown>({
+    queryKey: ['subcontrols', refCodeIn],
+    queryFn: async () => await client.request(GET_SUBCONTROLS_BY_REFCODE, { refCodeIn }),
+
+    enabled: enabled && refCodeIn.length > 0,
   })
 }

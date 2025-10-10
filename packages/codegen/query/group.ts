@@ -137,7 +137,6 @@ export const GET_GROUP_PERMISSIONS = gql`
           node {
             id
             name
-            displayName
             objectType
             permissions
           }

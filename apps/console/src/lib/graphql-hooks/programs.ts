@@ -117,10 +117,11 @@ export const useCreateProgramWithMembers = () => {
 }
 
 export const useUpdateProgram = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateProgramMutation, unknown, UpdateProgramMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_PROGRAM, variables),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['programs'] }),
   })
 }
 

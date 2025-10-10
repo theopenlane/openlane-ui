@@ -4,6 +4,7 @@ import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/component
 import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
 import { TaskStatusOptions, TaskTypesOptions } from '../enum-mapper/task-enum'
+import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 
 export type BulkEditDialogPropsBase = {
   setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>
@@ -50,6 +51,7 @@ export enum SelectOptionBulkEditControls {
   Status = 'Status',
   ControlType = 'Control type',
   ControlOwner = 'Control owner',
+  Program = 'Program',
 }
 
 export enum SelectOptionBulkEditPolicies {
@@ -228,7 +230,9 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectO
   ]
 }
 
-export const getAllSelectOptionsForBulkEditControls = (groups: Group[]): SelectOptionSelectedObject[] => {
+export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[]): SelectOptionSelectedObject[] => {
+  const { programOptions } = useProgramSelect({})
+
   return [
     {
       selectOptionEnum: SelectOptionBulkEditControls.ControlOwner,
@@ -250,6 +254,13 @@ export const getAllSelectOptionsForBulkEditControls = (groups: Group[]): SelectO
       placeholder: 'Select a control type',
       inputType: InputType.Select,
       options: ControlControlTypeOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.Program,
+      name: 'addProgramIDs',
+      placeholder: 'Select program...',
+      inputType: InputType.Select,
+      options: programOptions || [],
     },
   ]
 }
