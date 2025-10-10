@@ -43,7 +43,7 @@ const AdvancedSetupStep3 = () => {
         {/* Audit Firm */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Audit Firm</label>
-          <Input placeholder="Exalt Studio" {...register('auditFirm')} />
+          <Input placeholder="Audit Firm Name" {...register('auditFirm')} />
           {errors.auditFirm && <span className="text-xs text-destructive">{String(errors.auditFirm.message)}</span>}
         </div>
 
