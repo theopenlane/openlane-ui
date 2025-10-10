@@ -18,6 +18,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { addYears, getYear } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -28,6 +29,8 @@ export default function Soc2Wizard() {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { data } = useStandardsSelect({ where: { shortName: 'SOC 2' } })
+  const standardID = data?.standards?.edges?.[0]?.node?.id
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Pick Categories', schema: step1Schema },
@@ -67,7 +70,7 @@ export default function Soc2Wizard() {
         startDate: today,
         endDate: oneYearFromToday,
       },
-      standardID: data.standardID,
+      standardID,
       categories: data.categories,
       members: [...programMembers, ...programAdmins],
     }

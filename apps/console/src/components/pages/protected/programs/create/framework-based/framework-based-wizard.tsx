@@ -66,6 +66,7 @@ export default function FrameworkBasedWizard() {
         startDate: today,
         endDate: oneYearFromToday,
       },
+      standardID: values.standardID,
       members: [...toMembers(values.programMembers, ProgramMembershipRole.MEMBER), ...toMembers(values.programAdmins, ProgramMembershipRole.ADMIN)],
     }
 
@@ -108,7 +109,7 @@ export default function FrameworkBasedWizard() {
         <form onSubmit={handleNext}>
           <div className="py-6">
             {stepper.switch({
-              0: () => <SelectFrameworkStep />,
+              0: () => <SelectFrameworkStep required />,
               1: () => <TeamSetupStep />,
               2: () => <StartTypeStep />,
             })}
