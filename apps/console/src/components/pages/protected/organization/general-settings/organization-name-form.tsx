@@ -62,19 +62,31 @@ const OrganizationNameForm = () => {
     if (!currentOrgId) {
       return
     }
-    await updateOrg({
-      updateOrganizationId: currentOrgId,
-      input: {
-        displayName: displayName,
-      },
-    })
-    setIsSuccess(true)
-    queryClient.invalidateQueries({
-      predicate: (query) => {
-        const [firstKey] = query.queryKey
-        return firstKey === 'organizationsWithMembers' || firstKey === 'organizations'
-      },
-    })
+    try {
+      await updateOrg({
+        updateOrganizationId: currentOrgId,
+        input: {
+          displayName: displayName,
+        },
+      })
+      setIsSuccess(true)
+      successNotification({
+        title: 'Organization updated',
+        description: 'Organization was successfully updated.',
+      })
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey] = query.queryKey
+          return firstKey === 'organizationsWithMembers' || firstKey === 'organizations'
+        },
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
