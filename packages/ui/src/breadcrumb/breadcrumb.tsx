@@ -1,7 +1,9 @@
+'use client'
+
 import * as React from 'react'
+import Link from 'next/link'
 import { Slot } from '@radix-ui/react-slot'
 import { ChevronRight, MoreHorizontal } from 'lucide-react'
-
 import { cn } from '@repo/ui/lib/utils'
 
 const Breadcrumb = React.forwardRef<
@@ -27,10 +29,16 @@ const BreadcrumbLink = React.forwardRef<
   React.ComponentPropsWithoutRef<'a'> & {
     asChild?: boolean
   }
->(({ asChild, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'a'
+>(({ asChild, className, href, ...props }, ref) => {
+  if (asChild) {
+    return <Slot ref={ref} className={cn('transition-colors hover:text-foreground', className)} {...props} />
+  }
 
-  return <Comp ref={ref} className={cn('transition-colors hover:text-foreground', className)} {...props} />
+  if (href && href.startsWith('/')) {
+    return <Link ref={ref} href={href} className={cn('transition-colors hover:text-foreground', className)} {...props} />
+  }
+
+  return <a ref={ref} href={href} className={cn('transition-colors hover:text-foreground', className)} {...props} />
 })
 BreadcrumbLink.displayName = 'BreadcrumbLink'
 
