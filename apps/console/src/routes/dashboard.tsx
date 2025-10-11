@@ -24,6 +24,8 @@ import {
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { canEdit } from '@/lib/authz/utils'
+import { TData } from '@/lib/authz/access-api.ts'
 
 export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
@@ -106,7 +108,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   },
 ]
 
-export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
+export const bottomNavigationItems = (orgPermission: TData): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Organization settings',
     href: '/organization-settings',
@@ -115,6 +117,7 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
       {
         title: 'General Settings',
         href: '/organization-settings/general-settings',
+        hidden: !canEdit(orgPermission?.roles),
         icon: SettingsIcon,
       },
       {

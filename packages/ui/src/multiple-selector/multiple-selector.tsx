@@ -433,6 +433,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                   )}
                   data-fixed={option.fixed}
                   data-disabled={disabled || undefined}
+                  variant={'select'}
                 >
                   {option.label}
                   <button
@@ -448,7 +449,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                     }}
                     onClick={() => handleUnselect(option)}
                   >
-                    <X className="h-3 w-3 text-input" />
+                    <X className="h-3 w-3 text-paragraph" />
                   </button>
                 </Badge>
               )

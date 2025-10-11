@@ -10,6 +10,7 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -84,23 +85,25 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
             )}
           />
         ) : (
-          <TooltipProvider disableHoverableContent>
-            <Tooltip>
-              <TooltipTrigger
-                type="button"
-                className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onDoubleClick={() => {
-                  if (!isEditing && isEditAllowed) setEditingField(editingKey)
-                }}
-              >
-                <div className="flex gap-2 items-center">
-                  <Avatar entity={value as Group} variant="small" />
-                  <span className="truncate">{displayName}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{displayName}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <TooltipTrigger
+                  type="button"
+                  onDoubleClick={() => {
+                    if (!isEditing && isEditAllowed) setEditingField(editingKey)
+                  }}
+                  className="bg-unset"
+                >
+                  <div className="flex gap-2 items-center">
+                    <Avatar entity={value as Group} variant="small" />
+                    <span className="truncate">{displayName}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{displayName}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </HoverPencilWrapper>
         )}
       </div>
     )

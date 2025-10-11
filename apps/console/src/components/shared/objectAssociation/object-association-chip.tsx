@@ -34,7 +34,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind }) => {
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger onClick={(e) => e.preventDefault()}>
+        <TooltipTrigger className="bg-transparent" onClick={(e) => e.preventDefault()}>
           <ObjectsChip name={displayText} objectType={objectKind}></ObjectsChip>
         </TooltipTrigger>
 

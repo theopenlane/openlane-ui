@@ -11,7 +11,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector.tsx'
 import Github from '@/assets/Github.tsx'
 import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum.tsx'
-import { ProgramCreate } from '@/components/pages/protected/program/program-create.tsx'
 import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
@@ -130,6 +129,7 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
     const pathname = usePathname()
     const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
 
+    if (child.hidden) return null
     const link = (
       <Link
         href={child.href ?? '#'}
@@ -170,7 +170,11 @@ export default function SideNav({ navItems, footerNavItems, openPanel, expanded,
                 align="start"
                 content={
                   <>
-                    <ProgramCreate trigger={ProgramCreatePrefixIconBtn} className="bg-transparent px-1" />
+                    <Link href="programs/create/" className="px-1">
+                      {ProgramCreatePrefixIconBtn}
+                    </Link>
+
+                    {/* <ProgramCreate trigger={} className="bg-transparent px-1" /> */}
                     <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
                   </>
                 }

@@ -9,6 +9,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { EditTaskFormData } from '../../../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TitleFieldProps = {
   isEditing: boolean
@@ -62,13 +63,13 @@ const TitleField: React.FC<TitleFieldProps> = ({ isEditing, isEditAllowed = true
   const isCurrentlyEditing = isEditing || internalEditing === 'title'
 
   return (
-    <SheetTitle onDoubleClick={handleDoubleClick} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+    <SheetTitle onDoubleClick={handleDoubleClick} className={isEditAllowed ? 'cursor-pointer w-fit' : 'cursor-not-allowed'}>
       {isCurrentlyEditing ? (
         <FormField
           control={control}
           name="title"
           render={({ field }) => (
-            <FormItem className="w-1/3">
+            <FormItem className="w-80">
               <div className="flex items-center">
                 <FormLabel>Title</FormLabel>
                 <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
@@ -81,7 +82,9 @@ const TitleField: React.FC<TitleFieldProps> = ({ isEditing, isEditAllowed = true
           )}
         />
       ) : (
-        initialValue || 'No title'
+        <HoverPencilWrapper className={'pr-5'} showPencil={isEditAllowed}>
+          {initialValue || 'No title'}
+        </HoverPencilWrapper>
       )}
     </SheetTitle>
   )

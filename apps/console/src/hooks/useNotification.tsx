@@ -8,7 +8,7 @@ type TSuccessProps = {
   variant?: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success'
 }
 
-type TErrorProps = {
+export type TErrorProps = {
   title?: string
   description?: string
   gqlError?: GqlError
