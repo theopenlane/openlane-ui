@@ -7,7 +7,6 @@ import { controlIconsMap } from '../controls/properties-card'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { GroupedControls, RelatedNode } from '../controls/related-controls'
@@ -18,7 +17,6 @@ import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codeg
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const plateEditorHelper = usePlateEditor()
   const { errorNotification, successNotification } = useNotification()
 
   const controlId = searchParams.get('controlId')
@@ -169,20 +167,15 @@ const ControlDetailsSheet = () => {
       >
         <SheetTitle className="text-2xl text-start">{data?.control.title ? `${data?.control.refCode} ${data.control.title}` : data?.control.refCode}</SheetTitle>
         <div className="flex flex-col gap-8">
-          <div
-            className="t-list-disc"
-            dangerouslySetInnerHTML={{
-              __html:
-                '<ul><li>Implement procedures for the use of maintenance personnel that lack appropriate security clearances or are not U.S. citizens, that include the following requirements:<ul><li>Maintenance personnel who do not have needed access authorizations, clearances, or formal access approvals are escorted and supervised during the performance of maintenance and diagnostic activities on the system by approved organizational personnel who are fully cleared, have appropriate access authorizations, and are technically qualified</li><li>Prior to initiating maintenance or diagnostic activities by personnel who do not have needed access authorizations, clearances or formal access approvals, all volatile information storage components within the system are sanitized and all nonvolatile storage media are removed or physically disconnected from the system and secured</li></ul></li><li>Develop and implement [Assignment: organization-defined alternate controls] in the event a system component cannot be sanitized, removed, or disconnected from the system.</li></ul>',
-            }}
-          ></div>
           {data?.control.description && (
-            <div className="mt-5">
-              {plateEditorHelper.convertToReadOnly(
-                '<ul><li>Implement procedures for the use of maintenance personnel that lack appropriate security clearances or are not U.S. citizens, that include the following requirements:<ul><li>Maintenance personnel who do not have needed access authorizations, clearances, or formal access approvals are escorted and supervised during the performance of maintenance and diagnostic activities on the system by approved organizational personnel who are fully cleared, have appropriate access authorizations, and are technically qualified</li><li>Prior to initiating maintenance or diagnostic activities by personnel who do not have needed access authorizations, clearances or formal access approvals, all volatile information storage components within the system are sanitized and all nonvolatile storage media are removed or physically disconnected from the system and secured</li></ul></li><li>Develop and implement [Assignment: organization-defined alternate controls] in the event a system component cannot be sanitized, removed, or disconnected from the system.</li></ul>',
-              )}
-            </div>
+            <div
+              className="mt-5 rich-text"
+              dangerouslySetInnerHTML={{
+                __html: data.control.description,
+              }}
+            ></div>
           )}
+
           <div className="flex flex-col gap-2.5">
             <p className="mb-1.5 text-xl">Properties</p>
             <Property label="Framework" value={data?.control.referenceFramework} />
