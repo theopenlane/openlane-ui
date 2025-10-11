@@ -479,6 +479,22 @@
   .text-paragraph {
     color: var(--color-text-paragraph);
   }
+
+  .rich-text,
+  .rich-text ul,
+  ul.rich-text {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    margin: 0.5rem 0;
+  }
+  .rich-text li {
+    margin-bottom: 0.25rem;
+  }
+
+  .rich-text ul ul {
+    list-style-type: circle;
+    @apply pl-6 mt-1;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────

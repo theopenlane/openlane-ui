@@ -7,7 +7,6 @@ import { controlIconsMap } from '../controls/properties-card'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { GroupedControls, RelatedNode } from '../controls/related-controls'
@@ -18,7 +17,6 @@ import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codeg
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const plateEditorHelper = usePlateEditor()
   const { errorNotification, successNotification } = useNotification()
 
   const controlId = searchParams.get('controlId')
@@ -169,7 +167,15 @@ const ControlDetailsSheet = () => {
       >
         <SheetTitle className="text-2xl text-start">{data?.control.title ? `${data?.control.refCode} ${data.control.title}` : data?.control.refCode}</SheetTitle>
         <div className="flex flex-col gap-8">
-          {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string)}</div>}
+          {data?.control.description && (
+            <div
+              className="mt-5 rich-text"
+              dangerouslySetInnerHTML={{
+                __html: data.control.description,
+              }}
+            ></div>
+          )}
+
           <div className="flex flex-col gap-2.5">
             <p className="mb-1.5 text-xl">Properties</p>
             <Property label="Framework" value={data?.control.referenceFramework} />
