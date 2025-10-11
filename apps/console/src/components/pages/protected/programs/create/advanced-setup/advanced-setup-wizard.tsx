@@ -125,6 +125,8 @@ export default function AdvancedSetupWizard() {
         internalPolicyIDs: data.internalPolicyIDs?.map((p) => p.value) ?? [],
         procedureIDs: data.procedureIDs?.map((pr) => pr.value) ?? [],
         frameworkName: data.framework,
+        viewerIDs: data?.readOnlyGroups?.map((g) => g.id),
+        editorIDs: data?.editAccessGroups?.map((g) => g.id),
       },
       members: [...programMembers, ...programAdmins],
       standardID: data.standardID,

@@ -27,8 +27,8 @@ const AdvancedSetupStep4 = () => {
           <span className="text-sm text-tip-text">Tips</span>
         </div>
         <p className="text-sm text-tip-text">
-          Admins have complete control to manage program data, while members can only view information within the program. Groups with edit access can both read and write, whereas those with read-only access
-          can only view the information.
+          Admins have complete control to manage program data, while members can only view information within the program. Groups with edit access can both read and write, whereas those with read-only
+          access can only view the information.
         </p>
       </div>
 
