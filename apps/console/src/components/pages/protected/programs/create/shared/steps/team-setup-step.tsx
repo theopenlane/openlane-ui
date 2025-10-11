@@ -29,11 +29,7 @@ export default function TeamSetupStep() {
               <span>Add teammates now</span>
             </div>
           </Button>
-          <Button
-            type="submit"
-            variant="outline"
-            className="h-28"
-          >
+          <Button type="submit" variant="outline" className="h-28">
             <div className="flex flex-col items-center justify-center gap-1">
               <Clock className="!h-5 !w-5" size={20} />
               <span>I&apos;ll do this later</span>
@@ -56,8 +52,8 @@ export default function TeamSetupStep() {
           <div className="space-y-6">
             <AddSelectDropdown fieldName="programAdmins" formLabel="Program Admins" placeholder="Search users..." options={userOptions} />
             <AddSelectDropdown fieldName="programMembers" formLabel="Program Members" placeholder="Search users..." options={userOptions} />
-            <AddSelectDropdown fieldName="groupEditors" formLabel="Groups with Edit Access" placeholder="Search groups..." options={groupOptions} />
-            <AddSelectDropdown fieldName="groupViewers" formLabel="Groups with Read Only Access" placeholder="Search groups..." options={groupOptions} />
+            <AddSelectDropdown fieldName="editorIDs" formLabel="Groups with Edit Access" placeholder="Search groups..." options={groupOptions} />
+            <AddSelectDropdown fieldName="viewerIDs" formLabel="Groups with Read Only Access" placeholder="Search groups..." options={groupOptions} />
           </div>
         </>
       )}

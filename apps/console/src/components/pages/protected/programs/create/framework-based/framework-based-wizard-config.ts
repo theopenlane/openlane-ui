@@ -13,8 +13,8 @@ export const selectFrameworkSchema = z.object({
 export const programInviteSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
   programMembers: z.array(z.string()).optional(),
-  editAccessGroups: z.array(z.string()).optional(),
-  readOnlyGroups: z.array(z.string()).optional(),
+  viewerIDs: z.array(z.string()).optional(),
+  editorIDs: z.array(z.string()).optional(),
 })
 
 export const programTypeSchema = z.object({

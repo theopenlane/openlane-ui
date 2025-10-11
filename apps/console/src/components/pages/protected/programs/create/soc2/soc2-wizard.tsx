@@ -69,6 +69,8 @@ export default function Soc2Wizard() {
         programType: data.programType,
         startDate: today,
         endDate: oneYearFromToday,
+        viewerIDs: data.viewerIDs,
+        editorIDs: data.editorIDs,
       },
       standardID,
       categories: data.categories,

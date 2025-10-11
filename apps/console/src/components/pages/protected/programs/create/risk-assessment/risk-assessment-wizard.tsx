@@ -53,7 +53,6 @@ export default function RiskAssessmentWizard() {
 
   const handleSubmit = async () => {
     const values = methods.getValues()
-
     const programMembers =
       values.programMembers?.map((userId: string) => ({
         userID: userId,
@@ -74,6 +73,8 @@ export default function RiskAssessmentWizard() {
         programType: values.programType,
         startDate: today,
         endDate: oneYearFromToday,
+        viewerIDs: values.viewerIDs,
+        editorIDs: values.editorIDs,
       },
       standardID: values.standardID,
       members: [...programMembers, ...programAdmins],

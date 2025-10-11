@@ -10,8 +10,8 @@ export const selectFrameworkSchema = z.object({
 export const programInviteSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
   programMembers: z.array(z.string()).optional(),
-  groupEditors: z.array(z.string()).optional(),
-  groupViewers: z.array(z.string()).optional(),
+  viewerIDs: z.array(z.string()).optional(),
+  editorIDs: z.array(z.string()).optional(),
 })
 
 export const step3Schema = z.object({

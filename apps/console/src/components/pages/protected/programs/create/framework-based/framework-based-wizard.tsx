@@ -65,6 +65,8 @@ export default function FrameworkBasedWizard() {
         programType: values.programType,
         startDate: today,
         endDate: oneYearFromToday,
+        viewerIDs: values.viewerIDs,
+        editorIDs: values.editorIDs,
       },
       standardID: values.standardID,
       members: [...toMembers(values.programMembers, ProgramMembershipRole.MEMBER), ...toMembers(values.programAdmins, ProgramMembershipRole.ADMIN)],
