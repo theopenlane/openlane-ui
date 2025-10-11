@@ -17,7 +17,6 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { ProgramEdge, TaskEdge } from '@repo/codegen/src/schema'
-import { ProgramCreateIconBtn } from '@/components/shared/enum-mapper/program-enum'
 
 type DashboardProps = {
   programs?: { edges: ProgramEdge[] }
@@ -126,8 +125,10 @@ export const NewUserLanding: React.FC<DashboardProps> = () => {
               <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
                 <PanelHeader heading="Create a new program" subheading="Start your compliance journey by creating a new program." />
                 <Link href="programs/create/" className="px-1">
-                  {ProgramCreateIconBtn}
-                </Link>{' '}
+                  <Button icon={<ShieldPlus size={16} strokeWidth={2} />} iconPosition="left">
+                    Create Program
+                  </Button>
+                </Link>
               </Panel>
             </GridCell>
           )}
