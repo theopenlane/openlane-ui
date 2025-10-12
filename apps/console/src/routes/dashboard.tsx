@@ -93,14 +93,12 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Trust center',
     plan: PlanEnum.TRUST_CENTER_MODULE,
-    hidden: true,
     href: '/trust-center',
     icon: Handshake,
     isChildren: true,
     children: [
       {
         title: 'Settings',
-        hidden: true,
         href: '/trust-center/settings',
         icon: Settings2,
       },
