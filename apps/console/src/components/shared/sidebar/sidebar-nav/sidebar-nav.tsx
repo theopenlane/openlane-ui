@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Separator as Hr } from '@repo/ui/separator'
 import { Logo } from '@repo/ui/logo'
@@ -89,7 +89,7 @@ export default function SideNav({
 
     return navItems.map((item, idx) => {
       if ('type' in item && (item.type === 'separator' || item.type === 'heading')) {
-        return <Hr key={idx} />
+        return <Hr className="mx-2" key={idx} />
       }
 
       if (featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
@@ -103,13 +103,13 @@ export default function SideNav({
         const url = item.params ? item.href + item.params : item.href
 
         const button = (
-          <div className="relative flex w-full items-center justify-center">
+          <div key={idx} className="relative flex w-full items-center justify-center">
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className=" h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
             <Button
               onClick={() => (isExpandable ? handleTogglePanel(isActive, item) : handleNavigate(url))}
-              className={` flex justify-start gap-1 btn-card text-muted-foreground  h-8  ${isActive ? 'is-active text-paragraph' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8'}`}
+              className={` flex justify-start gap-1 btn-card text-muted-foreground  h-8  ${isActive ? 'is-active text-paragraph' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 !px-1.5'}`}
             >
-              <Icon size={20} />
+              <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
               {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
             </Button>
           </div>
@@ -138,14 +138,87 @@ export default function SideNav({
   const SidebarChildLink: React.FC<{ child: NavItem }> = ({ child }) => {
     const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
     if (child.hidden) return null
-    return (
+
+    const linkContent = (
       <Link
         href={child.href ?? '#'}
-        className={`flex items-center gap-2 p-1 mb-2 h-[32px] rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
+        className={`flex items-center  gap-2 p-1 mb-2 h-[32px] rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
       >
-        {child.icon && <child.icon size={16} />}
+        {child.icon && <child.icon size={secondaryExpanded ? 16 : 20} />}
         {secondaryExpanded && <span className="text-sm font-normal leading-5">{child.title}</span>}
       </Link>
+    )
+
+    if (secondaryExpanded) {
+      return linkContent
+    }
+
+    return (
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+          <TooltipContent side="right">{child.title}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  const renderFooterLinks = () => {
+    const links = [
+      {
+        href: DOCS_URL,
+        label: 'Documentation',
+        icon: BookText,
+        external: true,
+      },
+      {
+        href: SUPPORT_EMAIL,
+        label: 'Feedback',
+        icon: MessageSquareText,
+        external: false,
+      },
+      {
+        href: CONTRIBUTE_URL,
+        label: 'Github',
+        icon: Github,
+        external: true,
+      },
+    ]
+
+    if (primaryExpanded) {
+      return (
+        <>
+          {links.map(({ href, label, icon: Icon, external }, i) => (
+            <Link
+              key={i}
+              href={href}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noopener noreferrer' : undefined}
+              className="btn-card p-1 flex items-center gap-2 w-full justify-start mx-2 text-muted-foreground hover:text-foreground"
+            >
+              <Icon size={16} />
+              <span className="text-sm font-normal leading-5">{label}</span>
+            </Link>
+          ))}
+        </>
+      )
+    }
+
+    return (
+      <>
+        {links.map(({ href, label, icon: Icon, external }, i) => (
+          <TooltipProvider delayDuration={100} key={i}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className="btn-card p-1">
+                  <Icon size={20} className="text-muted-foreground" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">{label}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ))}
+      </>
     )
   }
 
@@ -158,94 +231,71 @@ export default function SideNav({
     >
       {/* PRIMARY SIDEBAR */}
       <aside
-        className={`h-full bg-background flex flex-col justify-between items-center py-3 transition-all duration-300`}
+        className={`h-full bg-background flex flex-col justify-between items-center py-3 `}
         style={{
           width: primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH,
         }}
       >
         <div className="flex flex-col items-center gap-3 w-full">
-          <div className={`flex items-center justify-between w-full px-2 ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
+          <div className={`flex items-center justify-between w-full px-3 ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
             <a className="flex items-center justify-center relative" href={OPENLANE_WEBSITE_URL} target="_blank" rel="noreferrer">
               <div className="w-7">
                 <Logo asIcon width={28} />
               </div>
-              <p className={`transition-all duration-300 text-2xl whitespace-nowrap overflow-hidden mb-1  ${primaryExpanded ? 'opacity-100 w-auto ml-2' : 'opacity-0 w-0'}`}>Openlane</p>{' '}
+              <p className={`text-2xl whitespace-nowrap overflow-hidden mb-1  ${primaryExpanded ? 'opacity-100 w-auto ml-2' : 'opacity-0 w-0'}`}>Openlane</p>{' '}
             </a>
             <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset">
-              {primaryExpanded ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+              {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
 
           {isOrganizationSelected && (
             <>
-              <Hr />
-              <Menu
-                trigger={CreateBtnIcon}
-                side="right"
-                align="start"
-                content={
-                  <>
-                    <Link href="programs/create/" className="px-1">
-                      {ProgramCreatePrefixIconBtn}
-                    </Link>
-                    <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
-                  </>
-                }
-              />
-              <GlobalSearch />
+              <Hr className="mx-2" />
+              <div className={`flex w-full gap-2 px-2 ${!primaryExpanded ? 'flex-col' : ''}`}>
+                <Menu
+                  trigger={
+                    primaryExpanded ? (
+                      <Button className="btn-secondary flex-1">
+                        <Plus size={16} />
+                        <p>Create</p>
+                      </Button>
+                    ) : (
+                      CreateBtnIcon
+                    )
+                  }
+                  side="right"
+                  align="start"
+                  content={
+                    <>
+                      <Link href="/programs/create/" className="px-1">
+                        {ProgramCreatePrefixIconBtn}
+                      </Link>
+                      <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
+                    </>
+                  }
+                />
+                <GlobalSearch />
+              </div>
             </>
           )}
 
           {displayMenu(navItems)}
         </div>
-
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3 w-full">
           {displayMenu(footerNavItems)}
 
-          <Hr />
-
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="btn-card p-1">
-                  <BookText size={20} className="text-muted-foreground" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Documentation</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={SUPPORT_EMAIL} className="btn-card p-1">
-                  <MessageSquareText size={20} className="text-muted-foreground" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Feedback</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={CONTRIBUTE_URL} target="_blank" rel="noopener noreferrer" className="btn-card p-1">
-                  <Github size={20} className="text-muted-foreground" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Github</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <Hr />
-          <OrganizationSelector />
+          {!primaryExpanded && <Hr className="mx-2" />}
+          <div className={`flex flex-col gap-3 ${primaryExpanded ? 'self-start' : 'items-center'}`}>{renderFooterLinks()}</div>
+          <Hr className="mx-2" />
+          <OrganizationSelector expanded={primaryExpanded} />
         </div>
       </aside>
 
       {/* SECONDARY PANEL */}
       {openPanel && (
         <div
-          className="mt-2 h-full bg-secondary rounded-xl flex flex-col  ease-in-out"
+          className="h-[calc(100%-4px)] bg-secondary rounded-xl flex flex-col  ease-in-out"
           style={{
             width: secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH,
           }}
@@ -257,12 +307,12 @@ export default function SideNav({
                 <>
                   <span className="text-sm font-medium capitalize">{openPanel}</span>
                   <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
-                    <PanelLeftClose size={18} />
+                    <PanelLeftClose size={16} />
                   </button>
                 </>
               ) : (
                 <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
-                  <PanelLeftOpen size={18} />
+                  <PanelLeftOpen size={16} />
                 </button>
               )}
             </div>
