@@ -6,7 +6,7 @@ import { KeyRound } from 'lucide-react'
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { DocumentIconMapper, DocumentStatusBadge, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
+import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 
 type TPoliciesColumnsProps = {
@@ -60,9 +60,13 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'name',
       header: 'Name',
+      minSize: 150,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
       cell: ({ cell }) => (
         <div className="flex items-center gap-2">
-          <div className="font-bold">{cell.getValue() as string}</div>
           {cell.row.original.status && (
             <TooltipProvider>
               <Tooltip>
@@ -77,18 +81,15 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
           )}
         </div>
       ),
-      minSize: 100,
-      size: 180,
+      minSize: 150,
+      size: 100,
     },
     {
       accessorKey: 'summary',
       header: 'Summary',
       enableResizing: true,
-      minSize: 300,
-      size: 300,
-      meta: {
-        className: 'w-[40%] min-w-[300px]', // CSS class for responsive width
-      },
+      minSize: 200,
+      size: 100,
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4 text-justify">{summary === '' ? 'N/A' : summary}</div>
@@ -161,20 +162,6 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       header: 'Revision',
       size: 100,
       cell: ({ cell }) => cell.getValue()?.toString() ?? '-',
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const status = row.original.status!
-        return (
-          <div className="flex items-center space-x-2">
-            {DocumentIconMapper[status]}
-            <p>{DocumentStatusMapper[status]}</p>
-          </div>
-        )
-      },
-      size: 100,
     },
     {
       accessorKey: 'tags',
