@@ -11,6 +11,7 @@ import { Badge } from '@repo/ui/badge'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import useClickOutside from '@/hooks/useClickOutside'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -60,7 +61,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
   )
 
   return (
-    <div className={`flex justify-between gap-1 items-start ${isEditing || internalEditing ? 'flex-col items-start' : ''}`}>
+    <div className={`flex justify-between items-start ${isEditing || internalEditing ? 'flex-col items-start' : ''}`}>
       <div className="min-w-[160px]">
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
@@ -98,26 +99,27 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
               />
             </InputRow>
           ) : (
-            <div
-              className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-              onDoubleClick={() => {
-                if (!isEditing && editAllowed) {
-                  setInternalEditing(true)
-                }
-              }}
-            >
-              {policy.tags?.length ? (
-                policy.tags.map((item, index) => (
-                  <Fragment key={index}>
-                    <Badge className="bg-background-secondary mr-1" variant="outline">
-                      {item}
-                    </Badge>
-                  </Fragment>
-                ))
-              ) : (
-                <span className="text-muted-foreground text-sm italic">No tags</span>
-              )}
-            </div>
+            <HoverPencilWrapper showPencil={editAllowed} className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+              <div
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) {
+                    setInternalEditing(true)
+                  }
+                }}
+              >
+                {policy.tags?.length ? (
+                  policy.tags.map((item, index) => (
+                    <Fragment key={index}>
+                      <Badge className="bg-background-secondary mr-1" variant="outline">
+                        {item}
+                      </Badge>
+                    </Fragment>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground text-sm italic">No tags</span>
+                )}
+              </div>
+            </HoverPencilWrapper>
           )}
         </div>
       </div>

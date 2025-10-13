@@ -5,8 +5,7 @@ import { Grid, GridRow, GridCell } from '@repo/ui/grid'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { PageHeading } from '@repo/ui/page-heading'
-import { ArrowUpRight, CalendarClock } from 'lucide-react'
-import { ProgramCreate } from '@/components/pages/protected/program/program-create'
+import { ArrowUpRight, CalendarClock, ShieldPlus } from 'lucide-react'
 import { ProgressCircle } from '@repo/ui/progress-circle'
 import { Separator } from '@repo/ui/separator'
 import { LineChartExample } from '@repo/ui/line-chart-example'
@@ -89,7 +88,10 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
             <Panel align="center" justify="start" textAlign="center" className="min-h-[100px] h-full p-6 flex">
               <PanelHeader heading="Create a new program" subheading="Get ready for your next audit, create a new program or duplicate an existing one." noBorder />
               <div className="flex content-end items-end">
-                <ProgramCreate />
+                <Button>
+                  <ShieldPlus size={16} strokeWidth={2} />
+                  Create Program
+                </Button>
               </div>
             </Panel>
           </GridCell>
@@ -122,7 +124,11 @@ export const NewUserLanding: React.FC<DashboardProps> = () => {
             <GridCell>
               <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
                 <PanelHeader heading="Create a new program" subheading="Start your compliance journey by creating a new program." />
-                <ProgramCreate />
+                <Link href="programs/create/" className="px-1">
+                  <Button icon={<ShieldPlus size={16} strokeWidth={2} />} iconPosition="left">
+                    Create Program
+                  </Button>
+                </Link>
               </Panel>
             </GridCell>
           )}

@@ -9,6 +9,7 @@ import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks
 import RiskLabel from '@/components/pages/protected/risks/risk-label'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { Card } from '@repo/ui/cardpanel'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -62,7 +63,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
             render={({ field }) => <Input {...field} value={typeof field.value === 'string' || typeof field.value === 'number' ? field.value : ''} onBlur={() => handleBlur(fieldName)} autoFocus />}
           />
         ) : (
-          <div className={`truncate ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>{value || `No ${label}`}</div>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={`truncate ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+            <div>{value || `No ${label}`}</div>
+          </HoverPencilWrapper>
         )}
       </FieldRow>
     )
@@ -170,9 +173,16 @@ const FieldRow = ({ label, children, onDoubleClick, isEditAllowed }: { label: st
         {getFieldIcon(label)}
         <span>{label}</span>
       </div>
-      <div className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={isEditAllowed ? onDoubleClick : undefined}>
-        {children}
-      </div>
+      <HoverPencilWrapper showPencil={isEditAllowed} className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+        <div
+          onDoubleClick={() => {
+            if (isEditAllowed && onDoubleClick) onDoubleClick()
+          }}
+          className="truncate text-sm"
+        >
+          {children}
+        </div>
+      </HoverPencilWrapper>
     </div>
   )
 }

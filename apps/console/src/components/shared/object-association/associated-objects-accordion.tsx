@@ -30,7 +30,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
 
   const SectionTrigger = ({ label, count }: { label: string; count: number }) => (
     <AccordionTrigger asChild>
-      <button className="group flex items-center py-2 text-left gap-3 w-full">
+      <button className="group flex items-center py-2 text-left bg-transparent gap-3 w-full">
         <div className="flex items-center gap-2">
           <ChevronDown className="h-4 w-4 text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
           <span className="text-base font-medium">{label}</span>

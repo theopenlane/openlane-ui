@@ -58,7 +58,7 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
         ),
     },
     {
-      label: 'Example evidence',
+      label: 'Evidence Requests',
       hasData: Array.isArray(exampleEvidence) ? exampleEvidence.length > 0 : !!exampleEvidence,
       render: () =>
         Array.isArray(exampleEvidence) ? (
@@ -74,7 +74,7 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
           <div
             className="rich-text text-sm text-muted-foreground"
             dangerouslySetInnerHTML={{
-              __html: typeof exampleEvidence === 'string' ? exampleEvidence : 'No example evidence provided.',
+              __html: typeof exampleEvidence === 'string' ? exampleEvidence : 'No evidence requests provided.',
             }}
           />
         ),

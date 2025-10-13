@@ -10,6 +10,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import { UpdateRiskInput } from '@repo/codegen/src/schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TTitleFieldProps = {
   isEditing: boolean
@@ -84,7 +85,9 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, isEditAllowed = tru
       />
     </div>
   ) : (
-    <PageHeading heading={form.getValues('name')} onDoubleClick={handleClick} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} />
+    <HoverPencilWrapper showPencil={isEditAllowed} className={`w-fit pr-5 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      <PageHeading className="w-fit grow-0 mb-0" heading={form.getValues('name')} onDoubleClick={isEditAllowed ? handleClick : undefined} />
+    </HoverPencilWrapper>
   )
 }
 

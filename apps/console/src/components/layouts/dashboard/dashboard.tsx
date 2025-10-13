@@ -18,6 +18,7 @@ import Sidebar, { PANEL_WIDTH_PX, type PanelKey } from '@/components/shared/side
 import { NavHeading, NavItem, Separator } from '@/types'
 import { usePathname } from 'next/navigation'
 import { useOrganization } from '@/hooks/useOrganization.ts'
+import { useOrganizationRole } from '@/lib/authz/access-api'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -29,6 +30,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { base, main } = dashboardStyles({ hasBanner: !!bannerText })
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
+  const { data: orgPermission } = useOrganizationRole(sessionData)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const pathname = usePathname()
   const { currentOrgId, allOrgs } = useOrganization()
@@ -37,7 +39,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const isOrganizationSelected = !activeOrg?.personalOrg
 
   const navItems = !isOrganizationSelected ? [] : topNavigationItems()
-  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems()
+  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(orgPermission)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   const [expanded, setExpanded] = useState(true)

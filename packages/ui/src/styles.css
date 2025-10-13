@@ -103,13 +103,19 @@
     border: 1px solid transparent;
     transition: all 0.5s ease;
   }
-
   button.bg-transparent:hover,
   button.bg-transparent.is-active {
     background-color: var(--color-btn-primary-hover) !important;
     border-radius: 6px;
     border: 1px solid var(--color-border) !important;
     color: var(--color-text-paragraph) !important;
+  }
+
+  .shadow-primary16 {
+    box-shadow: 0 0 0 4px rgba(96, 232, 201, 0.16) !important;
+  }
+  .shadow-primary24 {
+    box-shadow: 0 0 0 4px rgba(96, 232, 201, 0.24) !important;
   }
 }
 
@@ -161,6 +167,14 @@
   --color-border: #e1e7ea;
 
   --color-avatar-transparent: #9aa5b0;
+
+  --step-active-bg: rgba(96, 232, 201, 0.1);
+
+  --tip-text: #0e937c;
+  --tip-background: rgba(154, 245, 220, 0.24);
+  --tip-border: rgba(154, 245, 220, 0.48);
+
+  --inverted-muted-foreground: #9aa5b0;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -204,6 +218,15 @@
   --color-btn-primary-text: #ffffff;
   --color-btn-primary-text-disabled: #ffffff70;
 
+  --color-avatar-transparent: #394b58;
+
+  --step-active-bg: rgba(96, 232, 201, 0.1);
+
+  --tip-text: #60e8c9;
+  --tip-background: rgba(96, 232, 201, 0.12);
+  --tip-border: rgba(96, 232, 201, 0.32);
+
+  --inverted-muted-foreground: #6b7682;
   --color-toast-success: linear-gradient(273deg, rgba(33, 197, 93, 0) 54.63%, rgba(33, 197, 93, 0.08) 77.12%, rgba(33, 197, 93, 0.16) 99.61%), #233440;
   --color-toast-success-icon: #21c55d;
   --color-toast-success-icon-muted: #21c55d29;
@@ -257,6 +280,13 @@
   --color-panel-bg: var(--card);
   --color-panel-text: var(--card-foreground);
   --color-panel-border: var(--border);
+  --color-step-active-bg: var(--step-active-bg);
+
+  --color-tip-text: var(--tip-text);
+  --color-tip-background: var(--tip-background);
+  --color-tip-border: var(--tip-border);
+
+  --color-inverted-muted-foreground: var(--inverted-muted-foreground);
   --color-toast-border: #09151d1f;
 
   /* Toast */
@@ -337,6 +367,65 @@
   --color-logo-dark: #303e4a;
   --color-logo-light: #b4c1d5;
 
+  /* Task */
+  --color-task-in-review: #ff842c;
+  --color-task-in-progress: #6392ff;
+  --color-task-open: #8f46f5;
+  --color-task-completed: #21c55d;
+  --task-wont-do: #ff3e2c;
+
+  /* Document Status */
+  --color-document-draft: #6392ff;
+  --color-document-draft-muted: #6392ff29;
+  --color-document-draft-border: #6392ff3d;
+  --color-document-approved: #21c55d;
+  --color-document-approved-muted: #21c55d29;
+  --color-document-approved-border: #21c55d3d;
+  --color-document-needs-approval: #ff842c;
+  --color-document-needs-approval-muted: #ff842c29;
+  --color-document-needs-approval-border: #ff842c;
+  --color-document-archived: #f45b50;
+  --color-document-archived-muted: #f45b5029;
+  --color-document-archived-border: #f45b503d;
+  --color-document-published: #21c55d;
+  --color-document-published-muted: #21c55d29;
+  --color-document-published-border: #21c55d3d;
+
+  /* Toast */
+  --color-toast-info: #ffffffbf;
+  --color-toast-info-muted: #233440;
+  --color-toast-info-border: #394b58;
+  --color-toast-info-icon: #60e8c9;
+  --color-toast-info-icon-muted: #60e8c93d;
+  --color-toast-info-icon-border: #60e8c947;
+
+  --color-toast-info2: #ffffffbf;
+  --color-toast-info2-muted: rgb(0, 29, 94);
+  --color-toast-info2-border: #6392ff5c;
+  --color-toast-info2-icon: #6392ff;
+  --color-toast-info2-icon-muted: #6392ff3d;
+  --color-toast-info2-icon-border: #6392ff52;
+
+  --color-toast-warning: #ffffffbf;
+  --color-toast-warning-muted: rgb(113, 44, 0);
+  --color-toast-warning-border: #ff842c5c;
+  --color-toast-warning-icon: #ff842c;
+  --color-toast-warning-icon-muted: #ff842c3d;
+  --color-toast-warning-icon-border: #ff842c52;
+
+  --color-toast-success: #ffffffbf;
+  --color-toast-success-muted: #00511d;
+  --color-toast-success-border: #21c55d5c;
+  --color-toast-success-icon: #21c55d;
+  --color-toast-success-icon-muted: #21c55d3d;
+  --color-toast-success-icon-border: #21c55d52;
+
+  --color-toast-error: #ffffffbf;
+  --color-toast-error-muted: rgb(104, 7, 0);
+  --color-toast-error-border: #f45b505c;
+  --color-toast-error-icon: #f45b50;
+  --color-toast-error-icon-muted: #f45b503d;
+  --color-toast-error-icon-border: #f45b5052;
   /* Status colors */
   --color-needs-renewal: #f97316;
   --color-rejected: #dc2626;
@@ -389,6 +478,22 @@
 @layer utilities {
   .text-paragraph {
     color: var(--color-text-paragraph);
+  }
+
+  .rich-text,
+  .rich-text ul,
+  ul.rich-text {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    margin: 0.5rem 0;
+  }
+  .rich-text li {
+    margin-bottom: 0.25rem;
+  }
+
+  .rich-text ul ul {
+    list-style-type: circle;
+    @apply pl-6 mt-1;
   }
 }
 

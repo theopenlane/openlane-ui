@@ -24,6 +24,8 @@ import {
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { canEdit } from '@/lib/authz/utils'
+import { TData } from '@/lib/authz/access-api.ts'
 
 export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
@@ -91,14 +93,12 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Trust center',
     plan: PlanEnum.TRUST_CENTER_MODULE,
-    hidden: true,
     href: '/trust-center',
     icon: Handshake,
     isChildren: true,
     children: [
       {
         title: 'Settings',
-        hidden: true,
         href: '/trust-center/settings',
         icon: Settings2,
       },
@@ -106,7 +106,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   },
 ]
 
-export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
+export const bottomNavigationItems = (orgPermission: TData): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Organization settings',
     href: '/organization-settings',
@@ -115,6 +115,7 @@ export const bottomNavigationItems = (): (NavItem | Separator | NavHeading)[] =>
       {
         title: 'General Settings',
         href: '/organization-settings/general-settings',
+        hidden: !canEdit(orgPermission?.roles),
         icon: SettingsIcon,
       },
       {
