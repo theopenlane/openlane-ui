@@ -312,7 +312,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
           <Button onClick={handleCloseDialog} className="text-[hsl(var(--muted-foreground))]">
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting} form="edit-token-form" className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+          <Button type="submit" disabled={isSubmitting} form="edit-token-form" className="bg-primary">
             {isSubmitting ? 'Saving' : 'Save Changes'}
           </Button>
         </DialogFooter>
