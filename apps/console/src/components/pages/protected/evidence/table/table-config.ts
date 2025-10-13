@@ -1,18 +1,17 @@
 import { FilterField } from '@/types'
 import { EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
-import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
-import { ScrollText, Tags } from 'lucide-react'
+import { EvidenceStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/evidence-enum'
 
 export const EVIDENCE_FILTERABLE_FIELDS: FilterField[] = [
-  { key: 'name', label: 'Name', type: 'text', icon: ScrollText },
-  { key: 'description', label: 'Description', type: 'text', icon: ScrollText },
-  { key: 'isAutomated', label: 'Is Automated', type: 'boolean', icon: ScrollText },
+  { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
+  { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },
+  { key: 'isAutomated', label: 'Is Automated', type: 'boolean', icon: FilterIcons.IsAutomated },
   {
     key: 'status',
     label: 'Status',
     type: 'select',
     options: EvidenceStatusOptions,
-    icon: Tags,
+    icon: FilterIcons.Status,
   },
 ]
 
