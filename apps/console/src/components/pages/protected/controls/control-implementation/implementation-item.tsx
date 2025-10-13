@@ -27,7 +27,7 @@ export const ImplementationItem: React.FC<Props> = ({ idx, node, onEdit, onMarkV
   return (
     <AccordionItem value={node.id}>
       <div className="flex justify-between items-center my-2">
-        <AccordionTrigger className="group flex items-center px-2 py-2 bg-background">
+        <AccordionTrigger className="group flex items-center px-2 py-2 bg-transparent">
           <ChevronRight size={22} className="mr-2 text-brand transition-transform group-data-[state=open]:rotate-90" />
           <span className="text-base font-medium">{`Implementation ${idx + 1}`}</span>
         </AccordionTrigger>
