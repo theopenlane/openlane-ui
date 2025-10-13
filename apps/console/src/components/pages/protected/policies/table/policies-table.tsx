@@ -109,7 +109,7 @@ export const PoliciesTable = () => {
     reviewDue: false,
     reviewFrequency: false,
     revision: false,
-    status: false,
+    status: true,
     tags: false,
     createdAt: false,
     createdBy: false,
