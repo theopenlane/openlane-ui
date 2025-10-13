@@ -4,7 +4,6 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
-import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import { OrderDirection, ProgramOrderField, ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
@@ -12,17 +11,13 @@ import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
-import { ArrowRight, InfoIcon, ShieldCheck } from 'lucide-react'
+import { ArrowRight, InfoIcon, ShieldCheck, SquarePlus } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { DOCS_URL } from '@/constants'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { ProgramCreateIconBtn, ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
-import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -30,6 +25,8 @@ import Loading from '@/app/(protected)/programs/loading'
 import { Checkbox } from '@repo/ui/checkbox'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import Link from 'next/link'
+import { Button } from '@repo/ui/button'
+import { ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -73,11 +70,6 @@ const ProgramsPage: React.FC = () => {
     })
     return map
   }, [data])
-  const initialData: TObjectAssociationMap = useMemo(() => {
-    return {
-      programIDs: programId ? [programId] : [],
-    }
-  }, [programId])
 
   useEffect(() => {
     setCrumbs([
@@ -115,6 +107,10 @@ const ProgramsPage: React.FC = () => {
     const programName = programMap[val] ?? 'Unknown Program'
     setSelectedProgram(programName)
     router.push(`/programs?id=${val}`)
+  }
+
+  const handleCreateProgram = () => {
+    router.push('/programs/create/')
   }
 
   if (isBasicInfoLoading || isLoading) {
@@ -206,22 +202,9 @@ const ProgramsPage: React.FC = () => {
               </div>
             </div>
             <div className="flex gap-2.5 items-center">
-              <Menu
-                trigger={CreateBtn}
-                content={
-                  <>
-                    <Link href="programs/create/" className="px-1">
-                      {ProgramCreateIconBtn}
-                    </Link>
-                    <CreateTaskDialog
-                      className="bg-transparent px-1"
-                      initialData={initialData}
-                      objectAssociationsDisplayIDs={basicInfoData?.program.displayID ? [basicInfoData?.program.displayID] : []}
-                      trigger={TaskIconBtn}
-                    />
-                  </>
-                }
-              />
+              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" onClick={handleCreateProgram} icon={<SquarePlus />} iconPosition="left">
+                Create a program
+              </Button>
               <Menu content={<ProgramSettingsIconBtn programId={programId!} />} />
             </div>
           </div>
