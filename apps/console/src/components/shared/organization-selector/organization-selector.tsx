@@ -31,7 +31,7 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
-  const { container, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
+  const { allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
   const filteredOrgs = orgs
     .filter((org) => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
@@ -101,7 +101,7 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   if (!orgs) return <Loading />
 
   return (
-    <div className={container()}>
+    <div>
       <div>
         <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
           <PopoverTrigger className="bg-unset w-full">
