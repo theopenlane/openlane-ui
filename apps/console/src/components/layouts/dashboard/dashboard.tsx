@@ -43,8 +43,19 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(orgPermission)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
-  const [primaryExpanded, setPrimaryExpanded] = useState(false)
-  const [secondaryExpanded, setSecondaryExpanded] = useState(true)
+  const [primaryExpanded, setPrimaryExpanded] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sidebar-primary-expanded') === 'true'
+    }
+    return false
+  })
+
+  const [secondaryExpanded, setSecondaryExpanded] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sidebar-secondary-expanded') === 'true'
+    }
+    return false
+  })
   const primaryWidth = primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH
   const secondaryWidth = openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0
 
@@ -111,8 +122,20 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
         openPanel={openPanel}
         primaryExpanded={primaryExpanded}
         secondaryExpanded={secondaryExpanded}
-        onPrimaryExpandToggle={() => setPrimaryExpanded(!primaryExpanded)}
-        onSecondaryExpandToggle={() => setSecondaryExpanded(!secondaryExpanded)}
+        onPrimaryExpandToggle={() => {
+          const newState = !primaryExpanded
+          setPrimaryExpanded(newState)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('sidebar-primary-expanded', String(newState))
+          }
+        }}
+        onSecondaryExpandToggle={() => {
+          const newState = !secondaryExpanded
+          setSecondaryExpanded(newState)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('sidebar-secondary-expanded', String(newState))
+          }
+        }}
         onToggle={handleOpenPanel}
         isOrganizationSelected={isOrganizationSelected}
       />
