@@ -12,7 +12,7 @@ import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useGetUsers } from '@/lib/graphql-hooks/user'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useUpdateControl } from '@/lib/graphql-hooks/controls' // 🟢 create/use this hook
+import { useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { ControlQuery, UserWhereInput } from '@repo/codegen/src/schema'
 
 type ControlCommentsSheetProps = {
@@ -22,7 +22,7 @@ type ControlCommentsSheetProps = {
 
 const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = ({ controlData, onClose }) => {
   const searchParams = useSearchParams()
-  const id = searchParams.get('id') // control ID from URL if needed
+  const id = searchParams.get('id')
 
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
   const [comments, setComments] = useState<TCommentData[]>([])
