@@ -201,7 +201,7 @@ const ProgramsPage: React.FC = () => {
               {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
                 <Link href="/programs/create" className="text-sm text-blue-500 flex items-center gap-1">
                   <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
-                    Create a program
+                    Create Program
                   </Button>
                 </Link>
               )}
