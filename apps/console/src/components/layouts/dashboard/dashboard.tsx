@@ -47,14 +47,14 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('sidebar-primary-expanded') === 'true'
     }
-    return false
+    return true
   })
 
   const [secondaryExpanded, setSecondaryExpanded] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('sidebar-secondary-expanded') === 'true'
     }
-    return false
+    return true
   })
   const primaryWidth = primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH
   const secondaryWidth = openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0
