@@ -43,6 +43,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Loading from './loading.tsx'
 import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section.tsx'
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
+import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 
 interface FormValues {
   refCode: string
@@ -385,6 +386,7 @@ const ControlDetailsPage: React.FC = () => {
       {memoizedCenterNode && <ObjectAssociationSwitch controlId={data?.control.id} sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
 
       <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} canEdit={canEdit(permission?.roles)} />
+      <ControlCommentsCard />
       <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} refCode={control.refCode} sourceFramework={control.referenceFramework} />
       {hasInfoData && (
         <InfoCard
