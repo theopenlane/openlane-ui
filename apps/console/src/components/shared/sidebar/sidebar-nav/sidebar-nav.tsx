@@ -241,12 +241,17 @@ export default function SideNav({
         }}
       >
         <div className="flex flex-col items-center gap-3 w-full">
-          <div className={`flex items-center justify-between w-full px-3 ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
+          <div className={`flex items-center justify-between w-full px-[11px] ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
             <a className="flex items-center justify-center relative" href={OPENLANE_WEBSITE_URL} target="_blank" rel="noreferrer">
-              <div className="w-7">
-                <Logo asIcon width={28} />
-              </div>
-              <p className={`text-2xl whitespace-nowrap overflow-hidden mb-1  ${primaryExpanded ? 'opacity-100 w-auto ml-2' : 'opacity-0 w-0'}`}>Openlane</p>{' '}
+              {primaryExpanded ? (
+                <div className="w-[134px]">
+                  <Logo width={134} />
+                </div>
+              ) : (
+                <div className="w-7">
+                  <Logo asIcon width={28} />
+                </div>
+              )}
             </a>
             <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset">
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
