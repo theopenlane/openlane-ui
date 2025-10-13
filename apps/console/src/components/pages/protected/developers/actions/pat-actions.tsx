@@ -52,8 +52,14 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpirat
 
   return (
     <>
-      <div className="flex items-center gap-4 justify-end">
-        <PersonalAccessTokenEdit tokenId={tokenId} tokenDescription={tokenDescription} tokenExpiration={tokenExpiration} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} />
+      <div className="flex items-center gap-1 justify-end">
+        <PersonalAccessTokenEdit
+          tokenName={tokenName}
+          tokenId={tokenId}
+          tokenDescription={tokenDescription}
+          tokenExpiration={tokenExpiration}
+          tokenAuthorizedOrganizations={tokenAuthorizedOrganizations}
+        />
         <SsoAuthorizationDropdown tokenId={tokenId} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} tokenSsoAuthorizations={tokenSsoAuthorizations} />
         <Trash2
           style={{ color: 'var(--destructive)' }}
@@ -62,7 +68,7 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpirat
             e.stopPropagation()
             setIsDeleteDialogOpen(true)
           }}
-          className={'cursor-pointer'}
+          className={'cursor-pointer ml-2'}
         />
       </div>
 

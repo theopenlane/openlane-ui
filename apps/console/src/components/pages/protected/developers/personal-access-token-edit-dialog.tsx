@@ -21,12 +21,13 @@ import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 
 type PersonalAccessTokenEditProps = {
   tokenId: string
+  tokenName: string
   tokenDescription?: string
   tokenExpiration: string
   tokenAuthorizedOrganizations?: { id: string; name: string }[]
 }
 
-const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ tokenId, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations }) => {
+const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ tokenId, tokenName, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations }) => {
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
   const [open, setOpen] = useState(false)
@@ -44,6 +45,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
   const formSchema = z
     .object({
       description: z.string().optional(),
+      name: z.string().optional(),
       expiryDate: z.date().optional(),
       noExpire: z.boolean().optional(),
       organizationIDs: z.array(z.string()).optional(),
@@ -57,12 +59,13 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: tokenDescription || '',
+      name: tokenName || '',
       expiryDate: tokenExpiration ? new Date(tokenExpiration) : undefined,
       noExpire: false,
       organizationIDs: tokenAuthorizedOrganizations?.map((org) => org.id) || [],
     },
   })
-
+  console.log(form)
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === 'noExpire' && value.noExpire) {
@@ -184,6 +187,21 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
         <FormProvider {...form}>
           <form id="edit-token-form" className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
             <div className="space-y-2 py-4">
+              <div>
+                <FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Token name</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled placeholder="Token name" className="mt-1" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div>
                 <FormField
                   name="description"

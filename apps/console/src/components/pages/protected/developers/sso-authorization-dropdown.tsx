@@ -72,7 +72,9 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
   return (
     <DropdownMenu open={isSsoDropdownOpened} onOpenChange={setIsSsoDropdownOpened}>
       <DropdownMenuTrigger asChild>
-        <Button className="!bg-transparent !hover:bg-transparent" icon={<KeyRound size={16} />}></Button>
+        <Button className="!bg-transparent !hover:bg-transparent !text-inherit flex items-center justify-center p-2">
+          <KeyRound className="w-4 h-4" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0" align="end">
         <p className="text-muted-foreground text-xs p-4 pb-0"> SSO organizations</p>
@@ -84,12 +86,11 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
                   <Avatar entity={currentOrganization as Organization} variant="small" />
                   {currentOrganization?.node?.displayName}
                 </div>
-                {data?.organization?.setting?.identityProviderLoginEnforced ||
-                  (currentOrganization?.node?.id && !tokenSsoAuthorizations?.[currentOrganization?.node?.id] && (
-                    <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
-                      {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
-                    </Button>
-                  ))}
+                {data?.organization?.setting?.identityProviderLoginEnforced && currentOrganization?.node?.id && !tokenSsoAuthorizations?.[currentOrganization?.node?.id] && (
+                  <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
+                    {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
+                  </Button>
+                )}
               </div>
             </div>
           ) : (
@@ -104,12 +105,11 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
                           <Avatar entity={org as Organization} variant="small" />
                           {org?.node?.displayName}
                         </div>
-                        {org?.node?.setting?.identityProviderLoginEnforced ||
-                          (org?.node?.id && !tokenSsoAuthorizations?.[org?.node?.id] && (
-                            <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
-                              {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
-                            </Button>
-                          ))}
+                        {org?.node?.setting?.identityProviderLoginEnforced && org?.node?.id && !tokenSsoAuthorizations?.[org?.node?.id] && (
+                          <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
+                            {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
+                          </Button>
+                        )}
                       </div>
                     )
                   })}

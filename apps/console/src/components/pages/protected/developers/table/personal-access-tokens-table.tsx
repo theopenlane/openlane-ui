@@ -193,8 +193,8 @@ export const PersonalAccessTokenTable = () => {
       cell: ({ cell }) => (
         <TokenAction
           tokenId={cell.getValue() as string}
-          tokenSsoAuthorizations={cell.row.original.ssoAuthorizations}
           tokenName={cell.row.original.name}
+          tokenSsoAuthorizations={cell.row.original.ssoAuthorizations}
           tokenDescription={cell.row.original.description}
           tokenExpiration={formatDate(cell.row.original.expiresAt)}
           tokenAuthorizedOrganizations={cell.row.original.organizations}
