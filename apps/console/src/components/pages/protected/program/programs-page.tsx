@@ -109,10 +109,6 @@ const ProgramsPage: React.FC = () => {
     router.push(`/programs?id=${val}`)
   }
 
-  const handleCreateProgram = () => {
-    router.push('/programs/create/')
-  }
-
   if (isBasicInfoLoading || isLoading) {
     return <Loading />
   }
@@ -202,9 +198,13 @@ const ProgramsPage: React.FC = () => {
               </div>
             </div>
             <div className="flex gap-2.5 items-center">
-              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" onClick={handleCreateProgram} icon={<SquarePlus />} iconPosition="left">
-                Create a program
-              </Button>
+              {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
+                <Link href="/programs/create" className="text-sm text-blue-500 flex items-center gap-1">
+                  <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                    Create a program
+                  </Button>
+                </Link>
+              )}
               <Menu content={<ProgramSettingsIconBtn programId={programId!} />} />
             </div>
           </div>
