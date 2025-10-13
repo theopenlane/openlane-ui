@@ -88,6 +88,10 @@ export default function SideNav({
     const activeNav = findActiveNavItem(navItems, pathname)
 
     return navItems.map((item, idx) => {
+      if (item.hidden) {
+        return null
+      }
+
       if ('type' in item && (item.type === 'separator' || item.type === 'heading')) {
         return <Hr className="mx-2" key={idx} />
       }
