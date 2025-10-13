@@ -60,6 +60,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'name',
       header: 'Name',
+      minSize: 150,
     },
     {
       accessorKey: 'status',
@@ -85,8 +86,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     },
     {
       accessorKey: 'summary',
-      size: 300,
-      minSize: 300,
+      minSize: 200,
+      size: 100,
       header: 'Summary',
       meta: {
         className: 'w-[40%] min-w-[300px]', // CSS class for responsive width

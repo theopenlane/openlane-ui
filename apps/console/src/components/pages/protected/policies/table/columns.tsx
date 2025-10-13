@@ -60,6 +60,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'name',
       header: 'Name',
+      minSize: 150,
     },
     {
       accessorKey: 'status',
@@ -87,8 +88,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       accessorKey: 'summary',
       header: 'Summary',
       enableResizing: true,
-      minSize: 100,
-      size: 300,
+      minSize: 200,
+      size: 100,
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4 text-justify">{summary === '' ? 'N/A' : summary}</div>
