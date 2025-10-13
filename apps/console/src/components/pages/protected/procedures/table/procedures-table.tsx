@@ -101,7 +101,7 @@ export const ProceduresTable = () => {
     reviewDue: false,
     reviewFrequency: false,
     revision: false,
-    status: false,
+    status: true,
     tags: false,
     createdAt: false,
     createdBy: false,
