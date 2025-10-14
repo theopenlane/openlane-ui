@@ -46302,6 +46302,14 @@ export type ControlListStandardFieldsFragment = {
   mappedCategories?: Array<string> | null
   referenceFramework?: string | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+  }
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+  }
 }
 
 export type ControlDetailsFieldsFragment = {
@@ -46715,6 +46723,14 @@ export type GetControlsPaginatedWithListFieldsQuery = {
         mappedCategories?: Array<string> | null
         referenceFramework?: string | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+        controlObjectives: {
+          __typename?: 'ControlObjectiveConnection'
+          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+        }
+        controlImplementations: {
+          __typename?: 'ControlImplementationConnection'
+          edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }

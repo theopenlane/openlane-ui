@@ -70,6 +70,20 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
     subcontrols {
       totalCount
     }
+    controlObjectives {
+      edges {
+        node {
+          desiredOutcome
+        }
+      }
+    }
+    controlImplementations {
+      edges {
+        node {
+          details
+        }
+      }
+    }
   }
 `
 
