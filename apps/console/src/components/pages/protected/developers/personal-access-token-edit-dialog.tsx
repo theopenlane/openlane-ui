@@ -138,6 +138,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
           updateApiTokenId: tokenId,
           input: {
             ...(data.description ? { description: data.description } : { clearDescription: true }),
+            ...(data.expiryDate && !data.noExpire ? { expiresAt: data.expiryDate } : { clearExpiresAt: true }),
           },
         })
       } else {
@@ -145,6 +146,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
           updatePersonalAccessTokenId: tokenId,
           input: {
             ...(data.description ? { description: data.description } : { clearDescription: true }),
+            ...(data.expiryDate && !data.noExpire ? { expiresAt: data.expiryDate } : { clearExpiresAt: true }),
             ...organizationInput,
           },
         })
