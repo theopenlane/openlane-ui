@@ -10,19 +10,18 @@ import AddComment from '@/components/shared/comments/AddComment'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useGetUsers } from '@/lib/graphql-hooks/user'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useUpdateControl } from '@/lib/graphql-hooks/controls'
-import { ControlQuery, UserWhereInput } from '@repo/codegen/src/schema'
+import { useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/controls'
+import { UserWhereInput } from '@repo/codegen/src/schema'
 
 type ControlCommentsSheetProps = {
-  controlData?: ControlQuery['control']
   onClose?: () => void
 }
 
-const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = ({ controlData, onClose }) => {
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = () => {
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
+  const { data } = useGetControlComments(subcontrolId ? subcontrolId : id)
 
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
   const [comments, setComments] = useState<TCommentData[]>([])
@@ -31,10 +30,11 @@ const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = ({ controlData
   const queryClient = useQueryClient()
   const { errorNotification } = useNotification()
   const plateEditorHelper = usePlateEditor()
+  const { mutateAsync: updateComment } = useUpdateControlComment()
 
-  const where: UserWhereInput | undefined = controlData?.comments
+  const where: UserWhereInput | undefined = data?.control?.comments
     ? {
-        idIn: controlData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
+        idIn: data.control.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
       }
     : undefined
 
@@ -49,41 +49,83 @@ const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = ({ controlData
           updateControlId: id,
           input: { addComment: { text: comment } },
         })
-        queryClient.invalidateQueries({ queryKey: ['controls'] })
+        queryClient.invalidateQueries({ queryKey: ['controlComments', id] })
       } catch (error) {
-        const errorMessage = parseErrorMessage(error)
-        errorNotification({ title: 'Error', description: errorMessage })
+        errorNotification({
+          title: 'Error',
+          description: parseErrorMessage(error),
+        })
       }
     },
     [id, plateEditorHelper, updateControl, queryClient, errorNotification],
   )
 
-  const handleCommentSort = () => {
+  const handleEditComment = useCallback(
+    async (commentId: string, newValue: string) => {
+      if (!id) return
+      try {
+        await updateComment({
+          updateControlCommentId: commentId,
+          input: { text: newValue },
+        })
+      } catch (error) {
+        errorNotification({
+          title: 'Error',
+          description: parseErrorMessage(error),
+        })
+      }
+    },
+    [id, updateComment, errorNotification],
+  )
+
+  const handleRemoveComment = useCallback(
+    async (commentId: string) => {
+      if (!id) return
+      try {
+        await updateControl({
+          updateControlId: id,
+          input: { removeCommentIDs: [commentId] },
+        })
+        queryClient.invalidateQueries({ queryKey: ['controlComments', id] })
+      } catch (error) {
+        errorNotification({
+          title: 'Error',
+          description: parseErrorMessage(error),
+        })
+      }
+    },
+    [id, updateControl, errorNotification, queryClient],
+  )
+
+  const handleCommentSort = useCallback(() => {
     const sorted = [...comments].sort((a, b) =>
       commentSortIsAsc ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
     setCommentSortIsAsc((prev) => !prev)
     setComments(sorted)
-  }
+  }, [commentSortIsAsc, comments])
 
   useEffect(() => {
-    if (controlData && userData?.users?.edges?.length) {
-      const mapped = (controlData?.comments || [])?.edges?.map((item) => {
-        const user = userData.users.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node
-        const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
-        return {
-          comment: item?.node?.text,
-          avatarUrl,
-          createdAt: item?.node?.createdAt,
-          userName: user?.displayName,
-          createdBy: item?.node?.createdBy,
-          id: item?.node?.id || '',
-        } as TCommentData
-      })
+    if (data?.control && userData?.users?.edges?.length) {
+      const mapped =
+        data.control.comments?.edges?.map((item) => {
+          const user = userData.users.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node
+          const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+          return {
+            comment: item?.node?.text,
+            avatarUrl,
+            createdAt: item?.node?.createdAt,
+            userName: user?.displayName,
+            createdBy: item?.node?.createdBy,
+            id: item?.node?.id || '',
+          } as TCommentData
+        }) ?? []
+
       const sorted = mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+
       setComments(sorted)
     }
-  }, [commentSortIsAsc, controlData, userData])
+  }, [commentSortIsAsc, data, userData])
 
   return (
     <div className="p-4 w-full h-full overflow-y-auto">
@@ -95,7 +137,7 @@ const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = ({ controlData
         </div>
       </div>
 
-      <CommentList comments={comments} />
+      <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleRemoveComment} />
       <AddComment onSuccess={handleSendComment} />
     </div>
   )

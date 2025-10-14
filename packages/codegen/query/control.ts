@@ -445,3 +445,36 @@ export const GET_CONTROLS_BY_REFCODE = gql`
     }
   }
 `
+
+export const GET_CONTROL_COMMENTS = gql`
+  query GetControlComments($controlId: ID!) {
+    control(id: $controlId) {
+      comments {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            owner {
+              avatarRemoteURL
+              avatarFile {
+                presignedURL
+              }
+              displayName
+            }
+            text
+          }
+        }
+      }
+    }
+  }
+`
+export const UPDATE_CONTROL_COMMENT = gql`
+  mutation UpdateControlComment($updateControlCommentId: ID!, $input: UpdateNoteInput!) {
+    updateControlComment(id: $updateControlCommentId, input: $input) {
+      control {
+        id
+      }
+    }
+  }
+`
