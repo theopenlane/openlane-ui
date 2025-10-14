@@ -31,9 +31,9 @@ export default auth(async (req) => {
   const isUnsubscribe = path === '/unsubscribe'
   const isWaitlist = path === '/waitlist'
 
-  const session = await auth()
+  const session = req.auth
 
-  const isLoggedIn = req.auth?.user
+  const isLoggedIn = session?.user
   const isTfaEnabled = session?.user?.isTfaEnabled
   const isOnboarding = session?.user?.isOnboarding
 
