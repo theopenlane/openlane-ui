@@ -28,7 +28,7 @@ export interface FilterField {
   key: string
   label: string
   icon: LucideIcon
-  type: 'text' | 'select' | 'date' | 'boolean'
+  type: 'text' | 'select' | 'date' | 'boolean' | 'dateRange'
   forceKeyOperator?: boolean
   childrenObjectKey?: string
   options?: { value: string; label: string }[]

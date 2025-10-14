@@ -1,6 +1,7 @@
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import type { DateRange } from 'react-day-picker'
 
-export type TFilterValue = string | string[] | number | boolean | Date | undefined
+export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | undefined
 export type TFilterState = Record<string, TFilterValue>
 
 const STORAGE_PREFIX = 'filters:'
