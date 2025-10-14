@@ -263,5 +263,29 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       size: 130,
       cell: ({ cell }) => formatDate(cell.getValue() as string),
     },
+    {
+      header: 'Desired Outcome',
+      accessorKey: 'desiredOutcome',
+      cell: ({ row }) => {
+        const desiredOutcome = row.original.controlObjectives?.edges?.[0]?.node?.desiredOutcome ?? '-'
+        return (
+          <div className="flex items-center gap-2">
+            <span>{convertToReadOnly(desiredOutcome as string, 0)}</span>
+          </div>
+        )
+      },
+    },
+    {
+      header: 'Control Implementation Details',
+      accessorKey: 'controlImplementationsDetails',
+      cell: ({ row }) => {
+        const controlImplementationsDetails = row.original.controlImplementations?.edges?.[0]?.node?.details ?? '-'
+        return (
+          <div className="flex items-center gap-2">
+            <span>{convertToReadOnly(controlImplementationsDetails as string, 0)}</span>
+          </div>
+        )
+      },
+    },
   ]
 }
