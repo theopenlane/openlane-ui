@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
 import { Button } from '@repo/ui/button'
-import { BriefcaseBusiness, Check, SearchIcon } from 'lucide-react'
+import { BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
@@ -18,7 +18,7 @@ import { Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 
-export const OrganizationSelector = () => {
+export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   const { data: sessionData, update: updateSession } = useSession()
   const queryClient = useQueryClient()
   const [orgData, setOrgData] = useState({
@@ -31,7 +31,7 @@ export const OrganizationSelector = () => {
   const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
-  const { container, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
+  const { allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
   const filteredOrgs = orgs
     .filter((org) => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
@@ -101,11 +101,26 @@ export const OrganizationSelector = () => {
   if (!orgs) return <Loading />
 
   return (
-    <div className={container()}>
+    <div>
       <div>
         <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
-          <PopoverTrigger className="bg-unset">
-            <Avatar entity={currentOrg as Organization} />
+          <PopoverTrigger className="bg-unset w-full">
+            {expanded ? (
+              <div className="flex items-center justify-between w-full  py-1 rounded-md hover:bg-card transition-colors">
+                <div className="flex items-center gap-2">
+                  <Avatar entity={currentOrg as Organization} />
+                  <div className="flex flex-col justify-start ">
+                    <span className="text-sm  text-start font-medium text-foreground truncate w-[166px]">{currentOrg?.displayName}</span>
+                    <span className="text-xs text-left text-muted-foreground uppercase self-start">
+                      {(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role.toLowerCase() ?? ''}
+                    </span>
+                  </div>
+                </div>
+                <ChevronsUpDown className="ml-2 text-muted-foreground" size={16} />
+              </div>
+            ) : (
+              <Avatar entity={currentOrg as Organization} />
+            )}
           </PopoverTrigger>
           <PopoverContent align="start" className={popoverContent()}>
             <div className={searchWrapper()}>

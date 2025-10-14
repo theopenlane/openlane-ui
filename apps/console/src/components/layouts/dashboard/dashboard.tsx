@@ -14,11 +14,12 @@ import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { bottomNavigationItems, personalNavigationItems, topNavigationItems } from '@/routes/dashboard'
-import Sidebar, { PANEL_WIDTH_PX, type PanelKey } from '@/components/shared/sidebar/sidebar'
+import Sidebar from '@/components/shared/sidebar/sidebar'
 import { NavHeading, NavItem, Separator } from '@/types'
 import { usePathname } from 'next/navigation'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { useOrganizationRole } from '@/lib/authz/access-api'
+import { PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -42,9 +43,24 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(orgPermission)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
-  const [expanded, setExpanded] = useState(true)
-  const panelWidth = openPanel ? (expanded ? PANEL_WIDTH_PX : 60) : 0
-  const contentMarginLeft = expanded ? 54 + panelWidth : openPanel ? 38 + panelWidth : 54 + panelWidth
+  const [primaryExpanded, setPrimaryExpanded] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sidebar-primary-expanded') === 'true'
+    }
+    return true
+  })
+
+  const [secondaryExpanded, setSecondaryExpanded] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sidebar-secondary-expanded') === 'true'
+    }
+    return true
+  })
+  const primaryWidth = primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH
+  const secondaryWidth = openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0
+
+  const contentMarginLeft = primaryWidth + secondaryWidth + 4
+
   const currentActivePanel = [...navItems, ...footerNavItems]
     .filter(isNavItem)
     .find((item) => item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`)))
@@ -104,9 +120,23 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
         navItems={navItems}
         footerNavItems={footerNavItems}
         openPanel={openPanel}
-        expanded={expanded}
+        primaryExpanded={primaryExpanded}
+        secondaryExpanded={secondaryExpanded}
+        onPrimaryExpandToggle={() => {
+          const newState = !primaryExpanded
+          setPrimaryExpanded(newState)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('sidebar-primary-expanded', String(newState))
+          }
+        }}
+        onSecondaryExpandToggle={() => {
+          const newState = !secondaryExpanded
+          setSecondaryExpanded(newState)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('sidebar-secondary-expanded', String(newState))
+          }
+        }}
         onToggle={handleOpenPanel}
-        onExpandToggle={() => setExpanded(!expanded)}
         isOrganizationSelected={isOrganizationSelected}
       />
 
