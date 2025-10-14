@@ -33,7 +33,7 @@ export default auth(async (req) => {
 
   const session = req.auth
 
-  const isLoggedIn = session?.user
+  const isLoggedIn = !!session?.user
   const isTfaEnabled = session?.user?.isTfaEnabled
   const isOnboarding = session?.user?.isOnboarding
 
