@@ -170,10 +170,9 @@ const ControlDetailsPage: React.FC = () => {
       })
 
       setIsEditing(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Failed to update subcontrol',
-        description: error instanceof Error ? error.message : undefined,
       })
     }
   }
