@@ -129,16 +129,35 @@ const ControlDetailsPage: React.FC = () => {
     try {
       const description = await plateEditorHelper.convertToHtml(values.description as Value)
 
+      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
+        const initialValue = initialValues[key as keyof FormValues]
+        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
+          acc[key] = value
+        }
+        return acc
+      }, {})
+
+      if (changedFields.description) {
+        changedFields.description = description
+      }
+
+      if (isSourceFramework) {
+        //remove readonly fields
+        delete changedFields.title
+        delete changedFields.refCode
+        delete changedFields.description
+      }
+
+      const input: UpdateControlInput = Object.fromEntries(Object.entries(changedFields).map(([key, value]) => [key, value || undefined])) as UpdateControlInput
+
+      if (Object.keys(input).length === 0) {
+        setIsEditing(false)
+        return
+      }
+
       await updateControl({
         updateControlId: id!,
-        input: {
-          ...values,
-          description,
-          controlOwnerID: values.controlOwnerID || undefined,
-          delegateID: values.delegateID || undefined,
-          referenceID: values.referenceID || undefined,
-          auditorReferenceID: values.auditorReferenceID || undefined,
-        },
+        input,
       })
 
       successNotification({
