@@ -29,6 +29,7 @@ import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher.tsx'
+import { useNotification } from '@/hooks/useNotification'
 
 type TControlsTableProps = {
   active: 'report' | 'controls'
@@ -43,6 +44,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
   const { handleExport } = useFileExport()
+  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
       field: ControlOrderField.ref_code,
@@ -63,6 +65,8 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     createdAt: false,
     updatedBy: false,
     updatedAt: false,
+    controlImplementationsDetails: false,
+    desiredOutcome: false,
   })
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -147,6 +151,15 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     enabled: !!filters,
   })
 
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load controls',
+      })
+    }
+  }, [isError, errorNotification])
+
   const userIds = useMemo(() => {
     if (!controls) return []
     const ids = new Set<string>()
@@ -202,8 +215,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const handleBulkEdit = () => {
     setSelectedControls([])
   }
-
-  if (isError) return <div>Failed to load Controls</div>
 
   return (
     <div>

@@ -28,6 +28,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import { useNotification } from '@/hooks/useNotification'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -65,7 +66,7 @@ export const PoliciesTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
+  const { policies, isError, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
 
   const memberIds = useMemo(() => {
     if (!policies || policies.length === 0) {
@@ -101,6 +102,7 @@ export const PoliciesTable = () => {
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
+  const { errorNotification } = useNotification()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     approvalRequired: false,
     approver: false,
@@ -141,6 +143,15 @@ export const PoliciesTable = () => {
       format: ExportExportFormat.CSV,
     })
   }
+
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load policies',
+      })
+    }
+  }, [isError, errorNotification])
 
   useEffect(() => {
     if (permission?.roles) {
