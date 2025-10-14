@@ -65,7 +65,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
       organizationIDs: tokenAuthorizedOrganizations?.map((org) => org.id) || [],
     },
   })
-  console.log(form)
+
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === 'noExpire' && value.noExpire) {
@@ -182,7 +182,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md max-h-[600px] max-w-[500px]">
+      <DialogContent className="max-w-lg max-h-[600px]">
         <DialogHeader>
           <DialogTitle className="text-[hsl(var(--foreground))]">Edit Personal Access Token</DialogTitle>
         </DialogHeader>

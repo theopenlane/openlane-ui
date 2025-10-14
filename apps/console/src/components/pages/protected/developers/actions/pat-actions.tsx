@@ -9,6 +9,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import PersonalAccessTokenEdit from '../personal-access-token-edit-dialog'
 import SsoAuthorizationDropdown from '../sso-authorization-dropdown'
+import { Button } from '@repo/ui/button'
 
 type TokenActionProps = {
   tokenId: string
@@ -61,15 +62,15 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpirat
           tokenAuthorizedOrganizations={tokenAuthorizedOrganizations}
         />
         <SsoAuthorizationDropdown tokenId={tokenId} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} tokenSsoAuthorizations={tokenSsoAuthorizations} />
-        <Trash2
-          style={{ color: 'var(--destructive)' }}
-          size={ICON_SIZE}
+        <Button
           onClick={(e) => {
             e.stopPropagation()
             setIsDeleteDialogOpen(true)
           }}
-          className={'cursor-pointer ml-2'}
-        />
+          className="!bg-transparent !hover:bg-transparent !text-inherit flex items-center justify-center p-2"
+        >
+          <Trash2 style={{ color: 'var(--destructive)' }} size={ICON_SIZE} className={'cursor-pointer'} />
+        </Button>
       </div>
 
       <ConfirmationDialog
