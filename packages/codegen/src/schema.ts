@@ -7518,7 +7518,7 @@ export interface CreateTrustCenterSettingInput {
   primaryColor?: InputMaybe<Scalars['String']['input']>
   /** secondary background color for the trust center */
   secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
-  /** seconday foreground color for the trust center */
+  /** secondary foreground color for the trust center */
   secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** Theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
@@ -39611,7 +39611,7 @@ export interface TrustCenterSetting extends Node {
   primaryColor?: Maybe<Scalars['String']['output']>
   /** secondary background color for the trust center */
   secondaryBackgroundColor?: Maybe<Scalars['String']['output']>
-  /** seconday foreground color for the trust center */
+  /** secondary foreground color for the trust center */
   secondaryForegroundColor?: Maybe<Scalars['String']['output']>
   /** Theme mode for the trust center */
   themeMode?: Maybe<TrustCenterSettingTrustCenterThemeMode>
@@ -39704,7 +39704,7 @@ export interface TrustCenterSettingHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** secondary background color for the trust center */
   secondaryBackgroundColor?: Maybe<Scalars['String']['output']>
-  /** seconday foreground color for the trust center */
+  /** secondary foreground color for the trust center */
   secondaryForegroundColor?: Maybe<Scalars['String']['output']>
   /** Theme mode for the trust center */
   themeMode?: Maybe<TrustCenterSettingHistoryTrustCenterThemeMode>
@@ -44332,7 +44332,7 @@ export interface UpdateTrustCenterSettingInput {
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** secondary background color for the trust center */
   secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
-  /** seconday foreground color for the trust center */
+  /** secondary foreground color for the trust center */
   secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** Theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
@@ -46282,6 +46282,14 @@ export type ControlListFieldsFragment = {
   }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+  }
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+  }
 }
 
 export type ControlListStandardFieldsFragment = {
@@ -46294,6 +46302,14 @@ export type ControlListStandardFieldsFragment = {
   mappedCategories?: Array<string> | null
   referenceFramework?: string | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+  }
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+  }
 }
 
 export type ControlDetailsFieldsFragment = {
@@ -46446,6 +46462,14 @@ export type GetAllControlsQuery = {
         }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+        controlObjectives: {
+          __typename?: 'ControlObjectiveConnection'
+          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+        }
+        controlImplementations: {
+          __typename?: 'ControlImplementationConnection'
+          edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -46699,6 +46723,14 @@ export type GetControlsPaginatedWithListFieldsQuery = {
         mappedCategories?: Array<string> | null
         referenceFramework?: string | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+        controlObjectives: {
+          __typename?: 'ControlObjectiveConnection'
+          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+        }
+        controlImplementations: {
+          __typename?: 'ControlImplementationConnection'
+          edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
@@ -47584,6 +47616,7 @@ export type GetAllOrganizationsQuery = {
         personalOrg?: boolean | null
         stripeCustomerID?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
       } | null
     } | null> | null
   }
@@ -49671,6 +49704,7 @@ export type GetPersonalAccessTokensQuery = {
         description?: string | null
         expiresAt?: any | null
         lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
         organizations: {
           __typename?: 'OrganizationConnection'
           edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null
@@ -49705,7 +49739,16 @@ export type GetApiTokensQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null; lastUsedAt?: any | null } | null
+      node?: {
+        __typename?: 'APIToken'
+        id: string
+        name: string
+        description?: string | null
+        scopes?: Array<string> | null
+        expiresAt?: any | null
+        lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
@@ -49725,6 +49768,23 @@ export type GetApiTokensByIdsQueryVariables = Exact<{
 export type GetApiTokensByIdsQuery = {
   __typename?: 'Query'
   apiTokens: { __typename?: 'APITokenConnection'; edges?: Array<{ __typename?: 'APITokenEdge'; node?: { __typename?: 'APIToken'; id: string; name: string } | null } | null> | null }
+}
+
+export type UpdateApiTokenMutationVariables = Exact<{
+  updateApiTokenId: Scalars['ID']['input']
+  input: UpdateApiTokenInput
+}>
+
+export type UpdateApiTokenMutation = { __typename?: 'Mutation'; updateAPIToken: { __typename?: 'APITokenUpdatePayload'; apiToken: { __typename?: 'APIToken'; id: string } } }
+
+export type UpdatePersonalAccessTokenMutationVariables = Exact<{
+  updatePersonalAccessTokenId: Scalars['ID']['input']
+  input: UpdatePersonalAccessTokenInput
+}>
+
+export type UpdatePersonalAccessTokenMutation = {
+  __typename?: 'Mutation'
+  updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
