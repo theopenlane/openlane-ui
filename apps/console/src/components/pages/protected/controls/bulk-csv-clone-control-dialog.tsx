@@ -97,7 +97,7 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
           acceptedFilesClass="flex justify-between text-sm"
         />
         <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>
