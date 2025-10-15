@@ -8,7 +8,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlListFieldsFragment, ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { TData } from '@/lib/authz/access-api.ts'
+import { TData } from '@/types/authz'
 import { DataTable } from '@repo/ui/data-table'
 import { getColumns } from './columns'
 import AddToOrganizationDialog from './add-to-organization-dialog'
@@ -36,7 +36,7 @@ type TStandardDetailsAccordionProps = {
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   isDialogOpen: boolean
   setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
-  permission: TData
+  permission: TData | undefined
   isLoadingPermission: boolean
 }
 const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({

@@ -12,11 +12,10 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetAllGroups, useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { useSession } from 'next-auth/react'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -25,14 +24,13 @@ const columns = [
 ]
 
 const InheritPermissionDialog = () => {
-  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [group, setGroup] = useState('')
   const [step, setStep] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
   const { errorNotification, successNotification } = useNotification()
   const { selectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
+  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
   const queryClient = useQueryClient()
 
   const { data } = useGetGroupDetails(selectedGroup)

@@ -25,7 +25,7 @@ import {
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { canEdit } from '@/lib/authz/utils'
-import { TData } from '@/lib/authz/access-api.ts'
+import { TData } from '@/types/authz'
 
 export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
@@ -106,7 +106,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   },
 ]
 
-export const bottomNavigationItems = (orgPermission: TData): (NavItem | Separator | NavHeading)[] => [
+export const bottomNavigationItems = (orgPermission: TData | undefined): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Organization settings',
     href: '/organization-settings',

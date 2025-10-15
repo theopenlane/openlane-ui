@@ -24,8 +24,8 @@ type TTasksTableProps = {
   onHasTasksChange?: (hasTasks: boolean) => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
 }
 
 const TasksTable = forwardRef(

@@ -34,8 +34,8 @@ type TTaskTableToolbarProps = {
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
   exportEnabled: boolean
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
   handleBulkEdit: () => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>

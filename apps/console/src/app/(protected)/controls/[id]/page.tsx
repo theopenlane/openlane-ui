@@ -17,8 +17,6 @@ import { Control, ControlControlSource, ControlControlStatus, ControlControlType
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
-import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api.ts'
-import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
@@ -43,6 +41,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Loading from './loading.tsx'
 import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section.tsx'
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 
 interface FormValues {
   refCode: string
@@ -85,9 +84,8 @@ const ControlDetailsPage: React.FC = () => {
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id)
-  const { data: orgPermission } = useOrganizationRole(session)
+  const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
+  const { data: orgPermission } = useOrganizationRoles()
 
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)

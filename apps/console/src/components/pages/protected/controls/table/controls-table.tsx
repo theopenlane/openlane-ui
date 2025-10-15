@@ -25,10 +25,9 @@ import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher.tsx'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type TControlsTableProps = {
   active: 'report' | 'controls'
@@ -40,8 +39,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { convertToReadOnly } = usePlateEditor()
   const [filters, setFilters] = useState<ControlWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {

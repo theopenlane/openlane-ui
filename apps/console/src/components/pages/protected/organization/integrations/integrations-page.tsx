@@ -7,20 +7,18 @@ import { IntegrationsGrid } from './integrations-grid'
 import { IntegrationTab } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useOrganizationRole } from '@/lib/authz/access-api'
-import { useSession } from 'next-auth/react'
 import { canEdit } from '@/lib/authz/utils'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const IntegrationsPage = () => {
   const [activeTab, setActiveTab] = useState<IntegrationTab>('Available')
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { setCrumbs } = useContext(BreadcrumbContext)
 
-  const { data: session } = useSession()
-  const { data: orgPermission, isLoading } = useOrganizationRole(session)
+  const { data: orgPermission, isLoading } = useOrganizationRoles()
   const editAllowed = canEdit(orgPermission?.roles)
 
   const { successNotification, errorNotification } = useNotification()

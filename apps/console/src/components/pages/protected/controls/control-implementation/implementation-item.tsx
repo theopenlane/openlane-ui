@@ -6,10 +6,9 @@ import { Button } from '@repo/ui/button'
 import { ChevronRight, Check, Pencil } from 'lucide-react'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ControlImplementationCard } from './control-implementation-card'
-import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 type Props = {
   idx: number
@@ -20,8 +19,7 @@ type Props = {
 }
 
 export const ImplementationItem: React.FC<Props> = ({ idx, node, onEdit, onMarkVerified, isUpdating }) => {
-  const { data: session } = useSession()
-  const { data: permission, isLoading: permLoading } = useAccountRole(session, ObjectEnum.CONTROL_IMPLEMENTATION, node.id)
+  const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectEnum.CONTROL_IMPLEMENTATION, node.id)
   const isEditAllowed = canEdit(permission?.roles)
 
   return (
