@@ -18,6 +18,8 @@ const ThemeSection = ({ setting }: Props) => {
   const [easyColor, setEasyColor] = useState(setting?.primaryColor ?? '#f0f0e0')
   const [foreground, setForeground] = useState(setting?.foregroundColor ?? '#f0f0e0')
   const [background, setBackground] = useState(setting?.backgroundColor ?? '#f0f0e0')
+  const [secondaryForeground, setSecondaryForeground] = useState(setting?.secondaryForegroundColor ?? '#f0f0e0')
+  const [secondaryBackground, setSecondaryBackground] = useState(setting?.secondaryBackgroundColor ?? '#f0f0e0')
   const [accent, setAccent] = useState(setting?.accentColor ?? '#f0f0e0')
   const [font, setFont] = useState(setting?.font ?? 'outfit')
   const [themeMode, setThemeMode] = useState<TrustCenterSettingTrustCenterThemeMode>(setting?.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY)
@@ -28,6 +30,8 @@ const ThemeSection = ({ setting }: Props) => {
     easyColor !== (setting?.primaryColor ?? '#f0f0e0') ||
     foreground !== (setting?.foregroundColor ?? '#f0f0e0') ||
     background !== (setting?.backgroundColor ?? '#f0f0e0') ||
+    secondaryForeground !== (setting?.secondaryForegroundColor ?? '#f0f0e0') ||
+    secondaryBackground !== (setting?.secondaryBackgroundColor ?? '#f0f0e0') ||
     accent !== (setting?.accentColor ?? '#f0f0e0') ||
     font !== (setting?.font ?? 'outfit') ||
     themeMode !== (setting?.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY)
@@ -39,6 +43,8 @@ const ThemeSection = ({ setting }: Props) => {
         primaryColor: easyColor,
         foregroundColor: foreground,
         backgroundColor: background,
+        secondaryForegroundColor: secondaryForeground,
+        secondaryBackgroundColor: secondaryBackground,
         accentColor: accent,
         font,
         themeMode,
@@ -83,6 +89,8 @@ const ThemeSection = ({ setting }: Props) => {
               <ColorInput label="Foreground color" value={foreground} onChange={setForeground} />
               <ColorInput label="Background color" value={background} onChange={setBackground} />
               <ColorInput label="Accent/brand color" value={accent} onChange={setAccent} />
+              <ColorInput label="Secondary Foreground color" value={secondaryForeground} onChange={setSecondaryForeground} />
+              <ColorInput label="Secondary Background color" value={secondaryBackground} onChange={setSecondaryBackground} />
             </div>
           </div>
         </RadioGroup>

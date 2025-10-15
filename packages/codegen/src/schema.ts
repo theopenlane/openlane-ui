@@ -49812,8 +49812,10 @@ export type GetTrustCenterQuery = {
           primaryColor?: string | null
           themeMode?: TrustCenterSettingTrustCenterThemeMode | null
           foregroundColor?: string | null
+          secondaryForegroundColor?: string | null
           font?: string | null
           backgroundColor?: string | null
+          secondaryBackgroundColor?: string | null
           accentColor?: string | null
           faviconRemoteURL?: string | null
           overview?: string | null
