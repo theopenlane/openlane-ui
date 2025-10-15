@@ -1,12 +1,16 @@
+import { useNotification } from '@/hooks/useNotification'
 import { TData } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 
 export const useAccountRoles = (objectType: string, id?: string | number | null) => {
-  return useQuery<TData>({
+  const { errorNotification } = useNotification()
+
+  const resp = useQuery<TData>({
     queryKey: ['accountRoles', objectType, id],
     enabled: !!objectType && !!id,
     queryFn: async () => {
-      const res = await fetch('/api/permissions/account-roles', {
+      const res = await fetch('/api/permissions/account-roless', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -24,10 +28,20 @@ export const useAccountRoles = (objectType: string, id?: string | number | null)
       return data
     },
   })
+  useEffect(() => {
+    if (resp.isError) {
+      errorNotification({
+        title: 'Error occurred while fetching account roles',
+        description: 'Please refresh the page',
+      })
+    }
+  }, [resp.isError, errorNotification])
+  return resp
 }
 
 export const useOrganizationRoles = () => {
-  return useQuery<TData>({
+  const { errorNotification } = useNotification()
+  const resp = useQuery<TData>({
     queryKey: ['organizationRole'],
     queryFn: async () => {
       const res = await fetch('/api/permissions/organization-roles', {
@@ -43,4 +57,13 @@ export const useOrganizationRoles = () => {
       return data
     },
   })
+  useEffect(() => {
+    if (resp.isError) {
+      errorNotification({
+        title: 'Error occurred while fetching organization roles',
+        description: 'Please refresh the page',
+      })
+    }
+  }, [resp.isError, errorNotification])
+  return resp
 }
