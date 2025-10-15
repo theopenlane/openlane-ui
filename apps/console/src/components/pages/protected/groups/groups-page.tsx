@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
-import { CirclePlus, Eye, FileText, SearchIcon } from 'lucide-react'
+import { CirclePlus, SearchIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { GetAllGroupsQueryVariables, GroupSettingVisibility, GroupWhereInput } from '@repo/codegen/src/schema'
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
@@ -27,14 +27,15 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { Label } from '@repo/ui/label'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { FilterIcons } from '@/components/shared/enum-mapper/groups-enum'
 
 const filterFields: FilterField[] = [
-  { key: 'name', label: 'Name', type: 'text', icon: FileText },
+  { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
   {
     key: 'visibility',
     label: 'Visibility',
     type: 'select',
-    icon: Eye,
+    icon: FilterIcons.Visibility,
     options: [
       { label: 'Public', value: GroupSettingVisibility.PUBLIC },
       { label: 'Private', value: GroupSettingVisibility.PRIVATE },
