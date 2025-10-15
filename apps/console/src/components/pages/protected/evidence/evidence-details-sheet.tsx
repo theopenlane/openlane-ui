@@ -56,8 +56,6 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
-import { useAccountRole } from '@/lib/authz/access-api'
-import { useSession } from 'next-auth/react'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -74,6 +72,7 @@ import { ControlSelectionDialog } from '@/components/shared/objectAssociation/ob
 import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -119,11 +118,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }, [controlEvidenceIdParam, id])
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
-  const { data: session } = useSession()
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
 
-  const { data: permission } = useAccountRole(session, ObjectEnum.EVIDENCE, data?.evidence.id)
+  const { data: permission } = useAccountRoles(ObjectEnum.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles)
 

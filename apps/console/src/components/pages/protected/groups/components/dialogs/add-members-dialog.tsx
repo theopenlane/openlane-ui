@@ -12,8 +12,8 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import { useQueryClient } from '@tanstack/react-query'
 import { User } from '@repo/codegen/src/schema'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const AddMembersDialog = () => {
   const { selectedGroup } = useGroupsStore()
@@ -25,7 +25,7 @@ const AddMembersDialog = () => {
   const { data } = useGetGroupDetails(selectedGroup)
   const { members: membersGroupData, isManaged, id } = data?.group || {}
   const [hasInitialized, setHasInitialized] = useState(false)
-  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
+  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
 
   const members = useMemo(
     () =>

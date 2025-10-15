@@ -12,8 +12,6 @@ import ProgramAuditor from '@/components/pages/protected/dashboard/program-audit
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
 import { ArrowRight, InfoIcon, ShieldCheck, SquarePlus } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { DOCS_URL } from '@/constants'
@@ -27,6 +25,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -37,8 +36,7 @@ const ProgramsPage: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState<string>('')
 
   const { data: basicInfoData, isLoading: isBasicInfoLoading, isError } = useGetProgramBasicInfo(programId)
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useOrganizationRoles()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)

@@ -12,9 +12,8 @@ import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/s
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { Button } from '@repo/ui/button'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import Loading from './loading'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
@@ -25,8 +24,7 @@ const StandardDetailsPage = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { data: session } = useSession()
-  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRole(session)
+  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
 
   useEffect(() => {
     setCrumbs([

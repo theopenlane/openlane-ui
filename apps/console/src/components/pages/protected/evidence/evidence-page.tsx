@@ -4,15 +4,12 @@ import EvidenceCreateForm from '@/components/pages/protected/evidence/evidence-c
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { canCreate } from '@/lib/authz/utils'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { Loading } from '@/components/shared/loading/loading'
-import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const EvidencePage: React.FC = () => {
-  const { data: sessionData } = useSession()
-
-  const { data: permission, isLoading: permissionsLoading } = useOrganizationRole(sessionData)
+  const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
 
   const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
 

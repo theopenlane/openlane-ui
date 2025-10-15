@@ -11,11 +11,10 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TemplateWhereInput } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplatelDialog } from '../dialog/bulk-csv-create-template-dialog'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -46,8 +45,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   exportEnabled,
 }) => {
   const isSearching = useDebounce(searching, 200)
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useOrganizationRoles()
 
   const createDropdown = () => {
     if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {

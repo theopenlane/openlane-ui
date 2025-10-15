@@ -19,9 +19,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 type MemberRow = {
   id: string
@@ -36,9 +36,9 @@ export const ProgramSettingsUsers = () => {
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
 
-  const { data: permission } = useAccountRole(session, ObjectEnum.PROGRAM, programId)
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, programId)
 
-  const editAllowed = canEdit(permission.roles)
+  const editAllowed = canEdit(permission?.roles)
 
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,

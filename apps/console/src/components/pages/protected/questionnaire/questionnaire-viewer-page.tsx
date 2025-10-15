@@ -5,8 +5,6 @@ import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Edit, Trash2 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useDeleteTemplate } from '@/lib/graphql-hooks/templates'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
@@ -18,6 +16,7 @@ import { z } from 'zod'
 import { Input } from '@repo/ui/input'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -28,8 +27,7 @@ const QuestionnaireViewerPage: React.FC = () => {
   const searchParams = useSearchParams()
   const existingId = searchParams.get('id') as string
 
-  const { data: session } = useSession()
-  const { data: permission, isLoading } = useOrganizationRole(session)
+  const { data: permission, isLoading } = useOrganizationRoles()
   const editAllowed = canEdit(permission?.roles)
 
   const { successNotification, errorNotification } = useNotification()

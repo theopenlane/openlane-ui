@@ -5,16 +5,14 @@ import { pageStyles } from './page.styles'
 import { OrganizationDelete } from '@/components/pages/protected/organization/general-settings/organization-delete'
 import { useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export const PageWrapper: React.FC = () => {
   const { wrapper } = pageStyles()
   const [loading, setLoading] = useState(false)
-  const { data: sessionData } = useSession()
-  const { data: orgPermission } = useOrganizationRole(sessionData)
+  const { data: orgPermission } = useOrganizationRoles()
 
   return (
     <>

@@ -16,9 +16,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { useSession } from 'next-auth/react'
 import { canEdit } from '@/lib/authz/utils'
 import TitleField from '../form/fields/title-field'
 import DetailsField from '../form/fields/details-field'
@@ -31,6 +29,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TasksDetailsSheetSkeleton } from '../../skeleton/tasks-details-sheet-skeleton'
 import EvidenceCreateSheet from '../../../evidence/evidence-create-sheet'
 import { CreateButton } from '@/components/shared/create-button/create-button'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -43,10 +42,9 @@ const TaskDetailsSheet = () => {
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
 
-  const { data: session } = useSession()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const { data: permission } = useAccountRole(session, ObjectEnum.TASK, id)
+  const { data: permission } = useAccountRoles(ObjectEnum.TASK, id)
   const isEditAllowed = canEdit(permission?.roles)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task

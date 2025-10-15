@@ -18,18 +18,17 @@ import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/fo
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { useAllGroupsGrouped } from '@/lib/graphql-hooks/groups.ts'
 import { GroupWhereInput } from '@repo/codegen/src/schema'
-import { useSession } from 'next-auth/react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { VisibilityState } from '@tanstack/react-table'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate, canEdit } from '@/lib/authz/utils.ts'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -55,12 +54,11 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
   const [currentValue, setCurrentValue] = useState('')
   const [invalidEmail, setInvalidEmail] = useState<string | null>(null)
-  const { data: session } = useSession()
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
-  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRole(session)
+  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     check: true,
   })

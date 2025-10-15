@@ -9,9 +9,7 @@ import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canDelete, canEdit } from '@/lib/authz/utils.ts'
-import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import TitleField from './fields/title-field'
 import DetailsField from './fields/details-field'
@@ -30,6 +28,7 @@ import ObjectAssociationSwitch from '@/components/shared/object-association/obje
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/risks/[id]/loading'
 import { Card } from '@repo/ui/cardpanel'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 type TRisksPageProps = {
   riskId: string
@@ -45,8 +44,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const { successNotification, errorNotification } = useNotification()
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.RISK, riskId)
+  const { data: permission } = useAccountRoles(ObjectEnum.RISK, riskId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
