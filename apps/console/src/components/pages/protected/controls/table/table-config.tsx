@@ -276,7 +276,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       },
     },
     {
-      header: 'Control Implementation Details',
+      header: 'Implementation Details',
       accessorKey: 'controlImplementationsDetails',
       cell: ({ row }) => {
         const controlImplementationsDetails = row.original.controlImplementations?.edges?.[0]?.node?.details ?? '-'
