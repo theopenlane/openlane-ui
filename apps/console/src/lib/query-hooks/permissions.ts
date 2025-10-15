@@ -10,7 +10,7 @@ export const useAccountRoles = (objectType: string, id?: string | number | null)
     queryKey: ['accountRoles', objectType, id],
     enabled: !!objectType && !!id,
     queryFn: async () => {
-      const res = await fetch('/api/permissions/account-roless', {
+      const res = await fetch('/api/permissions/account-roles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
