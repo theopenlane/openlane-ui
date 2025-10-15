@@ -1,5 +1,5 @@
+import { TData } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
-import { TData } from '../authz/access-api'
 
 export const useAccountRoles = (objectType: string, id?: string | number | null) => {
   return useQuery<TData>({
