@@ -30,6 +30,7 @@ type TokenNode = {
   expiresAt: string
   organizations?: { id: string; name: string }[]
   scopes?: string
+  ssoAuthorizations?: Record<string, string> | null
 }
 
 export const PersonalAccessTokenTable = () => {
@@ -129,6 +130,7 @@ export const PersonalAccessTokenTable = () => {
           expiresAt: node.expiresAt,
           lastUsedAt: node.lastUsedAt,
           scopes: node.scopes?.join(', ') || '-',
+          ssoAuthorizations: node.ssoAuthorizations || null,
         })) || []
     : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens?.edges
         ?.map((edge) => edge?.node)
@@ -140,6 +142,7 @@ export const PersonalAccessTokenTable = () => {
           expiresAt: node.expiresAt,
           lastUsedAt: node.lastUsedAt,
           organizations: node.organizations?.edges?.map((orgEdge) => orgEdge?.node).filter((org): org is { id: string; name: string } => !!org && !!org.id && !!org.name) || [],
+          ssoAuthorizations: node.ssoAuthorizations || null,
         })) || []
 
   const columns: ColumnDef<TokenNode>[] = [
@@ -187,7 +190,16 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} tokenName={cell.row.original.name} />,
+      cell: ({ cell }) => (
+        <TokenAction
+          tokenId={cell.getValue() as string}
+          tokenName={cell.row.original.name}
+          tokenSsoAuthorizations={cell.row.original.ssoAuthorizations}
+          tokenDescription={cell.row.original.description}
+          tokenExpiration={formatDate(cell.row.original.expiresAt)}
+          tokenAuthorizedOrganizations={cell.row.original.organizations}
+        />
+      ),
     },
   ]
 

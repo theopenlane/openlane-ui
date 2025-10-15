@@ -21,6 +21,7 @@ export const GET_PERSONAL_ACCESS_TOKENS = gql`
           description
           expiresAt
           lastUsedAt
+          ssoAuthorizations
           organizations {
             edges {
               node {
@@ -70,6 +71,7 @@ export const GET_API_TOKENS = gql`
           scopes
           expiresAt
           lastUsedAt
+          ssoAuthorizations
         }
       }
       pageInfo {
@@ -97,6 +99,26 @@ export const GET_API_TOKENS_BY_IDS = gql`
           id
           name
         }
+      }
+    }
+  }
+`
+
+export const UPDATE_API_TOKEN = gql`
+  mutation UpdateAPIToken($updateApiTokenId: ID!, $input: UpdateAPITokenInput!) {
+    updateAPIToken(id: $updateApiTokenId, input: $input) {
+      apiToken {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_PERSONAL_ACCESS_TOKEN = gql`
+  mutation UpdatePersonalAccessToken($updatePersonalAccessTokenId: ID!, $input: UpdatePersonalAccessTokenInput!) {
+    updatePersonalAccessToken(id: $updatePersonalAccessTokenId, input: $input) {
+      personalAccessToken {
+        id
       }
     }
   }
