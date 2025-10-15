@@ -49,12 +49,19 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
     }
   }
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!isOpen) {
+      setUploadedFile(null)
+    }
+  }
+
   const handleUploadedFile = (uploadedFile: TUploadedFile) => {
     setUploadedFile(uploadedFile)
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {trigger ? (
         <DialogTrigger className="bg-transparent">
           {cloneElement(trigger, {
@@ -97,7 +104,7 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
           acceptedFilesClass="flex justify-between text-sm"
         />
         <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>

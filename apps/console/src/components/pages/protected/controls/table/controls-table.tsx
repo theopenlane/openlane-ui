@@ -61,6 +61,8 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     createdAt: false,
     updatedBy: false,
     updatedAt: false,
+    controlImplementationsDetails: false,
+    desiredOutcome: false,
   })
 
   const [searchTerm, setSearchTerm] = useState('')
