@@ -20575,7 +20575,7 @@ export interface Mutation {
   /** Update an existing subcontrol */
   updateSubcontrol: SubcontrolUpdatePayload
   /** Update an existing subcontrol comment */
-  updateSubontrolComment: SubcontrolUpdatePayload
+  updateSubcontrolComment: SubcontrolUpdatePayload
   /** Update an existing subprocessor */
   updateSubprocessor: SubprocessorUpdatePayload
   /** Update an existing subscriber */
@@ -21710,7 +21710,7 @@ export interface MutationUpdateSubcontrolArgs {
   input: UpdateSubcontrolInput
 }
 
-export interface MutationUpdateSubontrolCommentArgs {
+export interface MutationUpdateSubcontrolCommentArgs {
   id: Scalars['ID']['input']
   input: UpdateNoteInput
   noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
@@ -49340,6 +49340,38 @@ export type GetSubcontrolsByRefCodeQuery = {
     } | null> | null
   }
 }
+
+export type GetSubcontrolCommentsQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolCommentsQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    comments: {
+      __typename?: 'NoteConnection'
+      edges?: Array<{
+        __typename?: 'NoteEdge'
+        node?: {
+          __typename?: 'Note'
+          id: string
+          createdAt?: any | null
+          createdBy?: string | null
+          text: string
+          owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateSubcontrolCommentMutationVariables = Exact<{
+  updateSubcontrolCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateSubcontrolCommentMutation = { __typename?: 'Mutation'; updateSubcontrolComment: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput

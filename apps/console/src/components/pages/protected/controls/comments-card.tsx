@@ -66,7 +66,7 @@ const ControlCommentsCard = () => {
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent>
-          <ControlCommentsSheet onClose={() => setSheetOpen(false)} />
+          <ControlCommentsSheet />
         </SheetContent>
       </Sheet>
     </Card>

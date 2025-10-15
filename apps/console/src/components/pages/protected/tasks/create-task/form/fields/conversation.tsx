@@ -9,7 +9,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import { TComments } from '@/components/shared/comments/types/TComments'
-import { useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/tasks'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useSearchParams } from 'next/navigation'
 import { useGetUsers } from '@/lib/graphql-hooks/user'
@@ -27,7 +27,12 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
   const [comments, setComments] = useState<TCommentData[]>([])
 
+  const queryClient = useQueryClient()
+  const { errorNotification, successNotification } = useNotification()
+  const plateEditorHelper = usePlateEditor()
+
   const { mutateAsync: updateTask } = useUpdateTask()
+  const { mutateAsync: updateTaskComment } = useUpdateTaskComment()
 
   const where: UserWhereInput | undefined = taskData?.comments
     ? {
@@ -36,10 +41,6 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
     : undefined
 
   const { data: userData } = useGetUsers(where)
-
-  const queryClient = useQueryClient()
-  const { errorNotification } = useNotification()
-  const plateEditorHelper = usePlateEditor()
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
@@ -50,7 +51,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
           updateTaskId: id,
           input: { addComment: { text: comment } },
         })
-        queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] })
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({ title: 'Error', description: errorMessage })
@@ -59,6 +60,42 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
     [id, plateEditorHelper, updateTask, queryClient, errorNotification],
   )
 
+  // Edit existing comment
+  const handleEditComment = async (commentId: string, newHtml: string) => {
+    try {
+      await updateTaskComment({
+        updateTaskCommentId: commentId,
+        input: { text: newHtml },
+      })
+      successNotification({
+        title: 'Comment updated',
+        description: 'Your comment has been successfully updated.',
+      })
+      await queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({ title: 'Error', description: errorMessage })
+    }
+  }
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!id) return
+    try {
+      await updateTask({
+        updateTaskId: id,
+        input: { removeCommentIDs: [commentId] },
+      })
+      successNotification({
+        title: 'Comment deleted',
+        description: 'Your comment has been successfully deleted.',
+      })
+      await queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({ title: 'Error', description: errorMessage })
+    }
+  }
+
   const handleCommentSort = () => {
     const sorted = [...comments].sort((a, b) => new Date(commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
     setCommentSortIsAsc((prev) => !prev)
@@ -66,9 +103,9 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   }
 
   useEffect(() => {
-    if (taskData && userData && userData?.users?.edges?.length) {
-      const comments = (taskData?.comments || [])?.edges?.map((item) => {
-        const user = userData?.users?.edges?.find((user) => user?.node?.id === item?.node?.createdBy)?.node
+    if (taskData && userData?.users?.edges?.length) {
+      const commentsMapped = (taskData?.comments?.edges || []).map((item) => {
+        const user = userData.users.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node
         const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
         return {
           comment: item?.node?.text,
@@ -79,8 +116,9 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
           id: item?.node?.id || '',
         } as TCommentData
       })
-      const sortedComments = comments?.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
-      setComments(sortedComments || [])
+
+      const sortedComments = commentsMapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+      setComments(sortedComments)
     }
   }, [commentSortIsAsc, taskData, userData])
 
@@ -96,7 +134,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
         </div>
       </div>
 
-      <CommentList comments={comments} />
+      <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleDeleteComment} />
       <AddComment onSuccess={handleSendComment} />
     </div>
   )

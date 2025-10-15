@@ -7,10 +7,12 @@ import {
   GET_ALL_SUBCONTROLS,
   GET_SUBCONTROL_BY_ID,
   GET_SUBCONTROL_BY_ID_MINIFIED,
+  GET_SUBCONTROL_COMMENTS,
   GET_SUBCONTROL_SELECT_OPTIONS,
   GET_SUBCONTROLS_BY_REFCODE,
   GET_SUBCONTROLS_PAGINATED,
   UPDATE_SUBCONTROL,
+  UPDATE_SUBCONTROL_COMMENT,
 } from '@repo/codegen/query/subcontrol'
 import {
   CreateSubcontrolMutation,
@@ -34,6 +36,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
+import { GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables, UpdateSubcontrolCommentMutation, UpdateSubcontrolCommentMutationVariables } from '@repo/codegen/src/schema'
 
 type UseGetAllSubcontrolsArgs = {
   where?: GetAllSubcontrolsQueryVariables['where']
@@ -218,5 +221,28 @@ export const useGetSubcontrolsByRefCode = ({ refCodeIn, enabled = true }: UseGet
     queryFn: async () => await client.request(GET_SUBCONTROLS_BY_REFCODE, { refCodeIn }),
 
     enabled: enabled && refCodeIn.length > 0,
+  })
+}
+
+export const useGetSubcontrolComments = (subcontrolId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetSubcontrolCommentsQuery, unknown>({
+    queryKey: ['subcontrolComments', subcontrolId],
+    queryFn: async () => client.request<GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables>(GET_SUBCONTROL_COMMENTS, { subcontrolId: subcontrolId! }),
+    enabled: !!subcontrolId,
+  })
+}
+
+export const useUpdateSubcontrolComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateSubcontrolCommentMutation, unknown, UpdateSubcontrolCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_SUBCONTROL_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ['subcontrolComments', data.updateSubcontrolComment.subcontrol.id],
+      })
+    },
   })
 }

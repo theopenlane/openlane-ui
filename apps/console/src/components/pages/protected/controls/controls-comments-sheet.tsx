@@ -14,27 +14,34 @@ import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/controls'
 import { UserWhereInput } from '@repo/codegen/src/schema'
+import { useGetSubcontrolComments, useUpdateSubcontrol, useUpdateSubcontrolComment } from '@/lib/graphql-hooks/subcontrol'
+import { SheetTitle } from '@repo/ui/sheet'
 
-type ControlCommentsSheetProps = {
-  onClose?: () => void
-}
-
-const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = () => {
+const ControlCommentsSheet = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
-  const { data } = useGetControlComments(subcontrolId ? subcontrolId : id)
+
+  const isSubcontrol = Boolean(subcontrolId)
+
+  const { data } = useGetControlComments(!isSubcontrol ? id : null)
+  const { data: subcontrolData } = useGetSubcontrolComments(isSubcontrol ? subcontrolId || id : null)
 
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
   const [comments, setComments] = useState<TCommentData[]>([])
 
-  const { mutateAsync: updateControl } = useUpdateControl()
   const queryClient = useQueryClient()
   const { errorNotification } = useNotification()
   const plateEditorHelper = usePlateEditor()
-  const { mutateAsync: updateComment } = useUpdateControlComment()
 
-  const where: UserWhereInput | undefined = data?.control?.comments
+  const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: updateComment } = useUpdateControlComment()
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
+  const { mutateAsync: updateSubComment } = useUpdateSubcontrolComment()
+
+  const commentSource = isSubcontrol ? subcontrolData?.subcontrol : data?.control
+
+  const where: UserWhereInput | undefined = commentSource?.comments
     ? {
-        idIn: data.control.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
+        idIn: commentSource.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
       }
     : undefined
 
@@ -42,59 +49,76 @@ const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = () => {
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
-      if (!id) return
+      const targetId = subcontrolId || id
+      if (!targetId) return
       try {
         const comment = await plateEditorHelper.convertToHtml(data.comment)
-        await updateControl({
-          updateControlId: id,
-          input: { addComment: { text: comment } },
-        })
-        queryClient.invalidateQueries({ queryKey: ['controlComments', id] })
+        if (isSubcontrol) {
+          await updateSubcontrol({
+            updateSubcontrolId: targetId,
+            input: { addComment: { text: comment } },
+          })
+          queryClient.invalidateQueries({ queryKey: ['subcontrolComments', targetId] })
+        } else {
+          await updateControl({
+            updateControlId: targetId,
+            input: { addComment: { text: comment } },
+          })
+          queryClient.invalidateQueries({ queryKey: ['controlComments', targetId] })
+        }
       } catch (error) {
-        errorNotification({
-          title: 'Error',
-          description: parseErrorMessage(error),
-        })
+        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [id, plateEditorHelper, updateControl, queryClient, errorNotification],
+    [id, subcontrolId, isSubcontrol, plateEditorHelper, updateControl, updateSubcontrol, queryClient, errorNotification],
   )
 
   const handleEditComment = useCallback(
     async (commentId: string, newValue: string) => {
-      if (!id) return
       try {
-        await updateComment({
-          updateControlCommentId: commentId,
-          input: { text: newValue },
-        })
+        if (isSubcontrol) {
+          await updateSubComment({
+            updateSubcontrolCommentId: commentId,
+            input: { text: newValue },
+          })
+          queryClient.invalidateQueries({ queryKey: ['subcontrolComments', subcontrolId || id] })
+        } else {
+          await updateComment({
+            updateControlCommentId: commentId,
+            input: { text: newValue },
+          })
+          queryClient.invalidateQueries({ queryKey: ['controlComments', id] })
+        }
       } catch (error) {
-        errorNotification({
-          title: 'Error',
-          description: parseErrorMessage(error),
-        })
+        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [id, updateComment, errorNotification],
+    [id, subcontrolId, isSubcontrol, updateComment, updateSubComment, queryClient, errorNotification],
   )
 
   const handleRemoveComment = useCallback(
     async (commentId: string) => {
-      if (!id) return
+      const targetId = subcontrolId || id
+      if (!targetId) return
       try {
-        await updateControl({
-          updateControlId: id,
-          input: { removeCommentIDs: [commentId] },
-        })
-        queryClient.invalidateQueries({ queryKey: ['controlComments', id] })
+        if (isSubcontrol) {
+          await updateSubcontrol({
+            updateSubcontrolId: targetId,
+            input: { removeCommentIDs: [commentId] },
+          })
+          queryClient.invalidateQueries({ queryKey: ['subcontrolComments', targetId] })
+        } else {
+          await updateControl({
+            updateControlId: targetId,
+            input: { removeCommentIDs: [commentId] },
+          })
+          queryClient.invalidateQueries({ queryKey: ['controlComments', targetId] })
+        }
       } catch (error) {
-        errorNotification({
-          title: 'Error',
-          description: parseErrorMessage(error),
-        })
+        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [id, updateControl, errorNotification, queryClient],
+    [id, subcontrolId, isSubcontrol, updateControl, updateSubcontrol, queryClient, errorNotification],
   )
 
   const handleCommentSort = useCallback(() => {
@@ -106,9 +130,9 @@ const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = () => {
   }, [commentSortIsAsc, comments])
 
   useEffect(() => {
-    if (data?.control && userData?.users?.edges?.length) {
+    if (commentSource && userData?.users?.edges?.length) {
       const mapped =
-        data.control.comments?.edges?.map((item) => {
+        commentSource.comments?.edges?.map((item) => {
           const user = userData.users.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node
           const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
           return {
@@ -125,12 +149,13 @@ const ControlCommentsSheet: React.FC<ControlCommentsSheetProps> = () => {
 
       setComments(sorted)
     }
-  }, [commentSortIsAsc, data, userData])
+  }, [commentSortIsAsc, commentSource, userData])
 
   return (
     <div className="p-4 w-full h-full overflow-y-auto">
+      <SheetTitle />
       <div className="flex justify-between items-end mb-2">
-        <p className="text-lg font-semibold">Control Comments</p>
+        <p className="text-lg font-semibold">{isSubcontrol ? 'Subcontrol Comments' : 'Control Comments'}</p>
         <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
           {commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-primary" />}
           <p className="text-sm">Newest at bottom</p>
