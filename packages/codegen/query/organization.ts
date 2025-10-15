@@ -15,6 +15,9 @@ export const GET_ALL_ORGANIZATIONS = gql`
             presignedURL
           }
           stripeCustomerID
+          setting {
+            identityProviderLoginEnforced
+          }
         }
       }
     }

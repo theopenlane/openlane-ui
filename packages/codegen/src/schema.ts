@@ -6837,6 +6837,7 @@ export interface CreateOrganizationInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  impersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -7581,6 +7582,7 @@ export interface CreateUserInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  impersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the last auth provider used to login */
   lastLoginProvider?: InputMaybe<UserAuthProvider>
   lastName?: InputMaybe<Scalars['String']['input']>
@@ -7600,6 +7602,7 @@ export interface CreateUserInput {
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  targetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   tfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   webauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
@@ -33534,6 +33537,19 @@ export interface ScheduledJobWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** SearchContext provides information about why a particular entity matched the search query */
+export interface SearchContext {
+  __typename?: 'SearchContext'
+  /** The ID of the entity that matched */
+  entityID: Scalars['String']['output']
+  /** The type of entity (e.g., "ActionPlan", "Control", "User") */
+  entityType: Scalars['String']['output']
+  /** The fields that matched the search query */
+  matchedFields: Array<Scalars['String']['output']>
+  /** Optional snippets showing the matched content with context */
+  snippets?: Maybe<Array<SearchSnippet>>
+}
+
 export interface SearchResults {
   __typename?: 'SearchResults'
   actionPlans?: Maybe<ActionPlanConnection>
@@ -33572,6 +33588,7 @@ export interface SearchResults {
   programs?: Maybe<ProgramConnection>
   risks?: Maybe<RiskConnection>
   scans?: Maybe<ScanConnection>
+  searchContext?: Maybe<Array<SearchContext>>
   standards?: Maybe<StandardConnection>
   subcontrols?: Maybe<SubcontrolConnection>
   subprocessors?: Maybe<SubprocessorConnection>
@@ -33586,6 +33603,15 @@ export interface SearchResults {
   userSettings?: Maybe<UserSettingConnection>
   users?: Maybe<UserConnection>
   webauthns?: Maybe<WebauthnConnection>
+}
+
+/** SearchSnippet represents a piece of matched content with surrounding context */
+export interface SearchSnippet {
+  __typename?: 'SearchSnippet'
+  /** The field name where the match occurred */
+  field: Scalars['String']['output']
+  /** The matched text with surrounding context (with highlighting markers if applicable) */
+  text: Scalars['String']['output']
 }
 
 export interface SendTrustCenterNdaEmailPayload {
@@ -41554,6 +41580,7 @@ export interface UpdateApiTokenInput {
   appendScopes?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearExpiresAt?: InputMaybe<Scalars['Boolean']['input']>
   clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
   clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
@@ -41564,6 +41591,8 @@ export interface UpdateApiTokenInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
   description?: InputMaybe<Scalars['String']['input']>
+  /** when the token expires */
+  expiresAt?: InputMaybe<Scalars['Time']['input']>
   /** whether the token is active */
   isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
@@ -43073,6 +43102,7 @@ export interface UpdateOrganizationInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -43143,6 +43173,7 @@ export interface UpdateOrganizationInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearImpersonationEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -43210,6 +43241,7 @@ export interface UpdateOrganizationInput {
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -43347,6 +43379,7 @@ export interface UpdatePersonalAccessTokenInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExpiresAt?: InputMaybe<Scalars['Boolean']['input']>
   clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
   clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
@@ -43354,6 +43387,8 @@ export interface UpdatePersonalAccessTokenInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
   description?: InputMaybe<Scalars['String']['input']>
+  /** when the token expires */
+  expiresAt?: InputMaybe<Scalars['Time']['input']>
   /** whether the token is active */
   isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
@@ -44284,10 +44319,12 @@ export interface UpdateUserInput {
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWebauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -44308,6 +44345,7 @@ export interface UpdateUserInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearImpersonationEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearLastLoginProvider?: InputMaybe<Scalars['Boolean']['input']>
   clearLastName?: InputMaybe<Scalars['Boolean']['input']>
   clearLastSeen?: InputMaybe<Scalars['Boolean']['input']>
@@ -44320,6 +44358,7 @@ export interface UpdateUserInput {
   clearSub?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTargetedImpersonations?: InputMaybe<Scalars['Boolean']['input']>
   clearTfaSettings?: InputMaybe<Scalars['Boolean']['input']>
   clearWebauthns?: InputMaybe<Scalars['Boolean']['input']>
   /** The user's displayed 'friendly' name */
@@ -44340,10 +44379,12 @@ export interface UpdateUserInput {
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWebauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the user's role */
@@ -47461,6 +47502,7 @@ export type GetAllOrganizationsQuery = {
         personalOrg?: boolean | null
         stripeCustomerID?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
       } | null
     } | null> | null
   }
@@ -49548,6 +49590,7 @@ export type GetPersonalAccessTokensQuery = {
         description?: string | null
         expiresAt?: any | null
         lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
         organizations: {
           __typename?: 'OrganizationConnection'
           edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null
@@ -49582,7 +49625,16 @@ export type GetApiTokensQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null; lastUsedAt?: any | null } | null
+      node?: {
+        __typename?: 'APIToken'
+        id: string
+        name: string
+        description?: string | null
+        scopes?: Array<string> | null
+        expiresAt?: any | null
+        lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
@@ -49602,6 +49654,23 @@ export type GetApiTokensByIdsQueryVariables = Exact<{
 export type GetApiTokensByIdsQuery = {
   __typename?: 'Query'
   apiTokens: { __typename?: 'APITokenConnection'; edges?: Array<{ __typename?: 'APITokenEdge'; node?: { __typename?: 'APIToken'; id: string; name: string } | null } | null> | null }
+}
+
+export type UpdateApiTokenMutationVariables = Exact<{
+  updateApiTokenId: Scalars['ID']['input']
+  input: UpdateApiTokenInput
+}>
+
+export type UpdateApiTokenMutation = { __typename?: 'Mutation'; updateAPIToken: { __typename?: 'APITokenUpdatePayload'; apiToken: { __typename?: 'APIToken'; id: string } } }
+
+export type UpdatePersonalAccessTokenMutationVariables = Exact<{
+  updatePersonalAccessTokenId: Scalars['ID']['input']
+  input: UpdatePersonalAccessTokenInput
+}>
+
+export type UpdatePersonalAccessTokenMutation = {
+  __typename?: 'Mutation'
+  updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
