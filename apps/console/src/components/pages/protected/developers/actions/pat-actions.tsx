@@ -7,22 +7,28 @@ import { useDeleteApiToken, useDeletePersonalAccessToken } from '@/lib/graphql-h
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import PersonalAccessTokenEdit from '../personal-access-token-edit-dialog'
+import SsoAuthorizationDropdown from '../sso-authorization-dropdown'
+import { Button } from '@repo/ui/button'
 
 type TokenActionProps = {
   tokenId: string
   tokenName: string
+  tokenDescription?: string
+  tokenExpiration: string
+  tokenAuthorizedOrganizations?: { id: string; name: string }[]
+  tokenSsoAuthorizations?: Record<string, string> | null
 }
 
 const ICON_SIZE = 16
 
-export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
+export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations, tokenSsoAuthorizations }: TokenActionProps) => {
   const { mutateAsync: deletePersonalToken } = useDeletePersonalAccessToken()
   const { mutateAsync: deleteApiToken } = useDeleteApiToken()
   const { successNotification, errorNotification } = useNotification()
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-
   const handleDeleteToken = async () => {
     try {
       if (isOrg) {
@@ -47,15 +53,24 @@ export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
 
   return (
     <>
-      <div className="flex items-center gap-2 justify-end">
-        <Trash2
-          size={ICON_SIZE}
+      <div className="flex items-center gap-1 justify-end">
+        <PersonalAccessTokenEdit
+          tokenName={tokenName}
+          tokenId={tokenId}
+          tokenDescription={tokenDescription}
+          tokenExpiration={tokenExpiration}
+          tokenAuthorizedOrganizations={tokenAuthorizedOrganizations}
+        />
+        <SsoAuthorizationDropdown tokenId={tokenId} tokenAuthorizedOrganizations={tokenAuthorizedOrganizations} tokenSsoAuthorizations={tokenSsoAuthorizations} />
+        <Button
           onClick={(e) => {
             e.stopPropagation()
             setIsDeleteDialogOpen(true)
           }}
-          className={'cursor-pointer'}
-        />
+          className="!bg-transparent !hover:bg-transparent !text-inherit flex items-center justify-center p-2"
+        >
+          <Trash2 style={{ color: 'var(--destructive)' }} size={ICON_SIZE} className={'cursor-pointer'} />
+        </Button>
       </div>
 
       <ConfirmationDialog
