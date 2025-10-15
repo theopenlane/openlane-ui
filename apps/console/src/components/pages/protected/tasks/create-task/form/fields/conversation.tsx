@@ -60,7 +60,6 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
     [id, plateEditorHelper, updateTask, queryClient, errorNotification],
   )
 
-  // Edit existing comment
   const handleEditComment = async (commentId: string, newHtml: string) => {
     try {
       await updateTaskComment({
