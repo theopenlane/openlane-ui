@@ -9,11 +9,10 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
-import { FileQuestion, FileText, Key } from 'lucide-react'
+import { FileQuestion, Key } from 'lucide-react'
 
 export const CONTROLS_FILTER_FIELDS: FilterField[] = [
   { key: 'refCode', label: 'RefCode', type: 'text', icon: Key },
-  { key: 'program', label: 'Program', type: 'text', icon: FileText },
   { key: 'category', label: 'Category', type: 'text', icon: FileQuestion },
   { key: 'subcategory', label: 'Subcategory', type: 'text', icon: FileQuestion },
   {
@@ -263,6 +262,30 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'updatedAt',
       size: 130,
       cell: ({ cell }) => formatDate(cell.getValue() as string),
+    },
+    {
+      header: 'Desired Outcome',
+      accessorKey: 'desiredOutcome',
+      cell: ({ row }) => {
+        const desiredOutcome = row.original.controlObjectives?.edges?.[0]?.node?.desiredOutcome ?? '-'
+        return (
+          <div className="flex items-center gap-2">
+            <span>{convertToReadOnly(desiredOutcome as string, 0)}</span>
+          </div>
+        )
+      },
+    },
+    {
+      header: 'Implementation Details',
+      accessorKey: 'controlImplementationsDetails',
+      cell: ({ row }) => {
+        const controlImplementationsDetails = row.original.controlImplementations?.edges?.[0]?.node?.details ?? '-'
+        return (
+          <div className="flex items-center gap-2">
+            <span>{convertToReadOnly(controlImplementationsDetails as string, 0)}</span>
+          </div>
+        )
+      },
     },
   ]
 }

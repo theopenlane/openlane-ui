@@ -3,19 +3,17 @@ import React, { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter } from 'next/navigation'
 import { useDeleteSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string; refCode: string }> = ({ subcontrolId, controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
+  const { data: permission } = useAccountRoles(ObjectEnum.SUBCONTROL, subcontrolId)
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 

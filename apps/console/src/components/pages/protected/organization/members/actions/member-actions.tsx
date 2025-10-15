@@ -28,9 +28,9 @@ import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/members'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type MemberActionsProps = {
   memberId: string
@@ -50,7 +50,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   const queryClient = useQueryClient()
   const { errorNotification, successNotification } = useNotification()
   const { data: userData } = useGetCurrentUser(userId)
-  const { data } = useOrganizationRole(sessionData)
+  const { data } = useOrganizationRoles()
 
   const handleDeleteMember = async () => {
     try {

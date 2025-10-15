@@ -1,13 +1,12 @@
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { canCreate } from '@/lib/authz/utils'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { GetControlByIdQuery } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { ChevronRight } from 'lucide-react'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
@@ -22,8 +21,7 @@ const ControlImplementationsSection = ({ controlImplementations }: Props) => {
   const id = params?.id as string
   const subcontrolId = params?.subcontrolId as string | undefined
 
-  const { data: session } = useSession()
-  const { data: orgPermission } = useOrganizationRole(session)
+  const { data: orgPermission } = useOrganizationRoles()
 
   const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
 

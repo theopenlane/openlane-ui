@@ -17,14 +17,13 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 
-import { useSession } from 'next-auth/react'
 import { canCreate } from '@/lib/authz/utils'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type TControlReportPageProps = {
   active: 'report' | 'controls'
@@ -36,9 +35,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
-  const { data: sessionData } = useSession()
 
-  const { data: permission } = useOrganizationRole(sessionData)
+  const { data: permission } = useOrganizationRoles()
   const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({

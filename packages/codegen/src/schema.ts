@@ -7518,6 +7518,10 @@ export interface CreateTrustCenterSettingInput {
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
   primaryColor?: InputMaybe<Scalars['String']['input']>
+  /** secondary background color for the trust center */
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  /** secondary foreground color for the trust center */
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** Theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -39631,6 +39635,10 @@ export interface TrustCenterSetting extends Node {
   overview?: Maybe<Scalars['String']['output']>
   /** primary color for the trust center */
   primaryColor?: Maybe<Scalars['String']['output']>
+  /** secondary background color for the trust center */
+  secondaryBackgroundColor?: Maybe<Scalars['String']['output']>
+  /** secondary foreground color for the trust center */
+  secondaryForegroundColor?: Maybe<Scalars['String']['output']>
   /** Theme mode for the trust center */
   themeMode?: Maybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -39720,6 +39728,10 @@ export interface TrustCenterSettingHistory extends Node {
   /** primary color for the trust center */
   primaryColor?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
+  /** secondary background color for the trust center */
+  secondaryBackgroundColor?: Maybe<Scalars['String']['output']>
+  /** secondary foreground color for the trust center */
+  secondaryForegroundColor?: Maybe<Scalars['String']['output']>
   /** Theme mode for the trust center */
   themeMode?: Maybe<TrustCenterSettingHistoryTrustCenterThemeMode>
   /** title of the trust center */
@@ -40014,6 +40026,38 @@ export interface TrustCenterSettingHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** secondary_background_color field predicates */
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorContains?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorContainsFold?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorEqualFold?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorGT?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorGTE?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryBackgroundColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  secondaryBackgroundColorLT?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorLTE?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorNEQ?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryBackgroundColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** secondary_foreground_color field predicates */
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorContains?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorContainsFold?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorEqualFold?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorGT?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorGTE?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryForegroundColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  secondaryForegroundColorLT?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorLTE?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorNEQ?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryForegroundColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** theme_mode field predicates */
   themeMode?: InputMaybe<TrustCenterSettingHistoryTrustCenterThemeMode>
   themeModeIn?: InputMaybe<Array<TrustCenterSettingHistoryTrustCenterThemeMode>>
@@ -40327,6 +40371,38 @@ export interface TrustCenterSettingWhereInput {
   primaryColorNEQ?: InputMaybe<Scalars['String']['input']>
   primaryColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   primaryColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** secondary_background_color field predicates */
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorContains?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorContainsFold?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorEqualFold?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorGT?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorGTE?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryBackgroundColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  secondaryBackgroundColorLT?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorLTE?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorNEQ?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryBackgroundColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** secondary_foreground_color field predicates */
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorContains?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorContainsFold?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorEqualFold?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorGT?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorGTE?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryForegroundColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  secondaryForegroundColorLT?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorLTE?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorNEQ?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  secondaryForegroundColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** theme_mode field predicates */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   themeModeIn?: InputMaybe<Array<TrustCenterSettingTrustCenterThemeMode>>
@@ -41606,6 +41682,7 @@ export interface UpdateApiTokenInput {
   appendScopes?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearExpiresAt?: InputMaybe<Scalars['Boolean']['input']>
   clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
   clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
@@ -41616,6 +41693,8 @@ export interface UpdateApiTokenInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
   description?: InputMaybe<Scalars['String']['input']>
+  /** when the token expires */
+  expiresAt?: InputMaybe<Scalars['Time']['input']>
   /** whether the token is active */
   isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
@@ -43408,6 +43487,7 @@ export interface UpdatePersonalAccessTokenInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExpiresAt?: InputMaybe<Scalars['Boolean']['input']>
   clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
   clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
@@ -43415,6 +43495,8 @@ export interface UpdatePersonalAccessTokenInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
   description?: InputMaybe<Scalars['String']['input']>
+  /** when the token expires */
+  expiresAt?: InputMaybe<Scalars['Time']['input']>
   /** whether the token is active */
   isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
@@ -44262,6 +44344,8 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecondaryBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecondaryForegroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearThemeMode?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
@@ -44280,6 +44364,10 @@ export interface UpdateTrustCenterSettingInput {
   /** primary color for the trust center */
   primaryColor?: InputMaybe<Scalars['String']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** secondary background color for the trust center */
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  /** secondary foreground color for the trust center */
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** Theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -46228,6 +46316,14 @@ export type ControlListFieldsFragment = {
   }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+  }
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+  }
 }
 
 export type ControlListStandardFieldsFragment = {
@@ -46240,6 +46336,14 @@ export type ControlListStandardFieldsFragment = {
   mappedCategories?: Array<string> | null
   referenceFramework?: string | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+  }
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+  }
 }
 
 export type ControlDetailsFieldsFragment = {
@@ -46392,6 +46496,14 @@ export type GetAllControlsQuery = {
         }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+        controlObjectives: {
+          __typename?: 'ControlObjectiveConnection'
+          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+        }
+        controlImplementations: {
+          __typename?: 'ControlImplementationConnection'
+          edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -46645,6 +46757,14 @@ export type GetControlsPaginatedWithListFieldsQuery = {
         mappedCategories?: Array<string> | null
         referenceFramework?: string | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+        controlObjectives: {
+          __typename?: 'ControlObjectiveConnection'
+          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+        }
+        controlImplementations: {
+          __typename?: 'ControlImplementationConnection'
+          edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
@@ -47562,6 +47682,7 @@ export type GetAllOrganizationsQuery = {
         personalOrg?: boolean | null
         stripeCustomerID?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
       } | null
     } | null> | null
   }
@@ -49649,6 +49770,7 @@ export type GetPersonalAccessTokensQuery = {
         description?: string | null
         expiresAt?: any | null
         lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
         organizations: {
           __typename?: 'OrganizationConnection'
           edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null
@@ -49683,7 +49805,16 @@ export type GetApiTokensQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null; lastUsedAt?: any | null } | null
+      node?: {
+        __typename?: 'APIToken'
+        id: string
+        name: string
+        description?: string | null
+        scopes?: Array<string> | null
+        expiresAt?: any | null
+        lastUsedAt?: any | null
+        ssoAuthorizations?: any | null
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
@@ -49703,6 +49834,23 @@ export type GetApiTokensByIdsQueryVariables = Exact<{
 export type GetApiTokensByIdsQuery = {
   __typename?: 'Query'
   apiTokens: { __typename?: 'APITokenConnection'; edges?: Array<{ __typename?: 'APITokenEdge'; node?: { __typename?: 'APIToken'; id: string; name: string } | null } | null> | null }
+}
+
+export type UpdateApiTokenMutationVariables = Exact<{
+  updateApiTokenId: Scalars['ID']['input']
+  input: UpdateApiTokenInput
+}>
+
+export type UpdateApiTokenMutation = { __typename?: 'Mutation'; updateAPIToken: { __typename?: 'APITokenUpdatePayload'; apiToken: { __typename?: 'APIToken'; id: string } } }
+
+export type UpdatePersonalAccessTokenMutationVariables = Exact<{
+  updatePersonalAccessTokenId: Scalars['ID']['input']
+  input: UpdatePersonalAccessTokenInput
+}>
+
+export type UpdatePersonalAccessTokenMutation = {
+  __typename?: 'Mutation'
+  updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
@@ -49730,8 +49878,10 @@ export type GetTrustCenterQuery = {
           primaryColor?: string | null
           themeMode?: TrustCenterSettingTrustCenterThemeMode | null
           foregroundColor?: string | null
+          secondaryForegroundColor?: string | null
           font?: string | null
           backgroundColor?: string | null
+          secondaryBackgroundColor?: string | null
           accentColor?: string | null
           faviconRemoteURL?: string | null
           overview?: string | null

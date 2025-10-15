@@ -14,9 +14,8 @@ import { pageStyles } from './page.style'
 import { useRouter } from 'next/navigation'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { ProgramEdge, TaskEdge } from '@repo/codegen/src/schema'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type DashboardProps = {
   programs?: { edges: ProgramEdge[] }
@@ -112,8 +111,7 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
 
 export const NewUserLanding: React.FC<DashboardProps> = () => {
   const { push } = useRouter()
-  const { data: session } = useSession()
-  const { data } = useOrganizationRole(session)
+  const { data } = useOrganizationRoles()
 
   return (
     <section>

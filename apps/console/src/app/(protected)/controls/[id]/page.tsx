@@ -17,8 +17,6 @@ import { Control, ControlControlSource, ControlControlStatus, ControlControlType
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
-import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api.ts'
-import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
@@ -44,6 +42,7 @@ import Loading from './loading.tsx'
 import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section.tsx'
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 
 interface FormValues {
   refCode: string
@@ -86,9 +85,8 @@ const ControlDetailsPage: React.FC = () => {
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id)
-  const { data: orgPermission } = useOrganizationRole(session)
+  const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
+  const { data: orgPermission } = useOrganizationRoles()
 
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
@@ -130,16 +128,35 @@ const ControlDetailsPage: React.FC = () => {
     try {
       const description = await plateEditorHelper.convertToHtml(values.description as Value)
 
+      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
+        const initialValue = initialValues[key as keyof FormValues]
+        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
+          acc[key] = value
+        }
+        return acc
+      }, {})
+
+      if (changedFields.description) {
+        changedFields.description = description
+      }
+
+      if (isSourceFramework) {
+        //remove readonly fields
+        delete changedFields.title
+        delete changedFields.refCode
+        delete changedFields.description
+      }
+
+      const input: UpdateControlInput = Object.fromEntries(Object.entries(changedFields).map(([key, value]) => [key, value || undefined])) as UpdateControlInput
+
+      if (Object.keys(input).length === 0) {
+        setIsEditing(false)
+        return
+      }
+
       await updateControl({
         updateControlId: id!,
-        input: {
-          ...values,
-          description,
-          controlOwnerID: values.controlOwnerID || undefined,
-          delegateID: values.delegateID || undefined,
-          referenceID: values.referenceID || undefined,
-          auditorReferenceID: values.auditorReferenceID || undefined,
-        },
+        input,
       })
 
       successNotification({

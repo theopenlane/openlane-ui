@@ -8,11 +8,11 @@ import { useDeleteOrganization } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type OrganizationDeleteProps = {
   onLoadingChange?: (val: boolean) => void
@@ -24,7 +24,7 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
   const queryClient = useQueryClient()
   const { mutateAsync: deleteOrganization, isPending } = useDeleteOrganization()
   const { data: sessionData, update } = useSession()
-  const { data } = useOrganizationRole(sessionData)
+  const { data } = useOrganizationRoles()
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 

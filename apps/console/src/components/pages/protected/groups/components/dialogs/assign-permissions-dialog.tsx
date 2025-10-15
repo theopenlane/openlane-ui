@@ -18,11 +18,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { Control } from '@repo/codegen/src/schema'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { useSession } from 'next-auth/react'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const options = Object.values(ObjectTypes)
 
@@ -33,9 +32,8 @@ const defaultPagination = {
 }
 
 const AssignPermissionsDialog = () => {
-  const { data: session } = useSession()
   const { selectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
+  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string; selectedObject: ObjectTypes }[]>([])

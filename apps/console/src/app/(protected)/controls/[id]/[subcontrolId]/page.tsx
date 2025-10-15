@@ -33,8 +33,6 @@ import RelatedControls from '@/components/pages/protected/controls/related-contr
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useSession } from 'next-auth/react'
-import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canCreate, canDelete, canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
@@ -44,6 +42,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section'
 import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section'
 import Loading from './loading.tsx'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 
 interface FormValues {
   refCode: string
@@ -98,9 +97,8 @@ const ControlDetailsPage: React.FC = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
 
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
-  const { data: orgPermission } = useOrganizationRole(session)
+  const { data: permission } = useAccountRoles(ObjectEnum.SUBCONTROL, subcontrolId)
+  const { data: orgPermission } = useOrganizationRoles()
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
     return {
@@ -133,17 +131,35 @@ const ControlDetailsPage: React.FC = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       const description = await plateEditorHelper.convertToHtml(values.description as Value)
+      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
+        const initialValue = initialValues[key as keyof FormValues]
+        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
+          acc[key] = value
+        }
+        return acc
+      }, {})
+
+      if (changedFields.description) {
+        changedFields.description = description
+      }
+
+      if (isSourceFramework) {
+        // remove read only fields
+        delete changedFields.title
+        delete changedFields.refCode
+        delete changedFields.description
+      }
+
+      const input = Object.fromEntries(Object.entries(changedFields).map(([key, value]) => [key, value || undefined]))
+
+      if (Object.keys(input).length === 0) {
+        setIsEditing(false)
+        return
+      }
 
       await updateSubcontrol({
         updateSubcontrolId: subcontrolId!,
-        input: {
-          ...values,
-          description,
-          controlOwnerID: values.controlOwnerID || undefined,
-          delegateID: values.delegateID || undefined,
-          referenceID: values.referenceID || undefined,
-          auditorReferenceID: values.auditorReferenceID || undefined,
-        },
+        input,
       })
 
       successNotification({

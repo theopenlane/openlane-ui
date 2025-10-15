@@ -14,12 +14,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ImplementationItem } from './implementation-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const ControlImplementationPage = () => {
   const searchParams = useSearchParams()
@@ -47,8 +46,7 @@ const ControlImplementationPage = () => {
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
 
-  const { data: session } = useSession()
-  const { data: orgPermission } = useOrganizationRole(session)
+  const { data: orgPermission } = useOrganizationRoles()
   const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation)
 
   const toggleAll = () => {

@@ -11,7 +11,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { TAccessRole, TData } from '@/lib/authz/access-api'
+import { TAccessRole, TData } from '@/types/authz'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -24,8 +24,8 @@ type TTasksTableProps = {
   onHasTasksChange?: (hasTasks: boolean) => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
 }
 
 const TasksTable = forwardRef(
