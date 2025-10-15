@@ -37,6 +37,20 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       logoURL
       gravatarLogoURL
     }
+    controlObjectives {
+      edges {
+        node {
+          desiredOutcome
+        }
+      }
+    }
+    controlImplementations {
+      edges {
+        node {
+          details
+        }
+      }
+    }
     updatedAt
     updatedBy
     createdAt
@@ -55,6 +69,20 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
     referenceFramework
     subcontrols {
       totalCount
+    }
+    controlObjectives {
+      edges {
+        node {
+          desiredOutcome
+        }
+      }
+    }
+    controlImplementations {
+      edges {
+        node {
+          details
+        }
+      }
     }
   }
 `
