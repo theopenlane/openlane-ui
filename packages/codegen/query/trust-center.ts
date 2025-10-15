@@ -24,8 +24,10 @@ export const GET_TRUST_CENTER = gql`
             primaryColor
             themeMode
             foregroundColor
+            secondaryForegroundColor
             font
             backgroundColor
+            secondaryBackgroundColor
             accentColor
             logoFile {
               id
