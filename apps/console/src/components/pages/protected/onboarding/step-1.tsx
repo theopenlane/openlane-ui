@@ -119,7 +119,7 @@ export default function Step1() {
         <Label htmlFor="domains">Company Domain(s)*</Label>
         <TooltipProvider disableHoverableContent={true}>
           <Tooltip>
-            <TooltipTrigger type="button">
+            <TooltipTrigger type="button" className="bg-transparent">
               <InfoIcon size={14} className="mx-1 mt-1" />
             </TooltipTrigger>
             <TooltipContent side="right">
@@ -131,12 +131,12 @@ export default function Step1() {
           {domains.map((domain) => (
             <Badge key={domain} className="flex items-center gap-1">
               {domain}
-              <button type="button" onClick={() => removeDomain(domain)} className="ml-1">
+              <button type="button" onClick={() => removeDomain(domain)} className="ml-1 bg-transparent">
                 <X size={12} />
               </button>
             </Badge>
           ))}
-          <Input id="domains" type="text" value={domainInput} onChange={(e) => setDomainInput(e.target.value)} onKeyDown={handleKeyDown} className="border-none outline-hidden flex-1" />
+          <Input id="domains" type="text" value={domainInput} onChange={(e) => setDomainInput(e.target.value)} onKeyDown={handleKeyDown} />
         </div>
         <Button
           onClick={(e) => {

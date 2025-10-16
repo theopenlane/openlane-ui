@@ -257,8 +257,7 @@ export default function SideNav({
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
-
-          {isOrganizationSelected && (
+          {isOrganizationSelected && !session?.user?.isOnboarding && (
             <>
               <Hr className="mx-2" />
               <div className={`flex w-full gap-2 px-2 ${!primaryExpanded ? 'flex-col' : ''}`}>
