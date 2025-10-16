@@ -111,7 +111,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
   },
 ]
 
-export const bottomNavigationItems = (orgPermission: TData, session?: Session): (NavItem | Separator | NavHeading)[] => [
+export const bottomNavigationItems = (orgPermission?: TData, session?: Session): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Organization settings',
     href: '/organization-settings',
