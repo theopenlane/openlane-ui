@@ -275,13 +275,6 @@ export const GET_SUBCONTROL_COMMENTS = gql`
             id
             createdAt
             createdBy
-            owner {
-              avatarRemoteURL
-              avatarFile {
-                presignedURL
-              }
-              displayName
-            }
             text
           }
         }
@@ -292,7 +285,7 @@ export const GET_SUBCONTROL_COMMENTS = gql`
 
 export const UPDATE_SUBCONTROL_COMMENT = gql`
   mutation UpdateSubcontrolComment($updateSubcontrolCommentId: ID!, $input: UpdateNoteInput!) {
-    updateSubontrolComment(id: $updateSubcontrolCommentId, input: $input) {
+    updateSubcontrolComment(id: $updateSubcontrolCommentId, input: $input) {
       subcontrol {
         id
       }

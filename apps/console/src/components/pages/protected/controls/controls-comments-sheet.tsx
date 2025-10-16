@@ -20,10 +20,10 @@ import { SheetTitle } from '@repo/ui/sheet'
 const ControlCommentsSheet = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
 
-  const isSubcontrol = Boolean(subcontrolId)
+  const isSubcontrol = !!subcontrolId
 
   const { data } = useGetControlComments(!isSubcontrol ? id : null)
-  const { data: subcontrolData } = useGetSubcontrolComments(isSubcontrol ? subcontrolId || id : null)
+  const { data: subcontrolData } = useGetSubcontrolComments(isSubcontrol ? subcontrolId : null)
 
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
   const [comments, setComments] = useState<TCommentData[]>([])
@@ -47,6 +47,14 @@ const ControlCommentsSheet = () => {
 
   const { data: userData } = useGetUsers(where)
 
+  const invalidateComments = useCallback(() => {
+    if (isSubcontrol) {
+      queryClient.invalidateQueries({ queryKey: ['subcontrolComments', subcontrolId] })
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['controlComments', id] })
+    }
+  }, [id, isSubcontrol, queryClient, subcontrolId])
+
   const handleSendComment = useCallback(
     async (data: TComments) => {
       const targetId = subcontrolId || id
@@ -58,19 +66,18 @@ const ControlCommentsSheet = () => {
             updateSubcontrolId: targetId,
             input: { addComment: { text: comment } },
           })
-          queryClient.invalidateQueries({ queryKey: ['subcontrolComments', targetId] })
         } else {
           await updateControl({
             updateControlId: targetId,
             input: { addComment: { text: comment } },
           })
-          queryClient.invalidateQueries({ queryKey: ['controlComments', targetId] })
         }
+        invalidateComments()
       } catch (error) {
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [id, subcontrolId, isSubcontrol, plateEditorHelper, updateControl, updateSubcontrol, queryClient, errorNotification],
+    [id, subcontrolId, isSubcontrol, plateEditorHelper, updateControl, updateSubcontrol, errorNotification, invalidateComments],
   )
 
   const handleEditComment = useCallback(
@@ -81,19 +88,17 @@ const ControlCommentsSheet = () => {
             updateSubcontrolCommentId: commentId,
             input: { text: newValue },
           })
-          queryClient.invalidateQueries({ queryKey: ['subcontrolComments', subcontrolId || id] })
         } else {
           await updateComment({
             updateControlCommentId: commentId,
             input: { text: newValue },
           })
-          queryClient.invalidateQueries({ queryKey: ['controlComments', id] })
         }
       } catch (error) {
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [id, subcontrolId, isSubcontrol, updateComment, updateSubComment, queryClient, errorNotification],
+    [isSubcontrol, updateComment, updateSubComment, errorNotification],
   )
 
   const handleRemoveComment = useCallback(
@@ -106,19 +111,18 @@ const ControlCommentsSheet = () => {
             updateSubcontrolId: targetId,
             input: { removeCommentIDs: [commentId] },
           })
-          queryClient.invalidateQueries({ queryKey: ['subcontrolComments', targetId] })
         } else {
           await updateControl({
             updateControlId: targetId,
             input: { removeCommentIDs: [commentId] },
           })
-          queryClient.invalidateQueries({ queryKey: ['controlComments', targetId] })
         }
+        invalidateComments()
       } catch (error) {
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [id, subcontrolId, isSubcontrol, updateControl, updateSubcontrol, queryClient, errorNotification],
+    [id, subcontrolId, isSubcontrol, updateControl, updateSubcontrol, errorNotification, invalidateComments],
   )
 
   const handleCommentSort = useCallback(() => {
@@ -155,7 +159,7 @@ const ControlCommentsSheet = () => {
     <div className="p-4 w-full h-full overflow-y-auto">
       <SheetTitle />
       <div className="flex justify-between items-end mb-2">
-        <p className="text-lg font-semibold">{isSubcontrol ? 'Subcontrol Comments' : 'Control Comments'}</p>
+        <p className="text-lg font-semibold">Comments</p>
         <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
           {commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-primary" />}
           <p className="text-sm">Newest at bottom</p>

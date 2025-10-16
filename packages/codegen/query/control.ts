@@ -483,13 +483,6 @@ export const GET_CONTROL_COMMENTS = gql`
             id
             createdAt
             createdBy
-            owner {
-              avatarRemoteURL
-              avatarFile {
-                presignedURL
-              }
-              displayName
-            }
             text
           }
         }

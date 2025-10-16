@@ -58,14 +58,14 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
         const isEditing = isEditingItemId === item.id
 
         return (
-          <div className="w-full p-2 mb-2 hover:bg-panel dark:hover:bg-panel rounded-lg transition-color duration-500" key={item.id}>
+          <div className="w-full p-2 mb-2 hover:bg-panel dark:hover:bg-panel rounded-lg transition-colors duration-500" key={item.id}>
             <div className="flex items-start space-x-3 overflow-auto">
               <Avatar variant="medium" className="h-10 w-10 mr-2">
                 {item?.avatarUrl && <AvatarImage src={item.avatarUrl} />}
                 <AvatarFallback>{item.userName?.substring(0, 2)}</AvatarFallback>
               </Avatar>
 
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full min-w-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-baseline space-x-2">
                     <p className="font-semibold">{item.userName}</p>
@@ -73,7 +73,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
                   </div>
 
                   {isOwner && !isEditing && (
-                    <div className="flex gap-2 fixed right-12">
+                    <div className="flex gap-2">
                       <button onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
                         <Pencil className="h-4 w-4" />
                       </button>

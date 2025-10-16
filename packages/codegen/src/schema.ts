@@ -46832,17 +46832,7 @@ export type GetControlCommentsQuery = {
     __typename?: 'Control'
     comments: {
       __typename?: 'NoteConnection'
-      edges?: Array<{
-        __typename?: 'NoteEdge'
-        node?: {
-          __typename?: 'Note'
-          id: string
-          createdAt?: any | null
-          createdBy?: string | null
-          text: string
-          owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-        } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; createdAt?: any | null; createdBy?: string | null; text: string } | null } | null> | null
     }
   }
 }
@@ -49351,17 +49341,7 @@ export type GetSubcontrolCommentsQuery = {
     __typename?: 'Subcontrol'
     comments: {
       __typename?: 'NoteConnection'
-      edges?: Array<{
-        __typename?: 'NoteEdge'
-        node?: {
-          __typename?: 'Note'
-          id: string
-          createdAt?: any | null
-          createdBy?: string | null
-          text: string
-          owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-        } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; createdAt?: any | null; createdBy?: string | null; text: string } | null } | null> | null
     }
   }
 }
