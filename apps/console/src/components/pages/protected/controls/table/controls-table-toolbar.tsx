@@ -16,11 +16,11 @@ import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Button } from '@repo/ui/button'
 import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
-import { TAccessRole, TData } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
+import { TAccessRole, TData } from '@/types/authz'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -39,8 +39,8 @@ type TProps = {
   handleBulkEdit: () => void
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
 }
 
 const ControlsTableToolbar: React.FC<TProps> = ({

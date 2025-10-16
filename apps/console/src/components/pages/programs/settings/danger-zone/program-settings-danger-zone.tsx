@@ -8,18 +8,16 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
-import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 export const ProgramSettingsDangerZone = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.PROGRAM, programId)
-  const editAllowed = canEdit(permission.roles)
-  const deleteAllowed = canDelete(permission.roles)
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, programId)
+  const editAllowed = canEdit(permission?.roles)
+  const deleteAllowed = canDelete(permission?.roles)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const router = useRouter()
 

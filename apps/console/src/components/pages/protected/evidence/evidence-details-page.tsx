@@ -12,13 +12,12 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import { canCreate } from '@/lib/authz/utils'
-import { useOrganizationRole } from '@/lib/authz/access-api'
-import { useSession } from 'next-auth/react'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import EvidenceSuggestedActions from './table/evidence-suggested-actions'
 import Loading from '@/app/(protected)/evidence/loading'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import EvidenceCreateSheet from './evidence-create-sheet'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
@@ -36,11 +35,10 @@ const EvidenceDetailsPage = () => {
   const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const { data: session } = useSession()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useOrganizationRoles()
 
   const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
 

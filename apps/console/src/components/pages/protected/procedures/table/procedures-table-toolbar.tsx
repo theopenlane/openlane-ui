@@ -4,7 +4,7 @@ import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'luci
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-csv-create-procedure-dialog'
-import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
+import { TAccessRole, TData } from '@/types/authz'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -35,8 +35,8 @@ type TProceduresTableToolbarProps = {
   handleBulkEdit: () => void
   selectedProcedures: { id: string }[]
   setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
 }
 
 const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({

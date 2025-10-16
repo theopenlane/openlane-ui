@@ -3,19 +3,17 @@ import React, { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
 import { useDeleteControl } from '@/lib/graphql-hooks/controls.ts'
 import { useRouter } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({ controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, controlId!)
+  const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, controlId)
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 

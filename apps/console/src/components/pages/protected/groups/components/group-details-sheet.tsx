@@ -29,10 +29,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { DOCS_URL } from '@/constants'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -52,7 +52,7 @@ const GroupDetailsSheet = () => {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
-  const { data: permission } = useAccountRole(sessionData, ObjectEnum.GROUP, selectedGroup!)
+  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 

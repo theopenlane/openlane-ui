@@ -23,8 +23,6 @@ import { useProcedure } from '@/components/pages/protected/procedures/create/hoo
 import { Trash2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
@@ -38,6 +36,7 @@ import ObjectAssociationSwitch from '@/components/shared/object-association/obje
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -54,8 +53,7 @@ const ViewProcedurePage: React.FC = () => {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.PROCEDURE, procedureId)
+  const { data: permission } = useAccountRoles(ObjectEnum.PROCEDURE, procedureId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()

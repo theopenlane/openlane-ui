@@ -28,9 +28,8 @@ import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 
 export const ProceduresTable = () => {
@@ -40,8 +39,7 @@ export const ProceduresTable = () => {
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([

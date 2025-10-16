@@ -33,8 +33,6 @@ import RelatedControls from '@/components/pages/protected/controls/related-contr
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useSession } from 'next-auth/react'
-import { useAccountRole, useOrganizationRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canCreate, canDelete, canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
@@ -44,6 +42,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section'
 import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section'
 import Loading from './loading.tsx'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 
 interface FormValues {
   refCode: string
@@ -98,9 +97,8 @@ const ControlDetailsPage: React.FC = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
 
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
-  const { data: orgPermission } = useOrganizationRole(session)
+  const { data: permission } = useAccountRoles(ObjectEnum.SUBCONTROL, subcontrolId)
+  const { data: orgPermission } = useOrganizationRoles()
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
     return {

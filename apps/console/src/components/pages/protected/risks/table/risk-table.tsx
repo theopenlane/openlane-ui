@@ -16,10 +16,9 @@ import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/tabl
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 
 const RiskTable: React.FC = () => {
@@ -31,8 +30,7 @@ const RiskTable: React.FC = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
