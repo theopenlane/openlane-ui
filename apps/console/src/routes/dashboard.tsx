@@ -26,8 +26,9 @@ import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { canEdit } from '@/lib/authz/utils'
 import { TData } from '@/types/authz'
+import type { Session } from 'next-auth'
 
-export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
+export const topNavigationItems = (session?: Session): (NavItem | Separator | NavHeading)[] => [
   {
     type: 'separator',
   },
@@ -35,17 +36,20 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
     title: 'Home',
     href: '/dashboard',
     icon: House,
+    hidden: session?.user?.isOnboarding,
   },
   {
     title: 'Tasks',
     href: '/tasks',
     icon: ListChecks,
+    hidden: session?.user?.isOnboarding,
   },
   {
     title: 'Compliance',
     plan: PlanEnum.COMPLIANCE_MODULE,
     icon: ShieldCheck,
     href: '/',
+    hidden: session?.user?.isOnboarding,
     children: [
       {
         title: 'Programs',
@@ -96,6 +100,7 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
     href: '/trust-center',
     icon: Handshake,
     isChildren: true,
+    hidden: session?.user?.isOnboarding,
     children: [
       {
         title: 'Settings',
@@ -106,10 +111,11 @@ export const topNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   },
 ]
 
-export const bottomNavigationItems = (orgPermission: TData | undefined): (NavItem | Separator | NavHeading)[] => [
+export const bottomNavigationItems = (orgPermission: TData, session?: Session): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'Organization settings',
     href: '/organization-settings',
+    hidden: session?.user?.isOnboarding,
     icon: SettingsIcon,
     children: [
       {
@@ -151,6 +157,7 @@ export const bottomNavigationItems = (orgPermission: TData | undefined): (NavIte
     title: 'User Management',
     href: '/user-management',
     icon: UserRoundPen,
+    hidden: session?.user?.isOnboarding,
     children: [
       {
         title: 'Members',
@@ -168,6 +175,7 @@ export const bottomNavigationItems = (orgPermission: TData | undefined): (NavIte
     title: 'Developers',
     href: '/developers',
     icon: Bot,
+    hidden: session?.user?.isOnboarding,
     children: [
       {
         title: 'API Tokens',
