@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Group, GroupOrder, GroupWhereInput } from '@repo/codegen/src/schema'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -11,6 +11,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from '../table/columns'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useNotification } from '@/hooks/useNotification'
 
 type TGroupsTableProps = {
   onSortChange?: (sortCondition: GroupOrder | GroupOrder[]) => void
@@ -29,7 +30,7 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     pagination: pagination,
     enabled: !!whereFilter,
   })
-
+  const { errorNotification } = useNotification()
   const { replace } = useSmartRouter()
 
   const userIds = useMemo(() => {
@@ -60,9 +61,14 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     replace({ id: group.id })
   }
 
-  if (isError) {
-    return <p className="text-red-500">Error loading groups</p>
-  }
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load groups',
+      })
+    }
+  }, [isError, errorNotification])
 
   return (
     <DataTable

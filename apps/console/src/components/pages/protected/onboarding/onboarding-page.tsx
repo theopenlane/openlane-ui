@@ -71,7 +71,7 @@ export default function MultiStepForm() {
 
       if (response?.createOnboarding) {
         successNotification({
-          title: 'Onboarding completed successfully.!',
+          title: 'Onboarding completed successfully',
         })
       } else {
         throw new Error('Unexpected response format')
@@ -141,9 +141,9 @@ export default function MultiStepForm() {
 
   return (
     <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
-      <div>
-        <h1 className="text-2xl py-3">Welcome to Openlane 🙇‍♀️</h1>
-        <p className="text-sm pb-5">We are glad to have you! Let&apos;s get started with a few questions.</p>
+      <div className="self-start w-full">
+        <h1 className="text-2xl py-3 font-medium text-left">Welcome to Openlane 🙇‍♀️</h1>
+        <p className="text-sm font-normal pb-5 text-left">We are glad to have you! Let&apos;s get started with a few questions.</p>
       </div>
       {isLoading && isLastStep && (
         <Card className="p-7 flex flex-col gap-2 items-center w-full">

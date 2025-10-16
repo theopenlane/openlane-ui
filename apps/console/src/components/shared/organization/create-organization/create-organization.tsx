@@ -125,7 +125,7 @@ export const CreateOrganizationForm = () => {
                     Name
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger className="bg-transparent">
                           <InfoIcon size={14} className="mx-1" />
                         </TooltipTrigger>
                         <TooltipContent side="right">Name must be unique, with a maximum length of 32 characters</TooltipContent>
@@ -148,7 +148,7 @@ export const CreateOrganizationForm = () => {
                     Display name
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger className="bg-transparent">
                           <InfoIcon size={14} className="mx-1" />
                         </TooltipTrigger>
                         <TooltipContent side="right">Non-unique user-friendly name for the organization; usually the same as the name</TooltipContent>
