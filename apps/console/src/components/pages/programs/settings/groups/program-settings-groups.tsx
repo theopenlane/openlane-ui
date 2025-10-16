@@ -19,10 +19,9 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Pagination from '@repo/ui/pagination'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useAccountRole } from '@/lib/authz/access-api'
-import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 type GroupRow = {
   id: string
@@ -35,9 +34,8 @@ type GroupRow = {
 export const ProgramSettingsGroups = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.PROGRAM, programId)
-  const editAllowed = canEdit(permission.roles)
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, programId)
+  const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,

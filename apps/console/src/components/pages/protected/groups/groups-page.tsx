@@ -22,11 +22,11 @@ import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { Label } from '@repo/ui/label'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { FilterIcons } from '@/components/shared/enum-mapper/groups-enum'
 
 const filterFields: FilterField[] = [
@@ -55,7 +55,7 @@ const GroupsPage = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ updatedAt: false, updatedBy: false, createdAt: false, createdBy: false })
   const [showMyGroups, setShowMyGroups] = useState<boolean>(false)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
-  const { data: permissions } = useOrganizationRole(session)
+  const { data: permissions } = useOrganizationRoles()
 
   useEffect(() => {
     setCrumbs([

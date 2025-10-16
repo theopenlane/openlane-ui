@@ -35,9 +35,7 @@ import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
-import { useSession } from 'next-auth/react'
 import { canCreate } from '@/lib/authz/utils'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
@@ -46,6 +44,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -65,9 +64,8 @@ export default function CreateControlForm() {
   const [clearData, setClearData] = useState<boolean>(false)
   const [createObjective, setCreateObjective] = useState(false)
   const [createImplementation, setCreateImplementation] = useState(false)
-  const { data: sessionData } = useSession()
 
-  const { data: permission, isLoading: permissionsLoading } = useOrganizationRole(sessionData)
+  const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
   const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
 
   const [associations, setAssociations] = useState<TObjectAssociationMap>(() => ({}))

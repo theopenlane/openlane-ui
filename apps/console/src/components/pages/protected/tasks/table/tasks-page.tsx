@@ -14,10 +14,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { Loading } from '@/components/shared/loading/loading'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -42,7 +42,7 @@ const TasksPage: React.FC = () => {
   ])
   const allStatuses = useMemo(() => [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
   const statusesWithoutComplete = useMemo(() => [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW], [])
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission } = useOrganizationRoles()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     createdAt: false,
     createdBy: false,

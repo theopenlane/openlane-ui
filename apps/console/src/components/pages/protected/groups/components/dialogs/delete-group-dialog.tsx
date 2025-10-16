@@ -9,15 +9,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
 import { useNotification } from '@/hooks/useNotification'
 import { canEdit } from '@/lib/authz/utils'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { useSession } from 'next-auth/react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const DeleteGroupDialog = () => {
-  const { data: session } = useSession()
   const { selectedGroup, setSelectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRole(session, ObjectEnum.GROUP, selectedGroup!)
+  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
   const [isOpen, setIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const [expanded, setExpanded] = useState(false)

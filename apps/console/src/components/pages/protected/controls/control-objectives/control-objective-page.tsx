@@ -15,12 +15,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ObjectiveItem } from './objective-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const ControlObjectivePage = () => {
   const searchParams = useSearchParams()
@@ -40,8 +39,7 @@ const ControlObjectivePage = () => {
   const { data: controlData, isLoading: isControlLoading } = useGetControlById(isControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isSubcontrolLoading } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
 
-  const { data: session } = useSession()
-  const { data: orgPermission } = useOrganizationRole(session)
+  const { data: orgPermission } = useOrganizationRoles()
 
   const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
 

@@ -14,10 +14,10 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { Input } from '@repo/ui/input'
 import { TaskWhereInput } from '@repo/codegen/src/schema'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { TAccessRole, TData } from '@/lib/authz/access-api'
 import { Button } from '@repo/ui/button'
 import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TAccessRole, TData } from '@/types/authz'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -34,8 +34,8 @@ type TTaskTableToolbarProps = {
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
   exportEnabled: boolean
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
   handleBulkEdit: () => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>

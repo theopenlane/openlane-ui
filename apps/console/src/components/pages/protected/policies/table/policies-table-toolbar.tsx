@@ -5,7 +5,7 @@ import { usePoliciesFilters } from '@/components/pages/protected/policies/table/
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
-import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
+
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -15,6 +15,7 @@ import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
+import { TAccessRole, TData } from '@/types/authz'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -34,8 +35,8 @@ type TPoliciesTableToolbarProps = {
   handleBulkEdit: () => void
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
 }
 
 const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({

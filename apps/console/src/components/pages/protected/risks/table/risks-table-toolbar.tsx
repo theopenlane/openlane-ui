@@ -11,7 +11,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import { TAccessRole, TData } from '@/lib/authz/access-api.ts'
+import { TAccessRole, TData } from '@/types/authz'
 import { RiskWhereInput } from '@repo/codegen/src/schema'
 import { BulkEditRisksDialog } from '../bulk-edit/bulk-edit-risks'
 import { Button } from '@repo/ui/button'
@@ -34,8 +34,8 @@ type TProps = {
   handleBulkEdit: () => void
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[]) => boolean
-  permission: TData
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
 }
 
 const RisksTableToolbar: React.FC<TProps> = ({

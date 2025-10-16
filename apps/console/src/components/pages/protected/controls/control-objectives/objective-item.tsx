@@ -5,11 +5,10 @@ import { AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/rea
 import { Button } from '@repo/ui/button'
 import { ChevronRight, Pencil } from 'lucide-react'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import { useAccountRole } from '@/lib/authz/access-api'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { useSession } from 'next-auth/react'
 import { ControlObjectiveCard } from './control-objective-card'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 type Props = {
   node: ControlObjectiveFieldsFragment
@@ -18,8 +17,7 @@ type Props = {
 }
 
 export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive }) => {
-  const { data: session } = useSession()
-  const { data: permission, isLoading: permLoading } = useAccountRole(session, ObjectEnum.CONTROL_OBJECTIVE, node.id)
+  const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectEnum.CONTROL_OBJECTIVE, node.id)
   const isEditAllowed = canEdit(permission?.roles)
 
   return (

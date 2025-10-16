@@ -5,16 +5,14 @@ import { useParams } from 'next/navigation'
 import EditPolicyPage from '@/components/pages/protected/policies/edit-policy-page.tsx'
 import { PageHeading } from '@repo/ui/page-heading'
 import React from 'react'
-import { useSession } from 'next-auth/react'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
-import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 const Page: NextPage = () => {
-  const { id } = useParams()
-  const { data: session } = useSession()
-  const { data: permission, isLoading } = useAccountRole(session, ObjectEnum.POLICY, id! as string)
+  const { id } = useParams<{ id: string }>()
+  const { data: permission, isLoading } = useAccountRoles(ObjectEnum.POLICY, id)
 
   return (
     <>
@@ -22,7 +20,7 @@ const Page: NextPage = () => {
       {!isLoading && canEdit(permission?.roles) && (
         <>
           <PageHeading heading="Edit policy" />
-          <EditPolicyPage policyId={id as string} />
+          <EditPolicyPage policyId={id} />
         </>
       )}
     </>
