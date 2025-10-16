@@ -43,6 +43,7 @@ import ControlObjectivesSection from '@/components/pages/protected/controls/cont
 import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section'
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
+import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 
 interface FormValues {
   refCode: string
@@ -394,6 +395,8 @@ const ControlDetailsPage: React.FC = () => {
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
 
       <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} canEdit={canEdit(permission?.roles)} />
+      <ControlCommentsCard />
+
       <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} refCode={subcontrol.refCode} sourceFramework={subcontrol.referenceFramework} />
       {hasInfoData && (
         <InfoCardWithSheet
