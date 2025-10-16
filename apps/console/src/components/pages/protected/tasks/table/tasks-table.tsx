@@ -12,6 +12,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TAccessRole, TData } from '@/types/authz'
+import { useNotification } from '@/hooks/useNotification'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -61,7 +62,7 @@ const TasksTable = forwardRef(
     })
 
     const { convertToReadOnly } = usePlateEditor()
-
+    const { errorNotification } = useNotification()
     const userIds = useMemo(() => {
       if (!tasks) return []
       const ids = new Set<string>()
@@ -91,6 +92,15 @@ const TasksTable = forwardRef(
       }
     }, [permission?.roles, setColumnVisibility, canEdit])
 
+    useEffect(() => {
+      if (isError) {
+        errorNotification({
+          title: 'Error',
+          description: 'Failed to load tasks',
+        })
+      }
+    }, [isError, errorNotification])
+
     const { users, isFetching: fetchingUsers } = useGetOrgUserList({
       where: { hasUserWith: [{ idIn: userIds }] },
     })
@@ -109,9 +119,6 @@ const TasksTable = forwardRef(
 
     const columns = useMemo(() => getTaskColumns({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks }), [userMap, convertToReadOnly, selectedTasks, setSelectedTasks])
 
-    if (isError) {
-      return <p className="text-red-500">Error loading tasks</p>
-    }
     return (
       <DataTable
         columns={columns}

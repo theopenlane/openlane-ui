@@ -16,7 +16,7 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum'
 import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum'
-import { CONTRIBUTE_URL, DOCS_URL, OPENLANE_WEBSITE_URL, SUPPORT_EMAIL } from '@/constants'
+import { CONTRIBUTE_URL, DOCS_URL, SUPPORT_EMAIL } from '@/constants'
 import { featureUtil } from '@/lib/subscription-plan/plans'
 import { NavHeading, NavItem, Separator } from '@/types'
 import { Button } from '@repo/ui/button'
@@ -242,7 +242,7 @@ export default function SideNav({
       >
         <div className="flex flex-col items-center gap-3 w-full">
           <div className={`flex items-center justify-between w-full px-[11px] ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
-            <a className="flex items-center justify-center relative" href={OPENLANE_WEBSITE_URL} target="_blank" rel="noreferrer">
+            <Link href="/dashboard" className="flex items-center justify-center relative">
               {primaryExpanded ? (
                 <div className="w-[134px]">
                   <Logo width={134} />
@@ -252,7 +252,7 @@ export default function SideNav({
                   <Logo asIcon width={28} />
                 </div>
               )}
-            </a>
+            </Link>
             <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset">
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
