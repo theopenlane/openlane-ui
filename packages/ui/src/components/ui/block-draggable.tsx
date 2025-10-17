@@ -106,7 +106,7 @@ function Draggable(props: PlateElementProps) {
         <Gutter>
           <div className={cn('slate-blockToolbarWrapper', 'flex h-[1.5em]', isInColumn && 'h-4')}>
             <div className={cn('slate-blockToolbar relative w-4.5', 'pointer-events-auto mr-1 flex items-center', isInColumn && 'mr-1.5')}>
-              <Button ref={handleRef} variant="ghost" className="absolute -left-0 h-6 w-full p-0" style={{ top: `${dragButtonTop + 3}px` }} data-plate-prevent-deselect>
+              <Button ref={handleRef} type="button" variant="ghost" className="absolute -left-0 h-6 w-full p-0" style={{ top: `${dragButtonTop + 3}px` }} data-plate-prevent-deselect>
                 <DragHandle isDragging={isDragging} previewRef={previewRef} resetPreview={resetPreview} setPreviewTop={setPreviewTop} />
               </Button>
             </div>
@@ -218,7 +218,7 @@ const DropLine = React.memo(function DropLine({ className, ...props }: React.Com
   return (
     <div
       {...props}
-      className={cn('slate-dropLine', 'absolute inset-x-0 h-0.5 opacity-100 transition-opacity', 'bg-brand/50', dropLine === 'top' && '-top-px', dropLine === 'bottom' && '-bottom-px', className)}
+      className={cn('slate-dropLine', 'absolute inset-x-0 h-0.5 opacity-100 transition-opacity', 'bg-primary', dropLine === 'top' && '-top-px', dropLine === 'bottom' && '-bottom-px', className)}
     />
   )
 })
