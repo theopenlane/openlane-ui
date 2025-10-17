@@ -91,22 +91,40 @@ export const PersonalAccessTokenTable = () => {
     }
   }, [searchParams, errorNotification, successNotification])
 
-  const orgTokensResponse = useGetApiTokens({
+  const {
+    data: orgTokensResponse,
+    isError: isOrgTokensResponseError,
+    isFetching: isFetchingApiTokens,
+  } = useGetApiTokens({
     where: whereFilter,
     orderBy: orderByFilter as GetApiTokensQueryVariables['orderBy'],
     pagination,
     enabled: !!filters && isOrg,
   })
 
-  const personalTokensResponse = useGetPersonalAccessTokens({
+  const {
+    data: personalTokensResponse,
+    isError: isPersonalTokensResponseError,
+    isFetching: isFetchingPersonalAccessTokens,
+  } = useGetPersonalAccessTokens({
     where: whereFilter,
     orderBy: orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'],
     pagination,
     enabled: !!filters && !isOrg,
   })
 
-  const data = isOrg ? orgTokensResponse.data : personalTokensResponse.data
-  const isFetching = orgTokensResponse.isFetching || personalTokensResponse.isFetching
+  const data = isOrg ? orgTokensResponse : personalTokensResponse
+  const isFetching = isFetchingApiTokens || isFetchingPersonalAccessTokens
+  const isAnyError = isOrgTokensResponseError || isPersonalTokensResponseError
+
+  useEffect(() => {
+    if (isAnyError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load tokens',
+      })
+    }
+  }, [isAnyError, errorNotification])
 
   const paginationMeta = useMemo(() => {
     const source = isOrg ? (data as GetApiTokensQuery)?.apiTokens : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens

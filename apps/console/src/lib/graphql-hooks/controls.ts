@@ -18,6 +18,8 @@ import {
   BULK_EDIT_CONTROL,
   CLONE_CSV_BULK_CONTROL,
   GET_CONTROLS_BY_REFCODE,
+  GET_CONTROL_COMMENTS,
+  UPDATE_CONTROL_COMMENT,
 } from '@repo/codegen/query/control'
 
 import {
@@ -52,6 +54,10 @@ import {
   CloneBulkCsvControlMutation,
   CloneBulkCsvControlMutationVariables,
   GetControlsByRefCodeQuery,
+  GetControlCommentsQuery,
+  GetControlCommentsQueryVariables,
+  UpdateControlCommentMutation,
+  UpdateControlCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -426,5 +432,26 @@ export const useGetControlsByRefCode = ({ refCodeIn, enabled = true }: UseGetCon
     queryFn: async () => await client.request(GET_CONTROLS_BY_REFCODE, { refCodeIn }),
 
     enabled: enabled && refCodeIn.length > 0,
+  })
+}
+
+export const useGetControlComments = (controlId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlCommentsQuery, unknown>({
+    queryKey: ['controlComments', controlId],
+    queryFn: async () => client.request<GetControlCommentsQuery, GetControlCommentsQueryVariables>(GET_CONTROL_COMMENTS, { controlId: controlId! }),
+    enabled: !!controlId,
+  })
+}
+
+export const useUpdateControlComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateControlCommentMutation, unknown, UpdateControlCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_CONTROL_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['controlComments', data.updateControlComment.control.id] })
+    },
   })
 }

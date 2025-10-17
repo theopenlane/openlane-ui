@@ -19,6 +19,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useNotification } from '@/hooks/useNotification'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -31,6 +32,7 @@ const RiskTable: React.FC = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
+  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
     {
       field: RiskOrderField.name,
@@ -111,6 +113,15 @@ const RiskTable: React.FC = () => {
       { label: 'Risks', href: '/risks' },
     ])
   }, [setCrumbs])
+
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load risks',
+      })
+    }
+  }, [isError, errorNotification])
 
   const handleRowClick = (rowData: RiskTableFieldsFragment) => {
     router.push(`/risks/${rowData.id}`)

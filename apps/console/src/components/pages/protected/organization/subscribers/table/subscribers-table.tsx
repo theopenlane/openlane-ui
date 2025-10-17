@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
 import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
@@ -11,12 +11,14 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TPagination } from '@repo/ui/pagination-types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { exportToCSV } from '@/utils/exportToCSV'
+import { useNotification } from '@/hooks/useNotification'
 
 export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>([
     {
       field: SubscriberOrderField.created_at,
@@ -31,7 +33,7 @@ export const SubscribersTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  const { subscribers, isLoading, paginationMeta } = useGetAllSubscribers({
+  const { subscribers, isError, isLoading, paginationMeta } = useGetAllSubscribers({
     where: whereFilter,
     orderBy,
     pagination,
@@ -41,6 +43,15 @@ export const SubscribersTable = () => {
   const handleExport = () => {
     exportToCSV(subscribers, exportableSubscriberColumns, 'subscribers')
   }
+
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load subscribers',
+      })
+    }
+  }, [isError, errorNotification])
 
   return (
     <div>

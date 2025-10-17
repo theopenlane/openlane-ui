@@ -37,7 +37,7 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
   return (
     <React.Fragment>
       <div className="mt-auto w-full p-2">
-        <div className="flex items-start space-x-3">
+        <div className="flex items-start space-x-3 overflow-auto">
           <Avatar entity={data?.user as User} variant="medium" className="relative flex shrink-0 overflow-hidden rounded-full p-0 h-10 w-10" />
           <div className="flex-1 border rounded-lg p-2 w-full flex flex-col space-y-2">
             <PlateEditor onChange={handleDetailsChange} variant="minimal" styleVariant="comment" clearData={clearData} onClear={() => setClearData(false)} placeholder="Add a comment" />
