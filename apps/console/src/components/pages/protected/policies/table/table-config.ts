@@ -4,8 +4,7 @@ import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { FilterField } from '@/types'
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
-import { InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { Calendar, FileText, Tags, UserRound } from 'lucide-react'
+import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 
 export function usePoliciesFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
@@ -21,15 +20,15 @@ export function usePoliciesFilters(): FilterField[] | null {
         label: 'Approver Group',
         type: 'select',
         options: groupOptions,
-        icon: UserRound,
+        icon: FilterIcons.ApproverGroup,
       },
       {
         key: 'hasControlsWith',
         childrenObjectKey: 'refCodeContainsFold',
         forceKeyOperator: true,
-        label: 'Control',
+        label: 'Control Ref Code',
         type: 'text',
-        icon: FileText,
+        icon: FilterIcons.Control,
       },
       {
         key: 'hasProgramsWith',
@@ -38,34 +37,34 @@ export function usePoliciesFilters(): FilterField[] | null {
         forceKeyOperator: true,
         childrenObjectKey: 'id',
         options: programOptions,
-        icon: FileText,
+        icon: FilterIcons.ProgramName,
       },
       {
         key: 'hasSubcontrolWith',
         childrenObjectKey: 'refCodeContainsFold',
         forceKeyOperator: true,
-        label: 'Subcontrol',
+        label: 'Subcontrol Ref Code',
         type: 'text',
-        icon: FileText,
+        icon: FilterIcons.Subcontrol,
       },
       {
         key: 'policyType',
         label: 'Policy Type',
         type: 'text',
-        icon: Tags,
+        icon: FilterIcons.Type,
       },
       {
         key: 'reviewDue',
         label: 'Review Due',
-        type: 'date',
-        icon: Calendar,
+        type: 'dateRange',
+        icon: FilterIcons.ReviewDue,
       },
       {
         key: 'status',
         label: 'Status',
         type: 'select',
         options: InternalPolicyStatusFilterOptions,
-        icon: Tags,
+        icon: FilterIcons.Status,
       },
     ]
 

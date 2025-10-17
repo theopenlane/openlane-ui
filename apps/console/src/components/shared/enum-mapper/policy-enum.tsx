@@ -1,4 +1,4 @@
-import { Archive, FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
+import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, type LucideIcon } from 'lucide-react'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 
@@ -40,6 +40,26 @@ export const DocumentStatusTooltips: Record<InternalPolicyDocumentStatus | Proce
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'The document needs approval from the approver group.',
   [InternalPolicyDocumentStatus.PUBLISHED]: 'The document has been published and the active version used within the organization.',
   [InternalPolicyDocumentStatus.ARCHIVED]: 'The document has been archived and is no longer available.',
+}
+
+export enum PoliciesProceduresFilterIconName {
+  ApproverGroup = 'ApproverGroup',
+  Control = 'Control',
+  Subcontrol = 'Subcontrol',
+  Type = 'Type',
+  ReviewDue = 'ReviewDue',
+  Status = 'Status',
+  ProgramName = 'ProgramName',
+}
+
+export const FilterIcons: Record<PoliciesProceduresFilterIconName, LucideIcon> = {
+  [PoliciesProceduresFilterIconName.ApproverGroup]: UsersRound,
+  [PoliciesProceduresFilterIconName.Control]: Settings2,
+  [PoliciesProceduresFilterIconName.Subcontrol]: GitFork,
+  [PoliciesProceduresFilterIconName.Type]: Tag,
+  [PoliciesProceduresFilterIconName.ReviewDue]: CalendarClock,
+  [PoliciesProceduresFilterIconName.Status]: CircleDot,
+  [PoliciesProceduresFilterIconName.ProgramName]: ShieldCheck,
 }
 
 // Status options for select dropdowns

@@ -1,11 +1,11 @@
+import { FilterIcons } from '@/components/shared/enum-mapper/subscribers-enum'
 import { FilterField } from '@/types'
 import { OrderDirection, SubscriberOrderField } from '@repo/codegen/src/schema.ts'
-import { BookOpenCheck, Mail, MailCheck } from 'lucide-react'
 
 export const SUBSCRIBERS_FILTER_FIELDS: FilterField[] = [
-  { key: 'email', label: 'Name', type: 'text', icon: Mail },
-  { key: 'active', label: 'Active', type: 'boolean', icon: BookOpenCheck },
-  { key: 'verifiedEmail', label: 'Verified', type: 'boolean', icon: MailCheck },
+  { key: 'email', label: 'Email', type: 'text', icon: FilterIcons.Email },
+  { key: 'active', label: 'Active', type: 'boolean', icon: FilterIcons.Active },
+  { key: 'verifiedEmail', label: 'Verified', type: 'boolean', icon: FilterIcons.Verified },
 ]
 
 export const SUBSCRIBERS_SORT_FIELDS = [

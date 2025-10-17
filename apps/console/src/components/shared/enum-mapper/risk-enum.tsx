@@ -1,4 +1,4 @@
-import { Archive, Circle, CirclePlay, Split, Timer } from 'lucide-react'
+import { Archive, Circle, CircleAlert, CircleDot, CirclePlay, CircleQuestionMark, Folder, Shapes, ShieldCheck, Split, Timer, type LucideIcon } from 'lucide-react'
 import { RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 
 export const RiskIconMapper: Record<RiskRiskStatus, React.ReactNode> = {
@@ -15,6 +15,24 @@ export const RiskStatusMapper: Record<RiskRiskStatus, string> = {
   [RiskRiskStatus.IN_PROGRESS]: 'In progress',
   [RiskRiskStatus.OPEN]: 'Open',
   [RiskRiskStatus.ONGOING]: 'On going',
+}
+
+export enum RisksFilterIconName {
+  Category = 'Category',
+  Impact = 'Impact',
+  Likelihood = 'Likelihood',
+  RiskType = 'RiskType',
+  Status = 'Status',
+  ProgramName = 'ProgramName',
+}
+
+export const FilterIcons: Record<RisksFilterIconName, LucideIcon> = {
+  [RisksFilterIconName.Category]: Folder,
+  [RisksFilterIconName.Impact]: CircleAlert,
+  [RisksFilterIconName.Likelihood]: CircleQuestionMark,
+  [RisksFilterIconName.RiskType]: Shapes,
+  [RisksFilterIconName.Status]: CircleDot,
+  [RisksFilterIconName.ProgramName]: ShieldCheck,
 }
 
 export const RiskLikelihoodOptions = Object.values(RiskRiskLikelihood).map((value) => ({
