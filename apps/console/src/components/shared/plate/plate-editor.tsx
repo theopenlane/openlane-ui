@@ -80,7 +80,13 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
           onChange?.(data.value)
         }}
       >
-        <EditorContainer variant={styleVariant}>
+        <EditorContainer
+          variant={styleVariant}
+          onClick={() => {
+            // @ts-ignore
+            editor?.focus()
+          }}
+        >
           <Editor placeholder={placeholder ?? 'Type a paragraph'} />
         </EditorContainer>
       </Plate>
