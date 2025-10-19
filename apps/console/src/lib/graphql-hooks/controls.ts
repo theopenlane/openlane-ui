@@ -20,6 +20,7 @@ import {
   GET_CONTROLS_BY_REFCODE,
   GET_CONTROL_COMMENTS,
   UPDATE_CONTROL_COMMENT,
+  CREATE_CSV_BULK_MAPPED_CONTROL,
 } from '@repo/codegen/query/control'
 
 import {
@@ -58,6 +59,8 @@ import {
   GetControlCommentsQueryVariables,
   UpdateControlCommentMutation,
   UpdateControlCommentMutationVariables,
+  CreateBulkCsvMappedControlMutation,
+  CreateBulkCsvMappedControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -151,6 +154,18 @@ export const useCreateBulkCSVControl = () => {
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVMappedControl = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvMappedControlMutation, unknown, CreateBulkCsvMappedControlMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_MAPPED_CONTROL, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
     },
   })
 }
