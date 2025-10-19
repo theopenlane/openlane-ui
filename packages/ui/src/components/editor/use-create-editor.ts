@@ -73,10 +73,7 @@ export const EditorKit = [
   ...SlashKit,
   ...AutoformatKit,
   ...CursorOverlayKit,
-  /*
-  This needs to be manually implemented
   ...BlockMenuKit,
-  */
   ...DndKit,
   ...EmojiKit,
   ...ExitBreakKit,

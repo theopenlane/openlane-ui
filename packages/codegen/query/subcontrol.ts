@@ -265,3 +265,30 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
     }
   }
 `
+
+export const GET_SUBCONTROL_COMMENTS = gql`
+  query GetSubcontrolComments($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
+      comments {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_SUBCONTROL_COMMENT = gql`
+  mutation UpdateSubcontrolComment($updateSubcontrolCommentId: ID!, $input: UpdateNoteInput!) {
+    updateSubcontrolComment(id: $updateSubcontrolCommentId, input: $input) {
+      subcontrol {
+        id
+      }
+    }
+  }
+`

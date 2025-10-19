@@ -30,6 +30,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useNotification } from '@/hooks/useNotification'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -39,6 +40,7 @@ export const ProceduresTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
@@ -87,7 +89,7 @@ export const ProceduresTable = () => {
     return conditions
   }, [memberIds])
 
-  const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
+  const { procedures, isError, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
@@ -153,6 +155,15 @@ export const ProceduresTable = () => {
       { label: 'Procedures', href: '/procedures' },
     ])
   }, [setCrumbs])
+
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load procedures',
+      })
+    }
+  }, [isError, errorNotification])
 
   const handleBulkEdit = () => {
     setSelectedProcedures([])

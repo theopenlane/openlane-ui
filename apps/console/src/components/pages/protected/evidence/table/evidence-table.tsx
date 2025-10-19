@@ -15,6 +15,7 @@ import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { useNotification } from '@/hooks/useNotification'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
@@ -24,6 +25,7 @@ export const EvidenceTable = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useState('')
   const { replace } = useSmartRouter()
+  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>([
     {
       field: EvidenceOrderField.name,
@@ -46,7 +48,7 @@ export const EvidenceTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { evidences, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
+  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     collectionProcedure: false,
     source: false,
@@ -90,6 +92,15 @@ export const EvidenceTable = () => {
       { label: 'Evidence', href: '/evidence' },
     ])
   }, [setCrumbs])
+
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load evidence',
+      })
+    }
+  }, [isError, errorNotification])
 
   const handleRowClick = (rowData: Evidence) => {
     replace({ id: rowData.id })

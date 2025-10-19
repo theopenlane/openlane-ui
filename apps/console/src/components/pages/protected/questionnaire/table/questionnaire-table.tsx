@@ -15,12 +15,14 @@ import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useNotification } from '@/hooks/useNotification'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
     {
       field: TemplateOrderField.name,
@@ -45,6 +47,7 @@ export const QuestionnairesTable = () => {
 
   const {
     templates,
+    isError,
     isLoading: fetching,
     paginationMeta,
   } = useTemplates({
@@ -107,6 +110,16 @@ export const QuestionnairesTable = () => {
       { label: 'Questionnaires', href: '/questionnaires' },
     ])
   }, [setCrumbs])
+
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load questionnaires',
+      })
+    }
+  }, [isError, errorNotification])
+
   return (
     <div>
       <QuestionnaireTableToolbar

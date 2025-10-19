@@ -12,7 +12,7 @@ import {
   UserWhereInput,
 } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
@@ -38,10 +38,9 @@ export const MembersTable = () => {
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
-  const { successNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
-
   const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>([
     {
       field: OrgMembershipOrderField.created_at,
@@ -78,7 +77,7 @@ export const MembersTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  const { members, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
+  const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
   const handleCopy = (text: string) => {
     copyToClipboard(text)
@@ -87,6 +86,15 @@ export const MembersTable = () => {
       variant: 'success',
     })
   }
+
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load members',
+      })
+    }
+  }, [isError, errorNotification])
 
   const providerIcon = (provider: UserAuthProvider) => {
     switch (provider) {
