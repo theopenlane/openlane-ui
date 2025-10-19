@@ -1,4 +1,4 @@
-import { InvitesFilterIcons, MmebersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
+import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
 import { FilterField } from '@/types'
 import { InviteInviteStatus, OrderDirection, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
 
@@ -7,7 +7,7 @@ export const MEMBERS_FILTER_FIELDS: FilterField[] = [
     key: 'providers',
     label: 'Providers',
     type: 'select',
-    icon: MmebersFilterIcons.Providers,
+    icon: MembersFilterIcons.Providers,
     options: [
       { label: 'GitHub', value: UserAuthProvider.GITHUB },
       { label: 'Google', value: UserAuthProvider.GOOGLE },
@@ -18,7 +18,7 @@ export const MEMBERS_FILTER_FIELDS: FilterField[] = [
     key: 'role',
     label: 'Role',
     type: 'select',
-    icon: MmebersFilterIcons.Role,
+    icon: MembersFilterIcons.Role,
     options: [
       { label: 'Member', value: OrgMembershipRole.MEMBER },
       { label: 'Owner', value: OrgMembershipRole.OWNER },
@@ -34,6 +34,7 @@ export const INVITES_FILTER_FIELDS: FilterField[] = [
     key: 'status',
     label: 'Status',
     type: 'select',
+    multiple: true,
     icon: InvitesFilterIcons.Status,
     options: [
       { label: 'Accepted', value: InviteInviteStatus.INVITATION_ACCEPTED },

@@ -15,6 +15,7 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
 import type { DateRange } from 'react-day-picker'
+import Slider from '../slider/slider'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -51,13 +52,15 @@ const handleDateRangeOperator = (range: DateRange, field: string): Condition[] =
   }
 
   if (range.from && range.to) {
+    const startDate = range.from < range.to ? range.from : range.to
+    const endDate = range.from < range.to ? range.to : range.from
     if (isSameDay(range.from, range.to)) {
-      const start = format(startOfDay(range.from), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-      const end = format(startOfDay(addDays(range.from, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const end = format(startOfDay(addDays(startDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
       conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
     } else {
-      const start = format(startOfDay(range.from), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-      const end = format(startOfDay(addDays(range.to, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const end = format(startOfDay(addDays(endDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
       conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
     }
   }
@@ -90,6 +93,8 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
               case 'date':
                 return field.key
               case 'dateRange':
+                return field.key
+              case 'sliderNumber':
                 return field.key
               default:
                 return field.key
@@ -135,6 +140,9 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           }
           break
         }
+        case 'sliderNumber':
+          andConditions.push({ [field.key]: val as number })
+          break
       }
     }
     return andConditions.length === 0 ? {} : { and: andConditions }
@@ -182,7 +190,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         case 'text':
           return <Input placeholder={`Enter ${field.label}`} value={(values[field.key] as string) ?? ''} onChange={(e) => handleChange(field.key, e.target.value)} />
         case 'select': {
-          if (field?.options && field.options.length < 6) {
+          if (field?.options && (field.options.length < 6 || field.multiple)) {
             const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
 
             return (
@@ -280,6 +288,21 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 </div>
               </PopoverContent>
             </Popover>
+          )
+        }
+
+        case 'sliderNumber': {
+          const currentValue = typeof values[field.key] === 'number' ? (values[field.key] as number) : 0
+
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{field.min ?? 0}</span>
+                <span>{currentValue}</span>
+                <span>{field.max ?? 100}</span>
+              </div>
+              <Slider value={currentValue} onChange={(val: number) => handleChange(field.key, val)} />
+            </div>
           )
         }
 

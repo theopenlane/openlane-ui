@@ -15,7 +15,7 @@ import {
   Stamp,
   Tag,
   ThumbsUp,
-  UserRound,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react'
 import { ControlControlStatus, ControlControlType, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
@@ -105,7 +105,7 @@ export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
   [ControlsFilterIconName.Subcategory]: FolderTree,
   [ControlsFilterIconName.Status]: CircleDot,
   [ControlsFilterIconName.Standard]: FileBadge2,
-  [ControlsFilterIconName.Owners]: UserRound,
+  [ControlsFilterIconName.Owners]: UsersRound,
   [ControlsFilterIconName.ProgramName]: ShieldCheck,
   [ControlsFilterIconName.Type]: Tag,
 }

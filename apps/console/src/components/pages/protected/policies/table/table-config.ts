@@ -49,7 +49,7 @@ export function usePoliciesFilters(): FilterField[] | null {
       },
       {
         key: 'policyType',
-        label: 'Policy Type',
+        label: 'Type',
         type: 'text',
         icon: FilterIcons.Type,
       },
@@ -63,6 +63,7 @@ export function usePoliciesFilters(): FilterField[] | null {
         key: 'status',
         label: 'Status',
         type: 'select',
+        multiple: true,
         options: InternalPolicyStatusFilterOptions,
         icon: FilterIcons.Status,
       },

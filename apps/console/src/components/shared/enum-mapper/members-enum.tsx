@@ -17,7 +17,7 @@ export enum MembersFilterIconName {
   Role = 'Role',
 }
 
-export const MmebersFilterIcons: Record<MembersFilterIconName, LucideIcon> = {
+export const MembersFilterIcons: Record<MembersFilterIconName, LucideIcon> = {
   [MembersFilterIconName.Providers]: Plug,
   [MembersFilterIconName.Role]: IdCard,
 }

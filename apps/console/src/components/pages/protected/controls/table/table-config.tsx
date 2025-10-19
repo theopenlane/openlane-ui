@@ -4,7 +4,7 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate } from '@/utils/date'
-import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
+import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
@@ -17,14 +17,14 @@ export const getControlsFilterFields = (
   controlControlTypeOptions: { value: string; label: string }[],
 ): FilterField[] => [
   { key: 'refCode', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
-  { key: 'program', label: 'Program', type: 'text', icon: FilterIcons.Program },
   { key: 'category', label: 'Category', type: 'text', icon: FilterIcons.Category },
   { key: 'subcategory', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
   {
     key: 'status',
     label: 'Status',
     type: 'select',
-    options: ControlStatusOptions,
+    multiple: true,
+    options: ControlStatusFilterOptions,
     icon: FilterIcons.Status,
   },
   {

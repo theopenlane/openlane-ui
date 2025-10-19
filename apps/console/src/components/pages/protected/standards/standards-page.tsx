@@ -5,11 +5,10 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { BookKey, BookLock, Bubbles, Calendar, CheckCircleIcon, SearchIcon, Settings2, SettingsIcon, UserRound } from 'lucide-react'
+import { CheckCircleIcon, SearchIcon, Settings2, SettingsIcon } from 'lucide-react'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Input } from '@repo/ui/input'
-import { FilterField } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
@@ -19,16 +18,9 @@ import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import Loading from '@/app/(protected)/standards/loading'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { getTasksFilterFields } from './table/table-config'
 
-const filterFields: FilterField[] = [
-  { key: 'systemOwned', label: 'System Owned', type: 'boolean', icon: UserRound },
-  { key: 'updatedAt', label: 'Updated At', type: 'date', icon: Calendar },
-  { key: 'createdAt', label: 'Created At', type: 'date', icon: Calendar },
-  { key: 'version', label: 'Version', type: 'text', icon: BookKey },
-  { key: 'revision', label: 'Revision', type: 'text', icon: BookLock },
-  { key: 'governingBody', label: 'Governing Body', type: 'text', icon: Bubbles },
-]
-
+const filterFields = getTasksFilterFields()
 const StandardsPage = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')

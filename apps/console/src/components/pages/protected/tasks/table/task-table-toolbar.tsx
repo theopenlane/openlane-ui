@@ -1,10 +1,10 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useState } from 'react'
-import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
+import { getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { DownloadIcon, FileText, LoaderCircle, SearchIcon, Upload, UserRound } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
@@ -59,33 +59,8 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     if (filterFields || !orgMembers || !isSuccess) {
       return
     }
-
-    setFilterFields([
-      ...TASK_FILTER_FIELDS,
-      {
-        key: 'assignerID',
-        label: 'Assigner',
-        type: 'select',
-        options: orgMembers,
-        icon: UserRound,
-      },
-      {
-        key: 'assigneeID',
-        label: 'Assignee',
-        type: 'select',
-        options: orgMembers,
-        icon: UserRound,
-      },
-      {
-        key: 'hasProgramsWith',
-        label: 'Program Name',
-        type: 'select',
-        forceKeyOperator: true,
-        childrenObjectKey: 'id',
-        options: programOptions,
-        icon: FileText,
-      },
-    ])
+    const fields = getTasksFilterFields(orgMembers, programOptions)
+    setFilterFields(fields)
   }, [orgMembers, programOptions, filterFields, isSuccess])
 
   const handleTabChange = (tab: 'table' | 'card') => {

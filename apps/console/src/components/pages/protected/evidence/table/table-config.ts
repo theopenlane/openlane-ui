@@ -10,6 +10,7 @@ export const EVIDENCE_FILTERABLE_FIELDS: FilterField[] = [
     key: 'status',
     label: 'Status',
     type: 'select',
+    multiple: true,
     options: EvidenceStatusOptions,
     icon: FilterIcons.Status,
   },

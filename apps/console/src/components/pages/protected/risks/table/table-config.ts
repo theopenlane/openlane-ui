@@ -1,7 +1,6 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { FilterField } from '@/types'
 import { OrderDirection, RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
-import { Proportions } from 'lucide-react'
 
 const enumToOptions = (e: Record<string, string>) =>
   Object.values(e).map((value) => ({
@@ -34,11 +33,12 @@ export const getRisksFilterFields = (programOptions: { value: string; label: str
     type: 'text',
     icon: FilterIcons.RiskType,
   },
-  { key: 'score', label: 'Score', type: 'text', icon: Proportions },
+  { key: 'score', label: 'Score', type: 'sliderNumber', icon: FilterIcons.Score },
   {
     key: 'status',
     label: 'Status',
     type: 'select',
+    multiple: true,
     options: enumToOptions(RiskRiskStatus),
     icon: FilterIcons.Status,
   },
