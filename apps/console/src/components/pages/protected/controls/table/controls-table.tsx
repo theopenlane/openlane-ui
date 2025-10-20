@@ -204,7 +204,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
 
     handleExport({
       exportType: ExportExportType.CONTROL,
-      filters: JSON.stringify(filters),
+      filters: JSON.stringify(whereFilter),
       fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
       format: ExportExportFormat.CSV,
     })
