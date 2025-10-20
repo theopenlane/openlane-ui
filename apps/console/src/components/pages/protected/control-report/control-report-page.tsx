@@ -27,6 +27,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
 import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
+import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
 
 type TControlReportPageProps = {
   active: 'report' | 'controls'
@@ -175,6 +176,14 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                     <div className="flex items-center space-x-2 px-1">
                       <Upload size={16} strokeWidth={2} />
                       <span>Upload Custom Controls</span>
+                    </div>
+                  }
+                />
+                <BulkCSVCreateMappedControlDialog
+                  trigger={
+                    <div className="flex items-center space-x-2 px-1">
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Upload Control Mappings</span>
                     </div>
                   }
                 />
