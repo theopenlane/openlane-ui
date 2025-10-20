@@ -1,6 +1,6 @@
+import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { FilterField } from '@/types'
 import { OrderDirection, RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
-import { Briefcase, FileQuestion, Proportions, SquareAsterisk, Tags } from 'lucide-react'
 
 const enumToOptions = (e: Record<string, string>) =>
   Object.values(e).map((value) => ({
@@ -11,35 +11,45 @@ const enumToOptions = (e: Record<string, string>) =>
     value,
   }))
 
-export const RISKS_FILTER_FIELDS: FilterField[] = [
-  { key: 'category', label: 'Category', type: 'text', icon: FileQuestion },
+export const getRisksFilterFields = (programOptions: { value: string; label: string }[]): FilterField[] => [
+  { key: 'category', label: 'Category', type: 'text', icon: FilterIcons.Category },
   {
     key: 'impact',
     label: 'Impact',
     type: 'select',
     options: enumToOptions(RiskRiskImpact),
-    icon: Briefcase,
+    icon: FilterIcons.Impact,
   },
   {
     key: 'likelihood',
     label: 'Likelihood',
     type: 'select',
     options: enumToOptions(RiskRiskLikelihood),
-    icon: Briefcase,
+    icon: FilterIcons.Likelihood,
   },
   {
     key: 'riskType',
     label: 'Risk Type',
     type: 'text',
-    icon: SquareAsterisk,
+    icon: FilterIcons.RiskType,
   },
-  { key: 'score', label: 'Score', type: 'text', icon: Proportions },
+  { key: 'score', label: 'Score', type: 'sliderNumber', icon: FilterIcons.Score },
   {
     key: 'status',
     label: 'Status',
     type: 'select',
+    multiple: true,
     options: enumToOptions(RiskRiskStatus),
-    icon: Tags,
+    icon: FilterIcons.Status,
+  },
+  {
+    key: 'hasProgramsWith',
+    label: 'Program Name',
+    type: 'select',
+    forceKeyOperator: true,
+    childrenObjectKey: 'id',
+    options: programOptions,
+    icon: FilterIcons.ProgramName,
   },
 ]
 

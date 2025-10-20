@@ -1,11 +1,11 @@
+import { FilterIcons } from '@/components/shared/enum-mapper/tokens-enum'
 import { FilterField } from '@/types'
 import { OrderDirection } from '@repo/codegen/src/schema'
-import { Calendar, FileText } from 'lucide-react'
 
 export const TOKEN_FILTER_FIELDS: FilterField[] = [
-  { key: 'name', label: 'Name', type: 'text', icon: FileText },
-  { key: 'description', label: 'Description', type: 'text', icon: FileText },
-  { key: 'expiresAt', label: 'Expires At', type: 'date', icon: Calendar },
+  { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
+  { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },
+  { key: 'expiresAt', label: 'Expires At', type: 'dateRange', icon: FilterIcons.ExpiresAt },
 ]
 
 export const TOKEN_SORT_FIELDS = [

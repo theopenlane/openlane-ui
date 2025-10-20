@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { FilterField, WhereCondition, Condition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
-import { format, startOfDay, addDays } from 'date-fns'
+import { format, startOfDay, addDays, isSameDay, isValid } from 'date-fns'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Switch } from '@repo/ui/switch'
@@ -14,6 +14,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
+import type { DateRange } from 'react-day-picker'
+import Slider from '../slider/slider'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -21,10 +23,48 @@ type TTableFilterProps = {
   onFilterChange?: (whereCondition: WhereCondition) => void
 }
 
-const handleDateEQOperator = (value: Date, field: string): Condition[] => {
-  const start = format(startOfDay(value), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-  const end = format(startOfDay(addDays(value, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+const handleDateEQOperator = (value: Date | string, field: string) => {
+  const date = value instanceof Date ? value : new Date(value)
+  if (!isValid(date)) {
+    console.warn(`Invalid date for field "${field}":`, value)
+    return []
+  }
+
+  const start = format(startOfDay(date), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+  const end = format(startOfDay(addDays(date, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
   return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
+}
+const handleDateRangeOperator = (range: DateRange, field: string): Condition[] => {
+  const conditions: Condition[] = []
+
+  if (!range.from && !range.to) return conditions
+
+  if (!range.from && range.to) {
+    const end = format(startOfDay(addDays(range.to, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    conditions.push({ [`${field}LT`]: end })
+    return conditions
+  }
+
+  if (range.from && !range.to) {
+    const start = format(startOfDay(range.from), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    conditions.push({ [`${field}GTE`]: start })
+    return conditions
+  }
+
+  if (range.from && range.to) {
+    const startDate = range.from < range.to ? range.from : range.to
+    const endDate = range.from < range.to ? range.to : range.from
+    if (isSameDay(range.from, range.to)) {
+      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const end = format(startOfDay(addDays(startDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
+    } else {
+      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const end = format(startOfDay(addDays(endDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
+    }
+  }
+  return conditions
 }
 
 const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageKey, onFilterChange }) => {
@@ -51,6 +91,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
               case 'boolean':
                 return field.key
               case 'date':
+                return field.key
+              case 'dateRange':
+                return field.key
+              case 'sliderNumber':
                 return field.key
               default:
                 return field.key
@@ -88,9 +132,19 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           andConditions.push(...handleDateEQOperator(dateVal, key))
           break
         }
+        case 'dateRange': {
+          const rangeVal = val as DateRange | undefined
+
+          if (rangeVal?.from || rangeVal?.to) {
+            andConditions.push(...handleDateRangeOperator(rangeVal, key))
+          }
+          break
+        }
+        case 'sliderNumber':
+          andConditions.push({ [field.key]: val as number })
+          break
       }
     }
-
     return andConditions.length === 0 ? {} : { and: andConditions }
   }, [])
 
@@ -136,7 +190,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         case 'text':
           return <Input placeholder={`Enter ${field.label}`} value={(values[field.key] as string) ?? ''} onChange={(e) => handleChange(field.key, e.target.value)} />
         case 'select': {
-          if (field?.options && field.options.length < 6) {
+          if (field?.options && (field.options.length < 6 || field.multiple)) {
             const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
 
             return (
@@ -203,6 +257,55 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
               </PopoverContent>
             </Popover>
           )
+        case 'dateRange': {
+          const range = (values[field.key] as { from?: Date; to?: Date }) ?? {}
+
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !range?.from && !range?.to && 'text-muted-foreground')}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {range?.from && range?.to
+                    ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
+                    : range?.from
+                    ? `From: ${format(range.from, 'PPP')}`
+                    : range?.to
+                    ? `To: ${format(range.to, 'PPP')}`
+                    : 'Pick date range'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-4 space-y-4 w-auto">
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <p className="text-sm font-medium mb-1">From</p>
+                    <Calendar mode="single" selected={range.from} onSelect={(date) => handleChange(field.key, { ...range, from: date ?? undefined })} />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-medium mb-1">To</p>
+                    <Calendar mode="single" selected={range.to} onSelect={(date) => handleChange(field.key, { ...range, to: date ?? undefined })} />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )
+        }
+
+        case 'sliderNumber': {
+          const currentValue = typeof values[field.key] === 'number' ? (values[field.key] as number) : 0
+
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{field.min ?? 0}</span>
+                <span>{currentValue}</span>
+                <span>{field.max ?? 100}</span>
+              </div>
+              <Slider value={currentValue} onChange={(val: number) => handleChange(field.key, val)} />
+            </div>
+          )
+        }
+
         default:
           return null
       }
