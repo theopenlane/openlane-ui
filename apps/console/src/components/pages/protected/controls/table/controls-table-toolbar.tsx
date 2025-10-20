@@ -21,6 +21,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { TAccessRole, TData } from '@/types/authz'
+import { BulkCSVCreateMappedControlDialog } from '../bulk-csv-create-map-control-dialog'
 import { ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 
 type TProps = {
@@ -133,6 +134,14 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                         <div className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Upload Custom Controls</span>
+                        </div>
+                      }
+                    />
+                    <BulkCSVCreateMappedControlDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Upload Control Mappings</span>
                         </div>
                       }
                     />

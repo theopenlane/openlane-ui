@@ -46655,6 +46655,15 @@ export type CreateBulkCsvControlMutation = {
   createBulkCSVControl: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
+export type CreateBulkCsvMappedControlMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvMappedControlMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVMappedControl: { __typename?: 'MappedControlBulkCreatePayload'; mappedControls?: Array<{ __typename?: 'MappedControl'; id: string }> | null }
+}
+
 export type CloneBulkCsvControlMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>
