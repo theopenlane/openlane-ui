@@ -67,7 +67,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
 
   const options: Option[] = groups.map((g) => ({
-    label: g?.name || '',
+    label: g?.displayName || g?.name || '',
     value: g?.id || '',
   }))
 

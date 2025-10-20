@@ -31,7 +31,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
   const options: Option[] = groups.map((g) => ({
-    label: g?.name || '',
+    label: g?.displayName || g?.name || '',
     value: g?.id || '',
   }))
   const handleSelect = (field: 'approverID' | 'delegateID', value: string) => {
