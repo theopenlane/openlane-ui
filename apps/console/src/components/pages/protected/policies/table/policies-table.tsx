@@ -117,10 +117,6 @@ export const PoliciesTable = () => {
 
   const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies }), [users, tokens, selectedPolicies])
 
-  const handleCreateNew = async () => {
-    router.push(`/policies/create`)
-  }
-
   const handleRowClick = (rowData: InternalPolicy) => {
     router.push(`/policies/${rowData.id}/view`)
   }
@@ -175,7 +171,6 @@ export const PoliciesTable = () => {
     <>
       <PoliciesTableToolbar
         searching={fetching}
-        handleCreateNew={handleCreateNew}
         setFilters={setFilters}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {

@@ -31,8 +31,8 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 
 type TControlsTableProps = {
-  active: 'report' | 'controls'
-  setActive: (tab: 'report' | 'controls') => void
+  active: 'dashboard' | 'table'
+  setActive: (tab: 'dashboard' | 'table') => void
 }
 
 const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => {

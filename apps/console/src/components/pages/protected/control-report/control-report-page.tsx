@@ -26,8 +26,8 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type TControlReportPageProps = {
-  active: 'report' | 'controls'
-  setActive: (tab: 'report' | 'controls') => void
+  active: 'dashboard' | 'table'
+  setActive: (tab: 'dashboard' | 'table') => void
 }
 
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
@@ -101,7 +101,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     }
 
     saveFilters(TableFilterKeysEnum.CONTROL, filters)
-    setActive('controls')
+    setActive('table')
   }
 
   useEffect(() => {

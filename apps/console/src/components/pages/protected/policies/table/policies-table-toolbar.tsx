@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -23,7 +23,6 @@ type TPoliciesTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, unknown>) => void
-  handleCreateNew: () => void
   handleExport: () => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -42,7 +41,6 @@ type TPoliciesTableToolbarProps = {
 const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   searching,
   searchTerm,
-  handleCreateNew,
   setFilters,
   setSearchTerm,
   handleExport,
@@ -138,12 +136,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
-
-              {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
-                  Create
-                </Button>
-              )}
             </>
           )}
         </div>

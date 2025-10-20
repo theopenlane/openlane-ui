@@ -90,7 +90,7 @@ export const useUpdateSubcontrol = () => {
     mutationFn: async (variables) => client.request(UPDATE_SUBCONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
@@ -103,7 +103,7 @@ export const useDeleteSubcontrol = () => {
     mutationFn: async (variables) => client.request(DELETE_SUBCONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
@@ -116,7 +116,7 @@ export const useCreateSubcontrol = () => {
     mutationFn: async (variables) => client.request(CREATE_SUBCONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
