@@ -165,7 +165,7 @@ export const useCreateBulkCSVMappedControl = () => {
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_MAPPED_CONTROL, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
