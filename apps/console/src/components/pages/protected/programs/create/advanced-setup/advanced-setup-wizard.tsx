@@ -182,7 +182,7 @@ export default function AdvancedSetupWizard() {
               <Button variant="outline" onClick={handleBack} iconPosition="left">
                 Back
               </Button>
-              <Button onClick={handleNext} disabled={isPending} loading={isPending}>
+              <Button className="btn-secondary" onClick={handleNext} disabled={isPending} loading={isPending}>
                 {stepper.isLast ? 'Create' : 'Continue'}
               </Button>
             </div>

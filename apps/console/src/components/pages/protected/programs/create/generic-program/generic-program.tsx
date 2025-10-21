@@ -117,11 +117,13 @@ const GenericProgram = () => {
         {/* Actions */}
         <div className="flex justify-between pt-4">
           <Link href="/programs/create">
-            <Button type="button" variant="back">
+            <Button variant="outline" type="button">
               Back
             </Button>
           </Link>
-          <Button type="submit">Create Program</Button>
+          <Button type="submit" className="btn-secondary">
+            Create Program
+          </Button>
         </div>
       </form>
     </FormProvider>

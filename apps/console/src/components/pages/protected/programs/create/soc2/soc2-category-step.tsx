@@ -32,7 +32,7 @@ export default function SOC2CategoryStep() {
         {CATEGORY_OPTIONS.map((item) => {
           const isSelected = selected.includes(item)
           return (
-            <Button key={item} type="button" onClick={() => toggleCategory(item)} className={`text-left h-11 ${isSelected ? 'shadow-primary24 border border-primary' : ''}`}>
+            <Button variant="outline" key={item} type="button" onClick={() => toggleCategory(item)} className={`text-left h-11 ${isSelected ? 'shadow-primary24 border border-primary' : ''}`}>
               {item}
             </Button>
           )
