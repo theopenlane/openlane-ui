@@ -1,20 +1,33 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { logoStyles, type LogoVariants } from './logo.styles'
 import { useTheme } from 'next-themes'
 
 export interface LogoProps extends LogoVariants {
   width?: number
   asIcon?: boolean
+  height?: number
 }
 
-export const Logo = ({ theme, width = 385, asIcon = false }: LogoProps) => {
-  if (theme === undefined) {
-    const { resolvedTheme } = useTheme()
+export const Logo = ({ theme, width = 385, height = 38, asIcon = false }: LogoProps) => {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-    theme = resolvedTheme as 'light' | 'dark' | 'white'
+  useEffect(() => setMounted(true), [])
+
+  if (!mounted) {
+    return (
+      <div
+        style={{
+          width,
+          height: width * 0.25,
+        }}
+      />
+    )
   }
 
-  const { base, icon, text, iconBackground } = logoStyles({ theme })
+  const activeTheme = theme ?? (resolvedTheme as 'light' | 'dark' | 'white')
+  const { base, icon, text, iconBackground } = logoStyles({ theme: activeTheme })
 
   if (asIcon) {
     return (
@@ -32,7 +45,7 @@ export const Logo = ({ theme, width = 385, asIcon = false }: LogoProps) => {
   }
 
   return (
-    <svg id="Openlane_Logo" width={width} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 388.66 73.61" className={base()}>
+    <svg id="Openlane_Logo" width={width} height={height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 388.66 73.61" className={base()}>
       <path
         className={iconBackground()}
         d="M33.02,7.16L3.35,58.22c-4.53,7.8-.82,14.18,8.24,14.18h59.35c7.77,0,12.31-6.44,8.45-13.43-1.74-3.15-3.6-6.24-5.4-9.36-5.91-10.24-11.82-20.47-17.73-30.71-2.37-4.1-4.73-8.2-7.1-12.3-4.56-7.24-11.72-7.07-16.14.54v.02Z"
