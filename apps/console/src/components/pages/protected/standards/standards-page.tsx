@@ -105,7 +105,9 @@ const StandardsPage = () => {
             </div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`}>
-              <Button className="mt-auto py-2 px-4 btn-secondary">Details</Button>
+              <Button variant="primary" className="mt-auto py-2 px-4">
+                Details
+              </Button>
             </Link>
           </Card>
         ))}

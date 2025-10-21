@@ -14,6 +14,7 @@ import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { extractGraphQlResponseError } from '@/utils/graphQlErrorMatcher'
 import { SUPPORT_EMAIL } from '@/constants'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { Button } from '@repo/ui/button'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -144,13 +145,13 @@ export const Subscribe = () => {
                   </>
                 )}
               />
-              <button type="submit" className={button() + ' btn-secondary'} disabled={isPending}>
+              <Button variant="primary" type="submit" className={button()} disabled={isPending}>
                 <div className="flex items-center">
                   {isPending && <LoaderCircle className="animate-spin mr-2" size={16} />}
                   <span>{isPending ? 'Joining...' : 'Join the waitlist'}</span>
                 </div>
                 <CircleArrowRight size={16} />
-              </button>
+              </Button>
             </form>
           </Form>
         </div>

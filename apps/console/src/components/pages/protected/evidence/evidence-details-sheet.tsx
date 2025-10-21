@@ -334,8 +334,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-        ? oldValue.getTime() === newValue.getTime()
-        : oldValue === newValue
+          ? oldValue.getTime() === newValue.getTime()
+          : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -402,7 +402,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
     return (
       <div className="flex justify-end flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
+        {evidence?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
       </div>
     )
   }
@@ -465,7 +467,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
                         Cancel
                       </Button>
-                      <Button className="h-8 p-2 btn-secondary" onClick={form.handleSubmit(onSubmit)} icon={<Save />} iconPosition="left">
+                      <Button variant="primary" className="h-8 p-2" onClick={form.handleSubmit(onSubmit)} icon={<Save />} iconPosition="left">
                         Save
                       </Button>
                     </>

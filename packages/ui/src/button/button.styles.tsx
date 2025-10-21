@@ -14,7 +14,40 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      filled: 'bg-button text-button-text ',
+      secondary: `
+        bg-btn-primary
+        text-btn-primary-text
+        transition-all
+        duration-500
+        ease-in-out
+        hover:bg-btn-primary-hover
+        hover:rounded-md
+        disabled:cursor-not-allowed
+        disabled:text-btn-primary-text-disabled
+        border
+    `,
+      primary: `
+       bg-btn-secondary
+       text-btn-secondary-text
+       transition-all
+       duration-500
+       hover:bg-btn-secondary-hover
+       hover:border-border
+       [&.disabled]:text-btn-secondary-text-disabled
+     `,
+      icon: 'text-muted-foreground hover:text-foreground',
+      iconButton: `
+        bg-transparent
+        text-muted-foreground
+        rounded-md
+        transition-all duration-500 ease-in-out
+        hover:bg-nav
+        hover:border-border
+        hover:text-text-paragraph
+        [&.is-active]:!bg-nav
+        [&.is-active]:border-border
+        [&.is-active]:text-text-paragraph
+      `,
       light: 'bg-button-light text-text-dark ',
       outline: 'border-border text-text-paragraph border',
       outlineLight: 'border-border-dark text-text-dark border',
@@ -53,7 +86,7 @@ export const buttonStyles = tv({
   },
   compoundVariants: [
     {
-      variant: 'filled',
+      variant: 'secondary',
       size: 'sm',
       class: 'text-default-900',
     },
@@ -69,7 +102,7 @@ export const buttonStyles = tv({
     },
   ],
   defaultVariants: {
-    variant: 'filled',
+    variant: 'secondary',
     size: 'md',
   },
 })
