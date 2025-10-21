@@ -9,6 +9,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
+import { Button } from '@repo/ui/button'
 
 type Props = {
   stripeCustomerId: string | null | undefined

@@ -49,7 +49,7 @@
     box-shadow: none !important;
   }
 
-  /* Primary Button */
+ /* !* Primary Button *!
   button {
     background-color: var(--color-btn-primary);
     color: var(--color-btn-primary-text);
@@ -59,17 +59,17 @@
   button.is-active {
     background-color: var(--color-btn-primary-hover);
     border-radius: 6px;
-    /*
+    !*
     border-color: #09151D3D !important;
-    */
+    *!
   }
   button:disabled {
     cursor: not-allowed;
     color: var(--color-btn-primary-text-disabled);
-  }
+  }*/
 
   /* Secondary Button */
-  .btn-secondary {
+  /*.btn-secondary {
     background-color: var(--color-btn-secondary);
     color: var(--color-btn-secondary-text);
     transition: all 0.5s ease;
@@ -80,9 +80,9 @@
   }
   .btn-secondary:disabled {
     color: var(--color-btn-secondary-text-disabled);
-  }
+  }*/
 
-  /* Secondary Button */
+  /*!* Secondary Button *!
   .btn-card {
     border-radius: 6px;
     background-color: transparent;
@@ -95,10 +95,10 @@
     background-color: var(--color-nav);
     border-color: var(--color-border);
     color: var(--color-text-paragraph);
-  }
+  }*/
 
   /* Transparent Button */
-  button.bg-transparent {
+  /*button.bg-transparent {
     border-radius: 6px;
     border: 1px solid transparent;
     transition: all 0.5s ease;
@@ -109,7 +109,7 @@
     border-radius: 6px;
     border: 1px solid var(--color-border) !important;
     color: var(--color-text-paragraph) !important;
-  }
+  }*/
 
   .shadow-primary16 {
     box-shadow: 0 0 0 4px rgba(96, 232, 201, 0.16) !important;

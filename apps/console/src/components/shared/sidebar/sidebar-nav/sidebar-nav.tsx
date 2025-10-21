@@ -110,8 +110,9 @@ export default function SideNav({
           <div key={idx} className="relative flex w-full items-center justify-center">
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className=" h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
             <Button
+              variant="iconButton"
               onClick={() => (isExpandable ? handleTogglePanel(isActive, item) : handleNavigate(url))}
-              className={` flex justify-start gap-1 btn-card text-muted-foreground  h-8  ${isActive ? 'is-active text-paragraph' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 !px-1.5'}`}
+              className={`flex justify-start gap-1 h-8 ${isActive ? 'is-active text-paragraph' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 !px-1.5'}`}
             >
               <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
               {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
@@ -253,9 +254,9 @@ export default function SideNav({
                 </div>
               )}
             </Link>
-            <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset">
+            <Button variant="icon" onClick={() => onPrimaryExpandToggle()}>
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
-            </button>
+            </Button>
           </div>
           {isOrganizationSelected && !session?.user?.isOnboarding && (
             <>
@@ -264,7 +265,7 @@ export default function SideNav({
                 <Menu
                   trigger={
                     primaryExpanded ? (
-                      <Button className="btn-secondary flex-1">
+                      <Button variant="primary" className="flex-1">
                         <Plus size={16} />
                         <p>Create</p>
                       </Button>
