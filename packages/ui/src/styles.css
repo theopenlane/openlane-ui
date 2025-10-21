@@ -175,6 +175,7 @@
   --tip-border: rgba(154, 245, 220, 0.48);
 
   --inverted-muted-foreground: #9aa5b0;
+  --indicator: #e1e7ea;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -251,6 +252,7 @@
   --color-toast-error-icon-muted: #f45b5029;
   --color-toast-error-icon-border: #f45b5070;
   --color-toast-error-icon: #f45b50;
+  --indicator: #4c5e69;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -319,6 +321,7 @@
   --color-toast-error-icon: #ffffff;
   --color-toast-error-icon-muted: #f45b50;
   --color-toast-error-icon-border: #f45b50;
+  --color-indicator: var(--indicator);
 }
 
 @theme inline {
