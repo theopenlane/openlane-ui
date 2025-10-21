@@ -95,7 +95,7 @@ const ThemeSection = ({ setting }: Props) => {
           </div>
         </RadioGroup>
 
-        <Button onClick={handleSave} disabled={isPending || !isDirty} className="ml-7">
+        <Button onClick={handleSave} disabled={isPending || !isDirty} className="ml-7" variant="outline">
           {isPending ? 'Saving…' : 'Save changes'}
         </Button>
       </div>

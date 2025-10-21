@@ -87,7 +87,6 @@ export function FontColorToolbarButton({
       onOpenChange={(value) => {
         setOpen(value)
       }}
-      modal={false}
     >
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip={tooltip}>
@@ -274,6 +273,7 @@ function ColorDropdownMenuItem({
           variant: 'outline',
         }),
         'my-1 flex size-6 items-center justify-center rounded-full border border-solid border-muted p-0 transition-all hover:scale-125',
+        'bg-[unset]',
         !isBrightColor && 'border-transparent',
         isSelected && 'border-2 border-primary',
         className,

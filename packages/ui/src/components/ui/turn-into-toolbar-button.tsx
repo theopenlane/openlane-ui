@@ -128,7 +128,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   const selectedItem = React.useMemo(() => turnIntoItems.find((item) => item.value === (value ?? KEYS.p)) ?? turnIntoItems[0], [value])
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
+    <DropdownMenu open={open} onOpenChange={setOpen} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton className="min-w-[125px]" pressed={open} tooltip="Turn into" isDropdown>
           {selectedItem.label}
@@ -151,14 +151,14 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
           label="Turn into"
         >
           {turnIntoItems.map(({ icon, label, value: itemValue }) => (
-            <DropdownMenuRadioItem key={itemValue} className="min-w-[180px] pl-2 *:first:[span]:hidden" value={itemValue}>
+            <DropdownMenuRadioItem key={itemValue} className="min-w-[180px] pl-2 *:first:[span]:hidden cursor-pointer hover:!bg-secondary transition-colors duration-300" value={itemValue}>
               <span className="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
                 <DropdownMenuItemIndicator>
                   <CheckIcon />
                 </DropdownMenuItemIndicator>
               </span>
-              {icon}
-              {label}
+              <span>{icon}</span>
+              <span className="pl-2">{label}</span>
             </DropdownMenuRadioItem>
           ))}
         </ToolbarMenuGroup>
