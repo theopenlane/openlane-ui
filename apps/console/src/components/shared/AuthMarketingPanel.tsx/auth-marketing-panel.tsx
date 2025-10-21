@@ -1,14 +1,13 @@
 'use client'
-import React, { ReactNode } from 'react'
+import LoginBackground from '@/assets/LoginBackground.tsx'
 
-interface AuthMarketingPanelProps {
-  children?: ReactNode
-}
-
-const AuthMarketingPanel = ({ children }: AuthMarketingPanelProps) => {
+const AuthMarketingPanel = () => {
   return (
-    <div className="hidden lg:flex flex-col justify-center p-10 rounded-lg w-2/5">
-      <div className="flex flex-col space-y-10 ml-5">{children}</div>
+    <div className="hidden lg:flex flex-col justify-center rounded-lg w-2/5 max-w-[555px] relative overflow-hidden">
+      <div className="flex flex-col space-y-10 ml-5 z-10 pl-[64px] pr-[64px]">
+        “Openlane makes compliance effortless. What used to take us weeks of manual work now happens automatically—and the dashboards give our team total visibility.”
+      </div>
+      <LoginBackground className="absolute right-0 top-[645px] bottom-0 flex-shrink-0 opacity-50 " />
     </div>
   )
 }

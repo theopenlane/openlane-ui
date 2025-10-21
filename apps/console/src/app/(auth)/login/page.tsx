@@ -12,7 +12,7 @@ const AuthLogin: React.FC = () => {
   return (
     <Suspense>
       <div className="flex h-full w-full min-h-screen">
-        <div className="flex flex-col justify-between items-center w-full lg:w-3/5 p-6 bg-secondary relative">
+        <div className="flex flex-col justify-between items-center w-full lg:w-4/5 p-6 bg-secondary relative">
           <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
             <Logo width={200} />
           </div>
@@ -22,12 +22,7 @@ const AuthLogin: React.FC = () => {
           </div>
         </div>
 
-        <AuthMarketingPanel>
-          <h2 className="text-4xl font-normal">
-            Checkboxes don’t
-            <br /> build trust. We do.
-          </h2>
-        </AuthMarketingPanel>
+        <AuthMarketingPanel />
       </div>
     </Suspense>
   )
