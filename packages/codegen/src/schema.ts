@@ -6707,7 +6707,11 @@ export interface CreateMappedControlInput {
   confidence?: InputMaybe<Scalars['Int']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the control(s) prefixed with the standard for the from side of the mapping, e.g. SOC2::CC1.1 */
+  fromControlRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
   fromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the subcontrol(s) prefixed with the standard for the from side of the mapping, e.g. SOC2::CC1.1-POF1 */
+  fromSubcontrolRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
@@ -6722,7 +6726,11 @@ export interface CreateMappedControlInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   toControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the control(s) prefixed with the standard for the to side of the mapping, e.g. SOC2::CC1.1 */
+  toControlRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
   toSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the subcontrol(s) prefixed with the standard for the to side of the mapping, e.g. SOC2::CC1.1-POF1 */
+  toSubcontrolRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 export interface CreateMemberWithProgramInput {
@@ -40969,21 +40977,19 @@ export interface TrustCenterWatermarkConfigEdge {
 
 /** TrustCenterWatermarkConfigFont is enum for the field font */
 export enum TrustCenterWatermarkConfigFont {
-  arial = 'arial',
-  avant_garde = 'avant_garde',
-  bookman = 'bookman',
-  comic_sans_ms = 'comic_sans_ms',
-  courier = 'courier',
-  courier_new = 'courier_new',
-  garamond = 'garamond',
-  georgia = 'georgia',
-  helvetica = 'helvetica',
-  impact = 'impact',
-  palatino = 'palatino',
-  times = 'times',
-  times_new_roman = 'times_new_roman',
-  trebuchet_ms = 'trebuchet_ms',
-  verdana = 'verdana',
+  COURIER = 'COURIER',
+  COURIER_BOLD = 'COURIER_BOLD',
+  COURIER_BOLDOBLIQUE = 'COURIER_BOLDOBLIQUE',
+  COURIER_OBLIQUE = 'COURIER_OBLIQUE',
+  HELVETICA = 'HELVETICA',
+  HELVETICA_BOLD = 'HELVETICA_BOLD',
+  HELVETICA_BOLDOBLIQUE = 'HELVETICA_BOLDOBLIQUE',
+  HELVETICA_OBLIQUE = 'HELVETICA_OBLIQUE',
+  SYMBOL = 'SYMBOL',
+  TIMES_BOLD = 'TIMES_BOLD',
+  TIMES_BOLDITALIC = 'TIMES_BOLDITALIC',
+  TIMES_ITALIC = 'TIMES_ITALIC',
+  TIMES_ROMAN = 'TIMES_ROMAN',
 }
 
 export interface TrustCenterWatermarkConfigHistory extends Node {
@@ -41038,21 +41044,19 @@ export interface TrustCenterWatermarkConfigHistoryEdge {
 
 /** TrustCenterWatermarkConfigHistoryFont is enum for the field font */
 export enum TrustCenterWatermarkConfigHistoryFont {
-  arial = 'arial',
-  avant_garde = 'avant_garde',
-  bookman = 'bookman',
-  comic_sans_ms = 'comic_sans_ms',
-  courier = 'courier',
-  courier_new = 'courier_new',
-  garamond = 'garamond',
-  georgia = 'georgia',
-  helvetica = 'helvetica',
-  impact = 'impact',
-  palatino = 'palatino',
-  times = 'times',
-  times_new_roman = 'times_new_roman',
-  trebuchet_ms = 'trebuchet_ms',
-  verdana = 'verdana',
+  COURIER = 'COURIER',
+  COURIER_BOLD = 'COURIER_BOLD',
+  COURIER_BOLDOBLIQUE = 'COURIER_BOLDOBLIQUE',
+  COURIER_OBLIQUE = 'COURIER_OBLIQUE',
+  HELVETICA = 'HELVETICA',
+  HELVETICA_BOLD = 'HELVETICA_BOLD',
+  HELVETICA_BOLDOBLIQUE = 'HELVETICA_BOLDOBLIQUE',
+  HELVETICA_OBLIQUE = 'HELVETICA_OBLIQUE',
+  SYMBOL = 'SYMBOL',
+  TIMES_BOLD = 'TIMES_BOLD',
+  TIMES_BOLDITALIC = 'TIMES_BOLDITALIC',
+  TIMES_ITALIC = 'TIMES_ITALIC',
+  TIMES_ROMAN = 'TIMES_ROMAN',
 }
 
 /** TrustCenterWatermarkConfigHistoryOpType is enum for the field operation */
@@ -48141,6 +48145,31 @@ export type CreateUploadInternalPolicyMutationVariables = Exact<{
 export type CreateUploadInternalPolicyMutation = {
   __typename?: 'Mutation'
   createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string } }
+}
+
+export type GetInternalPoliciesDashboardQueryVariables = Exact<{
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
+
+export type GetInternalPoliciesDashboardQuery = {
+  __typename?: 'Query'
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: {
+        __typename?: 'InternalPolicy'
+        id: string
+        name: string
+        policyType?: string | null
+        status?: InternalPolicyDocumentStatus | null
+        createdAt?: any | null
+        updatedAt?: any | null
+        createdBy?: string | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+  }
 }
 
 export type CreateProcedureMutationVariables = Exact<{

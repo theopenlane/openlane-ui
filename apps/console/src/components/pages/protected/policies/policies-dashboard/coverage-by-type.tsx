@@ -2,12 +2,12 @@
 
 import React, { useMemo } from 'react'
 import ProgressBar from './progress-bar'
-import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
+import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
 
 export default function CoverageByType() {
-  const { policies } = useInternalPolicies({ where: wherePoliciesDashboard })
+  const { policies } = useInternalPoliciesDashboard({ where: wherePoliciesDashboard })
 
   const groupedData = useMemo(() => {
     if (!policies?.length) return []

@@ -9,6 +9,7 @@ import {
   CREATE_CSV_BULK_INTERNAL_POLICY,
   BULK_EDIT_INTERNAL_POLICY,
   CREATE_UPLOAD_POLICY,
+  GET_INTERNAL_POLICIES_DASHBOARD,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -19,6 +20,7 @@ import {
   CreateUploadInternalPolicyMutationVariables,
   DeleteInternalPolicyMutation,
   DeleteInternalPolicyMutationVariables,
+  GetInternalPoliciesDashboardQuery,
   GetInternalPoliciesListQuery,
   GetInternalPoliciesListQueryVariables,
   GetInternalPolicyDetailsByIdQuery,
@@ -155,4 +157,30 @@ export const useCreateUploadInternalPolicy = () => {
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
     },
   })
+}
+
+type UseInternalPoliciesDashboardArgs = {
+  where?: GetInternalPoliciesListQueryVariables['where']
+  enabled?: boolean
+}
+
+export const useInternalPoliciesDashboard = ({ where, enabled }: UseInternalPoliciesDashboardArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetInternalPoliciesDashboardQuery>({
+    queryKey: ['internalPolicies', 'dashboard', where],
+    queryFn: () =>
+      client.request(GET_INTERNAL_POLICIES_DASHBOARD, {
+        where,
+      }),
+    enabled,
+  })
+
+  const policies = (queryResult.data?.internalPolicies?.edges ?? []).map((edge) => edge?.node) as InternalPolicy[]
+
+  return {
+    ...queryResult,
+    policies,
+    isLoading: queryResult.isFetching,
+  }
 }

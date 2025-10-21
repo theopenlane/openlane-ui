@@ -279,3 +279,22 @@ export const CREATE_UPLOAD_POLICY = gql`
     }
   }
 `
+
+export const GET_INTERNAL_POLICIES_DASHBOARD = gql`
+  query GetInternalPoliciesDashboard($where: InternalPolicyWhereInput) {
+    internalPolicies(where: $where, orderBy: [{ field: updated_at, direction: DESC }]) {
+      edges {
+        node {
+          id
+          name
+          policyType
+          status
+          createdAt
+          updatedAt
+          createdBy
+          updatedBy
+        }
+      }
+    }
+  }
+`

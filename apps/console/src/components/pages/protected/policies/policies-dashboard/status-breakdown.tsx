@@ -4,11 +4,11 @@ import React, { useMemo } from 'react'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { wherePoliciesDashboard } from './dashboard-config'
-import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
+import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
 
 export default function StatusBreakdown() {
-  const { policies } = useInternalPolicies({ where: wherePoliciesDashboard })
+  const { policies } = useInternalPoliciesDashboard({ where: wherePoliciesDashboard })
 
   const statusCounts = useMemo(() => {
     const counts: Record<InternalPolicyDocumentStatus, number> = {
