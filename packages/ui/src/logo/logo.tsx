@@ -1,3 +1,4 @@
+'use client'
 import { logoStyles, type LogoVariants } from './logo.styles'
 import { useTheme } from 'next-themes'
 
