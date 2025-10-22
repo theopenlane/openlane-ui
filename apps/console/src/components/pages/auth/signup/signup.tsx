@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
-import MessageBox from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle } from 'lucide-react'
 import { registerUser, type RegisterUser } from '@/lib/user'
@@ -17,6 +16,7 @@ import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 import Github from '@/assets/Github'
 import { loginStyles } from '../login/login.styles'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
+import { cn } from '@repo/ui/lib/utils'
 
 export const SignupPage = () => {
   const searchParams = useSearchParams()
@@ -45,21 +45,28 @@ export const SignupPage = () => {
   }
 
   return (
-    <div className="flex flex-col self-center">
-      <p className="text-2xl font-medium">Create your account</p>
-      <p className="text-base mt-8">Connect to Openlane with</p>
+    <div className="flex flex-col self-center  text-center">
+      <p className="text-3xl font-medium">Create your account</p>
+      {!isPasswordActive && (
+        <div className="mt-2 text-center">
+          <span className="text-muted-foreground text-sm">Already have an account?&nbsp;</span>
+          <Link href="/login" className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
+            Login
+          </Link>
+        </div>
+      )}
 
-      <div className={buttons()}>
-        <Button className="bg-secondary !px-3.5 w-full hover:opacity-60 transition" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={google}>
+      <div className={cn(buttons(), 'mt-[32px]')}>
+        <Button className="!px-3.5 w-full hover:opacity-60 transition" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={google}>
           <p className="text-sm font-normal">Google</p>
         </Button>
 
-        <Button className="bg-secondary !px-3.5 w-full hover:opacity-60 transition" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={github}>
+        <Button className="!px-3.5 w-full hover:opacity-60 transition" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={github}>
           <p className="text-sm font-normal">GitHub</p>
         </Button>
       </div>
 
-      <Separator label="or, sign up with your email" login className={separator()} />
+      <Separator label="or" login className={cn(separator(), 'text-muted-foreground')} />
 
       <SimpleForm
         classNames={form()}
@@ -120,7 +127,11 @@ export const SignupPage = () => {
         }}
       >
         <div className={input()}>
-          <Input type="email" variant="light" name="email" placeholder="Enter your email" className="bg-transparent !text-text" />
+          <div className="flex items-center gap-1">
+            <p className="text-sm">Email</p>
+          </div>
+          <Input type="email" variant="light" name="email" placeholder="Enter your email" className={`bg-transparent !text-text ${showError ? 'border border-toast-error-icon' : ''}`} />
+          {showError && <span className="text-xs text-toast-error-icon text-left">{registrationErrorMessage}</span>}
         </div>
 
         {isPasswordActive && (
@@ -132,35 +143,24 @@ export const SignupPage = () => {
               <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" className="bg-transparent !text-text" />
             </div>
 
-            <button className="p-4  btn-secondary justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={isLoading}>
+            <button className="p-4  btn-secondary justify-between items-center rounded-md text-sm h-[36px] font-bold flex mt-2" type="submit" disabled={isLoading}>
               <span>{isLoading ? 'Creating account...' : 'Sign up'}</span>
               <ArrowRightCircle size={16} />
             </button>
           </>
         )}
-
-        {!isPasswordActive && (
-          <div className="flex text-base mt-4">
-            <span>Have an account?&nbsp;</span>
-            <Link href="/login" className="text-base underline hover:text-blue-500 hover:opacity-80 transition">
-              Login to your account
-            </Link>
-          </div>
-        )}
       </SimpleForm>
 
-      <div className="text-xs opacity-90 flex gap-1 mt-9">
+      <div className="text-xs opacity-90 flex gap-1 mt-4  text-muted-foreground">
         By signing up, you agree to our
-        <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition">
+        <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
           Terms of Service
         </Link>{' '}
         and
-        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition">
+        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
           Privacy Policy
         </Link>
       </div>
-
-      {showError && <MessageBox maxWidth={320} className="p-4 ml-1" message={registrationErrorMessage} />}
     </div>
   )
 }
