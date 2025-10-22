@@ -415,7 +415,8 @@ export const LoginPage = () => {
               )}
             </div>
 
-            <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent" />
+            <Input type="email" variant="light" name="username" placeholder="Enter your email" className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`} />
+            {showLoginError && <span className="text-xs text-toast-error-icon text-left">{signInErrorMessage}</span>}
           </div>
 
           {shouldShowSSOButton() && (
@@ -472,8 +473,6 @@ export const LoginPage = () => {
             Privacy Policy
           </Link>
         </div>
-
-        {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>
   )

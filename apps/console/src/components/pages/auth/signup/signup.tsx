@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
-import MessageBox from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle } from 'lucide-react'
 import { registerUser, type RegisterUser } from '@/lib/user'
@@ -131,7 +130,8 @@ export const SignupPage = () => {
           <div className="flex items-center gap-1">
             <p className="text-sm">Email</p>
           </div>
-          <Input type="email" variant="light" name="email" placeholder="Enter your email" className="bg-transparent !text-text" />
+          <Input type="email" variant="light" name="email" placeholder="Enter your email" className={`bg-transparent !text-text ${showError ? 'border border-toast-error-icon' : ''}`} />
+          {showError && <span className="text-xs text-toast-error-icon text-left">{registrationErrorMessage}</span>}
         </div>
 
         {isPasswordActive && (
@@ -161,8 +161,6 @@ export const SignupPage = () => {
           Privacy Policy
         </Link>
       </div>
-
-      {showError && <MessageBox maxWidth={320} className="p-4 ml-1" message={registrationErrorMessage} />}
     </div>
   )
 }

@@ -18,7 +18,7 @@ const AuthLogin: React.FC = () => {
               <Logo width={180} height={30} />
             </div>
 
-            <div className="flex justify-center items-center w-full h-full mt-3 mb-3 ml-6 z-[999] rounded-lg bg-secondary">
+            <div className="flex justify-center items-center w-full h-full lg:mt-3 lg:mb-3 lg:ml-6 z-[999] rounded-lg bg-secondary">
               <SignupPage />
             </div>
           </div>
