@@ -2,7 +2,6 @@
 
 import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
-import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, SignInResponse } from 'next-auth/react'
