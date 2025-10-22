@@ -3,7 +3,7 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
@@ -16,9 +16,11 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
+  fromTable?: boolean // if from table open automatically without trigger
+  onClose?: () => void
 }
 
-const SetObjectAssociationPoliciesDialog = ({ policyId }: TSetObjectAssociationDialogProps) => {
+const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClose }: TSetObjectAssociationDialogProps) => {
   const policyState = usePolicy()
   const queryClient = useQueryClient()
   const associationsState = usePolicy((state) => state.associations)
@@ -132,6 +134,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId }: TSetObjectAssociationD
         associations: {},
         refCodes: {},
       })
+      onClose?.()
     }
     setOpen(isOpen)
   }
@@ -140,11 +143,19 @@ const SetObjectAssociationPoliciesDialog = ({ policyId }: TSetObjectAssociationD
     setAssociations({ associations: updatedMap, refCodes })
   }, [])
 
+  useEffect(() => {
+    if (!!policyId && !!fromTable) {
+      setOpen(true)
+    }
+  }, [fromTable, policyId])
+
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger asChild>
-        <AddAssociationBtn />
-      </DialogTrigger>
+      {!fromTable && (
+        <DialogTrigger asChild>
+          <AddAssociationBtn />
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Set Association</DialogTitle>
