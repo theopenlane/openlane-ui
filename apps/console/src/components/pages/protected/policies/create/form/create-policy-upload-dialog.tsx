@@ -127,7 +127,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
       }
     }
   }
-
+  console.log('test')
   const handleUploadedFile = (uploadedFile: TUploadedFile) => {
     setUploadedFiles((prev) => [...prev, uploadedFile])
   }
