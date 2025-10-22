@@ -26,7 +26,7 @@ const EvidenceDetailsPage = () => {
   const programId = searchParams.get('programId')
 
   const { data, isLoading } = useGetAllPrograms({
-    where: { statusNEQ: ProgramProgramStatus.COMPLETED },
+    where: { statusNotIn: [ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED] },
     orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
   })
 
