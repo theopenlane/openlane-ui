@@ -197,8 +197,20 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             </TabsTrigger>
           </TabsList>
           <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md']}
-            acceptedFileTypesShort={['TXT', 'MD', 'MDX']}
+            acceptedFileTypes={[
+              'text/plain; charset=utf-8',
+              'text/plain',
+              'text/markdown',
+              'text/x-markdown',
+              'text/mdx',
+              '.mdx',
+              '.md',
+              '.doc',
+              '.docx',
+              'application/msword',
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ]}
+            acceptedFileTypesShort={['TXT', 'MD', 'MDX', 'DOC', 'DOCX']}
             uploadedFile={handleUploadedFile}
           />
           <DirectLinkCreatePolicyProcedureTab setLink={setProcedureMdDocumentLink} link={procedureMdDocumentLink} onAddLink={handleAddLink} />
