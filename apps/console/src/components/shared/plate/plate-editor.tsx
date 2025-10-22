@@ -52,7 +52,14 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
               }) as Value)
       }
 
-      if (!(Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type)) {
+      if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
+        editor.children = [
+          {
+            type: 'p',
+            children: slateNodes as Value,
+          },
+        ]
+      } else {
         editor.children = slateNodes
       }
     }
