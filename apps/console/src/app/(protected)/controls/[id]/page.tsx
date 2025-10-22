@@ -252,10 +252,10 @@ const ControlDetailsPage: React.FC = () => {
     <div className="space-y-4">
       {isEditing && (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+          <Button variant="outline" className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
             Cancel
           </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
+          <Button variant="outline" type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
             Save
           </Button>
         </div>
@@ -329,7 +329,7 @@ const ControlDetailsPage: React.FC = () => {
           {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
             <div className="flex gap-2">
               {canEdit(permission?.roles) && (
-                <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={(e) => handleEdit(e)} aria-label="Edit control">
+                <Button type="button" variant="outline" className="!p-1 h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
                   <PencilIcon size={16} strokeWidth={2} />
                 </Button>
               )}

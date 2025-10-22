@@ -195,7 +195,7 @@ const ProfilePage = () => {
         </p>
       ),
       buttons: [
-        <Button key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
+        <Button variant="outline" key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
           Enable
         </Button>,
         <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>

@@ -175,7 +175,7 @@ const ControlImplementationPage = () => {
             </div>
           </Button>
           {createAllowed && (
-            <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+            <Button variant="outline" className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
               Create
             </Button>
           )}
