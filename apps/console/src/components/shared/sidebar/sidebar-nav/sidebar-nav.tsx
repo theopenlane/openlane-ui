@@ -111,7 +111,7 @@ export default function SideNav({
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className=" h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
             <Button
               onClick={() => (isExpandable ? handleTogglePanel(isActive, item) : handleNavigate(url))}
-              className={` flex justify-start gap-1 btn-card text-muted-foreground  h-8  ${isActive ? 'is-active text-paragraph' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 !px-1.5'}`}
+              className={` flex justify-start gap-1 btn-card text-muted-foreground  h-8  ${isActive ? 'is-active text-paragraph' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
             >
               <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
               {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
@@ -146,7 +146,7 @@ export default function SideNav({
     const linkContent = (
       <Link
         href={child.href ?? '#'}
-        className={`flex items-center  gap-2 p-1 mb-2 h-[32px] rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
+        className={`flex items-center  gap-2 p-1 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
       >
         {child.icon && <child.icon size={secondaryExpanded ? 16 : 20} />}
         {secondaryExpanded && <span className="text-sm font-normal leading-5">{child.title}</span>}
