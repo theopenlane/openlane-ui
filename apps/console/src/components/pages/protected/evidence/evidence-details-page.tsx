@@ -31,7 +31,7 @@ const EvidenceDetailsPage = () => {
   })
 
   const [selectedProgram, setSelectedProgram] = useState<string>('')
-  console.log('TEST')
+
   const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
