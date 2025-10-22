@@ -175,6 +175,7 @@
   --tip-border: rgba(154, 245, 220, 0.48);
 
   --inverted-muted-foreground: #9aa5b0;
+  --color-svg-secondary: #09151d;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -251,6 +252,8 @@
   --color-toast-error-icon-muted: #f45b5029;
   --color-toast-error-icon-border: #f45b5070;
   --color-toast-error-icon: #f45b50;
+
+  --color-svg-secondary: #9af5dc;
 }
 
 /* ─────────────────────────────────────────────────────────

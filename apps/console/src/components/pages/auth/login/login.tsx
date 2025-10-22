@@ -422,7 +422,7 @@ export const LoginPage = () => {
           {shouldShowSSOButton() && (
             <div className="flex flex-col">
               <button
-                className="p-4 text-button-text btn-secondary justify-center items-center rounded-md text-sm h-10 font-bold flex mt-2"
+                className="p-4 text-button-text btn-secondary justify-center items-center rounded-md text-sm h-[36px] font-bold flex mt-2"
                 type="button"
                 onClick={handleSSOLogin}
                 disabled={signInLoading || webfingerLoading}
@@ -447,7 +447,7 @@ export const LoginPage = () => {
                       </div>
                       <PasswordInput variant="light" name="password" placeholder="Enter your password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <button className="mt-[16px] p-4 btn-secondary flex justify-center items-center text-center rounded-md text-sm h-10 font-bold mt-2" type="submit" disabled={signInLoading}>
+                    <button className="mt-[16px] p-4 btn-secondary flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold mt-2" type="submit" disabled={signInLoading}>
                       <span>Login</span>
                     </button>
                   </>
