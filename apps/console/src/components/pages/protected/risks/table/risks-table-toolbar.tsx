@@ -1,8 +1,8 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useState } from 'react'
-import { DownloadIcon, FileText, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { RISKS_FILTER_FIELDS } from './table-config'
+import { getRisksFilterFields } from './table-config'
 import { FilterField } from '@/types'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -68,18 +68,8 @@ const RisksTableToolbar: React.FC<TProps> = ({
       return
     }
 
-    setFilterFields([
-      ...RISKS_FILTER_FIELDS,
-      {
-        key: 'hasProgramsWith',
-        label: 'Program Name',
-        type: 'select',
-        forceKeyOperator: true,
-        childrenObjectKey: 'id',
-        options: programOptions,
-        icon: FileText,
-      },
-    ])
+    const fields = getRisksFilterFields(programOptions)
+    setFilterFields(fields)
   }, [programOptions, filterFields, isSuccess])
 
   return (

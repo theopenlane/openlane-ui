@@ -1,13 +1,13 @@
+import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
 import { FilterField } from '@/types'
 import { InviteInviteStatus, OrderDirection, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
-import { Calendar, Tags, UserRound } from 'lucide-react'
 
 export const MEMBERS_FILTER_FIELDS: FilterField[] = [
   {
     key: 'providers',
     label: 'Providers',
     type: 'select',
-    icon: UserRound,
+    icon: MembersFilterIcons.Providers,
     options: [
       { label: 'GitHub', value: UserAuthProvider.GITHUB },
       { label: 'Google', value: UserAuthProvider.GOOGLE },
@@ -18,7 +18,7 @@ export const MEMBERS_FILTER_FIELDS: FilterField[] = [
     key: 'role',
     label: 'Role',
     type: 'select',
-    icon: UserRound,
+    icon: MembersFilterIcons.Role,
     options: [
       { label: 'Member', value: OrgMembershipRole.MEMBER },
       { label: 'Owner', value: OrgMembershipRole.OWNER },
@@ -28,13 +28,14 @@ export const MEMBERS_FILTER_FIELDS: FilterField[] = [
 ]
 
 export const INVITES_FILTER_FIELDS: FilterField[] = [
-  { key: 'createdAt', label: 'Created At', type: 'date', icon: Calendar },
-  { key: 'role', label: 'Role', type: 'text', icon: UserRound },
+  { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: InvitesFilterIcons.CreatedAt },
+  { key: 'role', label: 'Role', type: 'text', icon: InvitesFilterIcons.Role },
   {
     key: 'status',
     label: 'Status',
     type: 'select',
-    icon: Tags,
+    multiple: true,
+    icon: InvitesFilterIcons.Status,
     options: [
       { label: 'Accepted', value: InviteInviteStatus.INVITATION_ACCEPTED },
       { label: 'Expired', value: InviteInviteStatus.INVITATION_EXPIRED },

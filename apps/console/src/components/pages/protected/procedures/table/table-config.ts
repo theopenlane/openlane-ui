@@ -4,8 +4,7 @@ import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
-import { ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { UserRound } from 'lucide-react'
+import { FilterIcons, ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
@@ -20,15 +19,15 @@ export function useProceduresFilters(): FilterField[] | null {
         label: 'Approver Group',
         type: 'select',
         options: groupOptions,
-        icon: UserRound,
+        icon: FilterIcons.ApproverGroup,
       },
       {
         key: 'hasControlsWith',
         childrenObjectKey: 'refCodeContainsFold',
         forceKeyOperator: true,
-        label: 'Control',
+        label: 'Control Ref Code',
         type: 'text',
-        icon: UserRound,
+        icon: FilterIcons.Control,
       },
       {
         key: 'hasProgramsWith',
@@ -37,34 +36,35 @@ export function useProceduresFilters(): FilterField[] | null {
         forceKeyOperator: true,
         childrenObjectKey: 'id',
         options: programOptions,
-        icon: UserRound,
+        icon: FilterIcons.ProgramName,
       },
       {
         key: 'hasSubcontrolWith',
         childrenObjectKey: 'refCodeContainsFold',
         forceKeyOperator: true,
-        label: 'Subcontrol',
+        label: 'Subcontrol Ref Code',
         type: 'text',
-        icon: UserRound,
+        icon: FilterIcons.Subcontrol,
       },
       {
         key: 'procedureType',
-        label: 'Procedure Type',
+        label: 'Type',
         type: 'text',
-        icon: UserRound,
+        icon: FilterIcons.Type,
       },
       {
         key: 'reviewDue',
         label: 'Review Due',
-        type: 'date',
-        icon: UserRound,
+        type: 'dateRange',
+        icon: FilterIcons.ReviewDue,
       },
       {
         key: 'status',
         label: 'Status',
         type: 'select',
+        multiple: true,
         options: ProcedureStatusFilterOptions,
-        icon: UserRound,
+        icon: FilterIcons.Status,
       },
     ]
 

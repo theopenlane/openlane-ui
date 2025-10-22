@@ -31,7 +31,7 @@ export function TableToolbarButton(props: DropdownMenuProps) {
   const mergeState = useTableMergeState()
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
+    <DropdownMenu open={open} onOpenChange={setOpen} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip="Table" isDropdown>
           <Table />

@@ -13,6 +13,7 @@ import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { useSession } from 'next-auth/react'
 
 const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 
@@ -37,8 +38,10 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
   const inputName = selectedConfig?.inputName
   const inputPlaceholder = selectedConfig?.placeholder
   const objectName = selectedConfig?.objectName
+  const { data: sessionData } = useSession()
+  const currentOrg = sessionData?.user.activeOrganizationId
 
-  const whereFilter = generateWhere(selectedObject, debouncedSearchValue)
+  const whereFilter = generateWhere(selectedObject, debouncedSearchValue, currentOrg)
 
   const { data, isLoading, isFetching } = useQuery<QueryResponse>({
     queryKey: [objectKey, 'objectAssociation', whereFilter, pagination.page, pagination.pageSize],

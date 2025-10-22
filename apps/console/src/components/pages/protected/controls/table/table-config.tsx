@@ -4,23 +4,61 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate } from '@/utils/date'
-import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
+import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
-import { FileQuestion, Key } from 'lucide-react'
 
-export const CONTROLS_FILTER_FIELDS: FilterField[] = [
-  { key: 'refCode', label: 'RefCode', type: 'text', icon: Key },
-  { key: 'category', label: 'Category', type: 'text', icon: FileQuestion },
-  { key: 'subcategory', label: 'Subcategory', type: 'text', icon: FileQuestion },
+export const getControlsFilterFields = (
+  standardOptions: { value: string; label: string }[],
+  groups: { value: string; label: string }[],
+  programOptions: { value: string; label: string }[],
+  controlControlTypeOptions: { value: string; label: string }[],
+): FilterField[] => [
+  { key: 'refCode', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
+  { key: 'category', label: 'Category', type: 'text', icon: FilterIcons.Category },
+  { key: 'subcategory', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
   {
     key: 'status',
     label: 'Status',
     type: 'select',
-    options: ControlStatusOptions,
-    icon: Key,
+    multiple: true,
+    options: ControlStatusFilterOptions,
+    icon: FilterIcons.Status,
+  },
+  {
+    key: 'standard',
+    label: 'Standard',
+    type: 'select',
+    options: [...standardOptions, { value: 'CUSTOM', label: 'CUSTOM' }],
+    icon: FilterIcons.Standard,
+  },
+  {
+    key: 'controlOwnerID',
+    label: 'Owners',
+    type: 'select',
+    options: groups.map((group) => ({
+      value: group.value,
+      label: group.label,
+    })),
+    icon: FilterIcons.Owners,
+  },
+  {
+    key: 'hasProgramsWith',
+    label: 'Program Name',
+    forceKeyOperator: true,
+    childrenObjectKey: 'id',
+    type: 'select',
+    options: programOptions,
+    icon: FilterIcons.ProgramName,
+  },
+  {
+    key: 'controlType',
+    label: 'Control Type',
+    type: 'select',
+    options: controlControlTypeOptions,
+    icon: FilterIcons.Type,
   },
 ]
 

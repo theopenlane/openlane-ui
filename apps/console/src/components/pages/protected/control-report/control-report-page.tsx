@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Settings2, SquarePlus } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, Settings2, SquarePlus, Upload } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -24,6 +24,10 @@ import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import Menu from '@/components/shared/menu/menu'
+import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
+import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
+import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
 
 type TControlReportPageProps = {
   active: 'report' | 'controls'
@@ -155,6 +159,37 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           </Button>
         </div>
         <div className="flex items-center gap-2">
+          <Menu
+            closeOnSelect={true}
+            content={() => (
+              <>
+                <BulkCSVCloneControlDialog
+                  trigger={
+                    <div className="flex items-center space-x-2 px-1">
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Upload From Standard</span>
+                    </div>
+                  }
+                />
+                <BulkCSVCreateControlDialog
+                  trigger={
+                    <div className="flex items-center space-x-2 px-1">
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Upload Custom Controls</span>
+                    </div>
+                  }
+                />
+                <BulkCSVCreateMappedControlDialog
+                  trigger={
+                    <div className="flex items-center space-x-2 px-1">
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Upload Control Mappings</span>
+                    </div>
+                  }
+                />
+              </>
+            )}
+          />
           {createAllowed && (
             <Link href="/controls/create-control" aria-label="Create Control">
               <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">

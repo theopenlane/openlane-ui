@@ -386,9 +386,20 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
   }
 }
 
-export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchValue: string) => {
-  if (!selectedObject || !searchValue) {
-    return {}
+export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchValue: string, ownerID: string) => {
+  if (!selectedObject) return {}
+
+  const mandatoryFilterMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
+    [ObjectTypeObjects.CONTROL]: { systemOwned: false },
+    [ObjectTypeObjects.SUB_CONTROL]: { systemOwned: false },
+    [ObjectTypeObjects.CONTROL_OBJECTIVE]: { ownerID: ownerID },
+    [ObjectTypeObjects.PROGRAM]: { ownerID: ownerID },
+    [ObjectTypeObjects.TASK]: { ownerID: ownerID },
+    [ObjectTypeObjects.EVIDENCE]: { ownerID: ownerID },
+    [ObjectTypeObjects.GROUP]: { ownerID: ownerID },
+    [ObjectTypeObjects.INTERNAL_POLICY]: { systemOwned: false },
+    [ObjectTypeObjects.PROCEDURE]: { systemOwned: false },
+    [ObjectTypeObjects.RISK]: { ownerID: ownerID },
   }
 
   const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
@@ -416,21 +427,25 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
   }
 
   const defaultWhereMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
-    [ObjectTypeObjects.CONTROL]: { ownerIDNEQ: '' },
-    [ObjectTypeObjects.SUB_CONTROL]: { ownerIDNEQ: '' },
-    [ObjectTypeObjects.CONTROL_OBJECTIVE]: { statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED },
+    [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
+      statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED,
+    },
   }
 
-  const searchAttribute = searchAttributeMap[selectedObject]
-  if (!searchAttribute) return {}
-
-  const secondaryAttribute = secondarySearchMap[selectedObject]
+  const mandatoryWhere = mandatoryFilterMap[selectedObject] ?? {}
   const defaultWhere = defaultWhereMap[selectedObject] ?? {}
+  const searchAttribute = searchAttributeMap[selectedObject]
+  const secondaryAttribute = secondarySearchMap[selectedObject]
 
-  const orFilters = secondaryAttribute ? [{ [searchAttribute]: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute]: searchValue }]
+  if (!searchValue) {
+    return { ...mandatoryWhere, ...defaultWhere }
+  }
+
+  const orFilters = secondaryAttribute ? [{ [searchAttribute!]: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute!]: searchValue }]
 
   return {
-    or: orFilters,
+    ...mandatoryWhere,
     ...defaultWhere,
+    or: orFilters,
   }
 }

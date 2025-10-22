@@ -1,4 +1,23 @@
-import { Archive, Circle, FilePenLine, RefreshCw, RouteOff, ScanEye, Stamp, ThumbsUp } from 'lucide-react'
+import {
+  Archive,
+  Circle,
+  CircleDot,
+  FileBadge2,
+  FilePenLine,
+  FileText,
+  Folder,
+  FolderTree,
+  Key,
+  RefreshCw,
+  RouteOff,
+  ScanEye,
+  ShieldCheck,
+  Stamp,
+  Tag,
+  ThumbsUp,
+  UsersRound,
+  type LucideIcon,
+} from 'lucide-react'
 import { ControlControlStatus, ControlControlType, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
@@ -65,6 +84,30 @@ export const ControlTypeLabels: Record<ControlControlType, string> = {
   [ControlControlType.DETECTIVE]: 'Detective',
   [ControlControlType.DETERRENT]: 'Deterrent',
   [ControlControlType.PREVENTATIVE]: 'Preventative',
+}
+
+export enum ControlsFilterIconName {
+  RefCode = 'RefCode',
+  Program = 'Program',
+  Category = 'Category',
+  Subcategory = 'Subcategory',
+  Status = 'Status',
+  Standard = 'Standard',
+  Owners = 'Owners',
+  ProgramName = 'ProgramName',
+  Type = 'Type',
+}
+
+export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
+  [ControlsFilterIconName.RefCode]: Key,
+  [ControlsFilterIconName.Program]: FileText,
+  [ControlsFilterIconName.Category]: Folder,
+  [ControlsFilterIconName.Subcategory]: FolderTree,
+  [ControlsFilterIconName.Status]: CircleDot,
+  [ControlsFilterIconName.Standard]: FileBadge2,
+  [ControlsFilterIconName.Owners]: UsersRound,
+  [ControlsFilterIconName.ProgramName]: ShieldCheck,
+  [ControlsFilterIconName.Type]: Tag,
 }
 
 // Status options for select dropdowns

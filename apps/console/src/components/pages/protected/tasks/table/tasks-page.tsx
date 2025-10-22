@@ -145,7 +145,7 @@ const TasksPage: React.FC = () => {
 
     handleExport({
       exportType: ExportExportType.TASK,
-      filters: JSON.stringify(filters),
+      filters: JSON.stringify(whereFilter),
       fields: mappedColumns.filter(isVisibleColumn).map((item) => item.accessorKey),
       format: ExportExportFormat.CSV,
     })

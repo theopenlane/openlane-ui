@@ -119,7 +119,7 @@ export default function FrameworkBasedWizard() {
               <Button type="button" variant="outline" onClick={handleBack} iconPosition="left">
                 Back
               </Button>
-              <Button type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+              <Button type="button" className="btn-secondary" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
                 {stepper.isLast ? 'Create' : 'Continue'}
               </Button>
             </div>
