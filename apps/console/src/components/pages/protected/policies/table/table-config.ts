@@ -17,9 +17,9 @@ export function usePoliciesFilters(): FilterField[] | null {
     if (!isProgramSuccess || !isGroupSuccess || filters) return
     const newFilters: FilterField[] = [
       {
-        key: 'approverID',
+        key: 'approverIDIn',
         label: 'Approver Group',
-        type: 'select',
+        type: 'multiselect',
         options: groupOptions,
         icon: UserRound,
       },

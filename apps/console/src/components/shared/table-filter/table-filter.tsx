@@ -14,6 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -66,6 +67,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           }
           break
 
+        case 'multiselect':
         case 'select': {
           const valuesArray = Array.isArray(val) ? val : [val]
           if (valuesArray.length === 0) break
@@ -203,6 +205,35 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
               </PopoverContent>
             </Popover>
           )
+
+        case 'multiselect': {
+          const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
+          const handleToggle = (value: string) => {
+            const next = selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value]
+            handleChange(field.key, next)
+          }
+
+          return (
+            <ul className="max-h-40 overflow-y-auto border rounded-lg">
+              {field?.options?.length ? (
+                field.options.map((opt) => (
+                  <li
+                    key={opt.value}
+                    onChange={() => handleToggle(opt.value)}
+                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
+                    onClick={() => handleToggle(opt.value)}
+                  >
+                    <Checkbox checked={selected.includes(opt.value)} className="accent-primary" />
+                    <span>{opt.label}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="px-3 py-2 text-sm text-muted-foreground">No options available</li>
+              )}
+            </ul>
+          )
+        }
+
         default:
           return null
       }
