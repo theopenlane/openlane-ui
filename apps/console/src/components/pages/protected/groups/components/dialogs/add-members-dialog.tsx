@@ -111,7 +111,7 @@ const AddMembersDialog = () => {
         </div>
 
         <DialogFooter className="flex justify-center pt-4">
-          <Button className="w-full" onClick={handleSave}>
+          <Button variant="outline" className="w-full" onClick={handleSave}>
             Save
           </Button>
         </DialogFooter>
