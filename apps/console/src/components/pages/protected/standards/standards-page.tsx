@@ -72,8 +72,8 @@ const StandardsPage = () => {
 
       <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {data?.standards?.edges?.map((standard) => (
-          <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow">
-            <div className="flex flex-row justify-between">
+          <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow flex flex-col h-full">
+            <div className="flex flex-row justify-between mb-3">
               <div className="flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -81,7 +81,7 @@ const StandardsPage = () => {
                     <span className="text-xs">version: {standard?.node?.version}</span>
                   </div>
                 </div>
-                <div className="text-sm space-y-1 mb-3">
+                <div className="text-sm space-y-1">
                   <p className="flex items-center gap-1">
                     <SettingsIcon className="text-brand" size={16} /> {standard?.node?.standardType}
                   </p>
@@ -93,9 +93,8 @@ const StandardsPage = () => {
                   </p>
                 </div>
               </div>
-              {<StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />}
+              <StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />
             </div>
-
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
               {standard?.node?.tags?.map((tag, index) => (
                 <Badge key={index} variant="outline" className="rounded-full">
@@ -103,9 +102,9 @@ const StandardsPage = () => {
                 </Badge>
               ))}
             </div>
-            <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
-            <Link href={`standards/${standard?.node?.id}`}>
-              <Button className="mt-auto py-2 px-4 btn-secondary">Details</Button>
+            <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
+            <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
+              <Button className="py-2 px-4 btn-secondary">Details</Button>
             </Link>
           </Card>
         ))}

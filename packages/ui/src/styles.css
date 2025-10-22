@@ -176,6 +176,7 @@
 
   --inverted-muted-foreground: #9aa5b0;
   --indicator: #e1e7ea;
+  --color-svg-secondary: #09151d;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -253,6 +254,8 @@
   --color-toast-error-icon-border: #f45b5070;
   --color-toast-error-icon: #f45b50;
   --indicator: #4c5e69;
+
+  --color-svg-secondary: #9af5dc;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -365,10 +368,10 @@
 
   /* Logo */
   --color-logo-bg: #303e4a;
-  --color-logo-text: #b4c1d5;
+  --color-logo-text: #ffffff;
   --color-logo-fg: #4dc6ad;
   --color-logo-dark: #303e4a;
-  --color-logo-light: #b4c1d5;
+  --color-logo-light: #ffffff;
 
   /* Task */
   --color-task-in-review: #ff842c;

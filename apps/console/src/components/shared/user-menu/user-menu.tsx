@@ -8,15 +8,19 @@ import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
-import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch } from 'lucide-react'
+import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, UserCog } from 'lucide-react'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export const UserMenu = () => {
+  const router = useRouter()
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
   const { trigger, email } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
+  const [open, setOpen] = useState(false)
   const { suffix } = useShortcutSuffix()
   const themeOptions = [
     { value: 'dark', icon: <Moon size={14} />, label: 'Dark' },
@@ -24,8 +28,13 @@ export const UserMenu = () => {
     { value: 'system', icon: <Computer size={14} />, label: 'System' },
   ]
 
+  const handleSettingsRedirect = () => {
+    setOpen(false)
+    router.push('/user-settings/profile')
+  }
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <div className={trigger()}>
           <Avatar entity={data?.user as User}></Avatar>
@@ -60,6 +69,13 @@ export const UserMenu = () => {
             ))}
           </div>
         </div>
+
+        <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
+
+        <Button size="md" variant="outline" full className="bg-transparent border-transparent justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
+          <UserCog size={16} className="text-muted-foreground" />
+          <span>User Settings</span>
+        </Button>
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
