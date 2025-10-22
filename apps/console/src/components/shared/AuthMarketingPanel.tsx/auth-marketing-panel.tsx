@@ -22,7 +22,7 @@ const AuthMarketingPanel = () => {
         </div>
       </div>
 
-      <LoginBackground className="absolute right-0 top-[645px] bottom-0 flex-shrink-0 opacity-50 text-svg-secondary" />
+      <LoginBackground className="absolute right-0 bottom-[-170px] flex-shrink-0 opacity-50 text-svg-secondary" />
     </div>
   )
 }
