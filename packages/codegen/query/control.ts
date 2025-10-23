@@ -509,3 +509,55 @@ export const UPDATE_CONTROL_COMMENT = gql`
     }
   }
 `
+export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
+  query GetSuggestedControlsOrSubcontrols($where: MappedControlWhereInput) {
+    mappedControls(where: $where) {
+      edges {
+        node {
+          id
+          source
+          fromControls {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+              }
+            }
+          }
+          toControls {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+              }
+            }
+          }
+          fromSubcontrols {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+              }
+            }
+          }
+          toSubcontrols {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

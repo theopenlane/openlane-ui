@@ -37,7 +37,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
+import { EvidenceEvidenceStatus, MappedControlWhereInput, User } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -73,6 +73,8 @@ import ObjectAssociationProgramsChips from '@/components/shared/objectAssociatio
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
+import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -109,6 +111,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null }[]>([])
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -117,6 +120,71 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
 
+  const { data: standardData } = useGetStandards({})
+
+  const standardShortNames = useMemo(() => {
+    return standardData?.standards?.edges?.map((edge) => edge?.node?.shortName).filter((name): name is string => Boolean(name)) ?? []
+  }, [standardData])
+  const refCodes = useMemo(() => {
+    return [...associationControlsRefMap, ...associationSubControlsRefMap]
+  }, [associationControlsRefMap, associationSubControlsRefMap])
+  const enabled = standardShortNames.length > 0 && refCodes.length > 0
+
+  const where = useMemo(() => {
+    if (!refCodes.length) return undefined
+    const buildEdgeFilter = (codes: string[]) => [
+      {
+        refCodeIn: codes,
+        or: [{ referenceFrameworkIn: standardShortNames }, { referenceFrameworkIsNil: true }],
+      },
+    ]
+
+    const filters: MappedControlWhereInput[] = []
+
+    filters.push({
+      hasFromControlsWith: buildEdgeFilter(refCodes),
+      hasToControlsWith: buildEdgeFilter(refCodes),
+    })
+
+    filters.push({
+      hasFromSubcontrolsWith: buildEdgeFilter(refCodes),
+      hasToSubcontrolsWith: buildEdgeFilter(refCodes),
+    })
+
+    return filters.length ? { or: filters } : undefined
+  }, [refCodes, standardShortNames])
+
+  const { data: suggestedControls } = useGetSuggestedControlsOrSubcontrols({
+    where,
+    enabled: enabled,
+  })
+
+  useEffect(() => {
+    const edges = suggestedControls?.mappedControls?.edges ?? []
+
+    const flat = edges
+      .flatMap((edge) => (edge?.node ? [edge.node] : []))
+      .flatMap((node) =>
+        [node.fromControls, node.toControls, node.fromSubcontrols, node.toSubcontrols].flatMap(
+          (section) =>
+            section?.edges?.flatMap((edge) =>
+              edge?.node
+                ? [
+                    {
+                      id: edge.node.id,
+                      referenceFramework: edge.node.referenceFramework ?? null,
+                      refCode: edge.node.refCode,
+                    },
+                  ]
+                : [],
+            ),
+        ),
+      )
+      .filter((item): item is { id: string; refCode: string; referenceFramework: string | null } => Boolean(item))
+
+    setSuggestedControlsMap(flat)
+  }, [suggestedControls])
+  console.log(suggestedControlsMap)
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
