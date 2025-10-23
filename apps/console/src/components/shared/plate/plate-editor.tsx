@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Value, TElement } from 'platejs'
+import { Value, TElement, KEYS } from 'platejs'
 import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
@@ -35,6 +35,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
 
   useEffect(() => {
     if (plateEditor && !initialValueSet) {
+      editor.tf.reset()
       setInitialValueSet(true)
 
       const fmt = detectFormat(initialValue)
@@ -53,12 +54,13 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       }
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
-        editor.children = [
+        editor.tf.insertNodes(
           {
-            type: 'p',
             children: slateNodes as Value,
+            type: KEYS.p,
           },
-        ]
+          { select: true, nextBlock: false, at: [0], removeEmpty: true },
+        )
       } else {
         editor.children = slateNodes
       }
