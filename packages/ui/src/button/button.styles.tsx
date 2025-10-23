@@ -20,7 +20,7 @@ export const buttonStyles = tv({
       outlineLight: 'border-border-dark text-text-dark border',
       outlineInput: 'border-border text-text-paragraph border ',
       outlineInputPadding: 'border-border text-paragraph mx-1 border ',
-      redOutline: 'border-error text-error border  dark:border-red-500 dark:text-red-500',
+      redOutline: 'border-red-500 text-red-500 border  dark:border-red-500 dark:text-red-500',
       white: {},
       success: 'flex-row-reverse !bg-teal-600 text-button-text ',
       destructive: 'flex-row-reverse !bg-destructive text-destructive-foreground ',

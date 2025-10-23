@@ -43,7 +43,7 @@ const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string
 
   return (
     <>
-      <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsOpen(true)} aria-label="Delete subcontrol">
+      <Button type="button" variant="outline" className="!p-1 h-8" onClick={() => setIsOpen(true)} aria-label="Delete subcontrol">
         <Trash2 size={16} strokeWidth={2} />
       </Button>
       <ConfirmationDialog

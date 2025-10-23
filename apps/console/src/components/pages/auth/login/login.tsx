@@ -2,7 +2,6 @@
 
 import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
-import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, SignInResponse } from 'next-auth/react'
@@ -21,6 +20,7 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import Github from '@/assets/Github'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
+import { cn } from '@repo/ui/lib/utils'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -338,25 +338,24 @@ export const LoginPage = () => {
 
   return (
     <>
-      <div className="flex flex-col self-center">
-        <p className="text-2xl font-medium">Login to your account</p>
-        <p className="text-base mt-8">Connect to Openlane with</p>
+      <div className="flex flex-col self-center text-center">
+        <p className="text-3xl font-medium">Login to your account</p>
+        {!shouldShowSSOButton() && !shouldShowPasswordField() && (
+          <div className="mt-2 text-center">
+            <span className="text-muted-foreground text-sm">Don’t have an account yet? </span>
+            <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
+              Sign up
+            </Link>
+          </div>
+        )}
 
-        <div className={buttons()}>
-          <Button
-            className="bg-secondary !px-3.5 hover:opacity-60 transition"
-            variant="outlineLight"
-            size="md"
-            icon={<GoogleIcon />}
-            iconPosition="left"
-            onClick={() => google()}
-            disabled={signInLoading}
-          >
+        <div className={cn(buttons(), 'flex justify-center mt-[32px]')}>
+          <Button className="!py-1.5 !px-5 hover:opacity-60 transition" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
             <p className="text-sm font-normal">Google</p>
           </Button>
 
           <Button
-            className="bg-secondary !px-3.5 hover:opacity-60 transition"
+            className="!py-1.5 !px-5 hover:opacity-60 transition"
             variant="outlineLight"
             size="md"
             icon={<Github className="text-input-text" />}
@@ -368,7 +367,7 @@ export const LoginPage = () => {
           </Button>
 
           <Button
-            className="bg-secondary !px-3.5 hover:opacity-60 transition"
+            className="!py-1.5 !px-5 hover:opacity-60 transition"
             variant="outlineLight"
             icon={<KeyRoundIcon className="text-input-text" />}
             iconPosition="left"
@@ -379,7 +378,7 @@ export const LoginPage = () => {
           </Button>
         </div>
 
-        <Separator label="or, login with your email" login className={separator()} />
+        <Separator label="or" login className={cn(separator(), 'text-muted-foreground')} />
 
         <SimpleForm
           classNames={form()}
@@ -402,13 +401,27 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent" />
+            <div className="flex items-center justify-between">
+              <p className="text-sm">Email</p>
+              {shouldShowSSOButton() && shouldShowToggleOption() && (
+                <button
+                  type="button"
+                  onClick={() => setUsePasswordInsteadOfSSO(true)}
+                  className="text-xs bg-unset text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
+                >
+                  Login with password
+                </button>
+              )}
+            </div>
+
+            <Input type="email" variant="light" name="username" placeholder="Enter your email" className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`} />
+            {showLoginError && <span className="text-xs text-toast-error-icon text-left">{signInErrorMessage}</span>}
           </div>
 
           {shouldShowSSOButton() && (
             <div className="flex flex-col">
               <button
-                className="p-4 text-button-text bg-brand justify-center items-center rounded-md text-sm h-10 font-bold flex mt-2 hover:opacity-90 transition"
+                className="p-4 text-button-text btn-secondary justify-center items-center rounded-md text-sm h-[36px] font-bold flex mt-2"
                 type="button"
                 onClick={handleSSOLogin}
                 disabled={signInLoading || webfingerLoading}
@@ -416,16 +429,6 @@ export const LoginPage = () => {
                 <span>Continue with SSO</span>
                 <ArrowRightCircle size={16} className="ml-2" />
               </button>
-
-              {shouldShowToggleOption() && (
-                <div className="flex justify-end mt-2">
-                  <div className="text-sm text-gray-400">
-                    <button type="button" onClick={() => setUsePasswordInsteadOfSSO(true)} className="hover:text-gray-300 transition-colors">
-                      Sign-in With Password
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -435,15 +438,17 @@ export const LoginPage = () => {
                 {
                   <>
                     <div className={input()}>
-                      <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm">Password</p>
+                        <Link href="/forgot-password" className="text-xs text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500">
+                          Forgot password?
+                        </Link>
+                      </div>
+                      <PasswordInput variant="light" name="password" placeholder="Enter your password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <button className="p-4 btn-secondary justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
+                    <button className="mt-[16px] p-4 btn-secondary flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold mt-2" type="submit" disabled={signInLoading}>
                       <span>Login</span>
-                      <ArrowRightCircle size={16} />
                     </button>
-                    <Link href="/forgot-password" className="text-xs underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition">
-                      Forgot password?
-                    </Link>
                   </>
                 }
 
@@ -455,28 +460,18 @@ export const LoginPage = () => {
               </div>
             </>
           )}
-          {!shouldShowSSOButton() && !shouldShowPasswordField() && (
-            <div className="flex text-base mt-4">
-              <span>New to Openlane? &nbsp;</span>
-              <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-base underline hover:text-blue-500 hover:opacity-80 transition">
-                Sign up for an account
-              </Link>
-            </div>
-          )}
         </SimpleForm>
 
-        <div className="text-xs opacity-90 flex gap-1 mt-9">
+        <div className="text-xs opacity-90 flex gap-1 mt-4 text-muted-foreground">
           By signing in, you agree to our
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition">
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
             Terms of Service
           </Link>{' '}
           and
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition">
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
             Privacy Policy
           </Link>
         </div>
-
-        {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>
   )
