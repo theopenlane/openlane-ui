@@ -35,7 +35,6 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
 
   useEffect(() => {
     if (plateEditor && !initialValueSet) {
-      editor.tf.reset()
       setInitialValueSet(true)
 
       const fmt = detectFormat(initialValue)
