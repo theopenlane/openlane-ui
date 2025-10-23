@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import Drag from '@/assets/Drag'
-import { PencilLine, XIcon } from 'lucide-react'
+import { PencilLine, Plus, XIcon } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { SlidersHorizontal, FileText, Folder, FolderPlus, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
@@ -28,6 +28,8 @@ export interface ControlChipProps {
   disableHref?: boolean
   hideHexagon?: boolean
   forceHref?: string
+  canAdd?: boolean
+  onAdd?: (control: MapControl) => void
 }
 
 const ControlChip: React.FC<ControlChipProps> = ({
@@ -46,6 +48,8 @@ const ControlChip: React.FC<ControlChipProps> = ({
   disableHref,
   hideHexagon,
   forceHref,
+  canAdd,
+  onAdd,
 }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
@@ -88,6 +92,17 @@ const ControlChip: React.FC<ControlChipProps> = ({
             e.stopPropagation()
             e.preventDefault()
             onRemove(control)
+          }}
+        />
+      )}
+      {canAdd && onAdd && (
+        <Plus
+          size={12}
+          className="cursor-pointer ml-1"
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            onAdd(control)
           }}
         />
       )}

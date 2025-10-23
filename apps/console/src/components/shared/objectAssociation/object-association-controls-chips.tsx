@@ -16,6 +16,7 @@ type TObjectAssociationControlsChipsProps = {
   subcontrolFrameworksMap: Record<string, string>
   setSubcontrolsFrameworksMap: React.Dispatch<React.SetStateAction<Record<string, string>>>
   form: UseFormReturn<CreateEvidenceFormData>
+  suggestedControlsMap: { id: string; refCode: string; referenceFramework: string | null }[]
 }
 
 const ObjectAssociationControlsChips = ({
@@ -28,6 +29,7 @@ const ObjectAssociationControlsChips = ({
   subcontrolFrameworksMap,
   setSubcontrolsFrameworksMap,
   form,
+  suggestedControlsMap,
 }: TObjectAssociationControlsChipsProps) => {
   const handleRemove = (id: string, isSubcontrol = false) => {
     if (isSubcontrol) {
@@ -53,6 +55,10 @@ const ObjectAssociationControlsChips = ({
       setControlsRefMap(newRefCodes)
       setFrameworksMap(newFrameworks)
     }
+  }
+
+  const handleAdd = (id: string, isSubcontrol = false) => {
+    console.log(id, isSubcontrol)
   }
 
   return (
@@ -91,6 +97,26 @@ const ObjectAssociationControlsChips = ({
             You haven&apos;t linked any controls to this evidence, ensure at least one control is linked for proper tracking of evidence
           </div>
         )}
+      </div>
+
+      <div className="w-full my-2 border-t border color-logo-bg " />
+      <div className="text-base font-medium py-2">Suggested</div>
+      <div className="flex flex-wrap gap-2">
+        {suggestedControlsMap
+          .filter((c) => !controlsRefMap.includes(c.refCode) && !subcontrolsRefMap.includes(c.refCode))
+          .map(({ id, refCode, referenceFramework }) => (
+            <ControlChip
+              key={id}
+              control={{
+                id,
+                refCode,
+                referenceFramework,
+                __typename: referenceFramework ? 'Control' : 'Subcontrol',
+              }}
+              canAdd
+              onAdd={() => handleAdd(id, !referenceFramework)}
+            />
+          ))}
       </div>
     </div>
   )

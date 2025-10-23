@@ -1010,6 +1010,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
                               frameworksMap={associationControlsFrameworksMap}
                               setFrameworksMap={setAssociationControlsFrameworksMap}
+                              suggestedControlsMap={suggestedControlsMap}
                             />
                           </div>
                         </AccordionContent>
