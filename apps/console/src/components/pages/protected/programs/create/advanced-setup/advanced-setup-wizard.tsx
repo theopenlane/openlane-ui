@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useState } from 'react'
-import { defineStepper, Step, StepperReturn } from '@stepperize/react'
+import { defineStepper, Step } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -13,7 +13,18 @@ import AdvancedSetupStep2 from './advanced-setup-steps/advanced-setup-step2'
 import AdvancedSetupStep3 from './advanced-setup-steps/advanced-setup-step3'
 import AdvancedSetupStep4 from './advanced-setup-steps/advanced-setup-step4'
 import AdvancedSetupStep5 from './advanced-setup-steps/advanced-setup-step5'
-import { fullSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, validateFullAndNotify, validateStepAndNotify, WizardValues } from './advanced-setup-wizard-config'
+import {
+  categoriesStepSchema,
+  fullSchema,
+  step1Schema,
+  step2Schema,
+  step3Schema,
+  step4Schema,
+  step5Schema,
+  validateFullAndNotify,
+  validateStepAndNotify,
+  WizardValues,
+} from './advanced-setup-wizard-config'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
@@ -33,17 +44,15 @@ export default function AdvancedSetupWizard() {
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = useContext(BreadcrumbContext)
 
-  const [stepperDef, setStepperDef] = useState<StepperReturn<Step[] | any>>(() =>
-    defineStepper(
-      { id: '0', label: 'Select a Program Type', schema: step1Schema },
-      { id: '1', label: 'General Information', schema: step2Schema },
-      { id: '2', label: 'Auditors', schema: step3Schema },
-      { id: '3', label: 'Add Team Members', schema: step4Schema },
-      { id: '4', label: 'Associate Existing Objects', schema: step5Schema },
-    ),
+  const { useStepper } = defineStepper(
+    { id: '0', label: 'Select a Program Type', schema: step1Schema },
+    { id: '1', label: 'General Information', schema: step2Schema },
+    { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
+    { id: '3', label: 'Auditors', schema: step3Schema },
+    { id: '4', label: 'Add Team Members', schema: step4Schema },
+    { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
   )
 
-  const { useStepper } = stepperDef
   const stepper = useStepper()
 
   const form = useForm<WizardValues>({
@@ -70,15 +79,22 @@ export default function AdvancedSetupWizard() {
   })
 
   const framework = form.watch('framework')
-
-  console.log('framework', framework)
-  console.log('stepper', stepper)
+  const disabledIDs = framework === 'SOC 2' ? [] : ['2']
 
   const handleNext = async () => {
     if (!stepper.isLast) {
       const valid = await validateStepAndNotify(form, stepper.current.id, errorNotification)
       if (!valid) return
-      stepper.next()
+
+      let nextStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) + 1
+      while (disabledIDs.includes(stepper.all[nextStepIndex]?.id)) {
+        nextStepIndex++
+      }
+
+      const nextStep = stepper.all[nextStepIndex]
+      if (nextStep) {
+        stepper.goTo(nextStep.id)
+      }
     } else {
       const validAll = await validateFullAndNotify(form, errorNotification)
       if (!validAll) return
@@ -90,7 +106,16 @@ export default function AdvancedSetupWizard() {
     if (stepper.isFirst) {
       return router.push('/programs/create')
     }
-    stepper.prev()
+
+    let prevStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) - 1
+    while (disabledIDs.includes(stepper.all[prevStepIndex]?.id)) {
+      prevStepIndex--
+    }
+
+    const prevStep = stepper.all[prevStepIndex]
+    if (prevStep) {
+      stepper.goTo(prevStep.id)
+    }
   }
 
   const handleFormSubmit = async () => {
@@ -173,57 +198,20 @@ export default function AdvancedSetupWizard() {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    if (framework === 'SOC 2') {
-      console.log('define soc2 stepper')
-      setStepperDef(
-        defineStepper(
-          { id: '0', label: 'Select a Program Type', schema: step1Schema },
-          { id: '1', label: 'Select SOC 2 Categories', schema: step2Schema },
-          { id: '2', label: 'General Information', schema: step3Schema },
-          { id: '3', label: 'Auditors', schema: step4Schema },
-          { id: '4', label: 'Add Team Members', schema: step5Schema },
-          { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
-        ),
-      )
-    } else {
-      setStepperDef(
-        defineStepper(
-          { id: '0', label: 'Select a Program Type', schema: step1Schema },
-          { id: '1', label: 'General Information', schema: step2Schema },
-          { id: '2', label: 'Auditors', schema: step3Schema },
-          { id: '3', label: 'Add Team Members', schema: step4Schema },
-          { id: '4', label: 'Associate Existing Objects', schema: step5Schema },
-        ),
-      )
-    }
-  }, [framework])
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-2">
-      <StepHeader stepper={stepper} currentIndex={currentIndex} />
-      <Separator separatorClass="bg-card" />
+      <StepHeader stepper={stepper} currentIndex={currentIndex} disabledIDs={disabledIDs} /> <Separator separatorClass="bg-card" />
       <FormProvider {...form} key={stepper.current.id}>
         <div className="py-6 flex gap-16">
           <div className="flex flex-col flex-1">
-            {stepper.switch(
-              framework === 'SOC 2'
-                ? {
-                    0: () => <AdvancedSetupStep1 />,
-                    1: () => <AdvancedSetupStep2 />,
-                    2: () => <SelectCategoryStep />,
-                    3: () => <AdvancedSetupStep3 />,
-                    4: () => <AdvancedSetupStep4 />,
-                    5: () => <AdvancedSetupStep5 />,
-                  }
-                : {
-                    0: () => <AdvancedSetupStep1 />,
-                    1: () => <AdvancedSetupStep2 />,
-                    2: () => <AdvancedSetupStep3 />,
-                    3: () => <AdvancedSetupStep4 />,
-                    4: () => <AdvancedSetupStep5 />,
-                  },
-            )}
+            {stepper.switch({
+              0: () => <AdvancedSetupStep1 />,
+              1: () => <AdvancedSetupStep2 />,
+              2: () => <SelectCategoryStep />,
+              3: () => <AdvancedSetupStep3 />,
+              4: () => <AdvancedSetupStep4 />,
+              5: () => <AdvancedSetupStep5 />,
+            })}
 
             <div className="flex justify-between mt-8">
               <Button variant="outline" onClick={handleBack} iconPosition="left">
