@@ -140,10 +140,10 @@ const OrganizationNameForm = () => {
                 <FormItem className="w-full">
                   <div className="flex gap-4">
                     <FormControl className="flex-1">
-                      <Input {...field} variant="medium" className="rounded-r-none h-10" />
+                      <Input {...field} variant="medium" className="h-10" />
                     </FormControl>
 
-                    <Button type="submit" variant={isSuccess ? 'success' : 'filled'} loading={isPending}>
+                    <Button type="submit" variant={`${isSuccess ? 'success' : 'outline'}`} loading={isPending}>
                       {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
                     </Button>
                   </div>

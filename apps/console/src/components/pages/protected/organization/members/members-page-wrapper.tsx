@@ -11,7 +11,7 @@ const MembersPageWrapper = () => {
     <>
       <div className="flex items-center justify-between">
         <PageHeading eyebrow="Organization settings" heading="Members" />
-        <Button size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)}>
+        <Button variant="outline" size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)}>
           Invite member
         </Button>
       </div>

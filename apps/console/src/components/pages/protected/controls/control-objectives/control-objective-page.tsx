@@ -151,7 +151,7 @@ const ControlObjectivePage = () => {
         <div className="flex justify-between items-center">
           <PageHeading heading="Control Objectives" />
           {createAllowed && (
-            <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+            <Button variant="outline" className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
               Create
             </Button>
           )}

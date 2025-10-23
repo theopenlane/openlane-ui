@@ -162,15 +162,16 @@ const InheritPermissionDialog = () => {
 
         <DialogFooter className="justify-between">
           {step === 1 ? (
-            <Button className="w-full" onClick={handleNextStep} disabled={!group}>
+            <Button variant="outline" className="w-full" onClick={handleNextStep} disabled={!group}>
               Next
             </Button>
           ) : (
             <>
-              <Button variant="back" onClick={handleBack}>
+              <Button variant="outline" onClick={handleBack}>
                 Back
               </Button>
               <Button
+                variant="outline"
                 className=""
                 onClick={() => {
                   inheritPermissions()
