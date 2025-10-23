@@ -8,7 +8,7 @@ import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
-import SOC2CategoryStep from './soc2-category-step'
+import SelectCategoryStep from '../shared/steps/select-category-step'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import { programInviteSchema, step1Schema, step3Schema, validateFullAndNotify, WizardValues } from './sco2-wizard-config'
@@ -131,7 +131,7 @@ export default function Soc2Wizard() {
         <form onSubmit={handleNext}>
           <div className="py-6">
             {stepper.switch({
-              0: () => <SOC2CategoryStep />,
+              0: () => <SelectCategoryStep />,
               1: () => <TeamSetupStep />,
               2: () => <StartTypeStep />,
             })}

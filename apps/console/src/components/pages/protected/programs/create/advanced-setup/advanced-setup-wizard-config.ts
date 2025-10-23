@@ -3,6 +3,10 @@ import { z } from 'zod'
 import { FieldValues, UseFormReturn, Path } from 'react-hook-form'
 import { TErrorProps } from '@/hooks/useNotification'
 
+export const categoriesStepSchema = z.object({
+  categories: z.array(z.string()),
+})
+
 export const step1Schema = z.object({
   programType: z.nativeEnum(ProgramProgramType, {
     required_error: 'Please select a program type',
@@ -111,7 +115,7 @@ export const step5Schema = z.object({
   procedureIDs: z.array(optionSchema).optional(),
 })
 
-export const fullSchema = step1Schema.merge(step3Schema).merge(step4Schema).merge(step5Schema).and(step2Schema)
+export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Schema).merge(step4Schema).merge(step5Schema).and(step2Schema)
 
 export type WizardValues = z.infer<typeof fullSchema>
 
