@@ -54,6 +54,10 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       }
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
+        if (slateNodes[0].text === '') {
+          return
+        }
+
         editor.tf.insertNodes(
           {
             children: slateNodes as Value,
