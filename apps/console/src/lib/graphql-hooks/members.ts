@@ -88,8 +88,13 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
   }
 }
 
-export const useUserSelect = () => {
-  const { data, ...rest } = useGetOrgMemberships({})
+type UserSelectArgs = {
+  where?: OrgMembershipWhereInput
+  enabled?: boolean
+}
+
+export const useUserSelect = (args: UserSelectArgs) => {
+  const { data, ...rest } = useGetOrgMemberships(args)
 
   const userOptions =
     data?.orgMemberships?.edges?.map((edge) => ({

@@ -6,11 +6,14 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { WizardValues } from '../advanced-setup-wizard-config'
+import { useSession } from 'next-auth/react'
 
 const AdvancedSetupStep4 = () => {
   const { control } = useFormContext<WizardValues>()
-  const { members, userOptions } = useUserSelect()
+  const { data } = useSession()
   const { groups, groupOptions } = useGroupSelect()
+  const whereNotCurrentUser = { not: { userID: data?.user?.userId } }
+  const { members, userOptions } = useUserSelect({ where: whereNotCurrentUser })
 
   return (
     <div className="space-y-6">
