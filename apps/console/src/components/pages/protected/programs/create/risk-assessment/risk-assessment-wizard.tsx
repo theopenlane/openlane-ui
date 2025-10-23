@@ -4,7 +4,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
 
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
@@ -18,6 +18,7 @@ import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears, getYear } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -28,6 +29,7 @@ export default function RiskAssessmentWizard() {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ new state
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Pick Categories', schema: selectFrameworkSchema },
@@ -110,9 +112,10 @@ export default function RiskAssessmentWizard() {
 
   const handleBack = () => {
     if (stepper.isFirst) {
-      return router.push('/programs/create')
+      setShowExitConfirm(true)
+    } else {
+      stepper.prev()
     }
-    stepper.prev()
   }
 
   useEffect(() => {
@@ -128,7 +131,7 @@ export default function RiskAssessmentWizard() {
     <>
       <div className="max-w-3xl mx-auto px-6 py-2">
         <StepHeader stepper={stepper} currentIndex={currentIndex} />
-        <Separator className="" separatorClass="bg-card" />
+        <Separator separatorClass="bg-card" />
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
@@ -149,6 +152,15 @@ export default function RiskAssessmentWizard() {
           </form>
         </FormProvider>
       </div>
+
+      <ConfirmationDialog
+        open={showExitConfirm}
+        onOpenChange={setShowExitConfirm}
+        onConfirm={() => router.push('/programs/create')}
+        title="Exit Program Creation"
+        description="Are you sure you want to exit Program Creation? You can't undo this."
+        confirmationText="Exit"
+      />
     </>
   )
 }

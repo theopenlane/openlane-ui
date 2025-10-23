@@ -21,6 +21,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -31,6 +32,7 @@ export default function AdvancedSetupWizard() {
   const router = useRouter()
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ new state
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
@@ -78,9 +80,10 @@ export default function AdvancedSetupWizard() {
 
   const handleBack = () => {
     if (stepper.isFirst) {
-      return router.push('/programs/create')
+      setShowExitConfirm(true)
+    } else {
+      stepper.prev()
     }
-    stepper.prev()
   }
 
   const handleFormSubmit = async () => {
@@ -164,32 +167,43 @@ export default function AdvancedSetupWizard() {
   }, [setCrumbs])
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-2">
-      <StepHeader stepper={stepper} currentIndex={currentIndex} />
-      <Separator separatorClass="bg-card" />
-      <FormProvider {...form} key={stepper.current.id}>
-        <div className="py-6 flex gap-16">
-          <div className="flex flex-col flex-1">
-            {stepper.switch({
-              0: () => <AdvancedSetupStep1 />,
-              1: () => <AdvancedSetupStep2 />,
-              2: () => <AdvancedSetupStep3 />,
-              3: () => <AdvancedSetupStep4 />,
-              4: () => <AdvancedSetupStep5 />,
-            })}
+    <>
+      <div className="max-w-6xl mx-auto px-6 py-2">
+        <StepHeader stepper={stepper} currentIndex={currentIndex} />
+        <Separator separatorClass="bg-card" />
+        <FormProvider {...form} key={stepper.current.id}>
+          <div className="py-6 flex gap-16">
+            <div className="flex flex-col flex-1">
+              {stepper.switch({
+                0: () => <AdvancedSetupStep1 />,
+                1: () => <AdvancedSetupStep2 />,
+                2: () => <AdvancedSetupStep3 />,
+                3: () => <AdvancedSetupStep4 />,
+                4: () => <AdvancedSetupStep5 />,
+              })}
 
-            <div className="flex justify-between mt-8">
-              <Button variant="outline" onClick={handleBack} iconPosition="left">
-                Back
-              </Button>
-              <Button className="btn-secondary" onClick={handleNext} disabled={isPending} loading={isPending}>
-                {stepper.isLast ? 'Create' : 'Continue'}
-              </Button>
+              <div className="flex justify-between mt-8">
+                <Button variant="outline" onClick={handleBack} iconPosition="left">
+                  Back
+                </Button>
+                <Button className="btn-secondary" onClick={handleNext} disabled={isPending} loading={isPending}>
+                  {stepper.isLast ? 'Create' : 'Continue'}
+                </Button>
+              </div>
             </div>
+            <AdvancedSetupFormSummary summaryData={summaryData} />
           </div>
-          <AdvancedSetupFormSummary summaryData={summaryData} />
-        </div>
-      </FormProvider>
-    </div>
+        </FormProvider>
+      </div>
+
+      <ConfirmationDialog
+        open={showExitConfirm}
+        onOpenChange={setShowExitConfirm}
+        onConfirm={() => router.push('/programs/create')}
+        title="Exit Program Creation"
+        description="Are you sure you want to exit Program Creation? You can't undo this."
+        confirmationText="Exit"
+      />
+    </>
   )
 }
