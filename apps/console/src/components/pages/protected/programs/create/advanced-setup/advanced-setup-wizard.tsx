@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useState } from 'react'
-import { defineStepper } from '@stepperize/react'
+import { defineStepper, Step } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -13,7 +13,18 @@ import AdvancedSetupStep2 from './advanced-setup-steps/advanced-setup-step2'
 import AdvancedSetupStep3 from './advanced-setup-steps/advanced-setup-step3'
 import AdvancedSetupStep4 from './advanced-setup-steps/advanced-setup-step4'
 import AdvancedSetupStep5 from './advanced-setup-steps/advanced-setup-step5'
-import { fullSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, validateFullAndNotify, validateStepAndNotify, WizardValues } from './advanced-setup-wizard-config'
+import {
+  categoriesStepSchema,
+  fullSchema,
+  step1Schema,
+  step2Schema,
+  step3Schema,
+  step4Schema,
+  step5Schema,
+  validateFullAndNotify,
+  validateStepAndNotify,
+  WizardValues,
+} from './advanced-setup-wizard-config'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
@@ -21,6 +32,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import SelectCategoryStep from '../shared/steps/select-category-step'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const today = new Date()
@@ -32,14 +44,15 @@ export default function AdvancedSetupWizard() {
   const router = useRouter()
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ new state
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
     { id: '1', label: 'General Information', schema: step2Schema },
-    { id: '2', label: 'Auditors', schema: step3Schema },
-    { id: '3', label: 'Add Team Members', schema: step4Schema },
-    { id: '4', label: 'Associate Existing Objects', schema: step5Schema },
+    { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
+    { id: '3', label: 'Auditors', schema: step3Schema },
+    { id: '4', label: 'Add Team Members', schema: step4Schema },
+    { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
   )
 
   const stepper = useStepper()
@@ -63,14 +76,28 @@ export default function AdvancedSetupWizard() {
       riskIDs: [],
       internalPolicyIDs: [],
       procedureIDs: [],
+      categories: ['Security'],
     },
   })
+
+  const framework = form.watch('framework')
+
+  const disabledIDs = framework === 'SOC 2' ? [] : ['2']
 
   const handleNext = async () => {
     if (!stepper.isLast) {
       const valid = await validateStepAndNotify(form, stepper.current.id, errorNotification)
       if (!valid) return
-      stepper.next()
+
+      let nextStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) + 1
+      while (disabledIDs.includes(stepper.all[nextStepIndex]?.id)) {
+        nextStepIndex++
+      }
+
+      const nextStep = stepper.all[nextStepIndex]
+      if (nextStep) {
+        stepper.goTo(nextStep.id)
+      }
     } else {
       const validAll = await validateFullAndNotify(form, errorNotification)
       if (!validAll) return
@@ -83,6 +110,16 @@ export default function AdvancedSetupWizard() {
       setShowExitConfirm(true)
     } else {
       stepper.prev()
+    }
+
+    let prevStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) - 1
+    while (disabledIDs.includes(stepper.all[prevStepIndex]?.id)) {
+      prevStepIndex--
+    }
+
+    const prevStep = stepper.all[prevStepIndex]
+    if (prevStep) {
+      stepper.goTo(prevStep.id)
     }
   }
 
@@ -131,6 +168,7 @@ export default function AdvancedSetupWizard() {
         viewerIDs: data?.readOnlyGroups?.map((g) => g.id),
         editorIDs: data?.editAccessGroups?.map((g) => g.id),
       },
+      categories: framework === 'SOC 2' ? data.categories : undefined,
       members: [...programMembers, ...programAdmins],
       standardID: data.standardID,
     }
@@ -151,7 +189,7 @@ export default function AdvancedSetupWizard() {
     }
   }
 
-  const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
+  const currentIndex = stepper.all.findIndex((item: Step) => item.id === stepper.current.id)
 
   useEffect(() => {
     setSummaryData(form.getValues() as WizardValues)
@@ -165,11 +203,10 @@ export default function AdvancedSetupWizard() {
       { label: 'Advanced Setup', href: '/programs/create/advanced-setup' },
     ])
   }, [setCrumbs])
-
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 py-2">
-        <StepHeader stepper={stepper} currentIndex={currentIndex} />
+        <StepHeader stepper={stepper} currentIndex={currentIndex} disabledIDs={disabledIDs} />
         <Separator separatorClass="bg-card" />
         <FormProvider {...form} key={stepper.current.id}>
           <div className="py-6 flex gap-16">
@@ -177,9 +214,10 @@ export default function AdvancedSetupWizard() {
               {stepper.switch({
                 0: () => <AdvancedSetupStep1 />,
                 1: () => <AdvancedSetupStep2 />,
-                2: () => <AdvancedSetupStep3 />,
-                3: () => <AdvancedSetupStep4 />,
-                4: () => <AdvancedSetupStep5 />,
+                2: () => <SelectCategoryStep />,
+                3: () => <AdvancedSetupStep3 />,
+                4: () => <AdvancedSetupStep4 />,
+                5: () => <AdvancedSetupStep5 />,
               })}
 
               <div className="flex justify-between mt-8">
