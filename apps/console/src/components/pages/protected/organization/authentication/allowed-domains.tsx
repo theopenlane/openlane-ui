@@ -77,7 +77,7 @@ const AllowedDomains = () => {
   }
 
   const saveChanges = () => {
-    updateSetting({ allowedEmailDomains: domains }, 'Allowed domains updated successfully.')
+    updateSetting({ allowedEmailDomains: domains, allowMatchingDomainsAutojoin: domains.length > 0 ? undefined : false }, 'Allowed domains updated successfully.')
   }
 
   const onSwitchChange = (checked: boolean) => {
