@@ -1,19 +1,18 @@
 'use client'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Button } from '@repo/ui/button'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ProgramTypeSelect from '../shared/form-fields/program-select'
-
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { CreateProgramWithMembersInput, ProgramProgramType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -43,7 +42,7 @@ const GenericProgram = () => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram } = useCreateProgramWithMembers()
   const { setCrumbs } = useContext(BreadcrumbContext)
-
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
   const onSubmit = async (data: ProgramFormValues) => {
     try {
       const input: CreateProgramWithMembersInput = {
@@ -73,6 +72,10 @@ const GenericProgram = () => {
     }
   }
 
+  const handleBack = () => {
+    setShowExitConfirm(true) // ✅ show confirmation instead of direct navigation
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -83,50 +86,58 @@ const GenericProgram = () => {
   }, [setCrumbs])
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl m-auto">
-        {/* Header */}
-        <div>
-          <h2 className="text-lg font-medium">Create a Generic Program</h2>
-          <p className="text-sm text-muted-foreground">Start with a blank program you can shape to your needs. Just give it a name and choose a type to get started.</p>
-        </div>
-
-        <div className="space-y-1.5">
-          {/* Program Type */}
-          <div className="flex flex-col">
-            <ProgramTypeSelect />
-            {errors.programType && <span className="text-xs text-destructive">{errors.programType.message as string}</span>}
+    <>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl m-auto">
+          {/* Header */}
+          <div>
+            <h2 className="text-lg font-medium">Create a Generic Program</h2>
+            <p className="text-sm text-muted-foreground">Start with a blank program you can shape to your needs. Just give it a name and choose a type to get started.</p>
           </div>
 
-          {/* Program Name */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm">
-              Program Name<span className="text-destructive">*</span>
-            </label>
-            <Input placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
-            {errors.name && <span className="text-xs text-destructive">{errors.name.message as string}</span>}
+          <div className="space-y-1.5">
+            {/* Program Type */}
+            <div className="flex flex-col">
+              <ProgramTypeSelect />
+              {errors.programType && <span className="text-xs text-destructive">{errors.programType.message as string}</span>}
+            </div>
+
+            {/* Program Name */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm">
+                Program Name<span className="text-destructive">*</span>
+              </label>
+              <Input placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
+              {errors.name && <span className="text-xs text-destructive">{errors.name.message as string}</span>}
+            </div>
+
+            {/* Description */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm">Description</label>
+              <Textarea placeholder="Enter a description for this program" {...register('description')} />
+            </div>
           </div>
 
-          {/* Description */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm">Description</label>
-            <Textarea placeholder="Enter a description for this program" {...register('description')} />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-between pt-4">
-          <Link href="/programs/create">
-            <Button variant="outline" type="button">
+          {/* Actions */}
+          <div className="flex justify-between pt-4">
+            <Button variant="outline" type="button" onClick={handleBack}>
               Back
             </Button>
-          </Link>
-          <Button type="submit" className="btn-secondary">
-            Create Program
-          </Button>
-        </div>
-      </form>
-    </FormProvider>
+            <Button type="submit" className="btn-secondary">
+              Create Program
+            </Button>
+          </div>
+        </form>
+      </FormProvider>
+      <ConfirmationDialog
+        open={showExitConfirm}
+        onOpenChange={setShowExitConfirm}
+        onConfirm={() => router.push('/programs/create')}
+        title="Exit Program Creation"
+        description="Are you sure you want to exit Program Creation? You can't undo this."
+        confirmationText="Exit"
+      />
+    </>
   )
 }
 

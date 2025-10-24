@@ -3,7 +3,7 @@ import { defineStepper } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
@@ -17,6 +17,7 @@ import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -26,6 +27,7 @@ export default function FrameworkBasedWizard() {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ Added state
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select Framework', schema: selectFrameworkSchema },
@@ -88,8 +90,11 @@ export default function FrameworkBasedWizard() {
   }
 
   const handleBack = () => {
-    if (stepper.isFirst) return router.push('/programs/create')
-    stepper.prev()
+    if (stepper.isFirst) {
+      setShowExitConfirm(true)
+    } else {
+      stepper.prev()
+    }
   }
 
   useEffect(() => {
@@ -104,28 +109,39 @@ export default function FrameworkBasedWizard() {
   const currentIndex = stepper.all.findIndex((i) => i.id === stepper.current.id)
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-2">
-      <StepHeader stepper={stepper} currentIndex={currentIndex} />
-      <Separator className="" separatorClass="bg-card" />
-      <FormProvider {...methods}>
-        <form onSubmit={handleNext}>
-          <div className="py-6">
-            {stepper.switch({
-              0: () => <SelectFrameworkStep required />,
-              1: () => <TeamSetupStep />,
-              2: () => <StartTypeStep />,
-            })}
-            <div className="flex justify-between mt-8">
-              <Button type="button" variant="outline" onClick={handleBack} iconPosition="left">
-                Back
-              </Button>
-              <Button type="button" className="btn-secondary" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
-                {stepper.isLast ? 'Create' : 'Continue'}
-              </Button>
+    <>
+      <div className="max-w-3xl mx-auto px-6 py-2">
+        <StepHeader stepper={stepper} currentIndex={currentIndex} />
+        <Separator className="" separatorClass="bg-card" />
+        <FormProvider {...methods}>
+          <form onSubmit={handleNext}>
+            <div className="py-6">
+              {stepper.switch({
+                0: () => <SelectFrameworkStep required />,
+                1: () => <TeamSetupStep />,
+                2: () => <StartTypeStep />,
+              })}
+              <div className="flex justify-between mt-8">
+                <Button type="button" variant="outline" onClick={handleBack} iconPosition="left">
+                  Back
+                </Button>
+                <Button type="button" className="btn-secondary" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+                  {stepper.isLast ? 'Create' : 'Continue'}
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
-      </FormProvider>
-    </div>
+          </form>
+        </FormProvider>
+      </div>
+
+      <ConfirmationDialog
+        open={showExitConfirm}
+        onOpenChange={setShowExitConfirm}
+        onConfirm={() => router.push('/programs/create')}
+        title="Exit Program Creation"
+        description="Are you sure you want to exit Program Creation? You can't undo this."
+        confirmationText="Exit"
+      />
+    </>
   )
 }

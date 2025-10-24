@@ -8,12 +8,14 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { useFormContext } from 'react-hook-form'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useSession } from 'next-auth/react'
 
 export default function TeamSetupStep() {
   const [showInviteForm, setShowInviteForm] = useState(false)
-  const { userOptions } = useUserSelect()
+  const { data } = useSession()
   const { groupOptions } = useGroupSelect()
-
+  const whereNotCurrentUser = { not: { userID: data?.user?.userId } }
+  const { userOptions } = useUserSelect({ where: whereNotCurrentUser })
   return (
     <div className="space-y-6">
       <div>
