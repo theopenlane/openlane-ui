@@ -5,7 +5,7 @@ import ControlChip from '@/components/pages/protected/controls/map-controls/shar
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { TriangleAlert } from 'lucide-react'
-import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-details-sheet'
+import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 
 type TObjectAssociationControlsChipsProps = {
   form: UseFormReturn<CreateEvidenceFormData>

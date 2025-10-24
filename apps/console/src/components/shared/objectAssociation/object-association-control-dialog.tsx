@@ -16,7 +16,7 @@ import usePlateEditor from '../plate/usePlateEditor'
 import { getControlsAndSubcontrolsColumns } from './object-association-controls-columns'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
-import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-details-sheet'
+import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 
 export enum AccordionEnum {
   Control = 'Control',

@@ -33,7 +33,7 @@ import { ControlSelectionDialog } from '@/components/shared/objectAssociation/ob
 import { PageHeading } from '@repo/ui/page-heading'
 import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
-import { CustomEvidenceControl } from './evidence-details-sheet'
+import { CustomEvidenceControl } from './evidence-sheet-config'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData

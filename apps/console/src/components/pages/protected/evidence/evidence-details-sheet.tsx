@@ -37,7 +37,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEvidenceStatus, MappedControlWhereInput, Subcontrol, User } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -73,14 +73,12 @@ import ObjectAssociationProgramsChips from '@/components/shared/objectAssociatio
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-// import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
-// import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
+import { buildOr, CustomEvidenceControl, groupItemsByReferenceFramework } from './evidence-sheet-config'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
 }
-
-export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 
 type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
 
@@ -121,69 +119,30 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
 
-  //const { data: standardData } = useGetStandards({})
+  const buildWhere = (): MappedControlWhereInput => {
+    const groupedControls = groupItemsByReferenceFramework(evidenceControls)
+    const groupedSubontrols = groupItemsByReferenceFramework(evidenceSubcontrols)
 
-  // const standardShortNames = useMemo(() => {
-  //   return standardData?.standards?.edges?.map((edge) => edge?.node?.shortName).filter((name): name is string => Boolean(name)) ?? []
-  // }, [standardData])
-  // const refCodes = useMemo(() => {
-  //   return [...associationControlsRefMap, ...associationSubControlsRefMap]
-  // }, [associationControlsRefMap, associationSubControlsRefMap])
-  // const enabled = standardShortNames.length > 0 && refCodes.length > 0
+    const where: MappedControlWhereInput = {
+      or: [
+        {
+          hasToControlsWith: evidenceControls && evidenceControls.length > 0 ? [{ or: buildOr(groupedControls) }] : null,
+          hasFromControlsWith: evidenceControls && evidenceControls.length > 0 ? [{ or: buildOr(groupedControls) }] : null,
+          hasToSubcontrolsWith: evidenceSubcontrols && evidenceSubcontrols.length > 0 ? [{ or: buildOr(groupedSubontrols) }] : null,
+          hasFromSubcontrolsWith: evidenceSubcontrols && evidenceSubcontrols.length > 0 ? [{ or: buildOr(groupedSubontrols) }] : null,
+        },
+      ],
+    }
+    return where
+  }
 
-  // const where = useMemo(() => {
-  //   if (!refCodes.length) return undefined
-  //   const buildEdgeFilter = (codes: string[]) => [
-  //     {
-  //       refCodeIn: codes,
-  //       or: [{ referenceFrameworkIn: standardShortNames }, { referenceFrameworkIsNil: true }],
-  //     },
-  //   ]
+  const where = buildWhere()
 
-  //   const filters: MappedControlWhereInput[] = []
-
-  //   filters.push({
-  //     hasFromControlsWith: buildEdgeFilter(refCodes),
-  //     hasToControlsWith: buildEdgeFilter(refCodes),
-  //   })
-
-  //   filters.push({
-  //     hasFromSubcontrolsWith: buildEdgeFilter(refCodes),
-  //     hasToSubcontrolsWith: buildEdgeFilter(refCodes),
-  //   })
-
-  //   return filters.length ? { or: filters } : undefined
-  // }, [refCodes, standardShortNames])
-
-  // const { data: suggestedControls } = useGetSuggestedControlsOrSubcontrols({
-  //   where,
-  //   enabled: enabled,
-  // })
-
-  // useEffect(() => {
-  //   const edges = suggestedControls?.mappedControls?.edges ?? []
-
-  //   const flat = edges
-  //     .flatMap((edge) => (edge?.node ? [edge.node] : []))
-  //     .flatMap((node) =>
-  //       [node.fromControls, node.toControls, node.fromSubcontrols, node.toSubcontrols].flatMap((section) =>
-  //         section?.edges?.flatMap((edge) =>
-  //           edge?.node
-  //             ? [
-  //                 {
-  //                   id: edge.node.id,
-  //                   referenceFramework: edge.node.referenceFramework ?? null,
-  //                   refCode: edge.node.refCode,
-  //                 },
-  //               ]
-  //             : [],
-  //         ),
-  //       ),
-  //     )
-  //     .filter((item): item is { id: string; refCode: string; referenceFramework: string | null } => Boolean(item))
-
-  //   setSuggestedControlsMap(flat)
-  // }, [suggestedControls])
+  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
+    where,
+    enabled: true,
+  })
+  console.log(mappedControls)
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
