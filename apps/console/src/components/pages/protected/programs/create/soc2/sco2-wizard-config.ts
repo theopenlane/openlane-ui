@@ -4,7 +4,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { TErrorProps } from '@/hooks/useNotification'
 
 export const step1Schema = z.object({
-  categories: z.array(z.string()).min(1, 'You need to choose at least one category'),
+  categories: z.array(z.string()),
   standardID: z.string().optional(),
 })
 

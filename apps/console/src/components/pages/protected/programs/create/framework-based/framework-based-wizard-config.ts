@@ -23,7 +23,11 @@ export const programTypeSchema = z.object({
   }),
 })
 
-export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(programTypeSchema)
+export const categoriesStepSchema = z.object({
+  categories: z.array(z.string()),
+})
+
+export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(categoriesStepSchema).merge(programTypeSchema)
 
 export type WizardValues = z.infer<typeof wizardSchema>
 
