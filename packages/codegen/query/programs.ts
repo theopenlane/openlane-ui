@@ -332,38 +332,39 @@ export const UPDATE_PROGRAM_MEMBERSHIP = gql`
 
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
-    totalEvidences: evidences(where: { hasProgramsWith: [{ id: $programId }] }) {
+    totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
 
-    submitted: evidences(where: { hasProgramsWith: [{ id: $programId }], statusIn: [READY] }) {
+    submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
 
-    accepted: evidences(where: { hasProgramsWith: [{ id: $programId }], statusIn: [APPROVED] }) {
+    accepted: controls(where: { hasEvidenceWith: [{ statusIn: [APPROVED], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
 
-    rejected: evidences(where: { hasProgramsWith: [{ id: $programId }], statusIn: [REJECTED] }) {
+    rejected: controls(where: { hasEvidenceWith: [{ statusIn: [REJECTED], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
   }
 `
+
 export const GET_GLOBAL_EVIDENCE_STATS = gql`
   query GetGlobalEvidenceStats {
-    totalEvidences: evidences(where: {}) {
+    totalControls: controls(where: {}) {
       totalCount
     }
 
-    submitted: evidences(where: { statusIn: [READY] }) {
+    submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY] }] }) {
       totalCount
     }
 
-    accepted: evidences(where: { statusIn: [APPROVED] }) {
+    accepted: controls(where: { hasEvidenceWith: [{ statusIn: [APPROVED] }] }) {
       totalCount
     }
 
-    rejected: evidences(where: { statusIn: [REJECTED] }) {
+    rejected: controls(where: { hasEvidenceWith: [{ statusIn: [REJECTED] }] }) {
       totalCount
     }
   }
