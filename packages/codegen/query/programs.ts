@@ -335,13 +335,13 @@ export const GET_EVIDENCE_STATS = gql`
     totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
-    submitted: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: READY }] }) {
+    submitted: controls(where: { and: [{ hasProgramsWith: [{ id: $programId }] }, { hasEvidenceWith: [{ statusIn: READY }] }] }) {
       totalCount
     }
-    accepted: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: APPROVED }] }) {
+    accepted: controls(where: { and: [{ hasProgramsWith: [{ id: $programId }] }, { hasEvidenceWith: [{ statusIn: APPROVED }] }] }) {
       totalCount
     }
-    rejected: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: REJECTED }] }) {
+    rejected: controls(where: { and: [{ hasProgramsWith: [{ id: $programId }] }, { hasEvidenceWith: [{ statusIn: REJECTED }] }] }) {
       totalCount
     }
   }
