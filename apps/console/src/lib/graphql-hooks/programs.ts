@@ -151,7 +151,7 @@ export const useProgramEvidenceStats = (programId: string) => {
       const data = await client.request<GetEvidenceStatsQuery>(GET_EVIDENCE_STATS, { programId })
 
       return {
-        total: data.totalEvidences.totalCount,
+        total: data.totalControls.totalCount,
         submitted: data.submitted.totalCount,
         accepted: data.accepted.totalCount,
         rejected: data.rejected.totalCount,
@@ -170,7 +170,7 @@ export const useGlobalEvidenceStats = ({ enabled = true }) => {
       const data = await client.request<GetGlobalEvidenceStatsQuery>(GET_GLOBAL_EVIDENCE_STATS)
 
       return {
-        total: data.totalEvidences.totalCount,
+        total: data.totalControls.totalCount,
         submitted: data.submitted.totalCount,
         accepted: data.accepted.totalCount,
         rejected: data.rejected.totalCount,
