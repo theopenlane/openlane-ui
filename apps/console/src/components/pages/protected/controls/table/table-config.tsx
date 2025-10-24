@@ -97,6 +97,12 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
   }
   return [
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       id: 'select',
       header: ({ table }) => {
         const currentPageControls = table.getRowModel().rows.map((row) => row.original)
