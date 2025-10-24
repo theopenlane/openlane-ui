@@ -37,7 +37,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { EvidenceEvidenceStatus, MappedControlWhereInput, User } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -73,12 +73,14 @@ import ObjectAssociationProgramsChips from '@/components/shared/objectAssociatio
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
+// import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
+// import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
 }
+
+export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 
 type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
 
@@ -105,13 +107,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
-  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsRefMap, setAssociationSubControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
-  const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null }[]>([])
+  // const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null }[]>([])
+
+  const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
+  const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -120,71 +121,70 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
 
-  const { data: standardData } = useGetStandards({})
+  //const { data: standardData } = useGetStandards({})
 
-  const standardShortNames = useMemo(() => {
-    return standardData?.standards?.edges?.map((edge) => edge?.node?.shortName).filter((name): name is string => Boolean(name)) ?? []
-  }, [standardData])
-  const refCodes = useMemo(() => {
-    return [...associationControlsRefMap, ...associationSubControlsRefMap]
-  }, [associationControlsRefMap, associationSubControlsRefMap])
-  const enabled = standardShortNames.length > 0 && refCodes.length > 0
+  // const standardShortNames = useMemo(() => {
+  //   return standardData?.standards?.edges?.map((edge) => edge?.node?.shortName).filter((name): name is string => Boolean(name)) ?? []
+  // }, [standardData])
+  // const refCodes = useMemo(() => {
+  //   return [...associationControlsRefMap, ...associationSubControlsRefMap]
+  // }, [associationControlsRefMap, associationSubControlsRefMap])
+  // const enabled = standardShortNames.length > 0 && refCodes.length > 0
 
-  const where = useMemo(() => {
-    if (!refCodes.length) return undefined
-    const buildEdgeFilter = (codes: string[]) => [
-      {
-        refCodeIn: codes,
-        or: [{ referenceFrameworkIn: standardShortNames }, { referenceFrameworkIsNil: true }],
-      },
-    ]
+  // const where = useMemo(() => {
+  //   if (!refCodes.length) return undefined
+  //   const buildEdgeFilter = (codes: string[]) => [
+  //     {
+  //       refCodeIn: codes,
+  //       or: [{ referenceFrameworkIn: standardShortNames }, { referenceFrameworkIsNil: true }],
+  //     },
+  //   ]
 
-    const filters: MappedControlWhereInput[] = []
+  //   const filters: MappedControlWhereInput[] = []
 
-    filters.push({
-      hasFromControlsWith: buildEdgeFilter(refCodes),
-      hasToControlsWith: buildEdgeFilter(refCodes),
-    })
+  //   filters.push({
+  //     hasFromControlsWith: buildEdgeFilter(refCodes),
+  //     hasToControlsWith: buildEdgeFilter(refCodes),
+  //   })
 
-    filters.push({
-      hasFromSubcontrolsWith: buildEdgeFilter(refCodes),
-      hasToSubcontrolsWith: buildEdgeFilter(refCodes),
-    })
+  //   filters.push({
+  //     hasFromSubcontrolsWith: buildEdgeFilter(refCodes),
+  //     hasToSubcontrolsWith: buildEdgeFilter(refCodes),
+  //   })
 
-    return filters.length ? { or: filters } : undefined
-  }, [refCodes, standardShortNames])
+  //   return filters.length ? { or: filters } : undefined
+  // }, [refCodes, standardShortNames])
 
-  const { data: suggestedControls } = useGetSuggestedControlsOrSubcontrols({
-    where,
-    enabled: enabled,
-  })
+  // const { data: suggestedControls } = useGetSuggestedControlsOrSubcontrols({
+  //   where,
+  //   enabled: enabled,
+  // })
 
-  useEffect(() => {
-    const edges = suggestedControls?.mappedControls?.edges ?? []
+  // useEffect(() => {
+  //   const edges = suggestedControls?.mappedControls?.edges ?? []
 
-    const flat = edges
-      .flatMap((edge) => (edge?.node ? [edge.node] : []))
-      .flatMap((node) =>
-        [node.fromControls, node.toControls, node.fromSubcontrols, node.toSubcontrols].flatMap(
-          (section) =>
-            section?.edges?.flatMap((edge) =>
-              edge?.node
-                ? [
-                    {
-                      id: edge.node.id,
-                      referenceFramework: edge.node.referenceFramework ?? null,
-                      refCode: edge.node.refCode,
-                    },
-                  ]
-                : [],
-            ),
-        ),
-      )
-      .filter((item): item is { id: string; refCode: string; referenceFramework: string | null } => Boolean(item))
+  //   const flat = edges
+  //     .flatMap((edge) => (edge?.node ? [edge.node] : []))
+  //     .flatMap((node) =>
+  //       [node.fromControls, node.toControls, node.fromSubcontrols, node.toSubcontrols].flatMap((section) =>
+  //         section?.edges?.flatMap((edge) =>
+  //           edge?.node
+  //             ? [
+  //                 {
+  //                   id: edge.node.id,
+  //                   referenceFramework: edge.node.referenceFramework ?? null,
+  //                   refCode: edge.node.refCode,
+  //                 },
+  //               ]
+  //             : [],
+  //         ),
+  //       ),
+  //     )
+  //     .filter((item): item is { id: string; refCode: string; referenceFramework: string | null } => Boolean(item))
 
-    setSuggestedControlsMap(flat)
-  }, [suggestedControls])
-  console.log(suggestedControlsMap)
+  //   setSuggestedControlsMap(flat)
+  // }, [suggestedControls])
+
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
@@ -227,16 +227,21 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     [evidence],
   )
 
-  const initialAssociationsControlsAndPrograms = useMemo(
-    () => ({
+  const initialAssociationsControlsAndPrograms = useMemo(() => {
+    const controls: Control[] = evidence?.controls?.edges?.map((edge) => edge?.node).filter((n): n is Control => !!n) ?? []
+
+    const subcontrols: Subcontrol[] = evidence?.subcontrols?.edges?.map((edge) => edge?.node).filter((n): n is Subcontrol => !!n) ?? []
+    setEvidenceControls(controls)
+    setEvidenceSubcontrols(subcontrols)
+
+    return {
       programDisplayIDs: (evidence?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
-      subcontrolRefCodes: evidence?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-      subcontrolReferenceFramework: Object.fromEntries(evidence?.subcontrols?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
-      controlRefCodes: evidence?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-      controlReferenceFramework: Object.fromEntries(evidence?.controls?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
-    }),
-    [evidence],
-  )
+      subcontrolRefCodes: subcontrols.map((s) => s.refCode),
+      subcontrolReferenceFramework: Object.fromEntries(subcontrols.map((s) => [s.id, s.referenceFramework ?? ''])),
+      controlRefCodes: controls.map((c) => c.refCode),
+      controlReferenceFramework: Object.fromEntries(controls.map((c) => [c.id, c.referenceFramework ?? ''])),
+    }
+  }, [evidence])
 
   useEffect(() => {
     if (evidence) {
@@ -269,12 +274,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
       form.setValue('programIDs', initialAssociations.programIDs ? initialAssociations.programIDs : [])
       form.setValue('subcontrolIDs', initialAssociations.subcontrolIDs ? initialAssociations.subcontrolIDs : [])
-
-      setAssociationControlsRefMap(initialAssociationsControlsAndPrograms.controlRefCodes ? initialAssociationsControlsAndPrograms.controlRefCodes : [])
-      setAssociationControlsFrameworksMap(initialAssociationsControlsAndPrograms.controlReferenceFramework || {})
-
-      setAssociationSubControlsRefMap(initialAssociationsControlsAndPrograms.subcontrolRefCodes ? initialAssociationsControlsAndPrograms.subcontrolRefCodes : [])
-      setAssociationSubControlsFrameworksMap(initialAssociationsControlsAndPrograms.subcontrolReferenceFramework || {})
 
       setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
     }
@@ -473,30 +472,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
       </div>
     )
-  }
-
-  const handleSaveControls = (
-    newIds: string[],
-    subcontrolsNewIds: string[],
-    newControlRefCodes: string[],
-    newSubcontrolRefCodes: string[],
-    frameworks: Record<string, string>,
-    subcontrolFrameworks: Record<string, string>,
-  ) => {
-    const mergedControlRefCodes = [...(associationControlsRefMap || []), ...(newControlRefCodes || [])]
-    const uniqueControlRefCodes = Array.from(new Set(mergedControlRefCodes))
-
-    const mergedSubcontrolRefCodes = [...(associationSubControlsRefMap || []), ...(newSubcontrolRefCodes || [])]
-    const uniqueSubcontrolRefCodes = Array.from(new Set(mergedSubcontrolRefCodes))
-
-    form.setValue('controlIDs', newIds)
-    form.setValue('subcontrolIDs', subcontrolsNewIds)
-
-    setAssociationControlsRefMap(uniqueControlRefCodes)
-    setAssociationSubControlsRefMap(uniqueSubcontrolRefCodes)
-
-    setAssociationControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(frameworks || {}) }))
-    setAssociationSubControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(subcontrolFrameworks || {}) }))
   }
 
   const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
@@ -1002,15 +977,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <div className="mt-5 flex flex-col gap-5">
                             <ObjectAssociationControlsChips
                               form={form}
-                              controlsRefMap={associationControlsRefMap}
-                              setControlsRefMap={setAssociationControlsRefMap}
-                              subcontrolsRefMap={associationSubControlsRefMap}
-                              setSubcontrolsRefMap={setAssociationSubControlsRefMap}
-                              subcontrolFrameworksMap={associationSubControlsFrameworksMap}
-                              setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
-                              frameworksMap={associationControlsFrameworksMap}
-                              setFrameworksMap={setAssociationControlsFrameworksMap}
-                              suggestedControlsMap={suggestedControlsMap}
+                              // suggestedControlsMap={suggestedControlsMap}
+                              evidenceControls={evidenceControls}
+                              setEvidenceControls={setEvidenceControls}
+                              evidenceSubcontrols={evidenceSubcontrols}
+                              setEvidenceSubcontrols={setEvidenceSubcontrols}
                             />
                           </div>
                         </AccordionContent>
@@ -1019,12 +990,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     <ControlSelectionDialog
                       open={openControlsDialog}
                       onClose={() => setOpenControlsDialog(false)}
-                      initialFramework={associationControlsFrameworksMap}
-                      initialControlRefCodes={associationControlsRefMap}
-                      initialSubcontrolRefCodes={associationSubControlsRefMap}
-                      initialSubcontrolFramework={associationSubControlsFrameworksMap}
-                      onSave={handleSaveControls}
                       form={form}
+                      evidenceControls={evidenceControls}
+                      setEvidenceControls={setEvidenceControls}
+                      evidenceSubcontrols={evidenceSubcontrols}
+                      setEvidenceSubcontrols={setEvidenceSubcontrols}
                     />
                   </Panel>
                   <Panel className="mt-5">

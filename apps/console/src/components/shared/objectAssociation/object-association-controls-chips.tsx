@@ -5,66 +5,78 @@ import ControlChip from '@/components/pages/protected/controls/map-controls/shar
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { TriangleAlert } from 'lucide-react'
+import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-details-sheet'
 
 type TObjectAssociationControlsChipsProps = {
-  controlsRefMap: string[]
-  setControlsRefMap: React.Dispatch<React.SetStateAction<string[]>>
-  frameworksMap: Record<string, string>
-  setFrameworksMap: React.Dispatch<React.SetStateAction<Record<string, string>>>
-  subcontrolsRefMap: string[]
-  setSubcontrolsRefMap: React.Dispatch<React.SetStateAction<string[]>>
-  subcontrolFrameworksMap: Record<string, string>
-  setSubcontrolsFrameworksMap: React.Dispatch<React.SetStateAction<Record<string, string>>>
   form: UseFormReturn<CreateEvidenceFormData>
-  suggestedControlsMap: { id: string; refCode: string; referenceFramework: string | null }[]
+  // suggestedControlsMap: { id: string; refCode: string; referenceFramework: string | null }[]
+  evidenceControls: CustomEvidenceControl[] | null
+  setEvidenceControls: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
+  evidenceSubcontrols: CustomEvidenceControl[] | null
+  setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
 }
 
 const ObjectAssociationControlsChips = ({
-  controlsRefMap,
-  setControlsRefMap,
-  frameworksMap,
-  setFrameworksMap,
-  subcontrolsRefMap,
-  setSubcontrolsRefMap,
-  subcontrolFrameworksMap,
-  setSubcontrolsFrameworksMap,
   form,
-  suggestedControlsMap,
+  // suggestedControlsMap,
+  evidenceControls,
+  setEvidenceControls,
+  evidenceSubcontrols,
+  setEvidenceSubcontrols,
 }: TObjectAssociationControlsChipsProps) => {
-  const handleRemove = (id: string, isSubcontrol = false) => {
+  const handleRemove2 = (id: string, refCode: string, isSubcontrol = false) => {
     if (isSubcontrol) {
-      const idx = form.getValues('subcontrolIDs')?.indexOf(id)
-      if (idx === undefined || idx === -1) return
-
-      const newIds = form.getValues('subcontrolIDs')?.filter((x) => x !== id) || []
-      const newRefCodes = subcontrolsRefMap?.filter((_, i) => i !== idx) || []
-      const newFrameworks = Object.fromEntries(Object.entries(subcontrolFrameworksMap).filter(([key]) => key !== id))
-
-      form.setValue('subcontrolIDs', newIds)
-      setSubcontrolsRefMap(newRefCodes)
-      setSubcontrolsFrameworksMap(newFrameworks)
+      setEvidenceSubcontrols((prev) => {
+        const newSubcontrols = prev?.filter((subcontrol) => subcontrol.refCode !== refCode) ?? null
+        form.setValue('subcontrolIDs', newSubcontrols?.map((c) => c.id) ?? [])
+        return newSubcontrols
+      })
     } else {
-      const idx = form.getValues('controlIDs')?.indexOf(id)
-      if (idx === undefined || idx === -1) return
-
-      const newIds = form.getValues('controlIDs')?.filter((x) => x !== id) || []
-      const newRefCodes = controlsRefMap?.filter((_, i) => i !== idx) || []
-      const newFrameworks = Object.fromEntries(Object.entries(frameworksMap).filter(([key]) => key !== id))
-
-      form.setValue('controlIDs', newIds)
-      setControlsRefMap(newRefCodes)
-      setFrameworksMap(newFrameworks)
+      setEvidenceControls((prev) => {
+        const newControls = prev?.filter((control) => control.refCode !== refCode) ?? null
+        form.setValue('controlIDs', newControls?.map((c) => c.id) ?? [])
+        return newControls
+      })
     }
   }
 
-  const handleAdd = (id: string, isSubcontrol = false) => {
-    console.log(id, isSubcontrol)
-  }
+  // const handleAdd = (id: string, isSubcontrol = false) => {
+  //   console.log(id, isSubcontrol)
+  // }
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
-        {(form.getValues('controlIDs') || []).map((id, i) => (
+        {evidenceControls &&
+          evidenceControls.map(({ id, refCode, referenceFramework }, i) => (
+            <ControlChip
+              key={i}
+              control={{
+                id,
+                refCode: refCode,
+                referenceFramework: referenceFramework,
+                __typename: 'Control',
+              }}
+              removable
+              onRemove={() => handleRemove2(id, refCode)}
+            />
+          ))}
+
+        {evidenceSubcontrols &&
+          evidenceSubcontrols.map(({ id, refCode, referenceFramework }, i) => (
+            <ControlChip
+              key={i}
+              control={{
+                id,
+                refCode: refCode,
+                referenceFramework: referenceFramework,
+                __typename: 'Subcontrol',
+              }}
+              removable
+              onRemove={() => handleRemove2(id, refCode, true)}
+            />
+          ))}
+        {/* {(form.getValues('controlIDs') || []).map((id, i) => (
           <ControlChip
             key={id}
             control={{
@@ -90,7 +102,7 @@ const ObjectAssociationControlsChips = ({
             removable
             onRemove={() => handleRemove(id, true)}
           />
-        ))}
+        ))} */}
         {(form.getValues('controlIDs') || []).length === 0 && (form.getValues('subcontrolIDs') || []).length === 0 && (
           <div className="flex gap-2 items-center text-sm leading-5 font-sans font-normal">
             <TriangleAlert height={12} width={12} />
@@ -101,7 +113,7 @@ const ObjectAssociationControlsChips = ({
 
       <div className="w-full my-2 border-t border color-logo-bg " />
       <div className="text-base font-medium py-2">Suggested</div>
-      <div className="flex flex-wrap gap-2">
+      {/* <div className="flex flex-wrap gap-2">
         {suggestedControlsMap
           .filter((c) => !controlsRefMap.includes(c.refCode) && !subcontrolsRefMap.includes(c.refCode))
           .map(({ id, refCode, referenceFramework }) => (
@@ -117,7 +129,7 @@ const ObjectAssociationControlsChips = ({
               onAdd={() => handleAdd(id, !referenceFramework)}
             />
           ))}
-      </div>
+      </div> */}
     </div>
   )
 }

@@ -16,6 +16,7 @@ import usePlateEditor from '../plate/usePlateEditor'
 import { getControlsAndSubcontrolsColumns } from './object-association-controls-columns'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
+import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-details-sheet'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -25,38 +26,15 @@ export enum AccordionEnum {
 type TControlSelectionDialogProps = {
   open: boolean
   onClose: () => void
-  initialControlRefCodes?: string[]
-  initialSubcontrolRefCodes?: string[]
-  initialFramework?: Record<string, string>
-  initialSubcontrolFramework?: Record<string, string>
-  onSave: (
-    newIds: string[],
-    subcontrolsNewIds: string[],
-    refCodesMap: string[],
-    subcontrolsRefCodesMap: string[],
-    frameworks: Record<string, string>,
-    subcontrolFrameworks: Record<string, string>,
-  ) => void
+  evidenceControls: CustomEvidenceControl[] | null
+  setEvidenceControls: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
+  evidenceSubcontrols: CustomEvidenceControl[] | null
+  setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   form: UseFormReturn<CreateEvidenceFormData>
 }
 
-export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
-  open,
-  onClose,
-  initialControlRefCodes,
-  initialSubcontrolRefCodes,
-  initialFramework = {},
-  initialSubcontrolFramework = {},
-  onSave,
-  form,
-}) => {
+export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({ open, onClose, form, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }) => {
   const [selectedObject, setSelectedObject] = useState<AccordionEnum>(AccordionEnum.Control)
-
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
-  const [frameworks, setFrameworks] = useState<Record<string, string>>({})
-
-  const [selectedSubcontrolRefCodeMap, setSelectedSubcontrolRefCodeMap] = useState<string[]>([])
-  const [subcontrolFrameworks, setSubcontrolFrameworks] = useState<Record<string, string>>({})
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -70,16 +48,6 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
   })
 
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
-
-  useEffect(() => {
-    if (!open) return
-
-    setSelectedRefCodeMap(initialControlRefCodes ?? [])
-    setFrameworks(initialFramework ?? {})
-
-    setSelectedSubcontrolRefCodeMap(initialSubcontrolRefCodes ?? [])
-    setSubcontrolFrameworks(initialSubcontrolFramework ?? {})
-  }, [open, initialControlRefCodes, initialSubcontrolRefCodes, initialFramework, initialSubcontrolFramework])
 
   useEffect(() => {
     setPagination({
@@ -121,22 +89,17 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     () =>
       getControlsAndSubcontrolsColumns({
         selectedObject,
-        selectedRefCodeMap,
-        frameworks,
-        selectedSubcontrolRefCodeMap,
-        subcontrolFrameworks,
-        setSelectedRefCodeMap,
-        setFrameworks,
-        setSelectedSubcontrolRefCodeMap,
-        setSubcontrolFrameworks,
         convertToReadOnly: convertToReadOnly!,
         form,
+        evidenceControls,
+        setEvidenceControls,
+        evidenceSubcontrols,
+        setEvidenceSubcontrols,
       }),
-    [selectedObject, selectedRefCodeMap, frameworks, selectedSubcontrolRefCodeMap, subcontrolFrameworks, convertToReadOnly, form],
+    [selectedObject, convertToReadOnly, form, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols],
   )
 
   const handleSave = () => {
-    onSave(form.getValues('controlIDs') || [], form.getValues('subcontrolIDs') || [], selectedRefCodeMap, selectedSubcontrolRefCodeMap, frameworks, subcontrolFrameworks)
     onClose()
   }
 

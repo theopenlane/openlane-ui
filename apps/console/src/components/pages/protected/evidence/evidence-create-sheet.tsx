@@ -33,6 +33,7 @@ import { ControlSelectionDialog } from '@/components/shared/objectAssociation/ob
 import { PageHeading } from '@repo/ui/page-heading'
 import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
+import { CustomEvidenceControl } from './evidence-details-sheet'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -65,11 +66,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const router = useRouter()
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
-  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsRefMap, setAssociationSubControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
-  const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
+  // const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null }[]>([])
+
+  const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
+  const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -111,7 +112,9 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       if (onEvidenceCreateSuccess) {
         onEvidenceCreateSuccess()
       }
-
+      setEvidenceSubcontrols(null)
+      setEvidenceControls(null)
+      form.reset()
       const { controlIdFromControl, subcontrolIdFromControl } = controlIdsFromControl || {}
 
       if (!res.createEvidence.evidence.id) return
@@ -148,12 +151,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         form.setValue('programIDs', formData.objectAssociations.programIDs ? formData.objectAssociations.programIDs : [])
         form.setValue('subcontrolIDs', formData.objectAssociations.subcontrolIDs ? formData.objectAssociations.subcontrolIDs : [])
 
-        setAssociationControlsRefMap(formData.controlRefCodes ? formData.controlRefCodes : [])
-        setAssociationControlsFrameworksMap(formData.referenceFramework || {})
-
-        setAssociationSubControlsRefMap(formData.subcontrolRefCodes ? formData.subcontrolRefCodes : [])
-        setAssociationSubControlsFrameworksMap(formData.subcontrolReferenceFramework || {})
-
         setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
       }
     }
@@ -189,29 +186,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   const handleResetEvidenceFiles = () => {
     setResetEvidenceFiles(false)
-  }
-
-  const handleSaveControls = (
-    newIds: string[],
-    subcontrolsNewIds: string[],
-    newControlRefCodes: string[],
-    newSubcontrolRefCodes: string[],
-    frameworks: Record<string, string>,
-    subcontrolFrameworks: Record<string, string>,
-  ) => {
-    const mergedControlRefCodes = [...(associationControlsRefMap || []), ...(newControlRefCodes || [])]
-    const uniqueControlRefCodes = Array.from(new Set(mergedControlRefCodes))
-
-    const mergedSubcontrolRefCodes = [...(associationSubControlsRefMap || []), ...(newSubcontrolRefCodes || [])]
-    const uniqueSubcontrolRefCodes = Array.from(new Set(mergedSubcontrolRefCodes))
-
-    form.setValue('controlIDs', newIds)
-    form.setValue('subcontrolIDs', subcontrolsNewIds)
-    setAssociationControlsRefMap(uniqueControlRefCodes)
-    setAssociationSubControlsRefMap(uniqueSubcontrolRefCodes)
-
-    setAssociationControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(frameworks || {}) }))
-    setAssociationSubControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(subcontrolFrameworks || {}) }))
   }
 
   const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
@@ -427,14 +401,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                               <div className="mt-5 flex flex-col gap-5">
                                 <ObjectAssociationControlsChips
                                   form={form}
-                                  controlsRefMap={associationControlsRefMap}
-                                  setControlsRefMap={setAssociationControlsRefMap}
-                                  subcontrolsRefMap={associationSubControlsRefMap}
-                                  setSubcontrolsRefMap={setAssociationSubControlsRefMap}
-                                  subcontrolFrameworksMap={associationSubControlsFrameworksMap}
-                                  setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
-                                  frameworksMap={associationControlsFrameworksMap}
-                                  setFrameworksMap={setAssociationControlsFrameworksMap}
+                                  // suggestedControlsMap={suggestedControlsMap}
+                                  evidenceControls={evidenceControls}
+                                  setEvidenceControls={setEvidenceControls}
+                                  evidenceSubcontrols={evidenceSubcontrols}
+                                  setEvidenceSubcontrols={setEvidenceSubcontrols}
                                 />
                               </div>
                             </AccordionContent>
@@ -443,12 +414,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                         <ControlSelectionDialog
                           open={openControlsDialog}
                           onClose={() => setOpenControlsDialog(false)}
-                          initialFramework={associationControlsFrameworksMap}
-                          initialControlRefCodes={associationControlsRefMap}
-                          initialSubcontrolRefCodes={associationSubControlsRefMap}
-                          initialSubcontrolFramework={associationSubControlsFrameworksMap}
-                          onSave={handleSaveControls}
                           form={form}
+                          evidenceControls={evidenceControls}
+                          setEvidenceControls={setEvidenceControls}
+                          evidenceSubcontrols={evidenceSubcontrols}
+                          setEvidenceSubcontrols={setEvidenceSubcontrols}
                         />
                       </Panel>
                     </GridCell>
@@ -551,6 +521,9 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
             onOpenChange(false)
+            setEvidenceSubcontrols(null)
+            setEvidenceControls(null)
+            form.reset()
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}
         />

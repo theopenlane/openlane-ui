@@ -4,56 +4,65 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { AccordionEnum } from './object-association-control-dialog'
+import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-details-sheet'
 
 type TColumnOptions = {
   selectedObject: AccordionEnum.Control | AccordionEnum.Subcontrol
-  selectedRefCodeMap: string[]
-  frameworks: Record<string, string>
-  selectedSubcontrolRefCodeMap: string[]
-  subcontrolFrameworks: Record<string, string>
-  setSelectedRefCodeMap: React.Dispatch<React.SetStateAction<string[]>>
-  setFrameworks: React.Dispatch<React.SetStateAction<Record<string, string>>>
-  setSelectedSubcontrolRefCodeMap: React.Dispatch<React.SetStateAction<string[]>>
-  setSubcontrolFrameworks: React.Dispatch<React.SetStateAction<Record<string, string>>>
   convertToReadOnly: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
   form: UseFormReturn<CreateEvidenceFormData>
+  evidenceControls: CustomEvidenceControl[] | null
+  setEvidenceControls: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
+  evidenceSubcontrols: CustomEvidenceControl[] | null
+  setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
 }
 
 export const getControlsAndSubcontrolsColumns = ({
   selectedObject,
-  selectedRefCodeMap,
-  frameworks,
-  selectedSubcontrolRefCodeMap,
-  subcontrolFrameworks,
-  setSelectedRefCodeMap,
-  setFrameworks,
-  setSelectedSubcontrolRefCodeMap,
-  setSubcontrolFrameworks,
   convertToReadOnly,
   form,
+  evidenceControls,
+  setEvidenceControls,
+  evidenceSubcontrols,
+  setEvidenceSubcontrols,
 }: TColumnOptions): ColumnDef<ControlListFieldsFragment | Subcontrol>[] => {
   const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
     if (selectedObject === AccordionEnum.Control) {
-      const currentIds = form.getValues('controlIDs') || []
-      const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
-      const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
+      setEvidenceControls((prev) => {
+        let newControls = prev ?? []
 
-      const newFrameworks = isChecked ? { ...frameworks, [id]: referenceFramework ?? '' } : Object.fromEntries(Object.entries(frameworks).filter(([key]) => key !== id))
-      form.setValue('controlIDs', newIds, { shouldValidate: true, shouldDirty: true })
+        if (isChecked && !newControls.find((c) => c.id === id)) {
+          newControls = [...newControls, { id, refCode, referenceFramework: referenceFramework ?? null, __typename: 'Control' }]
+        } else if (!isChecked) {
+          newControls = newControls.filter((c) => c.id !== id)
+        }
 
-      setSelectedRefCodeMap(newRefCodes)
-      setFrameworks(newFrameworks)
+        form.setValue(
+          'controlIDs',
+          newControls.map((c) => c.id),
+          { shouldValidate: true, shouldDirty: true },
+        )
+        return newControls
+      })
     } else {
-      const currentIds = form.getValues('subcontrolIDs') || []
-      const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
-      const newRefCodes = isChecked ? [...new Set([...(selectedSubcontrolRefCodeMap || []), refCode])] : selectedSubcontrolRefCodeMap?.filter((v) => v !== refCode)
-      const newFrameworks = isChecked ? { ...subcontrolFrameworks, [id]: referenceFramework ?? '' } : Object.fromEntries(Object.entries(subcontrolFrameworks).filter(([key]) => key !== id))
+      setEvidenceSubcontrols((prev) => {
+        let newSubcontrols = prev ?? []
 
-      form.setValue('subcontrolIDs', newIds, { shouldValidate: true, shouldDirty: true })
-      setSelectedSubcontrolRefCodeMap(newRefCodes)
-      setSubcontrolFrameworks(newFrameworks)
+        if (isChecked && !newSubcontrols.find((c) => c.id === id)) {
+          newSubcontrols = [...newSubcontrols, { id, refCode, referenceFramework: referenceFramework ?? null, __typename: 'Subcontrol' }]
+        } else if (!isChecked) {
+          newSubcontrols = newSubcontrols.filter((c) => c.id !== id)
+        }
+
+        form.setValue(
+          'subcontrolIDs',
+          newSubcontrols.map((c) => c.id),
+          { shouldValidate: true, shouldDirty: true },
+        )
+        return newSubcontrols
+      })
     }
   }
+
   return [
     {
       accessorKey: 'name',
@@ -61,7 +70,7 @@ export const getControlsAndSubcontrolsColumns = ({
       cell: ({ row }) => {
         const { id, refCode, referenceFramework } = row.original
 
-        const checked = selectedObject === AccordionEnum.Control ? (form.getValues('controlIDs') || []).includes(id) ?? false : (form.getValues('subcontrolIDs') || []).includes(id) ?? false
+        const checked = selectedObject === AccordionEnum.Control ? !!evidenceControls?.find((c) => c.id === row.original.id) : !!evidenceSubcontrols?.find((c) => c.id === row.original.id)
 
         return (
           <div className="flex items-center gap-2">
