@@ -146,7 +146,9 @@ export default function SideNav({
     const linkContent = (
       <Link
         href={child.href ?? '#'}
-        className={`flex items-center  gap-2 p-1 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
+        className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
+          secondaryExpanded ? 'px-2.5' : 'justify-center'
+        }`}
       >
         {child.icon && <child.icon size={secondaryExpanded ? 16 : 20} />}
         {secondaryExpanded && <span className="text-sm font-normal leading-5">{child.title}</span>}

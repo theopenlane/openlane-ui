@@ -20680,6 +20680,8 @@ export interface Mutation {
   deleteMappedControl: MappedControlDeletePayload
   /** Delete an existing narrative */
   deleteNarrative: NarrativeDeletePayload
+  /** Delete an existing note */
+  deleteNote: NoteDeletePayload
   /** Delete an existing orgMembership */
   deleteOrgMembership: OrgMembershipDeletePayload
   /** Delete an existing organization */
@@ -21764,6 +21766,10 @@ export interface MutationDeleteMappedControlArgs {
 }
 
 export interface MutationDeleteNarrativeArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteNoteArgs {
   id: Scalars['ID']['input']
 }
 
@@ -22959,6 +22965,13 @@ export interface NoteConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+}
+
+/** Return response for deleteComment mutation */
+export interface NoteDeletePayload {
+  __typename?: 'NoteDeletePayload'
+  /** Deleted comment ID */
+  deletedID: Scalars['ID']['output']
 }
 
 /** An edge in a connection. */
@@ -48490,6 +48503,7 @@ export type GetOrganizationSettingQuery = {
       oidcDiscoveryEndpoint?: string | null
       identityProviderLoginEnforced: boolean
       identityProviderAuthTested: boolean
+      allowMatchingDomainsAutojoin?: boolean | null
     } | null
   }
 }
