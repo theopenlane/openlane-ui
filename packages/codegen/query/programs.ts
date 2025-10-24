@@ -332,7 +332,7 @@ export const UPDATE_PROGRAM_MEMBERSHIP = gql`
 
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
-    totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {
+    totalEvidences: evidences(where: { hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
 
@@ -349,19 +349,21 @@ export const GET_EVIDENCE_STATS = gql`
     }
   }
 `
-
 export const GET_GLOBAL_EVIDENCE_STATS = gql`
   query GetGlobalEvidenceStats {
-    totalControls: controls(where: {}) {
+    totalEvidences: evidences(where: {}) {
       totalCount
     }
-    submitted: controls(where: { hasEvidenceWith: [{ statusIn: READY }] }) {
+
+    submitted: evidences(where: { statusIn: [READY] }) {
       totalCount
     }
-    accepted: controls(where: { hasEvidenceWith: [{ statusIn: APPROVED }] }) {
+
+    accepted: evidences(where: { statusIn: [APPROVED] }) {
       totalCount
     }
-    rejected: controls(where: { hasEvidenceWith: [{ statusIn: REJECTED }] }) {
+
+    rejected: evidences(where: { statusIn: [REJECTED] }) {
       totalCount
     }
   }

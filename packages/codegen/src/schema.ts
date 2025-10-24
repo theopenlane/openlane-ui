@@ -49310,20 +49310,20 @@ export type GetEvidenceStatsQueryVariables = Exact<{
 
 export type GetEvidenceStatsQuery = {
   __typename?: 'Query'
-  totalControls: { __typename?: 'ControlConnection'; totalCount: number }
-  submitted: { __typename?: 'ControlConnection'; totalCount: number }
-  accepted: { __typename?: 'ControlConnection'; totalCount: number }
-  rejected: { __typename?: 'ControlConnection'; totalCount: number }
+  totalEvidences: { __typename?: 'EvidenceConnection'; totalCount: number }
+  submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
+  accepted: { __typename?: 'EvidenceConnection'; totalCount: number }
+  rejected: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
 export type GetGlobalEvidenceStatsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetGlobalEvidenceStatsQuery = {
   __typename?: 'Query'
-  totalControls: { __typename?: 'ControlConnection'; totalCount: number }
-  submitted: { __typename?: 'ControlConnection'; totalCount: number }
-  accepted: { __typename?: 'ControlConnection'; totalCount: number }
-  rejected: { __typename?: 'ControlConnection'; totalCount: number }
+  totalEvidences: { __typename?: 'EvidenceConnection'; totalCount: number }
+  submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
+  accepted: { __typename?: 'EvidenceConnection'; totalCount: number }
+  rejected: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
 export type RiskFieldsFragment = {
