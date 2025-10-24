@@ -21,7 +21,7 @@ export const step2Schema = z
     endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).optional(),
     framework: z.string().optional(),
     standardID: z.string().optional(),
-    programType: z.nativeEnum(ProgramProgramType),
+    programType: z.nativeEnum(ProgramProgramType).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.programType === ProgramProgramType.FRAMEWORK && !data.framework) {

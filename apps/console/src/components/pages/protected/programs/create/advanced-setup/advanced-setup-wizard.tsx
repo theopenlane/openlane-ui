@@ -44,7 +44,7 @@ export default function AdvancedSetupWizard() {
   const router = useRouter()
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ new state
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
@@ -81,6 +81,7 @@ export default function AdvancedSetupWizard() {
   })
 
   const framework = form.watch('framework')
+
   const disabledIDs = framework === 'SOC 2' ? [] : ['2']
 
   const handleNext = async () => {
@@ -167,6 +168,7 @@ export default function AdvancedSetupWizard() {
         viewerIDs: data?.readOnlyGroups?.map((g) => g.id),
         editorIDs: data?.editAccessGroups?.map((g) => g.id),
       },
+      categories: framework === 'SOC 2' ? data.categories : undefined,
       members: [...programMembers, ...programAdmins],
       standardID: data.standardID,
     }
