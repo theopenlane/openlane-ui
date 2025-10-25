@@ -46,7 +46,7 @@ export const useGroupSelectionColumns = (selectedGroupIds: string[], setSelected
   {
     accessorKey: 'name',
     header: 'Group',
-    cell: ({ row }) => row?.original?.name,
+    cell: ({ row }) => row?.original?.displayName,
   },
   {
     accessorKey: 'members',
