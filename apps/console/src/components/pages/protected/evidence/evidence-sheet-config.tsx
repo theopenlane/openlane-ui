@@ -25,12 +25,19 @@ export const groupItemsByReferenceFramework = (items: CustomEvidenceControl[] | 
   }, {} as RefFrameworkGroup)
 }
 
-export const buildOr = (groups: RefFrameworkGroup) => {
-  return Object.entries(groups).map(([referenceFramework, items]) => {
+export const buildOr = (groups: RefFrameworkGroup) =>
+  Object.entries(groups).map(([framework, items]) => {
     const refCodes = items.map((i) => i.refCode)
-    if (referenceFramework === 'CUSTOM') {
-      return { refCodeIn: refCodes, referenceFrameworkIsNil: true }
+
+    if (framework === 'CUSTOM') {
+      return {
+        refCodeIn: refCodes,
+        or: [{ referenceFrameworkIsNil: true }],
+      }
     }
-    return { refCodeIn: refCodes, referenceFramework }
+
+    return {
+      refCodeIn: refCodes,
+      or: [{ referenceFramework: framework }],
+    }
   })
-}

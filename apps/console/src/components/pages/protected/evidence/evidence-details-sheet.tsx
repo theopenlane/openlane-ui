@@ -121,19 +121,46 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const buildWhere = (): MappedControlWhereInput => {
     const groupedControls = groupItemsByReferenceFramework(evidenceControls)
-    const groupedSubontrols = groupItemsByReferenceFramework(evidenceSubcontrols)
+    const groupedSubcontrols = groupItemsByReferenceFramework(evidenceSubcontrols)
+    const or: MappedControlWhereInput[] = []
 
-    const where: MappedControlWhereInput = {
-      or: [
-        {
-          hasToControlsWith: evidenceControls && evidenceControls.length > 0 ? [{ or: buildOr(groupedControls) }] : null,
-          hasFromControlsWith: evidenceControls && evidenceControls.length > 0 ? [{ or: buildOr(groupedControls) }] : null,
-          hasToSubcontrolsWith: evidenceSubcontrols && evidenceSubcontrols.length > 0 ? [{ or: buildOr(groupedSubontrols) }] : null,
-          hasFromSubcontrolsWith: evidenceSubcontrols && evidenceSubcontrols.length > 0 ? [{ or: buildOr(groupedSubontrols) }] : null,
-        },
-      ],
+    if (evidenceControls && evidenceControls.length > 0) {
+      or.push({
+        or: [
+          {
+            hasFromControlsWith: buildOr(groupedControls),
+          },
+        ],
+      })
+
+      or.push({
+        or: [
+          {
+            hasToControlsWith: buildOr(groupedControls),
+          },
+        ],
+      })
     }
-    return where
+
+    if (evidenceSubcontrols && evidenceSubcontrols.length > 0) {
+      or.push({
+        or: [
+          {
+            hasFromSubcontrolsWith: buildOr(groupedSubcontrols),
+          },
+        ],
+      })
+
+      or.push({
+        or: [
+          {
+            hasToSubcontrolsWith: buildOr(groupedSubcontrols),
+          },
+        ],
+      })
+    }
+
+    return { or }
   }
 
   const where = buildWhere()
