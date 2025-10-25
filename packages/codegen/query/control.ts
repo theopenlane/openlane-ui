@@ -509,3 +509,11 @@ export const UPDATE_CONTROL_COMMENT = gql`
     }
   }
 `
+
+export const DELETE_NOTE = gql`
+  mutation DeleteNote($deleteNoteId: ID!) {
+    deleteNote(id: $deleteNoteId) {
+      deletedID
+    }
+  }
+`

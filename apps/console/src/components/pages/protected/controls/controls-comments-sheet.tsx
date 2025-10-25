@@ -12,7 +12,7 @@ import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useGetUsers } from '@/lib/graphql-hooks/user'
 import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/controls'
+import { useDeleteNote, useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/controls'
 import { UserWhereInput } from '@repo/codegen/src/schema'
 import { useGetSubcontrolComments, useUpdateSubcontrol, useUpdateSubcontrolComment } from '@/lib/graphql-hooks/subcontrol'
 import { SheetTitle } from '@repo/ui/sheet'
@@ -36,6 +36,7 @@ const ControlCommentsSheet = () => {
   const { mutateAsync: updateComment } = useUpdateControlComment()
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
   const { mutateAsync: updateSubComment } = useUpdateSubcontrolComment()
+  const { mutateAsync: deleteNote } = useDeleteNote()
 
   const commentSource = isSubcontrol ? subcontrolData?.subcontrol : data?.control
 
@@ -106,23 +107,13 @@ const ControlCommentsSheet = () => {
       const targetId = subcontrolId || id
       if (!targetId) return
       try {
-        if (isSubcontrol) {
-          await updateSubcontrol({
-            updateSubcontrolId: targetId,
-            input: { removeCommentIDs: [commentId] },
-          })
-        } else {
-          await updateControl({
-            updateControlId: targetId,
-            input: { removeCommentIDs: [commentId] },
-          })
-        }
+        await deleteNote({ deleteNoteId: commentId })
         invalidateComments()
       } catch (error) {
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [id, subcontrolId, isSubcontrol, updateControl, updateSubcontrol, errorNotification, invalidateComments],
+    [id, subcontrolId, deleteNote, errorNotification, invalidateComments],
   )
 
   const handleCommentSort = useCallback(() => {
