@@ -191,7 +191,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 150,
       maxSize: 180,
       cell: ({ row }) => {
-        const userId = row.original.updatedBy
+        const userId = row.original.createdBy
         const token = tokens?.find((item) => item.id === userId)
         const user = users?.find((item) => item.id === userId)
 
