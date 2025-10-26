@@ -57,11 +57,13 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       },
       size: 20,
       maxSize: 20,
+      minSize: 20,
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      minSize: 150,
+      minSize: 100,
+      size: 100,
     },
     {
       accessorKey: 'status',
@@ -82,9 +84,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
           )}
         </div>
       ),
-      minSize: 120,
-      maxSize: 120,
-      size: 120,
+      maxSize: 80,
+      size: 80,
     },
     {
       accessorKey: 'summary',
@@ -102,7 +103,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'approvalRequired',
       header: 'Approval Required',
-      size: 140,
+      size: 40,
+      minSize: 40,
       cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No'),
     },
     {
@@ -146,7 +148,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'reviewDue',
       header: 'Review Due',
-      size: 130,
+      size: 100,
       cell: ({ cell }) => {
         const value = cell.getValue() as string | null
         return value ? formatDate(value) : '-'
@@ -155,7 +157,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'reviewFrequency',
       header: 'Review Frequency',
-      size: 140,
+      size: 100,
       cell: ({ cell }) => {
         const value = cell.getValue<string>()
         return <span className="capitalize">{value ? value.toLowerCase() : '-'}</span>
@@ -191,7 +193,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       size: 150,
       maxSize: 180,
       cell: ({ row }) => {
-        const userId = row.original.updatedBy
+        const userId = row.original.createdBy
         const token = tokens?.find((item) => item.id === userId)
         const user = users?.find((item) => item.id === userId)
 
@@ -239,8 +241,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
-      size: 120,
-      maxSize: 120,
+      size: 100,
+      maxSize: 100,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]
