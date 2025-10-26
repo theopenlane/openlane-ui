@@ -146,11 +146,7 @@ const AllowedDomains = () => {
       </Panel>
 
       <Panel>
-        <PanelHeader
-          heading="Auto-join on organization"
-          subheading="Allow users who can successfully confirm their email or who login via social providers or SSO (if enabled) with an email that matches the organizations configured allowed domain to auto-join the organization"
-          noBorder
-        />
+        <PanelHeader heading="Auto-join organization" subheading="Allow users with verified email addresses that match allowed domains to automatically join the organization" noBorder />
         <Switch checked={allowAutoJoin} onCheckedChange={onSwitchChange} disabled={domainCount === 0} />
       </Panel>
     </>
