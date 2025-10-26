@@ -133,8 +133,8 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Name',
       accessorKey: 'refCode',
       cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
-      size: 50,
-      maxSize: 90,
+      size: 90,
+      minSize: 90,
     },
     {
       header: 'Description',
@@ -205,6 +205,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
+      size: 120,
     },
     {
       header: 'Reference ID',
