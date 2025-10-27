@@ -189,34 +189,36 @@
   },
   {
     "route": "/organization-settings/integrations",
-    "name": "Integrations"
+    "name": "Integrations",
+    "hidden": true
   },
   {
     "route": "/trust-center/settings",
-    "name": "Settings"
+    "name": "Settings",
+    "hidden": true
   },
   {
     "route": "/programs/create/generic-program",
-    "name": "Generic Program"
+    "name": "Generic Program Setup"
   },
   {
     "route": "/programs/create/advanced-setup",
-    "name": "Advanced Setup"
+    "name": "Advanced Program Setup"
   },
   {
     "route": "/programs/create/risk-assessment",
-    "name": "Risk Assessment"
+    "name": "Create Risk Assessment Program"
   },
   {
     "route": "/programs/create/soc2",
-    "name": "Soc2"
+    "name": "Create SOC2 Program"
   },
   {
     "route": "/programs/create",
-    "name": "Create"
+    "name": "Create Program"
   },
   {
     "route": "/programs/create/framework-based",
-    "name": "Framework Based"
+    "name": "Create Framework Based Program"
   }
 ]
