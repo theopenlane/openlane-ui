@@ -47495,25 +47495,19 @@ export type GetSuggestedControlsOrSubcontrolsQuery = {
         source?: MappedControlMappingSource | null
         fromControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
         toControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
         fromSubcontrols: {
           __typename?: 'SubcontrolConnection'
-          edges?: Array<{
-            __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null
-          } | null> | null
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
         toSubcontrols: {
           __typename?: 'SubcontrolConnection'
-          edges?: Array<{
-            __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null
-          } | null> | null
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
       } | null
     } | null> | null

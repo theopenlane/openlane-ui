@@ -531,6 +531,7 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
                 id
                 referenceFramework
                 refCode
+                __typename
               }
             }
           }
@@ -541,6 +542,7 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
                 id
                 referenceFramework
                 refCode
+                __typename
               }
             }
           }
@@ -551,6 +553,7 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
                 id
                 referenceFramework
                 refCode
+                __typename
               }
             }
           }
@@ -561,6 +564,7 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
                 id
                 referenceFramework
                 refCode
+                __typename
               }
             }
           }

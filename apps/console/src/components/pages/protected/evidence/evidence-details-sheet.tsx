@@ -74,7 +74,8 @@ import ObjectAssociationControlsChips from '@/components/shared/objectAssociatio
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
-import { buildOr, CustomEvidenceControl, groupItemsByReferenceFramework } from './evidence-sheet-config'
+import { buildOr, CustomEvidenceControl, flattenAndFilterControls, groupItemsByReferenceFramework } from './evidence-sheet-config'
+import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -107,7 +108,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
-  // const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null }[]>([])
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -119,57 +120,50 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
 
-  const buildWhere = (): MappedControlWhereInput => {
+  const buildWhere = React.useMemo<MappedControlWhereInput | null>(() => {
     const groupedControls = groupItemsByReferenceFramework(evidenceControls)
     const groupedSubcontrols = groupItemsByReferenceFramework(evidenceSubcontrols)
     const or: MappedControlWhereInput[] = []
 
     if (evidenceControls && evidenceControls.length > 0) {
-      or.push({
-        or: [
-          {
-            hasFromControlsWith: buildOr(groupedControls),
-          },
-        ],
-      })
-
-      or.push({
-        or: [
-          {
-            hasToControlsWith: buildOr(groupedControls),
-          },
-        ],
-      })
+      or.push({ or: [{ hasFromControlsWith: buildOr(groupedControls) }] })
+      or.push({ or: [{ hasToControlsWith: buildOr(groupedControls) }] })
     }
 
     if (evidenceSubcontrols && evidenceSubcontrols.length > 0) {
-      or.push({
-        or: [
-          {
-            hasFromSubcontrolsWith: buildOr(groupedSubcontrols),
-          },
-        ],
-      })
-
-      or.push({
-        or: [
-          {
-            hasToSubcontrolsWith: buildOr(groupedSubcontrols),
-          },
-        ],
-      })
+      or.push({ or: [{ hasFromSubcontrolsWith: buildOr(groupedSubcontrols) }] })
+      or.push({ or: [{ hasToSubcontrolsWith: buildOr(groupedSubcontrols) }] })
     }
 
-    return { or }
-  }
+    return or.length > 0 ? { or } : null
+  }, [evidenceControls, evidenceSubcontrols])
 
-  const where = buildWhere()
+  const where = buildWhere
 
   const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where,
-    enabled: true,
+    where: where ?? undefined,
+    enabled: !!where,
   })
-  console.log(mappedControls)
+
+  const { data: standards } = useGetStandards({})
+
+  useEffect(() => {
+    if (!where) {
+      setSuggestedControlsMap([])
+      return
+    }
+    if (!mappedControls) return
+    const suggestedItems = flattenAndFilterControls(mappedControls, standards).map((item) => ({
+      id: item.id,
+      refCode: item.refCode,
+      referenceFramework: item.referenceFramework ?? null,
+      source: item.source ?? '',
+      typeName: item.typeName,
+    }))
+
+    const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
+    setSuggestedControlsMap(uniqueItems)
+  }, [mappedControls, standards, where])
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
@@ -963,7 +957,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <div className="mt-5 flex flex-col gap-5">
                             <ObjectAssociationControlsChips
                               form={form}
-                              // suggestedControlsMap={suggestedControlsMap}
+                              suggestedControlsMap={suggestedControlsMap}
                               evidenceControls={evidenceControls}
                               setEvidenceControls={setEvidenceControls}
                               evidenceSubcontrols={evidenceSubcontrols}
