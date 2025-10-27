@@ -28,7 +28,8 @@
   },
   {
     "route": "/organization-settings/subscribers",
-    "name": "Subscribers"
+    "name": "Subscribers",
+    "hidden": true
   },
   {
     "route": "/organization-settings/general-settings",
@@ -193,5 +194,29 @@
   {
     "route": "/trust-center/settings",
     "name": "Settings"
+  },
+  {
+    "route": "/programs/create/generic-program",
+    "name": "Generic Program"
+  },
+  {
+    "route": "/programs/create/advanced-setup",
+    "name": "Advanced Setup"
+  },
+  {
+    "route": "/programs/create/risk-assessment",
+    "name": "Risk Assessment"
+  },
+  {
+    "route": "/programs/create/soc2",
+    "name": "Soc2"
+  },
+  {
+    "route": "/programs/create",
+    "name": "Create"
+  },
+  {
+    "route": "/programs/create/framework-based",
+    "name": "Framework Based"
   }
 ]
