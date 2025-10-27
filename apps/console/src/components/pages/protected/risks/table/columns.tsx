@@ -52,13 +52,17 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
           </div>
         )
       },
-      size: 50,
+      size: 20,
+      minSize: 20,
+      maxSize: 20,
     },
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
-      size: 300,
+      size: 100,
+      minSize: 100,
+      maxSize: 200,
     },
     {
       accessorKey: 'status',
@@ -68,10 +72,12 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
           <RiskLabel status={(cell.getValue() as RiskRiskStatus) || ''} isEditing={false} />
         </div>
       ),
-      size: 100,
+      size: 80,
+      maxSize: 80,
+      minSize: 80,
     },
-    { accessorKey: 'riskType', header: 'Type' },
-    { accessorKey: 'category', header: 'Category' },
+    { accessorKey: 'riskType', header: 'Type', size: 100 },
+    { accessorKey: 'category', header: 'Category', size: 100 },
     {
       accessorKey: 'score',
       header: 'Score',

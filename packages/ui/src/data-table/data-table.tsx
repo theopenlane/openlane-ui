@@ -331,7 +331,7 @@ export function DataTable<TData, TValue>({
                     {headerGroup.headers.map((header, index) => {
                       const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
                       const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
-                      const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
+                      const columnWidth = header.getSize() === 0 ? 'auto' : `${header.getSize()}px`
 
                       const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
                       return (

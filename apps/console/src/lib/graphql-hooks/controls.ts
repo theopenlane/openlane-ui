@@ -21,6 +21,7 @@ import {
   GET_CONTROL_COMMENTS,
   UPDATE_CONTROL_COMMENT,
   CREATE_CSV_BULK_MAPPED_CONTROL,
+  DELETE_NOTE,
   GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
 } from '@repo/codegen/query/control'
 
@@ -62,6 +63,8 @@ import {
   UpdateControlCommentMutationVariables,
   CreateBulkCsvMappedControlMutation,
   CreateBulkCsvMappedControlMutationVariables,
+  DeleteNoteMutation,
+  DeleteNoteMutationVariables,
   MappedControlWhereInput,
   GetSuggestedControlsOrSubcontrolsQuery,
 } from '@repo/codegen/src/schema'
@@ -470,6 +473,18 @@ export const useUpdateControlComment = () => {
     mutationFn: async (variables) => client.request(UPDATE_CONTROL_COMMENT, variables),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['controlComments', data.updateControlComment.control.id] })
+    },
+  })
+}
+
+export const useDeleteNote = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<DeleteNoteMutation, unknown, DeleteNoteMutationVariables>({
+    mutationFn: async (variables) => client.request(DELETE_NOTE, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['controlComments', data.deleteNote.deletedID] })
     },
   })
 }
