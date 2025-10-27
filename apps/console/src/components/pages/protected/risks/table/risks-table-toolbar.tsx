@@ -89,16 +89,6 @@ const RisksTableToolbar: React.FC<TProps> = ({
             closeOnSelect={true}
             content={(close) => (
               <>
-                <button
-                  className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                  onClick={() => {
-                    handleExport()
-                    close()
-                  }}
-                >
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </button>
                 {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
                   <BulkCSVCreateRiskDialog
                     trigger={
@@ -109,6 +99,16 @@ const RisksTableToolbar: React.FC<TProps> = ({
                     }
                   />
                 )}
+                <button
+                  className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                  onClick={() => {
+                    handleExport()
+                    close()
+                  }}
+                >
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </button>
               </>
             )}
           />

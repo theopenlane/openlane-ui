@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Settings2, SquarePlus, Upload } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, SquarePlus, Upload } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -28,6 +28,9 @@ import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
 import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
 import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { Callout } from '@/components/shared/callout/callout'
+import { ControlsEmptyActions } from './control-empty'
 
 type TControlReportPageProps = {
   active: 'report' | 'controls'
@@ -75,6 +78,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     where,
     enabled: Boolean(referenceFramework),
   })
+
+  const hasNoControls = !data || data.length === 0 || data.every((entry) => entry.controls.length === 0)
 
   const groupControlsByStatus = (controls: { id: string; refCode: string; status?: string | null }[]): Record<ControlControlStatus, { id: string; refCode: string; status?: string | null }[]> => {
     return ControlStatusOrder.reduce(
@@ -138,59 +143,66 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         <div className="flex items-center gap-4">
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
           <TabSwitcher active={active} setActive={setActive} />
-          <Select onValueChange={setReferenceFramework} value={referenceFramework}>
-            <SelectTrigger className="w-48 h-7.5">
-              <SelectValue placeholder="Select Framework" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredStandardOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-              <SelectItem value="Custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
-            <div className="flex">
-              <List size={16} />
-              <ChevronsDownUp size={16} />
-            </div>
-          </Button>
+          {!isLoading && !isFetching && !hasNoControls ? (
+            <>
+              <Select onValueChange={setReferenceFramework} value={referenceFramework}>
+                <SelectTrigger className="w-48 h-7.5">
+                  <SelectValue placeholder="Select Framework" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredStandardOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="Custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
+                <div className="flex">
+                  <List size={16} />
+                  <ChevronsDownUp size={16} />
+                </div>
+              </Button>
+            </>
+          ) : null}
         </div>
+
         <div className="flex items-center gap-2">
-          <Menu
-            closeOnSelect={true}
-            content={() => (
-              <>
-                <BulkCSVCloneControlDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload From Standard</span>
-                    </div>
-                  }
-                />
-                <BulkCSVCreateControlDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload Custom Controls</span>
-                    </div>
-                  }
-                />
-                <BulkCSVCreateMappedControlDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload Control Mappings</span>
-                    </div>
-                  }
-                />
-              </>
-            )}
-          />
-          {createAllowed && (
+          {!isLoading && !isFetching && !hasNoControls ? (
+            <Menu
+              closeOnSelect={true}
+              content={() => (
+                <>
+                  <BulkCSVCloneControlDialog
+                    trigger={
+                      <div className="flex items-center space-x-2 px-1">
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Upload From Standard</span>
+                      </div>
+                    }
+                  />
+                  <BulkCSVCreateControlDialog
+                    trigger={
+                      <div className="flex items-center space-x-2 px-1">
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Upload Custom Controls</span>
+                      </div>
+                    }
+                  />
+                  <BulkCSVCreateMappedControlDialog
+                    trigger={
+                      <div className="flex items-center space-x-2 px-1">
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Upload Control Mappings</span>
+                      </div>
+                    }
+                  />
+                </>
+              )}
+            />
+          ) : null}
+          {createAllowed && !hasNoControls && (
             <Link href="/controls/create-control" aria-label="Create Control">
               <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
                 Create
@@ -202,44 +214,36 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       <div className="space-y-2">
         {isLoading || isFetching ? (
           <ControlReportPageSkeleton />
-        ) : !data || data.length === 0 ? (
+        ) : hasNoControls ? (
           <>
-            <div className="flex flex-col items-center justify-center mt-16 gap-6">
-              <div className="max-w-3xl p-4 border rounded-lg text-sm text-muted-foreground">
-                <div className="flex items-start gap-2">
-                  <span className="text-primary">
-                    <svg width="20" height="20" fill="currentColor">
-                      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-                      <circle cx="10" cy="10" r="1.5" />
-                    </svg>
-                  </span>
-                  <div>
-                    <p className="text-base font-medium">What are Controls?</p>
-                    <p className="mt-2 text-sm">
-                      Controls are the core building blocks of compliance management in Openlane. They represent specific security, privacy, or operational requirements that organizations must
-                      implement to meet compliance standards and manage risks effectively.
-                      <a href="https://docs.theopenlane.io/docs/docs/platform/controls/overview" target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500 underline">
-                        See docs to learn more.
-                      </a>
-                    </p>
-                  </div>
-                </div>
+            <p className="mt-4 rounded-md border border-border/30 bg-muted/20 px-5 py-2.5 text-base text-muted-foreground shadow-sm">
+              No controls found. <span className="text-foreground font-medium">Create one now</span> using any option below.
+            </p>
+
+            <div className="mt-6 grid grid-cols-3">
+              <div className="col-span-2 grid">
+                <ControlsEmptyActions />
               </div>
 
-              <div className="flex flex-col items-center gap-2">
-                <Settings2 className="text-border" size={89} strokeWidth={1} />
-                <p className="text-sm text-muted-foreground">No controls found</p>
-                <p className="text-sm text-muted-foreground">Ready to get started?</p>
-                <div className="flex gap-4 pt-2">
-                  <Link href="/standards" passHref>
-                    <Button variant="outline" className="h-8">
-                      Import from Standards Catalog
-                    </Button>
-                  </Link>
-                  <Link href="/controls/create-control" passHref>
-                    <Button className="h-8">Create Custom Controls</Button>
-                  </Link>
-                </div>
+              <div className="row-span-2 ml-4">
+                <Callout variant="info" title="What are Controls?" className="h-full self-stretch ">
+                  <br />
+                  Controls are the foundation of your compliance program in Openlane. Each control defines a specific security, privacy, or operational requirement that your organization follows to
+                  protect systems and data. <br />
+                  <br />
+                  Controls serve as the bridge between high-level compliance frameworks (like SOC 2 or ISO 27001) and the actual policies, procedures, and evidence your team manages day-to-day. By
+                  implementing and maintaining controls, you demonstrate how your organization meets key standards and reduces risk across your environment.
+                  <br />
+                  <br />
+                  <a
+                    href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/controls/overview`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 text-[var(--color-info)] underline underline-offset-4 hover:opacity-80"
+                  >
+                    See docs to learn more.
+                  </a>
+                </Callout>
               </div>
             </div>
           </>

@@ -11,10 +11,9 @@ import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
-import { ArrowRight, InfoIcon, ShieldCheck, SquarePlus } from 'lucide-react'
+import { InfoIcon, SquarePlus } from 'lucide-react'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import { DOCS_URL } from '@/constants'
 import Menu from '@/components/shared/menu/menu.tsx'
 import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -26,6 +25,9 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { Callout } from '@/components/shared/callout/callout'
+import ProgramsCreate from '../programs/create/programs-page'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -115,44 +117,22 @@ const ProgramsPage: React.FC = () => {
     return (
       <>
         <PageHeading heading="Programs" />
-        <div className="flex flex-col items-center justify-center mt-16 gap-6">
-          <div className="max-w-3xl p-4 border rounded-lg  text-sm text-muted-foreground">
-            <div className="flex items-start gap-2">
-              <span className="text-primary">
-                <svg width="20" height="20" fill="currentColor">
-                  <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-                  <circle cx="10" cy="10" r="1.5" />
-                </svg>
-              </span>
-              <div>
-                <p className="text-base">What are Programs?</p>
-                <p className="mt-2 text-sm">
-                  Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a
-                  significant body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can
-                  encompass work across different teams.
-                  <a href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
-                    See docs to learn more.
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
 
-          <div className="flex flex-col items-center gap-2">
-            <ShieldCheck className="text-border" size={89} strokeWidth={1} />
-
-            <p className="text-sm text-muted-foreground">No programs found</p>
-            {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
-              <>
-                <p className="text-sm text-muted-foreground">Ready to get started?</p>
-
-                <Link href="programs/create/" className="text-blue-500 flex items-center gap-1">
-                  <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
+        <Callout variant="info" title="What is a Program?" className="max-w-6xl mx-35">
+          Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a significant body
+          of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can encompass work across
+          different teams.
+          <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/programs/overview`} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
+            See docs to learn more.
+          </a>
+        </Callout>
+        {canCreate(permission?.roles, AccessEnum.CanCreateProgram) ? (
+          <ProgramsCreate disableHeader={true} noPrograms={true} />
+        ) : (
+          <Callout variant="warning" className="max-w-6xl mx-35 mt-10" title="You do not have permission to create a program">
+            Reach out to an organization admin to create a program on your behalf or request access for program creation
+          </Callout>
+        )}
       </>
     )
   }
