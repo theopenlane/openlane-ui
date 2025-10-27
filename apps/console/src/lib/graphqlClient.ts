@@ -41,13 +41,17 @@ export function useGetGraphQLClient() {
 
     if (!csrfCookieValue) {
       if (!csrfPromise) {
+        console.log('⏳ Fetching new CSRF token...')
         csrfPromise = fetchCSRFToken()
+      } else {
+        console.log('🕓 Waiting for existing CSRF promise...')
       }
 
       try {
         csrfCookieValue = await csrfPromise
+        console.log('✅ CSRF token fetched successfully.')
       } catch (error) {
-        console.error('❌ [CSRF] Failed to fetch CSRF token:', error)
+        console.log('❌ CSRF fetch failed:', error)
       } finally {
         csrfPromise = null
       }
@@ -75,6 +79,8 @@ export function useGetGraphQLClient() {
     const refreshBeforeExpired = now >= refreshAllowedAfter
 
     if (refreshBeforeExpired) {
+      console.log('⏰ Access token near expiry, refreshing now...')
+
       try {
         await handleTokenRefresh({
           refreshToken,
