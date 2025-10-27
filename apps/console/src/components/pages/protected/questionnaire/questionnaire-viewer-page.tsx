@@ -77,14 +77,14 @@ const QuestionnaireViewerPage: React.FC = () => {
         {!isLoading && (
           <div className="flex gap-2 items-center">
             <Button
-  disabled
-  type="button"
-  className="h-8 px-3"
-  icon={<Send />}
-  iconPosition="left"
->
-  Send (Coming Soon)
-</Button>   
+              disabled
+              type="button"
+              className="h-8 px-3"
+              icon={<Send />}
+              iconPosition="left"
+            >
+              Send (Coming Soon)
+            </Button>   
 
             {editAllowed && (
               <>
