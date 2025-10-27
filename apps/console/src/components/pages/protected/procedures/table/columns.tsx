@@ -1,6 +1,6 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
 import React from 'react'
-import { ApiToken, Procedure, User } from '@repo/codegen/src/schema.ts'
+import { ApiToken, Group, Procedure, User } from '@repo/codegen/src/schema.ts'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
@@ -8,6 +8,8 @@ import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
+import ApproverCell from './approver-cell'
+import DelegateCell from './delegate-cell'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -113,14 +115,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
-        return approver ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={approver} />
-            {approver.displayName || '-'}
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">-</span>
-        )
+        const procedureId = row.original.id
+        return <ApproverCell approver={approver} procedureId={procedureId}></ApproverCell>
       },
     },
     {
@@ -129,14 +125,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
-        return delegate ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={delegate} />
-            {delegate.displayName || '-'}
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">-</span>
-        )
+        const procedureId = row.original.id
+        return <DelegateCell delegate={delegate as Group | null} procedureId={procedureId} />
       },
     },
     {

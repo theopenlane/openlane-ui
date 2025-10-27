@@ -1,5 +1,5 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { ApiToken, InternalPolicy, User } from '@repo/codegen/src/schema.ts'
+import { ApiToken, Group, InternalPolicy, User } from '@repo/codegen/src/schema.ts'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { KeyRound } from 'lucide-react'
@@ -8,6 +8,8 @@ import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
+import DelegateCell from './delegate-cell'
+import ApproverCell from './approver-cell'
 
 type TPoliciesColumnsProps = {
   users?: User[]
@@ -111,14 +113,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
-        return approver ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={approver} />
-            {approver.displayName || '-'}
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">-</span>
-        )
+        const policyId = row.original.id
+        return <ApproverCell approver={approver} policyId={policyId}></ApproverCell>
       },
     },
     {
@@ -127,14 +123,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
-        return delegate ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={delegate} />
-            {delegate.displayName || '-'}
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">-</span>
-        )
+        const policyId = row.original.id
+        return <DelegateCell delegate={delegate as Group | null} policyId={policyId} />
       },
     },
     {
