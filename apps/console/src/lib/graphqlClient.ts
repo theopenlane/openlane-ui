@@ -45,6 +45,7 @@ export function useGetGraphQLClient() {
         csrfPromise = fetchCSRFToken()
       } else {
         console.log('🕓 Waiting for existing CSRF promise...')
+        csrfPromise = fetchCSRFToken()
       }
 
       try {
