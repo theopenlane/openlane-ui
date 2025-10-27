@@ -64,7 +64,7 @@ export const credentialsProvider = Credentials({
       const dashboardData = await getDashboardData(accessToken, session)
       const isTfaEnabled = data?.edges?.setting?.is_tfa_enabled ?? false
 
-      setSessionCookie(session)
+      await setSessionCookie(session)
 
       return {
         isTfaEnabled,
