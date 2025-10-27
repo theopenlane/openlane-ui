@@ -173,7 +173,7 @@ const Risks = () => {
                 <AlertTriangle height={45} width={45} strokeWidth={1} className="text-border mb-4" />
                 <h2 className="text-lg font-semibold">You have no risks</h2>
                 <Link href="/risks" className="mt-4" onClick={handleClick}>
-                  <Button variant="outline">Take me there</Button>
+                  <Button variant="secondary">Take me there</Button>
                 </Link>
               </div>
             )}

@@ -59,8 +59,8 @@ export const UserMenu = () => {
               <button
                 key={opt.value}
                 onClick={() => setTheme(opt.value)}
-                className={`flex items-center justify-center rounded-md p-1 transition-all bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-primary ${
-                  theme === opt.value ? '!bg-card dark:!bg-btn-primary' : 'text-muted-foreground'
+                className={`flex items-center justify-center rounded-md p-1 transition-all bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-secondary ${
+                  theme === opt.value ? '!bg-card dark:!bg-btn-secondary' : 'text-muted-foreground'
                 }`}
                 title={opt.label}
               >

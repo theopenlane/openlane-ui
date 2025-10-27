@@ -9,7 +9,7 @@ export const CreateBtn = (
 )
 
 export const CreateBtnIcon = (
-  <button className={`btn-secondary p-1 rounded-md h-8 w-8 items-center justify-center flex`}>
+  <Button variant="primary" className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}>
     <Plus size={16} />
-  </button>
+  </Button>
 )

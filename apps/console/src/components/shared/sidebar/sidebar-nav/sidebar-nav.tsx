@@ -112,7 +112,7 @@ export default function SideNav({
             <Button
               variant="sidebar"
               onClick={() => (isExpandable ? handleTogglePanel(isActive, item) : handleNavigate(url))}
-              className={`flex px-2 justify-start gap-1 h-8  ${isActive ? 'is-active ' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
+              className={`flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
             >
               <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
               {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
@@ -267,7 +267,7 @@ export default function SideNav({
                 <Menu
                   trigger={
                     primaryExpanded ? (
-                      <Button className="btn-secondary flex-1">
+                      <Button variant="primary" className="flex-1">
                         <Plus size={16} />
                         <p>Create</p>
                       </Button>

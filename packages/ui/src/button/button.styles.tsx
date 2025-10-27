@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const buttonStyles = tv({
   slots: {
-    base: `flex h-10 py-[6px] px-[14px] items-center gap-2 transition-color duration-500`,
+    base: `flex h-10 py-[6px] px-[14px] items-center gap-2 transition-color duration-500 rounded-md inline-flex `,
     iconOuter: 'relative h-4 w-4 overflow-hidden',
     iconInner: 'absolute transition-all duration-500',
     loadingWrapper: 'absolute top-1/2 left-1/2  transform -translate-x-1/2 -translate-y-1/2',
@@ -81,9 +81,9 @@ export const buttonStyles = tv({
       },
     },
     size: {
-      sm: 'h-auto rounded-md p-0 !bg-transparent font-sans text-sm',
-      md: 'h-8 rounded-md px-5 text-sm',
-      lg: 'h-16 rounded-lg px-8 text-lg',
+      sm: 'h-auto p-0 text-sm px-2',
+      md: 'h-8 px-2 text-sm',
+      lg: 'h-16 px-8 text-lg',
     },
     full: {
       true: {
