@@ -114,7 +114,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       cell: ({ row }) => {
         const approver = row.original.approver
         const policyId = row.original.id
-        return <ApproverCell approver={approver} policyId={policyId}></ApproverCell>
+        return <ApproverCell approver={approver} policyId={policyId} />
       },
     },
     {

@@ -116,7 +116,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       cell: ({ row }) => {
         const approver = row.original.approver
         const procedureId = row.original.id
-        return <ApproverCell approver={approver} procedureId={procedureId}></ApproverCell>
+        return <ApproverCell approver={approver} procedureId={procedureId} />
       },
     },
     {
