@@ -5,6 +5,8 @@ import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { Checkbox } from '@repo/ui/checkbox'
+import DelegateCell from './delegate-cell'
+import StakeholderCell from './stakeholder-cell'
 
 type Params = {
   userMap: Record<string, { id: string; displayName: string; gravatarLogoURL?: string; logoURL?: string }>
@@ -92,12 +94,8 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       header: 'Stakeholder',
       cell: ({ row }) => {
         const stakeholder = row.original.stakeholder
-        return (
-          <div className="flex items-center gap-2">
-            <Avatar entity={stakeholder as User} />
-            {stakeholder?.displayName || '-'}
-          </div>
-        )
+        const riskId = row.original.id
+        return <StakeholderCell stakeholder={stakeholder as Group | null} riskId={riskId} />
       },
     },
     {
@@ -109,16 +107,11 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
-        return delegate ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={delegate as Group} />
-            {delegate.displayName || '-'}
-          </div>
-        ) : (
-          <span>-</span>
-        )
+        const riskId = row.original.id
+        return <DelegateCell delegate={delegate as Group | null} riskId={riskId} />
       },
     },
     {
