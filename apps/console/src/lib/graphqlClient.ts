@@ -1,7 +1,7 @@
 'use client'
 
 import { GraphQLClient } from 'graphql-request'
-import { sessionCookieName, csrfCookieName, csrfHeader } from '@repo/dally/auth'
+import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
@@ -15,6 +15,7 @@ let isSessionInvalid = false
 let refreshPromise: Promise<Tokens | null> | null = null
 let lastAccessToken = ''
 let refreshAllowedAfter = Number.POSITIVE_INFINITY
+let csrfPromise: Promise<string> | null = null
 
 export function useGetGraphQLClient() {
   const { update, data: session } = useSession()
@@ -36,27 +37,27 @@ export function useGetGraphQLClient() {
     headers.set('Authorization', `Bearer ${accessToken}`)
     headers.set('Content-Type', 'application/json')
 
-    // Ensure CSRF token is included in the headers and cookies
     let csrfCookieValue = getCookie(csrfCookieName)
+
     if (!csrfCookieValue) {
-      // If CSRF token is not found in cookies, fetch a new one
+      if (!csrfPromise) {
+        csrfPromise = fetchCSRFToken()
+      }
+
       try {
-        csrfCookieValue = await fetchCSRFToken()
-        if (!csrfCookieValue) {
-          console.error('❌ Failed to fetch CSRF token')
-        }
+        csrfCookieValue = await csrfPromise
       } catch (error) {
-        console.error('❌ Failed to fetch CSRF token:', error)
+        console.error('❌ [CSRF] Failed to fetch CSRF token:', error)
+      } finally {
+        csrfPromise = null
       }
     }
 
-    headers.set(csrfHeader, csrfCookieValue!)
-    headers.set('cookie', `${csrfCookieName}=${csrfCookieValue}`)
-
-    // Include session cookie if it exists
-    const sessionCookieValue = getCookie(sessionCookieName!)
-    if (sessionCookieValue) {
-      headers.set('cookie', `${sessionCookieName}=${sessionCookieValue}`)
+    if (csrfCookieValue) {
+      headers.set(csrfHeader, csrfCookieValue)
+      headers.set('cookie', `${csrfCookieName}=${csrfCookieValue}`)
+    } else {
+      console.error('⚠️ [CSRF] No CSRF token available — requests may fail')
     }
 
     const now = Date.now()
@@ -88,8 +89,8 @@ export function useGetGraphQLClient() {
       }
     }
 
-    const makeRequest = () =>
-      fetch(requestUrl, {
+    const makeRequest = async () =>
+      await fetch(requestUrl, {
         ...init,
         headers,
         credentials: 'include',
@@ -121,8 +122,6 @@ export function useGetGraphQLClient() {
     credentials: 'include',
   })
 }
-
-//helpers:
 
 function handleSessionExpired() {
   isSessionInvalid = true
