@@ -42,80 +42,49 @@
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
-  button:focus-visible {
-    --tw-ring-color: transparent !important;
-    --tw-ring-offset-width: 0 !important;
-    --tw-ring-offset-color: transparent !important;
-    box-shadow: none !important;
-  }
-
-  /* Primary Button */
-  button {
-    background-color: var(--color-btn-primary);
-    color: var(--color-btn-primary-text);
-    transition: all 0.5s ease;
-  }
-  button:hover,
-  button.is-active {
-    background-color: var(--color-btn-primary-hover);
-    border-radius: 6px;
-    /*
-    border-color: #09151D3D !important;
-    */
-  }
-  button:disabled {
-    cursor: not-allowed;
-    color: var(--color-btn-primary-text-disabled);
-  }
-
-  /* Secondary Button */
-  .btn-secondary {
-    background-color: var(--color-btn-secondary);
-    color: var(--color-btn-secondary-text);
-    transition: all 0.5s ease;
-  }
-  .btn-secondary:hover {
-    background-color: var(--color-btn-secondary-hover);
-    border-color: var(--color-border);
-  }
-  .btn-secondary:disabled {
-    color: var(--color-btn-secondary-text-disabled);
-  }
-
-  /* Secondary Button */
-  .btn-card {
-    border-radius: 6px;
-    background-color: transparent;
-    border: 1px solid transparent;
-    color: var(--color-btn-secondary-text);
-    transition: all 0.5s ease;
-  }
-  button.btn-card:hover,
-  button.btn-card.is-active {
-    background-color: var(--color-nav);
-    border-color: var(--color-border);
-    color: var(--color-text-paragraph);
-  }
-
-  /* Transparent Button */
-  button.bg-transparent {
-    border-radius: 6px;
-    border: 1px solid transparent;
-    transition: all 0.5s ease;
-  }
-  button.bg-transparent:hover,
-  button.bg-transparent.is-active {
-    background-color: var(--color-btn-primary-hover) !important;
-    border-radius: 6px;
-    border: 1px solid var(--color-border) !important;
-    color: var(--color-text-paragraph) !important;
-  }
-
   .shadow-primary16 {
     box-shadow: 0 0 0 4px rgba(96, 232, 201, 0.16) !important;
   }
   .shadow-primary24 {
     box-shadow: 0 0 0 4px rgba(96, 232, 201, 0.24) !important;
+  }
+  .shadow-secondary-btn {
+    box-shadow: 0 1px 1px 0.5px rgba(9, 21, 29, 0.24);
+  }
+  .btn-secondary {
+    position: relative;
+    z-index: 0;
+    border: 1px solid transparent;
+    color: var(--color-btn-secondary-text);
+    background-image:
+      linear-gradient(var(--color-btn-secondary), var(--color-btn-secondary)),
+      linear-gradient(to bottom, #50616b, #2d3c44);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    overflow: hidden;
+  }
+
+  .btn-secondary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--color-btn-secondary-hover), var(--color-btn-secondary-hover)),
+      linear-gradient(to bottom, #50616b, #2d3c44);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+
+  .btn-secondary:hover::after {
+    opacity: 1;
+  }
+
+  .btn-secondary > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -130,7 +99,7 @@
   --card-foreground: hsl(209 22% 24%);
   --popover: #ffffff;
   --popover-foreground: hsl(209 22% 24%);
-  --primary: hsl(168 64% 49%);
+  --primary: #9af5dc;
   --primary-foreground: hsl(191 72% 9%);
   --secondary: #ffffff;
   --secondary-foreground: hsl(191 72% 9%);
@@ -148,16 +117,16 @@
   --color-table-secondary: #eff4f552;
   --color-nav: #ffffff;
 
-  --color-primary-muted: #60e8c91f;
-  --color-btn-secondary: #9af5dc;
-  --color-btn-secondary-text: #052e2a;
-  --color-btn-secondary-text-disabled: #052e2a70;
-  --color-btn-secondary-hover: #60e8c8;
+  --color-btn-primary: #9af5dc;
+  --color-btn-primary-text: #052e2a;
+  --color-btn-primary-text-disabled: #052e2a70;
+  --color-btn-primary-hover: #60e8c8;
 
-  --color-btn-primary: #ffffff;
-  --color-btn-primary-hover: #ffffff;
-  --color-btn-primary-text: #09151d;
-  --color-btn-primary-text-disabled: #09151d70;
+  --color-btn-secondary: #ffffff;
+  --color-btn-secondary-hover: #ffffff;
+  --color-btn-secondary-text: #09151d;
+  --color-btn-secondary-text-disabled: #09151d70;
+  --color-primary-muted: #60e8c91f;
 
   /* Optional semantic colors */
   --success: hsl(168 64% 49%);
@@ -165,6 +134,7 @@
   --color-info: hsl(207, 100%, 33%);
   --color-separator: #e1e7ea;
   --color-border: #e1e7ea;
+  --color-text-paragraph: #ffffff;
 
   --color-avatar-transparent: #9aa5b0;
 
@@ -210,15 +180,15 @@
   --color-toast-border: #ffffff1f;
 
   --color-primary-muted: #60e8c91f;
-  --color-btn-secondary: #60e8c9;
-  --color-btn-secondary-hover: #9af5dd;
-  --color-btn-secondary-text: #052e2a;
-  --color-btn-secondary-text-disabled: #052e2a70;
+  --color-btn-primary: #60e8c9;
+  --color-btn-primary-hover: #9af5dd;
+  --color-btn-primary-text: #052e2a;
+  --color-btn-primary-text-disabled: #052e2a70;
 
-  --color-btn-primary: #394b58;
-  --color-btn-primary-hover: #4c5e69;
-  --color-btn-primary-text: #ffffff;
-  --color-btn-primary-text-disabled: #ffffff70;
+  --color-btn-secondary: #394b58;
+  --color-btn-secondary-hover: #4c5e69;
+  --color-btn-secondary-text: #ffffff;
+  --color-btn-secondary-text-disabled: #ffffff70;
 
   --color-avatar-transparent: #394b58;
 

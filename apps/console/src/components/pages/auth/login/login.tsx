@@ -350,30 +350,15 @@ export const LoginPage = () => {
         )}
 
         <div className={cn(buttons(), 'flex justify-center mt-[32px]')}>
-          <Button className="!py-1.5 !px-5 hover:opacity-60 transition" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+          <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
             <p className="text-sm font-normal">Google</p>
           </Button>
 
-          <Button
-            className="!py-1.5 !px-5 hover:opacity-60 transition"
-            variant="outlineLight"
-            size="md"
-            icon={<Github className="text-input-text" />}
-            iconPosition="left"
-            onClick={() => github()}
-            disabled={signInLoading}
-          >
+          <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
             <p className="text-sm font-normal">GitHub</p>
           </Button>
 
-          <Button
-            className="!py-1.5 !px-5 hover:opacity-60 transition"
-            variant="outlineLight"
-            icon={<KeyRoundIcon className="text-input-text" />}
-            iconPosition="left"
-            onClick={() => passKeySignIn()}
-            disabled={signInLoading}
-          >
+          <Button variant="secondary" className="!py-1.5 !px-5" icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
             <p className="text-sm font-normal">Passkey</p>
           </Button>
         </div>
@@ -420,15 +405,16 @@ export const LoginPage = () => {
 
           {shouldShowSSOButton() && (
             <div className="flex flex-col">
-              <button
-                className="p-4 text-button-text btn-secondary justify-center items-center rounded-md text-sm h-[36px] font-bold flex mt-2"
+              <Button
+                variant="primary"
+                className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
                 type="button"
                 onClick={handleSSOLogin}
                 disabled={signInLoading || webfingerLoading}
               >
                 <span>Continue with SSO</span>
                 <ArrowRightCircle size={16} className="ml-2" />
-              </button>
+              </Button>
             </div>
           )}
 
@@ -446,9 +432,9 @@ export const LoginPage = () => {
                       </div>
                       <PasswordInput variant="light" name="password" placeholder="Enter your password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <button className="mt-[16px] p-4 btn-secondary flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold mt-2" type="submit" disabled={signInLoading}>
+                    <Button variant="primary" className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold" type="submit" disabled={signInLoading}>
                       <span>Login</span>
-                    </button>
+                    </Button>
                   </>
                 }
 
