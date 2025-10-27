@@ -55,12 +55,15 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
           </div>
         )
       },
-      size: 50,
+      size: 20,
+      maxSize: 20,
+      minSize: 20,
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      minSize: 150,
+      minSize: 100,
+      size: 100,
     },
     {
       accessorKey: 'status',
@@ -81,15 +84,15 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
           )}
         </div>
       ),
-      minSize: 150,
-      size: 100,
+      maxSize: 80,
+      size: 80,
     },
     {
       accessorKey: 'summary',
       header: 'Summary',
       enableResizing: true,
       minSize: 200,
-      size: 100,
+      size: 300,
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4 text-justify">{summary === '' ? 'N/A' : summary}</div>
@@ -98,7 +101,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'approvalRequired',
       header: 'Approval Required',
-      size: 140,
+      size: 40,
+      minSize: 40,
       cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No'),
     },
     {
@@ -142,7 +146,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'reviewDue',
       header: 'Review Due',
-      size: 130,
+      size: 100,
       cell: ({ cell }) => {
         const value = cell.getValue() as string | null
         return value ? formatDate(value) : '-'
@@ -151,7 +155,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'reviewFrequency',
       header: 'Review Frequency',
-      size: 140,
+      size: 100,
       cell: ({ cell }) => {
         const value = cell.getValue<string>()
         return <span className="capitalize">{value ? value.toLowerCase() : '-'}</span>
@@ -182,6 +186,35 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       },
     },
     {
+      accessorKey: 'createdBy',
+      header: 'Created by',
+      size: 150,
+      maxSize: 180,
+      cell: ({ row }) => {
+        const userId = row.original.createdBy
+        const token = tokens?.find((item) => item.id === userId)
+        const user = users?.find((item) => item.id === userId)
+
+        if (!token && !user) {
+          return 'Deleted user'
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
+            {token ? token.name : user?.displayName || '-'}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Created At',
+      size: 120,
+      maxSize: 120,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+    },
+    {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 150,
@@ -206,8 +239,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
-      size: 120,
-      maxSize: 120,
+      size: 100,
+      maxSize: 100,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]

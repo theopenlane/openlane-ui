@@ -15,11 +15,16 @@ export const getQuestionnaireColumns = (params?: Params) => {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
-      size: 180,
+      size: 100,
+      minSize: 100,
+      maxSize: 200,
     },
     {
       accessorKey: 'description',
       header: 'Description',
+      size: 200,
+      minSize: 200,
+      maxSize: 400,
     },
     {
       accessorKey: 'createdBy',

@@ -45,7 +45,7 @@ const StandardSelect = () => {
 
                 setValue('name', autoName, { shouldValidate: true })
                 setValue('standardID', selected?.id ?? '')
-                trigger('name')
+                trigger(['name', 'framework'])
               }}
             />
           </FormControl>

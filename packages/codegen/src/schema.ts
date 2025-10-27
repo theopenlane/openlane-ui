@@ -111,6 +111,13 @@ export interface ApiTokenBulkCreatePayload {
   apiTokens?: Maybe<Array<ApiToken>>
 }
 
+/** Return response for deleteBulkAPIToken mutation */
+export interface ApiTokenBulkDeletePayload {
+  __typename?: 'APITokenBulkDeletePayload'
+  /** Deleted apiToken IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface ApiTokenConnection {
   __typename?: 'APITokenConnection'
@@ -451,6 +458,13 @@ export interface ActionPlanBulkCreatePayload {
   __typename?: 'ActionPlanBulkCreatePayload'
   /** Created actionPlans */
   actionPlans?: Maybe<Array<ActionPlan>>
+}
+
+/** Return response for deleteBulkActionPlan mutation */
+export interface ActionPlanBulkDeletePayload {
+  __typename?: 'ActionPlanBulkDeletePayload'
+  /** Deleted actionPlan IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkActionPlan mutation */
@@ -1491,6 +1505,13 @@ export interface AssetBulkCreatePayload {
   assets?: Maybe<Array<Asset>>
 }
 
+/** Return response for deleteBulkAsset mutation */
+export interface AssetBulkDeletePayload {
+  __typename?: 'AssetBulkDeletePayload'
+  /** Deleted asset IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface AssetConnection {
   __typename?: 'AssetConnection'
@@ -2244,6 +2265,13 @@ export interface ContactBulkCreatePayload {
   __typename?: 'ContactBulkCreatePayload'
   /** Created contacts */
   contacts?: Maybe<Array<Contact>>
+}
+
+/** Return response for deleteBulkContact mutation */
+export interface ContactBulkDeletePayload {
+  __typename?: 'ContactBulkDeletePayload'
+  /** Deleted contact IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkContact mutation */
@@ -3085,6 +3113,13 @@ export interface ControlBulkCreatePayload {
   controls?: Maybe<Array<Control>>
 }
 
+/** Return response for deleteBulkControl mutation */
+export interface ControlBulkDeletePayload {
+  __typename?: 'ControlBulkDeletePayload'
+  /** Deleted control IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** Return response for updateBulkControl mutation */
 export interface ControlBulkUpdatePayload {
   __typename?: 'ControlBulkUpdatePayload'
@@ -3873,6 +3908,13 @@ export interface ControlImplementationBulkCreatePayload {
   controlImplementations?: Maybe<Array<ControlImplementation>>
 }
 
+/** Return response for deleteBulkControlImplementation mutation */
+export interface ControlImplementationBulkDeletePayload {
+  __typename?: 'ControlImplementationBulkDeletePayload'
+  /** Deleted controlImplementation IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface ControlImplementationConnection {
   __typename?: 'ControlImplementationConnection'
@@ -4598,6 +4640,13 @@ export interface ControlObjectiveBulkCreatePayload {
   __typename?: 'ControlObjectiveBulkCreatePayload'
   /** Created controlObjectives */
   controlObjectives?: Maybe<Array<ControlObjective>>
+}
+
+/** Return response for deleteBulkControlObjective mutation */
+export interface ControlObjectiveBulkDeletePayload {
+  __typename?: 'ControlObjectiveBulkDeletePayload'
+  /** Deleted controlObjective IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -6508,6 +6557,7 @@ export interface CreateInternalPolicyInput {
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
   approverID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -6707,7 +6757,11 @@ export interface CreateMappedControlInput {
   confidence?: InputMaybe<Scalars['Int']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the control(s) prefixed with the standard for the from side of the mapping, e.g. SOC2::CC1.1 */
+  fromControlRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
   fromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the subcontrol(s) prefixed with the standard for the from side of the mapping, e.g. SOC2::CC1.1-POF1 */
+  fromSubcontrolRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
@@ -6722,7 +6776,11 @@ export interface CreateMappedControlInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   toControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the control(s) prefixed with the standard for the to side of the mapping, e.g. SOC2::CC1.1 */
+  toControlRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
   toSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the ref code(s) of the subcontrol(s) prefixed with the standard for the to side of the mapping, e.g. SOC2::CC1.1-POF1 */
+  toSubcontrolRefCodes?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 export interface CreateMemberWithProgramInput {
@@ -6764,7 +6822,10 @@ export interface CreateNarrativeInput {
 export interface CreateNoteInput {
   controlID?: InputMaybe<Scalars['ID']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  procedureID?: InputMaybe<Scalars['ID']['input']>
+  riskID?: InputMaybe<Scalars['ID']['input']>
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
@@ -6972,6 +7033,7 @@ export interface CreateProcedureInput {
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
   approverID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** proposed controls referenced in the procedure */
   controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -7108,6 +7170,7 @@ export interface CreateRiskInput {
   businessCosts?: InputMaybe<Scalars['String']['input']>
   /** category of the risk, e.g. human resources, operations, IT, etc. */
   category?: InputMaybe<Scalars['String']['input']>
+  commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the risk */
@@ -7672,6 +7735,13 @@ export interface CustomDomainBulkCreatePayload {
   customDomains?: Maybe<Array<CustomDomain>>
 }
 
+/** Return response for deleteBulkCustomDomain mutation */
+export interface CustomDomainBulkDeletePayload {
+  __typename?: 'CustomDomainBulkDeletePayload'
+  /** Deleted customDomain IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface CustomDomainConnection {
   __typename?: 'CustomDomainConnection'
@@ -8229,6 +8299,13 @@ export interface DnsVerificationBulkCreatePayload {
   __typename?: 'DNSVerificationBulkCreatePayload'
   /** Created dnsVerifications */
   dnsVerifications?: Maybe<Array<DnsVerification>>
+}
+
+/** Return response for deleteBulkDNSVerification mutation */
+export interface DnsVerificationBulkDeletePayload {
+  __typename?: 'DNSVerificationBulkDeletePayload'
+  /** Deleted dnsVerification IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -8948,6 +9025,13 @@ export interface DocumentDataBulkCreatePayload {
   documentData?: Maybe<Array<DocumentData>>
 }
 
+/** Return response for deleteBulkDocumentData mutation */
+export interface DocumentDataBulkDeletePayload {
+  __typename?: 'DocumentDataBulkDeletePayload'
+  /** Deleted documentData IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface DocumentDataConnection {
   __typename?: 'DocumentDataConnection'
@@ -9447,6 +9531,13 @@ export interface EntityBulkCreatePayload {
   entities?: Maybe<Array<Entity>>
 }
 
+/** Return response for deleteBulkEntity mutation */
+export interface EntityBulkDeletePayload {
+  __typename?: 'EntityBulkDeletePayload'
+  /** Deleted entity IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface EntityConnection {
   __typename?: 'EntityConnection'
@@ -9836,6 +9927,13 @@ export interface EntityTypeBulkCreatePayload {
   __typename?: 'EntityTypeBulkCreatePayload'
   /** Created entityTypes */
   entityTypes?: Maybe<Array<EntityType>>
+}
+
+/** Return response for deleteBulkEntityType mutation */
+export interface EntityTypeBulkDeletePayload {
+  __typename?: 'EntityTypeBulkDeletePayload'
+  /** Deleted entityType IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -10653,6 +10751,13 @@ export interface EventBulkCreatePayload {
   __typename?: 'EventBulkCreatePayload'
   /** Created events */
   events?: Maybe<Array<Event>>
+}
+
+/** Return response for deleteBulkEvent mutation */
+export interface EventBulkDeletePayload {
+  __typename?: 'EventBulkDeletePayload'
+  /** Deleted event IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -13336,6 +13441,13 @@ export interface GroupBulkCreatePayload {
   groups?: Maybe<Array<Group>>
 }
 
+/** Return response for deleteBulkGroup mutation */
+export interface GroupBulkDeletePayload {
+  __typename?: 'GroupBulkDeletePayload'
+  /** Deleted group IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface GroupConnection {
   __typename?: 'GroupConnection'
@@ -13650,6 +13762,13 @@ export interface GroupMembershipBulkCreatePayload {
   __typename?: 'GroupMembershipBulkCreatePayload'
   /** Created groupMemberships */
   groupMemberships?: Maybe<Array<GroupMembership>>
+}
+
+/** Return response for deleteBulkGroupMembership mutation */
+export interface GroupMembershipBulkDeletePayload {
+  __typename?: 'GroupMembershipBulkDeletePayload'
+  /** Deleted groupMembership IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -14146,6 +14265,13 @@ export interface GroupSettingBulkCreatePayload {
   __typename?: 'GroupSettingBulkCreatePayload'
   /** Created groupSettings */
   groupSettings?: Maybe<Array<GroupSetting>>
+}
+
+/** Return response for deleteBulkGroupSetting mutation */
+export interface GroupSettingBulkDeletePayload {
+  __typename?: 'GroupSettingBulkDeletePayload'
+  /** Deleted groupSetting IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -14874,6 +15000,13 @@ export interface HushBulkCreatePayload {
   __typename?: 'HushBulkCreatePayload'
   /** Created hushs */
   hushes?: Maybe<Array<Hush>>
+}
+
+/** Return response for deleteBulkHush mutation */
+export interface HushBulkDeletePayload {
+  __typename?: 'HushBulkDeletePayload'
+  /** Deleted hush IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkHush mutation */
@@ -16039,6 +16172,7 @@ export interface InternalPolicy extends Node {
   /** the id of the group responsible for approving the policy */
   approverID?: Maybe<Scalars['ID']['output']>
   blockedGroups: GroupConnection
+  comments: NoteConnection
   controlImplementations: ControlImplementationConnection
   controlObjectives: ControlObjectiveConnection
   /** proposed controls referenced in the policy */
@@ -16112,6 +16246,15 @@ export interface InternalPolicyBlockedGroupsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface InternalPolicyCommentsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NoteOrder>>
+  where?: InputMaybe<NoteWhereInput>
 }
 
 export interface InternalPolicyControlImplementationsArgs {
@@ -16209,6 +16352,13 @@ export interface InternalPolicyBulkCreatePayload {
   __typename?: 'InternalPolicyBulkCreatePayload'
   /** Created internalPolicys */
   internalPolicies?: Maybe<Array<InternalPolicy>>
+}
+
+/** Return response for deleteBulkInternalPolicy mutation */
+export interface InternalPolicyBulkDeletePayload {
+  __typename?: 'InternalPolicyBulkDeletePayload'
+  /** Deleted internalPolicy IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkInternalPolicy mutation */
@@ -16872,6 +17022,9 @@ export interface InternalPolicyWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** comments edge predicates */
+  hasComments?: InputMaybe<Scalars['Boolean']['input']>
+  hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
   /** control_implementations edge predicates */
   hasControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   hasControlImplementationsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
@@ -17141,6 +17294,13 @@ export interface InviteBulkCreatePayload {
   __typename?: 'InviteBulkCreatePayload'
   /** Created invites */
   invites?: Maybe<Array<Invite>>
+}
+
+/** Return response for deleteBulkInvite mutation */
+export interface InviteBulkDeletePayload {
+  __typename?: 'InviteBulkDeletePayload'
+  /** Deleted invite IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -18489,6 +18649,13 @@ export interface JobTemplateBulkCreatePayload {
   jobTemplates?: Maybe<Array<JobTemplate>>
 }
 
+/** Return response for deleteBulkJobTemplate mutation */
+export interface JobTemplateBulkDeletePayload {
+  __typename?: 'JobTemplateBulkDeletePayload'
+  /** Deleted jobTemplate IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface JobTemplateConnection {
   __typename?: 'JobTemplateConnection'
@@ -19060,6 +19227,13 @@ export interface MappableDomainBulkCreatePayload {
   mappableDomains?: Maybe<Array<MappableDomain>>
 }
 
+/** Return response for deleteBulkMappableDomain mutation */
+export interface MappableDomainBulkDeletePayload {
+  __typename?: 'MappableDomainBulkDeletePayload'
+  /** Deleted mappableDomain IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface MappableDomainConnection {
   __typename?: 'MappableDomainConnection'
@@ -19509,6 +19683,13 @@ export interface MappedControlBulkCreatePayload {
   __typename?: 'MappedControlBulkCreatePayload'
   /** Created mappedControls */
   mappedControls?: Maybe<Array<MappedControl>>
+}
+
+/** Return response for deleteBulkMappedControl mutation */
+export interface MappedControlBulkDeletePayload {
+  __typename?: 'MappedControlBulkDeletePayload'
+  /** Deleted mappedControl IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -20363,8 +20544,86 @@ export interface Mutation {
   deleteActionPlan: ActionPlanDeletePayload
   /** Delete an existing asset */
   deleteAsset: AssetDeletePayload
+  /** Delete multiple apiTokens */
+  deleteBulkAPIToken: ApiTokenBulkDeletePayload
+  /** Delete multiple actionPlans */
+  deleteBulkActionPlan: ActionPlanBulkDeletePayload
+  /** Delete multiple assets */
+  deleteBulkAsset: AssetBulkDeletePayload
+  /** Delete multiple contacts */
+  deleteBulkContact: ContactBulkDeletePayload
+  /** Delete multiple controls */
+  deleteBulkControl: ControlBulkDeletePayload
+  /** Delete multiple controlImplementations */
+  deleteBulkControlImplementation: ControlImplementationBulkDeletePayload
+  /** Delete multiple controlObjectives */
+  deleteBulkControlObjective: ControlObjectiveBulkDeletePayload
+  /** Delete multiple customDomains */
+  deleteBulkCustomDomain: CustomDomainBulkDeletePayload
+  /** Delete multiple dnsVerifications */
+  deleteBulkDNSVerification: DnsVerificationBulkDeletePayload
+  /** Delete multiple documentData */
+  deleteBulkDocumentData: DocumentDataBulkDeletePayload
+  /** Delete multiple entities */
+  deleteBulkEntity: EntityBulkDeletePayload
+  /** Delete multiple entityTypes */
+  deleteBulkEntityType: EntityTypeBulkDeletePayload
+  /** Delete multiple events */
+  deleteBulkEvent: EventBulkDeletePayload
   /** Delete multiple exports */
   deleteBulkExport: ExportBulkDeletePayload
+  /** Delete multiple groups */
+  deleteBulkGroup: GroupBulkDeletePayload
+  /** Delete multiple groupMemberships */
+  deleteBulkGroupMembership: GroupMembershipBulkDeletePayload
+  /** Delete multiple groupSettings */
+  deleteBulkGroupSetting: GroupSettingBulkDeletePayload
+  /** Delete multiple hushs */
+  deleteBulkHush: HushBulkDeletePayload
+  /** Delete multiple internalPolicys */
+  deleteBulkInternalPolicy: InternalPolicyBulkDeletePayload
+  /** Delete multiple invites */
+  deleteBulkInvite: InviteBulkDeletePayload
+  /** Delete multiple jobTemplates */
+  deleteBulkJobTemplate: JobTemplateBulkDeletePayload
+  /** Delete multiple mappableDomains */
+  deleteBulkMappableDomain: MappableDomainBulkDeletePayload
+  /** Delete multiple mappedControls */
+  deleteBulkMappedControl: MappedControlBulkDeletePayload
+  /** Delete multiple narratives */
+  deleteBulkNarrative: NarrativeBulkDeletePayload
+  /** Delete multiple orgMemberships */
+  deleteBulkOrgMembership: OrgMembershipBulkDeletePayload
+  /** Delete multiple organizationSettings */
+  deleteBulkOrganizationSetting: OrganizationSettingBulkDeletePayload
+  /** Delete multiple procedures */
+  deleteBulkProcedure: ProcedureBulkDeletePayload
+  /** Delete multiple programs */
+  deleteBulkProgram: ProgramBulkDeletePayload
+  /** Delete multiple programMemberships */
+  deleteBulkProgramMembership: ProgramMembershipBulkDeletePayload
+  /** Delete multiple risks */
+  deleteBulkRisk: RiskBulkDeletePayload
+  /** Delete multiple scans */
+  deleteBulkScan: ScanBulkDeletePayload
+  /** Delete multiple scheduledJobs */
+  deleteBulkScheduledJob: ScheduledJobBulkDeletePayload
+  /** Delete multiple subcontrols */
+  deleteBulkSubcontrol: SubcontrolBulkDeletePayload
+  /** Delete multiple subprocessors */
+  deleteBulkSubprocessor: SubprocessorBulkDeletePayload
+  /** Delete multiple tasks */
+  deleteBulkTask: TaskBulkDeletePayload
+  /** Delete multiple templates */
+  deleteBulkTemplate: TemplateBulkDeletePayload
+  /** Delete multiple trustCenterCompliances */
+  deleteBulkTrustCenterCompliance: TrustCenterComplianceBulkDeletePayload
+  /** Delete multiple trustCenterDocs */
+  deleteBulkTrustCenterDoc: TrustCenterDocBulkDeletePayload
+  /** Delete multiple trustCenterSubprocessors */
+  deleteBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkDeletePayload
+  /** Delete multiple userSettings */
+  deleteBulkUserSetting: UserSettingBulkDeletePayload
   /** Delete an existing contact */
   deleteContact: ContactDeletePayload
   /** Delete an existing control */
@@ -20421,6 +20680,8 @@ export interface Mutation {
   deleteMappedControl: MappedControlDeletePayload
   /** Delete an existing narrative */
   deleteNarrative: NarrativeDeletePayload
+  /** Delete an existing note */
+  deleteNote: NoteDeletePayload
   /** Delete an existing orgMembership */
   deleteOrgMembership: OrgMembershipDeletePayload
   /** Delete an existing organization */
@@ -20534,6 +20795,8 @@ export interface Mutation {
   updateHush: HushUpdatePayload
   /** Update an existing internalPolicy */
   updateInternalPolicy: InternalPolicyUpdatePayload
+  /** Update an existing internal policy comment */
+  updateInternalPolicyComment: InternalPolicyUpdatePayload
   /** Update an existing invite */
   updateInvite: InviteUpdatePayload
   /** Update an existing jobResult */
@@ -20558,12 +20821,16 @@ export interface Mutation {
   updatePersonalAccessToken: PersonalAccessTokenUpdatePayload
   /** Update an existing procedure */
   updateProcedure: ProcedureUpdatePayload
+  /** Update an existing procedure comment */
+  updateProcedureComment: ProcedureUpdatePayload
   /** Update an existing program */
   updateProgram: ProgramUpdatePayload
   /** Update an existing programMembership */
   updateProgramMembership: ProgramMembershipUpdatePayload
   /** Update an existing risk */
   updateRisk: RiskUpdatePayload
+  /** Update an existing risk comment */
+  updateRiskComment: RiskUpdatePayload
   /** Update an existing scan */
   updateScan: ScanUpdatePayload
   /** Update an existing scheduledJob */
@@ -21230,7 +21497,163 @@ export interface MutationDeleteAssetArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteBulkApiTokenArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkActionPlanArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkAssetArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkContactArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkControlArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkControlImplementationArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkControlObjectiveArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkCustomDomainArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkDnsVerificationArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkDocumentDataArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkEntityArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkEntityTypeArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkEventArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
 export interface MutationDeleteBulkExportArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkGroupArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkGroupMembershipArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkGroupSettingArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkHushArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkInternalPolicyArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkInviteArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkJobTemplateArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkMappableDomainArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkMappedControlArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkNarrativeArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkOrgMembershipArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkOrganizationSettingArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkProcedureArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkProgramArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkProgramMembershipArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkRiskArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkScanArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkScheduledJobArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkSubcontrolArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkSubprocessorArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkTaskArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkTemplateArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkTrustCenterComplianceArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkTrustCenterDocArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkTrustCenterSubprocessorArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkUserSettingArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -21343,6 +21766,10 @@ export interface MutationDeleteMappedControlArgs {
 }
 
 export interface MutationDeleteNarrativeArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteNoteArgs {
   id: Scalars['ID']['input']
 }
 
@@ -21608,6 +22035,12 @@ export interface MutationUpdateInternalPolicyArgs {
   input: UpdateInternalPolicyInput
 }
 
+export interface MutationUpdateInternalPolicyCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+}
+
 export interface MutationUpdateInviteArgs {
   id: Scalars['ID']['input']
   input: UpdateInviteInput
@@ -21670,6 +22103,12 @@ export interface MutationUpdateProcedureArgs {
   input: UpdateProcedureInput
 }
 
+export interface MutationUpdateProcedureCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+}
+
 export interface MutationUpdateProgramArgs {
   id: Scalars['ID']['input']
   input: UpdateProgramInput
@@ -21683,6 +22122,12 @@ export interface MutationUpdateProgramMembershipArgs {
 export interface MutationUpdateRiskArgs {
   id: Scalars['ID']['input']
   input: UpdateRiskInput
+}
+
+export interface MutationUpdateRiskCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateScanArgs {
@@ -21902,6 +22347,13 @@ export interface NarrativeBulkCreatePayload {
   __typename?: 'NarrativeBulkCreatePayload'
   /** Created narratives */
   narratives?: Maybe<Array<Narrative>>
+}
+
+/** Return response for deleteBulkNarrative mutation */
+export interface NarrativeBulkDeletePayload {
+  __typename?: 'NarrativeBulkDeletePayload'
+  /** Deleted narrative IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -22481,9 +22933,12 @@ export interface Note extends Node {
   displayID: Scalars['String']['output']
   files: FileConnection
   id: Scalars['ID']['output']
+  internalPolicy?: Maybe<InternalPolicy>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  procedure?: Maybe<Procedure>
+  risk?: Maybe<Risk>
   subcontrol?: Maybe<Subcontrol>
   task?: Maybe<Task>
   /** the text of the note */
@@ -22510,6 +22965,13 @@ export interface NoteConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+}
+
+/** Return response for deleteComment mutation */
+export interface NoteDeletePayload {
+  __typename?: 'NoteDeletePayload'
+  /** Deleted comment ID */
+  deletedID: Scalars['ID']['output']
 }
 
 /** An edge in a connection. */
@@ -22797,9 +23259,18 @@ export interface NoteWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** internal_policy edge predicates */
+  hasInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPolicyWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** procedure edge predicates */
+  hasProcedure?: InputMaybe<Scalars['Boolean']['input']>
+  hasProcedureWith?: InputMaybe<Array<ProcedureWhereInput>>
+  /** risk edge predicates */
+  hasRisk?: InputMaybe<Scalars['Boolean']['input']>
+  hasRiskWith?: InputMaybe<Array<RiskWhereInput>>
   /** subcontrol edge predicates */
   hasSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -23002,6 +23473,13 @@ export interface OrgMembershipBulkCreatePayload {
   __typename?: 'OrgMembershipBulkCreatePayload'
   /** Created orgMemberships */
   orgMemberships?: Maybe<Array<OrgMembership>>
+}
+
+/** Return response for deleteBulkOrgMembership mutation */
+export interface OrgMembershipBulkDeletePayload {
+  __typename?: 'OrgMembershipBulkDeletePayload'
+  /** Deleted orgMembership IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -24906,6 +25384,13 @@ export interface OrganizationSettingBulkCreatePayload {
   organizationSettings?: Maybe<Array<OrganizationSetting>>
 }
 
+/** Return response for deleteBulkOrganizationSetting mutation */
+export interface OrganizationSettingBulkDeletePayload {
+  __typename?: 'OrganizationSettingBulkDeletePayload'
+  /** Deleted organizationSetting IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface OrganizationSettingConnection {
   __typename?: 'OrganizationSettingConnection'
@@ -26474,6 +26959,7 @@ export interface Procedure extends Node {
   /** the id of the group responsible for approving the procedure */
   approverID?: Maybe<Scalars['ID']['output']>
   blockedGroups: GroupConnection
+  comments: NoteConnection
   /** proposed controls referenced in the procedure */
   controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   controls: ControlConnection
@@ -26545,6 +27031,15 @@ export interface ProcedureBlockedGroupsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface ProcedureCommentsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NoteOrder>>
+  where?: InputMaybe<NoteWhereInput>
 }
 
 export interface ProcedureControlsArgs {
@@ -26624,6 +27119,13 @@ export interface ProcedureBulkCreatePayload {
   __typename?: 'ProcedureBulkCreatePayload'
   /** Created procedures */
   procedures?: Maybe<Array<Procedure>>
+}
+
+/** Return response for deleteBulkProcedure mutation */
+export interface ProcedureBulkDeletePayload {
+  __typename?: 'ProcedureBulkDeletePayload'
+  /** Deleted export IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkProcedure mutation */
@@ -27287,6 +27789,9 @@ export interface ProcedureWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** comments edge predicates */
+  hasComments?: InputMaybe<Scalars['Boolean']['input']>
+  hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
@@ -27722,6 +28227,13 @@ export interface ProgramBulkCreatePayload {
   __typename?: 'ProgramBulkCreatePayload'
   /** Created programs */
   programs?: Maybe<Array<Program>>
+}
+
+/** Return response for deleteBulkProgram mutation */
+export interface ProgramBulkDeletePayload {
+  __typename?: 'ProgramBulkDeletePayload'
+  /** Deleted program IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -28175,6 +28687,13 @@ export interface ProgramMembershipBulkCreatePayload {
   __typename?: 'ProgramMembershipBulkCreatePayload'
   /** Created programMemberships */
   programMemberships?: Maybe<Array<ProgramMembership>>
+}
+
+/** Return response for deleteBulkProgramMembership mutation */
+export interface ProgramMembershipBulkDeletePayload {
+  __typename?: 'ProgramMembershipBulkDeletePayload'
+  /** Deleted programMembership IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -31312,6 +31831,7 @@ export interface Risk extends Node {
   businessCosts?: Maybe<Scalars['String']['output']>
   /** category of the risk, e.g. human resources, operations, IT, etc. */
   category?: Maybe<Scalars['String']['output']>
+  comments: NoteConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -31385,6 +31905,15 @@ export interface RiskBlockedGroupsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface RiskCommentsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NoteOrder>>
+  where?: InputMaybe<NoteWhereInput>
 }
 
 export interface RiskControlsArgs {
@@ -31482,6 +32011,13 @@ export interface RiskBulkCreatePayload {
   __typename?: 'RiskBulkCreatePayload'
   /** Created risks */
   risks?: Maybe<Array<Risk>>
+}
+
+/** Return response for deleteBulkRisk mutation */
+export interface RiskBulkDeletePayload {
+  __typename?: 'RiskBulkDeletePayload'
+  /** Deleted risk IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkRisk mutation */
@@ -32109,6 +32645,9 @@ export interface RiskWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** comments edge predicates */
+  hasComments?: InputMaybe<Scalars['Boolean']['input']>
+  hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
@@ -32377,6 +32916,13 @@ export interface ScanBulkCreatePayload {
   __typename?: 'ScanBulkCreatePayload'
   /** Created scans */
   scans?: Maybe<Array<Scan>>
+}
+
+/** Return response for deleteBulkScan mutation */
+export interface ScanBulkDeletePayload {
+  __typename?: 'ScanBulkDeletePayload'
+  /** Deleted scan IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkScan mutation */
@@ -32874,6 +33420,13 @@ export interface ScheduledJobBulkCreatePayload {
   __typename?: 'ScheduledJobBulkCreatePayload'
   /** Created scheduledJobs */
   scheduledJobs?: Maybe<Array<ScheduledJob>>
+}
+
+/** Return response for deleteBulkScheduledJob mutation */
+export interface ScheduledJobBulkDeletePayload {
+  __typename?: 'ScheduledJobBulkDeletePayload'
+  /** Deleted scheduledJob IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -34747,6 +35300,13 @@ export interface SubcontrolBulkCreatePayload {
   subcontrols?: Maybe<Array<Subcontrol>>
 }
 
+/** Return response for deleteBulkSubcontrol mutation */
+export interface SubcontrolBulkDeletePayload {
+  __typename?: 'SubcontrolBulkDeletePayload'
+  /** Deleted subcontrol IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface SubcontrolConnection {
   __typename?: 'SubcontrolConnection'
@@ -35903,6 +36463,13 @@ export interface SubprocessorBulkCreatePayload {
   subprocessors?: Maybe<Array<Subprocessor>>
 }
 
+/** Return response for deleteBulkSubprocessor mutation */
+export interface SubprocessorBulkDeletePayload {
+  __typename?: 'SubprocessorBulkDeletePayload'
+  /** Deleted subprocessor IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface SubprocessorConnection {
   __typename?: 'SubprocessorConnection'
@@ -37010,6 +37577,13 @@ export interface TaskBulkCreatePayload {
   tasks?: Maybe<Array<Task>>
 }
 
+/** Return response for deleteBulkTask mutation */
+export interface TaskBulkDeletePayload {
+  __typename?: 'TaskBulkDeletePayload'
+  /** Deleted task IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** Return response for updateBulkTask mutation */
 export interface TaskBulkUpdatePayload {
   __typename?: 'TaskBulkUpdatePayload'
@@ -37732,6 +38306,13 @@ export interface TemplateBulkCreatePayload {
   templates?: Maybe<Array<Template>>
 }
 
+/** Return response for deleteBulkTemplate mutation */
+export interface TemplateBulkDeletePayload {
+  __typename?: 'TemplateBulkDeletePayload'
+  /** Deleted template IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface TemplateConnection {
   __typename?: 'TemplateConnection'
@@ -38394,6 +38975,13 @@ export interface TrustCenterComplianceBulkCreatePayload {
   trustCenterCompliances?: Maybe<Array<TrustCenterCompliance>>
 }
 
+/** Return response for deleteBulkTrustCenterCompliance mutation */
+export interface TrustCenterComplianceBulkDeletePayload {
+  __typename?: 'TrustCenterComplianceBulkDeletePayload'
+  /** Deleted trustCenterCompliance IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface TrustCenterComplianceConnection {
   __typename?: 'TrustCenterComplianceConnection'
@@ -38817,6 +39405,13 @@ export interface TrustCenterDocBulkCreatePayload {
   __typename?: 'TrustCenterDocBulkCreatePayload'
   /** Created trustCenterDocs */
   trustCenterDocs?: Maybe<Array<TrustCenterDoc>>
+}
+
+/** Return response for deleteBulkTrustCenterDoc mutation */
+export interface TrustCenterDocBulkDeletePayload {
+  __typename?: 'TrustCenterDocBulkDeletePayload'
+  /** Deleted trustCenterDoc IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -40497,6 +41092,13 @@ export interface TrustCenterSubprocessorBulkCreatePayload {
   trustCenterSubprocessors?: Maybe<Array<TrustCenterSubprocessor>>
 }
 
+/** Return response for deleteBulkTrustCenterSubprocessor mutation */
+export interface TrustCenterSubprocessorBulkDeletePayload {
+  __typename?: 'TrustCenterSubprocessorBulkDeletePayload'
+  /** Deleted trustCenterSubprocessor IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface TrustCenterSubprocessorConnection {
   __typename?: 'TrustCenterSubprocessorConnection'
@@ -40969,21 +41571,19 @@ export interface TrustCenterWatermarkConfigEdge {
 
 /** TrustCenterWatermarkConfigFont is enum for the field font */
 export enum TrustCenterWatermarkConfigFont {
-  arial = 'arial',
-  avant_garde = 'avant_garde',
-  bookman = 'bookman',
-  comic_sans_ms = 'comic_sans_ms',
-  courier = 'courier',
-  courier_new = 'courier_new',
-  garamond = 'garamond',
-  georgia = 'georgia',
-  helvetica = 'helvetica',
-  impact = 'impact',
-  palatino = 'palatino',
-  times = 'times',
-  times_new_roman = 'times_new_roman',
-  trebuchet_ms = 'trebuchet_ms',
-  verdana = 'verdana',
+  COURIER = 'COURIER',
+  COURIER_BOLD = 'COURIER_BOLD',
+  COURIER_BOLDOBLIQUE = 'COURIER_BOLDOBLIQUE',
+  COURIER_OBLIQUE = 'COURIER_OBLIQUE',
+  HELVETICA = 'HELVETICA',
+  HELVETICA_BOLD = 'HELVETICA_BOLD',
+  HELVETICA_BOLDOBLIQUE = 'HELVETICA_BOLDOBLIQUE',
+  HELVETICA_OBLIQUE = 'HELVETICA_OBLIQUE',
+  SYMBOL = 'SYMBOL',
+  TIMES_BOLD = 'TIMES_BOLD',
+  TIMES_BOLDITALIC = 'TIMES_BOLDITALIC',
+  TIMES_ITALIC = 'TIMES_ITALIC',
+  TIMES_ROMAN = 'TIMES_ROMAN',
 }
 
 export interface TrustCenterWatermarkConfigHistory extends Node {
@@ -41038,21 +41638,19 @@ export interface TrustCenterWatermarkConfigHistoryEdge {
 
 /** TrustCenterWatermarkConfigHistoryFont is enum for the field font */
 export enum TrustCenterWatermarkConfigHistoryFont {
-  arial = 'arial',
-  avant_garde = 'avant_garde',
-  bookman = 'bookman',
-  comic_sans_ms = 'comic_sans_ms',
-  courier = 'courier',
-  courier_new = 'courier_new',
-  garamond = 'garamond',
-  georgia = 'georgia',
-  helvetica = 'helvetica',
-  impact = 'impact',
-  palatino = 'palatino',
-  times = 'times',
-  times_new_roman = 'times_new_roman',
-  trebuchet_ms = 'trebuchet_ms',
-  verdana = 'verdana',
+  COURIER = 'COURIER',
+  COURIER_BOLD = 'COURIER_BOLD',
+  COURIER_BOLDOBLIQUE = 'COURIER_BOLDOBLIQUE',
+  COURIER_OBLIQUE = 'COURIER_OBLIQUE',
+  HELVETICA = 'HELVETICA',
+  HELVETICA_BOLD = 'HELVETICA_BOLD',
+  HELVETICA_BOLDOBLIQUE = 'HELVETICA_BOLDOBLIQUE',
+  HELVETICA_OBLIQUE = 'HELVETICA_OBLIQUE',
+  SYMBOL = 'SYMBOL',
+  TIMES_BOLD = 'TIMES_BOLD',
+  TIMES_BOLDITALIC = 'TIMES_BOLDITALIC',
+  TIMES_ITALIC = 'TIMES_ITALIC',
+  TIMES_ROMAN = 'TIMES_ROMAN',
 }
 
 /** TrustCenterWatermarkConfigHistoryOpType is enum for the field operation */
@@ -42786,6 +43384,7 @@ export interface UpdateHushInput {
 export interface UpdateInternalPolicyInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -42809,6 +43408,7 @@ export interface UpdateInternalPolicyInput {
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
@@ -42860,6 +43460,7 @@ export interface UpdateInternalPolicyInput {
   /** type of the policy, e.g. compliance, operational, health and safety, etc. */
   policyType?: InputMaybe<Scalars['String']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -43162,10 +43763,16 @@ export interface UpdateNoteInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   clearControl?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
+  clearProcedure?: InputMaybe<Scalars['Boolean']['input']>
+  clearRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   clearTask?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyID?: InputMaybe<Scalars['ID']['input']>
+  procedureID?: InputMaybe<Scalars['ID']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  riskID?: InputMaybe<Scalars['ID']['input']>
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
@@ -43516,6 +44123,7 @@ export interface UpdatePersonalAccessTokenInput {
 export interface UpdateProcedureInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -43537,6 +44145,7 @@ export interface UpdateProcedureInput {
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
@@ -43586,6 +44195,7 @@ export interface UpdateProcedureInput {
   /** type of the procedure, e.g. compliance, operational, health and safety, etc. */
   procedureType?: InputMaybe<Scalars['String']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -43723,6 +44333,7 @@ export interface UpdateRiskInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -43743,6 +44354,7 @@ export interface UpdateRiskInput {
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBusinessCosts?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
+  clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
@@ -43777,6 +44389,7 @@ export interface UpdateRiskInput {
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -45216,6 +45829,13 @@ export interface UserSettingBulkCreatePayload {
   __typename?: 'UserSettingBulkCreatePayload'
   /** Created userSettings */
   userSettings?: Maybe<Array<UserSetting>>
+}
+
+/** Return response for deleteBulkUserSetting mutation */
+export interface UserSettingBulkDeletePayload {
+  __typename?: 'UserSettingBulkDeletePayload'
+  /** Deleted userSetting IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -46853,6 +47473,12 @@ export type UpdateControlCommentMutationVariables = Exact<{
 
 export type UpdateControlCommentMutation = { __typename?: 'Mutation'; updateControlComment: { __typename?: 'ControlUpdatePayload'; control: { __typename?: 'Control'; id: string } } }
 
+export type DeleteNoteMutationVariables = Exact<{
+  deleteNoteId: Scalars['ID']['input']
+}>
+
+export type DeleteNoteMutation = { __typename?: 'Mutation'; deleteNote: { __typename?: 'NoteDeletePayload'; deletedID: string } }
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -47842,6 +48468,7 @@ export type GetOrganizationSettingQuery = {
       oidcDiscoveryEndpoint?: string | null
       identityProviderLoginEnforced: boolean
       identityProviderAuthTested: boolean
+      allowMatchingDomainsAutojoin?: boolean | null
     } | null
   }
 }
