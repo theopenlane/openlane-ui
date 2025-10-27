@@ -47473,6 +47473,12 @@ export type UpdateControlCommentMutationVariables = Exact<{
 
 export type UpdateControlCommentMutation = { __typename?: 'Mutation'; updateControlComment: { __typename?: 'ControlUpdatePayload'; control: { __typename?: 'Control'; id: string } } }
 
+export type DeleteNoteMutationVariables = Exact<{
+  deleteNoteId: Scalars['ID']['input']
+}>
+
+export type DeleteNoteMutation = { __typename?: 'Mutation'; deleteNote: { __typename?: 'NoteDeletePayload'; deletedID: string } }
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
