@@ -136,6 +136,7 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
         title: 'Subscribers',
         href: '/organization-settings/subscribers',
         icon: MailCheck,
+        hidden: true,
       },
       {
         title: 'Billing',
