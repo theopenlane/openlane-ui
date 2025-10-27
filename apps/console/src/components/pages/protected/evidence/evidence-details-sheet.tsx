@@ -37,7 +37,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Control, EvidenceEvidenceStatus, MappedControlWhereInput, Subcontrol, User } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -74,7 +74,7 @@ import ObjectAssociationControlsChips from '@/components/shared/objectAssociatio
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
-import { buildOr, CustomEvidenceControl, flattenAndFilterControls, groupItemsByReferenceFramework } from './evidence-sheet-config'
+import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 type TEvidenceDetailsSheet = {
@@ -120,25 +120,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
 
-  const buildWhere = React.useMemo<MappedControlWhereInput | null>(() => {
-    const groupedControls = groupItemsByReferenceFramework(evidenceControls)
-    const groupedSubcontrols = groupItemsByReferenceFramework(evidenceSubcontrols)
-    const or: MappedControlWhereInput[] = []
-
-    if (evidenceControls && evidenceControls.length > 0) {
-      or.push({ or: [{ hasFromControlsWith: buildOr(groupedControls) }] })
-      or.push({ or: [{ hasToControlsWith: buildOr(groupedControls) }] })
-    }
-
-    if (evidenceSubcontrols && evidenceSubcontrols.length > 0) {
-      or.push({ or: [{ hasFromSubcontrolsWith: buildOr(groupedSubcontrols) }] })
-      or.push({ or: [{ hasToSubcontrolsWith: buildOr(groupedSubcontrols) }] })
-    }
-
-    return or.length > 0 ? { or } : null
-  }, [evidenceControls, evidenceSubcontrols])
-
-  const where = buildWhere
+  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
 
   const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
     where: where ?? undefined,

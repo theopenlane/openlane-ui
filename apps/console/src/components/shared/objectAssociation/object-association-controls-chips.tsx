@@ -17,7 +17,7 @@ type TObjectAssociationControlsChipsProps = {
 }
 
 const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }: TObjectAssociationControlsChipsProps) => {
-  const handleRemove2 = (id: string, refCode: string, isSubcontrol = false) => {
+  const handleRemove = (id: string, refCode: string, isSubcontrol = false) => {
     if (isSubcontrol) {
       setEvidenceSubcontrols((prev) => {
         const newSubcontrols = prev?.filter((subcontrol) => subcontrol.refCode !== refCode) ?? null
@@ -33,6 +33,8 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
     }
   }
   console.log('suggestedControlsMap', suggestedControlsMap)
+  console.log('evidenceControls', evidenceControls)
+  console.log('evidenceSubcontrols', evidenceSubcontrols)
   const handleAdd = (id: string, isSubcontrol = false, refCode: string, source: string) => {
     console.log('Adding item...', { id, isSubcontrol, refCode, source })
   }
@@ -51,7 +53,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
                 __typename: 'Control',
               }}
               removable
-              onRemove={() => handleRemove2(id, refCode)}
+              onRemove={() => handleRemove(id, refCode)}
             />
           ))}
 
@@ -66,7 +68,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
                 __typename: 'Subcontrol',
               }}
               removable
-              onRemove={() => handleRemove2(id, refCode, true)}
+              onRemove={() => handleRemove(id, refCode, true)}
             />
           ))}
         {(form.getValues('controlIDs') || []).length === 0 && (form.getValues('subcontrolIDs') || []).length === 0 && (
@@ -81,13 +83,11 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
       <div className="text-base font-medium py-2">Suggested</div>
       <div className="flex flex-wrap gap-2">
         {suggestedControlsMap
-          .filter(
-            (c) =>
-              evidenceControls &&
-              !evidenceControls.some(
-                (item) => item.id === c.id && item.refCode === c.refCode && evidenceSubcontrols && !evidenceSubcontrols.some((item) => item.id === c.id && item.refCode === c.refCode),
-              ),
-          )
+          .filter((c) => {
+            const inControls = evidenceControls?.some((item) => item.refCode === c.refCode)
+            const inSubcontrols = evidenceSubcontrols?.some((item) => item.refCode === c.refCode)
+            return !inControls && !inSubcontrols
+          })
           .map(({ id, refCode, referenceFramework, typeName, source }) => (
             <ControlChip
               key={id}

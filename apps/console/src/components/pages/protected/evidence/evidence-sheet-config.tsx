@@ -1,4 +1,4 @@
-import { GetAllStandardsQuery, GetSuggestedControlsOrSubcontrolsQuery } from '@repo/codegen/src/schema'
+import { GetAllStandardsQuery, GetSuggestedControlsOrSubcontrolsQuery, MappedControlWhereInput } from '@repo/codegen/src/schema'
 
 export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 type CustomEvidenceGroupedItems = {
@@ -51,6 +51,24 @@ export const buildOr = (groups: RefFrameworkGroup) =>
       or: [{ referenceFramework: framework }],
     }
   })
+
+export const buildWhere = (evidenceControls: CustomEvidenceControl[] | null, evidenceSubcontrols: CustomEvidenceControl[] | null) => {
+  const groupedControls = groupItemsByReferenceFramework(evidenceControls)
+  const groupedSubcontrols = groupItemsByReferenceFramework(evidenceSubcontrols)
+  const or: MappedControlWhereInput[] = []
+
+  if (evidenceControls && evidenceControls.length > 0) {
+    or.push({ or: [{ hasFromControlsWith: buildOr(groupedControls) }] })
+    or.push({ or: [{ hasToControlsWith: buildOr(groupedControls) }] })
+  }
+
+  if (evidenceSubcontrols && evidenceSubcontrols.length > 0) {
+    or.push({ or: [{ hasFromSubcontrolsWith: buildOr(groupedSubcontrols) }] })
+    or.push({ or: [{ hasToSubcontrolsWith: buildOr(groupedSubcontrols) }] })
+  }
+
+  return or.length > 0 ? { or } : null
+}
 
 export const flattenAndFilterControls = (mappedControls: GetSuggestedControlsOrSubcontrolsQuery | undefined, standards: GetAllStandardsQuery | undefined) => {
   if (!mappedControls?.mappedControls?.edges || !standards?.standards?.edges) return []

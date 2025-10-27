@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -33,7 +33,9 @@ import { ControlSelectionDialog } from '@/components/shared/objectAssociation/ob
 import { PageHeading } from '@repo/ui/page-heading'
 import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
-import { CustomEvidenceControl } from './evidence-sheet-config'
+import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
+import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
+import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -67,7 +69,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  // const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null }[]>([])
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -155,6 +157,33 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       }
     }
   }, [form, formData])
+
+  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
+
+  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
+    where: where ?? undefined,
+    enabled: !!where,
+  })
+
+  const { data: standards } = useGetStandards({})
+
+  useEffect(() => {
+    if (!where) {
+      setSuggestedControlsMap([])
+      return
+    }
+    if (!mappedControls) return
+    const suggestedItems = flattenAndFilterControls(mappedControls, standards).map((item) => ({
+      id: item.id,
+      refCode: item.refCode,
+      referenceFramework: item.referenceFramework ?? null,
+      source: item.source ?? '',
+      typeName: item.typeName,
+    }))
+
+    const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
+    setSuggestedControlsMap(uniqueItems)
+  }, [mappedControls, standards, where])
 
   useEffect(() => {
     handleInitialValue()
@@ -401,7 +430,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                               <div className="mt-5 flex flex-col gap-5">
                                 <ObjectAssociationControlsChips
                                   form={form}
-                                  // suggestedControlsMap={suggestedControlsMap}
+                                  suggestedControlsMap={suggestedControlsMap}
                                   evidenceControls={evidenceControls}
                                   setEvidenceControls={setEvidenceControls}
                                   evidenceSubcontrols={evidenceSubcontrols}
