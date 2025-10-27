@@ -30,7 +30,7 @@ const DelegateCell: React.FC<TDelegateCellProps> = ({ delegate, riskId }) => {
     }
   }
 
-  return <EditableGroupCell label="Risk" entity={delegate} onSubmitData={handleSubmitData} placeholder="No owner" />
+  return <EditableGroupCell label="Risk" entity={delegate} onSubmitData={handleSubmitData} placeholder="No delegate" />
 }
 
 export default DelegateCell
