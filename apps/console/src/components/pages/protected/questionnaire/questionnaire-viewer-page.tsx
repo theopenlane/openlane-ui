@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Edit, Trash2 } from 'lucide-react'
+import { Edit, Send, Trash2 } from 'lucide-react'
 import { useDeleteTemplate } from '@/lib/graphql-hooks/templates'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
@@ -50,6 +50,7 @@ const QuestionnaireViewerPage: React.FC = () => {
   }
 
   const handleSend: SubmitHandler<{ email: string }> = (data) => {
+    return null
     successNotification({ title: `Email sent to ${data.email}` })
     form.reset()
     setIsSendDialogOpen(false)
@@ -75,9 +76,15 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            {/* <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
-              Send
-            </Button> */}
+            <Button
+              disabled
+              type="button"
+              className="h-8 px-3"
+              icon={<Send />}
+              iconPosition="left"
+            >
+              Send (Coming Soon)
+            </Button>   
 
             {editAllowed && (
               <>
