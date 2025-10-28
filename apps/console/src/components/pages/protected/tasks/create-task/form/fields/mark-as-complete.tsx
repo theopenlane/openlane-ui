@@ -43,7 +43,15 @@ const MarkAsComplete = ({ taskData }: MarkAsCompleteProps) => {
     }
   }
   return (
-    <Button type="button" className="h-8 !px-2" disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
+    <Button
+      type="button"
+      className="h-8 !px-2"
+      disabled={taskData?.status === TaskTaskStatus.COMPLETED}
+      icon={<Check />}
+      iconPosition="left"
+      variant="secondary"
+      onClick={() => handleMarkAsComplete()}
+    >
       Mark as complete
     </Button>
   )

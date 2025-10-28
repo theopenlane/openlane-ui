@@ -74,7 +74,7 @@ const ImportControlsDialog: React.FC = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && (
-          <Button variant="outline" className="w-fit">
+          <Button variant="secondary" className="w-fit">
             Import
           </Button>
         )}
@@ -110,7 +110,7 @@ const ImportControlsDialog: React.FC = () => {
           <Button onClick={handleImport} disabled={selectedItems.length === 0}>
             {selectedItems.length === 0 ? 'Import' : `Import (${selectedItems.length})`}
           </Button>
-          <Button variant="outline" onClick={handleBack}>
+          <Button variant="secondary" onClick={handleBack}>
             Back
           </Button>
         </DialogFooter>

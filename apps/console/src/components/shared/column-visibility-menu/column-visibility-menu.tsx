@@ -17,7 +17,7 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button icon={<Columns3 size={16} />} iconPosition="left" variant="outline" size="md" className="size-fit py-1.5 px-2">
+        <Button icon={<Columns3 size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
           Column
         </Button>
       </DropdownMenuTrigger>

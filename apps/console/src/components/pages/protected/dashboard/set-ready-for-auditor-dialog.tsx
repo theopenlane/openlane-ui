@@ -34,7 +34,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={programStatus === ProgramProgramStatus.ARCHIVED} className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left">
+        <Button disabled={programStatus === ProgramProgramStatus.ARCHIVED} className="!h-8 !p-2" variant="secondary" type="button" icon={<Pencil />} iconPosition="left">
           Ready for Auditor
         </Button>
       </DialogTrigger>
@@ -51,7 +51,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
         </div>
         <DialogFooter className="mt-6 flex gap-2">
           <Button onClick={handleSetReadyForAuditor}>Set ready</Button>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
         </DialogFooter>

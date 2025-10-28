@@ -135,7 +135,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
     <Dialog open={open} onOpenChange={setOpen}>
       <FormProvider {...form}>
         <DialogTrigger asChild>
-          <Button disabled={selectedProcedures.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
+          <Button disabled={selectedProcedures.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedProcedures && selectedProcedures.length > 0 ? `Bulk Edit (${selectedProcedures.length})` : 'Bulk Edit'}
           </Button>
         </DialogTrigger>
@@ -207,7 +207,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                           />
                         </div>
                       ))}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="outline" onClick={() => remove(index)}></Button>
+                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
                   </div>
                 )
               })}
@@ -221,7 +221,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                     })
                   }
                   iconPosition="left"
-                  variant="outline"
+                  variant="secondary"
                 >
                   Add field
                 </Button>
@@ -232,7 +232,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                 Save
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   setOpen(false)
                   replace([])

@@ -76,7 +76,7 @@ const StandardDetailsPage = () => {
     <div>
       {canEdit(permission?.roles) && (
         <Button
-          variant="outline"
+          variant="secondary"
           className="h-8 !px-2"
           onClick={() => {
             setIsDialogOpen(true)

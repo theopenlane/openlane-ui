@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query'
 import { Group } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
-import EditableGroupCell from '@/components/shared/groups-editable-cell/groups-editable-cell'
+import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
 import { useUpdateRisk } from '@/lib/graphql-hooks/risks'
 
 type TStakeholderCellProps = {
@@ -11,7 +11,7 @@ type TStakeholderCellProps = {
   riskId: string
 }
 
-const DelegateCell: React.FC<TStakeholderCellProps> = ({ stakeholder, riskId }) => {
+const StakeholderCell: React.FC<TStakeholderCellProps> = ({ stakeholder, riskId }) => {
   const { mutateAsync: updateRisk } = useUpdateRisk()
 
   const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
@@ -33,4 +33,4 @@ const DelegateCell: React.FC<TStakeholderCellProps> = ({ stakeholder, riskId }) 
   return <EditableGroupCell label="Risk" entity={stakeholder} onSubmitData={handleSubmitData} placeholder="No stakeholder" />
 }
 
-export default DelegateCell
+export default StakeholderCell

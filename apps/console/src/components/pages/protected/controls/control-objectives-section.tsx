@@ -44,7 +44,7 @@ const ControlObjectivesSection = ({ controlObjectives }: Props) => {
         <Label className="font-semibold text-lg">{edges.length === 1 ? 'Control Objective' : 'Control Objectives'}</Label>
         {createAllowed && <CreateButton type="control-objective" href={createHref} ariaLabel="Create control objective" />}
         <Link href={controlObjectivesPath}>
-          <Button type="button" className="!h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
+          <Button type="button" className="!h-8 !p-2 size-fit" variant="secondary" icon={<ChevronRight size={16} />}>
             View
           </Button>
         </Link>

@@ -65,7 +65,7 @@ export function SetObjectAssociationDialog({ setAssociations, initialData }: Pro
           <Button onClick={onSave} disabled={!saveEnabled}>
             Save
           </Button>
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
         </DialogFooter>

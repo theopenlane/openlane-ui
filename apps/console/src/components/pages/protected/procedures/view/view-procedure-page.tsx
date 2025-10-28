@@ -134,7 +134,7 @@ const ViewProcedurePage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -246,17 +246,17 @@ const ViewProcedurePage: React.FC = () => {
               content={
                 <>
                   {editAllowed && (
-                    <div className="flex items-center space-x-2  cursor-pointer" onClick={handleEdit}>
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={handleEdit}>
                       <PencilIcon size={16} strokeWidth={2} />
                       <span>Edit</span>
-                    </div>
+                    </Button>
                   )}
                   {deleteAllowed && (
                     <>
-                      <div className="flex items-center space-x-2  cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={() => setIsDeleteDialogOpen(true)}>
                         <Trash2 size={16} strokeWidth={2} />
                         <span>Delete</span>
-                      </div>
+                      </Button>
                       <ConfirmationDialog
                         open={isDeleteDialogOpen}
                         onOpenChange={setIsDeleteDialogOpen}
@@ -268,10 +268,10 @@ const ViewProcedurePage: React.FC = () => {
                           </>
                         }
                       />
-                      <div className="flex items-center space-x-2  cursor-pointer" onClick={() => setShowPermissionsSheet(true)}>
+                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={() => setShowPermissionsSheet(true)}>
                         <LockOpen size={16} strokeWidth={2} />
                         <span>Manage Permissions</span>
-                      </div>
+                      </Button>
                     </>
                   )}
                 </>

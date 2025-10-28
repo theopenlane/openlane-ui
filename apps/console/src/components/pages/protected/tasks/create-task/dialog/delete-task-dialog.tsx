@@ -47,7 +47,7 @@ const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ task
 
   return (
     <>
-      <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setIsOpen(true)}>
+      <Button icon={<Trash2 />} iconPosition="left" variant="secondary" onClick={() => setIsOpen(true)}>
         Delete
       </Button>
       <ConfirmationDialog

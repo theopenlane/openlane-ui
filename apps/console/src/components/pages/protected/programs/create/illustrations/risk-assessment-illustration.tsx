@@ -8,12 +8,12 @@ const RiskAssessmentIllustration = () => {
     <Card className="relative h-36 w-full bg-secondary px-11 overflow-hidden">
       <Card className="p-4 relative h-32 w-full flex bg-card mt-6 flex-col">
         <div className="flex w-full justify-between items-center">
-          <SearchCheck size={16} className="text-btn-secondary" />
+          <SearchCheck size={16} className="text-btn-primary" />
           <div className="h-3 w-3 bg-border rounded-full" />
         </div>
         <div className="flex items-center gap-2 mt-4">
-          <div className="rounded-full border border-btn-secondary bg-transparent shadow-primary16 h-5 w-5 flex items-center justify-center">
-            <Check size={12} className="text-btn-secondary" />
+          <div className="rounded-full border border-btn-primary bg-transparent shadow-primary16 h-5 w-5 flex items-center justify-center">
+            <Check size={12} className="text-btn-primary" />
           </div>
           <div className="h-2 w-3/5 rounded-full bg-border" />
         </div>

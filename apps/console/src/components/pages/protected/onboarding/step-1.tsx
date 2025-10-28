@@ -143,7 +143,7 @@ export default function Step1() {
             e.preventDefault()
             addDomain()
           }}
-          variant="outline"
+          variant="secondary"
           className="mt-2 "
         >
           Add Domain

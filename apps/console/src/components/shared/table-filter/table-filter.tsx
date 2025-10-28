@@ -249,7 +249,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           return (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !values[field.key] && 'text-muted-foreground')}>
+                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !values[field.key] && 'text-muted-foreground')}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {values[field.key] instanceof Date ? format(values[field.key] as Date, 'PPP') : `Pick ${field.label}`}
                 </Button>
@@ -265,7 +265,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           return (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !range?.from && !range?.to && 'text-muted-foreground')}>
+                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !range?.from && !range?.to && 'text-muted-foreground')}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
@@ -361,7 +361,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button icon={<Filter size={16} />} iconPosition="left" variant="outline" size="md" className="size-fit py-1.5 px-2">
+        <Button icon={<Filter size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
           Filter
           {activeFilterCount > 0 && (
             <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-medium border border-primary rounded-md text-primary bg-primary-muted">{activeFilterCount}</span>
@@ -390,10 +390,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         <Hr />
 
         <div className="flex justify-between p-4">
-          <Button onClick={resetFilters} variant="outline">
+          <Button onClick={resetFilters} variant="secondary">
             Reset filters
           </Button>
-          <Button variant="outline" className="btn-secondary" onClick={applyFilters}>
+          <Button variant="primary" onClick={applyFilters}>
             View Results
           </Button>
         </div>

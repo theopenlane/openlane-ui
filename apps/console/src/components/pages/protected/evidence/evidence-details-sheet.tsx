@@ -334,8 +334,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-        ? oldValue.getTime() === newValue.getTime()
-        : oldValue === newValue
+          ? oldValue.getTime() === newValue.getTime()
+          : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -402,7 +402,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
     return (
       <div className="flex justify-end flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
+        {evidence?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
       </div>
     )
   }
@@ -462,27 +464,27 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 <div className="flex gap-3">
                   {isEditing ? (
                     <>
-                      <Button className="h-8 p-2" type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      <Button className="h-8 p-2" type="button" variant="secondary" onClick={() => setIsEditing(false)}>
                         Cancel
                       </Button>
-                      <Button className="h-8 p-2 btn-secondary" onClick={form.handleSubmit(onSubmit)} icon={<Save />} iconPosition="left">
+                      <Button variant="primary" className="h-8 p-2" onClick={form.handleSubmit(onSubmit)} icon={<Save />} iconPosition="left">
                         Save
                       </Button>
                     </>
                   ) : (
                     <>
-                      <Button className="h-8 p-2" icon={<Copy />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                      <Button className="h-8 p-2" icon={<Copy />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
                         Copy link
                       </Button>
                       {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                       {editAllowed && (
-                        <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
+                        <Button type="button" variant="secondary" className="!p-1 h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
                           <Pencil size={16} strokeWidth={2} />
                         </Button>
                       )}
                     </>
                   )}
-                  <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                  <Button type="button" variant="secondary" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
                     <Trash2 size={16} strokeWidth={2} />
                   </Button>
                 </div>
@@ -917,7 +919,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             </div>
                           </AccordionTrigger>
                           <Button
-                            variant="outline"
+                            variant="secondary"
                             className="py-5"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -973,7 +975,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </AccordionTrigger>
 
                           <Button
-                            variant="outline"
+                            variant="secondary"
                             className="py-5"
                             onClick={(e) => {
                               e.stopPropagation()

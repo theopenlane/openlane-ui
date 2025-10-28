@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 import { searchStyles } from './search.styles'
 import { Command, CommandEmpty, CommandItem, CommandList } from '@repo/ui/command'
 import { Input } from '@repo/ui/input'
-import { Clock8, LoaderCircle, Search, SearchIcon } from 'lucide-react'
+import { Clock8, LoaderCircle, Plus, Search, SearchIcon } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
 import { Organization, SearchQuery } from '@repo/codegen/src/schema'
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
 import { useQueryClient } from '@tanstack/react-query'
+import { Button } from '@repo/ui/button'
 
 type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
 
@@ -146,13 +147,16 @@ export const GlobalSearch = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}>
-        <Search
-          size={16}
+      <DialogTrigger className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`} asChild>
+        <Button
+          variant="secondary"
+          className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}
           onClick={() => {
             setOpen(true)
           }}
-        />
+        >
+          <Search size={16} />
+        </Button>
       </DialogTrigger>
       <DialogContent className="p-0 max-w-[573px]" autoFocus>
         <div className="mt-1.5">

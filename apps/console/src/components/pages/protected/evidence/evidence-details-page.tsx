@@ -82,53 +82,61 @@ const EvidenceDetailsPage = () => {
                   <h1>Evidence Center</h1>
                 </div>
                 <div className="flex gap-2.5 items-center">
-                  <EvidenceSuggestedActions />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className={`h-8 !px-2 !pl-3 ${programId ? 'border border-primary' : ''}`} icon={<SlidersHorizontal />} iconPosition="left">
-                        <span className="text-muted-foreground">Filter by:</span>
-                        <span>Program</span>
-                      </Button>
-                    </DropdownMenuTrigger>
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <EvidenceSuggestedActions />
+                  </div>
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          className={`h-8 !px-2 !pl-3 outline-none ring-0 focus-visible:outline-none focus-visible:ring-0 ${programId ? 'border !border-primary' : ''}`}
+                          icon={<SlidersHorizontal />}
+                          iconPosition="left"
+                          variant="outline"
+                        >
+                          <span className="text-muted-foreground">Filter by:</span>
+                          <span>Program</span>
+                        </Button>
+                      </DropdownMenuTrigger>
 
-                    <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
-                      {/* All programs */}
-                      <DropdownMenuItem
-                        className="flex items-center gap-2"
-                        onSelect={(e) => {
-                          e.preventDefault()
-                          handleSelectChange('All programs')
-                        }}
-                      >
-                        <Checkbox checked={!programId} />
-                        <span>All programs</span>
-                      </DropdownMenuItem>
+                      <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
+                        {/* All programs */}
+                        <DropdownMenuItem
+                          className="flex items-center gap-2"
+                          onSelect={(e) => {
+                            e.preventDefault()
+                            handleSelectChange('All programs')
+                          }}
+                        >
+                          <Checkbox checked={!programId} />
+                          <span>All programs</span>
+                        </DropdownMenuItem>
 
-                      {/* Dynamic program list */}
-                      {data?.programs?.edges?.map((edge) => {
-                        const program = edge?.node
-                        if (!program) return null
+                        {/* Dynamic program list */}
+                        {data?.programs?.edges?.map((edge) => {
+                          const program = edge?.node
+                          if (!program) return null
 
-                        return (
-                          <DropdownMenuItem
-                            key={program.id}
-                            className="flex items-center gap-2"
-                            onSelect={(e) => {
-                              e.preventDefault()
-                              handleSelectChange(program.id)
-                            }}
-                          >
-                            <Checkbox checked={program.id === programId} />
-                            <span>{program.name}</span>
-                          </DropdownMenuItem>
-                        )
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
+                          return (
+                            <DropdownMenuItem
+                              key={program.id}
+                              className="flex items-center gap-2"
+                              onSelect={(e) => {
+                                e.preventDefault()
+                                handleSelectChange(program.id)
+                              }}
+                            >
+                              <Checkbox checked={program.id === programId} />
+                              <span>{program.name}</span>
+                            </DropdownMenuItem>
+                          )
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                   {createAllowed && (
-                    <>
-                      <Button className="h-8 !px-2 btn-secondary" onClick={handleCreateEvidence}>
+                    <div className="flex-shrink-0 h-8 flex items-center">
+                      <Button variant="primary" className="h-8 !px-2" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
                       <EvidenceCreateSheet
@@ -137,12 +145,13 @@ const EvidenceDetailsPage = () => {
                         onOpenChange={setIsSheetOpen}
                         excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}
                       />
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
             }
           />
+
           <EvidenceSummaryCard />
           <EvidenceTable />
           <EvidenceDetailsSheet />

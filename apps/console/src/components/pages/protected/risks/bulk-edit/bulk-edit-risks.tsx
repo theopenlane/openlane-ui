@@ -135,7 +135,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     <Dialog open={open} onOpenChange={setOpen}>
       <FormProvider {...form}>
         <DialogTrigger asChild>
-          <Button disabled={selectedRisks.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
+          <Button disabled={selectedRisks.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedRisks && selectedRisks.length > 0 ? `Bulk Edit (${selectedRisks.length})` : 'Bulk Edit'}
           </Button>
         </DialogTrigger>
@@ -207,7 +207,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                           />
                         </div>
                       ))}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="outline" onClick={() => remove(index)}></Button>
+                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
                   </div>
                 )
               })}
@@ -221,7 +221,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                     })
                   }
                   iconPosition="left"
-                  variant="outline"
+                  variant="secondary"
                 >
                   Add field
                 </Button>
@@ -232,7 +232,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                 Save
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   setOpen(false)
                   replace([])

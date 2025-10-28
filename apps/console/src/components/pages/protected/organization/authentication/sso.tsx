@@ -66,7 +66,7 @@ const SSOOverview = ({
               Remove SSO
             </Button>
           )}
-          <Button variant="outline" onClick={onEdit}>
+          <Button variant="secondary" onClick={onEdit}>
             {isSSOConfigured ? 'Edit Configuration' : 'Configure SSO'}
           </Button>
         </div>
@@ -372,7 +372,7 @@ const SSOPage = () => {
             <AlertDescription className="text-green-800">
               <div className="flex items-center justify-between">
                 <span className="font-medium">SSO connection tested and verified successfully!</span>
-                <Button variant="outline" size="sm" onClick={() => setShowSSOTestedAlert(false)} className="text-green-600 hover:text-green-800 h-6 w-6 p-0">
+                <Button variant="secondary" size="sm" onClick={() => setShowSSOTestedAlert(false)} className="text-green-600 hover:text-green-800 h-6 w-6 p-0">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -385,7 +385,7 @@ const SSOPage = () => {
             <AlertDescription className="text-red-800">
               <div className="flex items-center justify-between">
                 <span className="font-medium">SSO verification failed: {ssoErrorMessage}</span>
-                <Button variant="outline" size="sm" onClick={() => setShowSSOErrorAlert(false)} className="text-red-600 hover:text-red-800 h-6 w-6 p-0">
+                <Button variant="secondary" size="sm" onClick={() => setShowSSOErrorAlert(false)} className="text-red-600 hover:text-red-800 h-6 w-6 p-0">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -512,10 +512,10 @@ const SSOPage = () => {
               />
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" type="button" onClick={handleCancel}>
+                <Button variant="secondary" type="button" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isPending}>
+                <Button variant={isSuccess ? 'success' : 'secondary'} type="submit" loading={isPending}>
                   {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save Configuration'}
                 </Button>
               </div>

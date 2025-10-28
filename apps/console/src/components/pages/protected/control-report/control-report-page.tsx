@@ -218,26 +218,26 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                 <>
                   <BulkCSVCloneControlDialog
                     trigger={
-                      <div className="flex items-center space-x-2 px-1">
+                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                         <Upload size={16} strokeWidth={2} />
                         <span>Upload From Standard</span>
-                      </div>
+                      </Button>
                     }
                   />
                   <BulkCSVCreateControlDialog
                     trigger={
-                      <div className="flex items-center space-x-2 px-1">
+                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                         <Upload size={16} strokeWidth={2} />
                         <span>Upload Custom Controls</span>
-                      </div>
+                      </Button>
                     }
                   />
                   <BulkCSVCreateMappedControlDialog
                     trigger={
-                      <div className="flex items-center space-x-2 px-1">
+                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                         <Upload size={16} strokeWidth={2} />
                         <span>Upload Control Mappings</span>
-                      </div>
+                      </Button>
                     }
                   />
                 </>
@@ -246,7 +246,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           ) : null}
           {createAllowed && !hasNoControls && (
             <Link href="/controls/create-control" aria-label="Create Control">
-              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             </Link>
@@ -257,7 +257,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         {isLoading || isFetching ? (
           <ControlReportPageSkeleton />
         ) : hasNoControls ? (
-          <>
+          <div className="max-w-6xl mx-auto">
             <p className="mt-4 rounded-md border border-border/30 bg-muted/20 px-5 py-2.5 text-base text-muted-foreground shadow-sm">
               No controls found. <span className="text-foreground font-medium">Create one now</span> using any option below.
             </p>
@@ -288,7 +288,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                 </Callout>
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
             {data?.map(({ category, controls }) => {

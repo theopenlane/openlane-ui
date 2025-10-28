@@ -337,7 +337,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
               />
             </InputRow>
 
-            <Button className="mt-4 btn-secondary" type="submit" disabled={isSubmitting}>
+            <Button variant="primary" className="mt-4" type="submit" disabled={isSubmitting}>
               {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
             </Button>
           </div>

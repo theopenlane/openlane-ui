@@ -124,7 +124,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             })}
           </div>
 
-          <Button icon={<ChevronRight size={16} />} onClick={handleClick} className="mt-4">
+          <Button variant="secondary" icon={<ChevronRight size={16} />} onClick={handleClick} className="mt-4">
             <Link href="/tasks?showMyTasks=true">Show more Tasks</Link>
           </Button>
         </CardContent>
