@@ -151,7 +151,7 @@ const BrandSection = ({ setting }: Props) => {
                         multipleFiles={false}
                       />
                     </div>
-                    <Button variant="secondary" onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3 block">
+                    <Button variant="primary" onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3 block">
                       {logoPending || logoLinkPending ? 'Saving…' : 'Save'}
                     </Button>
                   </>
@@ -174,7 +174,7 @@ const BrandSection = ({ setting }: Props) => {
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
-                      <Button variant="secondary" className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
+                      <Button variant="primary" className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
                         {logoLinkPending ? 'Saving…' : 'Save'}
                       </Button>
                     </div>
@@ -222,7 +222,7 @@ const BrandSection = ({ setting }: Props) => {
                         multipleFiles={false}
                       />
                     </div>
-                    <Button variant="secondary" onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3 block">
+                    <Button variant="primary" onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3 block">
                       {faviconPending || faviconLinkPending ? 'Saving…' : 'Save'}
                     </Button>
                   </>
@@ -245,7 +245,7 @@ const BrandSection = ({ setting }: Props) => {
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={faviconLink} onChange={setFaviconLink} />
-                      <Button variant="secondary" className="w-auto" onClick={handleSaveFaviconLink} disabled={faviconLinkPending}>
+                      <Button variant="primary" className="w-auto" onClick={handleSaveFaviconLink} disabled={faviconLinkPending}>
                         {faviconLinkPending ? 'Saving…' : 'Save'}
                       </Button>
                     </div>

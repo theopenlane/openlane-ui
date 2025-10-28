@@ -145,7 +145,7 @@ export const Subscribe = () => {
                   </>
                 )}
               />
-              <Button variant="secondary" type="submit" className={button()} disabled={isPending}>
+              <Button variant="primary" type="submit" className={button()} disabled={isPending}>
                 <div className="flex items-center">
                   {isPending && <LoaderCircle className="animate-spin mr-2" size={16} />}
                   <span>{isPending ? 'Joining...' : 'Join the waitlist'}</span>

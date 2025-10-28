@@ -49,9 +49,9 @@ export const UserMenu = () => {
         <DropdownMenuSeparator spacing="md" className="border-b mt-4 mb-1" />
 
         <div className="flex items-center justify-between pl-2">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <PaintbrushVertical size={16} className="text-muted-foreground" />
-            <p className="text-sm font-medium">Theme</p>
+            <p className="text-sm font-base">Theme</p>
           </div>
 
           <div className="flex items-center gap-1 rounded-lg bg-popover bg-card p-1 border">
@@ -80,9 +80,9 @@ export const UserMenu = () => {
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
         <div className="flex items-center justify-between pl-2 mt-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Keyboard size={16} className="text-muted-foreground" />
-            <p className="text-sm font-medium">Command Menu</p>
+            <p className="text-sm font-base">Command Menu</p>
           </div>
 
           <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">
@@ -92,9 +92,9 @@ export const UserMenu = () => {
         </div>
 
         <div className="flex items-center justify-between pl-2 mt-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <TextSearch size={16} className="text-muted-foreground" />
-            <p className="text-sm font-medium">Search Menu</p>
+            <p className="text-sm font-base">Search Menu</p>
           </div>
 
           <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">

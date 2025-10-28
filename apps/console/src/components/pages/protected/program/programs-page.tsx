@@ -198,7 +198,7 @@ const ProgramsPage: React.FC = () => {
             <div className="flex gap-2.5 items-center">
               {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
                 <Link href="/programs/create" className="text-sm text-blue-500 flex items-center gap-1">
-                  <Button variant="secondary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+                  <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                     Create Program
                   </Button>
                 </Link>

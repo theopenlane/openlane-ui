@@ -177,7 +177,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
                   return priceForInterval && activePriceIds.has(priceForInterval.price_id)
                 })
                 .map((m) => (
-                  <Badge key={m.product_id} variant="secondary">
+                  <Badge key={m.product_id} variant="outline">
                     {m.display_name}
                   </Badge>
                 ))}
@@ -191,7 +191,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
           {activeAddons.length > 0 ? (
             <div className="flex flex-wrap gap-2 mt-1">
               {activeAddons.map((a) => (
-                <Badge key={a.product_id} variant="secondary">
+                <Badge key={a.product_id} variant="outline">
                   {a.display_name}
                 </Badge>
               ))}

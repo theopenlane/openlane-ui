@@ -143,7 +143,7 @@ export const SignupPage = () => {
               <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" className="bg-transparent !text-text" />
             </div>
 
-            <Button variant="secondary" className="p-4 justify-between items-center rounded-md text-sm h-[36px] font-bold flex mt-2" type="submit" disabled={isLoading}>
+            <Button variant="primary" className="p-4 justify-between items-center rounded-md text-sm h-[36px] font-bold flex mt-2" type="submit" disabled={isLoading}>
               <span>{isLoading ? 'Creating account...' : 'Sign up'}</span>
               <ArrowRightCircle size={16} />
             </Button>

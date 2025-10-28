@@ -221,7 +221,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
             <p>?</p>
           </div>
         ) : (
-          <Button variant="secondary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+          <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
             Create
           </Button>
         )}
@@ -410,7 +410,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
               )}
 
               <DialogFooter>
-                <Button variant="secondary" className="w-full mt-4" type="submit" disabled={isSubmitting}>
+                <Button variant="primary" className="w-full mt-4" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? 'Creating...' : 'Create Token'}
                 </Button>
               </DialogFooter>
@@ -445,7 +445,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                   {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
                 </Button>
               )}
-              <Button variant="secondary" disabled={!confirmationChecked || isAuthorizingSSO}>
+              <Button variant="primary" disabled={!confirmationChecked || isAuthorizingSSO}>
                 Close
               </Button>
             </div>

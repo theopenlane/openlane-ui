@@ -307,7 +307,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
               />
             </InputRow>
 
-            <Button variant="secondary" className="mt-4" type="submit" disabled={isSubmitting}>
+            <Button variant="primary" className="mt-4" type="submit" disabled={isSubmitting}>
               {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
             </Button>
           </div>

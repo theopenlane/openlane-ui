@@ -140,7 +140,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
 
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                <Button variant="secondary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+                <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                   Create
                 </Button>
               )}

@@ -42,7 +42,7 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
               {group?.tags && group?.tags?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {group.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary">
+                    <Badge key={index} variant="outline">
                       {tag}
                     </Badge>
                   ))}

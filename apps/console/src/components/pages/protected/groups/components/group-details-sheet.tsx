@@ -235,7 +235,7 @@ const GroupDetailsSheet = () => {
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {tags?.map((tag: string, index: number) => (
-                          <Badge key={index} variant="secondary">
+                          <Badge key={index} variant="outline">
                             {tag}
                           </Badge>
                         ))}

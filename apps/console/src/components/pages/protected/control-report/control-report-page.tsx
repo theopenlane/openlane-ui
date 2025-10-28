@@ -192,7 +192,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           />
           {createAllowed && (
             <Link href="/controls/create-control" aria-label="Create Control">
-              <Button variant="secondary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             </Link>

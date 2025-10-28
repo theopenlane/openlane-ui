@@ -99,7 +99,7 @@ export default function ForgotPasswordComponent() {
             />
           </div>
 
-          <Button variant="secondary" type="submit" icon={<ArrowUpRight />} iconAnimated className="mt-2 w-full" disabled={cooldown > 0}>
+          <Button variant="primary" type="submit" icon={<ArrowUpRight />} iconAnimated className="mt-2 w-full" disabled={cooldown > 0}>
             {cooldown > 0 ? `Try again in ${cooldown}s` : 'Send Reset Link'}
           </Button>
         </form>

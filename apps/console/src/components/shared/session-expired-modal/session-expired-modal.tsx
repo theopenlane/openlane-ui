@@ -46,7 +46,7 @@ const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
           <h2 className="text-2xl font-semibold mb-2">Session expired</h2>
           <p className=" text-sm max-w-xs mx-auto">To keep your account secure, we require users to re-login after 60 minutes of inactivity.</p>
         </div>
-        <Button variant="secondary" onClick={handleSignOut}>
+        <Button variant="primary" onClick={handleSignOut}>
           Login
         </Button>
       </DialogContent>

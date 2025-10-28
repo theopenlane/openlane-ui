@@ -224,7 +224,7 @@ export default function AdvancedSetupWizard() {
                 <Button variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button variant="secondary" onClick={handleNext} disabled={isPending} loading={isPending}>
+                <Button variant="primary" onClick={handleNext} disabled={isPending} loading={isPending}>
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

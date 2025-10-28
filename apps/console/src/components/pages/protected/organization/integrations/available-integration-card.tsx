@@ -56,7 +56,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
                 {integration.tags?.length ? (
                   <>
                     {integration.tags.slice(0, 6).map((t, i) => (
-                      <Badge key={i} variant="secondary" className="font-normal">
+                      <Badge key={i} variant="outline" className="font-normal">
                         {t}
                       </Badge>
                     ))}
