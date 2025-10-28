@@ -321,7 +321,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 field.options.map((opt) => (
                   <li
                     key={opt.value}
-                    onChange={() => handleToggle(opt.value)}
                     className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
                     onClick={() => handleToggle(opt.value)}
                   >
