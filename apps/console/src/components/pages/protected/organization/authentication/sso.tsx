@@ -515,7 +515,7 @@ const SSOPage = () => {
                 <Button variant="secondary" type="button" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isPending}>
+                <Button variant={isSuccess ? 'success' : 'secondary'} type="submit" loading={isPending}>
                   {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save Configuration'}
                 </Button>
               </div>
