@@ -10,13 +10,6 @@ export const buttonStyles = tv({
     loadingIcon: 'animate-spin !h-6 !w-6',
     childWrapper: 'tracking-normal',
   },
-  //.btn-secondary:hover {
-  //     background-color: var(--color-btn-secondary-hover);
-  //     border-color: var(--color-border);
-  //   }
-  //   .btn-secondary:disabled {
-  //     color: var(--color-btn-secondary-text-disabled);
-  //   }
   variants: {
     variant: {
       primary: `
@@ -28,17 +21,16 @@ export const buttonStyles = tv({
     `,
       secondary: `
       btn-secondary
-    `,
-      /*secondary: `
-      bg-btn-secondary
-      text-btn-secondary-text
-      shadow-secondary-btn
-      border border-btn-secondary-border
-      hover:bg-btn-secondary-hover
-      hover:border-btn-secondary-border-hover
       disabled:cursor-not-allowed
       disabled:text-btn-secondary-text-disabled
-    `,*/
+      disabled:bg-btn-secondary-disabled
+      focus:btn-secondary-focus
+      focus:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
+      dark:focus:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
+      focus-visible:btn-secondary-focus
+      focus-visible:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
+      dark:focus-visible:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
+    `,
       secondaryOutline: `
       border-border text-text-paragraph border hover:bg-btn-secondary-hover
     `,
@@ -65,7 +57,14 @@ export const buttonStyles = tv({
         [&.is-active]:bg-nav
         [&.is-active]:border-border
         [&.is-active]:text-text-paragraph`,
-      transparent: `bg-transparent border border-transparent hover:bg-btn-secondary hover:border-border`,
+      transparent: `
+        bg-transparent 
+        border 
+        border-transparent 
+        hover:bg-btn-secondary 
+        hover:border-border 
+        disabled:cursor-not-allowed
+        disabled:text-btn-secondary-text-disabled`,
       filled: 'bg-button text-button-text ',
       light: 'bg-button-light text-text-dark ',
       outline: 'border-border text-text-paragraph border',

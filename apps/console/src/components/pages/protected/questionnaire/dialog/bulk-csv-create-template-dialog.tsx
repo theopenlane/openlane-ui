@@ -61,7 +61,7 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger className="bg-transparent">
+        <DialogTrigger asChild>
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

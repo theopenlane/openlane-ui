@@ -61,7 +61,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+        <Button variant="secondary" icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
           File Upload
         </Button>
       </DialogTrigger>
