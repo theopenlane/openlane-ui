@@ -256,6 +256,12 @@
   --indicator: #4c5e69;
 
   --color-svg-secondary: #9af5dc;
+
+  --color-success: #21c55d;
+  --color-info: #6392ff;
+  --color-warning: #ff842c;
+  --color-danger: #f45b50;
+  --color-suggestion: #ff842c;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -311,6 +317,7 @@
   --color-toast-warning-muted: rgb(113, 44, 0);
   --color-toast-warning-icon: #ffffff;
   --color-toast-warning-icon-muted: #ff842c;
+
   --color-toast-success-icon-border: #ff842c;
 
   --color-toast-success: linear-gradient(273deg, rgba(33, 197, 93, 0) 54.63%, rgba(33, 197, 93, 0.06) 77.12%, rgba(33, 197, 93, 0.12) 99.61%), #fff;
@@ -324,7 +331,14 @@
   --color-toast-error-icon: #ffffff;
   --color-toast-error-icon-muted: #f45b50;
   --color-toast-error-icon-border: #f45b50;
+
   --color-indicator: var(--indicator);
+
+  --color-success: #21c55d;
+  --color-info: #6392ff;
+  --color-warning: #ff842c;
+  --color-danger: #f45b50;
+  --color-suggestion: #ff842c;
 }
 
 @theme inline {

@@ -1,17 +1,17 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Info, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Card, CardTitle } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/tasks'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
-import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
+import { Callout } from '@/components/shared/callout/callout'
 
 type BulkCsvCreateTaskDialogProps = {
   trigger?: React.ReactElement<
@@ -79,22 +79,19 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
         <DialogHeader>
           <DialogTitle>Bulk Upload</DialogTitle>
         </DialogHeader>
-        <Card className="mt-6 p-4 flex gap-3">
-          <CardTitle className="py-2 px-2">
-            <Info width={16} height={16} />
-          </CardTitle>
+        <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing tasks. Please refer to our{' '}
-            <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+            <a href={`${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
               documentation
             </a>{' '}
             for column format. We also provide a{' '}
-            <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+            <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
               template csv file
-            </span>{' '}
+            </a>{' '}
             for you to fill out.
           </p>
-        </Card>
+        </Callout>
         <FileUpload
           acceptedFileTypes={['text/csv']}
           acceptedFileTypesShort={['CSV']}
