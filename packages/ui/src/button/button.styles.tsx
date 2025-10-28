@@ -18,6 +18,11 @@ export const buttonStyles = tv({
         hover:bg-btn-primary-hover
         disabled:cursor-not-allowed
         disabled:text-btn-primary-text-disabled
+        focus:shadow-[0_1px_1px_0.5px_rgba(9,21,29,0.32),_0_0_0_4px_rgba(44,203,171,0.25)]
+        focus:bg-btn-primary
+        focus-visible:shadow-[0_1px_1px_0.5px_rgba(9,21,29,0.32),_0_0_0_4px_rgba(44,203,171,0.25)]
+        focus-visible:bg-btn-primary
+        focus-visible:btn-primary-focus
     `,
       secondary: `
       btn-secondary
