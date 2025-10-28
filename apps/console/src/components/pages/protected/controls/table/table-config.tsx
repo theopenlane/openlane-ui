@@ -9,6 +9,8 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
+import OwnerCell from './owner-cell'
+import DelegateCell from './delegate-cell'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -198,12 +200,8 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: ControlOrderField.CONTROL_OWNER_name,
       cell: ({ row }) => {
         const owner = row.original.controlOwner
-        return (
-          <div className="flex items-center gap-2">
-            <Avatar entity={owner as Group} variant="small" />
-            <span>{owner?.displayName ?? '-'}</span>
-          </div>
-        )
+        const controlId = row.original.id
+        return <OwnerCell owner={owner as Group | null} controlId={controlId} />
       },
       size: 120,
     },
@@ -248,14 +246,8 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'delegate',
       cell: ({ row }) => {
         const delegate = row.original.delegate
-        return delegate ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={delegate as Group} />
-            {delegate.displayName || '-'}
-          </div>
-        ) : (
-          <span>-</span>
-        )
+        const controlId = row.original.id
+        return <DelegateCell delegate={delegate as Group | null} controlId={controlId} />
       },
     },
     {

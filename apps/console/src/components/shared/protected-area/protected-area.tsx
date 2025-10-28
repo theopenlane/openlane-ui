@@ -6,7 +6,7 @@ import Cat from '@/assets/Cat'
 import Plot from '@/assets/Plot.tsx'
 import { OrgMembershipRole } from '@repo/codegen/src/schema.ts'
 import { useRouter } from 'next/navigation'
-import { SUPPORT_EMAIL } from '@/constants'
+import { SUPPORT_URL } from '@/constants'
 import Link from 'next/link'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
@@ -36,7 +36,7 @@ const ProtectedArea: React.FC = () => {
             reach out to your org owner
           </Link>{' '}
           or{' '}
-          <a href={SUPPORT_EMAIL} className="underline">
+          <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="underline">
             contact support
           </a>
           .

@@ -1,16 +1,16 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Info, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Card, CardTitle } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
-import { DOCS_URL } from '@/constants'
 import { useCloneBulkCSVControl } from '@/lib/graphql-hooks/controls.ts'
 import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { Callout } from '@/components/shared/callout/callout'
 
 type BulkCsvCreateControlDialogProps = {
   trigger?: React.ReactElement<
@@ -81,20 +81,14 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
         <DialogHeader>
           <DialogTitle>Bulk Upload From Standards</DialogTitle>
         </DialogHeader>
-        <Card className="p-4 flex gap-3">
-          <CardTitle className="py-2 px-2">
-            <Info width={16} height={16} />
-          </CardTitle>
-
-          <p className="text-sm">
-            Upload your existing controls using a CSV file based on one of our supported standards. This allows you to import your controls while ensuring they stay up to date as future changes are
-            published to the upstream standard. Refer to our{' '}
-            <a href={`${DOCS_URL}/docs/platform/compliance-management/controls/onboarding`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-              documentation
-            </a>{' '}
-            for the required column format, where you can also download a CSV template to fill out.
-          </p>
-        </Card>
+        <Callout title="CSV Format">
+          Upload your existing controls using a CSV file based on one of our supported standards. This allows you to import your controls while ensuring they stay up to date as future changes are
+          published to the upstream standard. Refer to our{' '}
+          <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/onboarding/controls`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+            documentation
+          </a>{' '}
+          for the required column format, where you can also download a CSV template to fill out.
+        </Callout>
         <FileUpload
           acceptedFileTypes={['text/csv']}
           acceptedFileTypesShort={['CSV']}
@@ -103,8 +97,11 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
           multipleFiles={false}
           acceptedFilesClass="flex justify-between text-sm"
         />
-        <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
+        <div className="flex justify-end gap-2">
+          <Button variant="back" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>

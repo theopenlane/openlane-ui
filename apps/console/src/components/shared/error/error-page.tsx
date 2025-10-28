@@ -6,7 +6,7 @@ import Path from '@/assets/Path.tsx'
 import MiniCat from '@/assets/MiniCat.tsx'
 import Switch from '@/assets/Switch.tsx'
 import Wire from '@/assets/Wire.tsx'
-import { SUPPORT_EMAIL } from '@/constants'
+import { SUPPORT_URL } from '@/constants'
 
 const ErrorPage = () => {
   const router = useRouter()
@@ -24,7 +24,7 @@ const ErrorPage = () => {
         <p className="text-3xl font-semibold mb-3 leading-9 mt-[45%]">The page could not be found</p>
         <p className="text-sm mb-6">
           If you think this is a mewstake,{' '}
-          <a href={SUPPORT_EMAIL} className="underline">
+          <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="underline">
             contact support
           </a>
           .

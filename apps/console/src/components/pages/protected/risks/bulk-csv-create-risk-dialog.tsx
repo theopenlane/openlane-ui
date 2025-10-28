@@ -1,17 +1,17 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Info, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Card, CardTitle } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
-import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
+import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { useCreateBulkCSVRisk } from '@/lib/graphql-hooks/risks.ts'
 import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Callout } from '@/components/shared/callout/callout'
 
 type BulkCsvCreateRiskDialogProps = {
   trigger?: React.ReactElement<
@@ -79,22 +79,19 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
         <DialogHeader>
           <DialogTitle>Bulk Upload</DialogTitle>
         </DialogHeader>
-        <Card className="mt-6 p-4 flex gap-3">
-          <CardTitle className="py-2 px-2">
-            <Info width={16} height={16} />
-          </CardTitle>
+        <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing risks. Please refer to our{' '}
-            <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#risk`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+            <a href={`${GRAPHQL_OBJECT_DOCS}#risk`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
               documentation
             </a>{' '}
             for column format. We also provide a{' '}
-            <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+            <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
               template csv file
-            </span>{' '}
+            </a>{' '}
             for you to fill out.
           </p>
-        </Card>
+        </Callout>
         <FileUpload
           acceptedFileTypes={['text/csv']}
           acceptedFileTypesShort={['CSV']}
@@ -103,8 +100,11 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
           multipleFiles={false}
           acceptedFilesClass="flex justify-between text-sm"
         />
-        <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+        <div className="flex justify-end gap-2">
+          <Button variant="back" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>
