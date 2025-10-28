@@ -5,7 +5,7 @@ import { CircleArrowRight, CircleCheckBig, CircleX, LoaderCircle, TriangleAlert 
 import { useEffect, useState } from 'react'
 import { verificationStyles } from './page.styles'
 import { Logo } from '@repo/ui/logo'
-import { SUPPORT_EMAIL, OPENLANE_WEBSITE_URL } from '@/constants'
+import { SUPPORT_URL, OPENLANE_WEBSITE_URL } from '@/constants'
 import Link from 'next/link'
 import Linkedin from '@/assets/Linkedin'
 import Discord from '@/assets/Discord'
@@ -183,7 +183,7 @@ export const TokenVerifier = () => {
             <p>If you continue to have issues, please reach out to our support team.</p>
           </div>
         </div>
-        <a href={SUPPORT_EMAIL} className="mt-4 mx-auto mb-5">
+        <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="mt-4 mx-auto mb-5">
           <Button>Contact Support</Button>
         </a>
         <Footer />

@@ -30,6 +30,8 @@ const buttonVariants = cva(
         link: 'text-oxford-blue-900 underline-offset-4 hover:underline dark:text-oxford-blue-50',
         outline: 'border border-border bg-white hover:bg-oxford-blue-100 hover:text-oxford-blue-900 dark:bg-oxford-blue-950 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-50',
         secondary: 'bg-oxford-blue-100 text-oxford-blue-900 hover:bg-oxford-blue-100/80 dark:bg-oxford-blue-800 dark:text-oxford-blue-50 dark:hover:bg-oxford-blue-800/80',
+        // the above are all seemingly wrong so adding a new variant
+        newSecondary: 'bg-[var(--color-btn-primary)]',
       },
     },
   },

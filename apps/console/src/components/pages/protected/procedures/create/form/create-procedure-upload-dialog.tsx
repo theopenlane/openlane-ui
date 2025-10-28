@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, Import, Info, Trash2 } from 'lucide-react'
+import { FileUp, Import, Trash2 } from 'lucide-react'
 import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
@@ -14,7 +14,8 @@ import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-p
 import { CreateProcedureInput } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
-import { Card, CardTitle } from '@repo/ui/cardpanel'
+import { Callout } from '@/components/shared/callout/callout'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -178,16 +179,15 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
         <DialogHeader>
           <DialogTitle>Import Existing Procedure(s)</DialogTitle>
         </DialogHeader>
-        <Card className="mt-6 p-4 flex gap-3">
-          <CardTitle className="py-2 px-2">
-            <Info width={16} height={16} />
-          </CardTitle>
-          <p className="text-sm">
-            You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be imported
-            separately and create its own procedure
-          </p>
-        </Card>
-        <Tabs variant="solid" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
+        <Callout title="File Format">
+          You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be imported
+          separately and create its own procedure. For more details on supported file types and formatting, please refer to our{' '}
+          <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/onboarding/policies`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+            documentation
+          </a>
+          .
+        </Callout>
+        <Tabs variant="underline" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
           <TabsList>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
               Upload
@@ -238,8 +238,11 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteFile(index)} />
           </div>
         ))}
-        <div className="flex">
-          <Button onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
+        <div className="flex justify-end gap-2">
+          <Button variant="back" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button className="btn-secondary" onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
             {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
           </Button>
         </div>

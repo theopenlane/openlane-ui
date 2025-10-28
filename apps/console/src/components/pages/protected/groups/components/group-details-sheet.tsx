@@ -26,13 +26,13 @@ import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { DOCS_URL } from '@/constants'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { PLATFORM_DOCS_URL } from '@/constants/docs'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -256,7 +256,7 @@ const GroupDetailsSheet = () => {
                     <p className="font-semibold">Did you know?</p>
                     <p className="text-sm">
                       Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href={`${DOCS_URL}/docs/platform/basics/groups/permissions`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                      <a href={`${PLATFORM_DOCS_URL}/basics/groups/permissions`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                         documentation
                       </a>
                       .

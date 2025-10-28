@@ -28,7 +28,8 @@
   },
   {
     "route": "/organization-settings/subscribers",
-    "name": "Subscribers"
+    "name": "Subscribers",
+    "hidden": true
   },
   {
     "route": "/organization-settings/general-settings",
@@ -188,10 +189,36 @@
   },
   {
     "route": "/organization-settings/integrations",
-    "name": "Integrations"
+    "name": "Integrations",
+    "hidden": true
   },
   {
     "route": "/trust-center/settings",
-    "name": "Settings"
+    "name": "Settings",
+    "hidden": true
+  },
+  {
+    "route": "/programs/create/generic-program",
+    "name": "Generic Program Setup"
+  },
+  {
+    "route": "/programs/create/advanced-setup",
+    "name": "Advanced Program Setup"
+  },
+  {
+    "route": "/programs/create/risk-assessment",
+    "name": "Create Risk Assessment Program"
+  },
+  {
+    "route": "/programs/create/soc2",
+    "name": "Create SOC2 Program"
+  },
+  {
+    "route": "/programs/create",
+    "name": "Create Program"
+  },
+  {
+    "route": "/programs/create/framework-based",
+    "name": "Create Framework Based Program"
   }
 ]

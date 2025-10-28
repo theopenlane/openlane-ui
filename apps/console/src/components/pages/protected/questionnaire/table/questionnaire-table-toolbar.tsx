@@ -71,10 +71,6 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
           <Menu
             content={
               <>
-                <Button size="sm" variant="transparent" className={`px-1 flex items-center space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </Button>
                 <BulkCSVCreateTemplatelDialog
                   trigger={
                     <Button size="sm" variant="transparent" className="px-1 flex items-center space-x-2">
@@ -83,6 +79,10 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                     </Button>
                   }
                 />
+                <Button size="sm" variant="transparent" className={`px-1 flex items-center space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </Button>
               </>
             }
           />
