@@ -2,7 +2,7 @@
 import React from 'react'
 import { Group } from '@repo/codegen/src/schema'
 import { useUpdateControl } from '@/lib/graphql-hooks/controls'
-import EditableGroupCell from '@/components/shared/groups-editable-cell/groups-editable-cell'
+import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
 import { QueryClient } from '@tanstack/react-query'
 import { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
