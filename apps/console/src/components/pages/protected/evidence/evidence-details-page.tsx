@@ -98,17 +98,16 @@ const EvidenceDetailsPage = () => {
         <>
           <PageHeading
             heading={
-              <div className="flex justify-between items-center">
-                <div className="flex gap-4 items-center">
-                  <h1>Evidence Center</h1>
-                </div>
-                <div className="flex gap-2.5 items-center">
+              <div className="flex w-full items-center justify-between">
+                <h1>Evidence Center</h1>
+                <div className="flex items-center gap-3 flex-shrink-0">
                   <EvidenceSuggestedActions />
+
                   <Select onValueChange={handleSelectChange} value={programId ?? ''}>
-                    <SelectTrigger className="max-w-64 min-w-48 h-[32px] border rounded-md px-3 py-2 flex items-center justify-between">
+                    <SelectTrigger className="h-8 min-w-[10rem] max-w-[16rem] border rounded-md px-3 flex items-center justify-between overflow-visible">
                       <div className="truncate">{selectedProgram || 'All Programs'}</div>
                     </SelectTrigger>
-                    <SelectContent className="border rounded-md shadow-md">
+                    <SelectContent className="border rounded-md shadow-md z-50">
                       <SelectItem value="all">All Programs</SelectItem>
                       {data?.programs?.edges?.map((edge) => {
                         const program = edge?.node
@@ -125,7 +124,7 @@ const EvidenceDetailsPage = () => {
 
                   {createAllowed && (
                     <>
-                      <Button variant="primary" className="h-8 !px-2" onClick={handleCreateEvidence}>
+                      <Button variant="primary" className="h-8 !px-2 whitespace-nowrap" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
                       <EvidenceCreateSheet
@@ -140,6 +139,7 @@ const EvidenceDetailsPage = () => {
               </div>
             }
           />
+
           <EvidenceSummaryCard />
           <EvidenceTable />
           <EvidenceDetailsSheet />
