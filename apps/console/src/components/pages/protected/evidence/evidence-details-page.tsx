@@ -98,42 +98,39 @@ const EvidenceDetailsPage = () => {
         <>
           <PageHeading
             heading={
-              <div className="flex w-full items-center justify-between">
-                <h1>Evidence Center</h1>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <EvidenceSuggestedActions />
-
-                  <Select onValueChange={handleSelectChange} value={programId ?? ''}>
-                    <SelectTrigger className="h-8 min-w-[10rem] max-w-[16rem] border rounded-md px-3 flex items-center justify-between overflow-visible">
-                      <div className="truncate">{selectedProgram || 'All Programs'}</div>
-                    </SelectTrigger>
-                    <SelectContent className="border rounded-md shadow-md z-50">
-                      <SelectItem value="all">All Programs</SelectItem>
-                      {data?.programs?.edges?.map((edge) => {
-                        const program = edge?.node
-                        if (!program) return null
-
-                        return (
-                          <SelectItem key={program.id} value={program.id}>
-                            {program.name}
-                          </SelectItem>
-                        )
-                      })}
-                    </SelectContent>
-                  </Select>
-
+              <div className="flex justify-between items-center">
+                <div className="flex gap-4 items-center">
+                  <h1>Evidence Center</h1>
+                </div>
+                <div className="flex gap-2.5 items-center">
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <EvidenceSuggestedActions />
+                  </div>
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <Select onValueChange={handleSelectChange} value={programId ?? ''}>
+                      <SelectTrigger className="max-w-64 min-w-48 h-[32px] border rounded-md px-3 py-2 flex items-center justify-between">
+                        <div className="truncate">{selectedProgram || 'All Programs'}</div>
+                      </SelectTrigger>
+                      <SelectContent className="border rounded-md shadow-md">
+                        <SelectItem value="all">All Programs</SelectItem>
+                        {data?.programs?.edges?.map((edge) => {
+                          const program = edge?.node
+                          if (!program) return null
+                          return (
+                            <SelectItem key={program.id} value={program.id}>
+                              {program.name}
+                            </SelectItem>
+                          )
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   {createAllowed && (
-                    <>
-                      <Button variant="primary" className="h-8 !px-2 whitespace-nowrap" onClick={handleCreateEvidence}>
+                    <div className="flex-shrink-0 h-8 flex items-center">
+                      <Button variant="primary" className="h-8 !px-2" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
-                      <EvidenceCreateSheet
-                        onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
-                        open={isSheetOpen}
-                        onOpenChange={setIsSheetOpen}
-                        excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}
-                      />
-                    </>
+                    </div>
                   )}
                 </div>
               </div>

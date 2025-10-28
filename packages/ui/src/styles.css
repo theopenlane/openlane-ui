@@ -61,6 +61,61 @@
   .focus-visible\:btn-primary-focus:focus-visible {
     outline: none;
   }
+  .btn-primary {
+    position: relative;
+    z-index: 0;
+    color: var(--color-btn-primary-text);
+    background-color: var(--color-btn-primary);
+    overflow: hidden;
+  }
+  .btn-primary::before,
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    mask-image:
+      linear-gradient(#fff, #fff),
+      linear-gradient(#fff, #fff);
+    mask-origin: content-box, border-box;
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.5s ease;
+  }
+  .btn-primary::before {
+    background: linear-gradient(
+      to bottom,
+      var(--color-gradient-border-primary-from),
+      var(--color-gradient-border-primary-to)
+    );
+    opacity: 1;
+  }
+  .btn-primary::after {
+    background: linear-gradient(
+      to bottom,
+      var(--color-gradient-border-primary-from),
+      var(--color-gradient-border-primary-to)
+    );
+    opacity: 0;
+  }
+  .btn-primary:hover::before {
+    opacity: 0;
+  }
+  .btn-primary:hover::after {
+    opacity: 1;
+  }
+  .btn-primary:hover {
+    background: var(--color-btn-primary-hover);
+  }
+  .btn-primary > * {
+    position: relative;
+    z-index: 2;
+  }
+
   .btn-secondary {
     position: relative;
     z-index: 0;
@@ -145,9 +200,11 @@
   --color-unset: transparent;
   --color-table-secondary: #eff4f552;
   --color-nav: #ffffff;
-  --color-gradient-border-from: #09151d1f;
+  --color-gradient-border-from: rgba(32, 10, 10, 0.12);
   --color-gradient-border-to: #09151D3D;
   --color-gradient-border-top: #09151D3D;
+  --color-gradient-border-primary-from: rgba(255, 255, 255, 0.36);
+  --color-gradient-border-primary-to: #FFFFFF00;
 
   --color-btn-primary: #9af5dc;
   --color-btn-primary-text: #052e2a;

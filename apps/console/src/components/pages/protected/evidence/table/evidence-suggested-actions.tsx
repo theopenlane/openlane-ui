@@ -27,7 +27,7 @@ export default function EvidenceSuggestedActions() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="secondary" aria-label="Suggested actions" className="relative h-8 p-2 w-full">
+        <Button variant="secondary" aria-label="Suggested actions" className="relative h-8 p-2 ">
           <div className="flex gap-1 items-center">
             <Inbox size={18} />
             <span className="text-xs relative -left-1 -top-1 inline-flex w-[15px] h-[15px] items-center justify-center rounded-full bg-red-500 font-normal text-white shadow" aria-live="polite">
