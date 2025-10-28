@@ -66,7 +66,7 @@ export default function ProgramsCreate({ disableHeader = false, noPrograms = fal
     ])
   }, [setCrumbs])
   return (
-    <div className="max-w-6xl mx-auto px-6 py-2">
+    <div className="w-full">
       {!disableHeader && (
         <>
           <h1 className="text-2xl font-medium tracking-tight mb-6">Create New Program</h1>

@@ -99,21 +99,23 @@ const ProgramsPage: React.FC = () => {
       <>
         <PageHeading heading="Programs" />
 
-        <Callout variant="info" title="What is a Program?" className="max-w-6xl mx-auto">
-          Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a significant body
-          of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can encompass work across
-          different teams.
-          <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/programs/overview`} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
-            See docs to learn more.
-          </a>
-        </Callout>
-        {canCreate(permission?.roles, AccessEnum.CanCreateProgram) ? (
-          <ProgramsCreate disableHeader={true} noPrograms={true} />
-        ) : (
-          <Callout variant="warning" className="max-w-6xl mx-33 mt-10" title="You do not have permission to create a program">
-            Reach out to an organization admin to create a program on your behalf or request access for program creation
+        <div className="max-w-5xl mx-auto">
+          <Callout variant="info" title="What is a Program?">
+            Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a significant
+            body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can encompass work across
+            different teams.
+            <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/programs/overview`} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
+              See docs to learn more.
+            </a>
           </Callout>
-        )}
+          {canCreate(permission?.roles, AccessEnum.CanCreateProgram) ? (
+            <ProgramsCreate disableHeader={true} noPrograms={true} />
+          ) : (
+            <Callout variant="warning" className="max-w-6xl mx-33 mt-10" title="You do not have permission to create a program">
+              Reach out to an organization admin to create a program on your behalf or request access for program creation
+            </Callout>
+          )}
+        </div>
       </>
     )
   }
