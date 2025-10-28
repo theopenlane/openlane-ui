@@ -73,13 +73,13 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
               <>
                 <BulkCSVCreateTemplatelDialog
                   trigger={
-                    <Button size="sm" variant="transparent" className="px-1 flex items-center space-x-2">
+                    <Button size="sm" variant="transparent" className="px-1 flex items-center justify-start space-x-2">
                       <Upload size={16} strokeWidth={2} />
                       <span>Bulk Upload</span>
                     </Button>
                   }
                 />
-                <Button size="sm" variant="transparent" className={`px-1 flex items-center space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
+                <Button size="sm" variant="transparent" className={`px-1 flex items-center justify-start space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
                 </Button>
