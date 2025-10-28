@@ -165,26 +165,26 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
               <>
                 <BulkCSVCloneControlDialog
                   trigger={
-                    <div className="flex items-center space-x-2 px-1">
+                    <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                       <Upload size={16} strokeWidth={2} />
                       <span>Upload From Standard</span>
-                    </div>
+                    </Button>
                   }
                 />
                 <BulkCSVCreateControlDialog
                   trigger={
-                    <div className="flex items-center space-x-2 px-1">
+                    <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                       <Upload size={16} strokeWidth={2} />
                       <span>Upload Custom Controls</span>
-                    </div>
+                    </Button>
                   }
                 />
                 <BulkCSVCreateMappedControlDialog
                   trigger={
-                    <div className="flex items-center space-x-2 px-1">
+                    <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                       <Upload size={16} strokeWidth={2} />
                       <span>Upload Control Mappings</span>
-                    </div>
+                    </Button>
                   }
                 />
               </>

@@ -2,6 +2,7 @@ import { CirclePlus, Cog, FilePlus, Folder, FolderCheck, FolderClock, FolderInpu
 import { ProgramProgramStatus, ProgramProgramType } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import Link from 'next/link'
+import { Button } from '@repo/ui/button'
 
 export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = {
   [ProgramProgramStatus.ACTION_REQUIRED]: <FolderInput height={16} width={16} className="text-action-required" />,
@@ -56,10 +57,10 @@ export const ProgramCreateIconBtn = (
 )
 
 export const ProgramCreatePrefixIconBtn = (
-  <div className="flex items-center space-x-2">
+  <Button size="sm" variant="transparent" className="flex items-center space-x-2">
     <FilePlus size={16} strokeWidth={2} />
     <span>Create Program</span>
-  </div>
+  </Button>
 )
 
 export const ProgramSettingsIconBtn = ({ programId }: { programId: string }) => (

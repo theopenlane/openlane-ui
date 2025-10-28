@@ -279,10 +279,8 @@ export default function SideNav({
                   align="start"
                   content={
                     <>
-                      <Link href="/programs/create/" className="px-1">
-                        {ProgramCreatePrefixIconBtn}
-                      </Link>
-                      <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
+                      <Link href="/programs/create/">{ProgramCreatePrefixIconBtn}</Link>
+                      <CreateTaskDialog trigger={TaskIconPrefixBtn} />
                     </>
                   }
                 />
