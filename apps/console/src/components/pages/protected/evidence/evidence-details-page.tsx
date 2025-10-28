@@ -130,6 +130,12 @@ const EvidenceDetailsPage = () => {
                       <Button variant="primary" className="h-8 !px-2" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
+                      <EvidenceCreateSheet
+                        onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
+                        open={isSheetOpen}
+                        onOpenChange={setIsSheetOpen}
+                        excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}
+                      />
                     </div>
                   )}
                 </div>
