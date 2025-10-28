@@ -363,7 +363,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           <Button onClick={resetFilters} variant="secondary">
             Reset filters
           </Button>
-          <Button variant="secondary" onClick={applyFilters}>
+          <Button variant="primary" onClick={applyFilters}>
             View Results
           </Button>
         </div>

@@ -97,14 +97,14 @@ const StandardsPage = () => {
             </div>
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
               {standard?.node?.tags?.map((tag, index) => (
-                <Badge key={index} variant="secondary" className="rounded-full">
+                <Badge key={index} variant="outline" className="rounded-full">
                   {tag}
                 </Badge>
               ))}
             </div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
-              <Button variant="secondary" className="py-2 px-4">
+              <Button variant="primary" className="py-2 px-4">
                 Details
               </Button>
             </Link>

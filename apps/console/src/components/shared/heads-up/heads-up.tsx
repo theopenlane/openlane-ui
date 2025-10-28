@@ -29,7 +29,7 @@ const HeadsUpDisplay = ({ displayIDs, descriptionText, accordionLabel, title = '
                   displayIDs.map((item, index) => (
                     <Fragment key={index}>
                       {item && (
-                        <Badge className="bg-background-secondary mr-1" variant="secondary">
+                        <Badge className="bg-background-secondary mr-1" variant="outline">
                           {item}
                         </Badge>
                       )}

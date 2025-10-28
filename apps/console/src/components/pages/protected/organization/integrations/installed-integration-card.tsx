@@ -42,11 +42,11 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
                   {integration.tags?.length ? (
                     <>
                       {integration.tags.slice(0, 6).map((t, i) => (
-                        <Badge key={i} variant="outline" className="font-normal">
+                        <Badge key={i} variant="secondary" className="font-normal">
                           {t}
                         </Badge>
                       ))}
-                      {integration.tags.length > 6 && <Badge variant="secondary">+{integration.tags.length - 6}</Badge>}
+                      {integration.tags.length > 6 && <Badge variant="outline">+{integration.tags.length - 6}</Badge>}
                     </>
                   ) : null}
                 </div>

@@ -127,7 +127,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
                 </div>
                 <div className="flex items-center justify-between">
                   <span>{passKeyConfig?.text}</span>
-                  <Button variant="secondary" onClick={handleConfigure} loading={loading} disabled={loading}>
+                  <Button variant="primary" onClick={handleConfigure} loading={loading} disabled={loading}>
                     {passkeys?.webauthns?.edges?.length ? 'Add another Passkey' : 'Add passkey'}
                   </Button>
                 </div>

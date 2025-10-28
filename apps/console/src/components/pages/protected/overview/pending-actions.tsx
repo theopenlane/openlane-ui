@@ -67,7 +67,7 @@ const PendingActions = () => {
       accessorKey: 'name',
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <Badge variant="secondary" className="size-fit">
+          <Badge variant="outline" className="size-fit">
             {row.original.type}
           </Badge>
           <a href="#" className="text-blue-600 hover:underline">
