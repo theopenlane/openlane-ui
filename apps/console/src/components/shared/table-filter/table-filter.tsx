@@ -16,6 +16,7 @@ import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
 import type { DateRange } from 'react-day-picker'
 import Slider from '../slider/slider'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -88,14 +89,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 return `${field.key}ContainsFold`
               case 'select':
                 return `${field.key}In`
-              case 'boolean':
-                return field.key
-              case 'date':
-                return field.key
-              case 'dateRange':
-                return field.key
-              case 'sliderNumber':
-                return field.key
               default:
                 return field.key
             }
@@ -109,7 +102,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             andConditions.push({ [key]: val as string })
           }
           break
-
+        case 'multiselect':
         case 'select': {
           const valuesArray = Array.isArray(val) ? val : [val]
           if (valuesArray.length === 0) break
@@ -150,17 +143,26 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
 
   useEffect(() => {
     const saved = loadFilters(pageKey)
+
     if (saved) {
-      setValues(saved)
-      onFilterChange?.(buildWhereCondition(saved, filterFields))
+      // filter out any saved keys that are no longer valid. this can happen if filter fields change over time but user has old saved filters on production
+      const validKeys = filterFields.map((f) => f.key)
+      const filtered: TFilterState = Object.fromEntries(Object.entries(saved).filter(([key]) => validKeys.includes(key)))
+
+      setValues(filtered)
+      onFilterChange?.(buildWhereCondition(filtered, filterFields))
     } else {
       onFilterChange?.({})
     }
 
     const listener = (e: CustomEvent) => {
-      const updatedFilters = e.detail as TFilterState
-      setValues(updatedFilters)
-      onFilterChange?.(buildWhereCondition(updatedFilters, filterFields))
+      const updated = e.detail as TFilterState
+
+      const validKeys = filterFields.map((f) => f.key)
+      const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => validKeys.includes(key)))
+
+      setValues(cleaned)
+      onFilterChange?.(buildWhereCondition(cleaned, filterFields))
     }
 
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
@@ -303,6 +305,34 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
               </div>
               <Slider value={currentValue} onChange={(val: number) => handleChange(field.key, val)} />
             </div>
+          )
+        }
+
+        case 'multiselect': {
+          const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
+          const handleToggle = (value: string) => {
+            const next = selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value]
+            handleChange(field.key, next)
+          }
+
+          return (
+            <ul className="max-h-40 overflow-y-auto border rounded-lg">
+              {field?.options?.length ? (
+                field.options.map((opt) => (
+                  <li
+                    key={opt.value}
+                    onChange={() => handleToggle(opt.value)}
+                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
+                    onClick={() => handleToggle(opt.value)}
+                  >
+                    <Checkbox checked={selected.includes(opt.value)} className="accent-primary" />
+                    <span>{opt.label}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="px-3 py-2 text-sm text-muted-foreground">No options available</li>
+              )}
+            </ul>
           )
         }
 
