@@ -16,7 +16,7 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum'
 import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum'
-import { CONTRIBUTE_URL, SUPPORT_EMAIL } from '@/constants'
+import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
 import { featureUtil } from '@/lib/subscription-plan/plans'
 import { NavHeading, NavItem, Separator } from '@/types'
 import { Button } from '@repo/ui/button'
@@ -179,7 +179,7 @@ export default function SideNav({
         external: true,
       },
       {
-        href: SUPPORT_EMAIL,
+        href: SUPPORT_URL,
         label: 'Feedback',
         icon: MessageSquareText,
         external: false,

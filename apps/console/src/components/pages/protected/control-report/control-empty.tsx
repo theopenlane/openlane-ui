@@ -12,7 +12,7 @@ export function ControlsEmptyActions() {
     {
       id: 'import-standards',
       title: 'Import from Standards Catalog',
-      desc: 'Quickly populate your library with vetted controls from SOC 2, ISO 27001, NIST 800-53, and more—no manual entry required.',
+      desc: 'Quickly populate your library with vetted controls from SOC 2, ISO 27001, NIST 800-53, and more from our standards catalog',
       Icon: LibraryIcon,
       action: {
         label: 'Browse Catalog',
@@ -23,7 +23,7 @@ export function ControlsEmptyActions() {
     {
       id: 'create-manual',
       title: 'Create Custom Controls',
-      desc: 'Begin with an empty control and customize everything — from the control’s purpose and description to how it connects with your compliance frameworks.',
+      desc: 'Begin with an empty control and customize everything — from the control’s description to how it connects with your compliance program and other controls',
       Icon: SquarePenIcon,
       action: {
         label: 'Create',
@@ -33,14 +33,14 @@ export function ControlsEmptyActions() {
     {
       id: 'import-custom',
       title: 'Import Custom Controls',
-      desc: 'Upload a CSV with your control names, descriptions, frameworks, and mappings to bulk-create controls automatically.',
+      desc: 'Upload a CSV with your control ref codes, descriptions, status and more to bulk-create controls',
       Icon: UploadIcon,
       dialog: <BulkCSVCreateControlDialog trigger={<div className={cn(buttonVariants({ variant: 'newSecondary' }))}>Upload</div>} />,
     },
     {
       id: 'import-specific',
       title: 'Import Standard Controls',
-      desc: 'Import existing controls based on a specific compliance standard to ensure you stay up to date with any changes.',
+      desc: 'Import existing controls based on a specific compliance standard to ensure you stay up to date with any changes made to that standard over time',
       Icon: LayersIcon,
       dialog: <BulkCSVCloneControlDialog trigger={<div className={cn(buttonVariants({ variant: 'newSecondary' }))}>Upload</div>} />,
     },

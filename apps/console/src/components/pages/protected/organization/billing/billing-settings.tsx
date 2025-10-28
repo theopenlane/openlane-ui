@@ -10,7 +10,7 @@ import { useCancelSubscriptionMutation, usePaymentMethodsQuery, useRenewSubscrip
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
-import { SUPPORT_EMAIL } from '@/constants'
+import { SUPPORT_URL } from '@/constants'
 import Invoices from './invoices'
 import { Card } from '@repo/ui/cardpanel'
 import { CreditCard, ExternalLink } from 'lucide-react'
@@ -155,7 +155,7 @@ const BillingSettings: React.FC = () => {
               {canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
             </Button>
           ) : (
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm text-blue-500">
+            <a href={`${SUPPORT_URL}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
               Reach out to support
             </a>
           )}
