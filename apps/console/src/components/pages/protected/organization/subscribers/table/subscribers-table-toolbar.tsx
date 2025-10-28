@@ -33,13 +33,13 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
         <Menu
           content={
             <>
-              <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1" onClick={handleExport}>
+              <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1 justify-start" onClick={handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </Button>
               <BulkCSVCreateSubscriberDialog
                 trigger={
-                  <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                  <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1 justify-start">
                     <Upload size={16} strokeWidth={2} />
                     <span>Bulk Upload</span>
                   </Button>
