@@ -97,21 +97,23 @@ const StandardsPage = () => {
             </div>
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
               {standard?.node?.tags?.map((tag, index) => (
-                <Badge key={index} variant="outline" className="rounded-full">
+                <Badge key={index} variant="secondary" className="rounded-full">
                   {tag}
                 </Badge>
               ))}
             </div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
-              <Button className="py-2 px-4 btn-secondary">Details</Button>
+              <Button variant="secondary" className="py-2 px-4">
+                Details
+              </Button>
             </Link>
           </Card>
         ))}
         <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href={INFO_EMAIL}>
-            <Button variant="outline" className="!text-brand">
+            <Button variant="secondary" className="!text-brand">
               info@theopenlane.io
             </Button>
           </a>

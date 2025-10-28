@@ -44,7 +44,7 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
           {!!row.original?.tags?.length && (
             <div className="mt-2 border-t border-dashed pt-2 flex flex-wrap gap-2">
               {row.original.tags.map((tag: string, index: number) => (
-                <Badge key={index} variant="outline">
+                <Badge key={index} variant="secondary">
                   {tag}
                 </Badge>
               ))}

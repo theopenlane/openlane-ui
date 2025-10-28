@@ -28,7 +28,7 @@ const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | Procedure
 
 export function DocumentStatusBadge({ status }: { status: InternalPolicyDocumentStatus | ProcedureDocumentStatus }) {
   return (
-    <Badge variant="outline" className={`flex items-center text-center gap-2 ${DocumentStatusColorMapper[status]}`}>
+    <Badge variant="secondary" className={`flex items-center text-center gap-2 ${DocumentStatusColorMapper[status]}`}>
       {DocumentStatusMapper[status]}
     </Badge>
   )

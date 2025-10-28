@@ -82,7 +82,7 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
 
   return (
     <>
-      <Button onClick={handleCheckboxShowToggle} variant="outline" className="w-[200px] min-w-16 h-8 pt-[6px] pr-2 pb-[6px] pl-2">
+      <Button onClick={handleCheckboxShowToggle} variant="secondary" className="w-[200px] min-w-16 h-8 pt-[6px] pr-2 pb-[6px] pl-2">
         {selectedProgramIds.length ? `${selectedProgramIds.length} programs selected` : 'Select program'}
       </Button>
       {showCheckboxes && (

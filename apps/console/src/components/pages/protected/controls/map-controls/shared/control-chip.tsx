@@ -61,7 +61,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   const renderedBadge = () => (
     <Badge
       onClick={onClick}
-      variant="outline"
+      variant="secondary"
       className={`${baseClasses} ${dragClass} ${borderClass} ${className}`}
       draggable={draggable}
       onDragStart={draggable ? onDragStart : undefined}

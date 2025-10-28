@@ -40,7 +40,7 @@ export default function SelectCategoryStep() {
             <Button
               key={item}
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => toggleCategory(item)}
               className={`text-left h-11 transition-all ${isSelected ? 'shadow-primary24 border border-primary bg-primary/10' : ''} ${isLastOdd ? 'col-span-2 justify-self-center w-1/2' : ''}`}
             >

@@ -153,7 +153,7 @@ const ProfilePage = () => {
         badge: <Badge variant="secondary">Recommended</Badge>,
         text: <p className="text-sm">A TOTP method has not been setup for your account.</p>,
         buttons: [
-          <Button key={0} className="mx-10 w-24 btn-secondary" onClick={handleConfigure}>
+          <Button variant="secondary" key={0} className="mx-10 w-24" onClick={handleConfigure}>
             Configure
           </Button>,
         ],
@@ -195,7 +195,7 @@ const ProfilePage = () => {
         </p>
       ),
       buttons: [
-        <Button variant="outline" key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
+        <Button variant="secondary" key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
           Enable
         </Button>,
         <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>

@@ -38,7 +38,7 @@ const ControlImplementationsSection = ({ controlImplementations }: Props) => {
         <Label className="font-semibold text-lg">{edges.length === 1 ? 'Control Implementation' : 'Control Implementations'}</Label>
         {createAllowed && <CreateButton type="control-implementation" href={createHref} ariaLabel="Create control implementation" />}
         <Link href={controlImplementationPath}>
-          <Button type="button" className="!h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
+          <Button type="button" className="!h-8 !p-2 size-fit" variant="secondary" icon={<ChevronRight size={16} />}>
             View
           </Button>
         </Link>

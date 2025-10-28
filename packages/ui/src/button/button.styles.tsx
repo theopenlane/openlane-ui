@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const buttonStyles = tv({
   slots: {
-    base: `flex h-10 py-[6px] px-[14px] items-center gap-2 transition-color duration-500 rounded-md inline-flex `,
+    base: `flex h-9 py-[6px] px-[14px] items-center gap-2 transition-color duration-500 rounded-md inline-flex `,
     iconOuter: 'relative h-4 w-4 overflow-hidden',
     iconInner: 'absolute transition-all duration-500',
     loadingWrapper: 'absolute top-1/2 left-1/2  transform -translate-x-1/2 -translate-y-1/2',
@@ -22,17 +22,23 @@ export const buttonStyles = tv({
       primary: `
         bg-btn-primary
         text-btn-primary-text
-        ease-in-out
         hover:bg-btn-primary-hover
-        hover:rounded-md
         disabled:cursor-not-allowed
         disabled:text-btn-primary-text-disabled
     `,
       secondary: `
-      bg-btn-secondary
-      text-btn-secondary-text
       btn-secondary
     `,
+      /*secondary: `
+      bg-btn-secondary
+      text-btn-secondary-text
+      shadow-secondary-btn
+      border border-btn-secondary-border
+      hover:bg-btn-secondary-hover
+      hover:border-btn-secondary-border-hover
+      disabled:cursor-not-allowed
+      disabled:text-btn-secondary-text-disabled
+    `,*/
       secondaryOutline: `
       border-border text-text-paragraph border hover:bg-btn-secondary-hover
     `,
@@ -59,6 +65,7 @@ export const buttonStyles = tv({
         [&.is-active]:bg-nav
         [&.is-active]:border-border
         [&.is-active]:text-text-paragraph`,
+      transparent: `bg-transparent border border-transparent hover:bg-btn-secondary hover:border-border`,
       filled: 'bg-button text-button-text ',
       light: 'bg-button-light text-text-dark ',
       outline: 'border-border text-text-paragraph border',

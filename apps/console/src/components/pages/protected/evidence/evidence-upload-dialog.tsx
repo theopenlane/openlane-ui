@@ -88,7 +88,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
           <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || evidenceFiles?.length === 0}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="outline" disabled={isSubmitting}>
+          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </div>

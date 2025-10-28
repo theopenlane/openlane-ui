@@ -35,7 +35,7 @@ export default function StartTypeStep() {
                 <div className="flex flex-col">
                   <div className="flex gap-2 items-center">
                     <span className="font-medium">Ready to Start</span>
-                    <Badge variant="outline" className="font-normal">
+                    <Badge variant="secondary" className="font-normal">
                       Ideal for teams that are audit-ready
                     </Badge>
                   </div>
@@ -59,7 +59,7 @@ export default function StartTypeStep() {
                 <div className="flex flex-col">
                   <div className="flex gap-2 items-center">
                     <span className="font-medium">Gap Analysis First</span>
-                    <Badge variant="outline" className="font-normal">
+                    <Badge variant="secondary" className="font-normal">
                       Great for teams new to compliance
                     </Badge>
                   </div>

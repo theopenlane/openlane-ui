@@ -147,10 +147,10 @@ export default function FrameworkBasedWizard() {
                 3: () => <StartTypeStep />,
               })}
               <div className="flex justify-between mt-8">
-                <Button type="button" variant="outline" onClick={handleBack} iconPosition="left">
+                <Button type="button" variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button type="button" className="btn-secondary" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+                <Button variant="secondary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

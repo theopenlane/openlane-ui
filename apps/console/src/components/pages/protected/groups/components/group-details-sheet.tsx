@@ -164,12 +164,12 @@ const GroupDetailsSheet = () => {
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
 
               <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                <Button icon={<Link />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
                   Copy link
                 </Button>
                 {isEditing ? (
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                    <Button type="button" variant="secondary" onClick={() => setIsEditing(false)}>
                       Cancel
                     </Button>
                     <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
@@ -177,7 +177,7 @@ const GroupDetailsSheet = () => {
                     </Button>
                   </div>
                 ) : (
-                  <Button disabled={!!isManaged || !canEdit(permission?.roles)} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                  <Button disabled={!!isManaged || !canEdit(permission?.roles)} icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
                     Edit Group
                   </Button>
                 )}
@@ -235,7 +235,7 @@ const GroupDetailsSheet = () => {
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {tags?.map((tag: string, index: number) => (
-                          <Badge key={index} variant="outline">
+                          <Badge key={index} variant="secondary">
                             {tag}
                           </Badge>
                         ))}

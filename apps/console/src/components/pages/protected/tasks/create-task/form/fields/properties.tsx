@@ -56,7 +56,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
           taskData?.tags?.map(
             (item, index) =>
               item && (
-                <Badge key={index} variant="outline">
+                <Badge key={index} variant="secondary">
                   {item}
                 </Badge>
               ),

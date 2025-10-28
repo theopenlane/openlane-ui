@@ -101,7 +101,7 @@ export const ProgramsPageSkeleton = () => (
             <h2 className="text-lg font-semibold mt-5">
               <Skeleton width={140} height={10} />
             </h2>
-            <Button variant="outline" className="mt-2">
+            <Button variant="secondary" className="mt-2">
               <Skeleton width={100} height={10} />
             </Button>
           </div>

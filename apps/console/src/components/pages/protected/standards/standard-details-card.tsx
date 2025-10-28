@@ -71,7 +71,7 @@ const StandardDetailsCard = () => {
                 <TableCell className={valueCell()}>
                   <div className={tagsWrapper()}>
                     {standard.tags?.map((tag: string) => (
-                      <Badge key={tag} variant="outline" className="whitespace-nowrap">
+                      <Badge key={tag} variant="secondary" className="whitespace-nowrap">
                         {tag}
                       </Badge>
                     ))}

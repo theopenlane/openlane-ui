@@ -151,7 +151,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
               <SelectItem value="Custom">Custom</SelectItem>
             </SelectContent>
           </Select>
-          <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
+          <Button type="button" className="h-7.5 !px-2" variant="secondary" onClick={toggleAll}>
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
@@ -192,7 +192,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           />
           {createAllowed && (
             <Link href="/controls/create-control" aria-label="Create Control">
-              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="secondary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             </Link>
@@ -232,7 +232,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                 <p className="text-sm text-muted-foreground">Ready to get started?</p>
                 <div className="flex gap-4 pt-2">
                   <Link href="/standards" passHref>
-                    <Button variant="outline" className="h-8">
+                    <Button variant="secondary" className="h-8">
                       Import from Standards Catalog
                     </Button>
                   </Link>

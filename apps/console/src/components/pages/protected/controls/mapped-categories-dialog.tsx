@@ -101,7 +101,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
           <div className="text-sm">Mapped categories</div>
         </div>
         <div className="text-sm">
-          <Button className="h-8 !px-2 btn-secondary" onClick={handleOpen} type="button">
+          <Button variant="secondary" className="h-8 !px-2" onClick={handleOpen} type="button">
             Set mappings
           </Button>
         </div>

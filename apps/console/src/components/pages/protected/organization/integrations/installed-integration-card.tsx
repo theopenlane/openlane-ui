@@ -46,7 +46,7 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
                           {t}
                         </Badge>
                       ))}
-                      {integration.tags.length > 6 && <Badge variant="outline">+{integration.tags.length - 6}</Badge>}
+                      {integration.tags.length > 6 && <Badge variant="secondary">+{integration.tags.length - 6}</Badge>}
                     </>
                   ) : null}
                 </div>
@@ -65,7 +65,7 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="-mr-2" variant="outline">
+              <Button className="-mr-2" variant="secondary">
                 <MoreHorizontal className="h-4 w-4 text-brand" />
               </Button>
             </DropdownMenuTrigger>

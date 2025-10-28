@@ -177,7 +177,7 @@ export default function MultiStepForm() {
                 })}
                 <div className="flex justify-between mt-6">
                   {!isFirstStep ? (
-                    <Button type="button" onClick={handleBack} variant="outline" icon={<ArrowLeft />} iconPosition="left">
+                    <Button type="button" onClick={handleBack} variant="secondary" icon={<ArrowLeft />} iconPosition="left">
                       {steps[currentIndex - 1]?.label}
                     </Button>
                   ) : (

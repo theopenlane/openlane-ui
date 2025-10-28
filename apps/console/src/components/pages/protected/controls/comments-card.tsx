@@ -85,7 +85,7 @@ const ControlCommentsCard = () => {
     <Card className="p-4">
       <div className="flex justify-between items-center mb-5">
         <p className="text-lg font-semibold">Comments</p>
-        <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
+        <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
           Open
         </Button>
       </div>
@@ -118,7 +118,7 @@ const ControlCommentsCard = () => {
                 <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
 
                 <div className="flex justify-end gap-2">
-                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  <Button icon={<Link />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
                     Copy link
                   </Button>
                 </div>

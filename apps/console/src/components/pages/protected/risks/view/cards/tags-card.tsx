@@ -112,7 +112,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                   {risk.tags?.length ? (
                     risk.tags.map((item, index) => (
                       <Fragment key={index}>
-                        <Badge className="bg-background-secondary mr-1" variant="outline">
+                        <Badge className="bg-background-secondary mr-1" variant="secondary">
                           {item}
                         </Badge>
                       </Fragment>

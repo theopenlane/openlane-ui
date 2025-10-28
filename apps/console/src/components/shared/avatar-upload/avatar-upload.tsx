@@ -117,11 +117,11 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
             <DialogDescription>Please crop, resize and click &apos;Save avatar&apos;</DialogDescription>
           </DialogHeader>
           <div className="flex items-center space-x-4 justify-center">
-            <Button onClick={handleZoomOut} className="btn-secondary w-8 h-8">
+            <Button variant="secondary" onClick={handleZoomOut} className="w-8 h-8">
               −
             </Button>
             <span className="text-sm">Zoom: {zoom.toFixed(1)}×</span>
-            <Button onClick={handleZoomIn} className="btn-secondary w-8 h-8">
+            <Button variant="secondary" onClick={handleZoomIn} className="w-8 h-8">
               +
             </Button>
           </div>
@@ -145,7 +145,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeModal}>
+            <Button variant="secondary" onClick={closeModal}>
               Cancel
             </Button>
             <Button onClick={saveCroppedImage}>Save avatar</Button>

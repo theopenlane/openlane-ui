@@ -179,7 +179,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
         return (
           <div className="flex flex-wrap gap-2">
             {tags.map((tag, i) => (
-              <Badge key={i} variant="outline">
+              <Badge key={i} variant="secondary">
                 {tag}
               </Badge>
             ))}

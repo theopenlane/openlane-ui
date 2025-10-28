@@ -307,7 +307,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
         </FormProvider>
         <DialogFooter>
           {!isOrg && currentSetting?.identityProviderLoginEnforced && (
-            <Button disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize}>
+            <Button disabled={isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize}>
               {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
             </Button>
           )}

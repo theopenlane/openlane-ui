@@ -104,7 +104,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setIsBulkEditing(false)
                       handleBulkEdit()

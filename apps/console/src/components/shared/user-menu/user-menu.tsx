@@ -72,7 +72,7 @@ export const UserMenu = () => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
-        <Button size="md" variant="outline" full className="bg-transparent border-transparent justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
+        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
           <UserCog size={16} className="text-muted-foreground" />
           <span>User Settings</span>
         </Button>
@@ -105,7 +105,7 @@ export const UserMenu = () => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1 mt-3" />
 
-        <Button size="md" variant="outline" full className="bg-transparent border-transparent justify-start gap-1 pl-2" onClick={() => signOut()}>
+        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => signOut()}>
           <LogOut size={16} className="text-muted-foreground" />
           <span>Log out</span>
         </Button>
