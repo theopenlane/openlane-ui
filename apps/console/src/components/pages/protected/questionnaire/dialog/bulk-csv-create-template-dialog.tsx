@@ -84,7 +84,7 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
             You can upload a csv containing templates. Please refer to our{' '}
             <a href={`${GRAPHQL_OBJECT_DOCS}#template`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
               documentation
-            </a>
+            </a>{' '}
             for column format. We also provide a{' '}
             <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
               template csv file
@@ -100,8 +100,11 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
           multipleFiles={false}
           acceptedFilesClass="flex justify-between text-sm"
         />
-        <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+        <div className="flex justify-end gap-2">
+          <Button variant="back" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>
