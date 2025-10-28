@@ -76,8 +76,12 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     const conditions: ControlWhereInput = {}
 
     const mapCustomKey = (key: string, value: string | string[]): Partial<ControlWhereInput> => {
-      if (key === 'standardIDIn' && value.includes('CUSTOM')) {
-        return { or: [{ standardIDIn: value as string[] }, { referenceFrameworkIsNil: true }] }
+      if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
+        const normalStandards = value.filter((id) => id !== 'CUSTOM')
+
+        return {
+          or: [...(normalStandards.length > 0 ? [{ standardIDIn: normalStandards }] : []), { referenceFrameworkIsNil: true }],
+        }
       }
 
       return { [key]: value } as Partial<ControlWhereInput>
