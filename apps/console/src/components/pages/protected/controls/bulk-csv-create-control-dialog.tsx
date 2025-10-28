@@ -102,7 +102,7 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
           <Button variant="back" onClick={() => setIsOpen(false)}>
             Cancel
           </Button>
-          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+          <Button variant="secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>

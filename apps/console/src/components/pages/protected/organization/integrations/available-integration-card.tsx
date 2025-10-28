@@ -60,7 +60,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
                         {t}
                       </Badge>
                     ))}
-                    {integration.tags.length > 6 && <Badge variant="outline">+{integration.tags.length - 6}</Badge>}
+                    {integration.tags.length > 6 && <Badge variant="secondary">+{integration.tags.length - 6}</Badge>}
                   </>
                 ) : null}
               </div>
@@ -74,12 +74,12 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
       </div>
 
       <CardFooter className="justify-between gap-2.5 flex-1 items-end">
-        <Button className="w-full text-brand" variant="outline" onClick={() => handleConnect(integration)}>
+        <Button className="w-full text-brand" variant="secondary" onClick={() => handleConnect(integration)}>
           Connect
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="-mr-2" variant="outline">
+            <Button className="-mr-2" variant="secondary">
               <MoreHorizontal className="h-4 w-4 text-brand" />
             </Button>
           </DropdownMenuTrigger>

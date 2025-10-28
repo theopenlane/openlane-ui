@@ -27,7 +27,7 @@ export default function EvidenceSuggestedActions() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" aria-label="Suggested actions" className="relative h-8 p-2">
+        <Button variant="secondary" aria-label="Suggested actions" className="relative h-8 p-2 ">
           <div className="flex gap-1 items-center">
             <Inbox size={18} />
             <span className="text-xs relative -left-1 -top-1 inline-flex w-[15px] h-[15px] items-center justify-center rounded-full bg-red-500 font-normal text-white shadow" aria-live="polite">
@@ -54,7 +54,7 @@ export default function EvidenceSuggestedActions() {
                 </p>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="secondary"
                   className="h-8 p-2"
                   onClick={() => {
                     if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
@@ -74,7 +74,7 @@ export default function EvidenceSuggestedActions() {
                 </p>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="secondary"
                   className="h-8 p-2"
                   onClick={() => {
                     if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
@@ -94,7 +94,7 @@ export default function EvidenceSuggestedActions() {
                 </p>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="secondary"
                   className="h-8 p-2"
                   aria-label="Add evidence"
                   onClick={() => {

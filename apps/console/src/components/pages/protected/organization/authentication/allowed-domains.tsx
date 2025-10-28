@@ -139,7 +139,7 @@ const AllowedDomains = () => {
 
           {inputError && <p className="mt-2 text-sm text-destructive">{inputError}</p>}
 
-          <Button type="button" className="h-8 p-2 mt-4" variant="outline" onClick={saveChanges} disabled={isPending}>
+          <Button type="button" className="h-8 p-2 mt-4" variant="secondary" onClick={saveChanges} disabled={isPending}>
             Save
           </Button>
         </div>

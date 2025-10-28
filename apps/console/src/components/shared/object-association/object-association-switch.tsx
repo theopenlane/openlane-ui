@@ -85,7 +85,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setToggleAll((prevState) => !prevState)}>
+                  <Button type="button" className="h-8 !px-2" variant="secondary" onClick={() => setToggleAll((prevState) => !prevState)}>
                     <div className="flex">
                       <List size={16} />
                       {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
@@ -112,7 +112,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           menu={
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" className="h-8 !px-2" variant="outline" onFocus={(e) => e.preventDefault()}>
+                <Button type="button" className="h-8 !px-2" variant="secondary" onFocus={(e) => e.preventDefault()}>
                   <StretchVertical size={16} />
                 </Button>
               </DropdownMenuTrigger>
@@ -136,7 +136,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
-                      <Button type="button" className="h-8 !px-2" variant="outline" onFocus={(e) => e.preventDefault()}>
+                      <Button type="button" className="h-8 !px-2" variant="secondary" onFocus={(e) => e.preventDefault()}>
                         <StretchVertical size={16} />
                       </Button>
                     </DropdownMenuTrigger>
@@ -158,7 +158,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
+                  <Button type="button" className="h-8 !px-2" variant="secondary" onClick={() => setIsFullscreen((prevState) => !prevState)}>
                     <div className="flex">{<Expand size={16} />}</div>
                   </Button>
                 </TooltipTrigger>

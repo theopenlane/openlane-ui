@@ -158,7 +158,7 @@ export function AssignPermissionsDialog({ open, onOpenChange }: AssignPermission
         </div>
 
         <DialogFooter className="mt-6 flex justify-between">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
           <Button disabled={selectedGroupIds.length === 0 || config.isSaving} onClick={handleSave}>

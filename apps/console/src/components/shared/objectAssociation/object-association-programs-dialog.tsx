@@ -84,7 +84,7 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
         <DataTable columns={columns} data={programs || []} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} loading={isLoading || isFetching} />
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={handleSave}>Save</Button>

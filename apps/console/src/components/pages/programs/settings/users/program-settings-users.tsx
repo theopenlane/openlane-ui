@@ -160,7 +160,7 @@ export const ProgramSettingsUsers = () => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-8 h-7 !p-0">
+              <Button variant="secondary" className="w-8 h-7 !p-0">
                 <EllipsisVertical />
               </Button>
             </DropdownMenuTrigger>

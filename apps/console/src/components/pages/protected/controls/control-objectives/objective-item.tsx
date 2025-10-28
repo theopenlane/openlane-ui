@@ -29,11 +29,11 @@ export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive }) =>
         </AccordionTrigger>
 
         {node.status === ControlObjectiveObjectiveStatus.ARCHIVED ? (
-          <Button className="h-8 !px-2" variant="outline" icon={<Pencil />} iconPosition="left" onClick={() => onUnarchive(node)} disabled={permLoading /* optionally require edit permission too */}>
+          <Button className="h-8 !px-2" variant="secondary" icon={<Pencil />} iconPosition="left" onClick={() => onUnarchive(node)} disabled={permLoading /* optionally require edit permission too */}>
             Unarchive
           </Button>
         ) : (
-          <Button className="h-8 !px-2" variant="outline" icon={<Pencil />} iconPosition="left" onClick={() => onEdit(node)} disabled={permLoading || !isEditAllowed}>
+          <Button className="h-8 !px-2" variant="secondary" icon={<Pencil />} iconPosition="left" onClick={() => onEdit(node)} disabled={permLoading || !isEditAllowed}>
             Edit
           </Button>
         )}

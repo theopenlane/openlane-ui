@@ -47,7 +47,7 @@ const DeleteGroupDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Trash2 />} iconPosition="left" variant="outline" disabled={!!isManaged || !canEdit(permission?.roles)}>
+        <Button icon={<Trash2 />} iconPosition="left" variant="secondary" disabled={!!isManaged || !canEdit(permission?.roles)}>
           Delete
         </Button>
       </DialogTrigger>
@@ -80,7 +80,7 @@ const DeleteGroupDialog = () => {
           <Button variant="destructive" onClick={handleDelete}>
             Delete this group
           </Button>
-          <Button variant="outline" className="" onClick={() => setIsOpen(false)}>
+          <Button variant="secondary" className="" onClick={() => setIsOpen(false)}>
             Cancel
           </Button>
         </DialogFooter>

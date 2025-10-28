@@ -45,12 +45,12 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID
       <div className="flex items-center justify-between">
         <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} />
         <div className="flex justify-end gap-2">
-          <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+          <Button icon={<LinkIcon />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
             Copy link
           </Button>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button disabled={isPending} type="button" variant="outline" onClick={() => setIsEditing(false)}>
+              <Button disabled={isPending} type="button" variant="secondary" onClick={() => setIsEditing(false)}>
                 Cancel
               </Button>
               <Button type="submit" form="editTask" loading={isPending} disabled={isPending} icon={<Check />} iconPosition="left">
@@ -60,7 +60,7 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID
           ) : (
             <>
               {isEditAllowed && (
-                <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                <Button icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
                   Edit
                 </Button>
               )}

@@ -56,11 +56,11 @@ const RelationCard = ({ data, controlHrefMap, subcontrolHrefMap }: RelationCardP
           <div className=" border-b">
             <div className="flex gap-2 justify-end">
               <Link href={`${pathname}/edit-map-control?mappedControlId=${data.id}`} className="text-brand cursor-pointer text-xs">
-                <Button className="h-8 p-2" icon={<Pencil />} iconPosition="left" variant="outline">
+                <Button className="h-8 p-2" icon={<Pencil />} iconPosition="left" variant="secondary">
                   Edit
                 </Button>
               </Link>
-              <Button onClick={() => setOpen(true)} className="h-8 p-2" icon={<Trash2 />} iconPosition="left" variant="outline">
+              <Button onClick={() => setOpen(true)} className="h-8 p-2" icon={<Trash2 />} iconPosition="left" variant="secondary">
                 Delete
               </Button>
             </div>

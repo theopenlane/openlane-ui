@@ -150,7 +150,7 @@ export const SetAuditorDialog = () => {
 
         <DialogFooter className="mt-6 flex gap-2">
           <Button onClick={form.handleSubmit(onSubmit)}>Save</Button>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
         </DialogFooter>

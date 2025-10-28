@@ -101,7 +101,7 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
           <Button onClick={handleAddToOrg} disabled={isPending} className="min-w-[100px]">
             {isPending ? 'Adding...' : 'Add'}
           </Button>
-          <Button type="button" variant="back" onClick={() => onOpenChange(false)} className="min-w-[100px]">
+          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} className="min-w-[100px]">
             Cancel
           </Button>
         </DialogFooter>

@@ -381,7 +381,7 @@ export default function CreateControlForm() {
             {/* Actions */}
             <div className="flex items-center justify-between mt-4">
               <div className="flex gap-2">
-                <Button type="submit" className="btn-secondary">
+                <Button variant="primary" type="submit">
                   Create
                 </Button>
                 <Button type="button" variant="back" onClick={onCancel}>

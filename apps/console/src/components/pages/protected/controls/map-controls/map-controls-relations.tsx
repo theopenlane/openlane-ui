@@ -125,10 +125,10 @@ const MapControlsRelations = () => {
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button variant="outline" type="submit">
+        <Button variant="secondary" type="submit">
           Save
         </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()}>
+        <Button type="button" variant="secondary" onClick={() => router.back()}>
           Cancel
         </Button>
       </div>

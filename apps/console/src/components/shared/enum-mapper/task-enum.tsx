@@ -19,6 +19,7 @@ import {
 import { TaskTaskStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { Button } from '@repo/ui/button'
 
 export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
   [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-completed" />,
@@ -82,8 +83,8 @@ export const TaskIconBtn = (
   </div>
 )
 export const TaskIconPrefixBtn = (
-  <div className="flex items-center space-x-2">
+  <Button size="sm" variant="transparent" className="flex items-center space-x-2 justify-start">
     <CircleCheckBig size={16} strokeWidth={2} />
     <span>Create Task</span>
-  </div>
+  </Button>
 )

@@ -69,7 +69,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
         <Button
           type="button"
           descriptiveTooltipText={open ? 'Close slide bar' : 'Open slide bar'}
-          variant="outline"
+          variant="secondary"
           onClick={() => setOpen(!open)}
           className="h-8 !px-2 !pl-0"
           icon={open ? <PanelRightClose size={16} /> : <PanelRight size={16} />}

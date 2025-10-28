@@ -132,7 +132,7 @@ const TasksTable = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
         <Link href={`/tasks`} onClick={handleClick}>
-          <Button icon={<Frame size={16} />} iconPosition="left">
+          <Button variant="secondary" icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>
         </Link>

@@ -118,7 +118,7 @@ const Risks = () => {
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center px-6">
             <CardTitle className="text-lg font-semibold">Risks</CardTitle>
-            {/* <Button variant="outline" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
+            {/* <Button variant="secondary" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
               Edit
             </Button> */}
 
@@ -173,7 +173,7 @@ const Risks = () => {
                 <AlertTriangle height={45} width={45} strokeWidth={1} className="text-border mb-4" />
                 <h2 className="text-lg font-semibold">You have no risks</h2>
                 <Link href="/risks" className="mt-4" onClick={handleClick}>
-                  <Button variant="outline">Take me there</Button>
+                  <Button variant="secondary">Take me there</Button>
                 </Link>
               </div>
             )}

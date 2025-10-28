@@ -160,7 +160,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
           <Button onClick={handleSave} disabled={isSaving}>
             Save
           </Button>
-          <Button variant="outline" disabled={isSaving} onClick={() => setOpen(false)}>
+          <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
             Cancel
           </Button>
         </DialogFooter>

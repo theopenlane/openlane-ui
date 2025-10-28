@@ -86,7 +86,7 @@ const OrganizationEmailForm = () => {
                 </FormItem>
               )}
             />
-            <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isPending}>
+            <Button variant={isSuccess ? 'success' : 'secondary'} type="submit" loading={isPending}>
               {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
             </Button>
           </InputRow>

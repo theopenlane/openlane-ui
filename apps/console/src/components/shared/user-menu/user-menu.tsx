@@ -49,9 +49,9 @@ export const UserMenu = () => {
         <DropdownMenuSeparator spacing="md" className="border-b mt-4 mb-1" />
 
         <div className="flex items-center justify-between pl-2">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <PaintbrushVertical size={16} className="text-muted-foreground" />
-            <p className="text-sm font-medium">Theme</p>
+            <p className="text-sm font-base">Theme</p>
           </div>
 
           <div className="flex items-center gap-1 rounded-lg bg-popover bg-card p-1 border">
@@ -59,8 +59,8 @@ export const UserMenu = () => {
               <button
                 key={opt.value}
                 onClick={() => setTheme(opt.value)}
-                className={`flex items-center justify-center rounded-md p-1 transition-all bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-primary ${
-                  theme === opt.value ? '!bg-card dark:!bg-btn-primary' : 'text-muted-foreground'
+                className={`flex items-center justify-center rounded-md p-1 transition-all bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-secondary ${
+                  theme === opt.value ? '!bg-card dark:!bg-btn-secondary' : 'text-muted-foreground'
                 }`}
                 title={opt.label}
               >
@@ -72,7 +72,7 @@ export const UserMenu = () => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
-        <Button size="md" variant="outline" full className="bg-transparent border-transparent justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
+        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
           <UserCog size={16} className="text-muted-foreground" />
           <span>User Settings</span>
         </Button>
@@ -80,9 +80,9 @@ export const UserMenu = () => {
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
         <div className="flex items-center justify-between pl-2 mt-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Keyboard size={16} className="text-muted-foreground" />
-            <p className="text-sm font-medium">Command Menu</p>
+            <p className="text-sm font-base">Command Menu</p>
           </div>
 
           <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">
@@ -92,9 +92,9 @@ export const UserMenu = () => {
         </div>
 
         <div className="flex items-center justify-between pl-2 mt-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <TextSearch size={16} className="text-muted-foreground" />
-            <p className="text-sm font-medium">Search Menu</p>
+            <p className="text-sm font-base">Search Menu</p>
           </div>
 
           <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">
@@ -105,7 +105,7 @@ export const UserMenu = () => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1 mt-3" />
 
-        <Button size="md" variant="outline" full className="bg-transparent border-transparent justify-start gap-1 pl-2" onClick={() => signOut()}>
+        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => signOut()}>
           <LogOut size={16} className="text-muted-foreground" />
           <span>Log out</span>
         </Button>

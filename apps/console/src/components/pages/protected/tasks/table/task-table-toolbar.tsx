@@ -126,7 +126,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                   <BulkEditTasksDialog setIsBulkEditing={setIsBulkEditing} selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setIsBulkEditing(false)
                       props.handleBulkEdit()
@@ -139,7 +139,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
             </>
           ) : (
             <>
-              <CreateTaskDialog className="btn-secondary" />
+              <CreateTaskDialog />
             </>
           )}
         </div>

@@ -103,29 +103,31 @@ const EvidenceDetailsPage = () => {
                   <h1>Evidence Center</h1>
                 </div>
                 <div className="flex gap-2.5 items-center">
-                  <EvidenceSuggestedActions />
-                  <Select onValueChange={handleSelectChange} value={programId ?? ''}>
-                    <SelectTrigger className="max-w-64 min-w-48 h-[32px] border rounded-md px-3 py-2 flex items-center justify-between">
-                      <div className="truncate">{selectedProgram || 'All Programs'}</div>
-                    </SelectTrigger>
-                    <SelectContent className="border rounded-md shadow-md">
-                      <SelectItem value="all">All Programs</SelectItem>
-                      {data?.programs?.edges?.map((edge) => {
-                        const program = edge?.node
-                        if (!program) return null
-
-                        return (
-                          <SelectItem key={program.id} value={program.id}>
-                            {program.name}
-                          </SelectItem>
-                        )
-                      })}
-                    </SelectContent>
-                  </Select>
-
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <EvidenceSuggestedActions />
+                  </div>
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <Select onValueChange={handleSelectChange} value={programId ?? ''}>
+                      <SelectTrigger className="max-w-64 min-w-48 h-[32px] border rounded-md px-3 py-2 flex items-center justify-between">
+                        <div className="truncate">{selectedProgram || 'All Programs'}</div>
+                      </SelectTrigger>
+                      <SelectContent className="border rounded-md shadow-md">
+                        <SelectItem value="all">All Programs</SelectItem>
+                        {data?.programs?.edges?.map((edge) => {
+                          const program = edge?.node
+                          if (!program) return null
+                          return (
+                            <SelectItem key={program.id} value={program.id}>
+                              {program.name}
+                            </SelectItem>
+                          )
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   {createAllowed && (
-                    <>
-                      <Button className="h-8 !px-2 btn-secondary" onClick={handleCreateEvidence}>
+                    <div className="flex-shrink-0 h-8 flex items-center">
+                      <Button variant="primary" className="h-8 !px-2" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
                       <EvidenceCreateSheet
@@ -134,12 +136,13 @@ const EvidenceDetailsPage = () => {
                         onOpenChange={setIsSheetOpen}
                         excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}
                       />
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
             }
           />
+
           <EvidenceSummaryCard />
           <EvidenceTable />
           <EvidenceDetailsSheet />

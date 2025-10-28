@@ -127,7 +127,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
                 </div>
                 <div className="flex items-center justify-between">
                   <span>{passKeyConfig?.text}</span>
-                  <Button onClick={handleConfigure} loading={loading} disabled={loading} className="btn-secondary">
+                  <Button variant="primary" onClick={handleConfigure} loading={loading} disabled={loading}>
                     {passkeys?.webauthns?.edges?.length ? 'Add another Passkey' : 'Add passkey'}
                   </Button>
                 </div>
@@ -194,7 +194,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
           </DialogHeader>
           <div className="flex justify-end space-x-4 pt-4">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="secondary">Cancel</Button>
             </DialogClose>
             <Button variant="destructive" onClick={removePasskeys}>
               Remove Passkey

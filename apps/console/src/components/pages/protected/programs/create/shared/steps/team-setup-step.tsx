@@ -25,13 +25,13 @@ export default function TeamSetupStep() {
 
       {!showInviteForm ? (
         <div className="grid grid-cols-2 gap-3">
-          <Button type="button" variant="outline" className="h-28" onClick={() => setShowInviteForm(true)}>
+          <Button type="button" variant="secondary" className="h-28" onClick={() => setShowInviteForm(true)}>
             <div className="flex flex-col items-center justify-center gap-1">
               <UserPlus className="!h-5 !w-5" size={20} />
               <span>Add teammates now</span>
             </div>
           </Button>
-          <Button type="submit" variant="outline" className="h-28">
+          <Button type="submit" variant="secondary" className="h-28">
             <div className="flex flex-col items-center justify-center gap-1">
               <Clock className="!h-5 !w-5" size={20} />
               <span>I&apos;ll do this later</span>

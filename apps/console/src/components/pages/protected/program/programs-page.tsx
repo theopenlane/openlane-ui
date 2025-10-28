@@ -118,7 +118,7 @@ const ProgramsPage: React.FC = () => {
       <>
         <PageHeading heading="Programs" />
 
-        <Callout variant="info" title="What is a Program?" className="max-w-6xl mx-33">
+        <Callout variant="info" title="What is a Program?" className="max-w-6xl mx-auto">
           Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a significant body
           of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can encompass work across
           different teams.
@@ -178,7 +178,7 @@ const ProgramsPage: React.FC = () => {
             <div className="flex gap-2.5 items-center">
               {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
                 <Link href="/programs/create" className="text-sm text-blue-500 flex items-center gap-1">
-                  <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                  <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                     Create Program
                   </Button>
                 </Link>
