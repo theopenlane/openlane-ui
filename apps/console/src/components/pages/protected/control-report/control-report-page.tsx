@@ -3,12 +3,11 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/controls'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ControlControlStatus } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlWhereInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, SquarePlus, Upload } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, SlidersHorizontal, SquarePlus, Upload } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -21,7 +20,7 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
-import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { loadFilters, saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
@@ -31,6 +30,8 @@ import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-ma
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { ControlsEmptyActions } from './control-empty'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TControlReportPageProps = {
   active: 'report' | 'controls'
@@ -40,7 +41,7 @@ type TControlReportPageProps = {
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
+  const [selectedStandards, setSelectedStandards] = useState<string[]>([])
   const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const { data: permission } = useOrganizationRoles()
@@ -57,26 +58,33 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId),
   })
 
-  const filteredStandardOptions = useMemo(() => {
-    if (!standardOptions) return []
-    return standardOptions.map((opt) => ({
-      label: opt.label,
-      value: opt.label,
-    }))
-  }, [standardOptions])
+  const where: ControlWhereInput | undefined = useMemo(() => {
+    const hasCustom = selectedStandards.includes('CUSTOM')
+    const normalStandards = selectedStandards.filter((id) => id !== 'CUSTOM')
 
-  const where = useMemo(() => {
-    if (referenceFramework && referenceFramework !== 'Custom') {
-      return { referenceFramework: referenceFramework, ownerIDNEQ: '' }
-    } else if (referenceFramework === 'Custom') {
-      return { referenceFrameworkIsNil: true, ownerIDNEQ: '' }
+    if (!hasCustom && normalStandards.length === 0) {
+      return { ownerIDNEQ: '' }
     }
-    return undefined
-  }, [referenceFramework])
+
+    const where: ControlWhereInput = { ownerIDNEQ: '' }
+
+    if (hasCustom && normalStandards.length > 0) {
+      where.or = [{ referenceFrameworkIsNil: true }, { standardIDIn: normalStandards }]
+      return where
+    }
+
+    if (hasCustom) {
+      where.referenceFrameworkIsNil = true
+      return where
+    }
+
+    where.standardIDIn = normalStandards
+    return where
+  }, [selectedStandards])
 
   const { data, isLoading, isFetching } = useGetControlsGroupedByCategoryResolver({
     where,
-    enabled: Boolean(referenceFramework),
+    enabled: !!where && isSuccessStandards,
   })
 
   const hasNoControls = !data || data.length === 0 || data.every((entry) => entry.controls.length === 0)
@@ -101,16 +109,27 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }
 
   const handleRedirectWithFilter = (status: ControlControlStatus) => {
-    if (!referenceFramework) return
-    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'CUSTOM'
-
     const filters: TFilterState = {
-      standard: [standardId],
+      standardIDIn: selectedStandards,
       status: [status],
     }
 
     saveFilters(TableFilterKeysEnum.CONTROL, filters)
     setActive('controls')
+  }
+
+  const toggleFilter = (value: string) => {
+    const saved = loadFilters(TableFilterKeysEnum.CONTROL) || {}
+    const current = (saved.standardIDIn as string[]) || []
+
+    const updated = current.includes(value) ? current.filter((v) => v !== value) : [...current, value]
+
+    setSelectedStandards(updated)
+
+    saveFilters(TableFilterKeysEnum.CONTROL, {
+      ...saved,
+      standardIDIn: updated.length > 0 ? updated : undefined,
+    })
   }
 
   useEffect(() => {
@@ -121,17 +140,18 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [setCrumbs])
 
   useEffect(() => {
-    if (!isSuccessStandards) return
+    const saved = loadFilters(TableFilterKeysEnum.CONTROL)
+    const arr = (saved?.standardIDIn as string[]) || []
+    setSelectedStandards(arr)
 
-    const onlyHasCustom = standardOptions.length === 0
-
-    if (onlyHasCustom) {
-      setReferenceFramework('Custom')
-    } else {
-      const first = standardOptions[0]?.label
-      setReferenceFramework(first || 'Custom')
+    const handleUpdate = (e: CustomEvent) => {
+      const updated = (e.detail?.standardIDIn as string[]) || []
+      setSelectedStandards(updated)
     }
-  }, [standardOptions, isSuccessStandards])
+
+    window.addEventListener(`filters-updated:${TableFilterKeysEnum.CONTROL}`, handleUpdate as EventListener)
+    return () => window.removeEventListener(`filters-updated:${TableFilterKeysEnum.CONTROL}`, handleUpdate as EventListener)
+  }, [])
 
   if (isLoading || !data) {
     return <ControlReportPageSkeleton />
@@ -144,31 +164,53 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
           <TabSwitcher active={active} setActive={setActive} />
           {!isLoading && !isFetching && !hasNoControls ? (
-            <>
-              <Select onValueChange={setReferenceFramework} value={referenceFramework}>
-                <SelectTrigger className="w-48 h-7.5">
-                  <SelectValue placeholder="Select Framework" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredStandardOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="Custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
-                <div className="flex">
-                  <List size={16} />
-                  <ChevronsDownUp size={16} />
-                </div>
-              </Button>
-            </>
+            <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
+              <div className="flex">
+                <List size={16} />
+                <ChevronsDownUp size={16} />
+              </div>
+            </Button>
           ) : null}
         </div>
 
         <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left" className={`h-7.5 !px-2 !pl-3 ${selectedStandards.length ? 'border border-primary' : ''}`}>
+                <span className="text-muted-foreground">Filter by:</span>
+                <span>Framework</span>
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
+              {/* Custom option */}
+              <DropdownMenuItem
+                className="flex items-center gap-2"
+                onSelect={(e) => {
+                  e.preventDefault()
+                  toggleFilter('CUSTOM')
+                }}
+              >
+                <Checkbox checked={selectedStandards.includes('CUSTOM')} />
+                <span>Custom</span>
+              </DropdownMenuItem>
+
+              {/* Standard options */}
+              {standardOptions.map((opt) => (
+                <DropdownMenuItem
+                  key={opt.value}
+                  className="flex items-center gap-2"
+                  onSelect={(e) => {
+                    e.preventDefault()
+                    toggleFilter(opt.value)
+                  }}
+                >
+                  <Checkbox checked={selectedStandards.includes(opt.value)} />
+                  <span className="truncate">{opt.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           {!isLoading && !isFetching && !hasNoControls ? (
             <Menu
               closeOnSelect={true}

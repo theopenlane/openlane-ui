@@ -76,14 +76,12 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     const conditions: ControlWhereInput = {}
 
     const mapCustomKey = (key: string, value: string | string[]): Partial<ControlWhereInput> => {
-      if (key === 'programContains') {
-        return { hasProgramsWith: [{ nameContainsFold: value as string }] }
-      }
-      if (key === 'standardIn' && Array.isArray(value) && value[0] === 'CUSTOM') {
-        return { referenceFrameworkIsNil: true }
-      }
-      if (key === 'standardIn' && Array.isArray(value)) {
-        return { hasStandardWith: value.map((v) => ({ id: v })) }
+      if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
+        const normalStandards = value.filter((id) => id !== 'CUSTOM')
+
+        return {
+          or: [...(normalStandards.length > 0 ? [{ standardIDIn: normalStandards }] : []), { referenceFrameworkIsNil: true }],
+        }
       }
 
       return { [key]: value } as Partial<ControlWhereInput>

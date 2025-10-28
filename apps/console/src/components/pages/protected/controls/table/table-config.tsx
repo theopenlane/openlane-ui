@@ -11,6 +11,7 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import OwnerCell from './owner-cell'
 import DelegateCell from './delegate-cell'
+import { FileQuestion } from 'lucide-react'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -30,11 +31,17 @@ export const getControlsFilterFields = (
     icon: FilterIcons.Status,
   },
   {
-    key: 'standard',
+    key: 'standardIDIn',
     label: 'Standard',
-    type: 'select',
-    options: [...standardOptions, { value: 'CUSTOM', label: 'CUSTOM' }],
-    icon: FilterIcons.Standard,
+    type: 'multiselect',
+    options: [
+      ...standardOptions,
+      {
+        value: 'CUSTOM',
+        label: 'CUSTOM',
+      },
+    ],
+    icon: FileQuestion,
   },
   {
     key: 'controlOwnerID',
