@@ -83,7 +83,7 @@ export const TaskIconBtn = (
   </div>
 )
 export const TaskIconPrefixBtn = (
-  <Button size="sm" variant="transparent" className="flex items-center space-x-2">
+  <Button size="sm" variant="transparent" className="flex items-center space-x-2 justify-start">
     <CircleCheckBig size={16} strokeWidth={2} />
     <span>Create Task</span>
   </Button>
