@@ -246,14 +246,14 @@ const ViewProcedurePage: React.FC = () => {
               content={
                 <>
                   {editAllowed && (
-                    <Button size="sm" variant="transparent" className="flex items-center space-x-2 " onClick={handleEdit}>
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={handleEdit}>
                       <PencilIcon size={16} strokeWidth={2} />
                       <span>Edit</span>
                     </Button>
                   )}
                   {deleteAllowed && (
                     <>
-                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 " onClick={() => setIsDeleteDialogOpen(true)}>
+                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={() => setIsDeleteDialogOpen(true)}>
                         <Trash2 size={16} strokeWidth={2} />
                         <span>Delete</span>
                       </Button>
@@ -268,7 +268,7 @@ const ViewProcedurePage: React.FC = () => {
                           </>
                         }
                       />
-                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 " onClick={() => setShowPermissionsSheet(true)}>
+                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={() => setShowPermissionsSheet(true)}>
                         <LockOpen size={16} strokeWidth={2} />
                         <span>Manage Permissions</span>
                       </Button>
