@@ -57,13 +57,6 @@ const GroupsPage = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data: permissions } = useOrganizationRoles()
 
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Groups', href: '/groups' },
-    ])
-  }, [setCrumbs])
-
   const whereFilter = useMemo(() => {
     if (!whereFilters) {
       return null
@@ -100,9 +93,13 @@ const GroupsPage = () => {
 
   const { mappedColumns } = getGroupTableColumns({})
 
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'User Management' }, { label: 'Groups', href: '/user-management/groups' }])
+  }, [setCrumbs])
+
   return (
     <>
-      <PageHeading heading={'Groups'} />
+      <PageHeading eyebrow="user management" heading={'Groups'} />
       <div className="flex items-center gap-2 my-2">
         <Input
           value={searchQuery}

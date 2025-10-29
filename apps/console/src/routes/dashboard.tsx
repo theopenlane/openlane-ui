@@ -165,12 +165,12 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
     children: [
       {
         title: 'Members',
-        href: '/organization-settings/members',
+        href: '/user-management/members',
         icon: UserRoundPlus,
       },
       {
         title: 'Groups',
-        href: '/groups',
+        href: '/user-management/groups',
         icon: Users,
       },
     ],
@@ -183,12 +183,12 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
     children: [
       {
         title: 'API Tokens',
-        href: '/organization-settings/developers',
+        href: '/developers/api-tokens',
         icon: ServerCog,
       },
       {
         title: 'Personal Access Tokens',
-        href: '/user-settings/developers',
+        href: '/developers/personal-access-tokens',
         icon: KeyRoundIcon,
       },
     ],
