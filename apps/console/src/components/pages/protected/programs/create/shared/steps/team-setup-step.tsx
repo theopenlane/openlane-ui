@@ -8,12 +8,14 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { useFormContext } from 'react-hook-form'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useSession } from 'next-auth/react'
 
 export default function TeamSetupStep() {
   const [showInviteForm, setShowInviteForm] = useState(false)
-  const { userOptions } = useUserSelect()
+  const { data } = useSession()
   const { groupOptions } = useGroupSelect()
-
+  const whereNotCurrentUser = { not: { userID: data?.user?.userId } }
+  const { userOptions } = useUserSelect({ where: whereNotCurrentUser })
   return (
     <div className="space-y-6">
       <div>
@@ -23,13 +25,13 @@ export default function TeamSetupStep() {
 
       {!showInviteForm ? (
         <div className="grid grid-cols-2 gap-3">
-          <Button type="button" variant="outline" className="h-28" onClick={() => setShowInviteForm(true)}>
+          <Button type="button" variant="secondary" className="h-28" onClick={() => setShowInviteForm(true)}>
             <div className="flex flex-col items-center justify-center gap-1">
               <UserPlus className="!h-5 !w-5" size={20} />
               <span>Add teammates now</span>
             </div>
           </Button>
-          <Button type="submit" variant="outline" className="h-28">
+          <Button type="submit" variant="secondary" className="h-28">
             <div className="flex flex-col items-center justify-center gap-1">
               <Clock className="!h-5 !w-5" size={20} />
               <span>I&apos;ll do this later</span>

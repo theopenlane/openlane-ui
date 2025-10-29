@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -10,7 +10,7 @@ import { useCancelSubscriptionMutation, usePaymentMethodsQuery, useRenewSubscrip
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
-import { SUPPORT_EMAIL } from '@/constants'
+import { SUPPORT_URL } from '@/constants'
 import Invoices from './invoices'
 import { Card } from '@repo/ui/cardpanel'
 import { CreditCard, ExternalLink } from 'lucide-react'
@@ -34,6 +34,10 @@ const BillingSettings: React.FC = () => {
   const schedule = schedules?.[0]
   const isCanceledBySchedule = schedule?.end_behavior === 'cancel'
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
+
+  const defaultCard = useMemo(() => {
+    return paymentData?.defaultPaymentMethod?.card ? paymentData.defaultPaymentMethod.card : paymentData?.paymentMethods?.[0]?.card
+  }, [paymentData])
 
   const handleConfirm = async () => {
     setConfirmCancelOpen(false)
@@ -113,19 +117,17 @@ const BillingSettings: React.FC = () => {
       <Card className="bg-transparent p-4 flex size-fit gap-4">
         <div className="flex gap-5 items-center">
           <CreditCard size={16} />
-          {paymentData?.defaultPaymentMethod?.card ? (
+          {paymentData?.hasPaymentMethod && defaultCard ? (
             <div className="flex-col gap-1">
               <div className="flex gap-1">
-                <span>{paymentData.defaultPaymentMethod.card.brand.charAt(0).toUpperCase() + paymentData.defaultPaymentMethod.card.brand.slice(1)} </span>
+                <span>{defaultCard.brand.charAt(0).toUpperCase() + defaultCard.brand.slice(1)} </span>
                 <span className="block mt-0.5">••••</span>
                 <span className="block mt-0.5">••••</span>
-
                 <span className="block mt-0.5">••••</span>
-
-                <span className="mr-16">{paymentData.defaultPaymentMethod.card.last4}</span>
+                <span className="mr-16">{defaultCard.last4}</span>
               </div>
               <span className="text-text-informational text-sm">
-                Expires {String(paymentData.defaultPaymentMethod.card.exp_month).padStart(2, '0')}/{String(paymentData.defaultPaymentMethod.card.exp_year).slice(-2)}
+                Expires {String(defaultCard.exp_month).padStart(2, '0')}/{String(defaultCard.exp_year).slice(-2)}
               </span>
             </div>
           ) : (
@@ -153,7 +155,7 @@ const BillingSettings: React.FC = () => {
               {canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
             </Button>
           ) : (
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm text-blue-500">
+            <a href={`${SUPPORT_URL}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
               Reach out to support
             </a>
           )}

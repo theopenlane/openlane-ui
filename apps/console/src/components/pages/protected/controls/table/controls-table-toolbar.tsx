@@ -1,8 +1,8 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
 import { FilterField } from '@/types'
-import { CirclePlus, DownloadIcon, FileQuestion, FileText, LoaderCircle, SearchIcon, Upload, UserRound } from 'lucide-react'
-import { CONTROLS_FILTER_FIELDS } from './table-config'
+import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { getControlsFilterFields } from './table-config'
 import { Input } from '@repo/ui/input'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -21,6 +21,8 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { TAccessRole, TData } from '@/types/authz'
+import { BulkCSVCreateMappedControlDialog } from '../bulk-csv-create-map-control-dialog'
+import { ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -77,42 +79,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess) {
       return
     }
-
-    setFilterFields([
-      ...CONTROLS_FILTER_FIELDS,
-      {
-        key: 'standard',
-        label: 'Standard',
-        type: 'select',
-        options: [
-          ...standardOptions,
-          {
-            value: 'CUSTOM',
-            label: 'CUSTOM',
-          },
-        ],
-        icon: FileQuestion,
-      },
-      {
-        key: 'controlOwnerID',
-        label: 'Owners',
-        type: 'select',
-        options: groups.map((group) => ({
-          value: group.value,
-          label: group.label,
-        })),
-        icon: UserRound,
-      },
-      {
-        key: 'hasProgramsWith',
-        label: 'Program Name',
-        forceKeyOperator: true,
-        childrenObjectKey: 'id',
-        type: 'select',
-        options: programOptions,
-        icon: FileText,
-      },
-    ])
+    const fields = getControlsFilterFields(standardOptions, groups, programOptions, ControlControlTypeOptions)
+    setFilterFields(fields)
   }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess])
 
   return (
@@ -136,7 +104,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setIsBulkEditing(false)
                       handleBulkEdit()
@@ -155,22 +123,32 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   <>
                     <BulkCSVCloneControlDialog
                       trigger={
-                        <div className="flex items-center space-x-2 px-1">
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Upload From Standard</span>
-                        </div>
+                        </Button>
                       }
                     />
                     <BulkCSVCreateControlDialog
                       trigger={
-                        <div className="flex items-center space-x-2 px-1">
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Upload Custom Controls</span>
-                        </div>
+                        </Button>
                       }
                     />
-                    <button
-                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    <BulkCSVCreateMappedControlDialog
+                      trigger={
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Upload Control Mappings</span>
+                        </Button>
+                      }
+                    />
+                    <Button
+                      size="sm"
+                      variant="transparent"
+                      className={`px-1 flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()
@@ -178,7 +156,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </button>
+                    </Button>
                   </>
                 )}
               />

@@ -5,11 +5,10 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { BookKey, BookLock, Bubbles, Calendar, CheckCircleIcon, SearchIcon, Settings2, SettingsIcon, UserRound } from 'lucide-react'
+import { CheckCircleIcon, SearchIcon, Settings2, SettingsIcon } from 'lucide-react'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Input } from '@repo/ui/input'
-import { FilterField } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
@@ -19,16 +18,9 @@ import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import Loading from '@/app/(protected)/standards/loading'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { getTasksFilterFields } from './table/table-config'
 
-const filterFields: FilterField[] = [
-  { key: 'systemOwned', label: 'System Owned', type: 'boolean', icon: UserRound },
-  { key: 'updatedAt', label: 'Updated At', type: 'date', icon: Calendar },
-  { key: 'createdAt', label: 'Created At', type: 'date', icon: Calendar },
-  { key: 'version', label: 'Version', type: 'text', icon: BookKey },
-  { key: 'revision', label: 'Revision', type: 'text', icon: BookLock },
-  { key: 'governingBody', label: 'Governing Body', type: 'text', icon: Bubbles },
-]
-
+const filterFields = getTasksFilterFields()
 const StandardsPage = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')
@@ -80,8 +72,8 @@ const StandardsPage = () => {
 
       <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {data?.standards?.edges?.map((standard) => (
-          <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow">
-            <div className="flex flex-row justify-between">
+          <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow flex flex-col h-full">
+            <div className="flex flex-row justify-between mb-3">
               <div className="flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -89,7 +81,7 @@ const StandardsPage = () => {
                     <span className="text-xs">version: {standard?.node?.version}</span>
                   </div>
                 </div>
-                <div className="text-sm space-y-1 mb-3">
+                <div className="text-sm space-y-1">
                   <p className="flex items-center gap-1">
                     <SettingsIcon className="text-brand" size={16} /> {standard?.node?.standardType}
                   </p>
@@ -101,9 +93,8 @@ const StandardsPage = () => {
                   </p>
                 </div>
               </div>
-              {<StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />}
+              <StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />
             </div>
-
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
               {standard?.node?.tags?.map((tag, index) => (
                 <Badge key={index} variant="outline" className="rounded-full">
@@ -111,16 +102,18 @@ const StandardsPage = () => {
                 </Badge>
               ))}
             </div>
-            <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
-            <Link href={`standards/${standard?.node?.id}`}>
-              <Button className="mt-auto py-2 px-4 btn-secondary">Details</Button>
+            <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
+            <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
+              <Button variant="primary" className="py-2 px-4">
+                Details
+              </Button>
             </Link>
           </Card>
         ))}
         <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href={INFO_EMAIL}>
-            <Button variant="outline" className="!text-brand">
+            <Button variant="secondary" className="!text-brand">
               info@theopenlane.io
             </Button>
           </a>

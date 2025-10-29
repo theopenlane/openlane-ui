@@ -87,7 +87,7 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
             <Panel align="center" justify="start" textAlign="center" className="min-h-[100px] h-full p-6 flex">
               <PanelHeader heading="Create a new program" subheading="Get ready for your next audit, create a new program or duplicate an existing one." noBorder />
               <div className="flex content-end items-end">
-                <Button>
+                <Button variant="primary">
                   <ShieldPlus size={16} strokeWidth={2} />
                   Create Program
                 </Button>
@@ -123,7 +123,7 @@ export const NewUserLanding: React.FC<DashboardProps> = () => {
               <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
                 <PanelHeader heading="Create a new program" subheading="Start your compliance journey by creating a new program." />
                 <Link href="programs/create/" className="px-1">
-                  <Button icon={<ShieldPlus size={16} strokeWidth={2} />} iconPosition="left">
+                  <Button variant="primary" icon={<ShieldPlus size={16} strokeWidth={2} />} iconPosition="left">
                     Create Program
                   </Button>
                 </Link>

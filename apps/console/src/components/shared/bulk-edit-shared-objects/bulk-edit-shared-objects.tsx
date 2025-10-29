@@ -122,7 +122,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOpti
       name: 'delegateID',
       inputType: InputType.Select,
       placeholder: 'Select delegate',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.Status,
@@ -149,7 +149,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOpti
       name: 'stakeholderID',
       inputType: InputType.Select,
       placeholder: 'Select stakeholder',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskCategory,
@@ -173,7 +173,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): Selec
       name: 'delegateID',
       inputType: InputType.Select,
       placeholder: 'Select delegate',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.Status,
@@ -193,7 +193,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): Selec
       name: 'approverID',
       inputType: InputType.Select,
       placeholder: 'Select approver',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
   ]
 }
@@ -205,7 +205,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectO
       name: 'delegateID',
       inputType: InputType.Select,
       placeholder: 'Select delegate',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.Status,
@@ -225,7 +225,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectO
       name: 'approverID',
       inputType: InputType.Select,
       placeholder: 'Select approver',
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
   ]
 }
@@ -239,7 +239,7 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[]): Sele
       name: 'controlOwnerID',
       placeholder: 'Select owner',
       inputType: InputType.Select,
-      options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
+      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditControls.Status,

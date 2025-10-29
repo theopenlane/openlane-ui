@@ -221,7 +221,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
             <p>?</p>
           </div>
         ) : (
-          <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+          <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
             Create
           </Button>
         )}
@@ -410,7 +410,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
               )}
 
               <DialogFooter>
-                <Button className="w-full mt-4" type="submit" variant="filled" disabled={isSubmitting}>
+                <Button variant="primary" className="w-full mt-4" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? 'Creating...' : 'Create Token'}
                 </Button>
               </DialogFooter>
@@ -441,11 +441,11 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           <DialogClose asChild disabled={!confirmationChecked || isAuthorizingSSO}>
             <div className="flex gap-3">
               {currentSetting?.identityProviderLoginEnforced && (
-                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize}>
+                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize}>
                   {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
                 </Button>
               )}
-              <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="filled">
+              <Button variant="primary" disabled={!confirmationChecked || isAuthorizingSSO}>
                 Close
               </Button>
             </div>

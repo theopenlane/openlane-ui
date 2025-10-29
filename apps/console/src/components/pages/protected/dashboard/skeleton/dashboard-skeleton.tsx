@@ -151,7 +151,7 @@ const DashboardSkeleton: React.FC = () => {
                   <Skeleton width={140} height={10} />
                 </h2>
                 <Link href="/risks" className="mt-4">
-                  <Button variant="outline">
+                  <Button variant="secondary">
                     <Skeleton width={100} height={10} />
                   </Button>
                 </Link>

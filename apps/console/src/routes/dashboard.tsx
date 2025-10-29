@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   Bot,
+  Building2,
   DollarSign,
   FileBadge2,
   Fingerprint,
@@ -8,11 +9,13 @@ import {
   Handshake,
   History,
   House,
-  KeyRound,
+  KeyRoundIcon,
   ListChecks,
   MailCheck,
   NotebookPen,
   ScrollText,
+  ServerCog,
+  Settings,
   Settings2,
   SettingsIcon,
   ShieldCheck,
@@ -105,7 +108,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       {
         title: 'Settings',
         href: '/trust-center/settings',
-        icon: Settings2,
+        icon: Settings,
       },
     ],
   },
@@ -116,7 +119,7 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
     title: 'Organization settings',
     href: '/organization-settings',
     hidden: session?.user?.isOnboarding,
-    icon: SettingsIcon,
+    icon: Building2,
     children: [
       {
         title: 'General Settings',
@@ -133,6 +136,7 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
         title: 'Subscribers',
         href: '/organization-settings/subscribers',
         icon: MailCheck,
+        hidden: true,
       },
       {
         title: 'Billing',
@@ -180,18 +184,25 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
       {
         title: 'API Tokens',
         href: '/organization-settings/developers',
-        icon: KeyRound,
+        icon: ServerCog,
       },
       {
         title: 'Personal Access Tokens',
         href: '/user-settings/developers',
-        icon: KeyRound,
+        icon: KeyRoundIcon,
       },
     ],
   },
   {
     title: 'User settings',
-    href: '/user-settings/profile',
+    href: '/user-settings',
+    children: [
+      {
+        title: 'Profile',
+        href: '/user-settings/profile',
+        icon: UserRoundPen,
+      },
+    ],
     icon: UserCog,
   },
 ]

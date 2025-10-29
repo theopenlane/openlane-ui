@@ -1,12 +1,11 @@
+import { FilterIcons } from '@/components/shared/enum-mapper/questionnaire-enum'
 import { FilterField } from '@/types'
 import { OrderDirection, TemplateOrderField } from '@repo/codegen/src/schema.ts'
-import { Calendar, ScrollText } from 'lucide-react'
 
 export const QUESTIONNAIRE_FILTER_FIELDS: FilterField[] = [
-  { key: 'name', label: 'Task', type: 'text', icon: ScrollText },
-  { key: 'description', label: 'Title', type: 'text', icon: ScrollText },
-  { key: 'updated_at', label: 'Updated At', type: 'date', icon: Calendar },
-  { key: 'created_at', label: 'Created At', type: 'date', icon: Calendar },
+  { key: 'description', label: 'Title', type: 'text', icon: FilterIcons.Title },
+  { key: 'updatedAt', label: 'Updated At', type: 'dateRange', icon: FilterIcons.UpdatedAt },
+  { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: FilterIcons.CreatedAt },
 ]
 
 export const QUESTIONNAIRE_SORT_FIELDS = [

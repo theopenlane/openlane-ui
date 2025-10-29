@@ -208,7 +208,7 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
   const [open, setOpen] = React.useState(false)
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
+    <DropdownMenu open={open} onOpenChange={setOpen} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip="Insert" isDropdown>
           <PlusIcon />
@@ -221,7 +221,7 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
             {nestedItems.map(({ icon, label, value, onSelect }) => (
               <DropdownMenuItem
                 key={value}
-                className="min-w-[180px]"
+                className="min-w-[180px] cursor-pointer hover:!bg-secondary transition-colors duration-300"
                 onSelect={() => {
                   onSelect(editor, value)
                   editor.tf.focus()

@@ -126,7 +126,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
         <p className="text-lg">Provided files</p>
         <div className="flex items-center gap-2">
           {editAllowed && <ControlEvidenceUploadDialog evidenceID={evidenceID} />}
-          <Button icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
+          <Button variant="secondary" icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
             Download All
           </Button>
         </div>

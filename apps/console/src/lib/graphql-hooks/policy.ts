@@ -10,6 +10,7 @@ import {
   BULK_EDIT_INTERNAL_POLICY,
   CREATE_UPLOAD_POLICY,
   GET_INTERNAL_POLICIES_DASHBOARD,
+  GET_POLICY_SUGGESTED_ACTIONS,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -26,6 +27,7 @@ import {
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
   InternalPolicy,
+  PolicySuggestedActionsQuery,
   UpdateBulkInternalPolicyMutation,
   UpdateBulkInternalPolicyMutationVariables,
   UpdateInternalPolicyMutation,
@@ -33,6 +35,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
+import { useSession } from 'next-auth/react'
 
 type UseInternalPoliciesArgs = {
   where?: GetInternalPoliciesListQueryVariables['where']
@@ -183,4 +186,28 @@ export const useInternalPoliciesDashboard = ({ where, enabled }: UseInternalPoli
     policies,
     isLoading: queryResult.isFetching,
   }
+}
+
+export const usePolicySuggestedActions = () => {
+  const { client } = useGraphQLClient()
+  const { data: session } = useSession()
+
+  const currentUserId = session?.user?.userId
+  const now = new Date()
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const commentsSince = sevenDaysAgo
+
+  return useQuery<PolicySuggestedActionsQuery>({
+    queryKey: ['internalPolicies', 'suggested-actions', currentUserId],
+    queryFn: async () =>
+      client.request(GET_POLICY_SUGGESTED_ACTIONS, {
+        currentUserIdID: currentUserId,
+        currentUserIdString: currentUserId,
+        sevenDaysAgo,
+        commentsSince,
+      }),
+    enabled: !!currentUserId,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  })
 }

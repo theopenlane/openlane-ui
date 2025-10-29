@@ -1,7 +1,25 @@
-import { Circle, CircleCheck, CircleCheckBig, CircleOff, CirclePlus, ScanEye, Timer } from 'lucide-react'
+import {
+  CalendarClock,
+  Circle,
+  CircleCheck,
+  CircleCheckBig,
+  CircleDot,
+  CircleOff,
+  CirclePlus,
+  FolderPen,
+  Key,
+  ScanEye,
+  Shapes,
+  ShieldCheck,
+  Timer,
+  UserRoundCheck,
+  UserRoundPen,
+  type LucideIcon,
+} from 'lucide-react'
 import { TaskTaskStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { Button } from '@repo/ui/button'
 
 export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
   [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-completed" />,
@@ -17,6 +35,28 @@ export const TaskStatusMapper: Record<TaskTaskStatus, string> = {
   [TaskTaskStatus.IN_REVIEW]: 'In review',
   [TaskTaskStatus.OPEN]: 'Open',
   [TaskTaskStatus.WONT_DO]: "Won't do",
+}
+
+export enum TasksFilterIconName {
+  DisplayID = 'DisplayID',
+  Title = 'Title',
+  Type = 'Type',
+  Status = 'Status',
+  Assigner = 'Assigner',
+  Assignee = 'Assignee',
+  ProgramName = 'ProgramName',
+  DueDate = 'DueDate',
+}
+
+export const FilterIcons: Record<TasksFilterIconName, LucideIcon> = {
+  [TasksFilterIconName.DisplayID]: Key,
+  [TasksFilterIconName.Title]: FolderPen,
+  [TasksFilterIconName.Status]: CircleDot,
+  [TasksFilterIconName.Assigner]: UserRoundCheck,
+  [TasksFilterIconName.Assignee]: UserRoundPen,
+  [TasksFilterIconName.ProgramName]: ShieldCheck,
+  [TasksFilterIconName.Type]: Shapes,
+  [TasksFilterIconName.DueDate]: CalendarClock,
 }
 
 // Status options for select dropdowns
@@ -43,8 +83,8 @@ export const TaskIconBtn = (
   </div>
 )
 export const TaskIconPrefixBtn = (
-  <div className="flex items-center space-x-2">
+  <Button size="sm" variant="transparent" className="flex items-center space-x-2 justify-start">
     <CircleCheckBig size={16} strokeWidth={2} />
     <span>Create Task</span>
-  </div>
+  </Button>
 )

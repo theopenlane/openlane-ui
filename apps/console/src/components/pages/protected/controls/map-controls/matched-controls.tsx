@@ -96,7 +96,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
         <div className="flex items-center justify-between mb-2  ">
           <span className="w-full">Matched controls</span>
         </div>
-        <Button type="button" className="h-8 !px-2" variant="outline" disabled={!controlData} onClick={toggleAll}>
+        <Button type="button" className="h-8 !px-2" variant="secondary" disabled={!controlData} onClick={toggleAll}>
           <div className="flex">
             <List size={16} />
             <ChevronsDownUp size={16} />

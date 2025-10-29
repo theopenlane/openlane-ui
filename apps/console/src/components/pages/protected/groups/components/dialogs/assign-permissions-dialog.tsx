@@ -247,7 +247,7 @@ const AssignPermissionsDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!canEdit(permission?.roles)}>
+        <Button variant="secondary" icon={<Plus />} iconPosition="left" disabled={!canEdit(permission?.roles)}>
           Assign permissions to group
         </Button>
       </DialogTrigger>
@@ -290,7 +290,7 @@ const AssignPermissionsDialog = () => {
             {selectedObject && <DataTable columns={columns} data={tableData} onPaginationChange={setPagination} pagination={pagination} paginationMeta={{ totalCount, pageInfo, isLoading }} />}
 
             <DialogFooter className="flex justify-start pt-4">
-              <Button className="w-[180px]" onClick={handleNext} disabled={selectedPermissions.length === 0}>
+              <Button variant="secondary" className="w-[180px]" onClick={handleNext} disabled={selectedPermissions.length === 0}>
                 Next ({selectedPermissions.length})
               </Button>
             </DialogFooter>
@@ -300,8 +300,10 @@ const AssignPermissionsDialog = () => {
             <p>You are about to add {selectedPermissions.length} relationship(s) to the group.</p>
             <DataTable columns={columnsStep2} data={selectedPermissions} />
             <DialogFooter className="flex justify-between pt-4">
-              <Button onClick={handleBack}>Back</Button>
-              <Button className="w-[180px]" onClick={handleSave}>
+              <Button variant="secondary" onClick={handleBack}>
+                Back
+              </Button>
+              <Button variant="secondary" className="w-[180px]" onClick={handleSave}>
                 Add relationship ({selectedPermissions.length})
               </Button>
             </DialogFooter>

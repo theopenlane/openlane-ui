@@ -24,9 +24,11 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json()
 
-    if (data.success && data.score >= 0.5) {
+    if (data.success && data.score >= 0.2) {
       return NextResponse.json({ success: true, score: data.score, action: data.action })
     } else {
+      console.log('reCAPTCHA verification failed:', data)
+
       return NextResponse.json(
         {
           success: false,

@@ -104,7 +104,7 @@ export function ProductCard({
 
                 {alreadySubscribed ? (
                   endingSoon ? (
-                    <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmRenewOpen(true)}>
+                    <Button variant="secondary" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmRenewOpen(true)}>
                       Renew
                     </Button>
                   ) : (
@@ -126,7 +126,7 @@ export function ProductCard({
                     </TooltipProvider>
                   )
                 ) : (
-                  <Button variant="outline" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSubscribeOpen(true)}>
+                  <Button variant="secondary" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSubscribeOpen(true)}>
                     Subscribe
                   </Button>
                 )}

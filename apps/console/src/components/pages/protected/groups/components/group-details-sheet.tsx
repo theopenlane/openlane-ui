@@ -26,13 +26,13 @@ import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { DOCS_URL } from '@/constants'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { PLATFORM_DOCS_URL } from '@/constants/docs'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -164,12 +164,12 @@ const GroupDetailsSheet = () => {
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
 
               <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                <Button icon={<Link />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
                   Copy link
                 </Button>
                 {isEditing ? (
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                    <Button type="button" variant="secondary" onClick={() => setIsEditing(false)}>
                       Cancel
                     </Button>
                     <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
@@ -177,7 +177,7 @@ const GroupDetailsSheet = () => {
                     </Button>
                   </div>
                 ) : (
-                  <Button disabled={!!isManaged || !canEdit(permission?.roles)} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                  <Button disabled={!!isManaged || !canEdit(permission?.roles)} icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
                     Edit Group
                   </Button>
                 )}
@@ -256,7 +256,7 @@ const GroupDetailsSheet = () => {
                     <p className="font-semibold">Did you know?</p>
                     <p className="text-sm">
                       Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href={`${DOCS_URL}/docs/platform/basics/groups/permissions`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                      <a href={`${PLATFORM_DOCS_URL}/basics/groups/permissions`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                         documentation
                       </a>
                       .

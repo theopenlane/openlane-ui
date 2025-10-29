@@ -1,3 +1,5 @@
+'use client'
+
 type TExportCSV = {
   filename: string
 }
@@ -30,7 +32,8 @@ export async function exportCSV<T>(arg: TExportCSV): Promise<void | { message: s
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-  } catch {
+  } catch (error) {
+    console.error('Error exporting CSV:', error)
     return { message: 'error' }
   }
 }

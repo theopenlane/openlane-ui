@@ -43,7 +43,7 @@ export function IntegrationsGrid({ integrations, activeTab }: IntegrationsGridPr
               Reach out and we can get you setup.
             </h2>
             <a href={INFO_EMAIL}>
-              <Button variant="outline" className="text-brand">
+              <Button variant="secondary" className="text-brand">
                 Request
               </Button>
             </a>

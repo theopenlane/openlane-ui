@@ -42,7 +42,7 @@ const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({
 
   return (
     <>
-      <Button type="button" variant="outline" className="!p-1 h-8 bg-card" onClick={() => setIsOpen(true)} aria-label="Delete control">
+      <Button type="button" variant="secondary" className="!p-1 h-8" onClick={() => setIsOpen(true)} aria-label="Delete control">
         <Trash2 size={16} strokeWidth={2} />
       </Button>
 

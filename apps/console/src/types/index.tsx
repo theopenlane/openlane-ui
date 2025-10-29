@@ -28,10 +28,13 @@ export interface FilterField {
   key: string
   label: string
   icon: LucideIcon
-  type: 'text' | 'select' | 'date' | 'boolean' | 'multiselect'
+  type: 'text' | 'select' | 'date' | 'boolean' | 'dateRange' | 'sliderNumber' | 'multiselect'
   forceKeyOperator?: boolean
   childrenObjectKey?: string
   options?: { value: string; label: string }[]
+  multiple?: boolean
+  min?: number
+  max?: number
 }
 
 export type ConditionValue =

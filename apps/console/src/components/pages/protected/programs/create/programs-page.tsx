@@ -49,7 +49,13 @@ const customOptions = [
   },
 ]
 
-export default function ProgramsCreate() {
+// Add this interface
+interface ProgramsCreateProps {
+  disableHeader?: boolean
+  noPrograms?: boolean
+}
+
+export default function ProgramsCreate({ disableHeader = false, noPrograms = false }: ProgramsCreateProps) {
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   useEffect(() => {
@@ -59,14 +65,25 @@ export default function ProgramsCreate() {
       { label: 'Create', href: '/programs/create' },
     ])
   }, [setCrumbs])
+
   return (
-    <div className="max-w-6xl mx-auto px-6 py-2">
-      <h1 className="text-2xl font-medium tracking-tight mb-6">Create New Program</h1>
-      <Separator className="" separatorClass="bg-card" />
+    <div className="max-w-6xl mx-auto">
+      {!disableHeader && (
+        <>
+          <h1 className="text-2xl font-medium tracking-tight mb-6">Create New Program</h1>
+          <Separator className="" separatorClass="bg-card" />
+        </>
+      )}
 
       {/* Quickstart */}
       <div>
-        <h2 className="mb-3 mt-4">Quickstart</h2>
+        {noPrograms ? (
+          <p className="mt-6 mb-3 max-w-3xl rounded-md border border-border/40 bg-muted/10 px-4 py-2 text-left text-[0.95rem] text-muted-foreground">
+            No programs found. <span className="text-foreground font-medium">Create one now</span> using any of the options below.
+          </p>
+        ) : (
+          <h2 className="mb-3 mt-4">Quickstart</h2>
+        )}
         <div className="flex gap-6">
           {quickstartOptions.map((option) => (
             <Link key={option.title} href={option.url}>

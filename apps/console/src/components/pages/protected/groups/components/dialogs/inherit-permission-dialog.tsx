@@ -100,7 +100,7 @@ const InheritPermissionDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
+        <Button variant="secondary" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
           Inherit permission
         </Button>
       </DialogTrigger>
@@ -162,15 +162,16 @@ const InheritPermissionDialog = () => {
 
         <DialogFooter className="justify-between">
           {step === 1 ? (
-            <Button className="w-full" onClick={handleNextStep} disabled={!group}>
+            <Button variant="secondary" className="w-full" onClick={handleNextStep} disabled={!group}>
               Next
             </Button>
           ) : (
             <>
-              <Button variant="back" onClick={handleBack}>
+              <Button variant="secondary" onClick={handleBack}>
                 Back
               </Button>
               <Button
+                variant="secondary"
                 className=""
                 onClick={() => {
                   inheritPermissions()

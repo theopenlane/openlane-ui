@@ -3,12 +3,11 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/controls'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ControlControlStatus } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlWhereInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, Settings2, SquarePlus } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List, SlidersHorizontal, SquarePlus, Upload } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -21,9 +20,18 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
-import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { loadFilters, saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import Menu from '@/components/shared/menu/menu'
+import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
+import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
+import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { Callout } from '@/components/shared/callout/callout'
+import { ControlsEmptyActions } from './control-empty'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -33,7 +41,7 @@ type TControlReportPageProps = {
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
+  const [selectedStandards, setSelectedStandards] = useState<string[]>([])
   const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const { data: permission } = useOrganizationRoles()
@@ -50,27 +58,36 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId),
   })
 
-  const filteredStandardOptions = useMemo(() => {
-    if (!standardOptions) return []
-    return standardOptions.map((opt) => ({
-      label: opt.label,
-      value: opt.label,
-    }))
-  }, [standardOptions])
+  const where: ControlWhereInput | undefined = useMemo(() => {
+    const hasCustom = selectedStandards.includes('CUSTOM')
+    const normalStandards = selectedStandards.filter((id) => id !== 'CUSTOM')
 
-  const where = useMemo(() => {
-    if (referenceFramework && referenceFramework !== 'Custom') {
-      return { referenceFramework: referenceFramework, ownerIDNEQ: '' }
-    } else if (referenceFramework === 'Custom') {
-      return { referenceFrameworkIsNil: true, ownerIDNEQ: '' }
+    if (!hasCustom && normalStandards.length === 0) {
+      return { ownerIDNEQ: '' }
     }
-    return undefined
-  }, [referenceFramework])
+
+    const where: ControlWhereInput = { ownerIDNEQ: '' }
+
+    if (hasCustom && normalStandards.length > 0) {
+      where.or = [{ referenceFrameworkIsNil: true }, { standardIDIn: normalStandards }]
+      return where
+    }
+
+    if (hasCustom) {
+      where.referenceFrameworkIsNil = true
+      return where
+    }
+
+    where.standardIDIn = normalStandards
+    return where
+  }, [selectedStandards])
 
   const { data, isLoading, isFetching } = useGetControlsGroupedByCategoryResolver({
     where,
-    enabled: Boolean(referenceFramework),
+    enabled: !!where && isSuccessStandards,
   })
+
+  const hasNoControls = !data || data.length === 0 || data.every((entry) => entry.controls.length === 0)
 
   const groupControlsByStatus = (controls: { id: string; refCode: string; status?: string | null }[]): Record<ControlControlStatus, { id: string; refCode: string; status?: string | null }[]> => {
     return ControlStatusOrder.reduce(
@@ -92,16 +109,27 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }
 
   const handleRedirectWithFilter = (status: ControlControlStatus) => {
-    if (!referenceFramework) return
-    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'CUSTOM'
-
     const filters: TFilterState = {
-      standard: [standardId],
+      standardIDIn: selectedStandards,
       status: [status],
     }
 
     saveFilters(TableFilterKeysEnum.CONTROL, filters)
     setActive('table')
+  }
+
+  const toggleFilter = (value: string) => {
+    const saved = loadFilters(TableFilterKeysEnum.CONTROL) || {}
+    const current = (saved.standardIDIn as string[]) || []
+
+    const updated = current.includes(value) ? current.filter((v) => v !== value) : [...current, value]
+
+    setSelectedStandards(updated)
+
+    saveFilters(TableFilterKeysEnum.CONTROL, {
+      ...saved,
+      standardIDIn: updated.length > 0 ? updated : undefined,
+    })
   }
 
   useEffect(() => {
@@ -112,17 +140,18 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [setCrumbs])
 
   useEffect(() => {
-    if (!isSuccessStandards) return
+    const saved = loadFilters(TableFilterKeysEnum.CONTROL)
+    const arr = (saved?.standardIDIn as string[]) || []
+    setSelectedStandards(arr)
 
-    const onlyHasCustom = standardOptions.length === 0
-
-    if (onlyHasCustom) {
-      setReferenceFramework('Custom')
-    } else {
-      const first = standardOptions[0]?.label
-      setReferenceFramework(first || 'Custom')
+    const handleUpdate = (e: CustomEvent) => {
+      const updated = (e.detail?.standardIDIn as string[]) || []
+      setSelectedStandards(updated)
     }
-  }, [standardOptions, isSuccessStandards])
+
+    window.addEventListener(`filters-updated:${TableFilterKeysEnum.CONTROL}`, handleUpdate as EventListener)
+    return () => window.removeEventListener(`filters-updated:${TableFilterKeysEnum.CONTROL}`, handleUpdate as EventListener)
+  }, [])
 
   if (isLoading || !data) {
     return <ControlReportPageSkeleton />
@@ -134,30 +163,90 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         <div className="flex items-center gap-4">
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
           <TabSwitcher active={active} setActive={setActive} />
-          <Select onValueChange={setReferenceFramework} value={referenceFramework}>
-            <SelectTrigger className="w-48 h-7.5">
-              <SelectValue placeholder="Select Framework" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredStandardOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-              <SelectItem value="Custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
-            <div className="flex">
-              <List size={16} />
-              <ChevronsDownUp size={16} />
-            </div>
-          </Button>
+          {!isLoading && !isFetching && !hasNoControls ? (
+            <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
+              <div className="flex">
+                <List size={16} />
+                <ChevronsDownUp size={16} />
+              </div>
+            </Button>
+          ) : null}
         </div>
+
         <div className="flex items-center gap-2">
-          {createAllowed && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left" className={`h-7.5 !px-2 !pl-3 ${selectedStandards.length ? 'border border-primary' : ''}`}>
+                <span className="text-muted-foreground">Filter by:</span>
+                <span>Framework</span>
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
+              {/* Custom option */}
+              <DropdownMenuItem
+                className="flex items-center gap-2"
+                onSelect={(e) => {
+                  e.preventDefault()
+                  toggleFilter('CUSTOM')
+                }}
+              >
+                <Checkbox checked={selectedStandards.includes('CUSTOM')} />
+                <span>Custom</span>
+              </DropdownMenuItem>
+
+              {/* Standard options */}
+              {standardOptions.map((opt) => (
+                <DropdownMenuItem
+                  key={opt.value}
+                  className="flex items-center gap-2"
+                  onSelect={(e) => {
+                    e.preventDefault()
+                    toggleFilter(opt.value)
+                  }}
+                >
+                  <Checkbox checked={selectedStandards.includes(opt.value)} />
+                  <span className="truncate">{opt.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {!isLoading && !isFetching && !hasNoControls ? (
+            <Menu
+              closeOnSelect={true}
+              content={() => (
+                <>
+                  <BulkCSVCloneControlDialog
+                    trigger={
+                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Upload From Standard</span>
+                      </Button>
+                    }
+                  />
+                  <BulkCSVCreateControlDialog
+                    trigger={
+                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Upload Custom Controls</span>
+                      </Button>
+                    }
+                  />
+                  <BulkCSVCreateMappedControlDialog
+                    trigger={
+                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Upload Control Mappings</span>
+                      </Button>
+                    }
+                  />
+                </>
+              )}
+            />
+          ) : null}
+          {createAllowed && !hasNoControls && (
             <Link href="/controls/create-control" aria-label="Create Control">
-              <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             </Link>
@@ -167,47 +256,39 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       <div className="space-y-2">
         {isLoading || isFetching ? (
           <ControlReportPageSkeleton />
-        ) : !data || data.length === 0 ? (
-          <>
-            <div className="flex flex-col items-center justify-center mt-16 gap-6">
-              <div className="max-w-3xl p-4 border rounded-lg text-sm text-muted-foreground">
-                <div className="flex items-start gap-2">
-                  <span className="text-primary">
-                    <svg width="20" height="20" fill="currentColor">
-                      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-                      <circle cx="10" cy="10" r="1.5" />
-                    </svg>
-                  </span>
-                  <div>
-                    <p className="text-base font-medium">What are Controls?</p>
-                    <p className="mt-2 text-sm">
-                      Controls are the core building blocks of compliance management in Openlane. They represent specific security, privacy, or operational requirements that organizations must
-                      implement to meet compliance standards and manage risks effectively.
-                      <a href="https://docs.theopenlane.io/docs/docs/platform/controls/overview" target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500 underline">
-                        See docs to learn more.
-                      </a>
-                    </p>
-                  </div>
-                </div>
+        ) : hasNoControls ? (
+          <div className="max-w-6xl mx-auto">
+            <p className="mt-4 rounded-md border border-border/30 bg-muted/20 px-5 py-2.5 text-base text-muted-foreground shadow-sm">
+              No controls found. <span className="text-foreground font-medium">Create one now</span> using any option below.
+            </p>
+
+            <div className="mt-6 grid grid-cols-3">
+              <div className="col-span-2 grid">
+                <ControlsEmptyActions />
               </div>
 
-              <div className="flex flex-col items-center gap-2">
-                <Settings2 className="text-border" size={89} strokeWidth={1} />
-                <p className="text-sm text-muted-foreground">No controls found</p>
-                <p className="text-sm text-muted-foreground">Ready to get started?</p>
-                <div className="flex gap-4 pt-2">
-                  <Link href="/standards" passHref>
-                    <Button variant="outline" className="h-8">
-                      Import from Standards Catalog
-                    </Button>
-                  </Link>
-                  <Link href="/controls/create-control" passHref>
-                    <Button className="h-8">Create Custom Controls</Button>
-                  </Link>
-                </div>
+              <div className="row-span-2 ml-4">
+                <Callout variant="info" title="What are Controls?" className="h-full self-stretch ">
+                  <br />
+                  Controls are the foundation of your compliance program in Openlane. Each control defines a specific security, privacy, or operational requirement that your organization follows to
+                  protect systems and data. <br />
+                  <br />
+                  Controls serve as the bridge between high-level compliance frameworks (like SOC 2 or ISO 27001) and the actual policies, procedures, and evidence your team manages day-to-day. By
+                  implementing and maintaining controls, you demonstrate how your organization meets key standards and reduces risk across your environment.
+                  <br />
+                  <br />
+                  <a
+                    href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/controls/overview`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 text-[var(--color-info)] underline underline-offset-4 hover:opacity-80"
+                  >
+                    See docs to learn more.
+                  </a>
+                </Callout>
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
             {data?.map(({ category, controls }) => {

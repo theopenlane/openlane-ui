@@ -16,10 +16,11 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum'
 import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum'
-import { CONTRIBUTE_URL, DOCS_URL, SUPPORT_EMAIL } from '@/constants'
+import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
 import { featureUtil } from '@/lib/subscription-plan/plans'
 import { NavHeading, NavItem, Separator } from '@/types'
 import { Button } from '@repo/ui/button'
+import { DOCS_URL } from '@/constants/docs'
 
 export type PanelKey = 'compliance' | 'trust' | null
 
@@ -110,8 +111,9 @@ export default function SideNav({
           <div key={idx} className="relative flex w-full items-center justify-center">
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className=" h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
             <Button
+              variant="sidebar"
               onClick={() => (isExpandable ? handleTogglePanel(isActive, item) : handleNavigate(url))}
-              className={` flex justify-start gap-1 btn-card text-muted-foreground  h-8  ${isActive ? 'is-active text-paragraph' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 !px-1.5'}`}
+              className={`flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
             >
               <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
               {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
@@ -146,7 +148,9 @@ export default function SideNav({
     const linkContent = (
       <Link
         href={child.href ?? '#'}
-        className={`flex items-center  gap-2 p-1 mb-2 h-[32px] rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''}`}
+        className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
+          secondaryExpanded ? 'px-2.5' : 'justify-center'
+        }`}
       >
         {child.icon && <child.icon size={secondaryExpanded ? 16 : 20} />}
         {secondaryExpanded && <span className="text-sm font-normal leading-5">{child.title}</span>}
@@ -176,7 +180,7 @@ export default function SideNav({
         external: true,
       },
       {
-        href: SUPPORT_EMAIL,
+        href: SUPPORT_URL,
         label: 'Feedback',
         icon: MessageSquareText,
         external: false,
@@ -264,7 +268,7 @@ export default function SideNav({
                 <Menu
                   trigger={
                     primaryExpanded ? (
-                      <Button className="btn-secondary flex-1">
+                      <Button variant="primary" className="flex-1">
                         <Plus size={16} />
                         <p>Create</p>
                       </Button>
@@ -276,10 +280,8 @@ export default function SideNav({
                   align="start"
                   content={
                     <>
-                      <Link href="/programs/create/" className="px-1">
-                        {ProgramCreatePrefixIconBtn}
-                      </Link>
-                      <CreateTaskDialog trigger={TaskIconPrefixBtn} className="bg-transparent px-1" />
+                      <Link href="/programs/create/">{ProgramCreatePrefixIconBtn}</Link>
+                      <CreateTaskDialog trigger={TaskIconPrefixBtn} />
                     </>
                   }
                 />

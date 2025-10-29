@@ -17,7 +17,7 @@ import { bottomNavigationItems, personalNavigationItems, topNavigationItems } fr
 import Sidebar from '@/components/shared/sidebar/sidebar'
 import { NavHeading, NavItem, Separator } from '@/types'
 import { usePathname } from 'next/navigation'
-import { useOrganization } from '@/hooks/useOrganization.ts'
+import { useOrganization } from '@/hooks/useOrganization'
 import { PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 

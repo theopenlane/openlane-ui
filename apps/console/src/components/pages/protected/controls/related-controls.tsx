@@ -61,15 +61,15 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
         ],
       }
     : id
-    ? {
-        or: [
-          suggestedControlWhere,
-          {
-            or: [{ hasFromControlsWith: [{ id }] }, { hasToControlsWith: [{ id }] }],
-          },
-        ],
-      }
-    : undefined
+      ? {
+          or: [
+            suggestedControlWhere,
+            {
+              or: [{ hasFromControlsWith: [{ id }] }, { hasToControlsWith: [{ id }] }],
+            },
+          ],
+        }
+      : undefined
 
   const { data } = useGetMappedControls({ where, enabled: !!where })
 
@@ -215,14 +215,14 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
       <div className="flex justify-between items-center mb-5">
         <p className="text-lg">Related Controls</p>
         {hasData ? (
-          <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
+          <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
             View
           </Button>
         ) : (
           <>
             {canCreate && (
               <Link href={`${path}/map-control`} className="text-sm font-medium text-primary underline underline-offset-4">
-                <Button type="button" className="h-8 p-2" variant="outline">
+                <Button type="button" className="h-8 p-2" variant="secondary">
                   Create
                 </Button>
               </Link>

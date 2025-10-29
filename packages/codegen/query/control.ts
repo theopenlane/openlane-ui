@@ -309,6 +309,16 @@ export const CREATE_CSV_BULK_CONTROL = gql`
   }
 `
 
+export const CREATE_CSV_BULK_MAPPED_CONTROL = gql`
+  mutation CreateBulkCSVMappedControl($input: Upload!) {
+    createBulkCSVMappedControl(input: $input) {
+      mappedControls {
+        id
+      }
+    }
+  }
+`
+
 export const CLONE_CSV_BULK_CONTROL = gql`
   mutation CloneBulkCSVControl($input: Upload!) {
     cloneBulkCSVControl(input: $input) {
@@ -496,6 +506,14 @@ export const UPDATE_CONTROL_COMMENT = gql`
       control {
         id
       }
+    }
+  }
+`
+
+export const DELETE_NOTE = gql`
+  mutation DeleteNote($deleteNoteId: ID!) {
+    deleteNote(id: $deleteNoteId) {
+      deletedID
     }
   }
 `

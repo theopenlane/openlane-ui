@@ -88,6 +88,14 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
     }
   }
 
+  const handleZoomIn = () => {
+    setZoom((z) => Math.min(z + 0.1, 3))
+  }
+
+  const handleZoomOut = () => {
+    setZoom((z) => Math.max(z - 0.1, 1))
+  }
+
   return (
     <Panel>
       <PanelHeader heading="Avatar" noBorder />
@@ -108,13 +116,36 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
             <DialogTitle>Edit your avatar</DialogTitle>
             <DialogDescription>Please crop, resize and click &apos;Save avatar&apos;</DialogDescription>
           </DialogHeader>
+          <div className="flex items-center space-x-4 justify-center">
+            <Button variant="primary" onClick={handleZoomOut} className="w-8 h-8">
+              −
+            </Button>
+            <span className="text-sm">Zoom: {zoom.toFixed(1)}×</span>
+            <Button variant="primary" onClick={handleZoomIn} className="w-8 h-8">
+              +
+            </Button>
+          </div>
           <div className={cropContainer()}>
             {uploadedImage && (
-              <Cropper image={uploadedImage} crop={crop} zoom={zoom} aspect={1} cropShape="rect" showGrid={false} onCropChange={onCropChange} onCropComplete={onCropComplete} onZoomChange={setZoom} />
+              <div className="flex flex-col items-center space-y-4">
+                <Cropper
+                  image={uploadedImage}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="rect"
+                  showGrid={false}
+                  onCropChange={onCropChange}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                  minZoom={1}
+                  maxZoom={3}
+                />
+              </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeModal}>
+            <Button variant="secondary" onClick={closeModal}>
               Cancel
             </Button>
             <Button onClick={saveCroppedImage}>Save avatar</Button>

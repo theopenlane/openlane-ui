@@ -20,6 +20,8 @@ import {
   GET_CONTROLS_BY_REFCODE,
   GET_CONTROL_COMMENTS,
   UPDATE_CONTROL_COMMENT,
+  CREATE_CSV_BULK_MAPPED_CONTROL,
+  DELETE_NOTE,
 } from '@repo/codegen/query/control'
 
 import {
@@ -58,6 +60,10 @@ import {
   GetControlCommentsQueryVariables,
   UpdateControlCommentMutation,
   UpdateControlCommentMutationVariables,
+  CreateBulkCsvMappedControlMutation,
+  CreateBulkCsvMappedControlMutationVariables,
+  DeleteNoteMutation,
+  DeleteNoteMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -151,6 +157,18 @@ export const useCreateBulkCSVControl = () => {
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVMappedControl = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvMappedControlMutation, unknown, CreateBulkCsvMappedControlMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_MAPPED_CONTROL, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
@@ -452,6 +470,18 @@ export const useUpdateControlComment = () => {
     mutationFn: async (variables) => client.request(UPDATE_CONTROL_COMMENT, variables),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['controlComments', data.updateControlComment.control.id] })
+    },
+  })
+}
+
+export const useDeleteNote = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<DeleteNoteMutation, unknown, DeleteNoteMutationVariables>({
+    mutationFn: async (variables) => client.request(DELETE_NOTE, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['controlComments', data.deleteNote.deletedID] })
     },
   })
 }

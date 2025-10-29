@@ -138,12 +138,12 @@ const OrganizationNameForm = () => {
               name="displayName"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 items-center">
                     <FormControl className="flex-1">
-                      <Input {...field} variant="medium" className="rounded-r-none h-10" />
+                      <Input {...field} variant="medium" className="h-10" />
                     </FormControl>
 
-                    <Button type="submit" variant={isSuccess ? 'success' : 'filled'} loading={isPending}>
+                    <Button type="submit" variant={`${isSuccess ? 'success' : 'secondary'}`} loading={isPending}>
                       {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
                     </Button>
                   </div>

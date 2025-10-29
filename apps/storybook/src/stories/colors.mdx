@@ -4,11 +4,18 @@ import { Meta, ColorPalette, ColorItem } from '@storybook/addon-docs/blocks'
 
 # Color Palette
 
+## Primary Colors
+
 <ColorPalette>
   {(() => {
     const styles = getComputedStyle(document.documentElement);
     const themeColors = {
-      'regal-blue': styles.getPropertyValue('--color-regal-blue').trim(),
+      'primary': styles.getPropertyValue('--color-primary').trim(),
+      'primary-foreground': styles.getPropertyValue('--color-primary-foreground').trim(),
+      'secondary': styles.getPropertyValue('--color-secondary').trim(),
+      'secondary-foreground': styles.getPropertyValue('--color-secondary-foreground').trim(),
+      'accent': styles.getPropertyValue('--color-accent').trim(),
+      'accent-foreground': styles.getPropertyValue('--color-accent-foreground').trim(),
     };
 
     return Object.entries(themeColors).map(([name, value]) => (
@@ -19,5 +26,113 @@ import { Meta, ColorPalette, ColorItem } from '@storybook/addon-docs/blocks'
         colors={{ [name]: value }}
       />
     ))
-  })()}
+
+})()}
+
+</ColorPalette>
+
+## Background Colors
+
+<ColorPalette>
+  {(() => {
+    const styles = getComputedStyle(document.documentElement);
+    const themeColors = {
+      'background': styles.getPropertyValue('--color-background').trim(),
+      'foreground': styles.getPropertyValue('--color-foreground').trim(),
+      'card': styles.getPropertyValue('--color-card').trim(),
+      'card-foreground': styles.getPropertyValue('--color-card-foreground').trim(),
+      'popover': styles.getPropertyValue('--color-popover').trim(),
+      'popover-foreground': styles.getPropertyValue('--color-popover-foreground').trim(),
+    };
+
+    return Object.entries(themeColors).map(([name, value]) => (
+      <ColorItem
+        key={name}
+        title={name}
+        subtitle={value}
+        colors={{ [name]: value }}
+      />
+    ))
+
+})()}
+
+</ColorPalette>
+
+## Status Colors
+
+<ColorPalette>
+  {(() => {
+    const styles = getComputedStyle(document.documentElement);
+    const themeColors = {
+      'success': styles.getPropertyValue('--success').trim(),
+      'warning': styles.getPropertyValue('--warning').trim(),
+      'destructive': styles.getPropertyValue('--color-destructive').trim(),
+      'destructive-foreground': styles.getPropertyValue('--color-destructive-foreground').trim(),
+      'muted': styles.getPropertyValue('--color-muted').trim(),
+      'muted-foreground': styles.getPropertyValue('--color-muted-foreground').trim(),
+    };
+
+    return Object.entries(themeColors).map(([name, value]) => (
+      <ColorItem
+        key={name}
+        title={name}
+        subtitle={value}
+        colors={{ [name]: value }}
+      />
+    ))
+
+})()}
+
+</ColorPalette>
+
+## Button Colors
+
+<ColorPalette>
+  {(() => {
+    const styles = getComputedStyle(document.documentElement);
+    const themeColors = {
+      'btn-primary': styles.getPropertyValue('--color-btn-primary').trim(),
+      'btn-primary-hover': styles.getPropertyValue('--color-btn-primary-hover').trim(),
+      'btn-primary-text': styles.getPropertyValue('--color-btn-primary-text').trim(),
+      'btn-secondary': styles.getPropertyValue('--color-btn-secondary').trim(),
+      'btn-secondary-hover': styles.getPropertyValue('--color-btn-secondary-hover').trim(),
+      'btn-secondary-text': styles.getPropertyValue('--color-btn-secondary-text').trim(),
+    };
+
+    return Object.entries(themeColors).map(([name, value]) => (
+      <ColorItem
+        key={name}
+        title={name}
+        subtitle={value}
+        colors={{ [name]: value }}
+      />
+    ))
+
+})()}
+
+</ColorPalette>
+
+## Border & Input Colors
+
+<ColorPalette>
+  {(() => {
+    const styles = getComputedStyle(document.documentElement);
+    const themeColors = {
+      'border': styles.getPropertyValue('--color-border').trim(),
+      'input': styles.getPropertyValue('--color-input').trim(),
+      'ring': styles.getPropertyValue('--color-ring').trim(),
+      'separator': styles.getPropertyValue('--color-separator').trim(),
+    };
+
+    return Object.entries(themeColors).map(([name, value]) => (
+      <ColorItem
+        key={name}
+        title={name}
+        subtitle={value}
+        colors={{ [name]: value }}
+      />
+    ))
+
+})()}
+
 </ColorPalette>

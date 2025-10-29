@@ -1,13 +1,12 @@
 'use client'
 import { EvidenceTable } from '@/components/pages/protected/evidence/table/evidence-table.tsx'
 import { EvidenceSummaryCard } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs.ts'
 import { OrderDirection, ProgramOrderField, ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
@@ -18,6 +17,9 @@ import Loading from '@/app/(protected)/evidence/loading'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import EvidenceCreateSheet from './evidence-create-sheet'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { SlidersHorizontal } from 'lucide-react'
+import { Checkbox } from '@repo/ui/checkbox'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
@@ -26,11 +28,9 @@ const EvidenceDetailsPage = () => {
   const programId = searchParams.get('programId')
 
   const { data, isLoading } = useGetAllPrograms({
-    where: { statusNEQ: ProgramProgramStatus.COMPLETED },
+    where: { statusNotIn: [ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED] },
     orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
   })
-
-  const [selectedProgram, setSelectedProgram] = useState<string>('')
 
   const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
@@ -41,16 +41,6 @@ const EvidenceDetailsPage = () => {
   const { data: permission } = useOrganizationRoles()
 
   const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
-
-  const programMap = useMemo(() => {
-    const map: Record<string, string> = {}
-    data?.programs?.edges?.forEach((edge) => {
-      if (edge?.node) {
-        map[edge.node.id] = edge.node.name
-      }
-    })
-    return map
-  }, [data])
 
   useEffect(() => {
     setCrumbs([
@@ -64,21 +54,10 @@ const EvidenceDetailsPage = () => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
-  useEffect(() => {
-    if (programId && programMap[programId]) {
-      setSelectedProgram(programMap[programId])
-    } else {
-      setSelectedProgram('All Programs')
-    }
-  }, [programId, programMap])
-
   const handleSelectChange = (val: string) => {
-    if (val === 'all') {
-      setSelectedProgram('All programs')
+    if (val === 'All programs') {
       router.push(`/evidence`)
     } else {
-      const programName = programMap[val] ?? 'Unknown Program'
-      setSelectedProgram(programName)
       router.push(`/evidence?programId=${val}`)
     }
   }
@@ -103,29 +82,61 @@ const EvidenceDetailsPage = () => {
                   <h1>Evidence Center</h1>
                 </div>
                 <div className="flex gap-2.5 items-center">
-                  <EvidenceSuggestedActions />
-                  <Select onValueChange={handleSelectChange} value={programId ?? ''}>
-                    <SelectTrigger className="max-w-64 min-w-48 h-[32px] border rounded-md px-3 py-2 flex items-center justify-between">
-                      <div className="truncate">{selectedProgram || 'All Programs'}</div>
-                    </SelectTrigger>
-                    <SelectContent className="border rounded-md shadow-md">
-                      <SelectItem value="all">All Programs</SelectItem>
-                      {data?.programs?.edges?.map((edge) => {
-                        const program = edge?.node
-                        if (!program) return null
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <EvidenceSuggestedActions />
+                  </div>
+                  <div className="flex-shrink-0 h-8 flex items-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          className={`h-8 !px-2 !pl-3 outline-none ring-0 focus-visible:outline-none focus-visible:ring-0 ${programId ? 'border !border-primary' : ''}`}
+                          icon={<SlidersHorizontal />}
+                          iconPosition="left"
+                          variant="outline"
+                        >
+                          <span className="text-muted-foreground">Filter by:</span>
+                          <span>Program</span>
+                        </Button>
+                      </DropdownMenuTrigger>
 
-                        return (
-                          <SelectItem key={program.id} value={program.id}>
-                            {program.name}
-                          </SelectItem>
-                        )
-                      })}
-                    </SelectContent>
-                  </Select>
+                      <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
+                        {/* All programs */}
+                        <DropdownMenuItem
+                          className="flex items-center gap-2"
+                          onSelect={(e) => {
+                            e.preventDefault()
+                            handleSelectChange('All programs')
+                          }}
+                        >
+                          <Checkbox checked={!programId} />
+                          <span>All programs</span>
+                        </DropdownMenuItem>
 
+                        {/* Dynamic program list */}
+                        {data?.programs?.edges?.map((edge) => {
+                          const program = edge?.node
+                          if (!program) return null
+
+                          return (
+                            <DropdownMenuItem
+                              key={program.id}
+                              className="flex items-center gap-2"
+                              onSelect={(e) => {
+                                e.preventDefault()
+                                handleSelectChange(program.id)
+                              }}
+                            >
+                              <Checkbox checked={program.id === programId} />
+                              <span>{program.name}</span>
+                            </DropdownMenuItem>
+                          )
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                   {createAllowed && (
-                    <>
-                      <Button className="h-8 !px-2 btn-secondary" onClick={handleCreateEvidence}>
+                    <div className="flex-shrink-0 h-8 flex items-center">
+                      <Button variant="primary" className="h-8 !px-2" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
                       <EvidenceCreateSheet
@@ -134,12 +145,13 @@ const EvidenceDetailsPage = () => {
                         onOpenChange={setIsSheetOpen}
                         excludeObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM]}
                       />
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
             }
           />
+
           <EvidenceSummaryCard />
           <EvidenceTable />
           <EvidenceDetailsSheet />

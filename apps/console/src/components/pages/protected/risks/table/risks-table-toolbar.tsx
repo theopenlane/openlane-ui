@@ -1,8 +1,8 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useState } from 'react'
-import { DownloadIcon, FileText, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { RISKS_FILTER_FIELDS } from './table-config'
+import { getRisksFilterFields } from './table-config'
 import { FilterField } from '@/types'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -68,18 +68,8 @@ const RisksTableToolbar: React.FC<TProps> = ({
       return
     }
 
-    setFilterFields([
-      ...RISKS_FILTER_FIELDS,
-      {
-        key: 'hasProgramsWith',
-        label: 'Program Name',
-        type: 'select',
-        forceKeyOperator: true,
-        childrenObjectKey: 'id',
-        options: programOptions,
-        icon: FileText,
-      },
-    ])
+    const fields = getRisksFilterFields(programOptions)
+    setFilterFields(fields)
   }, [programOptions, filterFields, isSuccess])
 
   return (
@@ -99,16 +89,6 @@ const RisksTableToolbar: React.FC<TProps> = ({
             closeOnSelect={true}
             content={(close) => (
               <>
-                <button
-                  className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                  onClick={() => {
-                    handleExport()
-                    close()
-                  }}
-                >
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </button>
                 {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
                   <BulkCSVCreateRiskDialog
                     trigger={
@@ -119,6 +99,16 @@ const RisksTableToolbar: React.FC<TProps> = ({
                     }
                   />
                 )}
+                <button
+                  className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                  onClick={() => {
+                    handleExport()
+                    close()
+                  }}
+                >
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </button>
               </>
             )}
           />
@@ -134,7 +124,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
                 <BulkEditRisksDialog setIsBulkEditing={setIsBulkEditing} selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => {
                     setIsBulkEditing(false)
                     handleBulkEdit()
@@ -148,7 +138,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
         ) : (
           <>
             {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-              <Button variant="outline" onClick={handleCreateNew} className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             )}

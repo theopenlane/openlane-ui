@@ -15,6 +15,7 @@ import { useSearchParams } from 'next/navigation'
 import { useGetUsers } from '@/lib/graphql-hooks/user'
 import { TaskQuery, UserWhereInput } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useDeleteNote } from '@/lib/graphql-hooks/controls'
 
 type ConversationProps = {
   isEditing: boolean
@@ -33,6 +34,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
 
   const { mutateAsync: updateTask } = useUpdateTask()
   const { mutateAsync: updateTaskComment } = useUpdateTaskComment()
+  const { mutateAsync: deleteNote } = useDeleteNote()
 
   const where: UserWhereInput | undefined = taskData?.comments
     ? {
@@ -80,10 +82,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   const handleDeleteComment = async (commentId: string) => {
     if (!id) return
     try {
-      await updateTask({
-        updateTaskId: id,
-        input: { removeCommentIDs: [commentId] },
-      })
+      await deleteNote({ deleteNoteId: commentId })
       successNotification({
         title: 'Comment deleted',
         description: 'Your comment has been successfully deleted.',

@@ -143,8 +143,10 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
           </>
         ) : (
           <>
-            <Button className="h-8 !px-4">Create</Button>
-            <Button variant="back" className="h-8 !px-4" type="button" onClick={onSuccess}>
+            <Button variant="secondary" className="h-8 !px-4">
+              Create
+            </Button>
+            <Button variant="secondary" className="h-8 !px-4" type="button" onClick={onSuccess}>
               Cancel
             </Button>
           </>

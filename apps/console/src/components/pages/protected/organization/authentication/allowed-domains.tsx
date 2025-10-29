@@ -5,7 +5,6 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { CirclePlus, X } from 'lucide-react'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
@@ -13,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
+import { UpdateOrganizationSettingInput } from '@repo/codegen/src/schema'
 
 const isValidDomain = (domain: string) => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
 
@@ -26,30 +26,27 @@ const AllowedDomains = () => {
   const settingId = data?.organization?.setting?.id
   const [domains, setDomains] = useState<string[]>([])
   const [newDomain, setNewDomain] = useState('')
+  const [allowAutoJoin, setAllowAutoJoin] = useState(false)
   const queryClient = useQueryClient()
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [allowAutoJoin, setAllowAutoJoin] = useState(false)
 
-  useEffect(() => {
-    setAllowAutoJoin((data?.organization?.setting?.allowedEmailDomains?.length ?? 0) > 0)
-  }, [data])
+  const updateSetting = async (input: UpdateOrganizationSettingInput, successMsg = 'Settings saved successfully.') => {
+    if (!settingId) return
+    try {
+      await update({
+        updateOrganizationSettingId: settingId,
+        input,
+      })
 
-  const domainCount = domains.length
-
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
-      { label: 'Authentication', href: '/authentication' },
-    ])
-  }, [setCrumbs])
-
-  useEffect(() => {
-    const apiDomains = data?.organization?.setting?.allowedEmailDomains
-    if (Array.isArray(apiDomains)) {
-      setDomains(apiDomains)
+      await queryClient.invalidateQueries({ queryKey: ['organizationSetting', currentOrgId] })
+      successNotification({ title: 'Success', description: successMsg })
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: parseErrorMessage(error),
+      })
     }
-  }, [data])
+  }
 
   const addDomain = (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,46 +72,36 @@ const AllowedDomains = () => {
   const removeDomain = (domainToRemove: string) => {
     setDomains((prev) => {
       const updated = prev.filter((d) => d !== domainToRemove)
-      if (updated.length === 0) {
-        onSwitchChange(false)
-      }
       return updated
     })
   }
 
-  const saveChanges = async () => {
-    if (!settingId) return
-    try {
-      await update({
-        updateOrganizationSettingId: settingId,
-        input: { allowedEmailDomains: domains, allowMatchingDomainsAutojoin: allowAutoJoin },
-      })
-
-      await queryClient.invalidateQueries({
-        queryKey: ['organizationSetting', currentOrgId],
-      })
-      successNotification({
-        title: 'Domains saved',
-        description: 'Allowed domains updated successfully.',
-      })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
+  const saveChanges = () => {
+    updateSetting({ allowedEmailDomains: domains, allowMatchingDomainsAutojoin: domains.length > 0 ? undefined : false }, 'Allowed domains updated successfully.')
   }
 
   const onSwitchChange = (checked: boolean) => {
-    if (domainCount === 0) {
-      setAllowAutoJoin(false)
-      return
-    }
     setAllowAutoJoin(checked)
+    updateSetting({ allowMatchingDomainsAutojoin: checked }, 'Auto-join setting updated successfully.')
   }
 
+  useEffect(() => {
+    const apiDomains = data?.organization?.setting?.allowedEmailDomains ?? []
+    setDomains(apiDomains)
+    setAllowAutoJoin(!!data?.organization?.setting?.allowMatchingDomainsAutojoin)
+  }, [data])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Authentication', href: '/authentication' },
+    ])
+  }, [setCrumbs])
+
   if (isLoading) return <p className="text-sm text-muted">Loading allowed domains...</p>
+
+  const domainCount = domains.length
 
   return (
     <>
@@ -126,7 +113,7 @@ const AllowedDomains = () => {
             {domains.map((domain) => (
               <div key={domain} className="flex items-center gap-1">
                 {domain}
-                <button onClick={() => removeDomain(domain)} className="ml-1">
+                <button type="button" onClick={() => removeDomain(domain)} className="ml-1">
                   <X className="w-3 h-3 hover:text-red-500" />
                 </button>
               </div>
@@ -145,24 +132,21 @@ const AllowedDomains = () => {
               }}
             />
 
-            <button>
+            <button type="submit">
               <CirclePlus size={16} className="text-brand cursor-pointer" />
             </button>
           </form>
 
           {inputError && <p className="mt-2 text-sm text-destructive">{inputError}</p>}
 
-          <Button className="h-8 p-2 mt-4" variant="outline" onClick={saveChanges} disabled={isPending}>
+          <Button type="button" className="h-8 p-2 mt-4" variant="secondary" onClick={saveChanges} disabled={isPending}>
             Save
           </Button>
         </div>
       </Panel>
+
       <Panel>
-        <PanelHeader
-          heading="Auto-join on organization"
-          subheading="Allow users who can successfully confirm their email or who login via social providers or SSO (if enabled) with an email that matches the organizations configured allowed domain to auto-join the organization"
-          noBorder
-        />
+        <PanelHeader heading="Auto-join organization" subheading="Allow users with verified email addresses that match allowed domains to automatically join the organization" noBorder />
         <Switch checked={allowAutoJoin} onCheckedChange={onSwitchChange} disabled={domainCount === 0} />
       </Panel>
     </>

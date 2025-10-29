@@ -88,7 +88,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-8 p-2" icon={<Repeat />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+        <Button variant="secondary" className="h-8 p-2" icon={<Repeat />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
           Renew
         </Button>
       </DialogTrigger>
@@ -165,7 +165,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
           <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Create'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="outline" disabled={isSubmitting}>
+          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </div>

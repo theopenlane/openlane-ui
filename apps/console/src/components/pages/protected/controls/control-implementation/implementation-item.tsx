@@ -33,21 +33,21 @@ export const ImplementationItem: React.FC<Props> = ({ idx, node, onEdit, onMarkV
         <div className="flex gap-2">
           {isEditAllowed ? (
             node.verified ? (
-              <Button className="h-8 !px-2" icon={<Check />} iconPosition="left" disabled>
+              <Button variant="secondary" className="h-8 !px-2" icon={<Check />} iconPosition="left" disabled>
                 Verified
               </Button>
             ) : (
-              <Button className="h-8 !px-2" icon={<Check />} iconPosition="left" onClick={() => onMarkVerified(node.id)} disabled={permLoading || isUpdating}>
+              <Button variant="secondary" className="h-8 !px-2" icon={<Check />} iconPosition="left" onClick={() => onMarkVerified(node.id)} disabled={permLoading || isUpdating}>
                 Mark verified
               </Button>
             )
           ) : node.verified ? (
-            <Button className="h-8 !px-2" icon={<Check />} iconPosition="left" disabled>
+            <Button variant="secondary" className="h-8 !px-2" icon={<Check />} iconPosition="left" disabled>
               Verified
             </Button>
           ) : null}
           {isEditAllowed && (
-            <Button className="h-8 !px-2" variant="outline" icon={<Pencil />} iconPosition="left" onClick={() => onEdit(node)} disabled={permLoading || isUpdating}>
+            <Button variant="secondary" className="h-8 !px-2" icon={<Pencil />} iconPosition="left" onClick={() => onEdit(node)} disabled={permLoading || isUpdating}>
               Edit
             </Button>
           )}

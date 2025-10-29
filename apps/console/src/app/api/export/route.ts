@@ -1,31 +1,39 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth/auth.ts'
+import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export async function POST(request: Request) {
-  const bodyData = await request.json()
-  const cookies = request.headers.get('cookie')
-  const session = await auth()
-  const token = session?.user?.accessToken
+  try {
+    const bodyData = await request.json()
+    const session = await auth()
+    const token = session?.user?.accessToken
 
-  const headers: HeadersInit = {
-    Authorization: `Bearer ${token}`,
-  }
+    if (!token) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
 
-  if (cookies) {
-    headers['cookie'] = cookies
-  }
+    const headers: HeadersInit = {
+      Authorization: `Bearer ${token}`,
+    }
 
-  const fData = await secureFetch(`${process.env.API_REST_URL}/example/csv`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(bodyData),
-    credentials: 'include',
-  })
+    const fData = await secureFetch(`${process.env.API_REST_URL}/example/csv`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(bodyData),
+      credentials: 'include',
+    })
 
-  if (fData.ok) {
+    if (!fData.ok) {
+      const text = await fData.text()
+      try {
+        const json = JSON.parse(text)
+        return NextResponse.json(json, { status: fData.status })
+      } catch {
+        return NextResponse.json({ message: text || 'Failed to export' }, { status: fData.status })
+      }
+    }
+
     const blob = await fData.blob()
-
     return new NextResponse(blob, {
       status: 200,
       headers: {
@@ -33,11 +41,8 @@ export async function POST(request: Request) {
         'Content-Disposition': `attachment; filename="${bodyData.filename}.csv"`,
       },
     })
-  }
-
-  const data = await fData.json()
-
-  if (fData.status !== 201) {
-    return NextResponse.json(data, { status: fData.status })
+  } catch (error) {
+    console.error('Export error:', error)
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

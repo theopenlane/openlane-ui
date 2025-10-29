@@ -15,6 +15,7 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { Button } from '@repo/ui/button'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -70,18 +71,18 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
           <Menu
             content={
               <>
-                <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </button>
                 <BulkCSVCreateTemplatelDialog
                   trigger={
-                    <div className="flex items-center space-x-2 px-1">
+                    <Button size="sm" variant="transparent" className="px-1 flex items-center justify-start space-x-2">
                       <Upload size={16} strokeWidth={2} />
                       <span>Bulk Upload</span>
-                    </div>
+                    </Button>
                   }
                 />
+                <Button size="sm" variant="transparent" className={`px-1 flex items-center justify-start space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </Button>
               </>
             }
           />

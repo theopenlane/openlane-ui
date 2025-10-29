@@ -298,3 +298,59 @@ export const GET_INTERNAL_POLICIES_DASHBOARD = gql`
     }
   }
 `
+export const GET_POLICY_SUGGESTED_ACTIONS = gql`
+  query PolicySuggestedActions($currentUserIdID: ID!, $currentUserIdString: String!, $sevenDaysAgo: Time!, $commentsSince: Time!) {
+    needsMyApproval: internalPolicies(where: { approvalRequired: true, status: NEEDS_APPROVAL, hasApproverWith: [{ hasUsersWith: { id: $currentUserIdID } }] }) {
+      edges {
+        node {
+          id
+          name
+          status
+          updatedAt
+        }
+      }
+      totalCount
+    }
+
+    missingApprover: internalPolicies(where: { approvalRequired: true, hasApprover: false, or: { updatedBy: $currentUserIdString, createdBy: $currentUserIdString } }) {
+      edges {
+        node {
+          id
+          name
+          status
+          updatedAt
+        }
+      }
+      totalCount
+    }
+
+    stillDraftAfterWeek: internalPolicies(where: { approvalRequired: true, status: DRAFT, updatedBy: $currentUserIdString, updatedAtLT: $sevenDaysAgo }) {
+      edges {
+        node {
+          id
+          name
+          status
+          updatedAt
+        }
+      }
+      totalCount
+    }
+
+    recentComments: internalPolicies(
+      where: {
+        or: { updatedBy: $currentUserIdString, createdBy: $currentUserIdString, hasApproverWith: [{ hasUsersWith: { id: $currentUserIdID } }] }
+        and: { hasCommentsWith: [{ createdAtGT: $commentsSince, createdByNEQ: $currentUserIdString }], not: { hasCommentsWith: [{ createdAtGT: $commentsSince, createdBy: $currentUserIdString }] } }
+      }
+    ) {
+      edges {
+        node {
+          id
+          name
+          status
+          updatedAt
+        }
+      }
+      totalCount
+    }
+  }
+`

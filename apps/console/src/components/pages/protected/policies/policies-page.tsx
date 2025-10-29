@@ -14,6 +14,7 @@ import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { Checkbox } from '@repo/ui/checkbox'
 import { loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { PolicySuggestedActions } from './policies-suggested-actions'
 
 const PoliciesPage = () => {
   const [active, setActive] = useState<'dashboard' | 'table'>('dashboard')
@@ -59,6 +60,7 @@ const PoliciesPage = () => {
         {active === 'dashboard' && (
           <div className="flex items-center gap-3 mt-4 sm:mt-0">
             {/* Groups Filter Dropdown */}
+            <PolicySuggestedActions />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left">

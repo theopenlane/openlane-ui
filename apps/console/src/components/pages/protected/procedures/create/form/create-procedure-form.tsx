@@ -20,12 +20,12 @@ import StatusCard from '@/components/pages/protected/procedures/create/cards/sta
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
 import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
-import { DOCS_URL } from '@/constants/index.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -290,7 +290,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                 <AlertDescription>
                   <p>
                     For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${DOCS_URL}/docs/platform/compliance-management/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer">
+                    <a className="text-blue-600" href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer">
                       documentation
                     </a>
                     .
@@ -337,7 +337,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
               />
             </InputRow>
 
-            <Button className="mt-4" type="submit" variant="filled" disabled={isSubmitting}>
+            <Button variant="primary" className="mt-4" type="submit" disabled={isSubmitting}>
               {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
             </Button>
           </div>

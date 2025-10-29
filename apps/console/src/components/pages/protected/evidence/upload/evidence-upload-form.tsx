@@ -105,7 +105,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
   }
 
   return (
-    <Tabs variant="solid" defaultValue={defaultTab}>
+    <Tabs variant="underline" defaultValue={defaultTab}>
       <TabsList>
         <TabsTrigger value="upload" className="bg-unset">
           Upload

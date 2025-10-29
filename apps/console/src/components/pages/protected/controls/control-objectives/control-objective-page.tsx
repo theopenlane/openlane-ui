@@ -151,7 +151,7 @@ const ControlObjectivePage = () => {
         <div className="flex justify-between items-center">
           <PageHeading heading="Control Objectives" />
           {createAllowed && (
-            <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+            <Button variant="secondary" className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
               Create
             </Button>
           )}
@@ -161,7 +161,7 @@ const ControlObjectivePage = () => {
             <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
             <p>Show archived</p>
           </div>
-          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+          <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
@@ -206,7 +206,7 @@ const ControlObjectivePage = () => {
         <div className="flex gap-2 items-center">
           <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} /> <p>Show archived</p>
         </div>
-        <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+        <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
           <div className="flex">
             <List size={16} />
             <ChevronsDownUp size={16} />

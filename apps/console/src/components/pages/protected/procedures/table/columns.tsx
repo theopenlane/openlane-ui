@@ -1,6 +1,6 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
 import React from 'react'
-import { ApiToken, Procedure, User } from '@repo/codegen/src/schema.ts'
+import { ApiToken, Group, Procedure, User } from '@repo/codegen/src/schema.ts'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
@@ -8,6 +8,8 @@ import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
+import ApproverCell from './approver-cell'
+import DelegateCell from './delegate-cell'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -55,12 +57,15 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
           </div>
         )
       },
-      size: 50,
+      size: 20,
+      maxSize: 20,
+      minSize: 20,
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      minSize: 150,
+      minSize: 100,
+      size: 100,
     },
     {
       accessorKey: 'status',
@@ -81,8 +86,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
           )}
         </div>
       ),
-      minSize: 150,
-      size: 100,
+      maxSize: 80,
+      size: 80,
     },
     {
       accessorKey: 'summary',
@@ -100,7 +105,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'approvalRequired',
       header: 'Approval Required',
-      size: 140,
+      size: 40,
+      minSize: 40,
       cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No'),
     },
     {
@@ -109,14 +115,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
-        return approver ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={approver} />
-            {approver.displayName || '-'}
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">-</span>
-        )
+        const procedureId = row.original.id
+        return <ApproverCell approver={approver} procedureId={procedureId} />
       },
     },
     {
@@ -125,14 +125,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
-        return delegate ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={delegate} />
-            {delegate.displayName || '-'}
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">-</span>
-        )
+        const procedureId = row.original.id
+        return <DelegateCell delegate={delegate as Group | null} procedureId={procedureId} />
       },
     },
     {
@@ -144,7 +138,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'reviewDue',
       header: 'Review Due',
-      size: 130,
+      size: 100,
       cell: ({ cell }) => {
         const value = cell.getValue() as string | null
         return value ? formatDate(value) : '-'
@@ -153,7 +147,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'reviewFrequency',
       header: 'Review Frequency',
-      size: 140,
+      size: 100,
       cell: ({ cell }) => {
         const value = cell.getValue<string>()
         return <span className="capitalize">{value ? value.toLowerCase() : '-'}</span>
@@ -189,7 +183,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       size: 150,
       maxSize: 180,
       cell: ({ row }) => {
-        const userId = row.original.updatedBy
+        const userId = row.original.createdBy
         const token = tokens?.find((item) => item.id === userId)
         const user = users?.find((item) => item.id === userId)
 
@@ -237,8 +231,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
-      size: 120,
-      maxSize: 120,
+      size: 100,
+      maxSize: 100,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]

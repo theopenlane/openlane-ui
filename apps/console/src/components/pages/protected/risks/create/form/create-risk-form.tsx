@@ -75,7 +75,7 @@ const CreateRiskForm: React.FC = () => {
             <TitleField isEditing={true} form={form} />
             <DetailsField isEditing={true} form={form} />
             <BusinessCostField isEditing={true} form={form} />
-            <Button className="mt-4" type="submit" variant="filled" disabled={isPending}>
+            <Button variant="primary" className="mt-4" type="submit" disabled={isPending}>
               {isPending ? 'Creating risk' : 'Create risk'}
             </Button>
           </div>
