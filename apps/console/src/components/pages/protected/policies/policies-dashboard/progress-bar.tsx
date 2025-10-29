@@ -11,7 +11,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage }) => {
   const value = Math.min(Math.max(percentage, 0), 100)
 
   let wrapperColor = 'bg-slate-800'
-  let fillColor = 'bg-emerald-500'
+  let fillColor
 
   if (value <= 25) {
     wrapperColor = 'bg-orange-800'
