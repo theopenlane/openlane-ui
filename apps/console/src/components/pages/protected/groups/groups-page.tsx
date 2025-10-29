@@ -129,17 +129,15 @@ const GroupsPage = () => {
           )}
           <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableFilterKeysEnum.GROUP} />
           {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
-            <Menu
-              trigger={CreateBtn}
-              content={
-                <CreateGroupDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 bg-transparent">
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Group</span>
-                    </div>
-                  }
-                />
+            <CreateGroupDialog
+              trigger={
+                <button
+                  type="button"
+                  className="flex items-center space-x-2 bg-primary text-white px-3 py-2 rounded-md hover:bg-primary/90 transition"
+                >
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Create</span>
+                </button>
               }
             />
           )}
