@@ -1,29 +1,40 @@
 'use client'
 
-import React, { useContext, useEffect } from 'react'
-import { PanelHeader } from '@repo/ui/panel'
+import React, { useContext, useEffect, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { PersonalAccessTokenTable } from './table/personal-access-tokens-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { PageHeading } from '@repo/ui/page-heading'
+
+const PAGE_CONFIG = [
+  {
+    match: '/api-tokens',
+    heading: 'API Tokens',
+    crumbHref: '/developers/api-tokens',
+  },
+  {
+    match: '/personal-access-tokens',
+    heading: 'Personal Access Tokens',
+    crumbHref: '/developers/personal-access-tokens',
+  },
+]
 
 const DevelopersPage: React.FC = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const path = usePathname()
-  const heading = path.includes('/organization-settings') ? 'API Tokens' : 'Personal Access Tokens'
+
+  const { heading, crumbHref } = useMemo(() => {
+    const config = PAGE_CONFIG.find((c) => path.includes(c.match))
+    return config ?? PAGE_CONFIG[1]
+  }, [path])
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
-      { label: 'Developers', href: '/developers' },
-    ])
-  }, [setCrumbs])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Developers' }, { label: heading, href: crumbHref }])
+  }, [setCrumbs, heading, crumbHref])
 
   return (
     <div>
-      <div className="flex justify-between items-center ">
-        <PanelHeader heading={heading} noBorder />
-      </div>
+      <PageHeading heading={heading} />
       <PersonalAccessTokenTable />
     </div>
   )

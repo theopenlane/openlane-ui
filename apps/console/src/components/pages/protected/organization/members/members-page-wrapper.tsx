@@ -10,7 +10,7 @@ const MembersPageWrapper = () => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <PageHeading eyebrow="Organization settings" heading="Members" />
+        <PageHeading eyebrow="user management" heading="Members" />
         <Button variant="secondary" size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)}>
           Invite member
         </Button>
