@@ -15,7 +15,7 @@ const RecentActivity = () => {
     enabled: true,
   })
 
-  const recentPolicies = useMemo(() => policies.splice(0, 5), [policies])
+  const recentPolicies = useMemo(() => policies.slice(0, 5), [policies])
 
   const userIds = useMemo(() => {
     const ids = new Set<string>()
