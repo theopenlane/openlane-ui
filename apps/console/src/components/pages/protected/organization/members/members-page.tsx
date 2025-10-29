@@ -19,16 +19,14 @@ const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) 
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
   const { data } = useGetInvites({ where: {} })
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs, crumbs } = useContext(BreadcrumbContext)
 
   const numInvites = Array.isArray(data?.invites.edges) ? data?.invites.edges.length : 0
 
+  console.log('crumbs', crumbs)
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
-      { label: 'Members', href: '/members' },
-    ])
+    console.log('crub members paeg')
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'User Management' }, { label: 'Members', href: '/user-management/members' }])
   }, [setCrumbs])
 
   return (

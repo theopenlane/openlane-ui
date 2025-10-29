@@ -23,7 +23,7 @@ const SSOCallbackPage: React.FC = () => {
 
     if (apiTokenData) {
       const tokenInfo = JSON.parse(apiTokenData)
-      const basePath = tokenInfo.isOrg ? '/organization-settings/developers' : '/user-settings/developers'
+      const basePath = tokenInfo.isOrg ? '/developers/api-tokens' : '/developers/personal-access-tokens'
       if (isSuccess) return `${basePath}?token_authorized=1`
       return `${basePath}?error=${error}`
     }
