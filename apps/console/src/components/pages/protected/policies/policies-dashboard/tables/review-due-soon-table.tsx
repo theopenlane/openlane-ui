@@ -12,6 +12,7 @@ import { formatDate } from '@/utils/date'
 import { addDays } from 'date-fns'
 import { InternalPolicyWhereInput, InternalPolicyOrderField, OrderDirection, Organization, GetInternalPoliciesListQueryVariables } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
+import { Button } from '@repo/ui/button'
 
 const now = new Date()
 const dueSoonLimit = addDays(now, 7)
@@ -29,26 +30,8 @@ const columns: ColumnDef<FormattedPolicy>[] = [
   {
     header: 'Name',
     accessorKey: 'name',
-    cell: ({ row }) => {
-      const policy = row.original
-      return (
-        <div>
-          <Link href={`/policies?id=${policy.id}`} className="text-blue-500 hover:underline">
-            {policy.name}
-          </Link>
-          {policy.tags && policy.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-1">
-              {policy.tags.map((tag) => (
-                <span key={tag} className="bg-muted text-xs px-2 py-0.5 rounded-md text-muted-foreground border border-border">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      )
-    },
   },
+
   {
     header: 'Next review date',
     accessorKey: 'reviewDue',
@@ -73,6 +56,17 @@ const columns: ColumnDef<FormattedPolicy>[] = [
         '—'
       )
     },
+  },
+  {
+    id: 'actions',
+    header: '',
+    cell: ({ row }) => (
+      <Link href={`/policies/${row.original.id}/view`}>
+        <Button className="flex justify-self-end" variant="outline">
+          Review
+        </Button>
+      </Link>
+    ),
   },
 ]
 

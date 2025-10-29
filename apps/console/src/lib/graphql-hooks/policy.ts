@@ -167,7 +167,7 @@ type UseInternalPoliciesDashboardArgs = {
   enabled?: boolean
 }
 
-export const useInternalPoliciesDashboard = ({ where, enabled }: UseInternalPoliciesDashboardArgs) => {
+export const useInternalPoliciesDashboard = ({ where, enabled = true }: UseInternalPoliciesDashboardArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetInternalPoliciesDashboardQuery>({
@@ -207,7 +207,6 @@ export const usePolicySuggestedActions = () => {
         commentsSince,
       }),
     enabled: !!currentUserId,
-    staleTime: 30_000,
     refetchOnWindowFocus: false,
   })
 }

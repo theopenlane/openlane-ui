@@ -54,6 +54,12 @@ export function usePoliciesFilters(): FilterField[] | null {
         icon: FilterIcons.Type,
       },
       {
+        key: 'policyTypeIsNil',
+        label: 'Empty Type',
+        type: 'boolean',
+        icon: FilterIcons.Type,
+      },
+      {
         key: 'reviewDue',
         label: 'Review Due',
         type: 'dateRange',

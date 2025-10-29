@@ -12,7 +12,6 @@ import { User } from '@repo/codegen/src/schema'
 const RecentActivity = () => {
   const { policies } = useInternalPoliciesDashboard({
     where: wherePoliciesDashboard,
-    enabled: true,
   })
 
   const recentPolicies = useMemo(() => policies.slice(0, 5), [policies])

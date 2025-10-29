@@ -10,6 +10,8 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
 import { InternalPolicyDocumentStatus, InternalPolicyWhereInput, Group } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
+import { Button } from '@repo/ui/button'
+import Link from 'next/link'
 
 type FormattedPolicy = {
   id: string
@@ -40,6 +42,17 @@ const columns: ColumnDef<FormattedPolicy>[] = [
         </div>
       )
     },
+  },
+  {
+    id: 'actions',
+    header: '',
+    cell: ({ row }) => (
+      <Link href={`/policies/${row.original.id}/view`}>
+        <Button className="flex justify-self-end" variant="outline">
+          Review
+        </Button>
+      </Link>
+    ),
   },
 ]
 

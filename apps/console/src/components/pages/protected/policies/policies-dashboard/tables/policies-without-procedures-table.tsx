@@ -13,6 +13,7 @@ import { wherePoliciesDashboard } from '../dashboard-config'
 import SetObjectAssociationPoliciesDialog from '../../modal/set-object-association-modal'
 import { usePolicy } from '../../create/hooks/use-policy'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import Link from 'next/link'
 
 type FormattedPolicy = {
   id: string
@@ -69,9 +70,16 @@ export default function PoliciesWithoutProceduresTable() {
       id: 'actions',
       header: '',
       cell: ({ row }) => (
-        <Button className="flex justify-self-end" variant="outline" onClick={() => setSelectedPolicyId(row.original.id)}>
-          Link procedures
-        </Button>
+        <div className="flex justify-self-end gap-1">
+          <Button className="flex" variant="outline" onClick={() => setSelectedPolicyId(row.original.id)}>
+            Link procedures
+          </Button>
+          <Link href={`/procedures/create?policyId=${row.original.id}`}>
+            <Button className="flex" variant="outline">
+              Create Procedure
+            </Button>
+          </Link>
+        </div>
       ),
     },
   ]

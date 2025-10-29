@@ -121,7 +121,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   }, [isProcedureCreate, procedureState, isInitialized])
 
   useEffect(() => {
-    if (data) {
+    if (data && Object.keys(procedureState.associations).length === 0) {
       const procedureAssociations: TObjectAssociationMap = {
         internalPolicyIDs: data?.internalPolicy?.id ? [data.internalPolicy.id] : [],
       }

@@ -92,7 +92,7 @@ const PoliciesPage = () => {
             {/* Create button */}
             {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
               <Link href="/policies/create">
-                <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+                <Button className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                   Create
                 </Button>
               </Link>
@@ -101,7 +101,7 @@ const PoliciesPage = () => {
         )}
       </div>
 
-      {active === 'dashboard' ? <PoliciesDashboard /> : <PoliciesTable />}
+      {active === 'dashboard' ? <PoliciesDashboard setActive={setActive} /> : <PoliciesTable />}
     </div>
   )
 }

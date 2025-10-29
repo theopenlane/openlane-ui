@@ -6,9 +6,21 @@ import { FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
+import { loadFilters } from '@/components/shared/table-filter/filter-storage'
+import { saveFilters } from '@/components/shared/table-filter/filter-storage'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Button } from '@repo/ui/button'
 
-export default function StatusBreakdown() {
-  const { policies } = useInternalPoliciesDashboard({ where: wherePoliciesDashboard })
+interface Props {
+  onStatusClick: () => void
+}
+
+export default function StatusBreakdown({ onStatusClick }: Props) {
+  const saved = loadFilters(TableFilterKeysEnum.POLICY) || {}
+  const { policies } = useInternalPoliciesDashboard({
+    where: { ...wherePoliciesDashboard, approverIDIn: saved.approverIDIn as string[] | undefined },
+  })
 
   const statusCounts = useMemo(() => {
     const counts: Record<InternalPolicyDocumentStatus, number> = {
@@ -16,16 +28,29 @@ export default function StatusBreakdown() {
       [InternalPolicyDocumentStatus.DRAFT]: 0,
       [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 0,
       [InternalPolicyDocumentStatus.APPROVED]: 0,
-      [InternalPolicyDocumentStatus.ARCHIVED]: 0, //will be filtered
+      [InternalPolicyDocumentStatus.ARCHIVED]: 0,
     }
 
     for (const p of policies) {
-      if (p?.status && counts[p.status] !== undefined) {
-        counts[p.status]++
-      }
+      if (p?.status && counts[p.status] !== undefined) counts[p.status]++
+    }
+    return counts
+  }, [policies])
+
+  const policiesByStatus = useMemo(() => {
+    const map: Record<InternalPolicyDocumentStatus, string[]> = {
+      PUBLISHED: [],
+      DRAFT: [],
+      NEEDS_APPROVAL: [],
+      APPROVED: [],
+      ARCHIVED: [],
     }
 
-    return counts
+    for (const p of policies) {
+      if (p?.status) map[p.status].push(p.name)
+    }
+
+    return map
   }, [policies])
 
   const donutChartData = [
@@ -44,6 +69,16 @@ export default function StatusBreakdown() {
     { label: 'Approved', key: InternalPolicyDocumentStatus.APPROVED, color: '#4ADE80', icon: Stamp },
   ]
 
+  function handleStatusClick(status: InternalPolicyDocumentStatus) {
+    onStatusClick()
+    const newState = {
+      approverIDIn: saved.approverIDIn || undefined,
+      status: [status],
+    }
+
+    saveFilters(TableFilterKeysEnum.POLICY, newState)
+  }
+
   return (
     <div className="flex flex-col">
       <h2 className="text-lg mb-7">Status Breakdown</h2>
@@ -55,17 +90,50 @@ export default function StatusBreakdown() {
         </div>
 
         {/* Legend */}
-        <ul className="space-y-4">
-          {statusItems.map(({ label, key, color, icon: Icon }) => (
-            <li key={label} className="flex items-center">
-              <div className="flex items-center gap-1.5">
-                <Icon size={16} style={{ color }} />
-                <span className="text-base font-medium">{label}</span>
-              </div>
-              <span className="ml-1.5 border w-7 h-7 flex items-center justify-center rounded-full text-sm">{statusCounts[key] ?? 0}</span>
-            </li>
-          ))}
-        </ul>
+        <TooltipProvider>
+          <ul className="space-y-4">
+            {statusItems.map(({ label, key, color, icon: Icon }) => {
+              const list = policiesByStatus[key]
+              const showList = list.slice(0, 10)
+              const hasMore = list.length > 10
+
+              return (
+                <Tooltip key={label}>
+                  <TooltipTrigger asChild>
+                    <li className="flex items-center cursor-pointer" onClick={() => handleStatusClick(key)}>
+                      <div className="flex items-center gap-1.5">
+                        <Icon size={16} style={{ color }} />
+                        <span className="text-base font-medium">{label}</span>
+                      </div>
+                      <span className="ml-1.5 border w-7 h-7 flex items-center justify-center rounded-full text-sm">{statusCounts[key] ?? 0}</span>
+                    </li>
+                  </TooltipTrigger>
+
+                  <TooltipContent side="right" className="max-w-xs border p-3 rounded-md space-y-2">
+                    <p className="font-medium">{label} Policies</p>
+
+                    {showList.map((name, i) => (
+                      <p key={i} className="text-sm text-muted-foreground truncate">
+                        {name}
+                      </p>
+                    ))}
+
+                    {hasMore && (
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleStatusClick(key)
+                        }}
+                      >
+                        View all ({list.length})
+                      </Button>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              )
+            })}
+          </ul>
+        </TooltipProvider>
       </div>
     </div>
   )

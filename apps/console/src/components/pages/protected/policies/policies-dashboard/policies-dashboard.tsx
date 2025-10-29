@@ -8,14 +8,14 @@ import AwaitingApprovalTable from './tables/awaiting-approval-table'
 import ReviewDueSoonTable from './tables/review-due-soon-table'
 import PoliciesWithoutProceduresTable from './tables/policies-without-procedures-table'
 
-export default function PoliciesDashboard() {
+export default function PoliciesDashboard({ setActive }: { setActive: (tab: 'dashboard' | 'table') => void }) {
   return (
     <div className="p-8 space-y-10">
       <div className="flex flex-col lg:flex-row gap-10">
-        <StatusBreakdown />
+        <StatusBreakdown onStatusClick={() => setActive('table')} />
         <RecentActivity />
       </div>
-      <CoverageByType />
+      <CoverageByType onTypeClick={() => setActive('table')} />
       <AwaitingApprovalTable />
       <ReviewDueSoonTable />
       <PoliciesWithoutProceduresTable />
