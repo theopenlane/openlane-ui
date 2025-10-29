@@ -32,7 +32,7 @@ const ProtectedArea: React.FC = () => {
         <p className="text-3xl font-semibold mb-3 leading-9">This page is part of a protected area, and it looks like your account doesn&apos;t have permission to enter right meow.</p>
         <p className="text-sm mb-6">
           If you think this is a mistake,{' '}
-          <Link href={`/organization-settings/members`} className="underline" onClick={handleClick}>
+          <Link href={`/user-management/members`} className="underline" onClick={handleClick}>
             reach out to your org owner
           </Link>{' '}
           or{' '}

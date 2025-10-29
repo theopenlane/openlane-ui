@@ -34,7 +34,7 @@ type TokenNode = {
 export const PersonalAccessTokenTable = () => {
   const path = usePathname()
   const searchParams = useSearchParams()
-  const isOrg = path.includes('/organization-settings')
+  const isApiTokenPage = path.includes('/api-tokens')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { successNotification, errorNotification } = useNotification()
 
@@ -93,13 +93,13 @@ export const PersonalAccessTokenTable = () => {
 
   const {
     data: orgTokensResponse,
-    isError: isOrgTokensResponseError,
+    isError: isApiTokensResponseError,
     isFetching: isFetchingApiTokens,
   } = useGetApiTokens({
     where: whereFilter,
     orderBy: orderByFilter as GetApiTokensQueryVariables['orderBy'],
     pagination,
-    enabled: !!filters && isOrg,
+    enabled: !!filters && isApiTokenPage,
   })
 
   const {
@@ -110,12 +110,12 @@ export const PersonalAccessTokenTable = () => {
     where: whereFilter,
     orderBy: orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'],
     pagination,
-    enabled: !!filters && !isOrg,
+    enabled: !!filters && !isApiTokenPage,
   })
 
-  const data = isOrg ? orgTokensResponse : personalTokensResponse
+  const data = isApiTokenPage ? orgTokensResponse : personalTokensResponse
   const isFetching = isFetchingApiTokens || isFetchingPersonalAccessTokens
-  const isAnyError = isOrgTokensResponseError || isPersonalTokensResponseError
+  const isAnyError = isApiTokensResponseError || isPersonalTokensResponseError
 
   useEffect(() => {
     if (isAnyError) {
@@ -127,16 +127,16 @@ export const PersonalAccessTokenTable = () => {
   }, [isAnyError, errorNotification])
 
   const paginationMeta = useMemo(() => {
-    const source = isOrg ? (data as GetApiTokensQuery)?.apiTokens : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens
+    const source = isApiTokenPage ? (data as GetApiTokensQuery)?.apiTokens : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens
 
     return {
       totalCount: source?.totalCount ?? 0,
       pageInfo: source?.pageInfo,
       isLoading: isFetching,
     }
-  }, [data, isOrg, isFetching])
+  }, [data, isApiTokenPage, isFetching])
 
-  const tokens: TokenNode[] = isOrg
+  const tokens: TokenNode[] = isApiTokenPage
     ? (data as GetApiTokensQuery)?.apiTokens?.edges
         ?.map((edge) => edge?.node)
         .filter((node): node is NonNullable<typeof node> => !!node && !!node.id)
@@ -171,7 +171,7 @@ export const PersonalAccessTokenTable = () => {
       accessorKey: 'description',
       header: 'Description',
     },
-    isOrg
+    isApiTokenPage
       ? {
           accessorKey: 'scopes',
           header: 'Scopes',

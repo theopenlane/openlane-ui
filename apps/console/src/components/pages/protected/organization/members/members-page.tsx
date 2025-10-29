@@ -24,11 +24,7 @@ const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) 
   const numInvites = Array.isArray(data?.invites.edges) ? data?.invites.edges.length : 0
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
-      { label: 'Members', href: '/members' },
-    ])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'User Management' }, { label: 'Members', href: '/user-management/members' }])
   }, [setCrumbs])
 
   return (

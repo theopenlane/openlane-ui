@@ -13,7 +13,7 @@
     "name": "Create Subcontrol"
   },
   {
-    "route": "/organization-settings/members",
+    "route": "/user-management/members",
     "name": "Members",
     "keywords": ["roles", "invites", "invitations"]
   },
@@ -36,7 +36,7 @@
     "name": "General Settings"
   },
   {
-    "route": "/organization-settings/developers",
+    "route": "/developers/api-tokens",
     "name": "Developers",
     "keywords": ["api", "api keys", "auth", "token"]
   },
@@ -96,7 +96,7 @@
     "name": "User Settings"
   },
   {
-    "route": "/user-settings/developers",
+    "route": "/developers/personal-access-tokens",
     "name": "Developers",
     "keywords": ["pat", "personal access tokens", "api", "auth"]
   },
