@@ -319,11 +319,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             <ul className="max-h-40 overflow-y-auto border rounded-lg">
               {field?.options?.length ? (
                 field.options.map((opt) => (
-                  <li
-                    key={opt.value}
-                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
-                    onClick={() => handleToggle(opt.value)}
-                  >
+                  <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleToggle(opt.value)}>
                     <Checkbox checked={selected.includes(opt.value)} className="accent-primary" />
                     <span>{opt.label}</span>
                   </li>
@@ -367,7 +363,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0" align="end">
+      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0 max-h-[400px]" align="end">
         <p className="text-muted-foreground text-xs p-4 pb-0"> FILTER BY</p>
         <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pb-0">
           {filterFields.map((field) => (
