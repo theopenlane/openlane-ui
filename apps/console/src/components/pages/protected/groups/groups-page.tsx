@@ -15,8 +15,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import GroupInfiniteCards from '@/components/pages/protected/groups/components/group-infinite-cards.tsx'
-import Menu from '@/components/shared/menu/menu.tsx'
-import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
+import { Button } from '@repo/ui/button'
+import { PlusCircle } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -125,21 +125,19 @@ const GroupsPage = () => {
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
           )}
           <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableFilterKeysEnum.GROUP} />
-          {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
-            <Menu
-              trigger={CreateBtn}
-              content={
-                <CreateGroupDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 bg-transparent">
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Group</span>
-                    </div>
-                  }
-                />
-              }
-            />
-          )}
+        {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
+          <CreateGroupDialog
+            trigger={
+              <Button
+                className="h-8 !px-2"
+                icon={<PlusCircle />}
+                iconPosition="left"
+              >
+                Create
+              </Button>
+            }
+          />
+        )}
         </div>
       </div>
 
