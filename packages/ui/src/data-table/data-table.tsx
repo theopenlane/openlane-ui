@@ -297,26 +297,26 @@ export function DataTable<TData, TValue>({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {/* Sort visibility options alphabetically by header (fall back to column id) */}
-                    {table
-                      .getAllColumns()
-                      .filter((column) => column.getCanHide())
-                      .slice()
-                      .sort((a, b) => {
-                        const getLabel = (col: any) => {
-                          const header = col.columnDef?.header
-                          return typeof header === 'string' ? header : String(col.id)
-                        }
-                        return getLabel(a).localeCompare(getLabel(b))
-                      })
-                      .map((column, index) => {
-                        const header = column.columnDef?.header
-                        const label = typeof header === 'string' ? header : String(column.id)
-                        return (
-                          <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
-                            {label}
-                          </DropdownMenuCheckboxItem>
-                        )
-                      })}
+                    {(() => {
+                      const getLabel = (col: any) => {
+                        const header = col.columnDef?.header
+                        return typeof header === 'string' ? header : String(col.id)
+                      }
+
+                      return table
+                        .getAllColumns()
+                        .filter((column) => column.getCanHide())
+                        .slice()
+                        .sort((a, b) => getLabel(a).localeCompare(getLabel(b)))
+                        .map((column) => {
+                          const label = getLabel(column)
+                          return (
+                            <DropdownMenuCheckboxItem key={String(column.id)} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                              {label}
+                            </DropdownMenuCheckboxItem>
+                          )
+                        })
+                    })()}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
