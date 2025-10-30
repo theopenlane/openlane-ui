@@ -38,7 +38,7 @@ const columns: ColumnDef<FormattedPolicy>[] = [
       return (
         <div className="flex items-center gap-2">
           <Avatar entity={approver as Group} />
-          {approver?.name || '-'}
+          {approver?.displayName || '-'}
         </div>
       )
     },
