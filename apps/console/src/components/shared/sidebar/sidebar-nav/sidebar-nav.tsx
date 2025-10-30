@@ -305,7 +305,7 @@ export default function SideNav({
       {/* SECONDARY PANEL */}
       {openPanel && (
         <div
-          className="h-[calc(100%-4px)] bg-secondary rounded-xl flex flex-col  ease-in-out"
+          className="bg-secondary rounded-xl flex flex-col  ease-in-out w-full mt-1 mb-1"
           style={{
             width: secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH,
           }}
