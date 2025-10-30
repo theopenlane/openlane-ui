@@ -1,19 +1,13 @@
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
-import { PoliciesTable } from '@/components/pages/protected/policies/table/policies-table.tsx'
 import { Metadata } from 'next'
+import PoliciesPage from '@/components/pages/protected/policies/policies-page'
 
 export const metadata: Metadata = {
   title: 'Internal Policies',
 }
 
 const Page: React.FC = () => {
-  return (
-    <>
-      <PageHeading heading="Internal Policies" />
-      <PoliciesTable />
-    </>
-  )
+  return <PoliciesPage />
 }
 
 export default Page

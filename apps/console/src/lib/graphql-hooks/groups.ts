@@ -82,7 +82,7 @@ export const useGroupSelect = () => {
     data?.groups?.edges
       ?.filter((edge) => !!edge?.node)
       ?.map((edge) => ({
-        label: edge?.node?.name || '',
+        label: edge?.node?.displayName || '',
         value: edge?.node?.id || '',
       })) ?? []
 

@@ -3,8 +3,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import React from 'react'
 
 type TTabSwitcherProps = {
-  active: 'report' | 'controls'
-  setActive: (tab: 'report' | 'controls') => void
+  active: 'dashboard' | 'table'
+  setActive: (tab: 'dashboard' | 'table') => void
 }
 
 const TabSwitcher: React.FC<TTabSwitcherProps> = ({ active, setActive }) => (
@@ -12,7 +12,7 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ active, setActive }) => (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Presentation className={`cursor-pointer p-1 ${active === 'report' ? 'bg-btn-secondary rounded-md' : 'text-muted-foreground'}`} onClick={() => setActive('report')} size={24} />
+          <Presentation className={`cursor-pointer p-1 ${active === 'dashboard' ? 'bg-btn-secondary rounded-md' : 'text-muted-foreground'}`} onClick={() => setActive('dashboard')} size={24} />
         </TooltipTrigger>
         <TooltipContent side="top">
           <p>Dashboard</p>
@@ -23,7 +23,7 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ active, setActive }) => (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Table className={`cursor-pointer p-1 ${active === 'controls' ? 'bg-btn-secondary rounded-md' : 'text-muted-foreground'}`} onClick={() => setActive('controls')} size={24} />
+          <Table className={`cursor-pointer p-1 ${active === 'table' ? 'bg-btn-secondary rounded-md' : 'text-muted-foreground'}`} onClick={() => setActive('table')} size={24} />
         </TooltipTrigger>
         <TooltipContent side="top">
           <p>Table View</p>

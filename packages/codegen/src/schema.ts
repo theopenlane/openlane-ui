@@ -49138,6 +49138,74 @@ export type CreateUploadInternalPolicyMutation = {
   createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string } }
 }
 
+export type GetInternalPoliciesDashboardQueryVariables = Exact<{
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
+
+export type GetInternalPoliciesDashboardQuery = {
+  __typename?: 'Query'
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: {
+        __typename?: 'InternalPolicy'
+        id: string
+        name: string
+        policyType?: string | null
+        status?: InternalPolicyDocumentStatus | null
+        createdAt?: any | null
+        updatedAt?: any | null
+        createdBy?: string | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type PolicySuggestedActionsQueryVariables = Exact<{
+  currentUserIdID: Scalars['ID']['input']
+  currentUserIdString: Scalars['String']['input']
+  sevenDaysAgo: Scalars['Time']['input']
+  commentsSince: Scalars['Time']['input']
+}>
+
+export type PolicySuggestedActionsQuery = {
+  __typename?: 'Query'
+  needsMyApproval: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+  missingApprover: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+  stillDraftAfterWeek: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+  recentComments: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>

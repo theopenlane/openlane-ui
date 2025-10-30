@@ -102,6 +102,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             andConditions.push({ [key]: val as string })
           }
           break
+
         case 'multiselect':
         case 'select': {
           const valuesArray = Array.isArray(val) ? val : [val]
@@ -319,11 +320,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             <ul className="max-h-40 overflow-y-auto border rounded-lg">
               {field?.options?.length ? (
                 field.options.map((opt) => (
-                  <li
-                    key={opt.value}
-                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
-                    onClick={() => handleToggle(opt.value)}
-                  >
+                  <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleToggle(opt.value)}>
                     <Checkbox checked={selected.includes(opt.value)} className="accent-primary" />
                     <span>{opt.label}</span>
                   </li>

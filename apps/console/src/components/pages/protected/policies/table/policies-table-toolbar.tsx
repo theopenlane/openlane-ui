@@ -16,6 +16,7 @@ import { Button } from '@repo/ui/button'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 import { TAccessRole, TData } from '@/types/authz'
+import Link from 'next/link'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -23,7 +24,6 @@ type TPoliciesTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, unknown>) => void
-  handleCreateNew: () => void
   handleExport: () => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -42,7 +42,6 @@ type TPoliciesTableToolbarProps = {
 const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   searching,
   searchTerm,
-  handleCreateNew,
   setFilters,
   setSearchTerm,
   handleExport,
@@ -138,11 +137,12 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
-
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
-                  Create
-                </Button>
+                <Link href="/policies/create">
+                  <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+                    Create
+                  </Button>
+                </Link>
               )}
             </>
           )}
