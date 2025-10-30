@@ -37,6 +37,10 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
   const [open, setOpen] = useState(false)
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
 
+  const excludeObjectTypes = fromTable
+    ? Object.values(ObjectTypeObjects).filter((type) => type !== ObjectTypeObjects.PROCEDURE)
+    : [ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]
+
   const handleSave = () => {
     policyState.setAssociations(associations.associations)
     policyState.setAssociationRefCodes(associations.refCodes)
@@ -164,7 +168,8 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
           onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
-          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]}
+          excludeObjectTypes={excludeObjectTypes}
+          defaultSelectedObject={fromTable ? ObjectTypeObjects.PROCEDURE : undefined}
         />
         <DialogFooter>
           <Button onClick={handleSave} disabled={isSaving}>
