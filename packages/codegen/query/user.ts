@@ -51,20 +51,3 @@ export const UPDATE_USER_SETTING = gql`
     }
   }
 `
-
-export const GET_USERS = gql`
-  query GetAllUsers($where: UserWhereInput) {
-    users(where: $where) {
-      edges {
-        node {
-          id
-          displayName
-          avatarRemoteURL
-          avatarFile {
-            presignedURL
-          }
-        }
-      }
-    }
-  }
-`

@@ -8,11 +8,10 @@ import { Link, PanelRightClose, PanelRightOpen } from 'lucide-react'
 import ControlCommentsSheet from './controls-comments-sheet'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useGetControlComments } from '@/lib/graphql-hooks/controls'
-import { UserWhereInput } from '@repo/codegen/src/schema'
-import { useGetUsers } from '@/lib/graphql-hooks/user'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useGetSubcontrolComments } from '@/lib/graphql-hooks/subcontrol'
 import { useNotification } from '@/hooks/useNotification'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
 
 const MAX_AVATARS = 5
 
@@ -29,17 +28,18 @@ const ControlCommentsCard = () => {
 
   const hasData = commentsData && commentsData.length > 0
 
-  const where: UserWhereInput | undefined = hasData
-    ? {
-        idIn: commentsData.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
-      }
-    : undefined
+  const userIds = useMemo(() => (hasData ? Array.from(new Set(commentsData.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'))) : []), [commentsData, hasData])
 
-  const { data: userData } = useGetUsers(where)
+  const { data: userData } = useGetOrgMemberships({
+    where: {
+      hasUserWith: userIds.map((id) => ({ id })),
+    },
+    enabled: userIds.length > 0,
+  })
 
   const { visibleUsers, extraCount } = useMemo(() => {
-    const users = userData?.users?.edges ?? []
-    const allUsers = users.map((u) => u?.node).filter(Boolean)
+    const usersEdge = userData?.orgMemberships?.edges?.map((edge) => edge) || []
+    const allUsers = usersEdge.map((e) => e?.node?.user).filter(Boolean)
     const visible = allUsers.slice(0, MAX_AVATARS)
     const remaining = Math.max(0, allUsers.length - MAX_AVATARS)
     return { visibleUsers: visible, extraCount: remaining }

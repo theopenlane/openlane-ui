@@ -51053,18 +51053,3 @@ export type UpdateUserSettingMutationVariables = Exact<{
 }>
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
-
-export type GetAllUsersQueryVariables = Exact<{
-  where?: InputMaybe<UserWhereInput>
-}>
-
-export type GetAllUsersQuery = {
-  __typename?: 'Query'
-  users: {
-    __typename?: 'UserConnection'
-    edges?: Array<{
-      __typename?: 'UserEdge'
-      node?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-    } | null> | null
-  }
-}

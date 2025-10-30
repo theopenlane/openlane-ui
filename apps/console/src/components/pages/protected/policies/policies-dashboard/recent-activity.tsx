@@ -5,9 +5,9 @@ import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { formatDate } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
-import { useGetUsers } from '@/lib/graphql-hooks/user'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
 
 const RecentActivity = () => {
   const { policies } = useInternalPoliciesDashboard({
@@ -25,15 +25,12 @@ const RecentActivity = () => {
     return Array.from(ids)
   }, [recentPolicies])
 
-  const { data: userData } = useGetUsers(
-    userIds.length
-      ? {
-          idIn: userIds,
-        }
-      : undefined,
-  )
+  const { data: userData } = useGetOrgMemberships({
+    where: { hasUserWith: userIds.map((id) => ({ id })) },
+    enabled: userIds.length > 0,
+  })
 
-  const users = userData?.users?.edges?.map((edge) => edge?.node) ?? []
+  const users = userData?.orgMemberships?.edges?.map((edge) => edge?.node?.user) ?? []
 
   if (!recentPolicies?.length) {
     return <p className="text-sm text-muted-foreground">No recent activity</p>
