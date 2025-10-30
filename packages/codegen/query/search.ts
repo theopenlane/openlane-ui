@@ -130,6 +130,36 @@ export const SEARCH = gql`
         }
         totalCount
       }
+
+      internalPolicies {
+        edges {
+          node {
+            __typename
+            id
+            name
+          }
+        }
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      procedures {
+        edges {
+          node {
+            __typename
+            id
+            name
+          }
+        }
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
     }
   }
 `
