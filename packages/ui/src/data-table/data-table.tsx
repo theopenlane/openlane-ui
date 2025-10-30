@@ -308,10 +308,10 @@ export function DataTable<TData, TValue>({
                         .filter((column) => column.getCanHide())
                         .slice()
                         .sort((a, b) => getLabel(a).localeCompare(getLabel(b)))
-                        .map((column) => {
+                        .map((column, index) => {
                           const label = getLabel(column)
                           return (
-                            <DropdownMenuCheckboxItem key={String(column.id)} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                            <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
                               {label}
                             </DropdownMenuCheckboxItem>
                           )
