@@ -25,7 +25,6 @@ export function usePoliciesFilters(): FilterField[] | null {
       {
         key: 'hasControlsWith',
         childrenObjectKey: 'refCodeContainsFold',
-        forceKeyOperator: true,
         label: 'Control Ref Code',
         type: 'text',
         icon: FilterIcons.Control,
@@ -34,7 +33,6 @@ export function usePoliciesFilters(): FilterField[] | null {
         key: 'hasProgramsWith',
         label: 'Program Name',
         type: 'select',
-        forceKeyOperator: true,
         childrenObjectKey: 'id',
         options: programOptions,
         icon: FilterIcons.ProgramName,
@@ -42,7 +40,6 @@ export function usePoliciesFilters(): FilterField[] | null {
       {
         key: 'hasSubcontrolWith',
         childrenObjectKey: 'refCodeContainsFold',
-        forceKeyOperator: true,
         label: 'Subcontrol Ref Code',
         type: 'text',
         icon: FilterIcons.Subcontrol,

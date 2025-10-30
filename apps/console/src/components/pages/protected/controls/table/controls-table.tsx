@@ -84,6 +84,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         }
       }
 
+      if (key === 'hasProgramsWith') {
+        return { hasProgramsWith: [{ id: value as string }] }
+      }
+
       return { [key]: value } as Partial<ControlWhereInput>
     }
 

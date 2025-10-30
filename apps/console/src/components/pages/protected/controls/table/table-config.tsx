@@ -19,14 +19,13 @@ export const getControlsFilterFields = (
   programOptions: { value: string; label: string }[],
   controlControlTypeOptions: { value: string; label: string }[],
 ): FilterField[] => [
-  { key: 'refCode', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
-  { key: 'category', label: 'Category', type: 'text', icon: FilterIcons.Category },
-  { key: 'subcategory', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
+  { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
+  { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
+  { key: 'subcategoryContainsFold', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
   {
-    key: 'status',
+    key: 'statusIn',
     label: 'Status',
-    type: 'select',
-    multiple: true,
+    type: 'multiselect',
     options: ControlStatusFilterOptions,
     icon: FilterIcons.Status,
   },
@@ -56,8 +55,6 @@ export const getControlsFilterFields = (
   {
     key: 'hasProgramsWith',
     label: 'Program Name',
-    forceKeyOperator: true,
-    childrenObjectKey: 'id',
     type: 'select',
     options: programOptions,
     icon: FilterIcons.ProgramName,
