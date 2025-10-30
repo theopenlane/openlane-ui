@@ -36,6 +36,10 @@ type RiskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['sea
 
 type OrganizationNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['organizations']>['edges']>[number]>['node']
 
+type PolicyNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['internalPolicies']>['edges']>[number]>['node']
+
+type ProcedureNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['procedures']>['edges']>[number]>['node']
+
 export const GlobalSearch = () => {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
@@ -324,6 +328,20 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
             searchType: 'Programs',
             nodes: (search.programs.edges ?? []).map((edge) => edge?.node),
           })}
+        {shouldRenderSection('Policies') &&
+          !!search?.internalPolicies?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Policies',
+            nodes: (search?.internalPolicies.edges ?? []).map((edge) => edge?.node),
+          })}
+        {shouldRenderSection('Procedures') &&
+          !!search?.procedures?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Procedures',
+            nodes: (search?.procedures.edges ?? []).map((edge) => edge?.node),
+          })}
         {/* /* Groups */}
         {shouldRenderSection('Groups') &&
           !!search.groups?.edges?.length &&
@@ -377,7 +395,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
   )
 }
 
-type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlObjectiveNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[]
+type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlObjectiveNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[] | PolicyNode[] | ProcedureNode[]
 
 interface SearchNodeProps {
   searchType: string
@@ -400,9 +418,10 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
         return searchNode.refCode
       case 'Program':
       case 'Group':
-        return searchNode.name
       case 'ControlObjective':
       case 'Risk':
+      case 'InternalPolicy':
+      case 'Procedure':
         return searchNode.name
       case 'Task':
         return searchNode.title

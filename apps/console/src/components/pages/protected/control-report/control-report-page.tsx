@@ -34,8 +34,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@repo/ui/checkbox'
 
 type TControlReportPageProps = {
-  active: 'report' | 'controls'
-  setActive: (tab: 'report' | 'controls') => void
+  active: 'dashboard' | 'table'
+  setActive: (tab: 'dashboard' | 'table') => void
 }
 
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
@@ -115,7 +115,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     }
 
     saveFilters(TableFilterKeysEnum.CONTROL, filters)
-    setActive('controls')
+    setActive('table')
   }
 
   const toggleFilter = (value: string) => {

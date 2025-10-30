@@ -380,7 +380,6 @@ export const useEvidenceSuggestedActions = () => {
   return useQuery<EvidenceSuggestedActionsQuery, unknown>({
     queryKey: ['evidences', 'suggested-actions'],
     queryFn: async () => client.request(GET_EVIDENCE_SUGGESTED_ACTIONS),
-    staleTime: 30_000,
     refetchOnWindowFocus: false,
   })
 }

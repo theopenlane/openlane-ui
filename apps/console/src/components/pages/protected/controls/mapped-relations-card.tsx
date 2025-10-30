@@ -94,7 +94,6 @@ const RelationCard = ({ data, controlHrefMap, subcontrolHrefMap }: RelationCardP
                     <div className="flex flex-wrap gap-2">
                       {controls.map((control) => {
                         const href = control.__typename === 'Subcontrol' ? subcontrolHrefMap[control.refCode] || '' : controlHrefMap[control.refCode] || ''
-                        console.log(href)
                         return <ControlChip key={control.id} forceHref={href} control={control} hideStandard hideHexagon />
                       })}
                     </div>
