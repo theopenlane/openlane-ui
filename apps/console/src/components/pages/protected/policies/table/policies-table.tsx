@@ -119,6 +119,7 @@ export const PoliciesTable = () => {
 
     return conditions
   }, [memberIds])
+
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])

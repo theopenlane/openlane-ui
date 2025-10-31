@@ -1,47 +1,68 @@
 import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
 import { FilterField } from '@/types'
-import { InviteInviteStatus, OrderDirection, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
+import { InviteInviteStatus, InviteRole, OrderDirection, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
+
+function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
+  return Object.entries(e).map(([key, value]) => ({
+    value,
+    label: labels?.[value as T[keyof T]] ?? prettifyEnum(key),
+  }))
+}
+
+function prettifyEnum(key: string) {
+  return key
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/^\w/, (c) => c.toUpperCase())
+}
+
+const AUTH_PROVIDER_LABELS: Partial<Record<UserAuthProvider, string>> = {
+  [UserAuthProvider.CREDENTIALS]: 'Credentials',
+  [UserAuthProvider.GITHUB]: 'GitHub',
+  [UserAuthProvider.GOOGLE]: 'Google',
+  [UserAuthProvider.OIDC]: 'OIDC',
+  [UserAuthProvider.WEBAUTHN]: 'WEBAUTHN',
+}
+
+const INVITE_STATUS_LABELS: Partial<Record<InviteInviteStatus, string>> = {
+  [InviteInviteStatus.INVITATION_ACCEPTED]: 'Accepted',
+  [InviteInviteStatus.INVITATION_EXPIRED]: 'Expired',
+  [InviteInviteStatus.INVITATION_SENT]: 'Outstanding',
+  [InviteInviteStatus.APPROVAL_REQUIRED]: 'Approval required',
+}
 
 export const MEMBERS_FILTER_FIELDS: FilterField[] = [
   {
-    key: 'providers',
+    key: 'authProviderIn',
     label: 'Providers',
-    type: 'select',
+    type: 'multiselect',
     icon: MembersFilterIcons.Providers,
-    options: [
-      { label: 'GitHub', value: UserAuthProvider.GITHUB },
-      { label: 'Google', value: UserAuthProvider.GOOGLE },
-      { label: 'Credentials', value: UserAuthProvider.CREDENTIALS },
-    ],
+    options: enumToOptions(UserAuthProvider, AUTH_PROVIDER_LABELS),
   },
   {
-    key: 'role',
+    key: 'roleIn',
     label: 'Role',
-    type: 'select',
+    type: 'multiselect',
     icon: MembersFilterIcons.Role,
-    options: [
-      { label: 'Member', value: OrgMembershipRole.MEMBER },
-      { label: 'Owner', value: OrgMembershipRole.OWNER },
-      { label: 'Admin', value: OrgMembershipRole.ADMIN },
-    ],
+    options: enumToOptions(OrgMembershipRole),
   },
 ]
 
 export const INVITES_FILTER_FIELDS: FilterField[] = [
   { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: InvitesFilterIcons.CreatedAt },
-  { key: 'role', label: 'Role', type: 'text', icon: InvitesFilterIcons.Role },
   {
-    key: 'status',
+    key: 'roleIn',
+    label: 'Role',
+    type: 'multiselect',
+    icon: InvitesFilterIcons.Role,
+    options: enumToOptions(InviteRole),
+  },
+  {
+    key: 'statusIn',
     label: 'Status',
-    type: 'select',
-    multiple: true,
+    type: 'multiselect',
     icon: InvitesFilterIcons.Status,
-    options: [
-      { label: 'Accepted', value: InviteInviteStatus.INVITATION_ACCEPTED },
-      { label: 'Expired', value: InviteInviteStatus.INVITATION_EXPIRED },
-      { label: 'Outstanding', value: InviteInviteStatus.INVITATION_SENT },
-      { label: 'Approval required', value: InviteInviteStatus.APPROVAL_REQUIRED },
-    ],
+    options: enumToOptions(InviteInviteStatus, INVITE_STATUS_LABELS),
   },
 ]
 

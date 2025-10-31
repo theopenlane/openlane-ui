@@ -3,8 +3,7 @@ import { FilterField } from '@/types'
 import { OrderDirection } from '@repo/codegen/src/schema'
 
 export const TOKEN_FILTER_FIELDS: FilterField[] = [
-  { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
-  { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },
+  { key: 'nameContainsFold', label: 'Name', type: 'text', icon: FilterIcons.Name },
   { key: 'expiresAt', label: 'Expires At', type: 'dateRange', icon: FilterIcons.ExpiresAt },
 ]
 

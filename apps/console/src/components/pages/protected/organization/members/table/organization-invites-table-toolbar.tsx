@@ -8,7 +8,7 @@ type TProps = {
   onFilterChange: (filters: InviteWhereInput) => void
 }
 
-const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
+const InvitesTableToolbar: React.FC<TProps> = (props: TProps) => {
   return (
     <>
       <div className="flex items-center gap-2 my-2">
@@ -20,4 +20,4 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   )
 }
 
-export default TaskTableToolbar
+export default InvitesTableToolbar

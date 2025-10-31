@@ -12,4 +12,5 @@ export enum TableFilterKeysEnum {
   ORG_INVITE = 'org_invite',
   GROUP = 'group',
   PERSONAL_ACCESS_TOKEN = 'personal-access-token',
+  API_TOKEN = 'api-token',
 }

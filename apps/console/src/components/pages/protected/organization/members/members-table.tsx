@@ -1,16 +1,6 @@
 'use client'
 
-import {
-  OrderDirection,
-  OrgMembership,
-  OrgMembershipOrderField,
-  OrgMembershipRole,
-  OrgMembershipsQueryVariables,
-  OrgMembershipWhereInput,
-  User,
-  UserAuthProvider,
-  UserWhereInput,
-} from '@repo/codegen/src/schema'
+import { OrderDirection, OrgMembership, OrgMembershipOrderField, OrgMembershipRole, OrgMembershipsQueryVariables, OrgMembershipWhereInput, User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useState, useMemo, useEffect } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
@@ -28,6 +18,7 @@ import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-en
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members.ts'
 import MembersTableToolbar from '@/components/pages/protected/organization/members/members-table-toolbar.tsx'
 import { MEMBERS_SORT_FIELDS } from './table/table-config'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
@@ -49,32 +40,32 @@ export const MembersTable = () => {
   ])
 
   const whereFilters: OrgMembershipWhereInput = useMemo(() => {
-    if (!filters) return {}
-
-    let mergedFilters: ExtendedOrgMembershipWhereInput = {}
-
-    if ('and' in filters && Array.isArray(filters.and)) {
-      filters.and.forEach((item) => {
-        mergedFilters = { ...mergedFilters, ...item }
-      })
-    } else {
-      mergedFilters = { ...filters }
+    const filtersWithSearch = {
+      ...filters,
+      and: [...(filters?.and ?? []), ...(debouncedSearch.trim() ? [{ hasUserWith: [{ displayNameContainsFold: debouncedSearch }] }] : [])],
     }
 
-    const { providersIn, ...rest } = mergedFilters
+    const result = whereGenerator<OrgMembershipWhereInput>(filtersWithSearch, (key, value) => {
+      if (key === 'authProviderIn') {
+        return {
+          hasUserWith: [{ authProviderIn: value as UserAuthProvider[] }],
+        }
+      }
 
-    const hasUserWith: UserWhereInput = {
-      displayNameContainsFold: debouncedSearch,
+      return { [key]: value } as OrgMembershipWhereInput
+    })
+
+    if (Array.isArray(result.and)) {
+      const userClauses = result.and.filter((e) => Array.isArray(e.hasUserWith)) as Array<{ hasUserWith: Array<Record<string, unknown>> }>
+
+      if (userClauses.length > 1) {
+        const mergedInner = Object.assign({}, ...userClauses.map((e) => e.hasUserWith[0] ?? {}))
+
+        result.and = [...result.and.filter((e) => !Array.isArray(e.hasUserWith)), { hasUserWith: [mergedInner] }]
+      }
     }
 
-    if (providersIn) {
-      hasUserWith.authProviderIn = providersIn
-    }
-
-    return {
-      ...rest,
-      hasUserWith: [hasUserWith],
-    }
+    return result
   }, [filters, debouncedSearch])
 
   const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
