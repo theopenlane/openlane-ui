@@ -3,13 +3,12 @@ import { FilterField, WhereCondition, Condition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
 import { format, startOfDay, addDays, isSameDay, isValid } from 'date-fns'
 import { Input } from '@repo/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Switch } from '@repo/ui/switch'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
 import { Calendar } from '@repo/ui/calendar'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { Separator as Hr } from '@repo/ui/separator'
@@ -76,44 +75,25 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     const andConditions: WhereCondition[] = []
 
     for (const field of fields) {
+      const key = field.key
       const val = vals[field.key]
       if (val === undefined || val === null || (typeof val === 'string' && val.trim() === '') || (Array.isArray(val) && val.length === 0)) {
         continue
       }
 
-      const key = field.forceKeyOperator
-        ? field.key
-        : (() => {
-            switch (field.type) {
-              case 'text':
-                return `${field.key}ContainsFold`
-              case 'select':
-                return `${field.key}In`
-              default:
-                return field.key
-            }
-          })()
-
       switch (field.type) {
         case 'text':
-          if (field.childrenObjectKey) {
-            andConditions.push({ [key]: { [field.childrenObjectKey!]: val as string } })
-          } else {
-            andConditions.push({ [key]: val as string })
-          }
+          andConditions.push({ [key]: val as string })
           break
-
-        case 'multiselect':
-        case 'select': {
+        case 'multiselect': {
           const valuesArray = Array.isArray(val) ? val : [val]
           if (valuesArray.length === 0) break
+          andConditions.push({ [key]: valuesArray } as Condition)
+          break
+        }
 
-          if (field.childrenObjectKey) {
-            const objectArray: { [k: string]: string }[] = valuesArray.map((v) => ({ [field.childrenObjectKey!]: v as string }))
-            andConditions.push({ [key]: objectArray } as Condition)
-          } else {
-            andConditions.push({ [`${key}`]: valuesArray } as Condition)
-          }
+        case 'select': {
+          andConditions.push({ [key]: val as string })
           break
         }
 
@@ -143,15 +123,11 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [])
 
   useEffect(() => {
-    const saved = loadFilters(pageKey)
+    const saved = loadFilters(pageKey, filterFields)
 
     if (saved) {
-      // filter out any saved keys that are no longer valid. this can happen if filter fields change over time but user has old saved filters on production
-      const validKeys = filterFields.map((f) => f.key)
-      const filtered: TFilterState = Object.fromEntries(Object.entries(saved).filter(([key]) => validKeys.includes(key)))
-
-      setValues(filtered)
-      onFilterChange?.(buildWhereCondition(filtered, filterFields))
+      setValues(saved)
+      onFilterChange?.(buildWhereCondition(saved, filterFields))
     } else {
       onFilterChange?.({})
     }
@@ -193,52 +169,24 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         case 'text':
           return <Input placeholder={`Enter ${field.label}`} value={(values[field.key] as string) ?? ''} onChange={(e) => handleChange(field.key, e.target.value)} />
         case 'select': {
-          if (field?.options && (field.options.length < 6 || field.multiple)) {
-            const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
-
-            return (
-              <>
-                {field.options.map((opt, index) => (
-                  <DropdownMenuCheckboxItem
-                    key={`${field.key}-${index}`}
-                    className="capitalize"
-                    checked={selected.includes(opt.value)}
-                    onSelect={(e) => e.preventDefault()}
-                    onCheckedChange={(checked: boolean) => {
-                      let next: string[]
-                      if (checked) {
-                        next = [...selected, opt.value]
-                      } else {
-                        next = selected.filter((v) => v !== opt.value)
-                      }
-                      handleChange(field.key, next)
-                    }}
-                  >
-                    {opt.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </>
-            )
-          }
-
-          const value = values[field.key]
-          const selectValue = Array.isArray(value) ? value[0] : value !== undefined && value !== null ? String(value) : ''
+          const selected = values[field.key] as string | undefined
 
           return (
-            <Select value={selectValue} onValueChange={(val: string) => handleChange(field.key, val)}>
-              <SelectTrigger>
-                <SelectValue placeholder={`Select ${field.label}`} />
-              </SelectTrigger>
-              <SelectContent>
-                {field.options?.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ul className="max-h-40 overflow-y-auto border rounded-lg">
+              {field?.options?.length ? (
+                field.options.map((opt) => (
+                  <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleChange(field.key, opt.value)}>
+                    <Checkbox checked={selected === opt.value} className="accent-primary" />
+                    <span>{opt.label}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="px-3 py-2 text-sm text-muted-foreground">No options available</li>
+              )}
+            </ul>
           )
         }
+
         case 'boolean':
           return (
             <div className="flex items-center gap-2">
@@ -364,7 +312,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0" align="end">
+      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0 max-h-[400px]" align="end">
         <p className="text-muted-foreground text-xs p-4 pb-0"> FILTER BY</p>
         <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pb-0">
           {filterFields.map((field) => (

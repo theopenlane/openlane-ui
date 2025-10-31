@@ -12,10 +12,10 @@ import { TComments } from '@/components/shared/comments/types/TComments'
 import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/tasks'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useSearchParams } from 'next/navigation'
-import { useGetUsers } from '@/lib/graphql-hooks/user'
-import { TaskQuery, UserWhereInput } from '@repo/codegen/src/schema'
+import { TaskQuery } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDeleteNote } from '@/lib/graphql-hooks/controls'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
 
 type ConversationProps = {
   isEditing: boolean
@@ -36,13 +36,17 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   const { mutateAsync: updateTaskComment } = useUpdateTaskComment()
   const { mutateAsync: deleteNote } = useDeleteNote()
 
-  const where: UserWhereInput | undefined = taskData?.comments
-    ? {
-        idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
-      }
-    : undefined
+  const userIds = React.useMemo(() => {
+    const edges = taskData?.comments?.edges ?? []
+    return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string')))
+  }, [taskData])
 
-  const { data: userData } = useGetUsers(where)
+  const { data: userData } = useGetOrgMemberships({
+    where: {
+      hasUserWith: userIds.map((id) => ({ id })),
+    },
+    enabled: userIds.length > 0,
+  })
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
@@ -101,9 +105,9 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   }
 
   useEffect(() => {
-    if (taskData && userData?.users?.edges?.length) {
+    if (taskData && userData?.orgMemberships?.edges?.length) {
       const commentsMapped = (taskData?.comments?.edges || []).map((item) => {
-        const user = userData.users.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node
+        const user = userData.orgMemberships.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node?.user
         const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
         return {
           comment: item?.node?.text,

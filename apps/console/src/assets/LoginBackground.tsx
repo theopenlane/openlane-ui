@@ -2,7 +2,7 @@ type TLoginBackgroundProps = {
   className?: string
 }
 
-const LoginBackground: React.FC<TLoginBackgroundProps> = ({ className = '' }) => {
+const LoginBackground: React.FC<TLoginBackgroundProps> = ({ className = '' }: { className?: string }) => {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="803" height="822" viewBox="0 0 740 385" fill="currentColor">
       <path d="M1110.8 138.545L1109.91 138.474L1110.58 137.944L1111.49 138.014L1110.8 138.545Z" fill="currentColor" />

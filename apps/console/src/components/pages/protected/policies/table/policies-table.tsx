@@ -28,6 +28,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -47,17 +48,38 @@ export const PoliciesTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    const conditions: InternalPolicyWhereInput = {
-      ...filters,
+    const base: InternalPolicyWhereInput = {
       nameContainsFold: debouncedSearch,
     }
 
-    // Only apply the default archived filter if no status filter is explicitly set
-    if (!filters?.status && !filters?.statusIn && !filters?.statusNotIn && !filters?.statusNEQ) {
-      conditions.statusNotIn = [InternalPolicyDocumentStatus.ARCHIVED]
+    const result = whereGenerator<InternalPolicyWhereInput>(filters, (key, value) => {
+      if (key === 'hasControlsWith') {
+        return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as InternalPolicyWhereInput
+      }
+
+      if (key === 'hasProgramsWith') {
+        return { hasProgramsWith: [{ id: value as string }] } as InternalPolicyWhereInput
+      }
+
+      if (key === 'hasSubcontrolsWith') {
+        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] } as InternalPolicyWhereInput
+      }
+
+      return { [key]: value } as InternalPolicyWhereInput
+    })
+
+    const hasStatusCondition = (obj: InternalPolicyWhereInput): boolean => {
+      if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true
+      if (Array.isArray(obj.and) && obj.and.some(hasStatusCondition)) return true
+      if (Array.isArray(obj.or) && obj.or.some(hasStatusCondition)) return true
+      return false
     }
 
-    return conditions
+    if (!hasStatusCondition(result)) {
+      result.statusNotIn = [InternalPolicyDocumentStatus.ARCHIVED]
+    }
+
+    return { ...base, ...result }
   }, [filters, debouncedSearch])
 
   const orderByFilter = useMemo(() => {
@@ -97,6 +119,7 @@ export const PoliciesTable = () => {
 
     return conditions
   }, [memberIds])
+
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])

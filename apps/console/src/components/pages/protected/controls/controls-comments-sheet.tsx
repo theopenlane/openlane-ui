@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
@@ -9,13 +9,12 @@ import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
-import { useGetUsers } from '@/lib/graphql-hooks/user'
 import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDeleteNote, useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/controls'
-import { UserWhereInput } from '@repo/codegen/src/schema'
 import { useGetSubcontrolComments, useUpdateSubcontrol, useUpdateSubcontrolComment } from '@/lib/graphql-hooks/subcontrol'
 import { SheetTitle } from '@repo/ui/sheet'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
 
 const ControlCommentsSheet = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
@@ -40,13 +39,17 @@ const ControlCommentsSheet = () => {
 
   const commentSource = isSubcontrol ? subcontrolData?.subcontrol : data?.control
 
-  const where: UserWhereInput | undefined = commentSource?.comments
-    ? {
-        idIn: commentSource.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
-      }
-    : undefined
+  const userIds = useMemo(() => {
+    const edges = commentSource?.comments?.edges ?? []
+    return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string')))
+  }, [commentSource])
 
-  const { data: userData } = useGetUsers(where)
+  const { data: userData } = useGetOrgMemberships({
+    where: {
+      hasUserWith: userIds.map((id) => ({ id })),
+    },
+    enabled: userIds.length > 0,
+  })
 
   const invalidateComments = useCallback(() => {
     if (isSubcontrol) {
@@ -125,10 +128,10 @@ const ControlCommentsSheet = () => {
   }, [commentSortIsAsc, comments])
 
   useEffect(() => {
-    if (commentSource && userData?.users?.edges?.length) {
+    if (commentSource && userData?.orgMemberships?.edges?.length) {
       const mapped =
         commentSource.comments?.edges?.map((item) => {
-          const user = userData.users.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node
+          const user = userData.orgMemberships.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node?.user
           const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
           return {
             comment: item?.node?.text,

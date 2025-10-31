@@ -188,7 +188,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   }
 
   const roleOptions = useMemo(() => {
-    const options = Object.entries(InviteRole) as [keyof typeof InviteRole, InviteRole][]
+    const options = Object.entries(InviteRole).filter(([, o]) => o !== InviteRole.OWNER) as [keyof typeof InviteRole, InviteRole][]
     return canInviteAdmins ? options : options.filter(([, o]) => o !== InviteRole.ADMIN)
   }, [canInviteAdmins])
 

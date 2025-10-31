@@ -20,7 +20,7 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
-import { loadFilters, saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { isStringArray, loadFilters, saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
@@ -141,8 +141,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   useEffect(() => {
     const saved = loadFilters(TableFilterKeysEnum.CONTROL)
-    const arr = (saved?.standardIDIn as string[]) || []
-    setSelectedStandards(arr)
+    const validated = isStringArray(saved?.standardIDIn) ? saved?.standardIDIn : []
+    setSelectedStandards(validated)
 
     const handleUpdate = (e: CustomEvent) => {
       const updated = (e.detail?.standardIDIn as string[]) || []

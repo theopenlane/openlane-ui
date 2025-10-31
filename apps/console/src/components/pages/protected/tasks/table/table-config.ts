@@ -4,6 +4,20 @@ import { OrderDirection, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { TOrgMembers } from '../hooks/useTaskStore'
 import { FilterIcons } from '@/components/shared/enum-mapper/task-enum'
 
+function prettifyEnum(key: string) {
+  return key
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/^\w/, (c) => c.toUpperCase())
+}
+
+function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
+  return Object.entries(e).map(([key, value]) => ({
+    value,
+    label: labels?.[value as T[keyof T]] ?? prettifyEnum(key),
+  }))
+}
+
 export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: { value: string; label: string }[]): FilterField[] => [
   { key: 'displayID', label: 'DisplayID', type: 'text', icon: FilterIcons.DisplayID },
   { key: 'title', label: 'Title', type: 'text', icon: FilterIcons.Title },
@@ -12,27 +26,15 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     label: 'Type',
     type: 'select',
     icon: FilterIcons.Type,
-    options: [
-      { label: 'Evidence', value: TaskTypes.EVIDENCE },
-      { label: 'Policy review', value: TaskTypes.POLICY_REVIEW },
-      { label: 'Risk review', value: TaskTypes.RISK_REVIEW },
-      { label: 'Other', value: TaskTypes.OTHER },
-    ],
+    options: enumToOptions(TaskTypes),
   },
   { key: 'due', label: 'Due Date', type: 'dateRange', icon: FilterIcons.DueDate },
   {
-    key: 'status',
+    key: 'statusIn',
     label: 'Status',
-    type: 'select',
-    multiple: true,
+    type: 'multiselect',
     icon: FilterIcons.Status,
-    options: [
-      { label: 'Open', value: TaskTaskStatus.OPEN },
-      { label: 'In progress', value: TaskTaskStatus.IN_PROGRESS },
-      { label: 'In review', value: TaskTaskStatus.IN_REVIEW },
-      { label: 'Completed', value: TaskTaskStatus.COMPLETED },
-      { label: "Won't do", value: TaskTaskStatus.WONT_DO },
-    ],
+    options: enumToOptions(TaskTaskStatus),
   },
   {
     key: 'assignerID',
@@ -52,8 +54,6 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     key: 'hasProgramsWith',
     label: 'Program Name',
     type: 'select',
-    forceKeyOperator: true,
-    childrenObjectKey: 'id',
     options: programOptions,
     icon: FilterIcons.ProgramName,
   },
