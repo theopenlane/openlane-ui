@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 import { searchStyles } from './search.styles'
 import { Command, CommandEmpty, CommandItem, CommandList } from '@repo/ui/command'
 import { Input } from '@repo/ui/input'
-import { Clock8, LoaderCircle, Plus, Search, SearchIcon } from 'lucide-react'
+import { Clock8, LoaderCircle, Search, SearchIcon } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
 import { Organization, SearchQuery } from '@repo/codegen/src/schema'
@@ -193,7 +193,7 @@ export const GlobalSearch = () => {
           {/* history dropdown/list */}
           <div className="overflow-hidden w-80">
             {searchHistory.length > 0 && (
-              <div className="p-2 w-100 flex w-full gap-1 ">
+              <div className="p-2 flex w-full gap-1 ">
                 {searchHistory.map((term) => (
                   <div
                     key={term}

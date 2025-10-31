@@ -88,7 +88,6 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
         <EditorContainer
           variant={styleVariant}
           onClick={() => {
-            // @ts-ignore
             editor?.focus()
           }}
         >

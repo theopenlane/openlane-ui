@@ -6,7 +6,7 @@ import { FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
-import { loadFilters } from '@/components/shared/table-filter/filter-storage'
+import { isStringArray, loadFilters } from '@/components/shared/table-filter/filter-storage'
 import { saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -18,8 +18,9 @@ interface Props {
 
 export default function StatusBreakdown({ onStatusClick }: Props) {
   const saved = loadFilters(TableFilterKeysEnum.POLICY) || {}
+  const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
   const { policies } = useInternalPoliciesDashboard({
-    where: { ...wherePoliciesDashboard, approverIDIn: saved.approverIDIn as string[] | undefined },
+    where: { ...wherePoliciesDashboard, approverIDIn: validated },
   })
 
   const statusCounts = useMemo(() => {

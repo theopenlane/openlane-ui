@@ -41,8 +41,8 @@ const TasksPage: React.FC = () => {
       direction: OrderDirection.ASC,
     },
   ])
-  const allStatuses = useMemo(() => [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
-  const statusesWithoutComplete = useMemo(() => [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW], [])
+  const allStatuses = useMemo(() => Object.values(TaskTaskStatus), [])
+  const statusesWithoutComplete = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED), [allStatuses])
   const { data: permission } = useOrganizationRoles()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     createdAt: false,

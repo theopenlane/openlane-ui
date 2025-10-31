@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { Checkbox } from '@repo/ui/checkbox'
-import { loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
+import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { PolicySuggestedActions } from './policies-suggested-actions'
 
@@ -25,7 +25,8 @@ const PoliciesPage = () => {
 
   useEffect(() => {
     const saved = loadFilters(TableFilterKeysEnum.POLICY)
-    setSelectedGroups((saved?.approverIDIn as string[]) || [])
+    const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
+    setSelectedGroups(validated)
 
     const handleUpdate = (e: CustomEvent) => {
       setSelectedGroups((e.detail?.approverIDIn as string[]) || [])
@@ -40,8 +41,8 @@ const PoliciesPage = () => {
 
   const handleGroupToggle = (value: string) => {
     const existingFilters = loadFilters(TableFilterKeysEnum.POLICY) || {}
-    const currentGroups = (existingFilters.approverIDIn as string[]) || []
-    const newGroups = currentGroups.includes(value) ? currentGroups.filter((v) => v !== value) : [...currentGroups, value]
+    const validated = isStringArray(existingFilters?.approverIDIn) ? existingFilters?.approverIDIn : []
+    const newGroups = validated.includes(value) ? validated.filter((v) => v !== value) : [...validated, value]
 
     saveFilters(TableFilterKeysEnum.POLICY, {
       ...existingFilters,

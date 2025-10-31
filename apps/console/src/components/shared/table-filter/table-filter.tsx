@@ -123,16 +123,13 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [])
 
   useEffect(() => {
-    const saved = loadFilters(pageKey)
+    const saved = loadFilters(pageKey, filterFields)
 
     if (saved) {
       console.log('saved', saved)
-      // filter out any saved keys that are no longer valid. this can happen if filter fields change over time but user has old saved filters on production
-      const validKeys = filterFields.map((f) => f.key)
-      const filtered: TFilterState = Object.fromEntries(Object.entries(saved).filter(([key]) => validKeys.includes(key)))
 
-      setValues(filtered)
-      onFilterChange?.(buildWhereCondition(filtered, filterFields))
+      setValues(saved)
+      onFilterChange?.(buildWhereCondition(saved, filterFields))
     } else {
       onFilterChange?.({})
     }

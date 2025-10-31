@@ -5,17 +5,18 @@ import ProgressBar from './progress-bar'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
-import { loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
+import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
 
 export default function CoverageByType({ onTypeClick }: { onTypeClick: () => void }) {
   const saved = loadFilters(TableFilterKeysEnum.POLICY) || {}
+  const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
   const { policies } = useInternalPoliciesDashboard({
     where: {
       ...wherePoliciesDashboard,
-      approverIDIn: saved.approverIDIn as string[] | undefined,
+      approverIDIn: validated,
     },
   })
 
