@@ -60,9 +60,9 @@ export const getControlsFilterFields = (
     icon: FilterIcons.ProgramName,
   },
   {
-    key: 'controlType',
+    key: 'controlTypeIn',
     label: 'Control Type',
-    type: 'select',
+    type: 'multiselect',
     options: controlControlTypeOptions,
     icon: FilterIcons.Type,
   },

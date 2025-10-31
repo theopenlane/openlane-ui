@@ -12,15 +12,15 @@ export const StandardsPageSkeleton = () => {
               <Skeleton height={30} width={100}></Skeleton>
             </div>
             <div className="text-sm space-y-1 mb-3">
-              <p className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
+              </div>
             </div>
           </div>
           <Skeleton height={50} width={50} className="rounded-full"></Skeleton>
@@ -42,15 +42,15 @@ export const StandardsPageSkeleton = () => {
               <Skeleton height={30} width={100}></Skeleton>
             </div>
             <div className="text-sm space-y-1 mb-3">
-              <p className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
+              </div>
             </div>
           </div>
           <Skeleton height={50} width={50} className="rounded-full"></Skeleton>
@@ -72,15 +72,15 @@ export const StandardsPageSkeleton = () => {
               <Skeleton height={30} width={100}></Skeleton>
             </div>
             <div className="text-sm space-y-1 mb-3">
-              <p className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
+              </div>
             </div>
           </div>
           <Skeleton height={50} width={50} className="rounded-full"></Skeleton>
@@ -102,15 +102,15 @@ export const StandardsPageSkeleton = () => {
               <Skeleton height={30} width={100}></Skeleton>
             </div>
             <div className="text-sm space-y-1 mb-3">
-              <p className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
+              </div>
             </div>
           </div>
           <Skeleton height={50} width={50} className="rounded-full"></Skeleton>
@@ -132,15 +132,15 @@ export const StandardsPageSkeleton = () => {
               <Skeleton height={30} width={100}></Skeleton>
             </div>
             <div className="text-sm space-y-1 mb-3">
-              <p className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
-              <p className="flex items-center gap-1">
+              </div>
+              <div className="flex items-center gap-1">
                 <Skeleton height={15} width={15} className="rounded-full"></Skeleton>
-              </p>
+              </div>
             </div>
           </div>
           <Skeleton height={50} width={50} className="rounded-full"></Skeleton>

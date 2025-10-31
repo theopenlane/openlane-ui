@@ -61,7 +61,7 @@ const BulkCSVCreateMappedControlDialog: React.FC<BulkCsvCreateMappedControlDialo
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger className="bg-transparent">
+        <DialogTrigger asChild className="bg-transparent self-start">
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

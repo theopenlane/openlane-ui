@@ -63,7 +63,7 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {trigger ? (
-        <DialogTrigger className="bg-transparent">
+        <DialogTrigger asChild className="bg-transparent self-start">
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

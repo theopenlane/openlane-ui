@@ -126,8 +126,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     const saved = loadFilters(pageKey, filterFields)
 
     if (saved) {
-      console.log('saved', saved)
-
       setValues(saved)
       onFilterChange?.(buildWhereCondition(saved, filterFields))
     } else {
