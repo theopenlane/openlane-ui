@@ -18,6 +18,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -56,17 +57,24 @@ const TasksPage: React.FC = () => {
   const searching = searchQuery !== debouncedSearch
   const [hasTasks, setHasTasks] = useState(false)
   const [selectedTasks, setSelectedTasks] = useState<{ id: string }[]>([])
-  const whereFilter = useMemo(() => {
-    if (!filters) {
-      return null
-    }
 
-    return {
+  const whereFilter = useMemo(() => {
+    if (!filters) return null
+
+    const base = {
+      titleContainsFold: debouncedSearch,
       ...(showMyTasks && { assigneeID: session?.user?.userId }),
       ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
-      ...filters,
-      ...{ titleContainsFold: debouncedSearch },
     }
+
+    const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
+      if (key === 'hasProgramsWith') {
+        return { hasProgramsWith: [{ id: value as string }] }
+      }
+      return { [key]: value } as TaskWhereInput
+    })
+
+    return { ...base, ...result }
   }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch, session, showMyTasks])
 
   useEffect(() => {

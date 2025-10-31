@@ -29,6 +29,7 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -73,9 +74,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 
   const whereFilter = useMemo(() => {
-    const conditions: ControlWhereInput = {}
+    const base: ControlWhereInput = {}
 
-    const mapCustomKey = (key: string, value: string | string[]): Partial<ControlWhereInput> => {
+    const result = whereGenerator<ControlWhereInput>(filters, (key, value) => {
+      // Special case: CUSTOM pseudo-standard
       if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
         const normalStandards = value.filter((id) => id !== 'CUSTOM')
 
@@ -85,47 +87,26 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       }
 
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ id: value as string }] }
+        return { hasProgramsWith: [{ id: value as string }] } as ControlWhereInput
       }
 
-      return { [key]: value } as Partial<ControlWhereInput>
-    }
-
-    Object.entries(filters || {}).forEach(([key, value]) => {
-      if (!value) return
-
-      if ((key === 'and' || key === 'or') && Array.isArray(value)) {
-        conditions[key] = value.map((entry) => {
-          const subCondition: ControlWhereInput = {}
-          Object.entries(entry).forEach(([innerKey, innerValue]) => {
-            Object.assign(subCondition, mapCustomKey(innerKey, innerValue as string))
-          })
-          return subCondition
-        })
-      } else {
-        Object.assign(conditions, mapCustomKey(key, value))
-      }
+      return { [key]: value } as ControlWhereInput
     })
 
+    // Check if the user explicitly filtered by status
     const hasStatusCondition = (obj: ControlWhereInput): boolean => {
-      if ('status' in obj || 'statusNEQ' in obj) return true
-
-      if (Array.isArray(obj.and)) {
-        if (obj.and.some(hasStatusCondition)) return true
-      }
-
-      if (Array.isArray(obj.or)) {
-        if (obj.or.some(hasStatusCondition)) return true
-      }
-
+      if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true
+      if (Array.isArray(obj.and) && obj.and.some(hasStatusCondition)) return true
+      if (Array.isArray(obj.or) && obj.or.some(hasStatusCondition)) return true
       return false
     }
 
-    if (!hasStatusCondition(conditions)) {
-      conditions.statusNEQ = ControlControlStatus.ARCHIVED
+    // Automatically exclude archived unless overridden
+    if (!hasStatusCondition(result)) {
+      result.statusNEQ = ControlControlStatus.ARCHIVED
     }
 
-    return conditions
+    return { ...base, ...result }
   }, [filters])
 
   useEffect(() => {
