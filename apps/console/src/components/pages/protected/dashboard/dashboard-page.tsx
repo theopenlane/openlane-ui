@@ -20,6 +20,7 @@ import { SlidersHorizontal } from 'lucide-react'
 const DashboardPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
   const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
   const { setCrumbs } = React.useContext(BreadcrumbContext)
 
@@ -40,14 +41,13 @@ const DashboardPage: React.FC = () => {
   }, [data])
 
   useEffect(() => {
-    const programId = searchParams.get('id')
     if (!programId) {
       setSelectedProgram('All programs')
     } else {
       const programName = programMap[programId] ?? 'Unknown Program'
       setSelectedProgram(programName)
     }
-  }, [searchParams, programMap])
+  }, [searchParams, programMap, programId])
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
@@ -115,7 +115,7 @@ const DashboardPage: React.FC = () => {
                           handleSelectChange(program.id)
                         }}
                       >
-                        <Checkbox checked={selectedProgram === program.name} />
+                        <Checkbox checked={program.id === programId} />
                         <span>{program.name}</span>
                       </DropdownMenuItem>
                     )
