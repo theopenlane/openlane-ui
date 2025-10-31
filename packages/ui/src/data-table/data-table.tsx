@@ -165,7 +165,13 @@ export function DataTable<TData, TValue>({
     enableColumnResizing: true,
     state: {
       columnFilters,
-      columnVisibility,
+      columnVisibility: columnVisibility ?? (columns.reduce((acc, col) => {
+        const colAny = col as any
+        const colId = typeof colAny.id === 'string' ? colAny.id : ('accessor_' + String(colAny.accessorKey ?? ''))
+        const defaultVisible = colAny.meta?.defaultVisible
+        if (defaultVisible !== undefined) acc[colId] = !!defaultVisible
+        return acc
+      }, {} as Record<string, boolean>)),
       rowSelection,
       columnSizing: columnSizes,
       pagination: {
