@@ -60,9 +60,9 @@ export function usePoliciesFilters(): FilterField[] | null {
         icon: FilterIcons.ReviewDue,
       },
       {
-        key: 'status',
+        key: 'statusIn',
         label: 'Status',
-        type: 'select',
+        type: 'multiselect',
         options: InternalPolicyStatusFilterOptions,
         icon: FilterIcons.Status,
       },
