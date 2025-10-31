@@ -88,6 +88,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
         <EditorContainer
           variant={styleVariant}
           onClick={() => {
+            // @ts-expect-error fix bad typing from platejs
             editor?.focus()
           }}
         >
