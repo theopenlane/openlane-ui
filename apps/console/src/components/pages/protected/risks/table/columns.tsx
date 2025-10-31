@@ -22,12 +22,6 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
   }
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
     {
-      accessorKey: 'id',
-      header: 'ID',
-      size: 120,
-      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
-    },
-    {
       id: 'select',
       header: ({ table }) => {
         const currentPageRisks = table.getRowModel().rows.map((row) => row.original)
@@ -59,6 +53,12 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
         )
       },
       size: 50,
+    },
+    {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
       accessorKey: 'name',

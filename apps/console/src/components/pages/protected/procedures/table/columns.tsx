@@ -25,12 +25,6 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
   }
   const columns: ColumnDef<Procedure>[] = [
     {
-      accessorKey: 'id',
-      header: 'ID',
-      size: 120,
-      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
-    },
-    {
       id: 'select',
       header: ({ table }) => {
         const currentPageProcedures = table.getRowModel().rows.map((row) => row.original)
@@ -62,6 +56,12 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
         )
       },
       size: 50,
+    },
+    {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
       accessorKey: 'name',

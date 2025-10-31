@@ -25,12 +25,6 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
   }
   const columns: ColumnDef<InternalPolicy>[] = [
     {
-      accessorKey: 'id',
-      header: 'ID',
-      size: 120,
-      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
-    },
-    {
       id: 'select',
       header: ({ table }) => {
         const currentPagePolicies = table.getRowModel().rows.map((row) => row.original)
@@ -62,6 +56,12 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
         )
       },
       size: 50,
+    },
+    {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
       accessorKey: 'name',
