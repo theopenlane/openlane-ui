@@ -141,6 +141,7 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
       {
         title: 'Billing',
         href: '/organization-settings/billing',
+        hidden: !canEdit(orgPermission?.roles),
         icon: DollarSign,
       },
       {
