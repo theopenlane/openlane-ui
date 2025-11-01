@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
-import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
 import MyTask from '@/components/pages/protected/overview/my-task'
 import PendingActions from '@/components/pages/protected/overview/pending-actions'
 import Risks from '@/components/pages/protected/overview/risks'
@@ -13,10 +12,15 @@ import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import Loading from '@/app/(protected)/dashboard/loading'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@repo/ui/button'
+import { Checkbox } from '@repo/ui/checkbox'
+import { SlidersHorizontal } from 'lucide-react'
 
 const DashboardPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
   const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
   const { setCrumbs } = React.useContext(BreadcrumbContext)
 
@@ -37,14 +41,13 @@ const DashboardPage: React.FC = () => {
   }, [data])
 
   useEffect(() => {
-    const programId = searchParams.get('id')
     if (!programId) {
       setSelectedProgram('All programs')
     } else {
       const programName = programMap[programId] ?? 'Unknown Program'
       setSelectedProgram(programName)
     }
-  }, [searchParams, programMap])
+  }, [searchParams, programMap, programId])
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
@@ -76,24 +79,49 @@ const DashboardPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <div className="flex gap-4 items-center">
               <h1>Overview</h1>
-              <Select onValueChange={handleSelectChange}>
-                <SelectTrigger className="max-w-64 min-w-48 rounded-md px-3 py-2 flex items-center justify-between">
-                  <div className="truncate">{selectedProgram}</div>
-                </SelectTrigger>
-                <SelectContent className="border rounded-md shadow-md">
-                  <SelectItem value="All programs">All programs</SelectItem>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-8 !px-2 !pl-3" icon={<SlidersHorizontal />} iconPosition="left">
+                    <span className="text-muted-foreground">Filter by:</span>
+                    <span>Program</span>
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
+                  {/* All programs */}
+                  <DropdownMenuItem
+                    className="flex items-center gap-2"
+                    onSelect={(e) => {
+                      e.preventDefault()
+                      handleSelectChange('All programs')
+                    }}
+                  >
+                    <Checkbox checked={selectedProgram === 'All programs'} />
+                    <span>All programs</span>
+                  </DropdownMenuItem>
+
+                  {/* Dynamic program list */}
                   {data?.programs?.edges?.map((edge) => {
                     const program = edge?.node
                     if (!program) return null
 
                     return (
-                      <SelectItem key={program.id} value={program.id}>
-                        {program.name}
-                      </SelectItem>
+                      <DropdownMenuItem
+                        key={program.id}
+                        className="flex items-center gap-2"
+                        onSelect={(e) => {
+                          e.preventDefault()
+                          handleSelectChange(program.id)
+                        }}
+                      >
+                        <Checkbox checked={program.id === programId} />
+                        <span>{program.name}</span>
+                      </DropdownMenuItem>
                     )
                   })}
-                </SelectContent>
-              </Select>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         }

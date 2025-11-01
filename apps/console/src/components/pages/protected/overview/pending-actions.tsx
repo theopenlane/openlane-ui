@@ -106,7 +106,7 @@ const PendingActions = () => {
               <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
               <p className="text-sm text-muted-foreground mt-1">Maybe it&apos;s time to review some policies and procedures that haven&apos;t been updated in a while?</p>
               <Link href={policiesRedirectURL} className="mt-4">
-                <Button variant="outline" className="mt-4">
+                <Button variant="secondary" className="mt-4">
                   Take me there
                 </Button>
               </Link>

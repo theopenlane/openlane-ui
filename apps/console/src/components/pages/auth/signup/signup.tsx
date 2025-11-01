@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
 import { Button } from '@repo/ui/button'
-import { ArrowRightCircle } from 'lucide-react'
+import { ArrowRightCircle, Github } from 'lucide-react'
 import { registerUser, type RegisterUser } from '@/lib/user'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { signIn } from 'next-auth/react'
@@ -13,7 +13,6 @@ import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
 import Link from 'next/link'
 import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
-import Github from '@/assets/Github'
 import { loginStyles } from '../login/login.styles'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
@@ -57,11 +56,11 @@ export const SignupPage = () => {
       )}
 
       <div className={cn(buttons(), 'mt-[32px]')}>
-        <Button className="!px-3.5 w-full hover:opacity-60 transition" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={google}>
+        <Button className="!px-3.5 w-full" variant="secondary" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={google}>
           <p className="text-sm font-normal">Google</p>
         </Button>
 
-        <Button className="!px-3.5 w-full hover:opacity-60 transition" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={github}>
+        <Button className="!px-3.5 w-full" variant="secondary" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={github}>
           <p className="text-sm font-normal">GitHub</p>
         </Button>
       </div>
@@ -143,10 +142,10 @@ export const SignupPage = () => {
               <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" className="bg-transparent !text-text" />
             </div>
 
-            <button className="p-4  btn-secondary justify-between items-center rounded-md text-sm h-[36px] font-bold flex mt-2" type="submit" disabled={isLoading}>
+            <Button variant="primary" className="p-4 items-center justify-center rounded-md text-sm h-[36px] font-bold flex mt-2" type="submit" disabled={isLoading}>
               <span>{isLoading ? 'Creating account...' : 'Sign up'}</span>
               <ArrowRightCircle size={16} />
-            </button>
+            </Button>
           </>
         )}
       </SimpleForm>

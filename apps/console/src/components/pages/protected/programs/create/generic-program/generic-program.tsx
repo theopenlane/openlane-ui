@@ -120,10 +120,10 @@ const GenericProgram = () => {
 
           {/* Actions */}
           <div className="flex justify-between pt-4">
-            <Button variant="outline" type="button" onClick={handleBack}>
+            <Button variant="secondary" type="button" onClick={handleBack}>
               Back
             </Button>
-            <Button type="submit" className="btn-secondary">
+            <Button variant="secondary" type="submit">
               Create Program
             </Button>
           </div>

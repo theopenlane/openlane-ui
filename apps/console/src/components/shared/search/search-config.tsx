@@ -31,6 +31,8 @@ export const generateSelectOptions = (data: SearchQuery | undefined, pages: Rout
     Controls: search.controls?.totalCount ?? 0,
     Subcontrols: search.subcontrols?.totalCount ?? 0,
     Risks: search.risks?.totalCount ?? 0,
+    Policies: search.internalPolicies?.totalCount ?? 0,
+    Procedures: search.procedures?.totalCount ?? 0,
   }
 
   const allCount = Object.values(counts).reduce((sum, count) => sum + count, 0)
@@ -59,6 +61,8 @@ export const getSearchResultCount = (selectedType: string, data: SearchQuery | u
     Controls: search.controls?.totalCount ?? 0,
     Subcontrols: search.subcontrols?.totalCount ?? 0,
     Risks: search.risks?.totalCount ?? 0,
+    Policies: search.internalPolicies?.totalCount ?? 0,
+    Procedures: search.procedures?.totalCount ?? 0,
   }
 
   if (selectedType === 'All') {

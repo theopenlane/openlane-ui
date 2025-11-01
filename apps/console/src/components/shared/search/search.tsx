@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
 import { useQueryClient } from '@tanstack/react-query'
+import { Button } from '@repo/ui/button'
 
 type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
 
@@ -34,6 +35,10 @@ type SubcontrolNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuer
 type RiskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['risks']>['edges']>[number]>['node']
 
 type OrganizationNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['organizations']>['edges']>[number]>['node']
+
+type PolicyNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['internalPolicies']>['edges']>[number]>['node']
+
+type ProcedureNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['procedures']>['edges']>[number]>['node']
 
 export const GlobalSearch = () => {
   const queryClient = useQueryClient()
@@ -146,13 +151,16 @@ export const GlobalSearch = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}>
-        <Search
-          size={16}
+      <DialogTrigger className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`} asChild>
+        <Button
+          variant="secondary"
+          className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}
           onClick={() => {
             setOpen(true)
           }}
-        />
+        >
+          <Search size={16} />
+        </Button>
       </DialogTrigger>
       <DialogContent className="p-0 max-w-[573px]" autoFocus>
         <div className="mt-1.5">
@@ -185,7 +193,7 @@ export const GlobalSearch = () => {
           {/* history dropdown/list */}
           <div className="overflow-hidden w-80">
             {searchHistory.length > 0 && (
-              <div className="p-2 w-100 flex w-full gap-1 ">
+              <div className="p-2 flex w-full gap-1 ">
                 {searchHistory.map((term) => (
                   <div
                     key={term}
@@ -320,6 +328,20 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
             searchType: 'Programs',
             nodes: (search.programs.edges ?? []).map((edge) => edge?.node),
           })}
+        {shouldRenderSection('Policies') &&
+          !!search?.internalPolicies?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Policies',
+            nodes: (search?.internalPolicies.edges ?? []).map((edge) => edge?.node),
+          })}
+        {shouldRenderSection('Procedures') &&
+          !!search?.procedures?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Procedures',
+            nodes: (search?.procedures.edges ?? []).map((edge) => edge?.node),
+          })}
         {/* /* Groups */}
         {shouldRenderSection('Groups') &&
           !!search.groups?.edges?.length &&
@@ -373,7 +395,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
   )
 }
 
-type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlObjectiveNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[]
+type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlObjectiveNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[] | PolicyNode[] | ProcedureNode[]
 
 interface SearchNodeProps {
   searchType: string
@@ -396,9 +418,10 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
         return searchNode.refCode
       case 'Program':
       case 'Group':
-        return searchNode.name
       case 'ControlObjective':
       case 'Risk':
+      case 'InternalPolicy':
+      case 'Procedure':
         return searchNode.name
       case 'Task':
         return searchNode.title

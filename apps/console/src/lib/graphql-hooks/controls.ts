@@ -126,7 +126,7 @@ export const useUpdateControl = () => {
     mutationFn: async (variables) => client.request(UPDATE_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
@@ -138,7 +138,7 @@ export const useBulkEditControl = () => {
     mutationFn: async (variables) => client.request(BULK_EDIT_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
@@ -195,7 +195,7 @@ export const useDeleteControl = () => {
     mutationFn: async (variables) => client.request(DELETE_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
@@ -208,7 +208,7 @@ export const useCreateControl = () => {
     mutationFn: async (variables) => client.request(CREATE_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }

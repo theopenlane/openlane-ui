@@ -50,7 +50,9 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
               )}
               {group.members && (group.members?.edges?.length || 0) > 0 ? (
                 <div className="flex items-center gap-2">
-                  {group.members.edges?.slice(0, 9).map((member, index: number) => <Avatar key={index} className="h-8 w-8" entity={member?.node?.user} />)}
+                  {group.members.edges?.slice(0, 9).map((member, index: number) => (
+                    <Avatar key={index} className="h-8 w-8" entity={member?.node?.user} />
+                  ))}
 
                   {(group.members?.edges?.length || 0) > 9 && (
                     <TooltipProvider disableHoverableContent={false}>

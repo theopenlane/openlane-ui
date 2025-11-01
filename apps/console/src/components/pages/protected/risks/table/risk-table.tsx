@@ -20,6 +20,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -57,9 +58,19 @@ const RiskTable: React.FC = () => {
   const searching = searchQuery !== debouncedSearch
 
   const where = useMemo(() => {
+    const base: RiskWhereInput = {
+      nameContainsFold: debouncedSearch,
+    }
+
     return {
-      ...filters,
-      nameContainsFold: debouncedSearch || undefined,
+      ...base,
+      ...whereGenerator(filters, (key, value) => {
+        if (key === 'hasProgramsWith') {
+          return { hasProgramsWith: [{ id: value as string }] } as RiskWhereInput
+        }
+
+        return { [key]: value } as RiskWhereInput
+      }),
     }
   }, [filters, debouncedSearch])
 

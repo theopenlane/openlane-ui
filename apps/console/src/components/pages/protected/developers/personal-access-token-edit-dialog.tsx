@@ -29,7 +29,7 @@ type PersonalAccessTokenEditProps = {
 
 const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ tokenId, tokenName, tokenDescription, tokenExpiration, tokenAuthorizedOrganizations }) => {
   const path = usePathname()
-  const isOrg = path.includes('/organization-settings')
+  const isApiKeyPage = path.includes('/api-tokens')
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
@@ -51,7 +51,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
       organizationIDs: z.array(z.string()).optional(),
     })
     .refine((data) => data.expiryDate || data.noExpire, { message: 'Please specify an expiry date or select Never expires', path: ['expiryDate'] })
-    .refine((data) => isOrg || (data.organizationIDs && data.organizationIDs.length > 0), { message: 'At least one organization must be selected', path: ['organizationIDs'] })
+    .refine((data) => isApiKeyPage || (data.organizationIDs && data.organizationIDs.length > 0), { message: 'At least one organization must be selected', path: ['organizationIDs'] })
 
   type FormData = z.infer<typeof formSchema>
 
@@ -92,8 +92,8 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
       localStorage.setItem(
         'api_token',
         JSON.stringify({
-          tokenType: isOrg ? 'api' : 'personal',
-          isOrg,
+          tokenType: isApiKeyPage ? 'api' : 'personal',
+          isApiKeyPage,
         }),
       )
 
@@ -106,7 +106,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
         body: JSON.stringify({
           organization_id: currentOrgId,
           token_id: tokenId,
-          token_type: isOrg ? 'api' : 'personal',
+          token_type: isApiKeyPage ? 'api' : 'personal',
         }),
       })
 
@@ -133,7 +133,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
 
     try {
       setIsSubmitting(true)
-      if (isOrg) {
+      if (isApiKeyPage) {
         await updateApiToken({
           updateApiTokenId: tokenId,
           input: {
@@ -256,7 +256,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
                   )}
                 />
               </div>
-              {!isOrg && (
+              {!isApiKeyPage && (
                 <FormField
                   name="organizationIDs"
                   control={form.control}
@@ -306,8 +306,8 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
           </form>
         </FormProvider>
         <DialogFooter>
-          {!isOrg && currentSetting?.identityProviderLoginEnforced && (
-            <Button disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize}>
+          {!isApiKeyPage && currentSetting?.identityProviderLoginEnforced && (
+            <Button disabled={isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize}>
               {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
             </Button>
           )}

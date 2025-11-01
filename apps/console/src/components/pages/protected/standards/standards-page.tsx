@@ -104,14 +104,16 @@ const StandardsPage = () => {
             </div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
-              <Button className="py-2 px-4 btn-secondary">Details</Button>
+              <Button variant="primary" className="py-2 px-4">
+                Details
+              </Button>
             </Link>
           </Card>
         ))}
         <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href={INFO_EMAIL}>
-            <Button variant="outline" className="!text-brand">
+            <Button variant="secondary" className="!text-brand">
               info@theopenlane.io
             </Button>
           </a>

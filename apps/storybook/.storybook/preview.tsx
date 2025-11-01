@@ -31,9 +31,9 @@ export const parameters = {
       colorSecondary: '#75D2BF',
 
       // UI
-      appBg: '#0D1117',
-      appContentBg: '#0D1117',
-      appPreviewBg: '#0D1117',
+      appBg: '#162431',
+      appContentBg: '#162431',
+      appPreviewBg: '#162431',
       appBorderColor: '#303E4A',
       appBorderRadius: 4,
 
@@ -49,7 +49,7 @@ export const parameters = {
 
       // Form colors
       inputBg: '#1C2630',
-      inputBorder: '#0D1117',
+      inputBorder: '#162431',
       inputTextColor: '#aabec5',
       inputBorderRadius: 2,
     },
@@ -63,7 +63,7 @@ export const parameters = {
       // UI
       appBg: '#e9f1f5',
       appContentBg: '#e9f1f5',
-      appPreviewBg: '#e9f1f5',
+      appPreviewBg: '#162431',
       appBorderColor: '#d2e2e9',
       appBorderRadius: 4,
 

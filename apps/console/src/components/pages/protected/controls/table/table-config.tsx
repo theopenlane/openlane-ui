@@ -11,6 +11,7 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import OwnerCell from './owner-cell'
 import DelegateCell from './delegate-cell'
+import { FileQuestion } from 'lucide-react'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -18,23 +19,28 @@ export const getControlsFilterFields = (
   programOptions: { value: string; label: string }[],
   controlControlTypeOptions: { value: string; label: string }[],
 ): FilterField[] => [
-  { key: 'refCode', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
-  { key: 'category', label: 'Category', type: 'text', icon: FilterIcons.Category },
-  { key: 'subcategory', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
+  { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
+  { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
+  { key: 'subcategoryContainsFold', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
   {
-    key: 'status',
+    key: 'statusIn',
     label: 'Status',
-    type: 'select',
-    multiple: true,
+    type: 'multiselect',
     options: ControlStatusFilterOptions,
     icon: FilterIcons.Status,
   },
   {
-    key: 'standard',
+    key: 'standardIDIn',
     label: 'Standard',
-    type: 'select',
-    options: [...standardOptions, { value: 'CUSTOM', label: 'CUSTOM' }],
-    icon: FilterIcons.Standard,
+    type: 'multiselect',
+    options: [
+      ...standardOptions,
+      {
+        value: 'CUSTOM',
+        label: 'CUSTOM',
+      },
+    ],
+    icon: FileQuestion,
   },
   {
     key: 'controlOwnerID',
@@ -49,16 +55,14 @@ export const getControlsFilterFields = (
   {
     key: 'hasProgramsWith',
     label: 'Program Name',
-    forceKeyOperator: true,
-    childrenObjectKey: 'id',
     type: 'select',
     options: programOptions,
     icon: FilterIcons.ProgramName,
   },
   {
-    key: 'controlType',
+    key: 'controlTypeIn',
     label: 'Control Type',
-    type: 'select',
+    type: 'multiselect',
     options: controlControlTypeOptions,
     icon: FilterIcons.Type,
   },

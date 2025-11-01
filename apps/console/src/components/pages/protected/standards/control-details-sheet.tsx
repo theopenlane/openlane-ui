@@ -158,7 +158,7 @@ const ControlDetailsSheet = () => {
           <SheetHeader>
             <div className="flex items-center justify-between">
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-              <Button className="h-8 p-2" icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+              <Button className="h-8 p-2" icon={<LinkIcon />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
                 Copy link
               </Button>
             </div>

@@ -131,7 +131,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
           <Button onClick={onSave} disabled={!saveEnabled || isSaving}>
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
         </DialogFooter>

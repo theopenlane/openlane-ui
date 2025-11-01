@@ -95,7 +95,7 @@ const AddMembersDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
+        <Button variant="secondary" icon={<Plus />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
           Add members
         </Button>
       </DialogTrigger>
@@ -111,7 +111,7 @@ const AddMembersDialog = () => {
         </div>
 
         <DialogFooter className="flex justify-center pt-4">
-          <Button variant="outline" className="w-full" onClick={handleSave}>
+          <Button variant="secondary" className="w-full" onClick={handleSave}>
             Save
           </Button>
         </DialogFooter>

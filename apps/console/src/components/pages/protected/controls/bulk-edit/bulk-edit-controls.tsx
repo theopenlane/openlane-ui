@@ -122,7 +122,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     <Dialog open={open} onOpenChange={setOpen}>
       <FormProvider {...form}>
         <DialogTrigger asChild>
-          <Button disabled={selectedControls.length === 0} icon={<Pencil />} iconPosition="left" variant="outline">
+          <Button disabled={selectedControls.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedControls && selectedControls.length > 0 ? `Bulk Edit (${selectedControls.length})` : 'Bulk Edit'}
           </Button>
         </DialogTrigger>
@@ -185,7 +185,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         />
                       </div>
                     )}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="outline" onClick={() => remove(index)} />
+                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)} />
                   </div>
                 )
               })}
@@ -200,7 +200,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                     })
                   }
                   iconPosition="left"
-                  variant="outline"
+                  variant="secondary"
                 >
                   Add field
                 </Button>
@@ -212,7 +212,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                 Save
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   setOpen(false)
                   replace([])

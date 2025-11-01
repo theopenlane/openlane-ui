@@ -1,146 +1,36 @@
-import React, { useState } from 'react'
-import { Controller } from 'react-hook-form'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { useUpdateTask } from '@/lib/graphql-hooks/tasks.ts'
-import { useNotification } from '@/hooks/useNotification.tsx'
-import { useQueryClient } from '@tanstack/react-query'
+import React from 'react'
+import { QueryClient } from '@tanstack/react-query'
 import { User } from '@repo/codegen/src/schema'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore.ts'
-import { Form } from '@repo/ui/form'
-import useAssigneeFormSchema, { EditTaskAssigneeFormData } from '@/components/pages/protected/tasks/hooks/use-assignee-form-schema.ts'
-import { Check, CircleUser, X } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
+import { useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import EditableUserCell from '@/components/shared/editable-user-cell/editable-user-cell'
 
-type TProps = {
-  assignee?: User
+type TAssigneeCellProps = {
+  assignee?: User | null
   taskId: string
 }
 
-const AssigneeCell: React.FC<TProps> = (props: TProps) => {
-  const { form } = useAssigneeFormSchema()
-  const [isEditing, setIsEditing] = useState(false)
+const AssigneeCell: React.FC<TAssigneeCellProps> = ({ assignee, taskId }) => {
   const { mutateAsync: updateTask } = useUpdateTask()
-  const { successNotification, errorNotification } = useNotification()
-  const queryClient = useQueryClient()
-  const { orgMembers } = useTaskStore()
 
-  const fullName = props.assignee?.displayName
-
-  const onSubmit = async (data: EditTaskAssigneeFormData) => {
+  const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
     try {
       await updateTask({
-        updateTaskId: props.taskId.toString(),
+        updateTaskId: taskId,
         input: {
-          assigneeID: data?.assigneeID,
-          clearAssignee: !data?.assigneeID,
+          assigneeID: data.id,
+          clearAssignee: !data.id,
         },
       })
-
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      successNotification({
-        title: 'Task Updated',
-        description: 'The task assignee has been successfully updated.',
-      })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    } finally {
-      setIsEditing(false)
+      await helpers.queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      helpers.notifySuccess()
+    } catch (err) {
+      helpers.notifyError(parseErrorMessage(err))
     }
   }
 
-  const handleCancel = () => {
-    setIsEditing(false)
-  }
-
-  return (
-    <div className="flex items-center space-x-1">
-      {!isEditing ? (
-        <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
-          <div
-            onClick={(e) => {
-              e.stopPropagation()
-              setIsEditing(true)
-            }}
-            className="flex items-center cursor-pointer"
-          >
-            <div className="flex items-center space-x-1 relative">
-              <Avatar entity={props.assignee} className="w-[28px] h-[28px]" />
-              <p className="flex items-center">
-                {fullName ? (
-                  fullName
-                ) : (
-                  <>
-                    <CircleUser width={30} height={30} className="inline-block mr-1 dark:!text-separator-edit-dark text-separator-edit" />
-                    <span className="dark:!text-separator-edit-dark text-separator-edit">Not assigned</span>
-                  </>
-                )}
-              </p>
-              <span className="absolute bottom-[-5px] left-0 right-0 border-b-2 border-dashed dark:!border-separator-edit-dark border-separator-edit pointer-events-none" />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2 w-full">
-            <div className="flex items-center w-full">
-              <Controller
-                name="assigneeID"
-                control={form.control}
-                render={({ field }) => (
-                  <>
-                    <Select
-                      value={field.value || 'unassigned'}
-                      onValueChange={(value) => {
-                        field.onChange(value === 'unassigned' ? null : value || undefined)
-                      }}
-                    >
-                      <SelectTrigger className="w-full">{(orgMembers || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="unassigned">Not Assigned</SelectItem>
-                        {orgMembers &&
-                          orgMembers.length > 0 &&
-                          orgMembers.map((option) => (
-                            <SelectItem key={option.value} value={option.value} className="w-full">
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    {form.formState.errors.assigneeID && <p className="text-red-500 text-sm pl-1">{form.formState.errors.assigneeID.message}</p>}
-                  </>
-                )}
-              />
-            </div>
-
-            {/* Actions section */}
-            <div className="flex items-center justify-center space-x-2">
-              <Check
-                size={18}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  form.handleSubmit(onSubmit)()
-                }}
-                className="cursor-pointer text-green-500"
-              />
-              <X
-                size={18}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleCancel()
-                }}
-                className="cursor-pointer text-red-500"
-              />
-            </div>
-          </form>
-        </Form>
-      )}
-    </div>
-  )
+  return <EditableUserCell label="Task" entity={assignee} onSubmitData={handleSubmitData} placeholder="Not assigned" />
 }
 
 export default AssigneeCell

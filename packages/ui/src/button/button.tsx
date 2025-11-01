@@ -35,7 +35,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
                 {!loading && icon && (
                   <div className={iconOuter()}>
-                    <div className={iconInner()}>{icon}</div>
+                    <div className={cn(iconInner(), variant === 'secondary' ? 'text-muted-foreground' : '')}>{icon}</div>
                   </div>
                 )}
 

@@ -104,7 +104,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setIsBulkEditing(false)
                       handleBulkEdit()
@@ -123,30 +123,32 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   <>
                     <BulkCSVCloneControlDialog
                       trigger={
-                        <div className="flex items-center space-x-2 px-1">
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Upload From Standard</span>
-                        </div>
+                        </Button>
                       }
                     />
                     <BulkCSVCreateControlDialog
                       trigger={
-                        <div className="flex items-center space-x-2 px-1">
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Upload Custom Controls</span>
-                        </div>
+                        </Button>
                       }
                     />
                     <BulkCSVCreateMappedControlDialog
                       trigger={
-                        <div className="flex items-center space-x-2 px-1">
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Upload Control Mappings</span>
-                        </div>
+                        </Button>
                       }
                     />
-                    <button
-                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    <Button
+                      size="sm"
+                      variant="transparent"
+                      className={`px-1 flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()
@@ -154,7 +156,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </button>
+                    </Button>
                   </>
                 )}
               />

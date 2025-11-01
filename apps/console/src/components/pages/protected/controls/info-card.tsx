@@ -158,7 +158,7 @@ export default InfoCardWithSheet
 const InfoRow: React.FC<{ label: string; isFirst?: boolean; onClick: () => void }> = ({ label, isFirst, onClick }) => (
   <div className={`flex items-center justify-between m-0 py-2.5 ${!isFirst ? 'border-t border-border' : ''}`}>
     <span className="text-sm">{label}</span>
-    <Button type="button" className="h-8 !px-2" variant="outline" icon={<PanelRightOpenIcon size={16} />} iconPosition="left" onClick={onClick}>
+    <Button type="button" className="h-8 !px-2" variant="secondary" icon={<PanelRightOpenIcon size={16} />} iconPosition="left" onClick={onClick}>
       Show
     </Button>
   </div>

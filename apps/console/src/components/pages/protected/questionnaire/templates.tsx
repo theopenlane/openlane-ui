@@ -89,7 +89,7 @@ export const TemplateList = () => {
 
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="secondary">Cancel</Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button variant="filled" onClick={handleSubmit((data) => handleFromTemplate({ target: { value: data.templateId } } as React.ChangeEvent<HTMLSelectElement>))}>

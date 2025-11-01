@@ -6483,6 +6483,14 @@ export interface CreateGroupInput {
   scanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** whether the SCIM group is marked as active */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** the SCIM displayname for the group */
+  scimDisplayName?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM external ID for the group */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM group mailing list email */
+  scimGroupMailing?: InputMaybe<Scalars['String']['input']>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -6617,6 +6625,8 @@ export interface CreateInviteInput {
   expires?: InputMaybe<Scalars['Time']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['input']
   /** the user who initiated the invitation */
@@ -7665,6 +7675,16 @@ export interface CreateUserInput {
   programOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** the user's role */
   role?: InputMaybe<UserRole>
+  /** whether the SCIM user is active */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** the SCIM external ID for the user */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM locale for the user */
+  scimLocale?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM preferred language for the user */
+  scimPreferredLanguage?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM username for the user */
+  scimUsername?: InputMaybe<Scalars['String']['input']>
   settingID: Scalars['ID']['input']
   /** the Subject of the user JWT */
   sub?: InputMaybe<Scalars['String']['input']>
@@ -13103,6 +13123,14 @@ export interface Group extends Node {
   scanBlockedGroups: ScanConnection
   scanEditors: ScanConnection
   scanViewers: ScanConnection
+  /** whether the SCIM group is marked as active */
+  scimActive?: Maybe<Scalars['Boolean']['output']>
+  /** the SCIM displayname for the group */
+  scimDisplayName?: Maybe<Scalars['String']['output']>
+  /** the SCIM external ID for the group */
+  scimExternalID?: Maybe<Scalars['String']['output']>
+  /** the SCIM group mailing list email */
+  scimGroupMailing?: Maybe<Scalars['String']['output']>
   setting?: Maybe<GroupSetting>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -13506,6 +13534,14 @@ export interface GroupHistory extends Node {
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
+  /** whether the SCIM group is marked as active */
+  scimActive?: Maybe<Scalars['Boolean']['output']>
+  /** the SCIM displayname for the group */
+  scimDisplayName?: Maybe<Scalars['String']['output']>
+  /** the SCIM external ID for the group */
+  scimExternalID?: Maybe<Scalars['String']['output']>
+  /** the SCIM group mailing list email */
+  scimGroupMailing?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -13695,6 +13731,59 @@ export interface GroupHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_active field predicates */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_display_name field predicates */
+  scimDisplayName?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameContains?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameGT?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameGTE?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimDisplayNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimDisplayNameLT?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameLTE?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimDisplayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_external_id field predicates */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContains?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimExternalIDLT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDLTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_group_mailing field predicates */
+  scimGroupMailing?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingContains?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingGT?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingGTE?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimGroupMailingIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimGroupMailingLT?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingLTE?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingNEQ?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimGroupMailingNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -14903,6 +14992,59 @@ export interface GroupWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_active field predicates */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_display_name field predicates */
+  scimDisplayName?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameContains?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameGT?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameGTE?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimDisplayNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimDisplayNameLT?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameLTE?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scimDisplayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimDisplayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_external_id field predicates */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContains?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimExternalIDLT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDLTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_group_mailing field predicates */
+  scimGroupMailing?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingContains?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingGT?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingGTE?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimGroupMailingIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimGroupMailingLT?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingLTE?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingNEQ?: InputMaybe<Scalars['String']['input']>
+  scimGroupMailingNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimGroupMailingNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -17258,6 +17400,8 @@ export interface Invite extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  ownershipTransfer?: Maybe<Scalars['Boolean']['output']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['output']
   /** the user who initiated the invitation */
@@ -17366,6 +17510,7 @@ export enum InviteOrderField {
 export enum InviteRole {
   ADMIN = 'ADMIN',
   MEMBER = 'MEMBER',
+  OWNER = 'OWNER',
 }
 
 /** Return response for updateInvite mutation */
@@ -17457,6 +17602,11 @@ export interface InviteWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ownership_transfer field predicates */
+  ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
+  ownershipTransferIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownershipTransferNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  ownershipTransferNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** recipient field predicates */
   recipient?: InputMaybe<Scalars['String']['input']>
   recipientContains?: InputMaybe<Scalars['String']['input']>
@@ -20735,6 +20885,8 @@ export interface Mutation {
   sendTrustCenterNDAEmail: SendTrustCenterNdaEmailPayload
   /** Submit a response to a Trust Center NDA */
   submitTrustCenterNDAResponse: SubmitTrustCenterNdaResponsePayload
+  /** Transfer ownership of an organization to another user */
+  transferOrganizationOwnership: OrganizationTransferOwnershipPayload
   /** Update an existing apiToken */
   updateAPIToken: ApiTokenUpdatePayload
   /** Update an existing actionPlan */
@@ -21880,6 +22032,10 @@ export interface MutationSendTrustCenterNdaEmailArgs {
 
 export interface MutationSubmitTrustCenterNdaResponseArgs {
   input: SubmitTrustCenterNdaResponseInput
+}
+
+export interface MutationTransferOrganizationOwnershipArgs {
+  newOwnerEmail: Scalars['String']['input']
 }
 
 export interface MutationUpdateApiTokenArgs {
@@ -26284,6 +26440,15 @@ export interface OrganizationSettingWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Return response for transferOrganizationOwnership mutation */
+export interface OrganizationTransferOwnershipPayload {
+  __typename?: 'OrganizationTransferOwnershipPayload'
+  /** Whether an invitation was sent (true if new owner wasn't a member) */
+  invitationSent: Scalars['Boolean']['output']
+  /** Updated organization */
+  organization: Organization
 }
 
 /** Return response for updateOrganization mutation */
@@ -43247,6 +43412,10 @@ export interface UpdateGroupInput {
   clearScanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearScanEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearScanViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimActive?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimDisplayName?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimExternalID?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimGroupMailing?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
@@ -43298,6 +43467,14 @@ export interface UpdateGroupInput {
   removeScanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** whether the SCIM group is marked as active */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** the SCIM displayname for the group */
+  scimDisplayName?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM external ID for the group */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM group mailing list email */
+  scimGroupMailing?: InputMaybe<Scalars['String']['input']>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -43384,6 +43561,7 @@ export interface UpdateHushInput {
 export interface UpdateInternalPolicyInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -43441,6 +43619,7 @@ export interface UpdateInternalPolicyInput {
   /** proposed controls referenced in the policy */
   controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** details of the policy */
   details?: InputMaybe<Scalars['String']['input']>
   /** control suggestions dismissed by the user for the policy */
@@ -43500,9 +43679,12 @@ export interface UpdateInviteInput {
   clearExpires?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwnershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   /** the expiration date of the invitation token which defaults to 14 days in the future from creation */
   expires?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   role?: InputMaybe<InviteRole>
@@ -44123,6 +44305,7 @@ export interface UpdatePersonalAccessTokenInput {
 export interface UpdateProcedureInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -44176,6 +44359,7 @@ export interface UpdateProcedureInput {
   /** proposed controls referenced in the procedure */
   controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** details of the procedure */
   details?: InputMaybe<Scalars['String']['input']>
   /** control suggestions dismissed by the user for the procedure */
@@ -44333,6 +44517,7 @@ export interface UpdateRiskInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -44376,6 +44561,7 @@ export interface UpdateRiskInput {
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** details of the risk */
   details?: InputMaybe<Scalars['String']['input']>
   /** impact of the risk -critical, high, medium, low */
@@ -45084,6 +45270,11 @@ export interface UpdateUserInput {
   clearProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimActive?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimExternalID?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimLocale?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimPreferredLanguage?: InputMaybe<Scalars['Boolean']['input']>
+  clearScimUsername?: InputMaybe<Scalars['Boolean']['input']>
   clearSub?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -45118,6 +45309,16 @@ export interface UpdateUserInput {
   removeWebauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the user's role */
   role?: InputMaybe<UserRole>
+  /** whether the SCIM user is active */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** the SCIM external ID for the user */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM locale for the user */
+  scimLocale?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM preferred language for the user */
+  scimPreferredLanguage?: InputMaybe<Scalars['String']['input']>
+  /** the SCIM username for the user */
+  scimUsername?: InputMaybe<Scalars['String']['input']>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** the Subject of the user JWT */
   sub?: InputMaybe<Scalars['String']['input']>
@@ -45198,6 +45399,16 @@ export interface User extends Node {
   programs: ProgramConnection
   /** the user's role */
   role?: Maybe<UserRole>
+  /** whether the SCIM user is active */
+  scimActive?: Maybe<Scalars['Boolean']['output']>
+  /** the SCIM external ID for the user */
+  scimExternalID?: Maybe<Scalars['String']['output']>
+  /** the SCIM locale for the user */
+  scimLocale?: Maybe<Scalars['String']['output']>
+  /** the SCIM preferred language for the user */
+  scimPreferredLanguage?: Maybe<Scalars['String']['output']>
+  /** the SCIM username for the user */
+  scimUsername?: Maybe<Scalars['String']['output']>
   setting: UserSetting
   /** the Subject of the user JWT */
   sub?: Maybe<Scalars['String']['output']>
@@ -45424,6 +45635,16 @@ export interface UserHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the user's role */
   role?: Maybe<UserHistoryRole>
+  /** whether the SCIM user is active */
+  scimActive?: Maybe<Scalars['Boolean']['output']>
+  /** the SCIM external ID for the user */
+  scimExternalID?: Maybe<Scalars['String']['output']>
+  /** the SCIM locale for the user */
+  scimLocale?: Maybe<Scalars['String']['output']>
+  /** the SCIM preferred language for the user */
+  scimPreferredLanguage?: Maybe<Scalars['String']['output']>
+  /** the SCIM username for the user */
+  scimUsername?: Maybe<Scalars['String']['output']>
   /** the Subject of the user JWT */
   sub?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
@@ -45716,6 +45937,75 @@ export interface UserHistoryWhereInput {
   roleNEQ?: InputMaybe<UserHistoryRole>
   roleNotIn?: InputMaybe<Array<UserHistoryRole>>
   roleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_active field predicates */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_external_id field predicates */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContains?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimExternalIDLT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDLTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_locale field predicates */
+  scimLocale?: InputMaybe<Scalars['String']['input']>
+  scimLocaleContains?: InputMaybe<Scalars['String']['input']>
+  scimLocaleContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimLocaleEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimLocaleGT?: InputMaybe<Scalars['String']['input']>
+  scimLocaleGTE?: InputMaybe<Scalars['String']['input']>
+  scimLocaleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimLocaleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimLocaleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimLocaleIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimLocaleLT?: InputMaybe<Scalars['String']['input']>
+  scimLocaleLTE?: InputMaybe<Scalars['String']['input']>
+  scimLocaleNEQ?: InputMaybe<Scalars['String']['input']>
+  scimLocaleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimLocaleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_preferred_language field predicates */
+  scimPreferredLanguage?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageContains?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageGT?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageGTE?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimPreferredLanguageIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimPreferredLanguageLT?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageLTE?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageNEQ?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimPreferredLanguageNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_username field predicates */
+  scimUsername?: InputMaybe<Scalars['String']['input']>
+  scimUsernameContains?: InputMaybe<Scalars['String']['input']>
+  scimUsernameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimUsernameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimUsernameGT?: InputMaybe<Scalars['String']['input']>
+  scimUsernameGTE?: InputMaybe<Scalars['String']['input']>
+  scimUsernameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimUsernameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimUsernameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimUsernameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimUsernameLT?: InputMaybe<Scalars['String']['input']>
+  scimUsernameLTE?: InputMaybe<Scalars['String']['input']>
+  scimUsernameNEQ?: InputMaybe<Scalars['String']['input']>
+  scimUsernameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimUsernameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** sub field predicates */
   sub?: InputMaybe<Scalars['String']['input']>
   subContains?: InputMaybe<Scalars['String']['input']>
@@ -46526,6 +46816,75 @@ export interface UserWhereInput {
   roleNEQ?: InputMaybe<UserRole>
   roleNotIn?: InputMaybe<Array<UserRole>>
   roleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_active field predicates */
+  scimActive?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  scimActiveNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_external_id field predicates */
+  scimExternalID?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContains?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDGTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimExternalIDLT?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDLTE?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  scimExternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimExternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_locale field predicates */
+  scimLocale?: InputMaybe<Scalars['String']['input']>
+  scimLocaleContains?: InputMaybe<Scalars['String']['input']>
+  scimLocaleContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimLocaleEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimLocaleGT?: InputMaybe<Scalars['String']['input']>
+  scimLocaleGTE?: InputMaybe<Scalars['String']['input']>
+  scimLocaleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimLocaleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimLocaleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimLocaleIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimLocaleLT?: InputMaybe<Scalars['String']['input']>
+  scimLocaleLTE?: InputMaybe<Scalars['String']['input']>
+  scimLocaleNEQ?: InputMaybe<Scalars['String']['input']>
+  scimLocaleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimLocaleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_preferred_language field predicates */
+  scimPreferredLanguage?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageContains?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageGT?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageGTE?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimPreferredLanguageIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimPreferredLanguageLT?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageLTE?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageNEQ?: InputMaybe<Scalars['String']['input']>
+  scimPreferredLanguageNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimPreferredLanguageNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scim_username field predicates */
+  scimUsername?: InputMaybe<Scalars['String']['input']>
+  scimUsernameContains?: InputMaybe<Scalars['String']['input']>
+  scimUsernameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scimUsernameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scimUsernameGT?: InputMaybe<Scalars['String']['input']>
+  scimUsernameGTE?: InputMaybe<Scalars['String']['input']>
+  scimUsernameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scimUsernameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scimUsernameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimUsernameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scimUsernameLT?: InputMaybe<Scalars['String']['input']>
+  scimUsernameLTE?: InputMaybe<Scalars['String']['input']>
+  scimUsernameNEQ?: InputMaybe<Scalars['String']['input']>
+  scimUsernameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scimUsernameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** sub field predicates */
   sub?: InputMaybe<Scalars['String']['input']>
   subContains?: InputMaybe<Scalars['String']['input']>
@@ -48814,6 +49173,74 @@ export type CreateUploadInternalPolicyMutation = {
   createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string } }
 }
 
+export type GetInternalPoliciesDashboardQueryVariables = Exact<{
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
+
+export type GetInternalPoliciesDashboardQuery = {
+  __typename?: 'Query'
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: {
+        __typename?: 'InternalPolicy'
+        id: string
+        name: string
+        policyType?: string | null
+        status?: InternalPolicyDocumentStatus | null
+        createdAt?: any | null
+        updatedAt?: any | null
+        createdBy?: string | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type PolicySuggestedActionsQueryVariables = Exact<{
+  currentUserIdID: Scalars['ID']['input']
+  currentUserIdString: Scalars['String']['input']
+  sevenDaysAgo: Scalars['Time']['input']
+  commentsSince: Scalars['Time']['input']
+}>
+
+export type PolicySuggestedActionsQuery = {
+  __typename?: 'Query'
+  needsMyApproval: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+  missingApprover: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+  stillDraftAfterWeek: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+  recentComments: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: { __typename?: 'InternalPolicy'; id: string; name: string; status?: InternalPolicyDocumentStatus | null; updatedAt?: any | null } | null
+    } | null> | null
+  }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
@@ -49722,6 +50149,18 @@ export type SearchQuery = {
       __typename?: 'TaskConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename: 'Task'; id: string; title: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    internalPolicies?: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    procedures?: {
+      __typename?: 'ProcedureConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename: 'Procedure'; id: string; name: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
   } | null
@@ -50649,18 +51088,3 @@ export type UpdateUserSettingMutationVariables = Exact<{
 }>
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
-
-export type GetAllUsersQueryVariables = Exact<{
-  where?: InputMaybe<UserWhereInput>
-}>
-
-export type GetAllUsersQuery = {
-  __typename?: 'Query'
-  users: {
-    __typename?: 'UserConnection'
-    edges?: Array<{
-      __typename?: 'UserEdge'
-      node?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-    } | null> | null
-  }
-}

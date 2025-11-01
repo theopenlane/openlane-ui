@@ -174,7 +174,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
         <div className="flex gap-2.5 items-center justify-between right-0 mt-2">
           <div className="flex col gap-2.5 items-center justify-between">
             <p className="">Domains</p>
-            <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAllSections}>
+            <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAllSections}>
               <div className="flex">
                 <List size={16} />
                 <ChevronsDownUp size={16} />

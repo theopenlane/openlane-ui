@@ -5,6 +5,7 @@ import { Button, buttonStyles } from './button'
 
 type ButtonVariants = keyof typeof buttonStyles.variants.variant
 type ButtonSizes = keyof typeof buttonStyles.variants.size
+
 const variants = Object.keys(buttonStyles.variants.variant) as ButtonVariants[]
 const sizes = Object.keys(buttonStyles.variants.size) as ButtonSizes[]
 
@@ -14,7 +15,7 @@ const meta: Meta<typeof Button> = {
   parameters: {
     docs: {
       description: {
-        component: 'Displays a button or a component that looks like a button: https://ui.shadcn.com/docs/components/button',
+        component: 'Displays a button using tailwind-variants: https://ui.shadcn.com/docs/components/button',
       },
     },
   },
@@ -22,112 +23,102 @@ const meta: Meta<typeof Button> = {
     variant: {
       description: 'Defines the theme of the button',
       table: {
-        type: { summary: variants.join('|') },
-        defaultValue: { summary: 'light' },
+        type: { summary: variants.join(' | ') },
+        defaultValue: { summary: 'primary' },
       },
       control: 'select',
       options: variants,
     },
     size: {
-      description: 'Defines the sizing of the button',
+      description: 'Defines the size of the button',
       table: {
-        type: { summary: sizes.join('|') },
-        defaultValue: { summary: 'lg' },
+        type: { summary: sizes.join(' | ') },
+        defaultValue: { summary: 'md' },
       },
       control: 'select',
       options: sizes,
     },
     children: {
-      description: 'Button text',
+      description: 'Button content',
       control: 'text',
       defaultValue: 'Button',
     },
+    icon: { control: false },
+    iconAnimated: { control: 'boolean' },
+    iconPosition: { control: 'select', options: ['left', 'center'] },
+    loading: { control: 'boolean' },
+    full: { control: 'boolean' },
   },
-  render: ({ children, ...args }: { children: React.ReactNode }) => {
-    return <Button {...args}>{children}</Button>
-  },
+  render: ({ children, ...args }: { children: React.ReactNode }) => <Button {...args}>{children}</Button>,
 } satisfies Meta<typeof Button>
 
 export default meta
 meta.args = {
   children: 'Button Text',
 }
+
 type Story = StoryObj<typeof meta>
 
-export const filled: Story = {
-  args: {
-    variant: 'filled',
-  },
+export const Primary: Story = {
+  args: { variant: 'primary' },
+}
+
+export const Secondary: Story = {
+  args: { variant: 'secondary' },
+}
+
+export const SecondaryOutline: Story = {
+  args: { variant: 'secondaryOutline' },
+}
+
+export const IconButton: Story = {
+  args: { variant: 'iconButton', icon: <ArrowRight /> },
+}
+
+export const Filled: Story = {
+  args: { variant: 'filled' },
+}
+
+export const Light: Story = {
+  args: { variant: 'light' },
 }
 
 export const Outline: Story = {
-  args: {
-    variant: 'outline',
-  },
+  args: { variant: 'outline' },
 }
 
-export const Medium: Story = {
-  args: {
-    variant: 'filled',
-    size: 'md',
-    icon: <ArrowUpRight />,
-    iconAnimated: true,
-  },
-}
-
-export const Smallfilled: Story = {
-  args: {
-    variant: 'filled',
-    size: 'sm',
-    icon: <ArrowRight />,
-  },
-}
-
-export const SmallWhite: Story = {
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
-  args: {
-    variant: 'white',
-    size: 'sm',
-    icon: <ArrowRight />,
-  },
-}
-
-export const WithIconAndHoverAnimation: Story = {
-  name: 'With icon and hover animation',
-  args: {
-    icon: <ArrowUpRight />,
-    iconAnimated: true,
-  },
-}
-
-export const IconPositionLeft: Story = {
-  name: 'With static icon positioned on the left',
-  args: {
-    icon: <InfoIcon />,
-    iconPosition: 'left',
-  },
-}
-
-export const BrandIcon: Story = {
-  args: {
-    icon: <GoogleIcon />,
-    iconPosition: 'left',
-    variant: 'outline',
-  },
-}
-
-export const Loading: Story = {
-  name: 'In a loading state',
-  args: {
-    loading: true,
-  },
+export const OutlineLight: Story = {
+  args: { variant: 'outlineLight' },
 }
 
 export const Success: Story = {
-  name: 'In a success state',
-  args: {
-    variant: 'success',
-  },
+  args: { variant: 'success' },
+}
+
+export const Destructive: Story = {
+  args: { variant: 'destructive' },
+}
+
+export const Small: Story = {
+  args: { size: 'sm', variant: 'primary', icon: <ArrowRight /> },
+}
+
+export const Medium: Story = {
+  args: { size: 'md', variant: 'primary', icon: <ArrowUpRight />, iconAnimated: true },
+}
+
+export const Large: Story = {
+  args: { size: 'lg', variant: 'primary' },
+}
+
+export const IconLeft: Story = {
+  args: { icon: <InfoIcon />, iconPosition: 'left' },
+}
+
+export const BrandIcon: Story = {
+  args: { icon: <GoogleIcon />, iconPosition: 'left', variant: 'secondaryOutline' },
+}
+
+export const Loading: Story = {
+  args: { loading: true },
 }

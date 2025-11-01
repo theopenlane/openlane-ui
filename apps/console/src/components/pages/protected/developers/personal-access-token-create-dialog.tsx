@@ -32,7 +32,7 @@ enum STEP {
 
 const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const path = usePathname()
-  const isOrg = path.includes('/organization-settings')
+  const isApiKeyPage = path.includes('/api-tokens')
   const { allOrgs: orgs } = useOrganization()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { mutateAsync: createPersonalAccessToken } = useCreatePersonalAccessToken()
@@ -63,7 +63,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
     })
     .refine(
       (data) => {
-        if (!isOrg && (!data.organizationIDs || data.organizationIDs.length === 0)) {
+        if (!isApiKeyPage && (!data.organizationIDs || data.organizationIDs.length === 0)) {
           return false
         }
         return true
@@ -102,7 +102,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
       let createdToken: string | undefined = undefined
       let createdTokenId: string | undefined = undefined
 
-      if (isOrg) {
+      if (isApiKeyPage) {
         const apiTokenInput: CreateApiTokenInput = {
           name: values.name,
           description: values.description,
@@ -159,8 +159,8 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
       localStorage.setItem(
         'api_token',
         JSON.stringify({
-          tokenType: isOrg ? 'api' : 'personal',
-          isOrg,
+          tokenType: isApiKeyPage ? 'api' : 'personal',
+          isApiKeyPage,
         }),
       )
 
@@ -173,7 +173,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
         body: JSON.stringify({
           organization_id: currentOrgId,
           token_id: tokenId,
-          token_type: isOrg ? 'api' : 'personal',
+          token_type: isApiKeyPage ? 'api' : 'personal',
         }),
       })
 
@@ -221,7 +221,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
             <p>?</p>
           </div>
         ) : (
-          <Button variant="outline" className="h-8 !px-2 !pl-3 btn-secondary" icon={<SquarePlus />} iconPosition="left">
+          <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
             Create
           </Button>
         )}
@@ -263,7 +263,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                 )}
               />
 
-              {!isOrg && (
+              {!isApiKeyPage && (
                 <FormField
                   name="organizationIDs"
                   control={form.control}
@@ -345,7 +345,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                 )}
               />
 
-              {isOrg && (
+              {isApiKeyPage && (
                 <FormField
                   name="scopes"
                   control={form.control}
@@ -410,7 +410,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
               )}
 
               <DialogFooter>
-                <Button className="w-full mt-4 btn-secondary" type="submit" disabled={isSubmitting}>
+                <Button variant="primary" className="w-full mt-4" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? 'Creating...' : 'Create Token'}
                 </Button>
               </DialogFooter>
@@ -441,11 +441,11 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           <DialogClose asChild disabled={!confirmationChecked || isAuthorizingSSO}>
             <div className="flex gap-3">
               {currentSetting?.identityProviderLoginEnforced && (
-                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize}>
+                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize}>
                   {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
                 </Button>
               )}
-              <Button disabled={!confirmationChecked || isAuthorizingSSO} className="btn-secondary">
+              <Button variant="primary" disabled={!confirmationChecked || isAuthorizingSSO}>
                 Close
               </Button>
             </div>

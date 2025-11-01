@@ -7,10 +7,9 @@ export const EVIDENCE_FILTERABLE_FIELDS: FilterField[] = [
   { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },
   { key: 'isAutomated', label: 'Is Automated', type: 'boolean', icon: FilterIcons.IsAutomated },
   {
-    key: 'status',
+    key: 'statusIn',
     label: 'Status',
-    type: 'select',
-    multiple: true,
+    type: 'multiselect',
     options: EvidenceStatusOptions,
     icon: FilterIcons.Status,
   },

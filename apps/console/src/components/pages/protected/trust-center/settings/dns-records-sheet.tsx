@@ -145,10 +145,10 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
           <PanelRightClose aria-label="Close sheet" size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
 
           <div className="flex gap-2">
-            <Button icon={<Download />} iconPosition="left" className="h-8 p-2" variant="outline" onClick={handleDownload}>
+            <Button icon={<Download />} iconPosition="left" className="h-8 p-2" variant="secondary" onClick={handleDownload}>
               Download settings
             </Button>
-            <Button icon={<RefreshCcw />} iconPosition="left" className="h-8 p-2" variant="outline" onClick={handleRefreshData}>
+            <Button icon={<RefreshCcw />} iconPosition="left" className="h-8 p-2" variant="secondary" onClick={handleRefreshData}>
               Refresh
             </Button>
           </div>

@@ -221,10 +221,10 @@ export default function AdvancedSetupWizard() {
               })}
 
               <div className="flex justify-between mt-8">
-                <Button variant="outline" onClick={handleBack} iconPosition="left">
+                <Button variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button className="btn-secondary" onClick={handleNext} disabled={isPending} loading={isPending}>
+                <Button variant="primary" onClick={handleNext} disabled={isPending} loading={isPending}>
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

@@ -16,16 +16,14 @@ export function usePoliciesFilters(): FilterField[] | null {
     if (!isProgramSuccess || !isGroupSuccess || filters) return
     const newFilters: FilterField[] = [
       {
-        key: 'approverID',
+        key: 'approverIDIn',
         label: 'Approver Group',
-        type: 'select',
+        type: 'multiselect',
         options: groupOptions,
         icon: FilterIcons.ApproverGroup,
       },
       {
         key: 'hasControlsWith',
-        childrenObjectKey: 'refCodeContainsFold',
-        forceKeyOperator: true,
         label: 'Control Ref Code',
         type: 'text',
         icon: FilterIcons.Control,
@@ -34,23 +32,25 @@ export function usePoliciesFilters(): FilterField[] | null {
         key: 'hasProgramsWith',
         label: 'Program Name',
         type: 'select',
-        forceKeyOperator: true,
-        childrenObjectKey: 'id',
         options: programOptions,
         icon: FilterIcons.ProgramName,
       },
       {
-        key: 'hasSubcontrolWith',
-        childrenObjectKey: 'refCodeContainsFold',
-        forceKeyOperator: true,
+        key: 'hasSubcontrolsWith',
         label: 'Subcontrol Ref Code',
         type: 'text',
         icon: FilterIcons.Subcontrol,
       },
       {
-        key: 'policyType',
+        key: 'policyTypeContainsFold',
         label: 'Type',
         type: 'text',
+        icon: FilterIcons.Type,
+      },
+      {
+        key: 'policyTypeIsNil',
+        label: 'Empty Type',
+        type: 'boolean',
         icon: FilterIcons.Type,
       },
       {
@@ -60,10 +60,9 @@ export function usePoliciesFilters(): FilterField[] | null {
         icon: FilterIcons.ReviewDue,
       },
       {
-        key: 'status',
+        key: 'statusIn',
         label: 'Status',
-        type: 'select',
-        multiple: true,
+        type: 'multiselect',
         options: InternalPolicyStatusFilterOptions,
         icon: FilterIcons.Status,
       },

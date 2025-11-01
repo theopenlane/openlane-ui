@@ -3,19 +3,19 @@ import { FilterField, WhereCondition, Condition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
 import { format, startOfDay, addDays, isSameDay, isValid } from 'date-fns'
 import { Input } from '@repo/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Switch } from '@repo/ui/switch'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
 import { Calendar } from '@repo/ui/calendar'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
 import type { DateRange } from 'react-day-picker'
 import Slider from '../slider/slider'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -75,51 +75,25 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     const andConditions: WhereCondition[] = []
 
     for (const field of fields) {
+      const key = field.key
       const val = vals[field.key]
       if (val === undefined || val === null || (typeof val === 'string' && val.trim() === '') || (Array.isArray(val) && val.length === 0)) {
         continue
       }
 
-      const key = field.forceKeyOperator
-        ? field.key
-        : (() => {
-            switch (field.type) {
-              case 'text':
-                return `${field.key}ContainsFold`
-              case 'select':
-                return `${field.key}In`
-              case 'boolean':
-                return field.key
-              case 'date':
-                return field.key
-              case 'dateRange':
-                return field.key
-              case 'sliderNumber':
-                return field.key
-              default:
-                return field.key
-            }
-          })()
-
       switch (field.type) {
         case 'text':
-          if (field.childrenObjectKey) {
-            andConditions.push({ [key]: { [field.childrenObjectKey!]: val as string } })
-          } else {
-            andConditions.push({ [key]: val as string })
-          }
+          andConditions.push({ [key]: val as string })
           break
-
-        case 'select': {
+        case 'multiselect': {
           const valuesArray = Array.isArray(val) ? val : [val]
           if (valuesArray.length === 0) break
+          andConditions.push({ [key]: valuesArray } as Condition)
+          break
+        }
 
-          if (field.childrenObjectKey) {
-            const objectArray: { [k: string]: string }[] = valuesArray.map((v) => ({ [field.childrenObjectKey!]: v as string }))
-            andConditions.push({ [key]: objectArray } as Condition)
-          } else {
-            andConditions.push({ [`${key}`]: valuesArray } as Condition)
-          }
+        case 'select': {
+          andConditions.push({ [key]: val as string })
           break
         }
 
@@ -149,7 +123,8 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [])
 
   useEffect(() => {
-    const saved = loadFilters(pageKey)
+    const saved = loadFilters(pageKey, filterFields)
+
     if (saved) {
       setValues(saved)
       onFilterChange?.(buildWhereCondition(saved, filterFields))
@@ -158,9 +133,13 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     }
 
     const listener = (e: CustomEvent) => {
-      const updatedFilters = e.detail as TFilterState
-      setValues(updatedFilters)
-      onFilterChange?.(buildWhereCondition(updatedFilters, filterFields))
+      const updated = e.detail as TFilterState
+
+      const validKeys = filterFields.map((f) => f.key)
+      const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => validKeys.includes(key)))
+
+      setValues(cleaned)
+      onFilterChange?.(buildWhereCondition(cleaned, filterFields))
     }
 
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
@@ -190,52 +169,24 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         case 'text':
           return <Input placeholder={`Enter ${field.label}`} value={(values[field.key] as string) ?? ''} onChange={(e) => handleChange(field.key, e.target.value)} />
         case 'select': {
-          if (field?.options && (field.options.length < 6 || field.multiple)) {
-            const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
-
-            return (
-              <>
-                {field.options.map((opt, index) => (
-                  <DropdownMenuCheckboxItem
-                    key={`${field.key}-${index}`}
-                    className="capitalize"
-                    checked={selected.includes(opt.value)}
-                    onSelect={(e) => e.preventDefault()}
-                    onCheckedChange={(checked: boolean) => {
-                      let next: string[]
-                      if (checked) {
-                        next = [...selected, opt.value]
-                      } else {
-                        next = selected.filter((v) => v !== opt.value)
-                      }
-                      handleChange(field.key, next)
-                    }}
-                  >
-                    {opt.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </>
-            )
-          }
-
-          const value = values[field.key]
-          const selectValue = Array.isArray(value) ? value[0] : value !== undefined && value !== null ? String(value) : ''
+          const selected = values[field.key] as string | undefined
 
           return (
-            <Select value={selectValue} onValueChange={(val: string) => handleChange(field.key, val)}>
-              <SelectTrigger>
-                <SelectValue placeholder={`Select ${field.label}`} />
-              </SelectTrigger>
-              <SelectContent>
-                {field.options?.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ul className="max-h-40 overflow-y-auto border rounded-lg">
+              {field?.options?.length ? (
+                field.options.map((opt) => (
+                  <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleChange(field.key, opt.value)}>
+                    <Checkbox checked={selected === opt.value} className="accent-primary" />
+                    <span>{opt.label}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="px-3 py-2 text-sm text-muted-foreground">No options available</li>
+              )}
+            </ul>
           )
         }
+
         case 'boolean':
           return (
             <div className="flex items-center gap-2">
@@ -247,7 +198,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           return (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !values[field.key] && 'text-muted-foreground')}>
+                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !values[field.key] && 'text-muted-foreground')}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {values[field.key] instanceof Date ? format(values[field.key] as Date, 'PPP') : `Pick ${field.label}`}
                 </Button>
@@ -263,7 +214,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           return (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !range?.from && !range?.to && 'text-muted-foreground')}>
+                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !range?.from && !range?.to && 'text-muted-foreground')}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
@@ -306,6 +257,29 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           )
         }
 
+        case 'multiselect': {
+          const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
+          const handleToggle = (value: string) => {
+            const next = selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value]
+            handleChange(field.key, next)
+          }
+
+          return (
+            <ul className="max-h-40 overflow-y-auto border rounded-lg">
+              {field?.options?.length ? (
+                field.options.map((opt) => (
+                  <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleToggle(opt.value)}>
+                    <Checkbox checked={selected.includes(opt.value)} className="accent-primary" />
+                    <span>{opt.label}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="px-3 py-2 text-sm text-muted-foreground">No options available</li>
+              )}
+            </ul>
+          )
+        }
+
         default:
           return null
       }
@@ -331,14 +305,14 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button icon={<Filter size={16} />} iconPosition="left" variant="outline" size="md" className="size-fit py-1.5 px-2">
+        <Button icon={<Filter size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
           Filter
           {activeFilterCount > 0 && (
             <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-medium border border-primary rounded-md text-primary bg-primary-muted">{activeFilterCount}</span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0" align="end">
+      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0 max-h-[400px]" align="end">
         <p className="text-muted-foreground text-xs p-4 pb-0"> FILTER BY</p>
         <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pb-0">
           {filterFields.map((field) => (
@@ -360,10 +334,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         <Hr />
 
         <div className="flex justify-between p-4">
-          <Button onClick={resetFilters} variant="outline">
+          <Button onClick={resetFilters} variant="secondary">
             Reset filters
           </Button>
-          <Button variant="outline" className="btn-secondary" onClick={applyFilters}>
+          <Button variant="primary" onClick={applyFilters}>
             View Results
           </Button>
         </div>

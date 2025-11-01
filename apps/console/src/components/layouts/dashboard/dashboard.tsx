@@ -7,12 +7,11 @@ import { CommandMenu } from '@/components/shared/search/command'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner'
 import { CreditCard } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState } from 'react'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { bottomNavigationItems, personalNavigationItems, topNavigationItems } from '@/routes/dashboard'
 import Sidebar from '@/components/shared/sidebar/sidebar'
 import { NavHeading, NavItem, Separator } from '@/types'
@@ -32,7 +31,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
-  const { setCrumbs } = useContext(BreadcrumbContext)
   const pathname = usePathname()
   const { currentOrgId, allOrgs } = useOrganization()
 
@@ -69,10 +67,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   function isNavItem(item: NavItem | Separator | NavHeading): item is NavItem {
     return 'title' in item
   }
-
-  useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }])
-  }, [setCrumbs])
 
   useEffect(() => {
     if (currentActivePanel) {

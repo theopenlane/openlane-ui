@@ -3,7 +3,7 @@ import { FilterField } from '@/types'
 import { OrderDirection, TemplateOrderField } from '@repo/codegen/src/schema.ts'
 
 export const QUESTIONNAIRE_FILTER_FIELDS: FilterField[] = [
-  { key: 'description', label: 'Title', type: 'text', icon: FilterIcons.Title },
+  { key: 'descriptionContainsFold', label: 'Title', type: 'text', icon: FilterIcons.Title },
   { key: 'updatedAt', label: 'Updated At', type: 'dateRange', icon: FilterIcons.UpdatedAt },
   { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: FilterIcons.CreatedAt },
 ]

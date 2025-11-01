@@ -84,7 +84,7 @@ const QuestionnaireViewerPage: React.FC = () => {
               iconPosition="left"
             >
               Send (Coming Soon)
-            </Button>   
+            </Button>
 
             {editAllowed && (
               <>
@@ -125,7 +125,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           </Form>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="secondary">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button onClick={form.handleSubmit(handleSend)}>Send</Button>
@@ -143,7 +143,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="secondary">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button variant="destructive" onClick={handleDelete}>

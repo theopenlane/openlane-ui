@@ -87,7 +87,7 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
                   {currentOrganization?.node?.displayName}
                 </div>
                 {data?.organization?.setting?.identityProviderLoginEnforced && currentOrganization?.node?.id && !tokenSsoAuthorizations?.[currentOrganization?.node?.id] && (
-                  <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
+                  <Button type="button" disabled={isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize} className="!p-1 bg-card">
                     {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
                   </Button>
                 )}
@@ -106,7 +106,7 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
                           {org?.node?.displayName}
                         </div>
                         {org?.node?.setting?.identityProviderLoginEnforced && org?.node?.id && !tokenSsoAuthorizations?.[org?.node?.id] && (
-                          <Button type="button" disabled={isAuthorizingSSO} variant="outline" onClick={handleSSOAuthorize} className="!p-1 bg-card">
+                          <Button type="button" disabled={isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize} className="!p-1 bg-card">
                             {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
                           </Button>
                         )}

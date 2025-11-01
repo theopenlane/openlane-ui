@@ -172,14 +172,14 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
                     Edit
                   </Button>
 
-                  <Button onClick={handleDeleteCustomDomain} variant="outline" className="gap-1 p-2" icon={<Trash2 size={14} />} iconPosition="left">
+                  <Button onClick={handleDeleteCustomDomain} variant="secondary" className="gap-1 p-2" icon={<Trash2 size={14} />} iconPosition="left">
                     Delete
                   </Button>
                 </>
               )}
             </div>
             <p className="mt-2 text-xs text-text-informational">Once your domain is set, you&apos;ll need to configure DNS records with your domain provider to complete the setup.</p>
-            <Button variant="outline" className="mt-3 gap-2 h-8" onClick={() => setOpen(true)}>
+            <Button variant="secondary" className="mt-3 gap-2 h-8" onClick={() => setOpen(true)}>
               Show DNS records
             </Button>
           </div>
@@ -214,11 +214,11 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
               <Label className="text-sm">Default</Label>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm">{defaultDomain}</span>
-                <Button onClick={handleCopyDefaultDomain} variant="outline" className="h-7 px-2 gap-1" icon={<Copy size={14} />} iconPosition="left">
+                <Button onClick={handleCopyDefaultDomain} variant="secondary" className="h-7 px-2 gap-1" icon={<Copy size={14} />} iconPosition="left">
                   Copy
                 </Button>
                 <a href={defaultDomain} rel={'noreferrer'} target="_blank">
-                  <Button variant="outline" className="h-7 px-2 gap-1" icon={<ExternalLink size={14} />} iconPosition="left">
+                  <Button variant="secondary" className="h-7 px-2 gap-1" icon={<ExternalLink size={14} />} iconPosition="left">
                     Visit
                   </Button>
                 </a>
