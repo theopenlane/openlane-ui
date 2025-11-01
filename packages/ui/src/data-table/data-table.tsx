@@ -165,7 +165,13 @@ export function DataTable<TData, TValue>({
     enableColumnResizing: true,
     state: {
       columnFilters,
-      columnVisibility,
+      columnVisibility: columnVisibility ?? (columns.reduce((acc, col) => {
+        const colAny = col as any
+        const colId = typeof colAny.id === 'string' ? colAny.id : ('accessor_' + String(colAny.accessorKey ?? ''))
+        const defaultVisible = colAny.meta?.defaultVisible
+        if (defaultVisible !== undefined) acc[colId] = !!defaultVisible
+        return acc
+      }, {} as Record<string, boolean>)),
       rowSelection,
       columnSizing: columnSizes,
       pagination: {
@@ -296,14 +302,27 @@ export function DataTable<TData, TValue>({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    {table
-                      .getAllColumns()
-                      .filter((column) => column.getCanHide())
-                      .map((column, index) => (
-                        <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
-                          {column.id}
-                        </DropdownMenuCheckboxItem>
-                      ))}
+                    {/* Sort visibility options alphabetically by header (fall back to column id) */}
+                    {(() => {
+                      const getLabel = (col: any) => {
+                        const header = col.columnDef?.header
+                        return typeof header === 'string' ? header : String(col.id)
+                      }
+
+                      return table
+                        .getAllColumns()
+                        .filter((column) => column.getCanHide())
+                        .slice()
+                        .sort((a, b) => getLabel(a).localeCompare(getLabel(b)))
+                        .map((column, index) => {
+                          const label = getLabel(column)
+                          return (
+                            <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                              {label}
+                            </DropdownMenuCheckboxItem>
+                          )
+                        })
+                    })()}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}

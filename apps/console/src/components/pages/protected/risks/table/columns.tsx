@@ -59,6 +59,13 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       maxSize: 20,
     },
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      meta: { defaultVisible: false },
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
