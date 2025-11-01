@@ -43,8 +43,8 @@ const ProfilePage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'User Settings', href: '/user-settings' },
-      { label: 'Profile', href: '/profile' },
+      { label: 'User Settings', href: '/user-settings/profile' },
+      { label: 'Profile', href: '/user-settings/profile' },
     ])
   }, [setCrumbs])
 
