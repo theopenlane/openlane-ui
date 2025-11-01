@@ -517,3 +517,59 @@ export const DELETE_NOTE = gql`
     }
   }
 `
+export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
+  query GetSuggestedControlsOrSubcontrols($where: MappedControlWhereInput) {
+    mappedControls(where: $where) {
+      edges {
+        node {
+          id
+          source
+          fromControls {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+          toControls {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+          fromSubcontrols {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+          toSubcontrols {
+            edges {
+              node {
+                displayID
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
