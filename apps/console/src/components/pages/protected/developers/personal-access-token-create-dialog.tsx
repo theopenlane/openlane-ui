@@ -33,18 +33,16 @@ enum STEP {
 const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const path = usePathname()
   const isApiKeyPage = path.includes('/api-tokens')
-  const { allOrgs: orgs } = useOrganization()
+  const { currentOrgId, allOrgs: orgs } = useOrganization()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { mutateAsync: createPersonalAccessToken } = useCreatePersonalAccessToken()
   const { mutateAsync: createApiToken } = useCreateAPIToken()
   const { successNotification, errorNotification } = useNotification()
 
-  const { currentOrgId } = useOrganization()
-
   const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
 
   const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
-
+  const filteredOrgs = orgs.filter((org) => org?.node?.personalOrg === false) || []
   const [step, setStep] = useState<STEP>(STEP.CREATE)
 
   const [confirmationChecked, setConfirmationChecked] = useState<boolean>(false)
@@ -283,7 +281,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            {Object.entries(orgs).map(([, value]) => {
+                            {Object.entries(filteredOrgs).map(([, value]) => {
                               return (
                                 <DropdownMenuCheckboxItem
                                   key={value?.node?.id}
