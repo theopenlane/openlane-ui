@@ -22,7 +22,7 @@ import { NavHeading, NavItem, Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 
-export type PanelKey = 'compliance' | 'trust' | null
+export type PanelKey = 'compliance' | 'trust center' | null
 
 export const PRIMARY_WIDTH = 50
 export const PRIMARY_EXPANDED_WIDTH = 248
@@ -70,16 +70,38 @@ export default function SideNav({
     onToggleAction(null)
   }
 
-  const handleTogglePanel = (isActive: boolean, item: NavItem) => {
-    onToggleAction(isActive ? openPanel : (item?.title?.toLowerCase() as PanelKey))
+  const handleTogglePanel = (item: NavItem) => {
+    const panelKey = item?.title?.toLowerCase() as PanelKey
+    const children = item.children ?? []
+
+    if (openPanel !== panelKey) {
+      onToggleAction(panelKey)
+    }
+
+    if (children.length > 0) {
+      const firstChild = children[0]
+      const hasActiveChild = children.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))
+      if (!hasActiveChild && firstChild?.href) {
+        router.push(firstChild.href)
+      }
+    }
   }
 
-  const findActiveNavItem = (items: (NavItem | Separator | NavHeading)[], pathname: string) => {
+  const findActiveNavItem = (items: (NavItem | Separator | NavHeading)[], pathname: string): NavItem | undefined => {
     for (const item of items) {
-      if (!('title' in item)) continue
-      if (item.href && pathname === item.href) return item
-      if (item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))) return item
+      if (!('title' in item)) {
+        continue
+      }
+
+      if (item.href && pathname === item.href) {
+        return item
+      }
+
+      if (item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))) {
+        return item
+      }
     }
+
     return undefined
   }
 
@@ -112,7 +134,7 @@ export default function SideNav({
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className=" h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
             <Button
               variant="sidebar"
-              onClick={() => (isExpandable ? handleTogglePanel(isActive, item) : handleNavigate(url))}
+              onClick={() => (isExpandable ? handleTogglePanel(item) : handleNavigate(url))}
               className={`flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
             >
               <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
@@ -237,7 +259,6 @@ export default function SideNav({
         width: (primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH) + (openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0),
       }}
     >
-      {/* PRIMARY SIDEBAR */}
       <aside
         className={`h-full bg-background flex flex-col justify-between items-center py-3 `}
         style={{
@@ -302,7 +323,6 @@ export default function SideNav({
         </div>
       </aside>
 
-      {/* SECONDARY PANEL */}
       {openPanel && (
         <div
           className="bg-secondary rounded-xl flex flex-col  ease-in-out w-full mt-1 mb-1"
@@ -310,7 +330,6 @@ export default function SideNav({
             width: secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH,
           }}
         >
-          {/* Header */}
           <div className="p-2 space-y-1 h-[40px]">
             <div className="flex items-center justify-between gap-2 p-1 mb-1 rounded-md transition-colors duration-500 w-full">
               {secondaryExpanded ? (
@@ -327,11 +346,9 @@ export default function SideNav({
               )}
             </div>
 
-            {/* Separator when collapsed */}
-            {!secondaryExpanded && <Hr className="m-0 mt-1 w-7 mx-auto " />}
+            {!secondaryExpanded && <Hr className="m-0 mt-1 w-7 mx-auto" />}
           </div>
 
-          {/* Body */}
           <div className="p-2 space-y-1 mt-3 overflow-y-auto flex-1">
             {sidebarItems
               .filter((item): item is NavItem => 'title' in item)

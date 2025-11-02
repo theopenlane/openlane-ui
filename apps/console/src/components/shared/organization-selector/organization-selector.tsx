@@ -88,8 +88,9 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
           },
         })
 
-        requestAnimationFrame(() => {
-          queryClient?.clear()
+        queryClient?.clear()
+        requestAnimationFrame(async () => {
+          await queryClient?.invalidateQueries()
         })
 
         redirectWithoutParams()
