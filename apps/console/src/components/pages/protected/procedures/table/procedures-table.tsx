@@ -63,7 +63,7 @@ export const ProceduresTable = () => {
       }
 
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: (value as string[]).map((v) => ({ id: v })) } as ProcedureWhereInput
+        return { hasProgramsWith: [{ idIn: value }] } as ProcedureWhereInput
       }
 
       if (key === 'hasSubcontrolsWith') {

@@ -66,7 +66,7 @@ const RiskTable: React.FC = () => {
       ...base,
       ...whereGenerator(filters, (key, value) => {
         if (key === 'hasProgramsWith') {
-          return { hasProgramsWith: (value as string[]).map((v) => ({ id: v })) } as RiskWhereInput
+          return { hasProgramsWith: [{ idIn: value }] } as RiskWhereInput
         }
 
         return { [key]: value } as RiskWhereInput

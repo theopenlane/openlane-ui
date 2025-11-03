@@ -58,7 +58,7 @@ export const PoliciesTable = () => {
       }
 
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: (value as string[]).map((v) => ({ id: v })) }
+        return { hasProgramsWith: [{ idIn: value }] } as InternalPolicyWhereInput
       }
 
       if (key === 'hasSubcontrolsWith') {

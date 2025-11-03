@@ -69,7 +69,7 @@ const TasksPage: React.FC = () => {
 
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ id: value as string }] }
+        return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
       }
       return { [key]: value } as TaskWhereInput
     })
