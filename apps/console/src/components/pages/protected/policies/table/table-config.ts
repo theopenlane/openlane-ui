@@ -31,7 +31,7 @@ export function usePoliciesFilters(): FilterField[] | null {
       {
         key: 'hasProgramsWith',
         label: 'Program Name',
-        type: 'select',
+        type: 'multiselect',
         options: programOptions,
         icon: FilterIcons.ProgramName,
       },

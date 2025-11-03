@@ -54,18 +54,18 @@ export const PoliciesTable = () => {
 
     const result = whereGenerator<InternalPolicyWhereInput>(filters, (key, value) => {
       if (key === 'hasControlsWith') {
-        return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as InternalPolicyWhereInput
+        return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
       }
 
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ id: value as string }] } as InternalPolicyWhereInput
+        return { hasProgramsWith: (value as string[]).map((v) => ({ id: v })) }
       }
 
       if (key === 'hasSubcontrolsWith') {
-        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] } as InternalPolicyWhereInput
+        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] }
       }
 
-      return { [key]: value } as InternalPolicyWhereInput
+      return { [key]: value }
     })
 
     const hasStatusCondition = (obj: InternalPolicyWhereInput): boolean => {
