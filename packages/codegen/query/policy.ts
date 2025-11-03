@@ -354,3 +354,11 @@ export const GET_POLICY_SUGGESTED_ACTIONS = gql`
     }
   }
 `
+
+export const BULK_DELETE_POLICY = gql`
+  mutation DeleteBulkInternalPolicy($ids: [ID!]!) {
+    deleteBulkInternalPolicy(ids: $ids) {
+      deletedIDs
+    }
+  }
+`

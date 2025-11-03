@@ -186,7 +186,7 @@ export const PoliciesTable = () => {
     ])
   }, [setCrumbs])
 
-  const handleBulkEdit = () => {
+  const handleClearSelectedPolicies = () => {
     setSelectedPolicies([])
   }
 
@@ -205,7 +205,7 @@ export const PoliciesTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={policies && policies.length > 0}
-        handleBulkEdit={handleBulkEdit}
+        handleClearSelectedPolicies={handleClearSelectedPolicies}
         selectedPolicies={selectedPolicies}
         setSelectedPolicies={setSelectedPolicies}
         canEdit={canEdit}

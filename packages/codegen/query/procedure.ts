@@ -287,3 +287,11 @@ export const CREATE_UPLOAD_PROCEDURE = gql`
     }
   }
 `
+
+export const BULK_DELETE_PROCEDURE = gql`
+  mutation DeleteBulkProcedure($ids: [ID!]!) {
+    deleteBulkProcedure(ids: $ids) {
+      deletedIDs
+    }
+  }
+`

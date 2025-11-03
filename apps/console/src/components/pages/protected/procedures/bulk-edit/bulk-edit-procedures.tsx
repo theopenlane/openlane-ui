@@ -50,7 +50,7 @@ const bulkEditProceduresSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
 
-export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> = ({ selectedProcedures, setIsBulkEditing, setSelectedProcedures }) => {
+export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> = ({ selectedProcedures, setSelectedProcedures }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditProcedures } = useBulkEditProcedure()
   const { errorNotification, successNotification } = useNotification()
@@ -117,7 +117,6 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
       successNotification({
         title: 'Successfully bulk updated selected procedures.',
       })
-      setIsBulkEditing(false)
       setSelectedProcedures([])
       setOpen(false)
     } catch (error: unknown) {

@@ -159,7 +159,7 @@ const TasksPage: React.FC = () => {
     })
   }
 
-  const handleBulkEdit = () => {
+  const handleClearSelectedTasks = () => {
     setSelectedTasks([])
   }
 
@@ -172,7 +172,7 @@ const TasksPage: React.FC = () => {
       <TaskTableToolbar
         onFilterChange={setFilters}
         onTabChange={handleTabChange}
-        handleBulkEdit={handleBulkEdit}
+        handleClearSelectedTasks={handleClearSelectedTasks}
         onShowCompletedTasksChange={handleShowCompletedTasks}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}

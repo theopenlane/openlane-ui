@@ -23,6 +23,10 @@ import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { TAccessRole, TData } from '@/types/authz'
 import { BulkCSVCreateMappedControlDialog } from '../bulk-csv-create-map-control-dialog'
 import { ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useBulkDeleteControls } from '@/lib/graphql-hooks/controls'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -38,7 +42,7 @@ type TProps = {
     header: string
   }[]
   exportEnabled: boolean
-  handleBulkEdit: () => void
+  handleClearSelectedControls: () => void
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
@@ -55,7 +59,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   setColumnVisibility,
   mappedColumns,
   exportEnabled,
-  handleBulkEdit,
+  handleClearSelectedControls,
   selectedControls,
   setSelectedControls,
   canEdit,
@@ -65,15 +69,12 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
-  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({})
-
+  const { successNotification, errorNotification } = useNotification()
   const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
   const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
-
-  useEffect(() => {
-    setIsBulkEditing(selectedControls.length > 0)
-  }, [selectedControls])
+  const { mutateAsync: bulkDeleteControls } = useBulkDeleteControls()
 
   useEffect(() => {
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess) {
@@ -82,6 +83,32 @@ const ControlsTableToolbar: React.FC<TProps> = ({
     const fields = getControlsFilterFields(standardOptions, groups, programOptions, ControlControlTypeOptions)
     setFilterFields(fields)
   }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess])
+
+  const handleBulkDelete = async () => {
+    if (!selectedControls) {
+      errorNotification({
+        title: 'Missing controls',
+        description: 'Controls not found.',
+      })
+      return
+    }
+
+    try {
+      await bulkDeleteControls({ ids: selectedControls.map((control) => control.id) })
+      successNotification({
+        title: 'Selected controls have been successfully deleted.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsBulkDeleteDialogOpen(false)
+      setSelectedControls([])
+    }
+  }
 
   return (
     <>
@@ -97,17 +124,35 @@ const ControlsTableToolbar: React.FC<TProps> = ({
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {isBulkEditing ? (
+          {selectedControls.length > 0 ? (
             <>
+              {canEdit(permission?.roles) && <BulkEditControlsDialog selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setIsBulkDeleteDialogOpen(true)
+                }}
+              >
+                {selectedControls && selectedControls.length > 0 ? `Bulk Delete (${selectedControls.length})` : 'Bulk Delete'}
+              </Button>
               {canEdit(permission?.roles) && (
                 <>
-                  <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>
+                  <ConfirmationDialog
+                    open={isBulkDeleteDialogOpen}
+                    onOpenChange={setIsBulkDeleteDialogOpen}
+                    onConfirm={handleBulkDelete}
+                    title={`Delete selected controls?`}
+                    description={<>This action cannot be undone. This will permanently delete selected controls.</>}
+                    confirmationText="Delete"
+                    confirmationTextVariant="destructive"
+                    showInput={false}
+                  />
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setIsBulkEditing(false)
-                      handleBulkEdit()
+                      handleClearSelectedControls()
                     }}
                   >
                     Cancel
