@@ -517,3 +517,11 @@ export const DELETE_NOTE = gql`
     }
   }
 `
+
+export const BULK_DELETE_CONTROL = gql`
+  mutation DeleteBulkControl($ids: [ID!]!) {
+    deleteBulkControl(ids: $ids) {
+      deletedIDs
+    }
+  }
+`

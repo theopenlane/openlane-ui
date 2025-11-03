@@ -50,7 +50,7 @@ const bulkEditPoliciesSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
 
-export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ selectedPolicies, setIsBulkEditing, setSelectedPolicies }) => {
+export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ selectedPolicies, setSelectedPolicies }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditPolicies } = useBulkEditInternalPolicy()
   const { errorNotification, successNotification } = useNotification()
@@ -117,7 +117,6 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
       successNotification({
         title: 'Successfully bulk updated selected policies.',
       })
-      setIsBulkEditing(false)
       setSelectedPolicies([])
       setOpen(false)
     } catch (error: unknown) {

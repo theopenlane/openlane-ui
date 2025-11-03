@@ -22,6 +22,7 @@ import {
   UPDATE_CONTROL_COMMENT,
   CREATE_CSV_BULK_MAPPED_CONTROL,
   DELETE_NOTE,
+  BULK_DELETE_CONTROL,
 } from '@repo/codegen/query/control'
 
 import {
@@ -64,6 +65,8 @@ import {
   CreateBulkCsvMappedControlMutationVariables,
   DeleteNoteMutation,
   DeleteNoteMutationVariables,
+  DeleteBulkControlMutation,
+  DeleteBulkControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -482,6 +485,19 @@ export const useDeleteNote = () => {
     mutationFn: async (variables) => client.request(DELETE_NOTE, variables),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['controlComments', data.deleteNote.deletedID] })
+    },
+  })
+}
+
+export const useBulkDeleteControls = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<DeleteBulkControlMutation, unknown, DeleteBulkControlMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_CONTROL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }
