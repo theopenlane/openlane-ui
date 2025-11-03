@@ -54,9 +54,9 @@ export const useGroupColumns = ({ onRemoveGroup }: { onRemoveGroup: (group: TGro
       cell: ({ row }) => (
         <DropdownMenu open={activeRow === row?.original?.id} onOpenChange={(open) => setActiveRow(open ? row?.original?.id || '' : null)}>
           <DropdownMenuTrigger asChild>
-            <button>
+            <div className="flex items-center justify-center border border-solid rounded-md w-8 h-8 text-brand-100 hover:bg-brand-50 cursor-pointer">
               <MoreVertical size={16} />
-            </button>
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[160px] border">
             <DropdownMenuItem

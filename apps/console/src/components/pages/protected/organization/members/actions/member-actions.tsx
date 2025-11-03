@@ -129,11 +129,11 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <div className="border border-solid rounded-md py-1.5 px-2 text-brand-100">
+        <div className="flex items-center justify-center border border-solid rounded-md w-8 h-8 text-brand-100 hover:bg-brand-50 cursor-pointer">
           <MoreVertical className={actionIcon()} />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-10">
+      <DropdownMenuContent className="w-5">
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={(e) => {

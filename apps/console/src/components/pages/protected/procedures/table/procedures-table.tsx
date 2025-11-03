@@ -187,7 +187,7 @@ export const ProceduresTable = () => {
     }
   }, [isError, errorNotification])
 
-  const handleBulkEdit = () => {
+  const handleClearSelectedProcedures = () => {
     setSelectedProcedures([])
   }
 
@@ -208,7 +208,7 @@ export const ProceduresTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={procedures && procedures.length > 0}
-        handleBulkEdit={handleBulkEdit}
+        handleClearSelectedProcedures={handleClearSelectedProcedures}
         selectedProcedures={selectedProcedures}
         setSelectedProcedures={setSelectedProcedures}
         canEdit={canEdit}

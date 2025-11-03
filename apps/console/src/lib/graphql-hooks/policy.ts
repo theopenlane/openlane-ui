@@ -11,6 +11,7 @@ import {
   CREATE_UPLOAD_POLICY,
   GET_INTERNAL_POLICIES_DASHBOARD,
   GET_POLICY_SUGGESTED_ACTIONS,
+  BULK_DELETE_POLICY,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -19,6 +20,8 @@ import {
   CreateInternalPolicyMutationVariables,
   CreateUploadInternalPolicyMutation,
   CreateUploadInternalPolicyMutationVariables,
+  DeleteBulkInternalPolicyMutation,
+  DeleteBulkInternalPolicyMutationVariables,
   DeleteInternalPolicyMutation,
   DeleteInternalPolicyMutationVariables,
   GetInternalPoliciesDashboardQuery,
@@ -208,5 +211,16 @@ export const usePolicySuggestedActions = () => {
       }),
     enabled: !!currentUserId,
     refetchOnWindowFocus: false,
+  })
+}
+
+export const useBulkDeletePolicy = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkInternalPolicyMutation, unknown, DeleteBulkInternalPolicyMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_POLICY, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    },
   })
 }

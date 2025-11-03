@@ -159,7 +159,7 @@ const RiskTable: React.FC = () => {
     })
   }
 
-  const handleBulkEdit = () => {
+  const handleClearSelectedControls = () => {
     setSelectedRisks([])
   }
 
@@ -181,7 +181,7 @@ const RiskTable: React.FC = () => {
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
         exportEnabled={risks && risks.length > 0}
-        handleBulkEdit={handleBulkEdit}
+        handleClearSelectedControls={handleClearSelectedControls}
         selectedRisks={selectedRisks}
         setSelectedRisks={setSelectedRisks}
         canEdit={canEdit}

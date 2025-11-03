@@ -517,6 +517,14 @@ export const DELETE_NOTE = gql`
     }
   }
 `
+
+export const BULK_DELETE_CONTROL = gql`
+  mutation DeleteBulkControl($ids: [ID!]!) {
+    deleteBulkControl(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
 export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
   query GetSuggestedControlsOrSubcontrols($where: MappedControlWhereInput) {
     mappedControls(where: $where) {

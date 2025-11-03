@@ -47838,6 +47838,12 @@ export type DeleteNoteMutationVariables = Exact<{
 
 export type DeleteNoteMutation = { __typename?: 'Mutation'; deleteNote: { __typename?: 'NoteDeletePayload'; deletedID: string } }
 
+export type DeleteBulkControlMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkControlMutation = { __typename?: 'Mutation'; deleteBulkControl: { __typename?: 'ControlBulkDeletePayload'; deletedIDs: Array<string> } }
+
 export type GetSuggestedControlsOrSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
 }>
@@ -49241,6 +49247,12 @@ export type PolicySuggestedActionsQuery = {
   }
 }
 
+export type DeleteBulkInternalPolicyMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkInternalPolicyMutation = { __typename?: 'Mutation'; deleteBulkInternalPolicy: { __typename?: 'InternalPolicyBulkDeletePayload'; deletedIDs: Array<string> } }
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
@@ -49506,6 +49518,12 @@ export type CreateUploadProcedureMutation = {
   __typename?: 'Mutation'
   createUploadProcedure: { __typename?: 'ProcedureCreatePayload'; procedure: { __typename?: 'Procedure'; fileID?: string | null; id: string } }
 }
+
+export type DeleteBulkProcedureMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkProcedure: { __typename?: 'ProcedureBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
   input: CreateProgramWithMembersInput
@@ -50091,6 +50109,12 @@ export type CreateRiskMutationVariables = Exact<{
 }>
 
 export type CreateRiskMutation = { __typename?: 'Mutation'; createRisk: { __typename?: 'RiskCreatePayload'; risk: { __typename?: 'Risk'; id: string } } }
+
+export type DeleteBulkRiskMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkRiskMutation = { __typename?: 'Mutation'; deleteBulkRisk: { __typename?: 'RiskBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
@@ -50689,6 +50713,12 @@ export type UpdateTaskCommentMutationVariables = Exact<{
 }>
 
 export type UpdateTaskCommentMutation = { __typename?: 'Mutation'; updateTaskComment: { __typename?: 'TaskUpdatePayload'; task: { __typename?: 'Task'; id: string } } }
+
+export type DeleteBulkTaskMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTaskMutation = { __typename?: 'Mutation'; deleteBulkTask: { __typename?: 'TaskBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
