@@ -35,6 +35,8 @@ const BillingSettings: React.FC = () => {
   const isCanceledBySchedule = schedule?.end_behavior === 'cancel'
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
   const isTrialing = !!schedule?.phases?.[0]?.trial
+  const endDate = schedule?.current_phase?.end_date ? new Date(schedule.current_phase.end_date * 1000) : null
+  const endDatePassed = endDate ? endDate < new Date() : false
 
   const defaultCard = useMemo(() => {
     return paymentData?.defaultPaymentMethod?.card ? paymentData.defaultPaymentMethod.card : paymentData?.paymentMethods?.[0]?.card
@@ -153,23 +155,39 @@ const BillingSettings: React.FC = () => {
         </>
       ) : (
         <>
-          <h2 className="text-2xl mt-8 mb-4">Cancel Subscription</h2>
-
-          {data?.organization?.orgSubscriptions && data?.organization?.orgSubscriptions.length > 0 && (
-            <div id="cancel-subscription">
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
-                <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
-              </div>
-              {schedule ? (
-                <Button className="self-end h-8 p-2" variant={isCanceledBySchedule ? 'secondary' : 'destructive'} disabled={canceling || schedulesLoading} onClick={() => setConfirmCancelOpen(true)}>
-                  {canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
-                </Button>
-              ) : (
-                <a href={`${SUPPORT_URL}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
-                  Reach out to support
-                </a>
+          {endDatePassed ? (
+            <>
+              <p className="mt-8"> Your subscription has expired.</p>
+              <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="mt-2 mx-auto mb-5 block">
+                <Button>Contact Support</Button>
+              </a>
+            </>
+          ) : (
+            <>
+              {' '}
+              <h2 className="text-2xl mt-8 mb-4">Cancel Subscription</h2>
+              {data?.organization?.orgSubscriptions && data?.organization?.orgSubscriptions.length > 0 && (
+                <div id="cancel-subscription">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
+                    <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
+                  </div>
+                  {schedule ? (
+                    <Button
+                      className="self-end h-8 p-2"
+                      variant={isCanceledBySchedule ? 'secondary' : 'destructive'}
+                      disabled={canceling || schedulesLoading}
+                      onClick={() => setConfirmCancelOpen(true)}
+                    >
+                      {canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
+                    </Button>
+                  ) : (
+                    <a href={`${SUPPORT_URL}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
+                      Reach out to support
+                    </a>
+                  )}
+                </div>
               )}
-            </div>
+            </>
           )}
         </>
       )}
