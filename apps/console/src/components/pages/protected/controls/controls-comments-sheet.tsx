@@ -38,7 +38,6 @@ const ControlCommentsSheet = () => {
   const { mutateAsync: deleteNote } = useDeleteNote()
 
   const commentSource = isSubcontrol ? subcontrolData?.subcontrol : data?.control
-
   const userIds = useMemo(() => {
     const edges = commentSource?.comments?.edges ?? []
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string')))
@@ -131,7 +130,7 @@ const ControlCommentsSheet = () => {
     if (commentSource && userData?.orgMemberships?.edges?.length) {
       const mapped =
         commentSource.comments?.edges?.map((item) => {
-          const user = userData.orgMemberships.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node?.user
+          const user = userData.orgMemberships.edges?.find((u) => u?.node?.user.id === item?.node?.createdBy)?.node?.user
           const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
           return {
             comment: item?.node?.text,

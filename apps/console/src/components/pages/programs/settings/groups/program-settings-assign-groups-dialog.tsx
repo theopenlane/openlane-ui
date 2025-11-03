@@ -82,7 +82,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
       const groupRows: GroupRow[] =
         (groups.map((group) => ({
           id: group?.id,
-          name: group?.name,
+          name: group?.displayName || group?.name,
           description: group?.description,
           role: 'View',
         })) as GroupRow[]) || []
@@ -204,15 +204,15 @@ export const ProgramSettingsAssignGroupDialog = () => {
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
-        <h2 className="text-2xl font-semibold mb-4">Assign</h2>
+        <h2 className="text-2xl font-semibold mb-1">Assign Group</h2>
 
         <div className="space-y-4">
-          <div className="flex justify-between items-end">
+          <div className="flex flex-col justify-between">
+            <p className="text-sm mb-4">Select one or more groups to assign to this program.</p>
             <div>
               <Label>Search</Label>
-              <Input value={searchValue} onChange={handleSearchChange} placeholder="Search groups..." className="h-10 w-[200px]" />
+              <Input value={searchValue} onChange={handleSearchChange} placeholder="Search groups..." className="h-10 w-[200px] mt-2" />
             </div>
-            <p className="text-sm">Select one or more groups to assign to this program.</p>
           </div>
 
           <DataTable columns={groupColumns} data={rows} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />

@@ -74,6 +74,7 @@ export const groupSchema = z
     id: z.string(),
     description: z.string().nullable().optional(),
     name: z.string(),
+    displayName: z.string().nullable().optional(),
     gravatarLogoURL: z.string().nullable().optional(),
     logoURL: z.string().nullable().optional(),
     members: z

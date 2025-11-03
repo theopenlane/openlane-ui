@@ -93,7 +93,7 @@ const AdvancedSetupStep4 = () => {
                 options={groupOptions}
                 value={
                   field.value?.map((g) => ({
-                    label: g.name,
+                    label: g.displayName || g.name,
                     value: g.id,
                   })) ?? []
                 }
@@ -115,7 +115,7 @@ const AdvancedSetupStep4 = () => {
                 options={groupOptions}
                 value={
                   field.value?.map((g) => ({
-                    label: g.name,
+                    label: g.displayName || g.name,
                     value: g.id,
                   })) ?? []
                 }

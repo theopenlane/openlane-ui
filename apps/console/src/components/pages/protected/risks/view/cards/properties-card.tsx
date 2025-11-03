@@ -53,9 +53,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
 
   const renderTextField = (fieldName: Fields, label: string, value?: string | null) => {
     const isFieldEditing = isEditing || editingField === fieldName
+    const showPencil = editingField !== fieldName && !isEditing
 
     return (
-      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
+      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed} showPencil={showPencil}>
         {isFieldEditing ? (
           <Controller
             name={fieldName}
@@ -73,9 +74,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
 
   const renderRiskLabelField = <T extends 'score' | 'impact' | 'likelihood' | 'status'>(fieldName: T, label: string) => {
     const isFieldEditing = isEditing || editingField === fieldName
+    const showPencil = editingField !== fieldName && !isEditing
 
     return (
-      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
+      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed} showPencil={showPencil}>
         <Controller
           name={fieldName as keyof EditRisksFormData}
           control={control}
@@ -146,7 +148,19 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
 
 export default PropertiesCard
 
-const FieldRow = ({ label, children, onDoubleClick, isEditAllowed }: { label: string; children?: React.ReactNode; onDoubleClick?: () => void; isEditAllowed?: boolean }) => {
+const FieldRow = ({
+  label,
+  children,
+  onDoubleClick,
+  isEditAllowed,
+  showPencil,
+}: {
+  label: string
+  children?: React.ReactNode
+  onDoubleClick?: () => void
+  isEditAllowed?: boolean
+  showPencil: boolean
+}) => {
   const getFieldIcon = (label: string) => {
     switch (label.toLowerCase()) {
       case 'type':
@@ -173,7 +187,7 @@ const FieldRow = ({ label, children, onDoubleClick, isEditAllowed }: { label: st
         {getFieldIcon(label)}
         <span>{label}</span>
       </div>
-      <HoverPencilWrapper showPencil={isEditAllowed} className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      <HoverPencilWrapper showPencil={showPencil} className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
         <div
           onDoubleClick={() => {
             if (isEditAllowed && onDoubleClick) onDoubleClick()

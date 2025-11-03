@@ -36,7 +36,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
   const { mutateAsync: updatePersonalAccessToken } = useUpdatePersonalAccessToken()
   const { mutateAsync: updateApiToken } = useUpdateApiToken()
   const { allOrgs: orgs, currentOrgId } = useOrganization()
-
+  const filteredOrgs = orgs.filter((org) => org?.node?.personalOrg === false) || []
   const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
 
   const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
@@ -276,7 +276,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            {Object.entries(orgs).map(([, value]) => {
+                            {Object.entries(filteredOrgs).map(([, value]) => {
                               const orgNode = value?.node
                               if (!orgNode) return null
                               return (
