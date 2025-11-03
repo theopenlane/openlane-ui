@@ -65,8 +65,8 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild className="flex justify-self-end">
-        <div className="border border-solid rounded-md py-1.5 px-2 text-brand-100">
+      <DropdownMenuTrigger asChild>
+        <div className="flex items-center justify-center border border-solid rounded-md w-8 h-8 py-1.5 px-2 text-brand-100">
           <MoreVertical className={actionIcon()} />
         </div>
       </DropdownMenuTrigger>
