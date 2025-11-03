@@ -193,7 +193,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     })
   }
 
-  const handleBulkEdit = () => {
+  const handleClearSelectedControls = () => {
     setSelectedControls([])
   }
 
@@ -207,7 +207,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       </div>
       <ControlsTableToolbar
         handleExport={handleExportFile}
-        handleBulkEdit={handleBulkEdit}
+        handleClearSelectedControls={handleClearSelectedControls}
         onFilterChange={setFilters}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {

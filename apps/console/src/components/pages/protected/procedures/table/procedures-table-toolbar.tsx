@@ -16,6 +16,10 @@ import { Button } from '@repo/ui/button'
 import CreateProcedureUploadDialog from '../create/form/create-procedure-upload-dialog'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config.ts'
+import { useNotification } from '@/hooks/useNotification'
+import { useBulkDeleteProcedures } from '@/lib/graphql-hooks/procedures'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -32,7 +36,7 @@ type TProceduresTableToolbarProps = {
     header: string
   }[]
   exportEnabled: boolean
-  handleBulkEdit: () => void
+  handleClearSelectedProcedures: () => void
   selectedProcedures: { id: string }[]
   setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
@@ -50,7 +54,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   setColumnVisibility,
   mappedColumns,
   exportEnabled,
-  handleBulkEdit,
+  handleClearSelectedProcedures,
   selectedProcedures,
   setSelectedProcedures,
   canEdit,
@@ -59,10 +63,43 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
   const filters = useProceduresFilters()
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: bulkDeleteProcedures } = useBulkDeleteProcedures()
 
   useEffect(() => {
     setIsBulkEditing(selectedProcedures.length > 0)
+    setIsBulkDeleting(selectedProcedures.length > 0)
   }, [selectedProcedures])
+
+  const handleBulkDelete = async () => {
+    if (!selectedProcedures) {
+      errorNotification({
+        title: 'Missing procedures',
+        description: 'Procedures not found.',
+      })
+      return
+    }
+
+    try {
+      setIsBulkDeleting(true)
+      await bulkDeleteProcedures({ ids: selectedProcedures.map((procedure) => procedure.id) })
+      successNotification({
+        title: 'Selected procedures have been successfully deleted.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsBulkDeleteDialogOpen(false)
+      setIsBulkDeleting(false)
+      setSelectedProcedures([])
+    }
+  }
 
   return (
     <>
@@ -78,17 +115,39 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {isBulkEditing ? (
+          {isBulkEditing || isBulkDeleting ? (
             <>
               {canEdit(permission?.roles) && (
+                <BulkEditProceduresDialog setIsBulkEditing={setIsBulkEditing} selectedProcedures={selectedProcedures} setSelectedProcedures={setSelectedProcedures}></BulkEditProceduresDialog>
+              )}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setIsBulkDeleteDialogOpen(true)
+                }}
+              >
+                {selectedProcedures && selectedProcedures.length > 0 ? `Bulk Delete (${selectedProcedures.length})` : 'Bulk Delete'}
+              </Button>
+              {canEdit(permission?.roles) && (
                 <>
-                  <BulkEditProceduresDialog setIsBulkEditing={setIsBulkEditing} selectedProcedures={selectedProcedures} setSelectedProcedures={setSelectedProcedures}></BulkEditProceduresDialog>
+                  <ConfirmationDialog
+                    open={isBulkDeleteDialogOpen}
+                    onOpenChange={setIsBulkDeleteDialogOpen}
+                    onConfirm={handleBulkDelete}
+                    title={`Delete selected procedures?`}
+                    description={<>This action cannot be undone. This will permanently delete selected procedures.</>}
+                    confirmationText="Delete"
+                    confirmationTextVariant="destructive"
+                    showInput={false}
+                  />
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => {
                       setIsBulkEditing(false)
-                      handleBulkEdit()
+                      setIsBulkDeleting(false)
+                      handleClearSelectedProcedures()
                     }}
                   >
                     Cancel
@@ -135,16 +194,16 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                   </>
                 )}
               />
+              {mappedColumns && columnVisibility && setColumnVisibility && (
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              )}
+              {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
+              {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
+                <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+                  Create
+                </Button>
+              )}
             </>
-          )}
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
-          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
-          {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-            <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
-              Create
-            </Button>
           )}
         </div>
       </div>

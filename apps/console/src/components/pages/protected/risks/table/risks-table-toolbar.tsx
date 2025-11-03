@@ -16,6 +16,10 @@ import { RiskWhereInput } from '@repo/codegen/src/schema'
 import { BulkEditRisksDialog } from '../bulk-edit/bulk-edit-risks'
 import { Button } from '@repo/ui/button'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -31,7 +35,7 @@ type TProps = {
     header: string
   }[]
   exportEnabled: boolean
-  handleBulkEdit: () => void
+  handleClearSelectedControls: () => void
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
@@ -49,7 +53,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
   mappedColumns,
   handleCreateNew,
   exportEnabled,
-  handleBulkEdit,
+  handleClearSelectedControls,
   selectedRisks,
   setSelectedRisks,
   canEdit,
@@ -58,9 +62,13 @@ const RisksTableToolbar: React.FC<TProps> = ({
   const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
-
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: bulkDeleteRisks } = useBulkDeleteRisks()
   useEffect(() => {
     setIsBulkEditing(selectedRisks.length > 0)
+    setIsBulkDeleting(selectedRisks.length > 0)
   }, [selectedRisks])
 
   useEffect(() => {
@@ -71,6 +79,33 @@ const RisksTableToolbar: React.FC<TProps> = ({
     const fields = getRisksFilterFields(programOptions)
     setFilterFields(fields)
   }, [programOptions, filterFields, isSuccess])
+
+  const handleBulkDelete = async () => {
+    if (!selectedRisks) {
+      errorNotification({
+        title: 'Missing risks',
+        description: 'Risks not found.',
+      })
+      return
+    }
+    try {
+      setIsBulkDeleting(true)
+      await bulkDeleteRisks({ ids: selectedRisks.map((risk) => risk.id) })
+      successNotification({
+        title: 'Selected risks have been successfully deleted.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsBulkDeleteDialogOpen(false)
+      setIsBulkDeleting(false)
+      setSelectedRisks([])
+    }
+  }
 
   return (
     <>
@@ -84,50 +119,36 @@ const RisksTableToolbar: React.FC<TProps> = ({
             variant="searchTable"
           />
         </div>
-        {!isBulkEditing && (
-          <Menu
-            closeOnSelect={true}
-            content={(close) => (
-              <>
-                {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-                  <BulkCSVCreateRiskDialog
-                    trigger={
-                      <div className="flex items-center space-x-2 px-1">
-                        <Upload size={16} strokeWidth={2} />
-                        <span>Bulk Upload</span>
-                      </div>
-                    }
-                  />
-                )}
-                <button
-                  className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                  onClick={() => {
-                    handleExport()
-                    close()
-                  }}
-                >
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </button>
-              </>
-            )}
-          />
-        )}
-        {mappedColumns && columnVisibility && setColumnVisibility && (
-          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-        )}
-        {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.RISK} />}
-        {isBulkEditing ? (
+        {isBulkEditing || isBulkDeleting ? (
           <>
+            {canEdit(permission?.roles) && <BulkEditRisksDialog setIsBulkEditing={setIsBulkEditing} selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setIsBulkDeleteDialogOpen(true)
+              }}
+            >
+              {selectedRisks && selectedRisks.length > 0 ? `Bulk Delete (${selectedRisks.length})` : 'Bulk Delete'}
+            </Button>
             {canEdit(permission?.roles) && (
               <>
-                <BulkEditRisksDialog setIsBulkEditing={setIsBulkEditing} selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>
+                <ConfirmationDialog
+                  open={isBulkDeleteDialogOpen}
+                  onOpenChange={setIsBulkDeleteDialogOpen}
+                  onConfirm={handleBulkDelete}
+                  title={`Delete selected risks?`}
+                  description={<>This action cannot be undone. This will permanently delete selected risks.</>}
+                  confirmationText="Delete"
+                  confirmationTextVariant="destructive"
+                  showInput={false}
+                />
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={() => {
                     setIsBulkEditing(false)
-                    handleBulkEdit()
+                    handleClearSelectedControls()
                   }}
                 >
                   Cancel
@@ -137,6 +158,39 @@ const RisksTableToolbar: React.FC<TProps> = ({
           </>
         ) : (
           <>
+            {!isBulkEditing && (
+              <Menu
+                closeOnSelect={true}
+                content={(close) => (
+                  <>
+                    {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+                      <BulkCSVCreateRiskDialog
+                        trigger={
+                          <div className="flex items-center space-x-2 px-1">
+                            <Upload size={16} strokeWidth={2} />
+                            <span>Bulk Upload</span>
+                          </div>
+                        }
+                      />
+                    )}
+                    <button
+                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      onClick={() => {
+                        handleExport()
+                        close()
+                      }}
+                    >
+                      <DownloadIcon size={16} strokeWidth={2} />
+                      <span>Export</span>
+                    </button>
+                  </>
+                )}
+              />
+            )}
+            {mappedColumns && columnVisibility && setColumnVisibility && (
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+            )}
+            {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.RISK} />}
             {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
               <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                 Create

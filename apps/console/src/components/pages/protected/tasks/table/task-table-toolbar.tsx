@@ -18,6 +18,10 @@ import { Button } from '@repo/ui/button'
 import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TAccessRole, TData } from '@/types/authz'
+import { useNotification } from '@/hooks/useNotification'
+import { useBulkDeleteTask } from '@/lib/graphql-hooks/tasks'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -36,7 +40,7 @@ type TTaskTableToolbarProps = {
   exportEnabled: boolean
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
   permission: TData | undefined
-  handleBulkEdit: () => void
+  handleClearSelectedTasks: () => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   showMyTasks: boolean
@@ -50,10 +54,43 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: bulkDeleteTasks } = useBulkDeleteTask()
 
   useEffect(() => {
     setIsBulkEditing(props.selectedTasks.length > 0)
+    setIsBulkDeleting(props.selectedTasks.length > 0)
   }, [props.selectedTasks])
+
+  const handleBulkDelete = async () => {
+    if (!props.selectedTasks) {
+      errorNotification({
+        title: 'Missing tasks',
+        description: 'Tasks not found.',
+      })
+      return
+    }
+
+    try {
+      setIsBulkDeleting(true)
+      await bulkDeleteTasks({ ids: props.selectedTasks.map((task) => task.id) })
+      successNotification({
+        title: 'Selected tasks have been successfully deleted.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsBulkDeleteDialogOpen(false)
+      setIsBulkDeleting(false)
+      props.setSelectedTasks([])
+    }
+  }
 
   useEffect(() => {
     if (filterFields || !orgMembers || !isSuccess) {
@@ -97,39 +134,39 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
           <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu
-            content={
-              <>
-                <BulkCSVCreateTaskDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
-                    </div>
-                  }
-                />
-                <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </button>
-              </>
-            }
-          />
-          {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} />
-          )}
-          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableFilterKeysEnum.TASK} />}
-          {isBulkEditing ? (
+          {isBulkEditing || isBulkDeleting ? (
             <>
               {props.canEdit(props.permission?.roles) && (
+                <BulkEditTasksDialog setIsBulkEditing={setIsBulkEditing} selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>
+              )}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setIsBulkDeleteDialogOpen(true)
+                }}
+              >
+                {props.selectedTasks && props.selectedTasks.length > 0 ? `Bulk Delete (${props.selectedTasks.length})` : 'Bulk Delete'}
+              </Button>
+              {props.canEdit(props.permission?.roles) && (
                 <>
-                  <BulkEditTasksDialog setIsBulkEditing={setIsBulkEditing} selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>
+                  <ConfirmationDialog
+                    open={isBulkDeleteDialogOpen}
+                    onOpenChange={setIsBulkDeleteDialogOpen}
+                    onConfirm={handleBulkDelete}
+                    title={`Delete selected tasks?`}
+                    description={<>This action cannot be undone. This will permanently delete selected tasks.</>}
+                    confirmationText="Delete"
+                    confirmationTextVariant="destructive"
+                    showInput={false}
+                  />
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => {
                       setIsBulkEditing(false)
-                      props.handleBulkEdit()
+                      setIsBulkDeleting(false)
+                      props.handleClearSelectedTasks()
                     }}
                   >
                     Cancel
@@ -139,6 +176,28 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
             </>
           ) : (
             <>
+              <Menu
+                content={
+                  <>
+                    <BulkCSVCreateTaskDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Bulk Upload</span>
+                        </div>
+                      }
+                    />
+                    <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
+                      <DownloadIcon size={16} strokeWidth={2} />
+                      <span>Export</span>
+                    </button>
+                  </>
+                }
+              />
+              {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
+                <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} />
+              )}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableFilterKeysEnum.TASK} />}
               <CreateTaskDialog />
             </>
           )}

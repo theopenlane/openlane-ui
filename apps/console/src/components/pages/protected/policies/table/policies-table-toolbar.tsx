@@ -17,6 +17,10 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 import { TAccessRole, TData } from '@/types/authz'
 import Link from 'next/link'
+import { useNotification } from '@/hooks/useNotification'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useBulkDeletePolicy } from '@/lib/graphql-hooks/policy'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -32,7 +36,7 @@ type TPoliciesTableToolbarProps = {
     header: string
   }[]
   exportEnabled: boolean
-  handleBulkEdit: () => void
+  handleClearSelectedPolicies: () => void
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
@@ -49,7 +53,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   setColumnVisibility,
   mappedColumns,
   exportEnabled,
-  handleBulkEdit,
+  handleClearSelectedPolicies,
   selectedPolicies,
   setSelectedPolicies,
   canEdit,
@@ -58,10 +62,43 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
   const filterFields = usePoliciesFilters()
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: bulkDeletePolicies } = useBulkDeletePolicy()
 
   useEffect(() => {
     setIsBulkEditing(selectedPolicies.length > 0)
+    setIsBulkDeleting(selectedPolicies.length > 0)
   }, [selectedPolicies])
+
+  const handleBulkDelete = async () => {
+    if (!selectedPolicies) {
+      errorNotification({
+        title: 'Missing policies',
+        description: 'Policies not found.',
+      })
+      return
+    }
+
+    try {
+      setIsBulkDeleting(true)
+      await bulkDeletePolicies({ ids: selectedPolicies.map((policy) => policy.id) })
+      successNotification({
+        title: 'Selected policies have been successfully deleted.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsBulkDeleteDialogOpen(false)
+      setIsBulkDeleting(false)
+      setSelectedPolicies([])
+    }
+  }
 
   return (
     <>
@@ -75,17 +112,39 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
         />
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {isBulkEditing ? (
+          {isBulkEditing || isBulkDeleting ? (
             <>
               {canEdit(permission?.roles) && (
+                <BulkEditPoliciesDialog setIsBulkEditing={setIsBulkEditing} selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>
+              )}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setIsBulkDeleteDialogOpen(true)
+                }}
+              >
+                {selectedPolicies && selectedPolicies.length > 0 ? `Bulk Delete (${selectedPolicies.length})` : 'Bulk Delete'}
+              </Button>
+              {canEdit(permission?.roles) && (
                 <>
-                  <BulkEditPoliciesDialog setIsBulkEditing={setIsBulkEditing} selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>
+                  <ConfirmationDialog
+                    open={isBulkDeleteDialogOpen}
+                    onOpenChange={setIsBulkDeleteDialogOpen}
+                    onConfirm={handleBulkDelete}
+                    title={`Delete selected policies?`}
+                    description={<>This action cannot be undone. This will permanently delete selected policies.</>}
+                    confirmationText="Delete"
+                    confirmationTextVariant="destructive"
+                    showInput={false}
+                  />
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => {
                       setIsBulkEditing(false)
-                      handleBulkEdit()
+                      setIsBulkDeleting(false)
+                      handleClearSelectedPolicies()
                     }}
                   >
                     Cancel
