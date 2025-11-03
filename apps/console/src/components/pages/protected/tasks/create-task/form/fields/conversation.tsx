@@ -107,7 +107,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   useEffect(() => {
     if (taskData && userData?.orgMemberships?.edges?.length) {
       const commentsMapped = (taskData?.comments?.edges || []).map((item) => {
-        const user = userData.orgMemberships.edges?.find((u) => u?.node?.id === item?.node?.createdBy)?.node?.user
+        const user = userData.orgMemberships.edges?.find((u) => u?.node?.user.id === item?.node?.createdBy)?.node?.user
         const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
         return {
           comment: item?.node?.text,
