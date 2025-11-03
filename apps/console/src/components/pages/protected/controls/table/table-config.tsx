@@ -43,9 +43,9 @@ export const getControlsFilterFields = (
     icon: FileQuestion,
   },
   {
-    key: 'controlOwnerID',
+    key: 'controlOwnerIDIn',
     label: 'Owners',
-    type: 'select',
+    type: 'multiselect',
     options: groups.map((group) => ({
       value: group.value,
       label: group.label,
@@ -55,7 +55,7 @@ export const getControlsFilterFields = (
   {
     key: 'hasProgramsWith',
     label: 'Program Name',
-    type: 'select',
+    type: 'multiselect',
     options: programOptions,
     icon: FilterIcons.ProgramName,
   },
