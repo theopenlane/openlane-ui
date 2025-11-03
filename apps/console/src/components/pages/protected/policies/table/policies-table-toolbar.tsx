@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
@@ -61,16 +61,9 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const filterFields = usePoliciesFilters()
-  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeletePolicies } = useBulkDeletePolicy()
-
-  useEffect(() => {
-    setIsBulkEditing(selectedPolicies.length > 0)
-    setIsBulkDeleting(selectedPolicies.length > 0)
-  }, [selectedPolicies])
 
   const handleBulkDelete = async () => {
     if (!selectedPolicies) {
@@ -82,7 +75,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
     }
 
     try {
-      setIsBulkDeleting(true)
       await bulkDeletePolicies({ ids: selectedPolicies.map((policy) => policy.id) })
       successNotification({
         title: 'Selected policies have been successfully deleted.',
@@ -95,7 +87,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
       })
     } finally {
       setIsBulkDeleteDialogOpen(false)
-      setIsBulkDeleting(false)
       setSelectedPolicies([])
     }
   }
@@ -112,11 +103,9 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
         />
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {isBulkEditing || isBulkDeleting ? (
+          {selectedPolicies.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && (
-                <BulkEditPoliciesDialog setIsBulkEditing={setIsBulkEditing} selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>
-              )}
+              {canEdit(permission?.roles) && <BulkEditPoliciesDialog selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -142,8 +131,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setIsBulkEditing(false)
-                      setIsBulkDeleting(false)
                       handleClearSelectedPolicies()
                     }}
                   >

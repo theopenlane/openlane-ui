@@ -6,31 +6,27 @@ import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-en
 import { TaskStatusOptions, TaskTypesOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 
-export type BulkEditDialogPropsBase = {
-  setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-export type BulkEditRisksDialogProps = BulkEditDialogPropsBase & {
+export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export type BulkEditPoliciesDialogProps = BulkEditDialogPropsBase & {
+export type BulkEditPoliciesDialogProps = {
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export type BulkEditProceduresDialogProps = BulkEditDialogPropsBase & {
+export type BulkEditProceduresDialogProps = {
   selectedProcedures: { id: string }[]
   setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export type BulkEditControlsDialogProps = BulkEditDialogPropsBase & {
+export type BulkEditControlsDialogProps = {
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
 }
 
-export type BulkEditTasksDialogProps = BulkEditDialogPropsBase & {
+export type BulkEditTasksDialogProps = {
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }

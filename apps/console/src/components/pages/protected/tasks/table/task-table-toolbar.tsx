@@ -53,16 +53,9 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   const { orgMembers } = useTaskStore()
   const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
-  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteTasks } = useBulkDeleteTask()
-
-  useEffect(() => {
-    setIsBulkEditing(props.selectedTasks.length > 0)
-    setIsBulkDeleting(props.selectedTasks.length > 0)
-  }, [props.selectedTasks])
 
   const handleBulkDelete = async () => {
     if (!props.selectedTasks) {
@@ -74,7 +67,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     }
 
     try {
-      setIsBulkDeleting(true)
       await bulkDeleteTasks({ ids: props.selectedTasks.map((task) => task.id) })
       successNotification({
         title: 'Selected tasks have been successfully deleted.',
@@ -87,7 +79,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
       })
     } finally {
       setIsBulkDeleteDialogOpen(false)
-      setIsBulkDeleting(false)
       props.setSelectedTasks([])
     }
   }
@@ -134,11 +125,9 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
           <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {isBulkEditing || isBulkDeleting ? (
+          {props.selectedTasks.length > 0 ? (
             <>
-              {props.canEdit(props.permission?.roles) && (
-                <BulkEditTasksDialog setIsBulkEditing={setIsBulkEditing} selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>
-              )}
+              {props.canEdit(props.permission?.roles) && <BulkEditTasksDialog selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -164,8 +153,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setIsBulkEditing(false)
-                      setIsBulkDeleting(false)
                       props.handleClearSelectedTasks()
                     }}
                   >

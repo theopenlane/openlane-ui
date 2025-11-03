@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -62,16 +62,9 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const filters = useProceduresFilters()
-  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteProcedures } = useBulkDeleteProcedures()
-
-  useEffect(() => {
-    setIsBulkEditing(selectedProcedures.length > 0)
-    setIsBulkDeleting(selectedProcedures.length > 0)
-  }, [selectedProcedures])
 
   const handleBulkDelete = async () => {
     if (!selectedProcedures) {
@@ -83,7 +76,6 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
     }
 
     try {
-      setIsBulkDeleting(true)
       await bulkDeleteProcedures({ ids: selectedProcedures.map((procedure) => procedure.id) })
       successNotification({
         title: 'Selected procedures have been successfully deleted.',
@@ -96,7 +88,6 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
       })
     } finally {
       setIsBulkDeleteDialogOpen(false)
-      setIsBulkDeleting(false)
       setSelectedProcedures([])
     }
   }
@@ -115,11 +106,9 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {isBulkEditing || isBulkDeleting ? (
+          {selectedProcedures.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && (
-                <BulkEditProceduresDialog setIsBulkEditing={setIsBulkEditing} selectedProcedures={selectedProcedures} setSelectedProcedures={setSelectedProcedures}></BulkEditProceduresDialog>
-              )}
+              {canEdit(permission?.roles) && <BulkEditProceduresDialog selectedProcedures={selectedProcedures} setSelectedProcedures={setSelectedProcedures}></BulkEditProceduresDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -145,8 +134,6 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setIsBulkEditing(false)
-                      setIsBulkDeleting(false)
                       handleClearSelectedProcedures()
                     }}
                   >

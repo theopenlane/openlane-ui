@@ -52,7 +52,7 @@ const bulkEditTasksSchema = z.object({
   fieldsArray: z.array(fieldItemSchema),
 })
 
-export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ selectedTasks, setIsBulkEditing, setSelectedTasks }) => {
+export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ selectedTasks, setSelectedTasks }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditTasks } = useBulkEditTask()
   const { errorNotification, successNotification } = useNotification()
@@ -126,7 +126,6 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
       successNotification({
         title: 'Successfully bulk updated selected tasks.',
       })
-      setIsBulkEditing(false)
       setSelectedTasks([])
       setOpen(false)
     } catch (error: unknown) {

@@ -44,7 +44,7 @@ const bulkEditControlsSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
 
-export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setIsBulkEditing, setSelectedControls }) => {
+export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setSelectedControls }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
   const { errorNotification, successNotification } = useNotification()
@@ -104,7 +104,6 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
       successNotification({
         title: 'Successfully bulk updated selected controls.',
       })
-      setIsBulkEditing(false)
       setSelectedControls([])
       setOpen(false)
     } catch (error: unknown) {

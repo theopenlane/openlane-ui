@@ -61,15 +61,9 @@ const RisksTableToolbar: React.FC<TProps> = ({
 }: TProps) => {
   const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
-  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteRisks } = useBulkDeleteRisks()
-  useEffect(() => {
-    setIsBulkEditing(selectedRisks.length > 0)
-    setIsBulkDeleting(selectedRisks.length > 0)
-  }, [selectedRisks])
 
   useEffect(() => {
     if (filterFields || !isSuccess) {
@@ -89,7 +83,6 @@ const RisksTableToolbar: React.FC<TProps> = ({
       return
     }
     try {
-      setIsBulkDeleting(true)
       await bulkDeleteRisks({ ids: selectedRisks.map((risk) => risk.id) })
       successNotification({
         title: 'Selected risks have been successfully deleted.',
@@ -102,7 +95,6 @@ const RisksTableToolbar: React.FC<TProps> = ({
       })
     } finally {
       setIsBulkDeleteDialogOpen(false)
-      setIsBulkDeleting(false)
       setSelectedRisks([])
     }
   }
@@ -119,9 +111,9 @@ const RisksTableToolbar: React.FC<TProps> = ({
             variant="searchTable"
           />
         </div>
-        {isBulkEditing || isBulkDeleting ? (
+        {selectedRisks.length > 0 ? (
           <>
-            {canEdit(permission?.roles) && <BulkEditRisksDialog setIsBulkEditing={setIsBulkEditing} selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>}
+            {canEdit(permission?.roles) && <BulkEditRisksDialog selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>}
             <Button
               type="button"
               variant="secondary"
@@ -147,7 +139,6 @@ const RisksTableToolbar: React.FC<TProps> = ({
                   type="button"
                   variant="secondary"
                   onClick={() => {
-                    setIsBulkEditing(false)
                     handleClearSelectedControls()
                   }}
                 >
@@ -158,35 +149,33 @@ const RisksTableToolbar: React.FC<TProps> = ({
           </>
         ) : (
           <>
-            {!isBulkEditing && (
-              <Menu
-                closeOnSelect={true}
-                content={(close) => (
-                  <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-                      <BulkCSVCreateRiskDialog
-                        trigger={
-                          <div className="flex items-center space-x-2 px-1">
-                            <Upload size={16} strokeWidth={2} />
-                            <span>Bulk Upload</span>
-                          </div>
-                        }
-                      />
-                    )}
-                    <button
-                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                      onClick={() => {
-                        handleExport()
-                        close()
-                      }}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </button>
-                  </>
-                )}
-              />
-            )}
+            <Menu
+              closeOnSelect={true}
+              content={(close) => (
+                <>
+                  {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+                    <BulkCSVCreateRiskDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Bulk Upload</span>
+                        </div>
+                      }
+                    />
+                  )}
+                  <button
+                    className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    onClick={() => {
+                      handleExport()
+                      close()
+                    }}
+                  >
+                    <DownloadIcon size={16} strokeWidth={2} />
+                    <span>Export</span>
+                  </button>
+                </>
+              )}
+            />
             {mappedColumns && columnVisibility && setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
             )}

@@ -50,7 +50,7 @@ const bulkEditRisksSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
 
-export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ selectedRisks, setIsBulkEditing, setSelectedRisks }) => {
+export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ selectedRisks, setSelectedRisks }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditRisks } = useBulkEditRisk()
   const { errorNotification, successNotification } = useNotification()
@@ -117,7 +117,6 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
       successNotification({
         title: 'Successfully bulk updated selected risks.',
       })
-      setIsBulkEditing(false)
       setSelectedRisks([])
       setOpen(false)
     } catch (error: unknown) {

@@ -69,19 +69,12 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
-  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false)
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({})
   const { successNotification, errorNotification } = useNotification()
   const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
   const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
   const { mutateAsync: bulkDeleteControls } = useBulkDeleteControls()
-
-  useEffect(() => {
-    setIsBulkEditing(selectedControls.length > 0)
-    setIsBulkDeleting(selectedControls.length > 0)
-  }, [selectedControls])
 
   useEffect(() => {
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess) {
@@ -101,7 +94,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
     }
 
     try {
-      setIsBulkDeleting(true)
       await bulkDeleteControls({ ids: selectedControls.map((control) => control.id) })
       successNotification({
         title: 'Selected controls have been successfully deleted.',
@@ -114,7 +106,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
       })
     } finally {
       setIsBulkDeleteDialogOpen(false)
-      setIsBulkDeleting(false)
       setSelectedControls([])
     }
   }
@@ -133,11 +124,9 @@ const ControlsTableToolbar: React.FC<TProps> = ({
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {isBulkEditing || isBulkDeleting ? (
+          {selectedControls.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && (
-                <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>
-              )}
+              {canEdit(permission?.roles) && <BulkEditControlsDialog selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -163,8 +152,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setIsBulkEditing(false)
-                      setIsBulkDeleting(false)
                       handleClearSelectedControls()
                     }}
                   >
