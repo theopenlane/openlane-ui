@@ -151,7 +151,7 @@ const BillingSettings: React.FC = () => {
             <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
           </div>
           {schedule ? (
-            <Button className="self-end h-8 p-2" variant={isCanceledBySchedule ? 'filled' : 'destructive'} disabled={canceling || schedulesLoading} onClick={() => setConfirmCancelOpen(true)}>
+            <Button className="self-end h-8 p-2" variant={isCanceledBySchedule ? 'secondary' : 'destructive'} disabled={canceling || schedulesLoading} onClick={() => setConfirmCancelOpen(true)}>
               {canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
             </Button>
           ) : (

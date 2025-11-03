@@ -187,12 +187,11 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                                 <SelectValue placeholder="Select role" />
                               </SelectTrigger>
                               <SelectContent>
-                                {Object.entries(OrgMembershipRole)
-                                  .reverse()
-                                  .filter(([key]) => !key.includes('USER'))
-                                  .map(([key, value], i) => (
-                                    <SelectItem key={i} value={value}>
-                                      {key[0].toUpperCase() + key.slice(1).toLowerCase()}
+                                {Object.values(OrgMembershipRole)
+                                  .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER'))
+                                  .map((role) => (
+                                    <SelectItem key={role} value={role}>
+                                      {role.charAt(0) + role.slice(1).toLowerCase()}
                                     </SelectItem>
                                   ))}
                               </SelectContent>
