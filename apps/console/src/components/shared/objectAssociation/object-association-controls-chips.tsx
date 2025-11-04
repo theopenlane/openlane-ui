@@ -1,11 +1,14 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { TriangleAlert } from 'lucide-react'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import AddToOrganizationDialog from '@/components/pages/protected/standards/add-to-organization-dialog'
+import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 
 type TObjectAssociationControlsChipsProps = {
   form: UseFormReturn<CreateEvidenceFormData>
@@ -16,7 +19,30 @@ type TObjectAssociationControlsChipsProps = {
   setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
 }
 
+enum ItemType {
+  Control = 'Control',
+  Subcontrol = 'Subcontrol',
+}
+
 const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }: TObjectAssociationControlsChipsProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [standardName, setStandardName] = useState<string | null>(null)
+  const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string; typeName: ItemType }[]>([])
+  const [controlRefCodes, setControlRefCodes] = useState<string[]>([])
+  const [subcontrolRefCodes, setSubcontrolRefCodes] = useState<string[]>([])
+
+  const { data: refcodeData } = useGetControlsByRefCode({
+    refCodeIn: controlRefCodes,
+    enabled: controlRefCodes.length > 0,
+  })
+
+  const { data: subcontrolRefcodeData } = useGetSubcontrolsByRefCode({
+    refCodeIn: subcontrolRefCodes,
+    enabled: subcontrolRefCodes.length > 0,
+  })
+
+  const controlExists = (refcodeData?.controls?.edges?.length ?? 0) > 0
+  const subcontrolExists = (subcontrolRefcodeData?.subcontrols?.edges?.length ?? 0) > 0
   const handleRemove = (id: string, refCode: string, isSubcontrol = false) => {
     if (isSubcontrol) {
       setEvidenceSubcontrols((prev) => {
@@ -32,11 +58,21 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
       })
     }
   }
-  console.log('suggestedControlsMap', suggestedControlsMap)
-  console.log('evidenceControls', evidenceControls)
-  console.log('evidenceSubcontrols', evidenceSubcontrols)
-  const handleAdd = (id: string, isSubcontrol = false, refCode: string, source: string) => {
-    console.log('Adding item...', { id, isSubcontrol, refCode, source })
+
+  const handleAdd = (id: string, isSubcontrol = false, refCode: string, source: string, referenceFramework: string | null) => {
+    const newRefCodes = [refCode]
+    if (source === 'SUGGESTED') {
+      setStandardName(referenceFramework)
+      setSelectedControls([{ id, refCode, typeName: isSubcontrol ? ItemType.Subcontrol : ItemType.Control }])
+      if (isSubcontrol) {
+        setSubcontrolRefCodes(newRefCodes)
+        console.log('subcontrolExists', subcontrolExists)
+      } else {
+        setControlRefCodes(newRefCodes)
+        console.log('controlExists', controlExists)
+      }
+      //if non existent, call dialog and add it
+    } else console.log('Adding not suggested item...', { id, isSubcontrol, refCode, source, referenceFramework })
   }
 
   return (
@@ -98,10 +134,11 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
                 __typename: typeName,
               }}
               canAdd
-              onAdd={() => handleAdd(id, false, refCode, source)}
+              onAdd={() => handleAdd(id, typeName === ItemType.Control ? false : true, refCode, source, referenceFramework)}
             />
           ))}
       </div>
+      <AddToOrganizationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} selectedControls={selectedControls.length > 0 ? selectedControls : []} standardName={standardName ?? undefined} />
     </div>
   )
 }

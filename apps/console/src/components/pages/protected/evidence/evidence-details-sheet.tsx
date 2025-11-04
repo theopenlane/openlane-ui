@@ -113,6 +113,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
+  const hasFetchedRef = useRef(false)
+
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
       return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
@@ -123,29 +125,41 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
 
   const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where: where ?? undefined,
-    enabled: !!where,
+    where: hasFetchedRef.current ? undefined : where ?? undefined,
+    enabled: !!where && !hasFetchedRef.current,
   })
 
   const { data: standards } = useGetStandards({})
+
+  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
+
+  const suggestedItems = useMemo(() => {
+    if (!mappedControls) return []
+
+    return flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
+      .map((item) => ({
+        id: item.id,
+        refCode: item.refCode,
+        referenceFramework: item.referenceFramework ?? null,
+        source: item.source ?? '',
+        typeName: item.type,
+      }))
+      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
+  }, [mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
 
   useEffect(() => {
     if (!where) {
       setSuggestedControlsMap([])
       return
     }
-    if (!mappedControls) return
-    const suggestedItems = flattenAndFilterControls(mappedControls, standards).map((item) => ({
-      id: item.id,
-      refCode: item.refCode,
-      referenceFramework: item.referenceFramework ?? null,
-      source: item.source ?? '',
-      typeName: item.typeName,
-    }))
+
+    if (!suggestedItems.length || hasFetchedRef.current) return
 
     const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
+
+    hasFetchedRef.current = true
     setSuggestedControlsMap(uniqueItems)
-  }, [mappedControls, standards, where])
+  }, [where, suggestedItems])
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
@@ -363,8 +377,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-          ? oldValue.getTime() === newValue.getTime()
-          : oldValue === newValue
+        ? oldValue.getTime() === newValue.getTime()
+        : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -431,9 +445,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
     return (
       <div className="flex justify-end flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => (
-          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
-        ))}
+        {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
       </div>
     )
   }
@@ -1039,6 +1051,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
             handleCloseParams()
+            hasFetchedRef.current = false
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}
         />

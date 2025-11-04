@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -74,6 +74,8 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
+  const hasFetchedRef = useRef(false)
+
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
@@ -92,7 +94,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : (data.programIDs ?? []),
+        programIDs: programId ? [programId] : data.programIDs ?? [],
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -161,29 +163,41 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
 
   const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where: where ?? undefined,
-    enabled: !!where,
+    where: hasFetchedRef.current ? undefined : where ?? undefined,
+    enabled: !!where && !hasFetchedRef.current,
   })
 
   const { data: standards } = useGetStandards({})
+
+  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
+
+  const suggestedItems = useMemo(() => {
+    if (!mappedControls) return []
+
+    return flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
+      .map((item) => ({
+        id: item.id,
+        refCode: item.refCode,
+        referenceFramework: item.referenceFramework ?? null,
+        source: item.source ?? '',
+        typeName: item.type,
+      }))
+      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
+  }, [mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
 
   useEffect(() => {
     if (!where) {
       setSuggestedControlsMap([])
       return
     }
-    if (!mappedControls) return
-    const suggestedItems = flattenAndFilterControls(mappedControls, standards).map((item) => ({
-      id: item.id,
-      refCode: item.refCode,
-      referenceFramework: item.referenceFramework ?? null,
-      source: item.source ?? '',
-      typeName: item.typeName,
-    }))
+
+    if (!suggestedItems.length || hasFetchedRef.current) return
 
     const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
+
+    hasFetchedRef.current = true
     setSuggestedControlsMap(uniqueItems)
-  }, [mappedControls, standards, where])
+  }, [where, suggestedItems])
 
   useEffect(() => {
     handleInitialValue()
@@ -552,6 +566,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
             onOpenChange(false)
             setEvidenceSubcontrols(null)
             setEvidenceControls(null)
+            hasFetchedRef.current = false
             form.reset()
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}

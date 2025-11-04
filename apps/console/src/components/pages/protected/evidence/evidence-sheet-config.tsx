@@ -1,4 +1,4 @@
-import { GetAllStandardsQuery, GetSuggestedControlsOrSubcontrolsQuery, MappedControlWhereInput } from '@repo/codegen/src/schema'
+import { GetSuggestedControlsOrSubcontrolsQuery, MappedControlWhereInput } from '@repo/codegen/src/schema'
 
 export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 type CustomEvidenceGroupedItems = {
@@ -12,6 +12,17 @@ export type FlattenedControl = {
   refCode: string
   referenceFramework: string | null
   source: string
+}
+
+type RelatedNode = {
+  type: 'Control' | 'Subcontrol'
+  id: string
+  refCode: string
+  referenceFramework: string | null
+  controlId?: string
+  mappingType?: string
+  relation?: string
+  source?: string
 }
 
 export type RefFrameworkGroup = Record<string, CustomEvidenceGroupedItems[]>
@@ -70,40 +81,95 @@ export const buildWhere = (evidenceControls: CustomEvidenceControl[] | null, evi
   return or.length > 0 ? { or } : null
 }
 
-export const flattenAndFilterControls = (mappedControls: GetSuggestedControlsOrSubcontrolsQuery | undefined, standards: GetAllStandardsQuery | undefined) => {
-  if (!mappedControls?.mappedControls?.edges || !standards?.standards?.edges) return []
+export const flattenAndFilterControls = (
+  mappedControls: GetSuggestedControlsOrSubcontrolsQuery | undefined,
+  evidenceControls: CustomEvidenceControl[] | null,
+  evidenceSubcontrols: CustomEvidenceControl[] | null,
+): RelatedNode[] => {
+  if (!mappedControls?.mappedControls?.edges) return []
 
-  const standardNames = new Set(standards.standards.edges.filter((s): s is NonNullable<typeof s> => !!s?.node).map((s) => s.node!.shortName))
+  const allowedControlRefCodes = new Set(evidenceControls?.map((ec) => ec.refCode).filter(Boolean) ?? [])
+  const allowedSubcontrolRefCodes = new Set(evidenceSubcontrols?.map((ec) => ec.refCode).filter(Boolean) ?? [])
 
-  const flattened = mappedControls.mappedControls.edges
-    .filter((edge): edge is NonNullable<typeof edge> => !!edge?.node)
-    .flatMap((edge) => {
-      const node = edge.node!
-      const base = { source: node.source }
+  const result: RelatedNode[] = []
 
-      const mapEdges = (connection: typeof node.fromControls | typeof node.toControls | typeof node.fromSubcontrols | typeof node.toSubcontrols) =>
-        connection?.edges
-          ?.filter((e): e is NonNullable<typeof e> => !!e?.node)
-          ?.map((e) => e.node!)
-          ?.filter((ctrl) => !ctrl.referenceFramework || standardNames.has(ctrl.referenceFramework))
-          ?.map((ctrl) => ({
-            id: ctrl.id,
-            displayID: ctrl.displayID,
-            refCode: ctrl.refCode,
-            referenceFramework: ctrl.referenceFramework,
-            typeName: ctrl.__typename,
-            ...base,
-          })) ?? []
+  mappedControls.mappedControls.edges.forEach((edge) => {
+    const node = edge?.node
+    if (!node) return
 
-      return [...mapEdges(node.fromControls), ...mapEdges(node.toControls), ...mapEdges(node.fromSubcontrols), ...mapEdges(node.toSubcontrols)]
-    })
+    const isFromControl = node.fromControls?.edges?.some((e) => e?.node && allowedControlRefCodes.has(e.node.refCode))
+    const isFromSub = node.fromSubcontrols?.edges?.some((e) => e?.node && allowedSubcontrolRefCodes.has(e.node.refCode))
+    const isToControl = node.toControls?.edges?.some((e) => e?.node && allowedControlRefCodes.has(e.node.refCode))
+    const isToSub = node.toSubcontrols?.edges?.some((e) => e?.node && allowedSubcontrolRefCodes.has(e.node.refCode))
 
-  const uniqueControlsMap = new Map<string, (typeof flattened)[number]>()
-  flattened.forEach((ctrl) => {
-    if (!uniqueControlsMap.has(ctrl.id)) {
-      uniqueControlsMap.set(ctrl.id, ctrl)
+    const oppositeNodes: RelatedNode[] = []
+
+    if (isFromControl || isFromSub) {
+      oppositeNodes.push(
+        ...(node.toControls?.edges
+          ?.map((e) =>
+            e?.node
+              ? {
+                  type: 'Control',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  mappingType: node.source,
+                  source: node.source,
+                }
+              : null,
+          )
+          .filter(Boolean) as RelatedNode[]),
+        ...(node.toSubcontrols?.edges
+          ?.map((e) =>
+            e?.node
+              ? {
+                  type: 'Subcontrol',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  mappingType: node.source,
+                  source: node.source,
+                }
+              : null,
+          )
+          .filter(Boolean) as RelatedNode[]),
+      )
+    } else if (isToControl || isToSub) {
+      oppositeNodes.push(
+        ...(node.fromControls?.edges
+          ?.map((e) =>
+            e?.node
+              ? {
+                  type: 'Control',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  mappingType: node.source,
+                  source: node.source,
+                }
+              : null,
+          )
+          .filter(Boolean) as RelatedNode[]),
+        ...(node.fromSubcontrols?.edges
+          ?.map((e) =>
+            e?.node
+              ? {
+                  type: 'Subcontrol',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  mappingType: node.source,
+                  source: node.source,
+                }
+              : null,
+          )
+          .filter(Boolean) as RelatedNode[]),
+      )
     }
+
+    result.push(...oppositeNodes)
   })
 
-  return Array.from(uniqueControlsMap.values())
+  return result
 }
