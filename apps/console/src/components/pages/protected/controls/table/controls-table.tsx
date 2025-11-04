@@ -87,7 +87,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       }
 
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ id: value as string }] } as ControlWhereInput
+        return { hasProgramsWith: [{ idIn: value }] } as ControlWhereInput
       }
 
       return { [key]: value } as ControlWhereInput

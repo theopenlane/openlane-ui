@@ -20,8 +20,8 @@ const AUTH_PROVIDER_LABELS: Partial<Record<UserAuthProvider, string>> = {
   [UserAuthProvider.CREDENTIALS]: 'Credentials',
   [UserAuthProvider.GITHUB]: 'GitHub',
   [UserAuthProvider.GOOGLE]: 'Google',
-  [UserAuthProvider.OIDC]: 'OIDC',
-  [UserAuthProvider.WEBAUTHN]: 'WEBAUTHN',
+  [UserAuthProvider.OIDC]: 'SSO',
+  [UserAuthProvider.WEBAUTHN]: 'Passkeys',
 }
 
 const INVITE_STATUS_LABELS: Partial<Record<InviteInviteStatus, string>> = {

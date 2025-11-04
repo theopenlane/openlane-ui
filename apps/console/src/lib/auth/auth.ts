@@ -113,7 +113,9 @@ export const config = {
           const result = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
 
           if (!result.success) {
-            return `/login?error=${encodeURIComponent(result.message)}`
+            console.error('login failed: ', result.message)
+
+            return `/login?error=${encodeURIComponent('login failed, please try again')}`
           }
 
           const apiData = result.data
