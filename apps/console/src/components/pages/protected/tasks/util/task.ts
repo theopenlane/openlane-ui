@@ -140,3 +140,8 @@ export const TaskStatusMapper: Record<TaskTaskStatus, string> = {
   [TaskTaskStatus.OPEN]: 'Open',
   [TaskTaskStatus.WONT_DO]: "Won't do",
 }
+
+export const TaskStatusWithoutCompletedAndOpen = Object.fromEntries(Object.entries(TaskTaskStatus).filter(([key]) => key !== 'COMPLETED' && key !== 'OPEN')) as Omit<
+  typeof TaskTaskStatus,
+  'COMPLETED' | 'OPEN'
+>

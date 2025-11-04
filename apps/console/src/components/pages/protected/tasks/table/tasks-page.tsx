@@ -25,7 +25,6 @@ const TasksPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
-  const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -63,8 +62,7 @@ const TasksPage: React.FC = () => {
 
     const base = {
       titleContainsFold: debouncedSearch,
-      ...(showMyTasks && { assigneeID: session?.user?.userId }),
-      ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
+      statusIn: statusesWithoutComplete,
     }
 
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
@@ -75,7 +73,7 @@ const TasksPage: React.FC = () => {
     })
 
     return { ...base, ...result }
-  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch, session, showMyTasks])
+  }, [filters, debouncedSearch, statusesWithoutComplete])
 
   useEffect(() => {
     setCrumbs([
@@ -114,24 +112,6 @@ const TasksPage: React.FC = () => {
 
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
-  }
-
-  const handleShowCompletedTasks = (val: boolean) => {
-    setShowCompletedTasks(val)
-  }
-
-  const handleShowMyTasks = (val: boolean) => {
-    setShowMyTasks(val)
-
-    const params = new URLSearchParams(searchParams.toString())
-
-    if (val) {
-      params.set('showMyTasks', 'true')
-    } else {
-      params.delete('showMyTasks')
-    }
-
-    router.replace(`?${params.toString()}`, { scroll: false })
   }
 
   const emptyUserMap = {}
@@ -173,7 +153,6 @@ const TasksPage: React.FC = () => {
         onFilterChange={setFilters}
         onTabChange={handleTabChange}
         handleBulkEdit={handleBulkEdit}
-        onShowCompletedTasksChange={handleShowCompletedTasks}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
@@ -190,7 +169,6 @@ const TasksPage: React.FC = () => {
         selectedTasks={selectedTasks}
         setSelectedTasks={setSelectedTasks}
         showMyTasks={showMyTasks}
-        onShowMyTasksChange={handleShowMyTasks}
       />
       {activeTab === 'table' ? (
         <TasksTable
