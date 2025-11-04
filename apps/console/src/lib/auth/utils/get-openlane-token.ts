@@ -19,7 +19,7 @@ export interface WebfingerConfig {
 
 export const checkWebfinger = async (email: string): Promise<WebfingerConfig | null> => {
   try {
-    const webfingerResponse = await secureFetch(`${openlaneAPIUrl}/.well-known/webfinger?resource=acct:${email}`)
+    const webfingerResponse = await secureFetch(`${openlaneAPIUrl}/.well-known/webfinger?resource=acct:${encodeURIComponent(email as string)}`)
     const ssoConfig = await webfingerResponse.json()
 
     if (ssoConfig.success && ssoConfig.enforced && ssoConfig.provider !== 'NONE' && ssoConfig.organization_id) {

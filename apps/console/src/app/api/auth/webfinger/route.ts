@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const email = searchParams.get('email')
 
-  const fData = await secureFetch(`${process.env.API_REST_URL}/.well-known/webfinger?resource=acct:${email}`, {
+  const fData = await secureFetch(`${process.env.API_REST_URL}/.well-known/webfinger?resource=acct:${encodeURIComponent(email as string)}`, {
     method: 'GET',
   })
 
