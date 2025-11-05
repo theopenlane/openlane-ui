@@ -10,7 +10,7 @@ import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -29,7 +29,6 @@ const TasksPage: React.FC = () => {
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const searchParams = useSearchParams()
-  const router = useRouter()
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)

@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { FilterField, WhereCondition, Condition } from '@/types'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { FilterField, WhereCondition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
-import { format, startOfDay, addDays, isSameDay, isValid } from 'date-fns'
+import { format } from 'date-fns'
 import { Input } from '@repo/ui/input'
 import { Switch } from '@repo/ui/switch'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -13,16 +13,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
-import type { DateRange } from 'react-day-picker'
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
-
-type TQuickFilter = {
-  label: string
-  key: string
-  getCondition?: () => TFilterState
-  isActive: boolean
-}
+import { applyQuickFiltersToState, getActiveFilterCount, getWhereCondition, TQuickFilter, updateQuickFilterState } from '@/components/shared/table-filter/table-filter-helper.ts'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -31,105 +24,14 @@ type TTableFilterProps = {
   quickFilters?: TQuickFilter[]
 }
 
-const handleDateEQOperator = (value: Date | string, field: string) => {
-  const date = value instanceof Date ? value : new Date(value)
-  if (!isValid(date)) {
-    console.warn(`Invalid date for field "${field}":`, value)
-    return []
-  }
-
-  const start = format(startOfDay(date), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-  const end = format(startOfDay(addDays(date, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-  return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
-}
-
-const handleDateRangeOperator = (range: DateRange, field: string): Condition[] => {
-  const conditions: Condition[] = []
-
-  if (!range.from && !range.to) return conditions
-
-  if (!range.from && range.to) {
-    const end = format(startOfDay(addDays(range.to, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    conditions.push({ [`${field}LT`]: end })
-    return conditions
-  }
-
-  if (range.from && !range.to) {
-    const start = format(startOfDay(range.from), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    conditions.push({ [`${field}GTE`]: start })
-    return conditions
-  }
-
-  if (range.from && range.to) {
-    const startDate = range.from < range.to ? range.from : range.to
-    const endDate = range.from < range.to ? range.to : range.from
-    if (isSameDay(range.from, range.to)) {
-      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-      const end = format(startOfDay(addDays(startDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
-    } else {
-      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-      const end = format(startOfDay(addDays(endDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
-    }
-  }
-  return conditions
-}
-
 const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageKey, onFilterChange, quickFilters = [] }) => {
   const [values, setValues] = useState<TFilterState>({})
   const [open, setOpen] = useState(false)
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
+  const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters), [values, activeQuickFilters])
 
-  const buildWhereCondition = useCallback((vals: TFilterState, fields: FilterField[]): WhereCondition => {
-    const andConditions: WhereCondition[] = []
-
-    for (const field of fields) {
-      const key = field.key
-      const val = vals[field.key]
-      if (val === undefined || val === null || (typeof val === 'string' && val.trim() === '') || (Array.isArray(val) && val.length === 0)) {
-        continue
-      }
-
-      switch (field.type) {
-        case 'text':
-          andConditions.push({ [key]: val as string })
-          break
-        case 'multiselect': {
-          const valuesArray = Array.isArray(val) ? val : [val]
-          if (valuesArray.length === 0) break
-          andConditions.push({ [key]: valuesArray } as Condition)
-          break
-        }
-
-        case 'select': {
-          andConditions.push({ [key]: val as string })
-          break
-        }
-
-        case 'boolean':
-          andConditions.push({ [key]: val as boolean } as Condition)
-          break
-
-        case 'date': {
-          const dateVal = val instanceof Date ? val : new Date(val as string)
-          andConditions.push(...handleDateEQOperator(dateVal, key))
-          break
-        }
-        case 'dateRange': {
-          const rangeVal = val as DateRange | undefined
-
-          if (rangeVal?.from || rangeVal?.to) {
-            andConditions.push(...handleDateRangeOperator(rangeVal, key))
-          }
-          break
-        }
-        case 'sliderNumber':
-          andConditions.push({ [field.key]: val as number })
-          break
-      }
-    }
-    return andConditions.length === 0 ? {} : { and: andConditions }
+  const buildWhereCondition = useCallback((filterState: TFilterState, filterFields: FilterField[]): WhereCondition => {
+    return getWhereCondition(filterState, filterFields)
   }, [])
 
   useEffect(() => {
@@ -138,32 +40,18 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     if (saved) {
       setValues(saved)
       onFilterChange?.(buildWhereCondition(saved, filterFields))
-
-      setActiveQuickFilters((prev) =>
-        prev.map((qf) => ({
-          ...qf,
-          isActive: Object.prototype.hasOwnProperty.call(saved, qf.key) || qf.isActive,
-        })),
-      )
+      setActiveQuickFilters((prev) => updateQuickFilterState(prev, saved))
     } else {
       onFilterChange?.({})
     }
 
     const listener = (e: CustomEvent) => {
       const updated = e.detail as TFilterState
-
       const validKeys = filterFields.map((f) => f.key)
       const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => validKeys.includes(key)))
-
       setValues(cleaned)
       onFilterChange?.(buildWhereCondition(cleaned, filterFields))
-
-      setActiveQuickFilters((prev) =>
-        prev.map((qf) => ({
-          ...qf,
-          isActive: Object.prototype.hasOwnProperty.call(cleaned, qf.key) || qf.isActive,
-        })),
-      )
+      setActiveQuickFilters((prev) => updateQuickFilterState(prev, cleaned))
     }
 
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
@@ -171,7 +59,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [pageKey, filterFields, onFilterChange, buildWhereCondition])
 
   const toggleQuickFilter = useCallback((qf: TQuickFilter) => {
-    setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key ? { ...item, isActive: !item.isActive } : item)))
+    setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key && item.label === qf.label ? { ...item, isActive: !item.isActive } : item)))
   }, [])
 
   const handleChange = useCallback((key: string, value: TFilterValue) => {
@@ -179,22 +67,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [])
 
   const applyFilters = useCallback(() => {
-    const newValues = { ...values }
-
-    activeQuickFilters.forEach((qf) => {
-      if (qf.isActive) {
-        const condition = qf.getCondition ? qf.getCondition() : { [qf.key]: true }
-
-        Object.entries(condition).forEach(([key, value]) => {
-          newValues[key] = value
-        })
-      } else {
-        if (!Object.prototype.hasOwnProperty.call(values, qf.key)) {
-          delete newValues[qf.key]
-        }
-      }
-    })
-
+    const newValues = applyQuickFiltersToState(values, activeQuickFilters)
     setValues(newValues)
     saveFilters(pageKey, newValues)
     onFilterChange?.(buildWhereCondition(newValues, filterFields))
@@ -208,6 +81,15 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     onFilterChange?.({})
     setOpen(false)
   }, [pageKey, onFilterChange])
+
+  const activeFilterKeys = filterFields
+    .map((field) => field.key)
+    .filter((key) => {
+      const v = values[key]
+      if (v === undefined || v === null || v === '') return false
+      if (Array.isArray(v)) return v.length > 0
+      return true
+    })
 
   const renderField = useCallback(
     (field: FilterField) => {
@@ -327,21 +209,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     [values, handleChange],
   )
 
-  const activeFilterCount = Object.values(values).filter((v) => {
-    if (v === undefined || v === null || v === '') return false
-    if (Array.isArray(v)) return v.length > 0
-    return true
-  }).length
-
-  const activeFilterKeys = filterFields
-    .map((field) => field.key)
-    .filter((key) => {
-      const v = values[key]
-      if (v === undefined || v === null || v === '') return false
-      if (Array.isArray(v)) return v.length > 0
-      return true
-    })
-
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -359,7 +226,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             <p className="text-base p-4 pb-0">Quick Filters</p>
             <div className="flex flex-wrap gap-2 p-4 pb-0">
               {activeQuickFilters.map((qf) => (
-                <Button key={qf.key} size="sm" variant={qf.isActive ? 'primary' : 'secondary'} onClick={() => toggleQuickFilter(qf)}>
+                <Button key={`${qf.key}-${qf.label}`} size="sm" className={`${qf.isActive ? 'is-active' : ''}`} variant="tag" onClick={() => toggleQuickFilter(qf)}>
                   {qf.label}
                 </Button>
               ))}
