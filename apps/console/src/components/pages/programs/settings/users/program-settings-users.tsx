@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
@@ -22,6 +22,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 type MemberRow = {
   id: string
@@ -58,7 +59,7 @@ export const ProgramSettingsUsers = () => {
     where,
     enabled: !!id,
   })
-  const { data: basicInfoData } = useGetProgramBasicInfo(id)
+  const { data: basicInfoData, isLoading: programLoading } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgramMembership } = useUpdateProgramMembership()
 
   const handleRemove = async () => {
@@ -188,6 +189,17 @@ export const ProgramSettingsUsers = () => {
       },
     },
   ]
+
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: basicInfoData?.program?.name, isLoading: programLoading, href: `/programs/${id}` },
+      { label: 'Settings', href: `/programs/${id}/settings` },
+    ])
+  }, [setCrumbs, basicInfoData, programLoading, id])
 
   return (
     <>

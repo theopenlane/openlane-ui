@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/programs'
 import { Users, Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -28,12 +28,14 @@ import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
   const { data: permission, isSuccess } = useOrganizationRoles()
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const where: ProgramWhereInput = filterStatus === 'ACTIVE' ? { statusNEQ: ProgramProgramStatus.ARCHIVED } : { status: ProgramProgramStatus.ARCHIVED }
 
@@ -97,6 +99,13 @@ const ProgramsDashboardPage = () => {
 
     return () => {}
   }, [allKeys])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+    ])
+  }, [setCrumbs])
 
   return (
     <div className="p-6 space-y-6">
