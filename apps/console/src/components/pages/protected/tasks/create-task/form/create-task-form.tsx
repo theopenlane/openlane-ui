@@ -17,7 +17,7 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
+import { dialogStyles } from '@/components/pages/protected/programs/dialog.styles'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'

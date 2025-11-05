@@ -6,7 +6,7 @@ import { formatDate } from '@/utils/date'
 import { differenceInCalendarDays } from 'date-fns'
 import { Card } from '@repo/ui/cardpanel'
 import { Pencil } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { useForm, Controller, useFormContext, FormProvider } from 'react-hook-form'
@@ -30,13 +30,12 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 const TimelineReadiness = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+  const { id } = useParams<{ id: string }>()
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
-  const { data } = useGetProgramBasicInfo(programId)
+  const { data } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
   const program = data?.program
 
@@ -56,7 +55,7 @@ const TimelineReadiness = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       await updateProgram({
-        updateProgramId: programId!,
+        updateProgramId: id,
         input: {
           ...values,
           startDate: values.startDate ?? undefined,
@@ -69,7 +68,7 @@ const TimelineReadiness = () => {
         description: 'Timeline and status saved successfully.',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['programs', programId] })
+      queryClient.invalidateQueries({ queryKey: ['programs', id] })
 
       setIsEditing(false)
     } catch (error) {

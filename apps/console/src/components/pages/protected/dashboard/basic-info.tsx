@@ -2,7 +2,7 @@
 
 import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { Card } from '@repo/ui/cardpanel'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, Controller, FormProvider } from 'react-hook-form'
 import { z } from 'zod'
@@ -28,10 +28,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 const BasicInformation = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
-
-  const { data } = useGetProgramBasicInfo(programId)
+  const { id } = useParams<{ id: string }>()
+  const { data } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
   const program = data?.program
 
@@ -89,7 +87,7 @@ const BasicInformation = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       await updateProgram({
-        updateProgramId: programId!,
+        updateProgramId: id,
         input: {
           name: values.name,
           description: values.description ?? null,
@@ -102,7 +100,7 @@ const BasicInformation = () => {
         description: 'Basic information updated successfully.',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['programs', programId] })
+      queryClient.invalidateQueries({ queryKey: ['programs', id] })
       setIsEditing(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

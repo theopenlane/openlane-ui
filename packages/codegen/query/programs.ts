@@ -369,3 +369,40 @@ export const GET_GLOBAL_EVIDENCE_STATS = gql`
     }
   }
 `
+
+export const GET_PROGRAM_DASHBOARD = gql`
+  query GetProgramDashboard($where: ProgramWhereInput) {
+    programs(where: $where) {
+      edges {
+        node {
+          id
+          name
+          frameworkName
+          status
+          endDate
+          createdBy
+          evidence {
+            edges {
+              node {
+                id
+                status
+              }
+            }
+            totalCount
+          }
+          tasks {
+            edges {
+              node {
+                id
+                status
+              }
+            }
+          }
+          controls {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+`

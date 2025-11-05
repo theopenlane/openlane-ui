@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ArrowDownRight, ArrowUpRight, Hourglass, Minus } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/programs'
 import { useSubmittedEvidenceTrend, useAcceptedEvidenceTrend, useRejectedEvidenceTrend } from '@/lib/graphql-hooks/evidence'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -125,17 +125,16 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
 }
 
 const StatsCards: React.FC = () => {
-  const searchParams = useSearchParams()
   const path = usePathname()
-  const programId = searchParams.get('id') as string
+  const { id } = useParams<{ id: string }>()
 
-  const programStats = useProgramEvidenceStats(programId)
+  const programStats = useProgramEvidenceStats(id)
   const globalStats = useGlobalEvidenceStats({ enabled: !path.startsWith('/programs') })
-  const submittedTrend = useSubmittedEvidenceTrend(programId)
-  const acceptedTrend = useAcceptedEvidenceTrend(programId)
-  const rejectedTrend = useRejectedEvidenceTrend(programId)
+  const submittedTrend = useSubmittedEvidenceTrend(id)
+  const acceptedTrend = useAcceptedEvidenceTrend(id)
+  const rejectedTrend = useRejectedEvidenceTrend(id)
 
-  const data = (programId ? programStats.data : globalStats.data) as { total: number; submitted: number; accepted: number; rejected: number } | undefined
+  const data = (id ? programStats.data : globalStats.data) as { total: number; submitted: number; accepted: number; rejected: number } | undefined
 
   const total = data?.total ?? 0
 
@@ -192,7 +191,7 @@ const StatsCards: React.FC = () => {
     <TooltipProvider>
       <div className="flex gap-8 justify-center">
         {dynamicStats.map((stat, index) => {
-          return <StatCard programId={programId} key={index} stat={stat} hasData={total > 0} tooltip={stat.tooltip} />
+          return <StatCard programId={id} key={index} stat={stat} hasData={total > 0} tooltip={stat.tooltip} />
         })}
       </div>
     </TooltipProvider>

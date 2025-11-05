@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
@@ -27,12 +26,9 @@ type UserRow = {
   user: User
 }
 const defaultPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
-export const ProgramSettingsAssignUserDialog = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: React.ReactNode; id: string }) => {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-
   const [selectedUsers, setSelectedUsers] = useState<UserRow[]>([])
   const [rows, setRows] = useState<UserRow[]>([])
   const [pagination, setPagination] = useState<TPagination>(defaultPagination)
@@ -52,7 +48,7 @@ export const ProgramSettingsAssignUserDialog = () => {
         not: {
           hasProgramMembershipsWith: [
             {
-              programID: programId,
+              programID: id,
             },
           ],
         },
@@ -60,7 +56,7 @@ export const ProgramSettingsAssignUserDialog = () => {
     ],
   }
 
-  const { data, isLoading, isFetching } = useGetOrgMemberships({ where, pagination, enabled: !!programId })
+  const { data, isLoading, isFetching } = useGetOrgMemberships({ where, pagination, enabled: !!id && open })
 
   useEffect(() => {
     if (data?.orgMemberships) {
@@ -127,14 +123,6 @@ export const ProgramSettingsAssignUserDialog = () => {
   ]
 
   const handleAssign = async () => {
-    if (!programId) {
-      errorNotification({
-        title: 'Missing Program ID',
-        description: 'Cannot assign users without a valid program ID.',
-      })
-      return
-    }
-
     const addProgramMembers = selectedUsers.map((user) => ({
       userID: user.user.id,
       role: user.role === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
@@ -142,7 +130,7 @@ export const ProgramSettingsAssignUserDialog = () => {
 
     try {
       await updateProgram({
-        updateProgramId: programId,
+        updateProgramId: id,
         input: {
           addProgramMembers,
         },
@@ -176,7 +164,11 @@ export const ProgramSettingsAssignUserDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Assign</Button>
+        {trigger ?? (
+          <Button className="h-8 !px-2" variant="secondary">
+            Assign
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
