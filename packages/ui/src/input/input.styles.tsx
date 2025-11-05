@@ -36,7 +36,7 @@ export const inputStyles = tv({
         input: 'bg-white text-text-dark',
       },
       searchTable: {
-        input: 'border !border-border h-[34px]',
+        input: 'border !border-border h-[34px] bg-transparent',
       },
     },
   },
