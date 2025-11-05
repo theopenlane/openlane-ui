@@ -6,9 +6,13 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { UseFormReturn } from 'react-hook-form'
 import { TriangleAlert } from 'lucide-react'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
-import AddToOrganizationDialog from '@/components/pages/protected/standards/add-to-organization-dialog'
 import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useCloneControls } from '@/lib/graphql-hooks/standards'
+import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TObjectAssociationControlsChipsProps = {
   form: UseFormReturn<CreateEvidenceFormData>
@@ -26,10 +30,18 @@ enum ItemType {
 
 const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }: TObjectAssociationControlsChipsProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [standardName, setStandardName] = useState<string | null>(null)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string; typeName: ItemType }[]>([])
+  const [pendingAdd, setPendingAdd] = useState<{
+    id: string
+    isSubcontrol: boolean
+    refCode: string
+    referenceFramework: string | null
+  } | null>(null)
   const [controlRefCodes, setControlRefCodes] = useState<string[]>([])
   const [subcontrolRefCodes, setSubcontrolRefCodes] = useState<string[]>([])
+  const { mutateAsync: cloneControls } = useCloneControls()
+  const { successNotification, errorNotification } = useNotification()
+  const queryClient = useQueryClient()
 
   const { data: refcodeData } = useGetControlsByRefCode({
     refCodeIn: controlRefCodes,
@@ -59,20 +71,77 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
     }
   }
 
+  const addEvidenceControl = (id: string, isSubcontrol: boolean, refCode: string, referenceFramework: string | null) => {
+    if (isSubcontrol) {
+      setEvidenceSubcontrols((prev) => {
+        const updatedSubcontrols = [...(prev ?? []), { __typename: ItemType.Subcontrol, id, referenceFramework, refCode }]
+        const currentIds = form.getValues('subcontrolIDs') ?? []
+        const updatedIds = currentIds.includes(id) ? currentIds : [...currentIds, id]
+        form.setValue('subcontrolIDs', updatedIds, { shouldValidate: true, shouldDirty: true })
+        return updatedSubcontrols
+      })
+    } else {
+      setEvidenceControls((prev) => {
+        const updatedControls = [...(prev ?? []), { __typename: ItemType.Control, id, referenceFramework, refCode }]
+        const currentIds = form.getValues('controlIDs') ?? []
+        const updatedIds = currentIds.includes(id) ? currentIds : [...currentIds, id]
+        form.setValue('controlIDs', updatedIds, { shouldValidate: true, shouldDirty: true })
+        return updatedControls
+      })
+    }
+  }
+
   const handleAdd = (id: string, isSubcontrol = false, refCode: string, source: string, referenceFramework: string | null) => {
     const newRefCodes = [refCode]
+
     if (source === 'SUGGESTED') {
-      setStandardName(referenceFramework)
-      setSelectedControls([{ id, refCode, typeName: isSubcontrol ? ItemType.Subcontrol : ItemType.Control }])
+      const typeName = isSubcontrol ? ItemType.Subcontrol : ItemType.Control
+      setSelectedControls([{ id, refCode, typeName }])
+      setPendingAdd({ id, isSubcontrol, refCode, referenceFramework })
+
       if (isSubcontrol) {
         setSubcontrolRefCodes(newRefCodes)
-        console.log('subcontrolExists', subcontrolExists)
       } else {
         setControlRefCodes(newRefCodes)
-        console.log('controlExists', controlExists)
       }
-      //if non existent, call dialog and add it
-    } else console.log('Adding not suggested item...', { id, isSubcontrol, refCode, source, referenceFramework })
+
+      if ((isSubcontrol && !subcontrolExists) || (!isSubcontrol && !controlExists)) {
+        setIsDialogOpen(false)
+        requestAnimationFrame(() => setIsDialogOpen(true))
+        return
+      }
+    }
+    addEvidenceControl(id, isSubcontrol, refCode, referenceFramework)
+  }
+
+  const handleConfirmAdd = async () => {
+    if (!pendingAdd) return
+
+    const { id, isSubcontrol, refCode, referenceFramework } = pendingAdd
+
+    try {
+      await cloneControls({
+        input: {
+          programID: undefined,
+          controlIDs: [id],
+        },
+      })
+
+      addEvidenceControl(id, isSubcontrol, refCode, referenceFramework)
+
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
+
+      successNotification({ title: 'Controls added to organization successfully!' })
+      setIsDialogOpen(false)
+      setPendingAdd(null) // clear pending
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
   }
 
   return (
@@ -138,7 +207,19 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
             />
           ))}
       </div>
-      <AddToOrganizationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} selectedControls={selectedControls.length > 0 ? selectedControls : []} standardName={standardName ?? undefined} />
+      <ConfirmationDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onConfirm={handleConfirmAdd}
+        title={`Clone ${selectedControls[0]?.refCode}?`}
+        description={
+          <>
+            This {selectedControls[0]?.typeName === ItemType.Control ? 'Control' : 'Subcontrol'} (<b>{selectedControls[0]?.refCode}</b>) is not in your organization, would you like to add it now?
+          </>
+        }
+        confirmationText="Remove"
+        confirmationTextVariant="destructive"
+      />
     </div>
   )
 }
