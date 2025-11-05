@@ -83,10 +83,6 @@ const ProgramDetailsPage: React.FC = () => {
     }
   }, [id, data?.programs?.edges, router, isError])
 
-  // const handleSelectChange = (val: string) => {
-  //   router.push(`/programs?id=${val}`)
-  // }
-
   if (isBasicInfoLoading || isLoading) {
     return <Loading />
   }
