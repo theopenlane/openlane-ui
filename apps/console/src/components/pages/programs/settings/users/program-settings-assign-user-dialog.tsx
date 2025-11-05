@@ -180,14 +180,15 @@ export const ProgramSettingsAssignUserDialog = () => {
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
-        <h2 className="text-2xl font-semibold mb-4">Assign User</h2>
+        <h2 className="text-2xl font-semibold mb-1">Assign User</h2>
+
         <div className="space-y-4">
-          <div className="flex justify-between">
+          <div className="flex flex-col justify-between">
+            <p className="text-sm mb-4 text-muted-foreground">Select one or more users to assign to this program.</p>
             <div>
               <Label>Search</Label>
               <Input onChange={handleSearchChange} value={searchValue} placeholder="Search users ..." className="h-10 w-[200px]" />
             </div>
-            <p className="text-sm text-muted-foreground self-end">Select one or more users to assign to this program.</p>
           </div>
 
           <DataTable
