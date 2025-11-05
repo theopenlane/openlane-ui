@@ -18,6 +18,8 @@ import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TAccessRole, TData } from '@/types/authz'
 import { useSession } from 'next-auth/react'
+import { format, startOfDay } from 'date-fns'
+import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -48,26 +50,39 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
-  const quickFilters = useMemo(() => {
+  const quickFilters: TQuickFilter[] = useMemo(() => {
     return [
       {
         label: 'Completed',
         key: 'statusIn',
+        type: 'custom',
         getCondition: () => ({ statusIn: [TaskTaskStatus.COMPLETED] }),
         isActive: false,
       },
       {
         label: 'Open',
         key: 'statusIn',
+        type: 'custom',
         getCondition: () => ({ statusIn: [TaskTaskStatus.OPEN] }),
         isActive: false,
       },
       {
         label: 'My Tasks',
         key: 'assigneeID',
+        type: 'custom',
         getCondition: () => ({ assigneeID: session?.user?.userId }),
         isActive: false,
       },
+      {
+        label: 'Overdue',
+        key: 'dueGTE',
+        type: 'custom',
+        getCondition: () => ({ dueGTE: format(startOfDay(new Date()), "yyyy-MM-dd'T'HH:mm:ss'Z'") }),
+        isActive: false,
+      },
+      //Overdue
+      // Due this week
+      // Unassigned
     ]
   }, [session?.user?.userId])
 

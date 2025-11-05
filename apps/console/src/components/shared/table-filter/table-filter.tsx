@@ -30,16 +30,16 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
   const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters), [values, activeQuickFilters])
 
-  const buildWhereCondition = useCallback((filterState: TFilterState, filterFields: FilterField[]): WhereCondition => {
-    return getWhereCondition(filterState, filterFields)
+  const buildWhereCondition = useCallback((filterState: TFilterState, filterFields: FilterField[], quickFilters: TQuickFilter[]): WhereCondition => {
+    return getWhereCondition(filterState, filterFields, quickFilters)
   }, [])
 
   useEffect(() => {
-    const saved = loadFilters(pageKey, filterFields)
+    const saved = loadFilters(pageKey, filterFields, quickFilters)
 
     if (saved) {
       setValues(saved)
-      onFilterChange?.(buildWhereCondition(saved, filterFields))
+      onFilterChange?.(buildWhereCondition(saved, filterFields, quickFilters))
       setActiveQuickFilters((prev) => updateQuickFilterState(prev, saved))
     } else {
       onFilterChange?.({})
@@ -48,15 +48,17 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     const listener = (e: CustomEvent) => {
       const updated = e.detail as TFilterState
       const validKeys = filterFields.map((f) => f.key)
-      const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => validKeys.includes(key)))
+      const validQuickFilterKeys = quickFilters.map((f) => f.key)
+      const mergedValidKeys = [...validKeys, ...validQuickFilterKeys]
+      const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => mergedValidKeys.includes(key)))
       setValues(cleaned)
-      onFilterChange?.(buildWhereCondition(cleaned, filterFields))
+      onFilterChange?.(buildWhereCondition(cleaned, filterFields, quickFilters))
       setActiveQuickFilters((prev) => updateQuickFilterState(prev, cleaned))
     }
 
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
     return () => window.removeEventListener(`filters-updated:${pageKey}`, listener as EventListener)
-  }, [pageKey, filterFields, onFilterChange, buildWhereCondition])
+  }, [pageKey, filterFields, onFilterChange, buildWhereCondition, quickFilters])
 
   const toggleQuickFilter = useCallback((qf: TQuickFilter) => {
     setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key && item.label === qf.label ? { ...item, isActive: !item.isActive } : item)))
@@ -70,9 +72,9 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     const newValues = applyQuickFiltersToState(values, activeQuickFilters)
     setValues(newValues)
     saveFilters(pageKey, newValues)
-    onFilterChange?.(buildWhereCondition(newValues, filterFields))
+    onFilterChange?.(buildWhereCondition(newValues, filterFields, quickFilters))
     setOpen(false)
-  }, [values, activeQuickFilters, pageKey, onFilterChange, buildWhereCondition, filterFields])
+  }, [values, activeQuickFilters, pageKey, onFilterChange, buildWhereCondition, filterFields, quickFilters])
 
   const resetFilters = useCallback(() => {
     setValues({})
@@ -231,12 +233,12 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 </Button>
               ))}
             </div>
-            <Hr />
+            <Hr className="mt-2" />
           </>
         )}
 
-        <p className="text-muted-foreground text-xs p-4 pb-0"> FILTER BY</p>
-        <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pb-0">
+        <p className="text-muted-foreground text-xs p-4 pt-2 pb-0">FILTER BY</p>
+        <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pt-2 pb-0">
           {filterFields.map((field) => (
             <AccordionItem key={field.key} value={field.key}>
               <AccordionTrigger asChild>

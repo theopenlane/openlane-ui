@@ -2,6 +2,7 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { FilterField } from '@/types'
 import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
+import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 
 export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | undefined
 export type TFilterState = Record<string, TFilterValue>
@@ -15,7 +16,7 @@ export function saveFilters(pageKey: TableFilterKeysEnum, state: TFilterState): 
   window.dispatchEvent(new CustomEvent(`filters-updated:${pageKey}`, { detail: state }))
 }
 
-export function loadFilters(pageKey: TableFilterKeysEnum, filterFields?: FilterField[]): TFilterState | null {
+export function loadFilters(pageKey: TableFilterKeysEnum, filterFields?: FilterField[], quickFilters: TQuickFilter[] = []): TFilterState | null {
   const saved = localStorage.getItem(storageKey(pageKey))
   if (!saved) return null
 
@@ -32,12 +33,13 @@ export function loadFilters(pageKey: TableFilterKeysEnum, filterFields?: FilterF
     }
 
     const validKeys = filterFields.map((f) => f.key)
+    const validQuickFilterKeys = quickFilters.map((f) => f.key)
+    const mergedValidKeys = [...validKeys, ...validQuickFilterKeys]
+    const filtered = Object.fromEntries(Object.entries(parsed).filter(([key]) => mergedValidKeys.includes(key))) as TFilterState
+    const quickFiltersValidated = validateQuickFilterValues(filtered, quickFilters)
+    const filtersValidated = validateValues(filtered, filterFields)
 
-    const filtered = Object.fromEntries(Object.entries(parsed).filter(([key]) => validKeys.includes(key))) as TFilterState
-
-    const validated = validateValues(filtered, filterFields)
-
-    return validated
+    return { ...quickFiltersValidated, ...filtersValidated }
   } catch {
     console.warn(`Invalid filters found in storage for ${pageKey}`)
     return null
@@ -46,6 +48,32 @@ export function loadFilters(pageKey: TableFilterKeysEnum, filterFields?: FilterF
 
 export function clearFilters(pageKey: TableFilterKeysEnum): void {
   localStorage.removeItem(storageKey(pageKey))
+}
+
+const validateQuickFilterValues = (values: TFilterState, quickFilters: TQuickFilter[]): TFilterState => {
+  const result: TFilterState = {}
+
+  for (const [key, value] of Object.entries(values)) {
+    const field = quickFilters.find((f) => f.key === key)
+    if (!field) continue
+
+    switch (field.type) {
+      case 'boolean':
+        if (typeof value === 'boolean') {
+          result[key] = value
+        }
+        break
+
+      case 'custom':
+        result[key] = value
+        break
+
+      default:
+        break
+    }
+  }
+
+  return result
 }
 
 const validateValues = (values: TFilterState, filterFields: FilterField[]): TFilterState => {

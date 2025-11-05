@@ -8,6 +8,7 @@ export type TQuickFilter = {
   key: string
   getCondition?: () => TFilterState
   isActive: boolean
+  type: 'custom' | 'boolean'
 }
 
 export const mergeQuickFilterConditions = (quickFilters: TQuickFilter[]): Record<string, TFilterValue> => {
@@ -51,27 +52,13 @@ export const applyQuickFiltersToState = (baseValues: TFilterState, quickFilters:
   return newValues
 }
 
-export const isQuickFilterActive = (savedVal: TFilterValue, expectedVal: TFilterValue): boolean => {
-  if (Array.isArray(savedVal) && Array.isArray(expectedVal)) {
-    return expectedVal.every((v) => savedVal.includes(v as never))
-  } else if (Array.isArray(savedVal) && expectedVal !== undefined) {
-    return savedVal.includes(expectedVal as never)
-  } else if (Array.isArray(expectedVal) && savedVal !== undefined) {
-    return expectedVal.includes(savedVal as never)
-  }
-  return savedVal === expectedVal
-}
-
 export const updateQuickFilterState = (quickFilters: TQuickFilter[], savedState?: TFilterState | null): TQuickFilter[] => {
   if (!savedState) return quickFilters.map((qf) => ({ ...qf, isActive: false }))
 
-  return quickFilters.map((qf) => {
-    const condition = qf.getCondition ? qf.getCondition() : { [qf.key]: true }
-    const savedVal = savedState[qf.key]
-    const expectedVal = condition[qf.key]
-    const isActive = isQuickFilterActive(savedVal, expectedVal)
-    return { ...qf, isActive }
-  })
+  return quickFilters.map((qf) => ({
+    ...qf,
+    isActive: qf.key in savedState,
+  }))
 }
 
 export const handleDateEQOperator = (value: Date | string, field: string) => {
@@ -119,7 +106,7 @@ export const handleDateRangeOperator = (range: DateRange, field: string): Condit
   return conditions
 }
 
-export const getWhereCondition = (filterState: TFilterState, filterFields: FilterField[]): WhereCondition => {
+export const getWhereCondition = (filterState: TFilterState, filterFields: FilterField[], quickFilters: TQuickFilter[]): WhereCondition => {
   const andConditions: WhereCondition[] = []
 
   for (const field of filterFields) {
@@ -167,6 +154,33 @@ export const getWhereCondition = (filterState: TFilterState, filterFields: Filte
         break
     }
   }
+
+  for (const field of quickFilters) {
+    const key = field.key
+    const val = filterState[field.key]
+
+    // skip if value is empty
+    if (val === undefined || val === null || (typeof val === 'string' && val.trim() === '') || (Array.isArray(val) && val.length === 0)) {
+      continue
+    }
+
+    // skip if key already exists in andConditions
+    const exists = andConditions.some((cond) => key in cond)
+    if (exists) continue
+
+    switch (field.type) {
+      case 'boolean':
+        andConditions.push({ [key]: val as boolean } as Condition)
+        break
+      case 'custom':
+        andConditions.push({ [key]: val } as Condition)
+        break
+      default:
+        andConditions.push({ [key]: val } as Condition)
+        break
+    }
+  }
+
   return andConditions.length === 0 ? {} : { and: andConditions }
 }
 
@@ -175,7 +189,7 @@ export const getActiveFilterCount = (values: TFilterState, quickFilters: TQuickF
   const quickKeys = new Set(activeQuick.map((qf) => qf.key))
 
   const manualCount = Object.entries(values).reduce((count, [key, v]) => {
-    if (quickKeys.has(key)) return count // skip if handled by quick filter
+    if (quickKeys.has(key)) return count
     if (v === undefined || v === null || v === '') return count
     if (Array.isArray(v)) return count + (v.length > 0 ? 1 : 0)
     return count + 1
