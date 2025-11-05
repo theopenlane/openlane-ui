@@ -170,7 +170,7 @@ export const ProgramSettingsGroups = () => {
           <div className="flex items-center gap-2">
             <Avatar entity={group} className="h-8 w-8" />
             <div>
-              <div className="font-medium">{group.name}</div>
+              <div className="font-medium">{group.displayName ?? group.name}</div>
               <div className="text-muted-foreground text-sm">{row.original.membersCount ?? 0} members</div>
             </div>
           </div>
