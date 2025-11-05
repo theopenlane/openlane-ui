@@ -62,17 +62,26 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
         }
         break
 
-      case 'select':
+      case 'select': {
         if (typeof value === 'string' && value !== '') {
-          result[key] = value
+          const exists = field.options?.some((opt) => opt.value === value)
+          if (exists) {
+            result[key] = value
+          }
         }
         break
+      }
 
-      case 'multiselect':
+      case 'multiselect': {
         if (Array.isArray(value) && value.length > 0) {
-          result[key] = value
+          const filteredValues = value.filter((v) => field.options?.some((opt) => opt.value === v))
+
+          if (filteredValues.length > 0) {
+            result[key] = filteredValues
+          }
         }
         break
+      }
 
       case 'boolean':
         if (typeof value === 'boolean') {
