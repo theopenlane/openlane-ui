@@ -4,9 +4,6 @@ import Header from '@/components/shared/header/header'
 import { dashboardStyles } from './dashboard.styles'
 import ChatBot from '@/components/shared/chat/chat'
 import { CommandMenu } from '@/components/shared/search/command'
-import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner'
-import { CreditCard } from 'lucide-react'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 import { useSession } from 'next-auth/react'
@@ -26,8 +23,7 @@ export interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, error }: DashboardLayoutProps) {
-  const { bannerText } = useSubscriptionBanner()
-  const { base, main } = dashboardStyles({ hasBanner: !!bannerText })
+  const { base, main } = dashboardStyles()
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
@@ -135,16 +131,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
       />
 
       <div className="flex flex-col h-screen overflow-hidden transition-all duration-200" style={{ marginLeft: contentMarginLeft, marginRight: '8px' }}>
-        {!!bannerText && (
-          <div className="bg-note text-sm flex justify-center items-center px-4 py-1 w-full shrink-0">
-            <span>{bannerText}</span>
-            <Link href="/organization-settings/billing" className="ml-4 bg-banner font-medium px-3 py-1 rounded-sm transition-colors duration-200 flex items-center gap-2">
-              <CreditCard size={9} />
-              <span className="text-xs">Manage billing</span>
-            </Link>
-          </div>
-        )}
-
         <Header />
 
         <div className={base()}>
