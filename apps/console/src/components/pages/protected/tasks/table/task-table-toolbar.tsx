@@ -77,7 +77,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         label: 'Overdue',
         key: 'overdue',
         type: 'custom',
-        getCondition: () => ({ dueGTE: format(startOfDay(new Date()), DateFormatStorage) }),
+        getCondition: () => ({ dueLT: format(startOfDay(new Date()), DateFormatStorage) }),
         isActive: false,
       },
       {
