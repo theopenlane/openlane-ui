@@ -22,23 +22,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No items in last phase' }, { status: 404 })
     }
 
-    const price = await stripe.prices.retrieve(firstItem.price as string)
-    const interval = price.recurring?.interval
-    const newStart = lastPhase.end_date
-    let newEnd = newStart
-
-    if (interval === 'year') {
-      newEnd += 365 * 24 * 60 * 60 // 1 year
-    } else {
-      // use default monthly interval
-      newEnd += 30 * 24 * 60 * 60 // 30 days
-    }
-
-    const newItems = lastPhase.items.map((item) => ({
-      price: item.price as string,
-      quantity: item.quantity ?? 1,
-    }))
-
     const updated: Stripe.SubscriptionSchedule = await stripe.subscriptionSchedules.update(scheduleId, {
       end_behavior: 'release',
       phases: [
@@ -50,11 +33,6 @@ export async function POST(req: Request) {
           start_date: p.start_date,
           end_date: p.end_date,
         })),
-        {
-          items: newItems,
-          start_date: newStart,
-          end_date: newEnd,
-        },
       ],
     })
 
