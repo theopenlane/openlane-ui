@@ -18,6 +18,9 @@ import { Badge } from '@repo/ui/badge'
 import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -47,6 +50,9 @@ const BasicInformation = () => {
       tags: program?.tags ?? [],
     },
   })
+
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const editAllowed = canEdit(permission?.roles)
 
   useEffect(() => {
     if (program) {
@@ -117,7 +123,7 @@ const BasicInformation = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 text-sm">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold mb-4">Basic information</h2>
-            {!isEditing && (
+            {!isEditing && editAllowed && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
                 className="!h-8 !p-2"

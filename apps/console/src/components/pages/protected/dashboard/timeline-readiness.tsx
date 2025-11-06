@@ -20,6 +20,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 const formSchema = z.object({
   startDate: z.date().nullable().optional(),
@@ -38,6 +41,9 @@ const TimelineReadiness = () => {
   const { data } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
   const program = data?.program
+
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const editAllowed = canEdit(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
 
@@ -110,7 +116,7 @@ const TimelineReadiness = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold mb-4">Timeline & Readiness</h2>
-            {!isEditing && (
+            {!isEditing && editAllowed && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
                 className="!h-8 !p-2"

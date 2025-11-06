@@ -17,6 +17,9 @@ import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -46,6 +49,9 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
   const queryClient = useQueryClient()
+
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const editAllowed = canEdit(permission?.roles)
 
   const handleCancel = () => {
     form.reset()
@@ -127,7 +133,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
             <h2 className="text-lg font-semibold">Auditor of this program</h2>
             <div className="flex gap-2">
               {!isEditing && isEligibleForAuditorSet && <SetReadyForAuditorDialog programStatus={programStatus} />}
-              {hasAuditor && !isEditing && (
+              {hasAuditor && !isEditing && editAllowed && (
                 <Button
                   disabled={programStatus === ProgramProgramStatus.ARCHIVED}
                   className="!h-8 !p-2"
@@ -141,7 +147,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
                 </Button>
               )}
             </div>
-            {isEditing && (
+            {isEditing && editAllowed && (
               <div className="flex gap-2">
                 <Button className="!h-8 !p-2" variant="secondary" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
                   Save
