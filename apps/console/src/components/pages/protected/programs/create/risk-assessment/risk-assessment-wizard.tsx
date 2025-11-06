@@ -38,7 +38,6 @@ export default function RiskAssessmentWizard() {
   )
 
   const stepper = useStepper()
-  const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
 
   const methods = useForm<WizardValues>({
     resolver: zodResolver(wizardSchema),
@@ -130,7 +129,7 @@ export default function RiskAssessmentWizard() {
   return (
     <>
       <div className="max-w-3xl mx-auto px-6 py-2">
-        <StepHeader stepper={stepper} currentIndex={currentIndex} />
+        <StepHeader stepper={stepper} />
         <Separator separatorClass="bg-card" />
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>

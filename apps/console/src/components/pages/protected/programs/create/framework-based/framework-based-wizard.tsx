@@ -130,12 +130,10 @@ export default function FrameworkBasedWizard() {
     ])
   }, [setCrumbs])
 
-  const currentIndex = stepper.all.findIndex((i) => i.id === stepper.current.id)
-
   return (
     <>
       <div className="max-w-3xl mx-auto px-6 py-2">
-        <StepHeader stepper={stepper} currentIndex={currentIndex} disabledIDs={disabledIDs} />
+        <StepHeader stepper={stepper} disabledIDs={disabledIDs} />
         <Separator className="" separatorClass="bg-card" />
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
