@@ -107,9 +107,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     } else {
       saveFilters(pageKey, values)
       onFilterChange?.(buildWhereCondition(values, filterFields))
+      resetQuickFilters()
     }
     setOpen(false)
-  }, [getActiveQuickFilter, pageKey, onFilterChange, buildQuickFilterWhereCondition, resetRegularFilters, values, buildWhereCondition, filterFields])
+  }, [getActiveQuickFilter, pageKey, onFilterChange, buildQuickFilterWhereCondition, resetRegularFilters, values, buildWhereCondition, filterFields, resetQuickFilters])
 
   const activeFilterKeys = filterFields
     .map((field) => field.key)

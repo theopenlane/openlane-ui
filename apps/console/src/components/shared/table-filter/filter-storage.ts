@@ -39,7 +39,7 @@ export function saveQuickFilters(pageKey: TableFilterKeysEnum, activeFilter: TQu
 }
 
 export function clearQuickFilters(pageKey: TableFilterKeysEnum): void {
-  localStorage.removeItem(storageFilterKey(pageKey))
+  localStorage.removeItem(storageQuickFilterKey(pageKey))
 }
 
 export function loadQuickFilter(pageKey: TableFilterKeysEnum, quickFilters: TQuickFilter[] = []): TQuickFilter | null {
