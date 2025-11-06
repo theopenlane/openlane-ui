@@ -38,13 +38,13 @@ const customOptions = [
   {
     title: 'Generic Program',
     description: 'Start with a blank program structure',
-    icon: <FilePlus2 className="text-btn-secondary" size={20} />,
+    icon: <FilePlus2 className="text-btn-primary" size={20} />,
     url: '/programs/create/generic-program',
   },
   {
     title: 'Advanced Setup',
     description: 'Manually configure everything from the ground up.',
-    icon: <Wrench className="text-btn-secondary" size={20} />,
+    icon: <Wrench className="text-btn-primary" size={20} />,
     url: '/programs/create/advanced-setup',
   },
 ]

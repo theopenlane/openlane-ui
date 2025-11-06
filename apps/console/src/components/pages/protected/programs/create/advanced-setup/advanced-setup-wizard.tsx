@@ -206,7 +206,7 @@ export default function AdvancedSetupWizard() {
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 py-2">
-        <StepHeader stepper={stepper} currentIndex={currentIndex} disabledIDs={disabledIDs} />
+        <StepHeader stepper={stepper} disabledIDs={disabledIDs} />
         <Separator separatorClass="bg-card" />
         <FormProvider {...form} key={stepper.current.id}>
           <div className="py-6 flex gap-16">

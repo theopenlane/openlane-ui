@@ -9,7 +9,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useGetProgramBasicInfo, useGetProgramGroups, useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Group as GroupType, ProgramProgramStatus, UpdateProgramInput } from '@repo/codegen/src/schema'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { ProgramSettingsAssignGroupDialog } from './program-settings-assign-groups-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog'
@@ -32,9 +32,8 @@ type GroupRow = {
 }
 
 export const ProgramSettingsGroups = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, programId)
+  const { id } = useParams<{ id: string }>()
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
   const [pagination, setPagination] = useState<TPagination>({
@@ -52,9 +51,9 @@ export const ProgramSettingsGroups = () => {
   const { successNotification, errorNotification } = useNotification()
 
   const { data, isLoading } = useGetProgramGroups({
-    programId: programId ?? null,
+    programId: id ?? null,
   })
-  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
+  const { data: basicInfoData } = useGetProgramBasicInfo(id)
   const groups: GroupRow[] = useMemo(() => {
     const viewers = data?.program?.viewers?.edges ?? []
     const editors = data?.program?.editors?.edges ?? []
@@ -84,7 +83,7 @@ export const ProgramSettingsGroups = () => {
   }, [groups, pagination])
 
   const handleRemove = async (groupId: string, role: GroupRow['role']) => {
-    if (!programId) return
+    if (!id) return
 
     const input: UpdateProgramInput = {}
 
@@ -96,11 +95,11 @@ export const ProgramSettingsGroups = () => {
 
     try {
       await updateProgram({
-        updateProgramId: programId,
+        updateProgramId: id,
         input,
       })
 
-      queryClient.invalidateQueries({ queryKey: ['programs', programId, 'groups'] })
+      queryClient.invalidateQueries({ queryKey: ['programs', id, 'groups'] })
       queryClient.invalidateQueries({ queryKey: ['groups'] })
 
       successNotification({
@@ -117,7 +116,7 @@ export const ProgramSettingsGroups = () => {
   }
 
   const handleRoleChange = async (newRole: 'Viewer' | 'Editor') => {
-    if (!programId || !selectedGroup) return
+    if (!id || !selectedGroup) return
     if (newRole === selectedGroup.role) {
       setIsDialogOpen(false)
       return
@@ -139,11 +138,11 @@ export const ProgramSettingsGroups = () => {
       }
 
       await updateProgram({
-        updateProgramId: programId,
+        updateProgramId: id,
         input,
       })
 
-      queryClient.invalidateQueries({ queryKey: ['programs', programId, 'groups'] })
+      queryClient.invalidateQueries({ queryKey: ['programs', id, 'groups'] })
 
       successNotification({
         title: 'Role Updated',

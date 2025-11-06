@@ -12,11 +12,11 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { useSearchParams } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useParams } from 'next/navigation'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -39,8 +39,8 @@ type SetAuditorFormValues = z.infer<typeof setAuditorSchema>
 
 const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAuditorProps) => {
   const hasAuditor = !!(firm || name || email)
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+  const { id } = useParams<{ id: string }>()
+
   const [isEditing, setIsEditing] = useState(false)
   const [isEligibleForAuditorSet, setIsEligibleForAuditorSet] = useState(false)
   const { successNotification, errorNotification } = useNotification()
@@ -80,7 +80,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     return () => {
       setIsEligibleForAuditorSet(false)
     }
-  }, [name, email, firm, programId, form])
+  }, [name, email, firm, id, form])
 
   const { handleSubmit, control } = form
 
@@ -97,7 +97,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     }
     try {
       await updateProgram({
-        updateProgramId: programId!,
+        updateProgramId: id,
         input: {
           ...(values.auditFirm === '' ? { clearAuditFirm: true } : { auditFirm: values.auditFirm }),
           ...(values.auditorName === '' ? { clearAuditor: true } : { auditor: values.auditorName }),
@@ -108,7 +108,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
         title: 'Auditor updated',
         description: 'Auditor saved successfully.',
       })
-      queryClient.invalidateQueries({ queryKey: ['programs', programId] })
+      queryClient.invalidateQueries({ queryKey: ['programs', id] })
       setIsEditing(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

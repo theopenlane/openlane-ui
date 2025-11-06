@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useDeleteProgram, useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -13,9 +13,8 @@ import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 export const ProgramSettingsDangerZone = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, programId)
+  const { id } = useParams<{ id: string }>()
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const deleteAllowed = canDelete(permission?.roles)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
@@ -26,12 +25,12 @@ export const ProgramSettingsDangerZone = () => {
   const [isUnArchiveDialogOpen, setIsUnArchiveDialogOpen] = useState(false)
   const { mutateAsync: updateProgram, isPending: isArchivePending } = useUpdateProgram()
   const { mutateAsync, isPending } = useDeleteProgram()
-  const { data, refetch } = useGetProgramBasicInfo(programId, !isDeleting)
+  const { data, refetch } = useGetProgramBasicInfo(id, !isDeleting)
   const program = data?.program
   const { successNotification, errorNotification } = useNotification()
 
   const handleDelete = async () => {
-    if (!programId) {
+    if (!id) {
       errorNotification({
         title: 'Missing Program ID',
         description: 'Program ID not found in the URL.',
@@ -42,7 +41,7 @@ export const ProgramSettingsDangerZone = () => {
     try {
       setIsDeleting(true)
       router.replace('/programs')
-      await mutateAsync({ deleteProgramId: programId })
+      await mutateAsync({ deleteProgramId: id })
       successNotification({
         title: 'The program has been successfully deleted.',
       })
@@ -58,7 +57,7 @@ export const ProgramSettingsDangerZone = () => {
   }
 
   const handleArchive = async () => {
-    if (!programId) {
+    if (!id) {
       errorNotification({
         title: 'Missing Program ID',
         description: 'Program ID not found in the URL.',
@@ -66,7 +65,7 @@ export const ProgramSettingsDangerZone = () => {
       return
     }
     try {
-      await updateProgram({ updateProgramId: programId, input: { status: ProgramProgramStatus.ARCHIVED } })
+      await updateProgram({ updateProgramId: id, input: { status: ProgramProgramStatus.ARCHIVED } })
       successNotification({
         title: 'The program has been successfully archived.',
       })
@@ -83,7 +82,7 @@ export const ProgramSettingsDangerZone = () => {
   }
 
   const handleUnArchive = async () => {
-    if (!programId) {
+    if (!id) {
       errorNotification({
         title: 'Missing Program ID',
         description: 'Program ID not found in the URL.',
@@ -91,7 +90,7 @@ export const ProgramSettingsDangerZone = () => {
       return
     }
     try {
-      await updateProgram({ updateProgramId: programId, input: { status: ProgramProgramStatus.IN_PROGRESS } })
+      await updateProgram({ updateProgramId: id, input: { status: ProgramProgramStatus.IN_PROGRESS } })
       successNotification({
         title: 'The program has been successfully unarchived.',
       })

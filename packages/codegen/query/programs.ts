@@ -198,6 +198,7 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       frameworkName
       status
       programType
+      programOwnerID
     }
   }
 `
@@ -366,6 +367,41 @@ export const GET_GLOBAL_EVIDENCE_STATS = gql`
 
     rejected: controls(where: { hasEvidenceWith: [{ statusIn: [REJECTED] }] }) {
       totalCount
+    }
+  }
+`
+
+export const GET_PROGRAM_DASHBOARD = gql`
+  query GetProgramDashboard($where: ProgramWhereInput) {
+    programs(where: $where) {
+      edges {
+        node {
+          id
+          name
+          frameworkName
+          description
+          status
+          endDate
+          user {
+            id
+            displayName
+          }
+          submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY, APPROVED] }] }) {
+            totalCount
+          }
+          tasks {
+            edges {
+              node {
+                id
+                status
+              }
+            }
+          }
+          controls {
+            totalCount
+          }
+        }
+      }
     }
   }
 `

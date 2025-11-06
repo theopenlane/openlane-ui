@@ -4,8 +4,9 @@ export const separatorStyles = tv({
   slots: {
     base: 'w-full flex items-center uppercase',
     line: 'flex-1 h-px bg-separator bg-opacity-60 mx-4',
-    vertical: 'w-full h-px bg-separator my-2',
+    horizontal: 'w-full h-px bg-separator my-2',
     text: 'opacity-80 text-sm text-text-dark px-4',
+    vertical: 'bg-separator w-px h-10',
   },
   variants: {
     full: {

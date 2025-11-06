@@ -10,7 +10,7 @@ import ImportControlsDialogProgram from './program-settings-import-controls-dial
 import { SelectedItem } from '../shared/program-settings-import-controls-shared-props'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCloneControls } from '@/lib/graphql-hooks/standards'
 import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
@@ -23,18 +23,18 @@ const ImportControlsDialog: React.FC = () => {
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([])
   const [selectedImportControlsFrom, setSelectedImportControlsFrom] = useState<ObjectEnum>(ObjectEnum.STANDARD)
   const { successNotification, errorNotification } = useNotification()
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+  const { id } = useParams<{ id: string }>()
+
   const queryClient = useQueryClient()
   const router = useRouter()
 
   const { mutateAsync: cloneControls } = useCloneControls()
-  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
+  const { data: basicInfoData } = useGetProgramBasicInfo(id)
   const handleImport = async () => {
     try {
       await cloneControls({
         input: {
-          programID: programId,
+          programID: id,
           controlIDs: selectedItems.map((item) => item.id),
         },
       })
@@ -66,7 +66,7 @@ const ImportControlsDialog: React.FC = () => {
     setOpen(false)
   }
 
-  if (!programId) {
+  if (!id) {
     router.replace('/programs')
   }
 

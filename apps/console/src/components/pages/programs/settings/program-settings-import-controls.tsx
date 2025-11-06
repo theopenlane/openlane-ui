@@ -3,14 +3,14 @@
 import React from 'react'
 import ImportControlsDialog from './program-settings-import-controls-dialog'
 import { canEdit } from '@/lib/authz/utils'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 export const ProgramSettingsImportControls = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, programId)
+  const { id } = useParams<{ id: string | undefined }>()
+
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
 
   if (!editAllowed) {

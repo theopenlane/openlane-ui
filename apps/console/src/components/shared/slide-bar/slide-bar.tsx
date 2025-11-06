@@ -1,7 +1,6 @@
 import React, { useState, useRef, ReactNode, useEffect } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner.ts'
 
 type TSlideBarLayoutProps = {
   sidebarTitle?: string
@@ -17,7 +16,6 @@ const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
 
 const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen, minWidth = 400 }) => {
-  const { bannerText } = useSubscriptionBanner()
   const [open, setOpen] = useState<boolean>(true)
   const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
   const resizing = useRef(false)
@@ -64,7 +62,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
         {children}
       </div>
 
-      <div className="fixed flex items-center space-x-2 z-30" style={{ top: bannerText ? '7rem' : '5rem', right: `${FLOATING_MARGIN}px` }}>
+      <div className="fixed flex items-center space-x-2 z-30" style={{ top: '5rem', right: `${FLOATING_MARGIN}px` }}>
         {menu}
         <Button
           type="button"
@@ -78,7 +76,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
       <div
         className="fixed right-0 mt-[4px] mb-[8px] rounded-md bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-secondary"
         style={{
-          top: bannerText ? '6rem' : '4rem',
+          top: '4rem',
           width: open ? `${width}px` : 0,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
           marginRight: open ? '8px' : '0',

@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import React, { useContext, useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
@@ -22,6 +22,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 type MemberRow = {
   id: string
@@ -32,11 +33,10 @@ type MemberRow = {
 export const ProgramSettingsUsers = () => {
   const { data: session } = useSession()
   const currentUserId = session?.user?.userId
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+  const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
 
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, programId)
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
 
   const editAllowed = canEdit(permission?.roles)
 
@@ -52,22 +52,22 @@ export const ProgramSettingsUsers = () => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateProgram, isPending: isUpdating } = useUpdateProgram()
 
-  const where = { programID: programId || undefined }
+  const where = { programID: id || undefined }
 
   const { data, isLoading, isFetching } = useGetProgramMembers({
     pagination,
     where,
-    enabled: !!programId,
+    enabled: !!id,
   })
-  const { data: basicInfoData } = useGetProgramBasicInfo(programId)
+  const { data: basicInfoData, isLoading: programLoading } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgramMembership } = useUpdateProgramMembership()
 
   const handleRemove = async () => {
-    if (!programId || !selectedUser) return
+    if (!id || !selectedUser) return
 
     try {
       await updateProgram({
-        updateProgramId: programId,
+        updateProgramId: id,
         input: {
           removeProgramMembers: [selectedUser.id],
         },
@@ -190,6 +190,17 @@ export const ProgramSettingsUsers = () => {
     },
   ]
 
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: basicInfoData?.program?.name, isLoading: programLoading, href: `/programs/${id}` },
+      { label: 'Settings', href: `/programs/${id}/settings` },
+    ])
+  }, [setCrumbs, basicInfoData, programLoading, id])
+
   return (
     <>
       {selectedUser && (
@@ -221,7 +232,7 @@ export const ProgramSettingsUsers = () => {
         <div className="space-y-2 w-full max-w-[847px]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg">Assigned users</h2>
-            {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignUserDialog />}
+            {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignUserDialog id={id} />}
           </div>
 
           <DataTable
