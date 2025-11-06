@@ -206,10 +206,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
                     : range?.from
-                    ? `From: ${format(range.from, 'PPP')}`
-                    : range?.to
-                    ? `To: ${format(range.to, 'PPP')}`
-                    : 'Pick date range'}
+                      ? `From: ${format(range.from, 'PPP')}`
+                      : range?.to
+                        ? `To: ${format(range.to, 'PPP')}`
+                        : 'Pick date range'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-4 space-y-4 w-auto">
@@ -279,40 +279,42 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0 max-h-[400px]" align="end">
-        {activeQuickFilters.length > 0 && (
-          <>
-            <p className="text-base p-4 pb-0">Quick Filters</p>
-            <div className="flex flex-wrap gap-2 p-4 pb-0">
-              {activeQuickFilters.map((qf) => (
-                <Button key={`${qf.key}-${qf.label}`} size="sm" className={`${qf.isActive ? 'is-active' : ''}`} variant="tag" onClick={() => toggleQuickFilter(qf)}>
-                  {qf.label}
-                </Button>
-              ))}
-            </div>
-            <Hr className="mt-2" />
-          </>
-        )}
+      <DropdownMenuContent className="border shadow-md w-[540px] max-h-[400px] flex flex-col overflow-hidden" align="end">
+        <div className="overflow-y-auto p-0 flex-1">
+          {activeQuickFilters.length > 0 && (
+            <>
+              <p className="text-base p-4 pb-0">Quick Filters</p>
+              <div className="flex flex-wrap gap-2 p-4 pb-0">
+                {activeQuickFilters.map((qf) => (
+                  <Button key={`${qf.key}-${qf.label}`} size="sm" className={`${qf.isActive ? 'is-active' : ''}`} variant="tag" onClick={() => toggleQuickFilter(qf)}>
+                    {qf.label}
+                  </Button>
+                ))}
+              </div>
+              <Hr className="mt-2" />
+            </>
+          )}
 
-        <p className="text-muted-foreground text-xs p-4 pt-2 pb-0">FILTER BY</p>
-        <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pt-2 pb-0">
-          {filterFields.map((field) => (
-            <AccordionItem key={field.key} value={field.key}>
-              <AccordionTrigger asChild>
-                <button className="group flex items-center py-2 text-left gap-3 w-full bg-unset">
-                  <div className="flex items-center gap-2">
-                    <field.icon size={16} className="text-muted-foreground shrink-0" />
-                    <span className="text-sm">{field.label}</span>
-                  </div>
-                  <ChevronDown size={14} className="ml-auto transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
-                </button>
-              </AccordionTrigger>
-              <AccordionContent className="pt-2 ml-5">{renderField(field)}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-
+          <p className="text-muted-foreground text-xs p-4 pt-2 pb-0">FILTER BY</p>
+          <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pt-2 pb-0">
+            {filterFields.map((field) => (
+              <AccordionItem key={field.key} value={field.key}>
+                <AccordionTrigger asChild>
+                  <button className="group flex items-center py-2 text-left gap-3 w-full bg-unset">
+                    <div className="flex items-center gap-2">
+                      <field.icon size={16} className="text-muted-foreground shrink-0" />
+                      <span className="text-sm">{field.label}</span>
+                    </div>
+                    <ChevronDown size={14} className="ml-auto transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
+                  </button>
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 ml-5">{renderField(field)}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
         <Hr />
+
         <div className="flex justify-between p-4">
           <Button onClick={resetFilters} variant="secondary">
             Reset filters
