@@ -65,7 +65,7 @@ const TasksPage: React.FC = () => {
 
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ id: value as string }] }
+        return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
       }
       return { [key]: value } as TaskWhereInput
     })
@@ -137,7 +137,7 @@ const TasksPage: React.FC = () => {
     })
   }
 
-  const handleBulkEdit = () => {
+  const handleClearSelectedTasks = () => {
     setSelectedTasks([])
   }
 
@@ -150,7 +150,7 @@ const TasksPage: React.FC = () => {
       <TaskTableToolbar
         onFilterChange={setFilters}
         onTabChange={handleTabChange}
-        handleBulkEdit={handleBulkEdit}
+        handleClearSelectedTasks={handleClearSelectedTasks}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
