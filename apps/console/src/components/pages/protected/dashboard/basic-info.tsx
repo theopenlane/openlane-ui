@@ -211,7 +211,7 @@ const BasicInformation = () => {
           )}
 
           {/* Description */}
-          <div className="flex pb-2.5">
+          <div className="flex border-b pb-2.5">
             <span className="block w-32 shrink-0">Description</span>
             <div className="flex-1">
               <Controller
