@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@repo/ui/button'
 import EvidenceCreateForm from '@/components/pages/protected/evidence/evidence-create-form'
 import { FilePlus } from 'lucide-react'
-import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
+import { dialogStyles } from '@/components/pages/protected/programs/dialog.styles'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { CreateButton } from '@/components/shared/create-button/create-button'

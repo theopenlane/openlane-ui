@@ -6,10 +6,11 @@ export interface SeparatorProps extends SeparatorVariants, HTMLAttributes<HTMLDi
   label?: string
   login?: boolean
   separatorClass?: string
+  vertical?: boolean
 }
 
-export const Separator = ({ label, programStep, full, className, login, separatorClass, ...rest }: SeparatorProps) => {
-  const { base, vertical, line, text } = separatorStyles({ programStep, full, login })
+export const Separator = ({ label, programStep, full, className, login, separatorClass, vertical: isVertical = false, ...rest }: SeparatorProps) => {
+  const { base, horizontal, line, text, vertical } = separatorStyles({ programStep, full, login })
 
   if (label) {
     return (
@@ -23,7 +24,7 @@ export const Separator = ({ label, programStep, full, className, login, separato
 
   return (
     <div className={cn(base(), className)} {...rest}>
-      <div className={cn(vertical(), className, separatorClass)}></div>
+      {isVertical ? <div className={cn(vertical(), separatorClass)}></div> : <div className={cn(horizontal(), className, separatorClass)}></div>}
     </div>
   )
 }

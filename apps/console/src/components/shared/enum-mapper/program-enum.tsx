@@ -64,7 +64,7 @@ export const ProgramCreatePrefixIconBtn = (
 )
 
 export const ProgramSettingsIconBtn = ({ programId }: { programId: string }) => (
-  <Link className="flex" href={`/programs/settings?id=${programId}`}>
+  <Link className="flex" href={`/programs/${programId}/settings`}>
     <div className="flex items-center space-x-2">
       <Cog size={16} strokeWidth={2} />
       <span>Settings</span>
