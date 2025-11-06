@@ -42,6 +42,7 @@ import {
   ProgramWhereInput,
   Program,
   GetProgramDashboardQuery,
+  GetProgramDashboardQueryVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -245,7 +246,7 @@ export const useUpdateProgramMembership = () => {
 export const useGetProgramDashboard = ({ where, enabled = true }: { where?: ProgramWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetProgramDashboardQuery, GetProgramGroupsQueryVariables>({
+  return useQuery<GetProgramDashboardQuery, GetProgramDashboardQueryVariables>({
     queryKey: ['programs', 'dashboard', where],
     queryFn: async () => {
       return client.request(GET_PROGRAM_DASHBOARD, { where })

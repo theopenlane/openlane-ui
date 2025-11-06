@@ -8,7 +8,7 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { formatDate } from '@/utils/date'
-import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useAccountRolesMany, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { canCreate, canEdit } from '@/lib/authz/utils'
 import Link from 'next/link'
@@ -34,12 +34,21 @@ const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
-  const { data: permission, isSuccess } = useOrganizationRoles()
+  const { data: orgPermission, isSuccess } = useOrganizationRoles()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const where: ProgramWhereInput = filterStatus === 'ACTIVE' ? { statusNEQ: ProgramProgramStatus.ARCHIVED } : { status: ProgramProgramStatus.ARCHIVED }
 
   const { data } = useGetProgramDashboard({ where })
+
+  const programIds = (data?.programs.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
+  const hasData = !!data?.programs?.edges && data.programs.edges.length > 0
+
+  const { data: permission } = useAccountRolesMany({
+    objectType: ObjectEnum.PROGRAM,
+    ids: programIds,
+    enabled: hasData,
+  })
 
   const userIds = useMemo(() => {
     const ids = data?.programs?.edges?.map((e) => e?.node?.createdBy).filter((id): id is string => typeof id === 'string')
@@ -95,7 +104,7 @@ const ProgramsDashboardPage = () => {
   const allKeys = useMemo(() => Object.keys(filteredGroups), [filteredGroups])
 
   useEffect(() => {
-    if (allKeys.length > 0) setExpanded([allKeys[0]])
+    if (allKeys.length > 0) setExpanded(allKeys)
 
     return () => {}
   }, [allKeys])
@@ -109,8 +118,8 @@ const ProgramsDashboardPage = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-6">
+      <div className="flex justify-between items-center  gap-4 flex-wrap">
+        <div className="flex items-center gap-6 ">
           <h2 className="text-header text-2xl">Programs</h2>
           <div className="flex items-center gap-2">
             <Switch
@@ -127,12 +136,12 @@ const ProgramsDashboardPage = () => {
             <Input icon={<SearchIcon size={16} />} placeholder="Search" value={search} onChange={(event) => setSearch(event.currentTarget.value)} variant="searchTable" />{' '}
           </div>
           <Tabs value={filterStatus} onValueChange={(v) => setFilterStatus(v as 'ARCHIVED' | 'ACTIVE')} className="space-y-4 ">
-            <TabsList className="size-fit">
+            <TabsList className="size-fit min-w-[198px]">
               <TabsTrigger value="ACTIVE">Active Programs</TabsTrigger>
               <TabsTrigger value="ARCHIVED">Archived</TabsTrigger>
             </TabsList>
           </Tabs>
-          {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
+          {canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram) && (
             <Link href="/programs/create">
               <Button icon={<SquarePlus />} iconPosition="left">
                 Create
@@ -146,12 +155,12 @@ const ProgramsDashboardPage = () => {
         <p className="text-text-informational mt-10 text-center">No data</p>
       ) : (
         <Accordion type="multiple" value={expanded} className="space-y-2">
-          {allKeys.sort().map((framework) => {
+          {allKeys.sort().map((framework, i) => {
             const programs = filteredGroups[framework]
             if (!programs.length) return null
 
             return (
-              <AccordionItem key={framework} value={framework} className="border-b w-full py-8 m-0">
+              <AccordionItem key={framework} value={framework} className={clsx('border-b w-full  m-0', i > 0 ? 'py-8' : 'pb-8')}>
                 <AccordionTrigger
                   onClick={() => {
                     if (expanded.includes(framework)) {
@@ -166,7 +175,9 @@ const ProgramsDashboardPage = () => {
                   <span className="text-lg">{framework}</span>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="flex flex-wrap gap-4 mt-4">{programs.map((p) => p && <ProgramCard key={p.id} program={p} userMap={userMap} />)}</div>
+                  <div className="flex flex-wrap gap-4 mt-4">
+                    {programs.map((p) => p && <ProgramCard key={p.id} program={p} userMap={userMap} editAllowed={canEdit(permission?.object_roles[p.id])} />)}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             )
@@ -179,14 +190,12 @@ const ProgramsDashboardPage = () => {
 
 export default ProgramsDashboardPage
 
-const ProgramCard = ({ program, userMap }: { program: NonNullable<Program>; userMap: Map<string, string> }) => {
-  const evidencePct = program.evidence?.totalCount && program?.evidence?.edges ? Math.round((program.evidence.edges.length / program.evidence.totalCount) * 100) : 0
+const ProgramCard = ({ program, userMap, editAllowed }: { program: NonNullable<Program>; userMap: Map<string, string>; editAllowed: boolean }) => {
+  const evidencePct = program?.evidences?.totalCount ? Math.round((program.submittedEvidences.totalCount / program.evidences.totalCount) * 100) : 0
 
   const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
   const status = program.status === ProgramProgramStatus.READY_FOR_AUDITOR ? ProgramProgramStatus.IN_PROGRESS : program.status
   const isArchived = status === ProgramProgramStatus.ARCHIVED
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, program.id)
-  const editAllowed = canEdit(permission?.roles)
 
   const { mutateAsync: updateProgram, isPending: isUnarchiving } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
@@ -263,7 +272,7 @@ const ProgramCard = ({ program, userMap }: { program: NonNullable<Program>; user
         </div>
       </div>
 
-      <div className="flex jsutify-start items-center">
+      <div className="flex items-center">
         <Metric label="EVIDENCE" value={`${evidencePct}%`} valueLabel="submitted" status={status} />
         <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
         <Metric label="TASKS" value={openTasks || 0} valueLabel="open" status={status} />

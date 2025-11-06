@@ -1,68 +1,41 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import React, { useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
-import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import { OrderDirection, ProgramOrderField, ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
 import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
-import { InfoIcon, SquarePlus } from 'lucide-react'
+import { SquarePlus } from 'lucide-react'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
-import Loading from '@/app/(protected)/programs/loading'
-import { Checkbox } from '@repo/ui/checkbox'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
-import { Callout } from '@/components/shared/callout/callout'
-import ProgramsCreate from './create/programs-page'
+import { ProgramsPageSkeleton } from './skeleton/programs-page-skeleton'
 
 const ProgramDetailsPage: React.FC = () => {
-  const router = useRouter()
   const { id } = useParams<{ id: string }>()
 
-  const { data: basicInfoData, isLoading: isBasicInfoLoading, isError } = useGetProgramBasicInfo(id)
+  const { data: basicInfoData, isLoading } = useGetProgramBasicInfo(id)
   const { data: permission } = useOrganizationRoles()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
-  const [showAllPrograms, setShowAllPrograms] = useState<boolean>(false)
-  const where: ProgramWhereInput = useMemo(() => {
-    if (showAllPrograms) {
-      return {
-        statusIn: [
-          ProgramProgramStatus.ACTION_REQUIRED,
-          ProgramProgramStatus.ARCHIVED,
-          ProgramProgramStatus.COMPLETED,
-          ProgramProgramStatus.IN_PROGRESS,
-          ProgramProgramStatus.NOT_STARTED,
-          ProgramProgramStatus.READY_FOR_AUDITOR,
-        ],
-      }
-    }
-    return {}
-  }, [showAllPrograms])
-  const { data, isLoading } = useGetAllPrograms({
-    orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
-    where,
-  })
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Programs', href: '/programs' },
-      { label: basicInfoData?.program?.name, isLoading: isLoading },
+      { label: basicInfoData?.program?.name, isLoading },
     ])
   }, [setCrumbs, basicInfoData, isLoading])
 
@@ -70,47 +43,8 @@ const ProgramDetailsPage: React.FC = () => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName ?? 'Openlane'} | Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
-  useEffect(() => {
-    if (!data?.programs?.edges?.length) return
-
-    const firstProgram = data.programs.edges[0]?.node
-    if (!id && firstProgram?.id) {
-      router.replace(`/programs?id=${firstProgram.id}`)
-    }
-
-    if (firstProgram?.id && isError) {
-      router.replace(`/programs?id=${firstProgram.id}`)
-    }
-  }, [id, data?.programs?.edges, router, isError])
-
-  if (isBasicInfoLoading || isLoading) {
-    return <Loading />
-  }
-
-  if (!data?.programs.edges?.length) {
-    return (
-      <>
-        <PageHeading heading="Programs" />
-
-        <div className="max-w-5xl mx-auto">
-          <Callout variant="info" title="What is a Program?">
-            Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a significant
-            body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can encompass work across
-            different teams.
-            <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/programs/overview`} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
-              See docs to learn more.
-            </a>
-          </Callout>
-          {canCreate(permission?.roles, AccessEnum.CanCreateProgram) ? (
-            <ProgramsCreate disableHeader={true} noPrograms={true} />
-          ) : (
-            <Callout variant="warning" className="max-w-6xl mx-33 mt-10" title="You do not have permission to create a program">
-              Reach out to an organization admin to create a program on your behalf or request access for program creation
-            </Callout>
-          )}
-        </div>
-      </>
-    )
+  if (isLoading) {
+    return <ProgramsPageSkeleton />
   }
 
   return (
@@ -120,20 +54,6 @@ const ProgramDetailsPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <div className="flex gap-4 items-center">
               <h1>Overview</h1>
-
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <Checkbox checked={showAllPrograms} onCheckedChange={(checked) => setShowAllPrograms(!!checked)} />
-                <span className="text-sm">Include archived</span>
-                <SystemTooltip
-                  icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                  content={
-                    <p>
-                      Archived programs are not included by default. Check this box to include archived programs in the drop down. These will be read-only, unless the program is unarchived from
-                      program settings.
-                    </p>
-                  }
-                />
-              </div>
             </div>
             <div className="flex gap-2.5 items-center">
               {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (

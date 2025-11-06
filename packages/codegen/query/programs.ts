@@ -381,13 +381,10 @@ export const GET_PROGRAM_DASHBOARD = gql`
           status
           endDate
           createdBy
-          evidence {
-            edges {
-              node {
-                id
-                status
-              }
-            }
+          evidences: controls(where: { hasEvidence: true }) {
+            totalCount
+          }
+          submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY] }] }) {
             totalCount
           }
           tasks {

@@ -8,12 +8,14 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 
 export const ProgramSettingsImportControls = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string | undefined }>()
 
   const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
 
-  if (!editAllowed || id) {
+  console.log(editAllowed)
+
+  if (!editAllowed) {
     return null
   }
 
