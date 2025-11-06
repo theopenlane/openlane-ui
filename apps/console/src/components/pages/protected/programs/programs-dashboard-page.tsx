@@ -93,9 +93,13 @@ const ProgramsDashboardPage = () => {
 
   const filteredGroups = useMemo(() => {
     const clone: Record<string, Program[]> = {}
+    const q = search.toLowerCase()
 
     Object.keys(grouped).forEach((key) => {
-      clone[key] = grouped[key].filter((p): p is Program => !!p && (p.id.toLowerCase().includes(search.toLowerCase()) || key.toLowerCase().includes(search.toLowerCase())))
+      clone[key] = grouped[key].filter((p): p is Program => {
+        if (!p) return false
+        return (p.name?.toLowerCase().includes(q) ?? false) || (p.frameworkName?.toLowerCase().includes(q) ?? false) || (p.description?.toLowerCase().includes(q) ?? false)
+      })
     })
 
     return clone

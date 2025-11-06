@@ -378,6 +378,7 @@ export const GET_PROGRAM_DASHBOARD = gql`
           id
           name
           frameworkName
+          description
           status
           endDate
           createdBy

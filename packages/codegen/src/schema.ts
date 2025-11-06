@@ -61021,6 +61021,7 @@ export type GetProgramDashboardQuery = {
         id: string
         name: string
         frameworkName?: string | null
+        description?: string | null
         status: ProgramProgramStatus
         endDate?: any | null
         createdBy?: string | null
