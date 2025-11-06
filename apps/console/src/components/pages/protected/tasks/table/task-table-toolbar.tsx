@@ -18,8 +18,8 @@ import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TAccessRole, TData } from '@/types/authz'
 import { useSession } from 'next-auth/react'
-import { format, startOfDay } from 'date-fns'
-import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
+import { endOfWeek, format, startOfDay, startOfWeek } from 'date-fns'
+import { DateFormatStorage, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -54,35 +54,53 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     return [
       {
         label: 'Completed',
-        key: 'statusIn',
+        key: 'completed',
         type: 'custom',
         getCondition: () => ({ statusIn: [TaskTaskStatus.COMPLETED] }),
         isActive: false,
       },
       {
         label: 'Open',
-        key: 'statusIn',
+        key: 'open',
         type: 'custom',
         getCondition: () => ({ statusIn: [TaskTaskStatus.OPEN] }),
         isActive: false,
       },
       {
         label: 'My Tasks',
-        key: 'assigneeID',
+        key: 'myTasks',
         type: 'custom',
         getCondition: () => ({ assigneeID: session?.user?.userId }),
         isActive: false,
       },
       {
         label: 'Overdue',
-        key: 'dueGTE',
+        key: 'overdue',
         type: 'custom',
-        getCondition: () => ({ dueGTE: format(startOfDay(new Date()), "yyyy-MM-dd'T'HH:mm:ss'Z'") }),
+        getCondition: () => ({ dueGTE: format(startOfDay(new Date()), DateFormatStorage) }),
         isActive: false,
       },
-      //Overdue
-      // Due this week
-      // Unassigned
+      {
+        label: 'Due This Week',
+        key: 'dueThisWeek',
+        type: 'custom',
+        getCondition: () => {
+          const start = startOfWeek(new Date(), { weekStartsOn: 1 })
+          const end = endOfWeek(new Date(), { weekStartsOn: 1 })
+          return {
+            dueGTE: format(startOfDay(start), DateFormatStorage),
+            dueLT: format(startOfDay(end), DateFormatStorage),
+          }
+        },
+        isActive: false,
+      },
+      {
+        label: 'Unassigned',
+        key: 'unassigned',
+        type: 'custom',
+        getCondition: () => ({ assigneeIDIsNil: true }),
+        isActive: false,
+      },
     ]
   }, [session?.user?.userId])
 

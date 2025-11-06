@@ -11,7 +11,7 @@ function prettifyEnum(key: string) {
     .replace(/^\w/, (c) => c.toUpperCase())
 }
 
-function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
+export function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
   return Object.entries(e).map(([key, value]) => ({
     value,
     label: labels?.[value as T[keyof T]] ?? prettifyEnum(key),
