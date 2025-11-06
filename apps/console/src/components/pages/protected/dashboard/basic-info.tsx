@@ -18,11 +18,14 @@ import { Badge } from '@repo/ui/badge'
 import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/members'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  programOwnerId: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -31,6 +34,9 @@ const BasicInformation = () => {
   const { id } = useParams<{ id: string }>()
   const { data } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
+  const { data: programOwner } = useGetOrgMemberships({ where: { userID: data?.program.programOwnerID }, enabled: !!data?.program.programOwnerID })
+  const { userOptions } = useUserSelect({})
+  const programOwnerDisplayName = programOwner?.orgMemberships.edges?.[0]?.node?.user.displayName
   const program = data?.program
 
   const [isEditing, setIsEditing] = useState(false)
@@ -54,6 +60,7 @@ const BasicInformation = () => {
         name: program.name ?? '',
         description: program.description ?? '',
         tags: program.tags ?? [],
+        programOwnerId: program.programOwnerID ?? '',
       })
 
       setTagValues(
@@ -92,6 +99,7 @@ const BasicInformation = () => {
           name: values.name,
           description: values.description ?? null,
           tags: values.tags ?? [],
+          userID: values.programOwnerId || undefined,
         },
       })
 
@@ -115,8 +123,8 @@ const BasicInformation = () => {
     <Card className="p-8 flex-1">
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 text-sm">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold mb-4">Basic information</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Basic information</h2>
             {!isEditing && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
@@ -214,6 +222,32 @@ const BasicInformation = () => {
                     <Textarea {...field} value={field.value ?? ''} placeholder="Add a description..." />
                   ) : (
                     <p className={`${!program?.description && '!text-neutral-400'}`}>{program?.description || '—'}</p>
+                  )
+                }
+              />
+            </div>
+          </div>
+          {/* Program Owner */}
+          <div className="flex pb-2.5">
+            <span className="block w-32 shrink-0">Program Owner</span>
+            <div className="flex-1">
+              <Controller
+                name="programOwnerId"
+                control={form.control}
+                render={({ field }) =>
+                  isEditing ? (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-[250px]">{userOptions.find((u) => u.value === field.value)?.label || 'Select owner'}</SelectTrigger>
+                      <SelectContent>
+                        {userOptions.map((user) => (
+                          <SelectItem key={user.value} value={user.value}>
+                            {user.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className={`${!programOwnerDisplayName && '!text-neutral-400'}`}>{programOwnerDisplayName || '—'}</p>
                   )
                 }
               />

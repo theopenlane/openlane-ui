@@ -198,6 +198,7 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       frameworkName
       status
       programType
+      programOwnerID
     }
   }
 `
@@ -382,10 +383,7 @@ export const GET_PROGRAM_DASHBOARD = gql`
           status
           endDate
           createdBy
-          evidences: controls(where: { hasEvidence: true }) {
-            totalCount
-          }
-          submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY] }] }) {
+          submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY, APPROVED] }] }) {
             totalCount
           }
           tasks {

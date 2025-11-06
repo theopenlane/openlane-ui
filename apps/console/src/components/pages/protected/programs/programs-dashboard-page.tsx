@@ -195,7 +195,7 @@ const ProgramsDashboardPage = () => {
 export default ProgramsDashboardPage
 
 const ProgramCard = ({ program, userMap, editAllowed }: { program: NonNullable<Program>; userMap: Map<string, string>; editAllowed: boolean }) => {
-  const evidencePct = program?.evidences?.totalCount ? Math.round((program.submittedEvidences.totalCount / program.evidences.totalCount) * 100) : 0
+  const evidencePct = Math.round((program.submittedEvidences.totalCount / program.controls.totalCount) * 100)
 
   const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
   const status = program.status === ProgramProgramStatus.READY_FOR_AUDITOR ? ProgramProgramStatus.IN_PROGRESS : program.status

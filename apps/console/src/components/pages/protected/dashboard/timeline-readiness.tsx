@@ -108,8 +108,8 @@ const TimelineReadiness = () => {
     <Card className="p-8 w-full">
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold mb-4">Timeline & Readiness</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Timeline & Readiness</h2>
             {!isEditing && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}

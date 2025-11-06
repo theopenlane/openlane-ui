@@ -60858,6 +60858,7 @@ export type GetProgramBasicInfoQuery = {
     frameworkName?: string | null
     status: ProgramProgramStatus
     programType: ProgramProgramType
+    programOwnerID?: string | null
   }
 }
 
@@ -61025,7 +61026,6 @@ export type GetProgramDashboardQuery = {
         status: ProgramProgramStatus
         endDate?: any | null
         createdBy?: string | null
-        evidences: { __typename?: 'ControlConnection'; totalCount: number }
         submittedEvidences: { __typename?: 'ControlConnection'; totalCount: number }
         tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; status: TaskTaskStatus } | null } | null> | null }
         controls: { __typename?: 'ControlConnection'; totalCount: number }
