@@ -61025,7 +61025,7 @@ export type GetProgramDashboardQuery = {
         description?: string | null
         status: ProgramProgramStatus
         endDate?: any | null
-        createdBy?: string | null
+        user?: { __typename?: 'User'; id: string; displayName: string } | null
         submittedEvidences: { __typename?: 'ControlConnection'; totalCount: number }
         tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; status: TaskTaskStatus } | null } | null> | null }
         controls: { __typename?: 'ControlConnection'; totalCount: number }

@@ -382,7 +382,10 @@ export const GET_PROGRAM_DASHBOARD = gql`
           description
           status
           endDate
-          createdBy
+          user {
+            id
+            displayName
+          }
           submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY, APPROVED] }] }) {
             totalCount
           }

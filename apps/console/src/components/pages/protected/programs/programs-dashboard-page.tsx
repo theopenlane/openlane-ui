@@ -23,7 +23,6 @@ import Menu from '@/components/shared/menu/menu'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { ProgramSettingsAssignUserDialog } from '../../programs/settings/users/program-settings-assign-user-dialog'
 import clsx from 'clsx'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -49,32 +48,6 @@ const ProgramsDashboardPage = () => {
     ids: programIds,
     enabled: hasData,
   })
-
-  const userIds = useMemo(() => {
-    const ids = data?.programs?.edges?.map((e) => e?.node?.createdBy).filter((id): id is string => typeof id === 'string')
-
-    return ids ? Array.from(new Set(ids)) : []
-  }, [data])
-
-  const { data: userData } = useGetOrgMemberships({
-    where: {
-      hasUserWith: userIds.map((id) => ({ id })),
-    },
-    enabled: userIds.length > 0,
-  })
-
-  const userMap = useMemo(() => {
-    const map = new Map<string, string>()
-
-    userData?.orgMemberships?.edges?.forEach((edge) => {
-      const user = edge?.node?.user
-      if (user?.id) {
-        map.set(user.id, user.displayName)
-      }
-    })
-
-    return map
-  }, [userData])
 
   const grouped = useMemo(() => {
     const groups: Record<string, Program[]> = {}
@@ -179,9 +152,7 @@ const ProgramsDashboardPage = () => {
                   <span className="text-lg">{framework}</span>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="flex flex-wrap gap-4 mt-4">
-                    {programs.map((p) => p && <ProgramCard key={p.id} program={p} userMap={userMap} editAllowed={canEdit(permission?.object_roles[p.id])} />)}
-                  </div>
+                  <div className="flex flex-wrap gap-4 mt-4">{programs.map((p) => p && <ProgramCard key={p.id} program={p} editAllowed={canEdit(permission?.object_roles[p.id])} />)}</div>
                 </AccordionContent>
               </AccordionItem>
             )
@@ -194,7 +165,7 @@ const ProgramsDashboardPage = () => {
 
 export default ProgramsDashboardPage
 
-const ProgramCard = ({ program, userMap, editAllowed }: { program: NonNullable<Program>; userMap: Map<string, string>; editAllowed: boolean }) => {
+const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; editAllowed: boolean }) => {
   const evidencePct = Math.round((program.submittedEvidences.totalCount / program.controls.totalCount) * 100) || 0
 
   const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
@@ -272,7 +243,7 @@ const ProgramCard = ({ program, userMap, editAllowed }: { program: NonNullable<P
         <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
         <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
           <UserIcon className="size-4 " />
-          {userMap.get(program?.createdBy ?? '') ?? 'Unknown'}
+          {program.user?.displayName ?? 'Unknown'}
         </div>
       </div>
 
