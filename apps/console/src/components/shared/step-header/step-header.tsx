@@ -4,12 +4,12 @@ import { Stepper, Step } from '@stepperize/react'
 
 interface StepHeaderProps<T extends Step[] = Step[]> {
   stepper: Stepper<T>
-  currentIndex: number
   disabledIDs?: string[]
 }
 
-export function StepHeader<T extends Step[]>({ stepper, currentIndex, disabledIDs = [] }: StepHeaderProps<T>) {
+export function StepHeader<T extends Step[]>({ stepper, disabledIDs = [] }: StepHeaderProps<T>) {
   const visibleSteps = stepper.all.filter((s) => !disabledIDs.includes(s.id))
+  const currentVisibleIndex = visibleSteps.findIndex((s) => s.id === stepper.current.id)
 
   return (
     <div className="flex justify-between items-center mb-6">
@@ -24,7 +24,7 @@ export function StepHeader<T extends Step[]>({ stepper, currentIndex, disabledID
         })}
       </div>
       <p className="text-sm text-muted-foreground">
-        Step {currentIndex + 1} of {visibleSteps.length}
+        Step {currentVisibleIndex + 1} of {visibleSteps.length}
       </p>
     </div>
   )
