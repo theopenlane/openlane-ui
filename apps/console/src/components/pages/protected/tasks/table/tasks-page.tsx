@@ -40,6 +40,7 @@ const TasksPage: React.FC = () => {
     },
   ])
   const allStatuses = useMemo(() => Object.values(TaskTaskStatus), [])
+  const statusesWithoutCompleteAndWontDo = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED && status !== TaskTaskStatus.WONT_DO), [allStatuses])
   const { data: permission } = useOrganizationRoles()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     createdAt: false,
@@ -58,20 +59,29 @@ const TasksPage: React.FC = () => {
   const whereFilter = useMemo(() => {
     if (!filters) return null
 
-    const base = {
+    let statusInSet = false
+
+    let base = {
       titleContainsFold: debouncedSearch,
-      statusIn: allStatuses,
     }
 
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
       if (key === 'hasProgramsWith') {
         return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
       }
+      if (key === 'statusIn') {
+        statusInSet = true
+      }
       return { [key]: value } as TaskWhereInput
     })
 
+    base = {
+      ...base,
+      ...(!statusInSet && { statusIn: statusesWithoutCompleteAndWontDo }),
+    }
+
     return { ...base, ...result }
-  }, [filters, debouncedSearch, allStatuses])
+  }, [filters, debouncedSearch, statusesWithoutCompleteAndWontDo])
 
   useEffect(() => {
     setCrumbs([

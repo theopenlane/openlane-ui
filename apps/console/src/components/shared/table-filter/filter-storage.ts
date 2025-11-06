@@ -8,10 +8,10 @@ export type TFilterValue = string | string[] | number | boolean | Date | DateRan
 export type TFilterState = Record<string, TFilterValue>
 export type TQuickFilterState = { key: string; condition: TFilterState } | Record<string, boolean>
 
-const STORAGE_FILER_PREFIX = 'filters:'
+const STORAGE_FILTER_PREFIX = 'filters:'
 const STORAGE_QUICK_FILTERS_PREFIX = 'quick-filters:'
 
-const storageFilterKey = (pageKey: TableFilterKeysEnum) => `${STORAGE_FILER_PREFIX}${pageKey}`
+const storageFilterKey = (pageKey: TableFilterKeysEnum) => `${STORAGE_FILTER_PREFIX}${pageKey}`
 const storageQuickFilterKey = (pageKey: TableFilterKeysEnum) => `${STORAGE_QUICK_FILTERS_PREFIX}${pageKey}`
 
 export function saveFilters(pageKey: TableFilterKeysEnum, state: TFilterState): void {

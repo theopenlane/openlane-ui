@@ -56,7 +56,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteTasks } = useBulkDeleteTask()
-  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const quickFilters: TQuickFilter[] = useMemo(() => {
     return [
       {
@@ -78,7 +77,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         key: 'myTasks',
         type: 'custom',
         getCondition: () => ({ assigneeID: session?.user?.userId }),
-        isActive: false,
+        isActive: props.showMyTasks ?? false,
       },
       {
         label: 'Overdue',
@@ -109,7 +108,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         isActive: false,
       },
     ]
-  }, [session?.user?.userId])
+  }, [props.showMyTasks, session?.user?.userId])
 
   const handleBulkDelete = async () => {
     if (!props.selectedTasks) {
