@@ -13,8 +13,6 @@ export const ProgramSettingsImportControls = () => {
   const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
 
-  console.log(editAllowed)
-
   if (!editAllowed) {
     return null
   }
