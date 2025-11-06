@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/programs'
-import { Users, Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo } from 'lucide-react'
+import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
@@ -195,7 +195,7 @@ const ProgramsDashboardPage = () => {
 export default ProgramsDashboardPage
 
 const ProgramCard = ({ program, userMap, editAllowed }: { program: NonNullable<Program>; userMap: Map<string, string>; editAllowed: boolean }) => {
-  const evidencePct = Math.round((program.submittedEvidences.totalCount / program.controls.totalCount) * 100)
+  const evidencePct = Math.round((program.submittedEvidences.totalCount / program.controls.totalCount) * 100) || 0
 
   const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
   const status = program.status === ProgramProgramStatus.READY_FOR_AUDITOR ? ProgramProgramStatus.IN_PROGRESS : program.status
@@ -232,7 +232,7 @@ const ProgramCard = ({ program, userMap, editAllowed }: { program: NonNullable<P
         <div className="font-medium flex items-center gap-3">
           <StandardsIconMapper height={30} width={30} shortName={program.frameworkName ?? ''}></StandardsIconMapper>
           {program.name}
-          {program.status === ProgramProgramStatus.READY_FOR_AUDITOR && <Badge>Ready For Auditor</Badge>}
+          {program.status === ProgramProgramStatus.READY_FOR_AUDITOR && <Badge variant={'green'}>Ready For Auditor</Badge>}
         </div>
         <div className="flex items-center gap-3">
           {isArchived ? (
@@ -271,7 +271,7 @@ const ProgramCard = ({ program, userMap, editAllowed }: { program: NonNullable<P
         </div>
         <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
         <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
-          <Users className="size-4 " />
+          <UserIcon className="size-4 " />
           {userMap.get(program?.createdBy ?? '') ?? 'Unknown'}
         </div>
       </div>
