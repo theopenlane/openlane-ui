@@ -43,6 +43,14 @@ export function clearQuickFilters(pageKey: TableFilterKeysEnum): void {
 }
 
 export function loadQuickFilter(pageKey: TableFilterKeysEnum, quickFilters: TQuickFilter[] = []): TQuickFilter | null {
+  const activeQuickFilter = quickFilters.find((item) => item.isActive)
+  // This is the case when we have active quick filter as default value
+  if (activeQuickFilter) {
+    clearQuickFilters(pageKey)
+    saveQuickFilters(pageKey, activeQuickFilter)
+    return activeQuickFilter
+  }
+
   const saved = localStorage.getItem(storageQuickFilterKey(pageKey))
   if (!saved) return null
 
