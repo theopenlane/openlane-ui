@@ -54,18 +54,18 @@ export const PoliciesTable = () => {
 
     const result = whereGenerator<InternalPolicyWhereInput>(filters, (key, value) => {
       if (key === 'hasControlsWith') {
-        return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as InternalPolicyWhereInput
+        return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
       }
 
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ id: value as string }] } as InternalPolicyWhereInput
+        return { hasProgramsWith: [{ idIn: value }] } as InternalPolicyWhereInput
       }
 
       if (key === 'hasSubcontrolsWith') {
-        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] } as InternalPolicyWhereInput
+        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] }
       }
 
-      return { [key]: value } as InternalPolicyWhereInput
+      return { [key]: value }
     })
 
     const hasStatusCondition = (obj: InternalPolicyWhereInput): boolean => {
@@ -186,7 +186,7 @@ export const PoliciesTable = () => {
     ])
   }, [setCrumbs])
 
-  const handleBulkEdit = () => {
+  const handleClearSelectedPolicies = () => {
     setSelectedPolicies([])
   }
 
@@ -205,7 +205,7 @@ export const PoliciesTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={policies && policies.length > 0}
-        handleBulkEdit={handleBulkEdit}
+        handleClearSelectedPolicies={handleClearSelectedPolicies}
         selectedPolicies={selectedPolicies}
         setSelectedPolicies={setSelectedPolicies}
         canEdit={canEdit}

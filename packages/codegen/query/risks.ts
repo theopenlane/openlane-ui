@@ -265,3 +265,11 @@ export const CREATE_RISK = gql`
     }
   }
 `
+
+export const BULK_DELETE_RISK = gql`
+  mutation DeleteBulkRisk($ids: [ID!]!) {
+    deleteBulkRisk(ids: $ids) {
+      deletedIDs
+    }
+  }
+`

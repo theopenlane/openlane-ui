@@ -15,9 +15,9 @@ export function useProceduresFilters(): FilterField[] | null {
     if (!isProgramSuccess || !isGroupSuccess || filters) return
     const newFilters: FilterField[] = [
       {
-        key: 'approverID',
+        key: 'approverIDIn',
         label: 'Approver Group',
-        type: 'select',
+        type: 'multiselect',
         options: groupOptions,
         icon: FilterIcons.ApproverGroup,
       },
@@ -30,7 +30,7 @@ export function useProceduresFilters(): FilterField[] | null {
       {
         key: 'hasProgramsWith',
         label: 'Program Name',
-        type: 'select',
+        type: 'multiselect',
         options: programOptions,
         icon: FilterIcons.ProgramName,
       },

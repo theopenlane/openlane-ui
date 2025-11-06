@@ -10,6 +10,7 @@ import {
   GET_TABLE_PROCEDURES,
   BULK_EDIT_PROCEDURE,
   CREATE_UPLOAD_PROCEDURE,
+  BULK_DELETE_PROCEDURE,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -31,6 +32,8 @@ import {
   UpdateBulkProcedureMutationVariables,
   CreateUploadProcedureMutation,
   CreateUploadProcedureMutationVariables,
+  DeleteBulkProcedureMutation,
+  DeleteBulkProcedureMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -155,6 +158,17 @@ export const useCreateUploadProcedure = () => {
 
   return useMutation<CreateUploadProcedureMutation, unknown, CreateUploadProcedureMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_UPLOAD_PROCEDURE, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+    },
+  })
+}
+
+export const useBulkDeleteProcedures = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkProcedureMutation, unknown, DeleteBulkProcedureMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_PROCEDURE, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
     },
