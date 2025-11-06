@@ -27,6 +27,8 @@ type TTableFilterProps = {
 const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageKey, onFilterChange, quickFilters = [] }) => {
   const [values, setValues] = useState<TFilterState>({})
   const [open, setOpen] = useState(false)
+  const memoizedFilterFields = useMemo(() => filterFields, [filterFields])
+  const memoizedQuickFilters = useMemo(() => quickFilters, [quickFilters])
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
   const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters), [values, activeQuickFilters])
 
@@ -39,32 +41,46 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [])
 
   useEffect(() => {
-    const savedQuickFilter = loadQuickFilter(pageKey, quickFilters)
-    const saved = loadFilters(pageKey, filterFields)
+    const savedQuickFilter = loadQuickFilter(pageKey, memoizedQuickFilters)
+    const saved = loadFilters(pageKey, memoizedFilterFields)
+
     if (savedQuickFilter) {
-      const updatedFilters = quickFilters.map((f) => ({
+      const updatedFilters = memoizedQuickFilters.map((f) => ({
         ...f,
         isActive: f.key === savedQuickFilter.key,
       }))
-      setActiveQuickFilters(updatedFilters)
+
+      setActiveQuickFilters((prev) => {
+        const isSame = JSON.stringify(prev) === JSON.stringify(updatedFilters)
+        return isSame ? prev : updatedFilters
+      })
     } else if (saved) {
-      setValues(saved)
-      onFilterChange?.(buildWhereCondition(saved, filterFields))
+      setValues((prev) => {
+        const isSame = JSON.stringify(prev) === JSON.stringify(saved)
+        return isSame ? prev : saved
+      })
+      onFilterChange?.(buildWhereCondition(saved, memoizedFilterFields))
     } else {
       onFilterChange?.({})
     }
+  }, [pageKey, memoizedFilterFields, memoizedQuickFilters, onFilterChange, buildWhereCondition])
 
+  useEffect(() => {
     const listener = (e: CustomEvent) => {
       const updated = e.detail as TFilterState
-      const validKeys = filterFields.map((f) => f.key)
+      const validKeys = memoizedFilterFields.map((f) => f.key)
       const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => validKeys.includes(key)))
-      setValues(cleaned)
-      onFilterChange?.(buildWhereCondition(cleaned, filterFields))
+
+      setValues((prev) => {
+        const isSame = JSON.stringify(prev) === JSON.stringify(cleaned)
+        return isSame ? prev : cleaned
+      })
+      onFilterChange?.(buildWhereCondition(cleaned, memoizedFilterFields))
     }
 
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
     return () => window.removeEventListener(`filters-updated:${pageKey}`, listener as EventListener)
-  }, [pageKey, filterFields, onFilterChange, buildWhereCondition, quickFilters])
+  }, [pageKey, memoizedFilterFields, onFilterChange, buildWhereCondition])
 
   const toggleQuickFilter = useCallback((qf: TQuickFilter) => {
     setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key && item.label === qf.label ? { ...item, isActive: !item.isActive } : { ...item, isActive: false })))
@@ -99,6 +115,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   )
 
   const applyFilters = useCallback(() => {
+    console.log('5')
     const activeQuickFilter = getActiveQuickFilter()
     if (activeQuickFilter) {
       saveQuickFilters(pageKey, activeQuickFilter)
