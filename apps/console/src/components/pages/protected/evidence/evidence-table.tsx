@@ -10,6 +10,7 @@ import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/T
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import EvidenceCreateSheet from './evidence-create-sheet'
+import { CustomEvidenceControl } from './evidence-sheet-config'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -31,6 +32,19 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
     controlIdFromControl: control.controlID!,
     subcontrolIdFromControl: control.subcontrolID || undefined,
   }
+
+  const controlParam: CustomEvidenceControl = {
+    id: control.controlID || (control.subcontrolID as string),
+    referenceFramework: control.subcontrolReferenceFramework
+      ? Object.values(control.subcontrolReferenceFramework)[0] ?? ''
+      : control.referenceFramework
+      ? Object.values(control.referenceFramework)[0] ?? ''
+      : '',
+
+    refCode: control.displayID ?? '',
+    __typename: isSubcontrol ? 'Subcontrol' : 'Control',
+  }
+
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
@@ -45,6 +59,7 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
                 onOpenChange={setIsSheetOpen}
                 controlIdsFromControl={controlIds}
                 formData={control}
+                controlParam={controlParam}
                 excludeObjectTypes={[
                   ObjectTypeObjects.EVIDENCE,
                   ObjectTypeObjects.RISK,

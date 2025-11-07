@@ -6,13 +6,15 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { UseFormReturn } from 'react-hook-form'
 import { TriangleAlert } from 'lucide-react'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
-import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
-import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useCloneControls } from '@/lib/graphql-hooks/standards'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { GetExistingControlsForOrganizationQuery, GetExistingSubcontrolsForOrganizationQuery } from '@repo/codegen/src/schema'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { GET_EXISTING_CONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/control'
+import { GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/subcontrol'
 
 type TObjectAssociationControlsChipsProps = {
   form: UseFormReturn<CreateEvidenceFormData>
@@ -30,31 +32,19 @@ enum ItemType {
 
 const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }: TObjectAssociationControlsChipsProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string; typeName: ItemType }[]>([])
+  const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string; referenceFramework?: string; typeName: ItemType }[]>([])
   const [pendingAdd, setPendingAdd] = useState<{
     id: string
     isSubcontrol: boolean
     refCode: string
     referenceFramework: string | null
   } | null>(null)
-  const [controlRefCodes, setControlRefCodes] = useState<string[]>([])
-  const [subcontrolRefCodes, setSubcontrolRefCodes] = useState<string[]>([])
+
   const { mutateAsync: cloneControls } = useCloneControls()
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
+  const { client } = useGraphQLClient()
 
-  const { data: refcodeData } = useGetControlsByRefCode({
-    refCodeIn: controlRefCodes,
-    enabled: controlRefCodes.length > 0,
-  })
-
-  const { data: subcontrolRefcodeData } = useGetSubcontrolsByRefCode({
-    refCodeIn: subcontrolRefCodes,
-    enabled: subcontrolRefCodes.length > 0,
-  })
-
-  const controlExists = (refcodeData?.controls?.edges?.length ?? 0) > 0
-  const subcontrolExists = (subcontrolRefcodeData?.subcontrols?.edges?.length ?? 0) > 0
   const handleRemove = (id: string, refCode: string, isSubcontrol = false) => {
     if (isSubcontrol) {
       setEvidenceSubcontrols((prev) => {
@@ -91,27 +81,73 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
     }
   }
 
-  const handleAdd = (id: string, isSubcontrol = false, refCode: string, source: string, referenceFramework: string | null) => {
-    const newRefCodes = [refCode]
-
-    if (source === 'SUGGESTED') {
-      const typeName = isSubcontrol ? ItemType.Subcontrol : ItemType.Control
-      setSelectedControls([{ id, refCode, typeName }])
-      setPendingAdd({ id, isSubcontrol, refCode, referenceFramework })
-
-      if (isSubcontrol) {
-        setSubcontrolRefCodes(newRefCodes)
-      } else {
-        setControlRefCodes(newRefCodes)
-      }
-
-      if ((isSubcontrol && !subcontrolExists) || (!isSubcontrol && !controlExists)) {
-        setIsDialogOpen(false)
-        requestAnimationFrame(() => setIsDialogOpen(true))
+  const handleAdd = async (id: string, isSubcontrol = false, refCode: string, source: string, referenceFramework: string | null) => {
+    try {
+      if (source !== 'SUGGESTED') {
+        addEvidenceControl(id, isSubcontrol, refCode, referenceFramework)
         return
       }
+
+      if (isSubcontrol) {
+        const response = await client.request<GetExistingSubcontrolsForOrganizationQuery>(GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION, {
+          where: {
+            refCodeIn: [refCode],
+            systemOwned: false,
+            referenceFrameworkIn: [referenceFramework || 'CUSTOM'],
+          },
+        })
+
+        const exists = (response?.subcontrols?.edges?.length ?? 0) > 0
+
+        if (exists) {
+          addEvidenceControl(id, true, refCode, referenceFramework)
+        } else {
+          setPendingAdd({ id, isSubcontrol, refCode, referenceFramework })
+          setSelectedControls([
+            {
+              id,
+              refCode,
+              referenceFramework: referenceFramework ?? '',
+              typeName: ItemType.Subcontrol,
+            },
+          ])
+          setIsDialogOpen(true)
+        }
+
+        return
+      }
+
+      const response = await client.request<GetExistingControlsForOrganizationQuery>(GET_EXISTING_CONTROLS_FOR_ORGANIZATION, {
+        where: {
+          refCodeIn: [refCode],
+          systemOwned: false,
+          referenceFrameworkIn: [referenceFramework || 'CUSTOM'],
+        },
+      })
+
+      const exists = (response?.controls?.edges?.length ?? 0) > 0
+
+      if (exists) {
+        addEvidenceControl(id, false, refCode, referenceFramework)
+      } else {
+        setPendingAdd({ id, isSubcontrol, refCode, referenceFramework })
+        setSelectedControls([
+          {
+            id,
+            refCode,
+            referenceFramework: referenceFramework ?? '',
+            typeName: ItemType.Control,
+          },
+        ])
+        setIsDialogOpen(true)
+      }
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
-    addEvidenceControl(id, isSubcontrol, refCode, referenceFramework)
   }
 
   const handleConfirmAdd = async () => {
@@ -134,7 +170,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
 
       successNotification({ title: 'Controls added to organization successfully!' })
       setIsDialogOpen(false)
-      setPendingAdd(null) // clear pending
+      setPendingAdd(null)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -151,6 +187,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
           evidenceControls.map(({ id, refCode, referenceFramework }, i) => (
             <ControlChip
               key={i}
+              clickable={false}
               control={{
                 id,
                 refCode: refCode,
@@ -196,6 +233,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
           .map(({ id, refCode, referenceFramework, typeName, source }) => (
             <ControlChip
               key={id}
+              clickable={false}
               control={{
                 id,
                 refCode,

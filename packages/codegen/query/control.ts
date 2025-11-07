@@ -581,3 +581,20 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
     }
   }
 `
+
+export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
+  query GetExistingControlsForOrganization($where: ControlWhereInput) {
+    controls(where: $where) {
+      edges {
+        node {
+          id
+          refCode
+          referenceFramework
+          standardID
+          ownerID
+          systemOwned
+        }
+      }
+    }
+  }
+`

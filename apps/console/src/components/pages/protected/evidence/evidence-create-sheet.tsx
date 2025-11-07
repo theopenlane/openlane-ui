@@ -45,6 +45,7 @@ type TEvidenceCreateSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   controlIdsFromControl?: { controlIdFromControl: string; subcontrolIdFromControl: string | undefined }
+  controlParam?: CustomEvidenceControl
 }
 
 const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
@@ -55,6 +56,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   open,
   onOpenChange,
   controlIdsFromControl,
+  controlParam,
 }: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
@@ -135,6 +137,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   }
   const handleInitialValue = useCallback(() => {
     if (formData) {
+      if (controlParam) {
+        if (controlParam.__typename === 'Control') setEvidenceControls(controlParam ? [controlParam] : [])
+        else setEvidenceSubcontrols(controlParam ? [controlParam] : [])
+      }
+
       form.setValue('name', `Evidence for ${formData.displayID}`)
       for (const [key, value] of Object.entries(formData.objectAssociations)) {
         form.setValue(key as keyof CreateEvidenceFormData, value)
@@ -158,7 +165,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
       }
     }
-  }, [form, formData])
+  }, [form, formData, controlParam])
 
   const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
 
