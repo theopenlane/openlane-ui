@@ -226,7 +226,6 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
     if (program.startDate) {
       return <p>{formatDate(program.startDate)} → Ongoing</p>
     }
-    return <p>N/Ag</p>
   }
 
   const handleUnarchive = async () => {
@@ -288,11 +287,15 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
           {ProgramIconMapper[status]}
           <span className={clsx('capitalize', isArchived && 'text-muted-foreground')}>{status.replace('_', ' ').toLowerCase()}</span>
         </div>
-        <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
-        <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
-          <Calendar className="size-4 " />
-          {renderDates()}
-        </div>
+        {(program.startDate || program.endDate) && (
+          <>
+            <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
+            <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
+              <Calendar className="size-4 " />
+              {renderDates()}
+            </div>
+          </>
+        )}
         <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
         <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
           <UserIcon className="size-4 " />
