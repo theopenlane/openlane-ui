@@ -1,7 +1,6 @@
 'use client'
 
 import type { AIChatPluginConfig } from '@platejs/ai/react'
-import type { UseChatOptions } from 'ai/react'
 
 import { streamInsertChunk, withAIBatch } from '@platejs/ai'
 import { AIChatPlugin, AIPlugin, useChatChunk } from '@platejs/ai/react'
@@ -19,7 +18,7 @@ export const aiChatPlugin = AIChatPlugin.extend({
     chatOptions: {
       api: '/api/ai/command',
       body: {},
-    } as UseChatOptions,
+    },
     promptTemplate: ({ isBlockSelecting, isSelecting }) => {
       return isBlockSelecting ? PROMPT_TEMPLATES.userBlockSelecting : isSelecting ? PROMPT_TEMPLATES.userSelecting : PROMPT_TEMPLATES.userDefault
     },
