@@ -1,8 +1,8 @@
-import { ProgramsPageSkeleton } from '@/components/pages/protected/program/skeleton/programs-page-skeleton'
+import { Loading } from '@/components/shared/loading/loading'
 import React from 'react'
 
 const Loader: React.FC = () => {
-  return <ProgramsPageSkeleton />
+  return <Loading />
 }
 
 export default Loader

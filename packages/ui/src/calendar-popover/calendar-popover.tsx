@@ -7,26 +7,19 @@ import { FieldValues, Path, ControllerRenderProps } from 'react-hook-form'
 import { Button } from '../button/button'
 import { calendarPopoverStyles } from '../calendar-popover/calendar-popover.styles'
 import { Calendar } from '../calendar/calendar'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../select/select'
-
-type TCustomSelect = {
-  value: any
-  label: string
-}
 
 export type CalendarPopoverProps<T extends FieldValues> = {
   field?: ControllerRenderProps<T, Path<T>>
   defaultToday?: boolean
   defaultAddDays?: number
   required?: boolean
-  customSelect?: TCustomSelect[]
   buttonClassName?: string
   disabledFrom?: Date
   disableFuture?: boolean
   onChange?: (val: Date | null) => void
 }
 
-const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect, buttonClassName, disabledFrom, disableFuture, onChange }: CalendarPopoverProps<T>) => {
+const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, buttonClassName, disabledFrom, disableFuture, onChange }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
   const defaultDate = defaultAddDaysDate ?? todayDate ?? null
@@ -82,21 +75,6 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
         </Button>
       </PopoverTrigger>
       <PopoverContent className={calendarPopoverStyle()} align="start">
-        {customSelect && (
-          <Select onValueChange={(value) => handleSelectChange(value)}>
-            <SelectTrigger className="bg-background-secondary">
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent position="popper">
-              {customSelect.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-
         <Calendar
           mode="single"
           disabled={(date) => {

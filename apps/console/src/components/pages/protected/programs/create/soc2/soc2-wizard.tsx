@@ -125,12 +125,10 @@ export default function Soc2Wizard() {
     ])
   }, [setCrumbs])
 
-  const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
-
   return (
     <>
       <div className="max-w-3xl mx-auto px-6 py-2">
-        <StepHeader stepper={stepper} currentIndex={currentIndex} />
+        <StepHeader stepper={stepper} />
         <Separator separatorClass="bg-card" />
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
