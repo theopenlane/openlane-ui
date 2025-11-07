@@ -204,7 +204,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                 </div>
                 <AlertDialogFooter>
                   <AlertDialogCancel asChild>
-                    <Button variant="secondary">Cancel</Button>
+                    <Button variant="primary">Cancel</Button>
                   </AlertDialogCancel>
                   <AlertDialogAction asChild>
                     <Button variant="filled" onClick={handleSubmit((data) => handleChangeRole(data.role))}>
