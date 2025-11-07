@@ -61,13 +61,18 @@ const TimelineReadiness = () => {
   const { handleSubmit, control } = form
 
   const onSubmit = async (values: FormValues) => {
+    const clearStartDate = values.startDate ? undefined : true
+    const clearEndDate = values.endDate ? undefined : true
+
     try {
       await updateProgram({
         updateProgramId: id,
         input: {
           ...values,
-          startDate: values.startDate ?? undefined,
-          endDate: values.endDate ?? undefined,
+          startDate: values.startDate || undefined,
+          endDate: values.endDate || undefined,
+          clearStartDate,
+          clearEndDate,
         },
       })
 

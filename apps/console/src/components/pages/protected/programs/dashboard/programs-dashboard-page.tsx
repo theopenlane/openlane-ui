@@ -208,6 +208,27 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
 
   const ownerDisplayName = program.programOwner?.displayName
 
+  const renderDates = () => {
+    const hasBothDates = !!program.startDate && !!program.endDate
+
+    if (hasBothDates) {
+      return (
+        <p>
+          {formatDate(program.startDate)} → {formatDate(program.endDate)}
+        </p>
+      )
+    }
+
+    if (program.endDate) {
+      return <p>→ {formatDate(program.endDate)}</p>
+    }
+
+    if (program.startDate) {
+      return <p>{formatDate(program.startDate)} → Ongoing</p>
+    }
+    return <p>N/Ag</p>
+  }
+
   const handleUnarchive = async () => {
     try {
       await updateProgram({
@@ -270,7 +291,7 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
         <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
         <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
           <Calendar className="size-4 " />
-          {formatDate(new Date().toISOString())} → {formatDate(program.endDate)}
+          {renderDates()}
         </div>
         <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
         <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
