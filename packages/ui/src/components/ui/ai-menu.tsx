@@ -32,8 +32,7 @@ export function AIMenu() {
   const { input, messages, setInput, status } = chat
   const [anchorElement, setAnchorElement] = React.useState<HTMLElement | null>(null)
 
-  const content = useLastAssistantMessage()?.content
-
+  const content = useLastAssistantMessage()?.id
   React.useEffect(() => {
     if (streaming) {
       const anchor = api.aiChat.node({ anchor: true })
