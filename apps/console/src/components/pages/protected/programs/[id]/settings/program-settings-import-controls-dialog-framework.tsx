@@ -14,8 +14,8 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Input } from '@repo/ui/input'
-import { getColumnsForImportControlsDialogFramework } from '../columns'
 import { SelectedItem, TSharedImportControlsComponentsPropsFrameworks } from '../shared/program-settings-import-controls-shared-props'
+import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
 
 const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, selectedFrameworkIds, setSelectedFrameworkIds }: TSharedImportControlsComponentsPropsFrameworks) => {
   const { data } = useGetStandards({})

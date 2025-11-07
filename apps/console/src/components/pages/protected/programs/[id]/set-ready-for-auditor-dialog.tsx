@@ -5,9 +5,9 @@ import { Info, Pencil } from 'lucide-react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useState } from 'react'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
-import { useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useParams } from 'next/navigation'
 
 interface SetReadyForAuditorDialogProps {
   programStatus: ProgramProgramStatus
@@ -16,8 +16,7 @@ interface SetReadyForAuditorDialogProps {
 const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ programStatus }: SetReadyForAuditorDialogProps) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: update } = useUpdateProgram()
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+  const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
 
   const handleSetReadyForAuditor = async () => {

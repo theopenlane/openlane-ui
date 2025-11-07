@@ -32,7 +32,7 @@ type GroupRow = {
 }
 
 export const ProgramSettingsGroups = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string | undefined }>()
   const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
@@ -53,7 +53,7 @@ export const ProgramSettingsGroups = () => {
   const { data, isLoading } = useGetProgramGroups({
     programId: id ?? null,
   })
-  const { data: basicInfoData } = useGetProgramBasicInfo(id)
+  const { data: basicInfoData } = useGetProgramBasicInfo(id || null)
   const groups: GroupRow[] = useMemo(() => {
     const viewers = data?.program?.viewers?.edges ?? []
     const editors = data?.program?.editors?.edges ?? []

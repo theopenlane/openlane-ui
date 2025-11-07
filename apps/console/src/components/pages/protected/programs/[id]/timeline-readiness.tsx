@@ -20,6 +20,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 const formSchema = z.object({
   startDate: z.date().nullable().optional(),
@@ -31,6 +34,9 @@ type FormValues = z.infer<typeof formSchema>
 
 const TimelineReadiness = () => {
   const { id } = useParams<{ id: string }>()
+
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const isEditAllowed = canEdit(permission?.roles)
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -110,7 +116,7 @@ const TimelineReadiness = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Timeline & Readiness</h2>
-            {!isEditing && (
+            {!isEditing && isEditAllowed && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
                 className="!h-8 !p-2"

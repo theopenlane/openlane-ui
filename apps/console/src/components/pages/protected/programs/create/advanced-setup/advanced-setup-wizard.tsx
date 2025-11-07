@@ -155,8 +155,8 @@ export default function AdvancedSetupWizard() {
       program: {
         name: data.name || '',
         description: data.description,
-        startDate,
-        endDate,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
         programType: data.programType,
         auditor: data.auditPartnerName,
         auditorEmail: data.auditPartnerEmail || undefined,
@@ -179,7 +179,7 @@ export default function AdvancedSetupWizard() {
         title: 'Program Created',
         description: `Your program, ${data.name}, has been successfully created`,
       })
-      router.push(`/programs?id=${resp.createProgramWithMembers.program.id}`)
+      router.push(`/programs/${resp.createProgramWithMembers.program.id}`)
     } catch (e) {
       const errorMessage = parseErrorMessage(e)
       errorNotification({

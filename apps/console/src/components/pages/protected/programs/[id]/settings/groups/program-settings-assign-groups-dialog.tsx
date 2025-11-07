@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
@@ -26,8 +26,8 @@ type GroupRow = {
   role: 'View' | 'Edit'
 }
 export const ProgramSettingsAssignGroupDialog = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+  const { id } = useParams<{ id: string | undefined }>()
+
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
@@ -53,14 +53,14 @@ export const ProgramSettingsAssignGroupDialog = () => {
             {
               hasProgramEditorsWith: [
                 {
-                  idIn: [programId!],
+                  idIn: [id!],
                 },
               ],
             },
             {
               hasProgramViewersWith: [
                 {
-                  idIn: [programId!],
+                  idIn: [id!],
                 },
               ],
             },
@@ -73,7 +73,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const { data, paginationMeta, isLoading } = useGetAllGroups({
     where,
     pagination,
-    enabled: !!programId,
+    enabled: !!id,
   })
 
   const groups = useMemo(() => data?.groups?.edges?.map((edge) => edge?.node) || [], [data])
@@ -151,7 +151,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
   ]
 
   const handleAssign = async () => {
-    if (!programId) {
+    if (!id) {
       errorNotification({
         title: 'Missing Program ID',
         description: 'Cannot assign groups without a valid program ID.',
@@ -165,7 +165,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
 
     try {
       await updateProgram({
-        updateProgramId: programId,
+        updateProgramId: id,
         input: {
           addEditorIDs,
           addViewerIDs,
@@ -173,7 +173,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['groups', where] })
-      queryClient.invalidateQueries({ queryKey: ['programs', programId, 'groups'] })
+      queryClient.invalidateQueries({ queryKey: ['programs', id, 'groups'] })
 
       successNotification({
         title: 'Groups Assigned',

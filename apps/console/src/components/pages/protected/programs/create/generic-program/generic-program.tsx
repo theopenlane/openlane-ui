@@ -62,7 +62,7 @@ const GenericProgram = () => {
         description: `Your program "${resp?.createProgramWithMembers?.program?.name}" has been successfully created.`,
       })
 
-      router.push(`/programs?id=${resp?.createProgramWithMembers?.program?.id}`)
+      router.push(`/programs/${resp.createProgramWithMembers.program.id}`)
     } catch (e) {
       const errorMessage = parseErrorMessage(e)
       errorNotification({
