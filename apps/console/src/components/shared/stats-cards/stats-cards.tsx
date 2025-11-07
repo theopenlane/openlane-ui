@@ -44,7 +44,7 @@ const getTrendColor = (trendType: 'up' | 'down' | 'flat' | undefined, isRejected
   }
 }
 
-const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNode; programId: string }> = ({ stat, hasData, tooltip, programId }) => {
+const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNode; programId: string | undefined }> = ({ stat, hasData, tooltip, programId }) => {
   const { title, percentage, count, total, color, trend, trendType, trendColor } = stat
   const { wrapper, content, title: titleClass, percentage: percentageClass, statDetails, progressWrapper, progressBar, trendBadge } = statCardStyles({ color })
 
@@ -126,7 +126,7 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
 
 const StatsCards: React.FC = () => {
   const path = usePathname()
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string | undefined }>()
 
   const programStats = useProgramEvidenceStats(id)
   const globalStats = useGlobalEvidenceStats({ enabled: !path.startsWith('/programs') })

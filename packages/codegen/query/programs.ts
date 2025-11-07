@@ -382,14 +382,9 @@ export const GET_PROGRAM_DASHBOARD = gql`
           description
           status
           endDate
-          programOwnerID
-          users {
-            edges {
-              node {
-                id
-                displayName
-              }
-            }
+          programOwner {
+            id
+            displayName
           }
           submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY, APPROVED] }] }) {
             totalCount

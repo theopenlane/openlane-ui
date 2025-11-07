@@ -17,6 +17,9 @@ import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -39,7 +42,9 @@ type SetAuditorFormValues = z.infer<typeof setAuditorSchema>
 
 const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAuditorProps) => {
   const hasAuditor = !!(firm || name || email)
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string | undefined }>()
+  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const isEditAllowed = canEdit(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
   const [isEligibleForAuditorSet, setIsEligibleForAuditorSet] = useState(false)
@@ -97,7 +102,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     }
     try {
       await updateProgram({
-        updateProgramId: id,
+        updateProgramId: id!,
         input: {
           ...(values.auditFirm === '' ? { clearAuditFirm: true } : { auditFirm: values.auditFirm }),
           ...(values.auditorName === '' ? { clearAuditor: true } : { auditor: values.auditorName }),
@@ -126,8 +131,8 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
           <div className="flex justify-between items-center gap-4 mb-4">
             <h2 className="text-lg font-semibold">Auditor of this program</h2>
             <div className="flex gap-2">
-              {!isEditing && isEligibleForAuditorSet && <SetReadyForAuditorDialog programStatus={programStatus} />}
-              {hasAuditor && !isEditing && (
+              {!isEditing && isEligibleForAuditorSet && isEditAllowed && <SetReadyForAuditorDialog programStatus={programStatus} />}
+              {hasAuditor && !isEditing && isEditAllowed && (
                 <Button
                   disabled={programStatus === ProgramProgramStatus.ARCHIVED}
                   className="!h-8 !p-2"
@@ -221,7 +226,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
             <div className="flex flex-col gap-4">
               <p className="text-muted-foreground text-sm">No auditor assigned yet.</p>
 
-              {programStatus !== ProgramProgramStatus.ARCHIVED && <SetAuditorDialog />}
+              {programStatus !== ProgramProgramStatus.ARCHIVED && isEditAllowed && <SetAuditorDialog />}
             </div>
           )}
         </form>

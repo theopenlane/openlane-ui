@@ -21,7 +21,6 @@ import { ProgramIconMapper, ProgramSettingsIconBtn } from '@/components/shared/e
 import { Separator } from '@repo/ui/separator'
 import Menu from '@/components/shared/menu/menu'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { ProgramSettingsAssignUserDialog } from '../../programs/settings/users/program-settings-assign-user-dialog'
 import clsx from 'clsx'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
@@ -30,8 +29,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Callout } from '@/components/shared/callout/callout'
-import ProgramsCreate from './create/programs-page'
+import ProgramsCreate from '../create/programs-page'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
@@ -206,7 +206,7 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
-  const ownerDisplayName = program.users.edges?.find((e) => e?.node?.id === program.programOwnerID)?.node?.displayName
+  const ownerDisplayName = program.programOwner?.displayName
 
   const handleUnarchive = async () => {
     try {

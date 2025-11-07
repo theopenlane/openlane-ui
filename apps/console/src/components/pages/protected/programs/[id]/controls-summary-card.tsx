@@ -5,17 +5,16 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { Settings2 } from 'lucide-react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { useParams } from 'next/navigation'
 
 const chartColors = ['#4ADE80', '#EAB308', '#EF4444', '#107565', '#017BFE']
 
 export function ControlsSummaryCard() {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+  const { id } = useParams<{ id: string | undefined }>()
 
-  const { data, isLoading } = useGetControlCountsByStatus(programId)
+  const { data, isLoading } = useGetControlCountsByStatus(id)
 
   const preparingCount = data?.preparing?.totalCount ?? 0
   const changesRequestedCount = data?.changesRequested?.totalCount ?? 0
@@ -37,12 +36,12 @@ export function ControlsSummaryCard() {
   const donutChartColors = totalValue > 0 ? chartColors : ['#E5E7EB']
 
   const handleClick = () => {
-    if (!programId) {
+    if (!id) {
       return
     }
 
     const filters: TFilterState = {
-      hasProgramsWith: [programId],
+      hasProgramsWith: [id],
     }
 
     saveFilters(TableFilterKeysEnum.CONTROL, filters)

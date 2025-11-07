@@ -33,7 +33,7 @@ type MemberRow = {
 export const ProgramSettingsUsers = () => {
   const { data: session } = useSession()
   const currentUserId = session?.user?.userId
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string | undefined }>()
   const queryClient = useQueryClient()
 
   const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
@@ -59,7 +59,7 @@ export const ProgramSettingsUsers = () => {
     where,
     enabled: !!id,
   })
-  const { data: basicInfoData, isLoading: programLoading } = useGetProgramBasicInfo(id)
+  const { data: basicInfoData, isLoading: programLoading } = useGetProgramBasicInfo(id || null)
   const { mutateAsync: updateProgramMembership } = useUpdateProgramMembership()
 
   const handleRemove = async () => {
@@ -232,7 +232,7 @@ export const ProgramSettingsUsers = () => {
         <div className="space-y-2 w-full max-w-[847px]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg">Assigned users</h2>
-            {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignUserDialog id={id} />}
+            {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && !!id && <ProgramSettingsAssignUserDialog id={id} />}
           </div>
 
           <DataTable

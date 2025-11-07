@@ -8,7 +8,6 @@ import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
-import { getColumnsForImportControlsDialogFramework } from '../columns'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
@@ -17,12 +16,13 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { DataTable } from '@repo/ui/data-table'
-import { useSearchParams } from 'next/navigation'
+import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
+import { useParams } from 'next/navigation'
 
 const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selectedProgramIds, setSelectedProgramIds }: TSharedImportControlsComponentsPropsPrograms) => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
-  const { programOptions } = useProgramSelect(programId ? { where: { idNEQ: programId } } : {})
+  const { id } = useParams<{ id: string | undefined }>()
+
+  const { programOptions } = useProgramSelect(id ? { where: { idNEQ: id } } : {})
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
