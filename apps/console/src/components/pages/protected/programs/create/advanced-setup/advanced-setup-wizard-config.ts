@@ -17,8 +17,8 @@ export const step2Schema = z
   .object({
     name: z.string().min(1, 'Program Name is required'),
     description: z.string().optional(),
-    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).optional(),
-    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).optional(),
+    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).nullable().optional(),
+    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).nullable().optional(),
     framework: z.string().optional(),
     standardID: z.string().optional(),
     programType: z.nativeEnum(ProgramProgramType).optional(),

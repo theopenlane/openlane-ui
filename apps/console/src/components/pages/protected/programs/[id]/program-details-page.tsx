@@ -5,22 +5,22 @@ import { useParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
-import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
-import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
-import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
+import BasicInformation from '@/components/pages/protected/programs/[id]/basic-info'
+import ProgramAuditor from '@/components/pages/protected/programs/[id]/program-auditor'
+import ProgramTaskTable from '@/components/pages/protected/programs/[id]/program-tasks-table/program-tasks-table'
+import { ControlsSummaryCard } from '@/components/pages/protected/programs/[id]/controls-summary-card'
 import { SquarePlus } from 'lucide-react'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
-import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
+import TimelineReadiness from '@/components/pages/protected/programs/[id]/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { ProgramsPageSkeleton } from './skeleton/programs-page-skeleton'
+import { ProgramsPageSkeleton } from '../skeleton/programs-page-skeleton'
 
 const ProgramDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -91,7 +91,7 @@ const ProgramDetailsPage: React.FC = () => {
         </div>
 
         <StatsCards />
-        <ProgramsTaskTable />
+        <ProgramTaskTable />
         <ControlsSummaryCard />
       </div>
     </>

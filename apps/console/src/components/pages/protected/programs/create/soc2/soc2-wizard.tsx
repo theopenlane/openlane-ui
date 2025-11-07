@@ -74,6 +74,7 @@ export default function Soc2Wizard() {
         endDate: oneYearFromToday,
         viewerIDs: data.viewerIDs,
         editorIDs: data.editorIDs,
+        frameworkName: 'SOC 2',
       },
       standardID,
       categories: data.categories,
@@ -86,7 +87,7 @@ export default function Soc2Wizard() {
         title: 'Program Created',
         description: `Your program has been successfully created`,
       })
-      router.push(`/programs?id=${resp.createProgramWithMembers.program.id}`)
+      router.push(`/programs/${resp.createProgramWithMembers.program.id}`)
     } catch (e) {
       const errorMessage = parseErrorMessage(e)
       errorNotification({

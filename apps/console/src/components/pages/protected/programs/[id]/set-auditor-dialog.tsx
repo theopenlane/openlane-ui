@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import MessageBox from '@repo/ui/message-box'
 import { Label } from '@repo/ui/label'
@@ -29,8 +29,7 @@ const setAuditorSchema = z.object({
 type SetAuditorFormValues = z.infer<typeof setAuditorSchema>
 
 export const SetAuditorDialog = () => {
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+  const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
