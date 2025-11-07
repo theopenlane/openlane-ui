@@ -45,7 +45,7 @@ type TEvidenceCreateSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   controlIdsFromControl?: { controlIdFromControl: string; subcontrolIdFromControl: string | undefined }
-  controlParam?: CustomEvidenceControl
+  controlParam?: CustomEvidenceControl[]
 }
 
 const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
@@ -137,9 +137,20 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   }
   const handleInitialValue = useCallback(() => {
     if (formData) {
-      if (controlParam) {
-        if (controlParam.__typename === 'Control') setEvidenceControls(controlParam ? [controlParam] : [])
-        else setEvidenceSubcontrols(controlParam ? [controlParam] : [])
+      if (controlParam && controlParam.length) {
+        const newEvidenceControls: CustomEvidenceControl[] = []
+        const newEvidenceSubcontrols: CustomEvidenceControl[] = []
+
+        controlParam.forEach((control) => {
+          if (control.__typename === 'Control') {
+            newEvidenceControls.push(control)
+          } else {
+            newEvidenceSubcontrols.push(control)
+          }
+        })
+
+        setEvidenceControls(newEvidenceControls)
+        setEvidenceSubcontrols(newEvidenceSubcontrols)
       }
 
       form.setValue('name', `Evidence for ${formData.displayID}`)

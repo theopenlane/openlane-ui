@@ -59,7 +59,7 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
                 onOpenChange={setIsSheetOpen}
                 controlIdsFromControl={controlIds}
                 formData={control}
-                controlParam={controlParam}
+                controlParam={[controlParam]}
                 excludeObjectTypes={[
                   ObjectTypeObjects.EVIDENCE,
                   ObjectTypeObjects.RISK,

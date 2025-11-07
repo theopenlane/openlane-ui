@@ -78,7 +78,7 @@ export const buildWhere = (evidenceControls: CustomEvidenceControl[] | null, evi
     or.push({ or: [{ hasToSubcontrolsWith: buildOr(groupedSubcontrols) }] })
   }
 
-  return or.length > 0 ? { or } : null
+  return or.length > 0 ? { or } : undefined
 }
 
 export const flattenAndFilterControls = (

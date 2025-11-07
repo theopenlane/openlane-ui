@@ -40,6 +40,21 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
   const debouncedSearch = useDebounce(searchTerm, 300)
   const { convertToReadOnly } = usePlateEditor()
 
+  const [initialEvidenceControls, setInitialEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
+  const [initialEvidenceSubcontrols, setInitialEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
+  const [initialControlIDs, setInitialControlIDs] = useState<string[]>([])
+  const [initialSubcontrolIDs, setInitialSubcontrolIDs] = useState<string[]>([])
+
+  useEffect(() => {
+    if (open) {
+      setInitialEvidenceControls(evidenceControls ?? [])
+      setInitialEvidenceSubcontrols(evidenceSubcontrols ?? [])
+      setInitialControlIDs(form.getValues('controlIDs') ?? [])
+      setInitialSubcontrolIDs(form.getValues('subcontrolIDs') ?? [])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,
     page: 1,
@@ -79,7 +94,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
@@ -100,6 +115,16 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
   )
 
   const handleSave = () => {
+    onClose()
+  }
+
+  const handleCancel = () => {
+    setEvidenceControls(initialEvidenceControls ? [...initialEvidenceControls] : null)
+    setEvidenceSubcontrols(initialEvidenceSubcontrols ? [...initialEvidenceSubcontrols] : null)
+
+    form.setValue('controlIDs', [...initialControlIDs], { shouldValidate: false, shouldDirty: false })
+    form.setValue('subcontrolIDs', [...initialSubcontrolIDs], { shouldValidate: false, shouldDirty: false })
+
     onClose()
   }
 
@@ -137,7 +162,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
         />
 
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
           <Button onClick={handleSave}>Save</Button>
