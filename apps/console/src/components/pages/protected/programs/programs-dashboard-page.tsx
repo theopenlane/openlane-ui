@@ -37,12 +37,12 @@ const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
-  const { data: orgPermission, isSuccess } = useOrganizationRoles()
+  const { data: orgPermission } = useOrganizationRoles()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const where: ProgramWhereInput = filterStatus === 'ACTIVE' ? { statusNEQ: ProgramProgramStatus.ARCHIVED } : { status: ProgramProgramStatus.ARCHIVED }
 
-  const { data } = useGetProgramDashboard({ where })
+  const { data, isSuccess } = useGetProgramDashboard({ where })
 
   const programIds = (data?.programs.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
   const hasData = !!data?.programs?.edges && data.programs.edges.length > 0
@@ -97,7 +97,7 @@ const ProgramsDashboardPage = () => {
     ])
   }, [setCrumbs])
 
-  if (!data?.programs.edges?.length) {
+  if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
     return (
       <>
         <PageHeading heading="Programs" />
