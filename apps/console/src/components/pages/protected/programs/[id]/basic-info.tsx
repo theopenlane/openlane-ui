@@ -24,6 +24,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { Label } from '@repo/ui/label'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -135,7 +136,7 @@ const BasicInformation = () => {
   return (
     <Card className="p-8 flex-1">
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 text-sm">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 ">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Basic information</h2>
             {!isEditing && isEditAllowed && (
@@ -164,25 +165,25 @@ const BasicInformation = () => {
           </div>
 
           {/* Name */}
-          <div className="flex flex-col border-b pb-2.5 w-full">
-            <div className="flex items-start">
-              <span className="block w-32 shrink-0">Name</span>
+          <div className="flex flex-col border-b pb-3 w-full">
+            <div className="flex items-center">
+              <Label className="block w-32 shrink-0">Name</Label>
               <div className="flex flex-col">
                 {isEditing ? <Controller name="name" control={form.control} render={({ field }) => <Input {...field} className="w-full" />} /> : <span>{program?.name || '—'}</span>}
-                {form.formState.errors.name && <p className="text-destructive text-sm">{form.formState.errors.name.message}</p>}
+                {form.formState.errors.name && <p className="text-destructive ">{form.formState.errors.name.message}</p>}
               </div>
             </div>
           </div>
 
           {/* Type */}
-          <div className="flex border-b pb-2.5">
-            <span className="block w-32 shrink-0">Type</span>
+          <div className="flex border-b pb-3 items-center">
+            <Label className="block w-32 shrink-0">Type</Label>
             {program?.programType && <span>{ProgramTypeLabels[program.programType] || '-'}</span>}
           </div>
 
           {/* Framework */}
-          <div className="flex border-b pb-2.5">
-            <span className="block w-32 shrink-0">Framework</span>
+          <div className="flex border-b pb-3 items-center">
+            <Label className="block w-32 shrink-0">Framework</Label>
             <div className="flex-1">
               <Controller
                 name="frameworkName"
@@ -209,8 +210,8 @@ const BasicInformation = () => {
 
           {/* Tags */}
           {(isEditing || (program?.tags && program.tags.length > 0)) && (
-            <div className="flex border-b pb-2.5">
-              <span className="block w-32 shrink-0">Tags</span>
+            <div className="flex border-b pb-3 items-center">
+              <Label className="block w-32 shrink-0">Tags</Label>
               <div className="text-sm text-left w-full">
                 {isEditing ? (
                   <Controller
@@ -243,8 +244,8 @@ const BasicInformation = () => {
           )}
 
           {/* Description */}
-          <div className="flex border-b pb-2.5">
-            <span className="block w-32 shrink-0">Description</span>
+          <div className="flex border-b pb-3 items-center">
+            <Label className="block w-32 shrink-0">Description</Label>
             <div className="flex-1">
               <Controller
                 name="description"
@@ -260,8 +261,8 @@ const BasicInformation = () => {
             </div>
           </div>
           {/* Program Owner */}
-          <div className="flex pb-2.5">
-            <span className="block w-32 shrink-0">Program Owner</span>
+          <div className="flex pb-3 items-center">
+            <Label className="block w-32 shrink-0">Program Owner</Label>
             <div className="flex-1">
               <Controller
                 name="programOwnerId"
