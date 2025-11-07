@@ -10,7 +10,7 @@ import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -25,12 +25,10 @@ const TasksPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
-  const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const searchParams = useSearchParams()
-  const router = useRouter()
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
@@ -42,7 +40,7 @@ const TasksPage: React.FC = () => {
     },
   ])
   const allStatuses = useMemo(() => Object.values(TaskTaskStatus), [])
-  const statusesWithoutComplete = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED), [allStatuses])
+  const statusesWithoutCompleteAndWontDo = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED && status !== TaskTaskStatus.WONT_DO), [allStatuses])
   const { data: permission } = useOrganizationRoles()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     createdAt: false,
@@ -61,21 +59,29 @@ const TasksPage: React.FC = () => {
   const whereFilter = useMemo(() => {
     if (!filters) return null
 
-    const base = {
+    let statusInSet = false
+
+    let base = {
       titleContainsFold: debouncedSearch,
-      ...(showMyTasks && { assigneeID: session?.user?.userId }),
-      ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
     }
 
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
       if (key === 'hasProgramsWith') {
         return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
       }
+      if (key === 'statusIn') {
+        statusInSet = true
+      }
       return { [key]: value } as TaskWhereInput
     })
 
+    base = {
+      ...base,
+      ...(!statusInSet && { statusIn: statusesWithoutCompleteAndWontDo }),
+    }
+
     return { ...base, ...result }
-  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch, session, showMyTasks])
+  }, [filters, debouncedSearch, statusesWithoutCompleteAndWontDo])
 
   useEffect(() => {
     setCrumbs([
@@ -114,24 +120,6 @@ const TasksPage: React.FC = () => {
 
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
-  }
-
-  const handleShowCompletedTasks = (val: boolean) => {
-    setShowCompletedTasks(val)
-  }
-
-  const handleShowMyTasks = (val: boolean) => {
-    setShowMyTasks(val)
-
-    const params = new URLSearchParams(searchParams.toString())
-
-    if (val) {
-      params.set('showMyTasks', 'true')
-    } else {
-      params.delete('showMyTasks')
-    }
-
-    router.replace(`?${params.toString()}`, { scroll: false })
   }
 
   const emptyUserMap = {}
@@ -173,7 +161,6 @@ const TasksPage: React.FC = () => {
         onFilterChange={setFilters}
         onTabChange={handleTabChange}
         handleClearSelectedTasks={handleClearSelectedTasks}
-        onShowCompletedTasksChange={handleShowCompletedTasks}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
@@ -190,7 +177,6 @@ const TasksPage: React.FC = () => {
         selectedTasks={selectedTasks}
         setSelectedTasks={setSelectedTasks}
         showMyTasks={showMyTasks}
-        onShowMyTasksChange={handleShowMyTasks}
       />
       {activeTab === 'table' ? (
         <TasksTable
