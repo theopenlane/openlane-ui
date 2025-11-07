@@ -112,7 +112,7 @@ export default function FrameworkBasedWizard() {
         title: 'Program Created',
         description: `Your program, ${input.program.name}, has been successfully created`,
       })
-      router.push(`/programs?id=${resp.createProgramWithMembers.program.id}`)
+      router.push(`/programs/${resp.createProgramWithMembers.program.id}`)
     } catch (e) {
       errorNotification({
         title: 'Error',

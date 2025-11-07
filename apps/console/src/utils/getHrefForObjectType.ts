@@ -35,7 +35,7 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
     case 'tasks':
       return `/tasks?id=${row.id}`
     case 'programs':
-      return `/programs?id=${row.id}`
+      return `/programs/${row.id}`
     case 'groups':
       return `/groups?id=${row.id}`
     case 'evidences':

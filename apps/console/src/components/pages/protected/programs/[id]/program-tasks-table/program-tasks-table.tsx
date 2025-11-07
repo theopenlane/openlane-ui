@@ -11,8 +11,8 @@ import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput, User } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config.ts'
-import { useSearchParams } from 'next/navigation'
+import { TASK_SORT_FIELDS } from '../../../tasks/table/table-config.ts'
+import { useParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
@@ -85,13 +85,12 @@ const columns: ColumnDef<FormattedTask>[] = [
   },
 ]
 
-const TasksTable = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
+const ProgramTasksTable = () => {
+  const { id } = useParams<{ id: string | undefined }>()
   const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
-  const where: TaskWhereInput = programId
+  const where: TaskWhereInput = id
     ? {
-        hasProgramsWith: [{ id: programId }],
+        hasProgramsWith: [{ id }],
         statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
       }
     : {}
@@ -102,7 +101,7 @@ const TasksTable = () => {
     },
   ])
 
-  const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!programId })
+  const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!id })
 
   const formattedTasks: FormattedTask[] = useMemo(() => {
     return tasks.map((task) => ({
@@ -116,12 +115,12 @@ const TasksTable = () => {
   }, [tasks])
 
   const handleClick = () => {
-    if (!programId) {
+    if (!id) {
       return
     }
 
     const filters: TFilterState = {
-      hasProgramsWith: [programId],
+      hasProgramsWith: [id],
     }
 
     saveFilters(TableFilterKeysEnum.TASK, filters)
@@ -152,4 +151,4 @@ const TasksTable = () => {
   )
 }
 
-export default TasksTable
+export default ProgramTasksTable

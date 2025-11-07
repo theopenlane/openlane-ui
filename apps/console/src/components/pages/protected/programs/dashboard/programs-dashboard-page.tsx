@@ -21,24 +21,28 @@ import { ProgramIconMapper, ProgramSettingsIconBtn } from '@/components/shared/e
 import { Separator } from '@repo/ui/separator'
 import Menu from '@/components/shared/menu/menu'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { ProgramSettingsAssignUserDialog } from '../../programs/settings/users/program-settings-assign-user-dialog'
 import clsx from 'clsx'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { PageHeading } from '@repo/ui/page-heading'
+import { Callout } from '@/components/shared/callout/callout'
+import ProgramsCreate from '../create/programs-page'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
-  const { data: orgPermission, isSuccess } = useOrganizationRoles()
+  const { data: orgPermission } = useOrganizationRoles()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const where: ProgramWhereInput = filterStatus === 'ACTIVE' ? { statusNEQ: ProgramProgramStatus.ARCHIVED } : { status: ProgramProgramStatus.ARCHIVED }
 
-  const { data } = useGetProgramDashboard({ where })
+  const { data, isSuccess } = useGetProgramDashboard({ where })
 
   const programIds = (data?.programs.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
   const hasData = !!data?.programs?.edges && data.programs.edges.length > 0
@@ -92,6 +96,32 @@ const ProgramsDashboardPage = () => {
       { label: 'Programs', href: '/programs' },
     ])
   }, [setCrumbs])
+
+  if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
+    return (
+      <>
+        <PageHeading heading="Programs" />
+
+        <div className="max-w-5xl mx-auto">
+          <Callout variant="info" title="What is a Program?">
+            Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a significant
+            body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can encompass work across
+            different teams.
+            <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/programs/overview`} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
+              See docs to learn more.
+            </a>
+          </Callout>
+          {canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram) ? (
+            <ProgramsCreate disableHeader={true} noPrograms={true} />
+          ) : (
+            <Callout variant="warning" className="max-w-6xl mx-33 mt-10" title="You do not have permission to create a program">
+              Reach out to an organization admin to create a program on your behalf or request access for program creation
+            </Callout>
+          )}
+        </div>
+      </>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -176,6 +206,28 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
+  const ownerDisplayName = program.programOwner?.displayName
+
+  const renderDates = () => {
+    const hasBothDates = !!program.startDate && !!program.endDate
+
+    if (hasBothDates) {
+      return (
+        <p>
+          {formatDate(program.startDate)} → {formatDate(program.endDate)}
+        </p>
+      )
+    }
+
+    if (program.endDate) {
+      return <p>→ {formatDate(program.endDate)}</p>
+    }
+
+    if (program.startDate) {
+      return <p>{formatDate(program.startDate)} → Ongoing</p>
+    }
+  }
+
   const handleUnarchive = async () => {
     try {
       await updateProgram({
@@ -235,15 +287,19 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
           {ProgramIconMapper[status]}
           <span className={clsx('capitalize', isArchived && 'text-muted-foreground')}>{status.replace('_', ' ').toLowerCase()}</span>
         </div>
-        <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
-        <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
-          <Calendar className="size-4 " />
-          {formatDate(new Date().toISOString())} → {formatDate(program.endDate)}
-        </div>
+        {(program.startDate || program.endDate) && (
+          <>
+            <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
+            <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
+              <Calendar className="size-4 " />
+              {renderDates()}
+            </div>
+          </>
+        )}
         <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
         <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
           <UserIcon className="size-4 " />
-          {program.user?.displayName ?? 'Unknown'}
+          {ownerDisplayName ?? 'Unknown'}
         </div>
       </div>
 

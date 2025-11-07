@@ -145,7 +145,7 @@ type ProgramEvidenceStats = {
   rejected: number
 }
 
-export const useProgramEvidenceStats = (programId: string) => {
+export const useProgramEvidenceStats = (programId: string | undefined) => {
   const { client } = useGraphQLClient()
 
   return useQuery<ProgramEvidenceStats>({

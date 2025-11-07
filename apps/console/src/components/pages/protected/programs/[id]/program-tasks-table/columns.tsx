@@ -2,7 +2,7 @@
 import { Checkbox } from '@repo/ui/checkbox'
 import React from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { SelectedItem } from './shared/program-settings-import-controls-shared-props'
+import { SelectedItem } from '../shared/program-settings-import-controls-shared-props'
 
 type TGetColumnsForImportControlsDialogFrameworkProps = {
   selectedItems: SelectedItem[]
