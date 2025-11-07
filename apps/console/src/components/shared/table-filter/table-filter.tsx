@@ -222,10 +222,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
                     : range?.from
-                      ? `From: ${format(range.from, 'PPP')}`
-                      : range?.to
-                        ? `To: ${format(range.to, 'PPP')}`
-                        : 'Pick date range'}
+                    ? `From: ${format(range.from, 'PPP')}`
+                    : range?.to
+                    ? `To: ${format(range.to, 'PPP')}`
+                    : 'Pick date range'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-4 space-y-4 w-auto">
