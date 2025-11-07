@@ -1,5 +1,5 @@
 import { FilterField } from '@/types'
-import { TaskStatusWithoutCompletedAndOpen, TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { OrderDirection, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { TOrgMembers } from '../hooks/useTaskStore'
 import { FilterIcons } from '@/components/shared/enum-mapper/task-enum'
@@ -11,7 +11,7 @@ function prettifyEnum(key: string) {
     .replace(/^\w/, (c) => c.toUpperCase())
 }
 
-export function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
+function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
   return Object.entries(e).map(([key, value]) => ({
     value,
     label: labels?.[value as T[keyof T]] ?? prettifyEnum(key),
@@ -34,7 +34,7 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     label: 'Status',
     type: 'multiselect',
     icon: FilterIcons.Status,
-    options: enumToOptions(TaskStatusWithoutCompletedAndOpen),
+    options: enumToOptions(TaskTaskStatus),
   },
   {
     key: 'assignerIDIn',

@@ -21,20 +21,22 @@ export const buttonStyles = tv({
         focus-visible:shadow-[0_1px_1px_0.5px_rgba(9,21,29,0.32),_0_0_0_4px_rgba(44,203,171,0.25)]
         focus-visible:bg-btn-primary
         focus-visible:btn-primary-focus
-      `,
+    `,
       secondary: `
-        btn-secondary
-        disabled:cursor-not-allowed
-        disabled:text-btn-secondary-text-disabled
-        disabled:bg-btn-secondary-disabled
-        focus:btn-secondary-focus
-        focus:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
-        dark:focus:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
-        focus-visible:btn-secondary-focus
-        focus-visible:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
-        dark:focus-visible:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
-      `,
-      secondaryOutline: `border-border text-text-paragraph border hover:bg-btn-secondary-hover`,
+      btn-secondary
+      disabled:cursor-not-allowed
+      disabled:text-btn-secondary-text-disabled
+      disabled:bg-btn-secondary-disabled
+      focus:btn-secondary-focus
+      focus:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
+      dark:focus:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
+      focus-visible:btn-secondary-focus
+      focus-visible:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
+      dark:focus-visible:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
+    `,
+      secondaryOutline: `
+      border-border text-text-paragraph border hover:bg-btn-secondary-hover
+    `,
       icon: 'text-muted-foreground hover:text-foreground',
       iconButton: `
         bg-transparent
@@ -57,8 +59,7 @@ export const buttonStyles = tv({
         hover:text-text-paragraph
         [&.is-active]:bg-nav
         [&.is-active]:border-border
-        [&.is-active]:text-text-paragraph
-      `,
+        [&.is-active]:text-text-paragraph`,
       transparent: `
         bg-transparent 
         border 
@@ -66,26 +67,14 @@ export const buttonStyles = tv({
         hover:bg-btn-secondary 
         hover:border-border 
         disabled:cursor-not-allowed
-        disabled:text-btn-secondary-text-disabled
-      `,
-      tag: `
-        border 
-        border-border 
-        rounded-lg 
-        text-muted-foreground 
-        hover:text-text-paragraph 
-        hover:border-text-paragraph
-        [&.is-active]:border-active-filter-border
-        [&.is-active]:bg-active-filter-background
-        [&.is-active]:text-active-filter-text
-      `,
+        disabled:text-btn-secondary-text-disabled`,
       filled: 'bg-button text-button-text ',
       light: 'bg-button-light text-text-dark ',
       outline: 'border-border text-text-paragraph border',
       outlineLight: 'border-border-dark text-text-dark border',
       outlineInput: 'border-border text-text-paragraph border ',
       outlineInputPadding: 'border-border text-paragraph mx-1 border ',
-      redOutline: 'border-red-500 text-red-500 border dark:border-red-500 dark:text-red-500',
+      redOutline: 'border-red-500 text-red-500 border  dark:border-red-500 dark:text-red-500',
       white: {},
       success: 'flex-row-reverse !bg-teal-600 text-button-text ',
       destructive: 'flex-row-reverse !bg-destructive text-destructive-foreground ',

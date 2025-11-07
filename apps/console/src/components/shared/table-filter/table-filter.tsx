@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { FilterField, WhereCondition } from '@/types'
+import React, { useCallback, useEffect, useState } from 'react'
+import { FilterField, WhereCondition, Condition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
-import { format } from 'date-fns'
+import { format, startOfDay, addDays, isSameDay, isValid } from 'date-fns'
 import { Input } from '@repo/ui/input'
 import { Switch } from '@repo/ui/switch'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -12,172 +12,168 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { Separator as Hr } from '@repo/ui/separator'
-import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue } from '@/components/shared/table-filter/filter-storage.ts'
+import type { DateRange } from 'react-day-picker'
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
-import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
   pageKey: TableFilterKeysEnum
   onFilterChange?: (whereCondition: WhereCondition) => void
-  quickFilters?: TQuickFilter[]
 }
 
-const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageKey, onFilterChange, quickFilters = [] }) => {
+const handleDateEQOperator = (value: Date | string, field: string) => {
+  const date = value instanceof Date ? value : new Date(value)
+  if (!isValid(date)) {
+    console.warn(`Invalid date for field "${field}":`, value)
+    return []
+  }
+
+  const start = format(startOfDay(date), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+  const end = format(startOfDay(addDays(date, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+  return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
+}
+const handleDateRangeOperator = (range: DateRange, field: string): Condition[] => {
+  const conditions: Condition[] = []
+
+  if (!range.from && !range.to) return conditions
+
+  if (!range.from && range.to) {
+    const end = format(startOfDay(addDays(range.to, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    conditions.push({ [`${field}LT`]: end })
+    return conditions
+  }
+
+  if (range.from && !range.to) {
+    const start = format(startOfDay(range.from), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    conditions.push({ [`${field}GTE`]: start })
+    return conditions
+  }
+
+  if (range.from && range.to) {
+    const startDate = range.from < range.to ? range.from : range.to
+    const endDate = range.from < range.to ? range.to : range.from
+    if (isSameDay(range.from, range.to)) {
+      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const end = format(startOfDay(addDays(startDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
+    } else {
+      const start = format(startOfDay(startDate), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      const end = format(startOfDay(addDays(endDate, 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
+    }
+  }
+  return conditions
+}
+
+const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageKey, onFilterChange }) => {
   const [values, setValues] = useState<TFilterState>({})
   const [open, setOpen] = useState(false)
-  const memoizedFilterFields = useMemo(() => filterFields, [filterFields])
-  const memoizedQuickFilters = useMemo(() => quickFilters, [quickFilters])
-  const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
-  const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters), [values, activeQuickFilters])
 
-  const buildWhereCondition = useCallback((filterState: TFilterState, filterFields: FilterField[]): WhereCondition => {
-    return getWhereCondition(filterState, filterFields)
-  }, [])
+  const buildWhereCondition = useCallback((vals: TFilterState, fields: FilterField[]): WhereCondition => {
+    const andConditions: WhereCondition[] = []
 
-  const buildQuickFilterWhereCondition = useCallback((quickFilter: TQuickFilter): WhereCondition => {
-    return getQuickFiltersWhereCondition(quickFilter)
+    for (const field of fields) {
+      const key = field.key
+      const val = vals[field.key]
+      if (val === undefined || val === null || (typeof val === 'string' && val.trim() === '') || (Array.isArray(val) && val.length === 0)) {
+        continue
+      }
+
+      switch (field.type) {
+        case 'text':
+          andConditions.push({ [key]: val as string })
+          break
+        case 'multiselect': {
+          const valuesArray = Array.isArray(val) ? val : [val]
+          if (valuesArray.length === 0) break
+          andConditions.push({ [key]: valuesArray } as Condition)
+          break
+        }
+
+        case 'select': {
+          andConditions.push({ [key]: val as string })
+          break
+        }
+
+        case 'boolean':
+          andConditions.push({ [key]: val as boolean } as Condition)
+          break
+
+        case 'date': {
+          const dateVal = val instanceof Date ? val : new Date(val as string)
+          andConditions.push(...handleDateEQOperator(dateVal, key))
+          break
+        }
+        case 'dateRange': {
+          const rangeVal = val as DateRange | undefined
+
+          if (rangeVal?.from || rangeVal?.to) {
+            andConditions.push(...handleDateRangeOperator(rangeVal, key))
+          }
+          break
+        }
+        case 'sliderNumber':
+          andConditions.push({ [field.key]: val as number })
+          break
+      }
+    }
+    return andConditions.length === 0 ? {} : { and: andConditions }
   }, [])
 
   useEffect(() => {
-    const savedQuickFilter = loadQuickFilter(pageKey, memoizedQuickFilters)
-    const saved = loadFilters(pageKey, memoizedFilterFields)
+    const saved = loadFilters(pageKey, filterFields)
 
-    if (savedQuickFilter) {
-      const updatedFilters = memoizedQuickFilters.map((f) => ({
-        ...f,
-        isActive: f.key === savedQuickFilter.key,
-      }))
-
-      setActiveQuickFilters((prev) => {
-        const isSame = JSON.stringify(prev) === JSON.stringify(updatedFilters)
-        return isSame ? prev : updatedFilters
-      })
-      onFilterChange?.(buildQuickFilterWhereCondition(savedQuickFilter))
-    } else if (saved) {
-      setValues((prev) => {
-        const isSame = JSON.stringify(prev) === JSON.stringify(saved)
-        return isSame ? prev : saved
-      })
-      onFilterChange?.(buildWhereCondition(saved, memoizedFilterFields))
+    if (saved) {
+      setValues(saved)
+      onFilterChange?.(buildWhereCondition(saved, filterFields))
     } else {
       onFilterChange?.({})
     }
-  }, [pageKey, memoizedFilterFields, memoizedQuickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition])
 
-  useEffect(() => {
     const listener = (e: CustomEvent) => {
       const updated = e.detail as TFilterState
-      const validKeys = memoizedFilterFields.map((f) => f.key)
+
+      const validKeys = filterFields.map((f) => f.key)
       const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => validKeys.includes(key)))
 
-      setValues((prev) => {
-        const isSame = JSON.stringify(prev) === JSON.stringify(cleaned)
-        return isSame ? prev : cleaned
-      })
-      onFilterChange?.(buildWhereCondition(cleaned, memoizedFilterFields))
+      setValues(cleaned)
+      onFilterChange?.(buildWhereCondition(cleaned, filterFields))
     }
 
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
     return () => window.removeEventListener(`filters-updated:${pageKey}`, listener as EventListener)
-  }, [pageKey, memoizedFilterFields, onFilterChange, buildWhereCondition])
+  }, [pageKey, buildWhereCondition, onFilterChange, filterFields])
 
-  const getActiveQuickFilter = useCallback(() => activeQuickFilters.find((f) => f.isActive), [activeQuickFilters])
-
-  const resetQuickFilters = useCallback(
-    (clearStorage: boolean = true) => {
-      setActiveQuickFilters((prev) => prev.map((qf) => ({ ...qf, isActive: false })))
-      if (clearStorage) {
-        clearQuickFilters(pageKey)
-      }
-    },
-    [pageKey],
-  )
-
-  const resetRegularFilters = useCallback(
-    (clearStorage: boolean = true) => {
-      setValues({})
-      if (clearStorage) {
-        clearFilters(pageKey)
-      }
-    },
-    [pageKey],
-  )
-
-  const resetFilters = useCallback(() => {
-    resetRegularFilters()
-    resetQuickFilters()
-    onFilterChange?.({})
-    setOpen(false)
-  }, [resetRegularFilters, resetQuickFilters, onFilterChange])
-
-  const handleQuickFilterSave = useCallback(
-    (quickFilter: TQuickFilter) => {
-      saveQuickFilters(pageKey, quickFilter)
-      onFilterChange?.(buildQuickFilterWhereCondition(quickFilter))
-      resetRegularFilters()
-      setOpen(false)
-    },
-    [buildQuickFilterWhereCondition, onFilterChange, pageKey, resetRegularFilters],
-  )
-
-  const toggleQuickFilter = useCallback(
-    (qf: TQuickFilter) => {
-      resetRegularFilters(false)
-      setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key && item.label === qf.label ? { ...item, isActive: !item.isActive } : { ...item, isActive: false })))
-
-      // Here we check !isActive because it will become true through updating state
-      if (!qf.isActive) {
-        handleQuickFilterSave(qf)
-      } else {
-        resetFilters()
-      }
-    },
-    [handleQuickFilterSave, resetFilters, resetRegularFilters],
-  )
-
-  const handleChange = useCallback(
-    (key: string, value: TFilterValue) => {
-      resetQuickFilters(false)
-      setValues((prev) => ({ ...prev, [key]: value }))
-    },
-    [resetQuickFilters],
-  )
+  const handleChange = useCallback((key: string, value: TFilterValue) => {
+    setValues((prev) => ({ ...prev, [key]: value }))
+  }, [])
 
   const applyFilters = useCallback(() => {
-    const activeQuickFilter = getActiveQuickFilter()
-    if (activeQuickFilter) {
-      handleQuickFilterSave(activeQuickFilter)
-    } else {
-      saveFilters(pageKey, values)
-      onFilterChange?.(buildWhereCondition(values, filterFields))
-      resetQuickFilters()
-    }
+    saveFilters(pageKey, values)
+    onFilterChange?.(buildWhereCondition(values, filterFields))
     setOpen(false)
-  }, [getActiveQuickFilter, handleQuickFilterSave, pageKey, values, onFilterChange, buildWhereCondition, filterFields, resetQuickFilters])
+  }, [pageKey, values, onFilterChange, buildWhereCondition, filterFields])
 
-  const activeFilterKeys = filterFields
-    .map((field) => field.key)
-    .filter((key) => {
-      const v = values[key]
-      if (v === undefined || v === null || v === '') return false
-      if (Array.isArray(v)) return v.length > 0
-      return true
-    })
+  const resetFilters = useCallback(() => {
+    setValues({})
+    clearFilters(pageKey)
+    onFilterChange?.({})
+    setOpen(false)
+  }, [pageKey, onFilterChange])
 
   const renderField = useCallback(
     (field: FilterField) => {
-      const val = values[field.key]
-
       switch (field.type) {
         case 'text':
-          return <Input placeholder={`Enter ${field.label}`} value={(val as string) ?? ''} onChange={(e) => handleChange(field.key, e.target.value)} />
+          return <Input placeholder={`Enter ${field.label}`} value={(values[field.key] as string) ?? ''} onChange={(e) => handleChange(field.key, e.target.value)} />
         case 'select': {
-          const selected = val as string | undefined
+          const selected = values[field.key] as string | undefined
+
           return (
             <ul className="max-h-40 overflow-y-auto border rounded-lg">
-              {field.options?.length ? (
+              {field?.options?.length ? (
                 field.options.map((opt) => (
                   <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleChange(field.key, opt.value)}>
                     <Checkbox checked={selected === opt.value} className="accent-primary" />
@@ -194,7 +190,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         case 'boolean':
           return (
             <div className="flex items-center gap-2">
-              <Switch checked={Boolean(val)} onCheckedChange={(checked: boolean) => handleChange(field.key, checked)} />
+              <Switch checked={Boolean(values[field.key])} onCheckedChange={(checked: boolean) => handleChange(field.key, checked)} />
               <span className="text-sm">{field.label}</span>
             </div>
           )
@@ -202,18 +198,19 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           return (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !val && 'text-muted-foreground')}>
+                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !values[field.key] && 'text-muted-foreground')}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {val instanceof Date ? format(val as Date, 'PPP') : `Pick ${field.label}`}
+                  {values[field.key] instanceof Date ? format(values[field.key] as Date, 'PPP') : `Pick ${field.label}`}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-0">
-                <Calendar mode="single" selected={val as Date | undefined} onSelect={(date) => handleChange(field.key, date)} />
+                <Calendar mode="single" selected={values[field.key] as Date | undefined} onSelect={(date) => handleChange(field.key, date)} />
               </PopoverContent>
             </Popover>
           )
         case 'dateRange': {
-          const range = (val as { from?: Date; to?: Date }) ?? {}
+          const range = (values[field.key] as { from?: Date; to?: Date }) ?? {}
+
           return (
             <Popover>
               <PopoverTrigger asChild>
@@ -222,10 +219,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
                     : range?.from
-                      ? `From: ${format(range.from, 'PPP')}`
-                      : range?.to
-                        ? `To: ${format(range.to, 'PPP')}`
-                        : 'Pick date range'}
+                    ? `From: ${format(range.from, 'PPP')}`
+                    : range?.to
+                    ? `To: ${format(range.to, 'PPP')}`
+                    : 'Pick date range'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-4 space-y-4 w-auto">
@@ -246,7 +243,8 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         }
 
         case 'sliderNumber': {
-          const currentValue = typeof val === 'number' ? val : 0
+          const currentValue = typeof values[field.key] === 'number' ? (values[field.key] as number) : 0
+
           return (
             <div className="flex flex-col gap-2">
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -254,16 +252,21 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 <span>{currentValue}</span>
                 <span>{field.max ?? 100}</span>
               </div>
-              <Slider value={currentValue} onChange={(v: number) => handleChange(field.key, v)} />
+              <Slider value={currentValue} onChange={(val: number) => handleChange(field.key, val)} />
             </div>
           )
         }
+
         case 'multiselect': {
-          const selected = Array.isArray(val) ? (val as string[]) : []
-          const handleToggle = (value: string) => handleChange(field.key, selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value])
+          const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
+          const handleToggle = (value: string) => {
+            const next = selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value]
+            handleChange(field.key, next)
+          }
+
           return (
             <ul className="max-h-40 overflow-y-auto border rounded-lg">
-              {field.options?.length ? (
+              {field?.options?.length ? (
                 field.options.map((opt) => (
                   <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleToggle(opt.value)}>
                     <Checkbox checked={selected.includes(opt.value)} className="accent-primary" />
@@ -284,6 +287,21 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     [values, handleChange],
   )
 
+  const activeFilterCount = Object.values(values).filter((v) => {
+    if (v === undefined || v === null || v === '') return false
+    if (Array.isArray(v)) return v.length > 0
+    return true
+  }).length
+
+  const activeFilterKeys = filterFields
+    .map((field) => field.key)
+    .filter((key) => {
+      const v = values[key]
+      if (v === undefined || v === null || v === '') return false
+      if (Array.isArray(v)) return v.length > 0
+      return true
+    })
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -294,41 +312,25 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           )}
         </Button>
       </DropdownMenuTrigger>
+      <DropdownMenuContent className="border shadow-md w-[540px] overflow-y-auto p-0 max-h-[400px]" align="end">
+        <p className="text-muted-foreground text-xs p-4 pb-0"> FILTER BY</p>
+        <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pb-0">
+          {filterFields.map((field) => (
+            <AccordionItem key={field.key} value={field.key}>
+              <AccordionTrigger asChild>
+                <button className="group flex items-center py-2 text-left gap-3 w-full bg-unset">
+                  <div className="flex items-center gap-2">
+                    <field.icon size={16} className="text-muted-foreground shrink-0" />
+                    <span className="text-sm">{field.label}</span>
+                  </div>
+                  <ChevronDown size={14} className="ml-auto transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
+                </button>
+              </AccordionTrigger>
+              <AccordionContent className="pt-2 ml-5">{renderField(field)}</AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
 
-      <DropdownMenuContent className="border shadow-md w-[540px] max-h-[400px] flex flex-col overflow-hidden" align="end">
-        <div className="overflow-y-auto p-0 flex-1">
-          {activeQuickFilters.length > 0 && (
-            <>
-              <p className="text-base p-4 pb-0">Quick Filters</p>
-              <div className="flex flex-wrap gap-2 p-4 pb-0">
-                {activeQuickFilters.map((qf) => (
-                  <Button key={`${qf.key}-${qf.label}`} size="sm" className={`${qf.isActive ? 'is-active' : ''}`} variant="tag" onClick={() => toggleQuickFilter(qf)}>
-                    {qf.label}
-                  </Button>
-                ))}
-              </div>
-              <Hr className="mt-2" />
-            </>
-          )}
-
-          <p className="text-muted-foreground text-xs p-4 pt-2 pb-0">FILTER BY</p>
-          <Accordion type="multiple" defaultValue={activeFilterKeys} className="p-4 pt-2 pb-0">
-            {filterFields.map((field) => (
-              <AccordionItem key={field.key} value={field.key}>
-                <AccordionTrigger asChild>
-                  <button className="group flex items-center py-2 text-left gap-3 w-full bg-unset">
-                    <div className="flex items-center gap-2">
-                      <field.icon size={16} className="text-muted-foreground shrink-0" />
-                      <span className="text-sm">{field.label}</span>
-                    </div>
-                    <ChevronDown size={14} className="ml-auto transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
-                  </button>
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 ml-5">{renderField(field)}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
         <Hr />
 
         <div className="flex justify-between p-4">
