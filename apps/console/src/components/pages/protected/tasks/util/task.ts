@@ -11,6 +11,7 @@ export enum TaskTypes {
   EVIDENCE = 'Evidence',
   RISK_REVIEW = 'Risk Review',
   POLICY_REVIEW = 'Policy Review',
+  GAP = 'Gap',
   OTHER = 'Other',
 }
 
@@ -140,3 +141,8 @@ export const TaskStatusMapper: Record<TaskTaskStatus, string> = {
   [TaskTaskStatus.OPEN]: 'Open',
   [TaskTaskStatus.WONT_DO]: "Won't do",
 }
+
+export const TaskStatusWithoutCompletedAndOpen = Object.fromEntries(Object.entries(TaskTaskStatus).filter(([key]) => key !== 'COMPLETED' && key !== 'OPEN')) as Omit<
+  typeof TaskTaskStatus,
+  'COMPLETED' | 'OPEN'
+>

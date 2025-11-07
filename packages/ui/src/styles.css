@@ -221,6 +221,10 @@
   --text-informational: #798695;
   --indicator: #e1e7ea;
   --color-svg-secondary: #09151d;
+
+  --color-active-filter-border: #09151d;
+  --color-active-filter-background: #09151d;
+  --color-active-filter-text: #ffffff;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -312,6 +316,10 @@
   --color-warning: #ff842c;
   --color-danger: #f45b50;
   --color-suggestion: #ff842c;
+
+  --color-active-filter-border: #60e8c93d;
+  --color-active-filter-background: #60e8c91f;
+  --color-active-filter-text: #60e8c9;
 }
 
 /* ─────────────────────────────────────────────────────────

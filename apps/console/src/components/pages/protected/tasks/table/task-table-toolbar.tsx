@@ -1,23 +1,25 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
-import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { Input } from '@repo/ui/input'
-import { TaskWhereInput } from '@repo/codegen/src/schema'
+import { TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { Button } from '@repo/ui/button'
 import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TAccessRole, TData } from '@/types/authz'
+import { useSession } from 'next-auth/react'
+import { endOfWeek, format, startOfDay, startOfWeek } from 'date-fns'
+import { DateFormatStorage, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { useNotification } from '@/hooks/useNotification'
 import { useBulkDeleteTask } from '@/lib/graphql-hooks/tasks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -26,7 +28,6 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
   onTabChange: (tab: 'table' | 'card') => void
-  onShowCompletedTasksChange: (val: boolean) => void
   handleExport: () => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -44,18 +45,70 @@ type TTaskTableToolbarProps = {
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   showMyTasks: boolean
-  onShowMyTasksChange: (val: boolean) => void
 }
 
 const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToolbarProps) => {
+  const { data: session } = useSession()
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
-  const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
   const { programOptions, isSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteTasks } = useBulkDeleteTask()
+  const quickFilters: TQuickFilter[] = useMemo(() => {
+    return [
+      {
+        label: 'Completed',
+        key: 'completed',
+        type: 'custom',
+        getCondition: () => ({ statusIn: [TaskTaskStatus.COMPLETED] }),
+        isActive: false,
+      },
+      {
+        label: 'Open',
+        key: 'open',
+        type: 'custom',
+        getCondition: () => ({ statusIn: [TaskTaskStatus.OPEN] }),
+        isActive: false,
+      },
+      {
+        label: 'My Tasks',
+        key: 'myTasks',
+        type: 'custom',
+        getCondition: () => ({ assigneeID: session?.user?.userId }),
+        isActive: props.showMyTasks ?? false,
+      },
+      {
+        label: 'Overdue',
+        key: 'overdue',
+        type: 'custom',
+        getCondition: () => ({ dueLT: format(startOfDay(new Date()), DateFormatStorage) }),
+        isActive: false,
+      },
+      {
+        label: 'Due This Week',
+        key: 'dueThisWeek',
+        type: 'custom',
+        getCondition: () => {
+          const start = startOfWeek(new Date(), { weekStartsOn: 1 })
+          const end = endOfWeek(new Date(), { weekStartsOn: 1 })
+          return {
+            dueGTE: format(startOfDay(start), DateFormatStorage),
+            dueLT: format(startOfDay(end), DateFormatStorage),
+          }
+        },
+        isActive: false,
+      },
+      {
+        label: 'Unassigned',
+        key: 'unassigned',
+        type: 'custom',
+        getCondition: () => ({ assigneeIDIsNil: true }),
+        isActive: false,
+      },
+    ]
+  }, [props.showMyTasks, session?.user?.userId])
 
   const handleBulkDelete = async () => {
     if (!props.selectedTasks) {
@@ -96,15 +149,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     props.onTabChange(tab)
   }
 
-  const handleShowCompletedTasks = (val: boolean) => {
-    setShowCompletedTasks(val)
-    props.onShowCompletedTasksChange(val)
-  }
-
-  const handleShowMyTasks = (val: boolean) => {
-    props.onShowMyTasksChange(val)
-  }
-
   return (
     <>
       <div className="flex items-center gap-2 my-2">
@@ -118,12 +162,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
           iconPosition="left"
         />
         <TableCardView activeTab={activeTab} onTabChange={handleTabChange} />
-        <div className="grow flex flex-row items-center gap-2">
-          <p>Show completed tasks</p>
-          <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
-          <p>Show my tasks</p>
-          <Checkbox checked={props.showMyTasks} onCheckedChange={(val: boolean) => handleShowMyTasks(val)} />
-        </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {props.selectedTasks.length > 0 ? (
             <>
@@ -184,7 +222,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableFilterKeysEnum.TASK} />}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableFilterKeysEnum.TASK} quickFilters={quickFilters} />}
               <CreateTaskDialog />
             </>
           )}
