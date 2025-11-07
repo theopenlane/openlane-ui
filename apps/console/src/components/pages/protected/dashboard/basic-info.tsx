@@ -99,7 +99,7 @@ const BasicInformation = () => {
           name: values.name,
           description: values.description ?? null,
           tags: values.tags ?? [],
-          userID: values.programOwnerId || undefined,
+          programOwnerID: values.programOwnerId || undefined,
         },
       })
 

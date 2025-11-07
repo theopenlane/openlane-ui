@@ -8941,6 +8941,7 @@ export interface CreateProgramInput {
   programKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the program */
   programKindName?: InputMaybe<Scalars['String']['input']>
+  programOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** the type of the program */
   programType?: InputMaybe<ProgramProgramType>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8952,7 +8953,6 @@ export interface CreateProgramInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  userID?: InputMaybe<Scalars['ID']['input']>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -9657,7 +9657,7 @@ export interface CreateUserInput {
   password?: InputMaybe<Scalars['String']['input']>
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  programOwnerID?: InputMaybe<Scalars['ID']['input']>
+  programsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the user's role */
   role?: InputMaybe<UserRole>
   /** whether the SCIM user is active */
@@ -33489,6 +33489,7 @@ export interface Program extends Node {
   programKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the program */
   programKindName?: Maybe<Scalars['String']['output']>
+  programOwner?: Maybe<User>
   /** the id of the user who is responsible for this program */
   programOwnerID?: Maybe<Scalars['ID']['output']>
   /**
@@ -33507,7 +33508,6 @@ export interface Program extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  user?: Maybe<User>
   users: UserConnection
   viewers: GroupConnection
 }
@@ -34758,6 +34758,9 @@ export interface ProgramWhereInput {
   /** program_kind edge predicates */
   hasProgramKind?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** program_owner edge predicates */
+  hasProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasProgramOwnerWith?: InputMaybe<Array<UserWhereInput>>
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
@@ -34767,9 +34770,6 @@ export interface ProgramWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** user edge predicates */
-  hasUser?: InputMaybe<Scalars['Boolean']['input']>
-  hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** users edge predicates */
   hasUsers?: InputMaybe<Scalars['Boolean']['input']>
   hasUsersWith?: InputMaybe<Array<UserWhereInput>>
@@ -53781,12 +53781,12 @@ export interface UpdateProgramInput {
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramKind?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramKindName?: InputMaybe<Scalars['Boolean']['input']>
+  clearProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStartDate?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearUser?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the program */
   description?: InputMaybe<Scalars['String']['input']>
@@ -53800,6 +53800,7 @@ export interface UpdateProgramInput {
   programKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the program */
   programKindName?: InputMaybe<Scalars['String']['input']>
+  programOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** the type of the program */
   programType?: InputMaybe<ProgramProgramType>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53824,7 +53825,6 @@ export interface UpdateProgramInput {
   status?: InputMaybe<ProgramProgramStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  userID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -54865,6 +54865,7 @@ export interface UpdateUserInput {
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -54894,8 +54895,8 @@ export interface UpdateUserInput {
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
   clearPassword?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
-  clearProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearProgramsOwned?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
   clearScimActive?: InputMaybe<Scalars['Boolean']['input']>
   clearScimExternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -54919,7 +54920,6 @@ export interface UpdateUserInput {
   lastSeen?: InputMaybe<Scalars['Time']['input']>
   /** user password hash */
   password?: InputMaybe<Scalars['String']['input']>
-  programOwnerID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -54930,6 +54930,7 @@ export interface UpdateUserInput {
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55181,8 +55182,8 @@ export interface User extends Node {
   organizations: OrganizationConnection
   personalAccessTokens: PersonalAccessTokenConnection
   programMemberships: ProgramMembershipConnection
-  programOwner?: Maybe<Program>
   programs: ProgramConnection
+  programsOwned: ProgramConnection
   /** the user's role */
   role?: Maybe<UserRole>
   /** whether the SCIM user is active */
@@ -55307,6 +55308,15 @@ export interface UserProgramMembershipsArgs {
 }
 
 export interface UserProgramsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface UserProgramsOwnedArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -56530,11 +56540,11 @@ export interface UserWhereInput {
   /** program_memberships edge predicates */
   hasProgramMemberships?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramMembershipsWith?: InputMaybe<Array<ProgramMembershipWhereInput>>
-  /** program_owner edge predicates */
-  hasProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
-  hasProgramOwnerWith?: InputMaybe<Array<ProgramWhereInput>>
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  /** programs_owned edge predicates */
+  hasProgramsOwned?: InputMaybe<Scalars['Boolean']['input']>
+  hasProgramsOwnedWith?: InputMaybe<Array<ProgramWhereInput>>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
@@ -61025,7 +61035,8 @@ export type GetProgramDashboardQuery = {
         description?: string | null
         status: ProgramProgramStatus
         endDate?: any | null
-        user?: { __typename?: 'User'; id: string; displayName: string } | null
+        programOwnerID?: string | null
+        users: { __typename?: 'UserConnection'; edges?: Array<{ __typename?: 'UserEdge'; node?: { __typename?: 'User'; id: string; displayName: string } | null } | null> | null }
         submittedEvidences: { __typename?: 'ControlConnection'; totalCount: number }
         tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; status: TaskTaskStatus } | null } | null> | null }
         controls: { __typename?: 'ControlConnection'; totalCount: number }

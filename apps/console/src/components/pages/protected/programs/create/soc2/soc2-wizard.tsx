@@ -74,6 +74,7 @@ export default function Soc2Wizard() {
         endDate: oneYearFromToday,
         viewerIDs: data.viewerIDs,
         editorIDs: data.editorIDs,
+        frameworkName: 'SOC 2',
       },
       standardID,
       categories: data.categories,
