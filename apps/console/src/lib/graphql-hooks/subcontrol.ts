@@ -246,20 +246,3 @@ export const useUpdateSubcontrolComment = () => {
     },
   })
 }
-
-// export const useGetExistingSubcontrolsForOrganization = ({ where, enabled = true }: { where?: SubcontrolWhereInput; enabled?: boolean }) => {
-//   const { client } = useGraphQLClient()
-
-//   const queryResult = useQuery<GetExistingSubcontrolsForOrganizationQuery>({
-//     queryKey: ['subcontrols', where],
-//     queryFn: () =>
-//       client.request(GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION, {
-//         where,
-//       }),
-//     enabled,
-//   })
-
-//   return {
-//     ...queryResult,
-//   }
-// }

@@ -521,20 +521,3 @@ export const useGetSuggestedControlsOrSubcontrols = ({ where, enabled = true }: 
     ...queryResult,
   }
 }
-
-// export const useGetExistingControlsForOrganization = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
-//   const { client } = useGraphQLClient()
-
-//   const queryResult = useQuery<GetExistingControlsForOrganizationQuery>({
-//     queryKey: ['controls', where],
-//     queryFn: () =>
-//       client.request(GET_EXISTING_CONTROLS_FOR_ORGANIZATION, {
-//         where,
-//       }),
-//     enabled,
-//   })
-
-//   return {
-//     ...queryResult,
-//   }
-// }
