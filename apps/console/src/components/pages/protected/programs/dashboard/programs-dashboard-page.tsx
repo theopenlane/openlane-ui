@@ -208,6 +208,26 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
 
   const ownerDisplayName = program.programOwner?.displayName
 
+  const renderDates = () => {
+    const hasBothDates = !!program.startDate && !!program.endDate
+
+    if (hasBothDates) {
+      return (
+        <p>
+          {formatDate(program.startDate)} → {formatDate(program.endDate)}
+        </p>
+      )
+    }
+
+    if (program.endDate) {
+      return <p>→ {formatDate(program.endDate)}</p>
+    }
+
+    if (program.startDate) {
+      return <p>{formatDate(program.startDate)} → Ongoing</p>
+    }
+  }
+
   const handleUnarchive = async () => {
     try {
       await updateProgram({
@@ -267,11 +287,15 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
           {ProgramIconMapper[status]}
           <span className={clsx('capitalize', isArchived && 'text-muted-foreground')}>{status.replace('_', ' ').toLowerCase()}</span>
         </div>
-        <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
-        <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
-          <Calendar className="size-4 " />
-          {formatDate(new Date().toISOString())} → {formatDate(program.endDate)}
-        </div>
+        {(program.startDate || program.endDate) && (
+          <>
+            <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
+            <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
+              <Calendar className="size-4 " />
+              {renderDates()}
+            </div>
+          </>
+        )}
         <div className="bg-inverted-muted-foreground w-0.5 h-0.5 rounded-full" />
         <div className={clsx('flex items-center gap-2', isArchived && 'text-muted-foreground')}>
           <UserIcon className="size-4 " />
