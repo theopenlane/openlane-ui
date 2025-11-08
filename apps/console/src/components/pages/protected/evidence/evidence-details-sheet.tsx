@@ -205,22 +205,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     [evidence],
   )
 
-  // const initialAssociationsControlsAndPrograms = useMemo(() => {
-  //   const controls: Control[] = evidence?.controls?.edges?.map((edge) => edge?.node).filter((n): n is Control => !!n) ?? []
-
-  //   const subcontrols: Subcontrol[] = evidence?.subcontrols?.edges?.map((edge) => edge?.node).filter((n): n is Subcontrol => !!n) ?? []
-  //   setEvidenceControls(controls)
-  //   setEvidenceSubcontrols(subcontrols)
-
-  //   return {
-  //     programDisplayIDs: (evidence?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
-  //     subcontrolRefCodes: subcontrols.map((s) => s.refCode),
-  //     subcontrolReferenceFramework: Object.fromEntries(subcontrols.map((s) => [s.id, s.referenceFramework ?? ''])),
-  //     controlRefCodes: controls.map((c) => c.refCode),
-  //     controlReferenceFramework: Object.fromEntries(controls.map((c) => [c.id, c.referenceFramework ?? ''])),
-  //   }
-  // }, [evidence])
-
   const initialAssociationsControlsAndPrograms = useMemo(() => {
     if (!evidence)
       return {

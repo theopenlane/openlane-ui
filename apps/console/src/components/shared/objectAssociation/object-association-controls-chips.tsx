@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
-import { TriangleAlert } from 'lucide-react'
+import { InfoIcon, TriangleAlert } from 'lucide-react'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useCloneControls } from '@/lib/graphql-hooks/standards'
@@ -15,6 +15,7 @@ import { GetExistingControlsForOrganizationQuery, GetExistingSubcontrolsForOrgan
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_EXISTING_CONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/control'
 import { GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/subcontrol'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type TObjectAssociationControlsChipsProps = {
   form: UseFormReturn<CreateEvidenceFormData>
@@ -220,31 +221,40 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
           </div>
         )}
       </div>
-
-      <div className="w-full my-2 border-t border color-logo-bg " />
-      <div className="text-base font-medium py-2">Suggested</div>
-      <div className="flex flex-wrap gap-2">
-        {suggestedControlsMap
-          .filter((c) => {
-            const inControls = evidenceControls?.some((item) => item.refCode === c.refCode)
-            const inSubcontrols = evidenceSubcontrols?.some((item) => item.refCode === c.refCode)
-            return !inControls && !inSubcontrols
-          })
-          .map(({ id, refCode, referenceFramework, typeName, source }) => (
-            <ControlChip
-              key={id}
-              clickable={false}
-              control={{
-                id,
-                refCode,
-                referenceFramework,
-                __typename: typeName,
-              }}
-              canAdd
-              onAdd={() => handleAdd(id, typeName === ItemType.Control ? false : true, refCode, source, referenceFramework)}
+      {suggestedControlsMap.length > 0 && (
+        <>
+          <div className="w-full my-2 border-t border color-logo-bg " />
+          <div className="flex gap-2 items-center">
+            <div className="text-base font-medium py-2">Suggested</div>
+            <SystemTooltip
+              icon={<InfoIcon size={14} />}
+              content={<p>Suggested controls are identified based on mapped relationships where shared evidence could demonstrate compliance across multiple controls</p>}
             />
-          ))}
-      </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {suggestedControlsMap
+              .filter((c) => {
+                const inControls = evidenceControls?.some((item) => item.refCode === c.refCode)
+                const inSubcontrols = evidenceSubcontrols?.some((item) => item.refCode === c.refCode)
+                return !inControls && !inSubcontrols
+              })
+              .map(({ id, refCode, referenceFramework, typeName, source }) => (
+                <ControlChip
+                  key={id}
+                  clickable={false}
+                  control={{
+                    id,
+                    refCode,
+                    referenceFramework,
+                    __typename: typeName,
+                  }}
+                  canAdd
+                  onAdd={() => handleAdd(id, typeName === ItemType.Control ? false : true, refCode, source, referenceFramework)}
+                />
+              ))}
+          </div>
+        </>
+      )}
       <ConfirmationDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
