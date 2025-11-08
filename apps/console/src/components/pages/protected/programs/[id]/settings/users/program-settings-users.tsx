@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import { useGetProgramBasicInfo, useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { ProgramMembershipRole, ProgramProgramStatus, User } from '@repo/codegen/src/schema'
@@ -149,45 +149,49 @@ export const ProgramSettingsUsers = () => {
       accessorKey: 'role',
       header: 'Permissions',
     },
-    {
-      id: 'actions',
-      header: 'Action',
-      cell: ({ row }) => {
-        const user = row.original.user
-        if (user.id === currentUserId) {
-          return null
-        }
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" className="w-8 h-7 !p-0">
-                <EllipsisVertical />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                onSelect={() => {
-                  setSelectedUser(row.original)
-                  setIsEditDialogOpen(true)
-                }}
-              >
-                Edit role
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive"
-                onSelect={() => {
-                  setSelectedUser(row.original)
-                  setIsDeleteDialogOpen(true)
-                }}
-                disabled={isUpdating}
-              >
-                Remove user
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
-    },
+    ...(editAllowed
+      ? [
+          {
+            id: 'actions',
+            header: 'Action',
+            cell: ({ row }: { row: Row<MemberRow> }) => {
+              const user = row.original.user
+              if (user.id === currentUserId) {
+                return null
+              }
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="w-8 h-7 !p-0">
+                      <EllipsisVertical />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setSelectedUser(row.original)
+                        setIsEditDialogOpen(true)
+                      }}
+                    >
+                      Edit role
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onSelect={() => {
+                        setSelectedUser(row.original)
+                        setIsDeleteDialogOpen(true)
+                      }}
+                      disabled={isUpdating}
+                    >
+                      Remove user
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )
+            },
+          },
+        ]
+      : []),
   ]
 
   const { setCrumbs } = useContext(BreadcrumbContext)
