@@ -1,6 +1,6 @@
 'use client'
 import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { PoliciesTable } from './table/policies-table'
 import PoliciesDashboard from './policies-dashboard/policies-dashboard'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -15,11 +15,13 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { PolicySuggestedActions } from './policies-suggested-actions'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const PoliciesPage = () => {
   const [active, setActive] = useState<'dashboard' | 'table'>('dashboard')
   const { data: permission } = useOrganizationRoles()
   const { groupOptions } = useGroupSelect()
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
 
@@ -50,6 +52,12 @@ const PoliciesPage = () => {
     })
   }
 
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Policies', href: '/policies' },
+    ])
+  }, [setCrumbs])
   return (
     <div>
       <div className="flex justify-between items-center">

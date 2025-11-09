@@ -17,7 +17,6 @@ const AdvancedSetupStep2 = () => {
 
   const programType = useWatch({ control, name: 'programType' })
 
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -69,6 +68,7 @@ const AdvancedSetupStep2 = () => {
           <div className="flex flex-col gap-1.5">
             <label className="text-sm">End Date</label>
             <DateSelect name="endDate" />
+            {errors.endDate && <span className="text-xs text-destructive">{String(errors.endDate.message)}</span>}
           </div>
         </div>
       </div>

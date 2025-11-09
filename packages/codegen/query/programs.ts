@@ -382,6 +382,7 @@ export const GET_PROGRAM_DASHBOARD = gql`
           description
           status
           endDate
+          startDate
           programOwner {
             id
             displayName
