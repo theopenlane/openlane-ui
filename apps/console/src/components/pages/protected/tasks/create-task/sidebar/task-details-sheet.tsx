@@ -88,7 +88,7 @@ const TaskDetailsSheet = () => {
     handleCloseParams()
   }
 
-  const isCreateButtonVisible = taskData && taskData?.category === ObjectTypeObjects.EVIDENCE
+  const isCreateButtonVisible = !!((taskData?.controls.edges?.length ?? 0) > 0 || (taskData?.subcontrols.edges?.length ?? 0) > 0 || taskData?.category === ObjectTypeObjects.EVIDENCE)
 
   const handleCloseParams = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
