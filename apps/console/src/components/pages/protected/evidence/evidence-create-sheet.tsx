@@ -1,7 +1,7 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import React, { useCallback, useEffect, useState } from 'react'
-import { ChevronDown, InfoIcon, Plus } from 'lucide-react'
+import { ChevronDown, InfoIcon, Plus, X } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -25,12 +25,11 @@ import { useQueryClient } from '@tanstack/react-query'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
 import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
-import { PageHeading } from '@repo/ui/page-heading'
 import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 
@@ -89,7 +88,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : (data.programIDs ?? []),
+        programIDs: programId ? [programId] : data.programIDs ?? [],
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -172,6 +171,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     handleInitialValue()
   }
 
+  const handleSheetClose = () => {
+    setIsDiscardDialogOpen(true)
+    handleInitialValue()
+  }
+
   const programIDs = form.watch('programIDs')
 
   const programsAccordionValue = (programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined
@@ -222,8 +226,19 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={handleOnOpenChange}>
-      <SheetContent side="right" className="bg-secondary flex flex-col" minWidth={470}>
-        <PageHeading heading={`Submit evidence ${formData?.displayID ? 'for' : ''} ${formData?.displayID || ''}`}></PageHeading>
+      <SheetContent
+        side="right"
+        className="bg-secondary flex flex-col"
+        minWidth={470}
+        header={
+          <SheetHeader className="mb-5">
+            <div className="flex items-center justify-between">
+              <span className={`text-2xl leading-8 font-medium`}>{`Submit evidence ${formData?.displayID ? 'for' : ''} ${formData?.displayID || ''}`}</span>
+              <X aria-label="Close sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
+            </div>
+          </SheetHeader>
+        }
+      >
         <Grid>
           {/* Form Section */}
           <GridRow columns={1}>
