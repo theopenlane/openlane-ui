@@ -120,7 +120,7 @@ const ProgramTasksTable = () => {
     }
 
     const filters: TFilterState = {
-      hasProgramsWith: id,
+      hasProgramsWith: [id],
     }
 
     saveFilters(TableFilterKeysEnum.TASK, filters)
