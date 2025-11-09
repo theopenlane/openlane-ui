@@ -17,7 +17,6 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
       accessorKey: 'id',
       header: 'ID',
       size: 120,
-      meta: { defaultVisible: false },
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
