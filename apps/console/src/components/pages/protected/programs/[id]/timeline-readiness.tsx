@@ -26,11 +26,31 @@ import { canEdit } from '@/lib/authz/utils'
 import clsx from 'clsx'
 import { Label } from '@repo/ui/label'
 
-const formSchema = z.object({
-  startDate: z.date().nullable().optional(),
-  endDate: z.date().nullable().optional(),
-  status: z.nativeEnum(ProgramProgramStatus).optional(),
-})
+const formSchema = z
+  .object({
+    startDate: z.date().nullable().optional(),
+    endDate: z.date().nullable().optional(),
+    status: z.nativeEnum(ProgramProgramStatus).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const now = new Date()
+
+    if (data.endDate && data.endDate < now) {
+      ctx.addIssue({
+        path: ['endDate'],
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be in the future',
+      })
+    }
+
+    if (data.startDate && data.endDate && data.endDate <= data.startDate) {
+      ctx.addIssue({
+        path: ['endDate'],
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be after start date',
+      })
+    }
+  })
 
 type FormValues = z.infer<typeof formSchema>
 
@@ -119,6 +139,7 @@ const TimelineReadiness = () => {
 
   const startDate = form.getValues('startDate')
   const endDate = form.getValues('endDate')
+  const errors = form.formState.errors
 
   return (
     <Card className="p-8 w-full">
@@ -175,13 +196,16 @@ const TimelineReadiness = () => {
 
             {/* End Date */}
             {(!!endDate || isEditing) && (
-              <div className="flex pb-3 gap-2 items-center">
-                <Label className="w-32 flex shrink-0">End Date:</Label>
-                {isEditing ? (
-                  <Controller control={control} name="endDate" render={({ field }) => <CalendarPopover field={field} />} />
-                ) : (
-                  <span>{formattedEndDate ? (dayDiff > 0 ? `${dayDiff} ${dayOrDays} (${formattedEndDate})` : formattedEndDate) : '—'}</span>
-                )}
+              <div>
+                <div className="flex pb-3 gap-2 items-center">
+                  <Label className="w-32 flex shrink-0">End Date:</Label>
+                  {isEditing ? (
+                    <Controller control={control} name="endDate" render={({ field }) => <CalendarPopover field={field} />} />
+                  ) : (
+                    <span>{formattedEndDate ? (dayDiff > 0 ? `${dayDiff} ${dayOrDays} (${formattedEndDate})` : formattedEndDate) : '—'}</span>
+                  )}
+                </div>
+                {errors.endDate && <span className="text-xs text-destructive">{String(errors.endDate.message)}</span>}
               </div>
             )}
           </div>
