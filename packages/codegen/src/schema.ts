@@ -8639,6 +8639,7 @@ export interface CreateNoteInput {
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text: Scalars['String']['input']
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -9537,6 +9538,11 @@ export interface CreateTrustCenterInput {
   createTrustCenterSetting?: InputMaybe<CreateTrustCenterSettingInput>
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch domain ID */
+  pirschDomainID?: InputMaybe<Scalars['String']['input']>
+  /** Pirsch ID code */
+  pirschIdentificationCode?: InputMaybe<Scalars['String']['input']>
+  postIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -25923,6 +25929,8 @@ export interface Mutation {
   /** Update an existing trustCenterDoc */
   updateTrustCenterDoc: TrustCenterDocUpdatePayload
   updateTrustCenterNDA: TrustCenterNdaUpdatePayload
+  /** Update an existing trust center post */
+  updateTrustCenterPost: TrustCenterUpdatePayload
   /** Update an existing trustCenterSetting */
   updateTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Update an existing trustCenterSubprocessor */
@@ -27253,6 +27261,7 @@ export interface MutationUpdateHushArgs {
 export interface MutationUpdateInternalPolicyArgs {
   id: Scalars['ID']['input']
   input: UpdateInternalPolicyInput
+  internalPolicyFile?: InputMaybe<Scalars['Upload']['input']>
 }
 
 export interface MutationUpdateInternalPolicyCommentArgs {
@@ -27321,6 +27330,7 @@ export interface MutationUpdatePersonalAccessTokenArgs {
 export interface MutationUpdateProcedureArgs {
   id: Scalars['ID']['input']
   input: UpdateProcedureInput
+  procedureFile?: InputMaybe<Scalars['Upload']['input']>
 }
 
 export interface MutationUpdateProcedureCommentArgs {
@@ -27448,6 +27458,12 @@ export interface MutationUpdateTrustCenterDocArgs {
 export interface MutationUpdateTrustCenterNdaArgs {
   id: Scalars['ID']['input']
   templateFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+}
+
+export interface MutationUpdateTrustCenterPostArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateTrustCenterSettingArgs {
@@ -28183,6 +28199,7 @@ export interface Note extends Node {
   task?: Maybe<Task>
   /** the text of the note */
   text: Scalars['String']['output']
+  trustCenter?: Maybe<TrustCenter>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -28517,6 +28534,9 @@ export interface NoteWhereInput {
   /** task edge predicates */
   hasTask?: InputMaybe<Scalars['Boolean']['input']>
   hasTaskWith?: InputMaybe<Array<TaskWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -45933,6 +45953,12 @@ export interface SubscriberWhereInput {
   verifiedPhoneNEQ?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export interface Subscription {
+  __typename?: 'Subscription'
+  /** Subscribe to task creation events for the authenticated user */
+  taskCreated: Task
+}
+
 export interface TfaSetting extends Node {
   __typename?: 'TFASetting'
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -47989,6 +48015,11 @@ export interface TrustCenter extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** Pirsch domain ID */
+  pirschDomainID?: Maybe<Scalars['String']['output']>
+  /** Pirsch ID code */
+  pirschIdentificationCode?: Maybe<Scalars['String']['output']>
+  posts: NoteConnection
   setting?: Maybe<TrustCenterSetting>
   /** Slug for the trust center */
   slug?: Maybe<Scalars['String']['output']>
@@ -48001,6 +48032,15 @@ export interface TrustCenter extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   watermarkConfig?: Maybe<TrustCenterWatermarkConfig>
+}
+
+export interface TrustCenterPostsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NoteOrder>>
+  where?: InputMaybe<NoteWhereInput>
 }
 
 export interface TrustCenterTemplatesArgs {
@@ -49062,6 +49102,10 @@ export interface TrustCenterHistory extends Node {
   operation: TrustCenterHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** Pirsch domain ID */
+  pirschDomainID?: Maybe<Scalars['String']['output']>
+  /** Pirsch ID code */
+  pirschIdentificationCode?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** Slug for the trust center */
   slug?: Maybe<Scalars['String']['output']>
@@ -49205,6 +49249,38 @@ export interface TrustCenterHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** pirsch_domain_id field predicates */
+  pirschDomainID?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDContains?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDGT?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDGTE?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschDomainIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pirschDomainIDLT?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDLTE?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDNEQ?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschDomainIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** pirsch_identification_code field predicates */
+  pirschIdentificationCode?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeContains?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeContainsFold?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeEqualFold?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeGT?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeGTE?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeHasPrefix?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeHasSuffix?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschIdentificationCodeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pirschIdentificationCodeLT?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeLTE?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeNEQ?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschIdentificationCodeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -51268,6 +51344,9 @@ export interface TrustCenterWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** posts edge predicates */
+  hasPosts?: InputMaybe<Scalars['Boolean']['input']>
+  hasPostsWith?: InputMaybe<Array<NoteWhereInput>>
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
@@ -51315,6 +51394,38 @@ export interface TrustCenterWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** pirsch_domain_id field predicates */
+  pirschDomainID?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDContains?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDGT?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDGTE?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschDomainIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pirschDomainIDLT?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDLTE?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDNEQ?: InputMaybe<Scalars['String']['input']>
+  pirschDomainIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschDomainIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** pirsch_identification_code field predicates */
+  pirschIdentificationCode?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeContains?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeContainsFold?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeEqualFold?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeGT?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeGTE?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeHasPrefix?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeHasSuffix?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschIdentificationCodeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pirschIdentificationCodeLT?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeLTE?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeNEQ?: InputMaybe<Scalars['String']['input']>
+  pirschIdentificationCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschIdentificationCodeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** slug field predicates */
   slug?: InputMaybe<Scalars['String']['input']>
   slugContains?: InputMaybe<Scalars['String']['input']>
@@ -53242,6 +53353,7 @@ export interface UpdateNoteInput {
   clearRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   clearTask?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   procedureID?: InputMaybe<Scalars['ID']['input']>
@@ -53251,6 +53363,7 @@ export interface UpdateNoteInput {
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -54722,6 +54835,9 @@ export interface UpdateTrustCenterDocInput {
  * Input was generated by ent.
  */
 export interface UpdateTrustCenterInput {
+  /** adds a post for the trust center feed */
+  addPost?: InputMaybe<CreateNoteInput>
+  addPostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -54729,6 +54845,9 @@ export interface UpdateTrustCenterInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
+  clearPirschIdentificationCode?: InputMaybe<Scalars['Boolean']['input']>
+  clearPosts?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
@@ -54737,7 +54856,14 @@ export interface UpdateTrustCenterInput {
   clearTrustCenterSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   clearWatermarkConfig?: InputMaybe<Scalars['Boolean']['input']>
   customDomainID?: InputMaybe<Scalars['ID']['input']>
+  /** delete a post from the trust center feed */
+  deletePost?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch domain ID */
+  pirschDomainID?: InputMaybe<Scalars['String']['input']>
+  /** Pirsch ID code */
+  pirschIdentificationCode?: InputMaybe<Scalars['String']['input']>
+  removePostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -61060,53 +61186,35 @@ export type RiskFieldsFragment = {
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
   mitigation?: string | null
-  updatedAt?: any | null
-  updatedBy?: string | null
-  createdAt?: any | null
-  createdBy?: string | null
   stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   procedures: {
     __typename?: 'ProcedureConnection'
-    totalCount: number
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
-  controls: {
-    __typename?: 'ControlConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
-    totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   programs: {
     __typename?: 'ProgramConnection'
-    totalCount: number
     edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   tasks: {
     __typename?: 'TaskConnection'
-    totalCount: number
     edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
-    totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
 }
 
 export type RiskTableFieldsFragment = {
   __typename?: 'Risk'
   id: string
+  displayID: string
   name: string
   category?: string | null
   riskType?: string | null
@@ -61146,47 +61254,31 @@ export type GetRiskByIdQuery = {
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
     mitigation?: string | null
-    updatedAt?: any | null
-    updatedBy?: string | null
-    createdAt?: any | null
-    createdBy?: string | null
     stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     procedures: {
       __typename?: 'ProcedureConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controls: {
       __typename?: 'ControlConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
       __typename?: 'ProgramConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     tasks: {
       __typename?: 'TaskConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
   }
 }
@@ -61212,84 +61304,6 @@ export type GetAllRisksQuery = {
         __typename?: 'Risk'
         id: string
         displayID: string
-        name: string
-        details?: string | null
-        tags?: Array<string> | null
-        category?: string | null
-        riskType?: string | null
-        score?: number | null
-        status?: RiskRiskStatus | null
-        businessCosts?: string | null
-        likelihood?: RiskRiskLikelihood | null
-        impact?: RiskRiskImpact | null
-        mitigation?: string | null
-        updatedAt?: any | null
-        updatedBy?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        procedures: {
-          __typename?: 'ProcedureConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-        }
-        controls: {
-          __typename?: 'ControlConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-        }
-        subcontrols: {
-          __typename?: 'SubcontrolConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-        }
-        programs: {
-          __typename?: 'ProgramConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-        }
-        tasks: {
-          __typename?: 'TaskConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-        }
-        internalPolicies: {
-          __typename?: 'InternalPolicyConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-        }
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetTableRisksQueryVariables = Exact<{
-  where?: InputMaybe<RiskWhereInput>
-  orderBy?: InputMaybe<Array<RiskOrder> | RiskOrder>
-  first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-}>
-
-export type GetTableRisksQuery = {
-  __typename?: 'Query'
-  risks: {
-    __typename?: 'RiskConnection'
-    totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
-    edges?: Array<{
-      __typename?: 'RiskEdge'
-      node?: {
-        __typename?: 'Risk'
-        id: string
         name: string
         category?: string | null
         riskType?: string | null

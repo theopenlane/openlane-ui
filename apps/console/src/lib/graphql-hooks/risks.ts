@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { BULK_DELETE_RISK, BULK_EDIT_RISK, CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, GET_TABLE_RISKS, UPDATE_RISK } from '@repo/codegen/query/risks'
+import { BULK_DELETE_RISK, BULK_EDIT_RISK, CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
 
 import {
   CreateBulkCsvRiskMutation,
@@ -16,10 +16,8 @@ import {
   GetAllRisksQueryVariables,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
-  GetTableRisksQuery,
   Risk,
   RiskFieldsFragment,
-  RiskTableFieldsFragment,
   RiskWhereInput,
   UpdateBulkRiskMutation,
   UpdateBulkRiskMutationVariables,
@@ -29,23 +27,14 @@ import {
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 
-export const useGetAllRisks = () => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<GetAllRisksQuery, unknown>({
-    queryKey: ['risks'],
-    queryFn: async () => client.request(GET_ALL_RISKS),
-  })
-}
-
-type UseRisksWithFilterProps = {
+type UseRisksProps = {
   where?: RiskWhereInput
   pagination?: TPagination
   orderBy?: GetAllRisksQueryVariables['orderBy']
   enabled?: boolean
 }
 
-export const useRisksWithFilter = ({ where, pagination, orderBy, enabled = true }: UseRisksWithFilterProps) => {
+export const useRisks = ({ where, pagination, orderBy, enabled = true }: UseRisksProps) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery({
@@ -73,36 +62,8 @@ export const useRisksWithFilter = ({ where, pagination, orderBy, enabled = true 
   }
 }
 
-export const useTableRisks = ({ where, pagination, orderBy, enabled = true }: UseRisksWithFilterProps) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery({
-    queryKey: ['risks', { where, pagination, orderBy }],
-    queryFn: async () =>
-      await client.request<GetTableRisksQuery>(GET_TABLE_RISKS, {
-        where,
-        ...pagination?.query,
-        orderBy,
-      }),
-    enabled,
-  })
-
-  const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node as RiskTableFieldsFragment) as Risk[]
-
-  const paginationMeta = {
-    totalCount: queryResult.data?.risks?.totalCount ?? 0,
-    pageInfo: queryResult?.data?.risks?.pageInfo,
-  }
-
-  return {
-    ...queryResult,
-    risks,
-    paginationMeta,
-  }
-}
-
 export const useRiskSelect = () => {
-  const { risks, ...rest } = useRisksWithFilter({
+  const { risks, ...rest } = useRisks({
     where: {},
     enabled: true,
   })
