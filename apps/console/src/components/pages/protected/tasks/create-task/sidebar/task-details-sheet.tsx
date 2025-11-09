@@ -91,7 +91,7 @@ const TaskDetailsSheet = () => {
       return {
         id: control.id,
         referenceFramework: control.referenceFramework,
-        refCode: control.displayID ?? '',
+        refCode: control.refCode ?? '',
         __typename: isSubcontrol ? 'Subcontrol' : 'Control',
       }
     })

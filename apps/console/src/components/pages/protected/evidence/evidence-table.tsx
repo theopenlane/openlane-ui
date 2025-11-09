@@ -41,7 +41,7 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
       ? Object.values(control.referenceFramework)[0] ?? ''
       : '',
 
-    refCode: control.displayID ?? '',
+    refCode: control.controlRefCodes?.[0] ?? '',
     __typename: isSubcontrol ? 'Subcontrol' : 'Control',
   }
 

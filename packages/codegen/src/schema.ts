@@ -8639,6 +8639,7 @@ export interface CreateNoteInput {
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text: Scalars['String']['input']
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -9537,6 +9538,7 @@ export interface CreateTrustCenterInput {
   createTrustCenterSetting?: InputMaybe<CreateTrustCenterSettingInput>
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  postIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -25923,6 +25925,8 @@ export interface Mutation {
   /** Update an existing trustCenterDoc */
   updateTrustCenterDoc: TrustCenterDocUpdatePayload
   updateTrustCenterNDA: TrustCenterNdaUpdatePayload
+  /** Update an existing trust center post */
+  updateTrustCenterPost: TrustCenterUpdatePayload
   /** Update an existing trustCenterSetting */
   updateTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Update an existing trustCenterSubprocessor */
@@ -27450,6 +27454,12 @@ export interface MutationUpdateTrustCenterNdaArgs {
   templateFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
+export interface MutationUpdateTrustCenterPostArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+}
+
 export interface MutationUpdateTrustCenterSettingArgs {
   faviconFile?: InputMaybe<Scalars['Upload']['input']>
   id: Scalars['ID']['input']
@@ -28183,6 +28193,7 @@ export interface Note extends Node {
   task?: Maybe<Task>
   /** the text of the note */
   text: Scalars['String']['output']
+  trustCenter?: Maybe<TrustCenter>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -28517,6 +28528,9 @@ export interface NoteWhereInput {
   /** task edge predicates */
   hasTask?: InputMaybe<Scalars['Boolean']['input']>
   hasTaskWith?: InputMaybe<Array<TaskWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -45933,6 +45947,12 @@ export interface SubscriberWhereInput {
   verifiedPhoneNEQ?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export interface Subscription {
+  __typename?: 'Subscription'
+  /** Subscribe to task creation events for the authenticated user */
+  taskCreated: Task
+}
+
 export interface TfaSetting extends Node {
   __typename?: 'TFASetting'
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -47989,6 +48009,7 @@ export interface TrustCenter extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  posts: NoteConnection
   setting?: Maybe<TrustCenterSetting>
   /** Slug for the trust center */
   slug?: Maybe<Scalars['String']['output']>
@@ -48001,6 +48022,15 @@ export interface TrustCenter extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   watermarkConfig?: Maybe<TrustCenterWatermarkConfig>
+}
+
+export interface TrustCenterPostsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NoteOrder>>
+  where?: InputMaybe<NoteWhereInput>
 }
 
 export interface TrustCenterTemplatesArgs {
@@ -51268,6 +51298,9 @@ export interface TrustCenterWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** posts edge predicates */
+  hasPosts?: InputMaybe<Scalars['Boolean']['input']>
+  hasPostsWith?: InputMaybe<Array<NoteWhereInput>>
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
@@ -53242,6 +53275,7 @@ export interface UpdateNoteInput {
   clearRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   clearTask?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   procedureID?: InputMaybe<Scalars['ID']['input']>
@@ -53251,6 +53285,7 @@ export interface UpdateNoteInput {
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -54722,6 +54757,9 @@ export interface UpdateTrustCenterDocInput {
  * Input was generated by ent.
  */
 export interface UpdateTrustCenterInput {
+  /** adds a post for the trust center feed */
+  addPost?: InputMaybe<CreateNoteInput>
+  addPostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -54729,6 +54767,7 @@ export interface UpdateTrustCenterInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPosts?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
@@ -54737,7 +54776,10 @@ export interface UpdateTrustCenterInput {
   clearTrustCenterSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   clearWatermarkConfig?: InputMaybe<Scalars['Boolean']['input']>
   customDomainID?: InputMaybe<Scalars['ID']['input']>
+  /** delete a post from the trust center feed */
+  deletePost?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  removePostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59099,19 +59141,19 @@ export type GetSuggestedControlsOrSubcontrolsQuery = {
         source?: MappedControlMappingSource | null
         fromControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
         toControls: {
           __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
         fromSubcontrols: {
           __typename?: 'SubcontrolConnection'
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
         toSubcontrols: {
           __typename?: 'SubcontrolConnection'
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; displayID: string; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
         }
       } | null
     } | null> | null

@@ -535,7 +535,6 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
           fromControls {
             edges {
               node {
-                displayID
                 id
                 referenceFramework
                 refCode
@@ -546,7 +545,6 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
           toControls {
             edges {
               node {
-                displayID
                 id
                 referenceFramework
                 refCode
@@ -557,7 +555,6 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
           fromSubcontrols {
             edges {
               node {
-                displayID
                 id
                 referenceFramework
                 refCode
@@ -568,7 +565,6 @@ export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
           toSubcontrols {
             edges {
               node {
-                displayID
                 id
                 referenceFramework
                 refCode

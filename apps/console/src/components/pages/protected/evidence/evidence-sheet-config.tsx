@@ -8,7 +8,6 @@ type CustomEvidenceGroupedItems = {
 
 export type FlattenedControl = {
   id: string
-  displayID: string
   refCode: string
   referenceFramework: string | null
   source: string
