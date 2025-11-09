@@ -21,6 +21,9 @@ import { featureUtil } from '@/lib/subscription-plan/plans'
 import { NavHeading, NavItem, Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 export type PanelKey = 'compliance' | 'trust center' | null
 
@@ -57,6 +60,8 @@ export default function SideNav({
   const router = useRouter()
 
   const sidebarItems = [...navItems, ...footerNavItems]
+  const { data: orgPermission } = useOrganizationRoles()
+  const isCreateProgramAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram)
 
   useEffect(() => {
     if (!openPanel) {
@@ -301,7 +306,7 @@ export default function SideNav({
                   align="start"
                   content={
                     <>
-                      <Link href="/programs/create/">{ProgramCreatePrefixIconBtn}</Link>
+                      {isCreateProgramAllowed && <Link href="/programs/create/">{ProgramCreatePrefixIconBtn}</Link>}
                       <CreateTaskDialog trigger={TaskIconPrefixBtn} />
                     </>
                   }

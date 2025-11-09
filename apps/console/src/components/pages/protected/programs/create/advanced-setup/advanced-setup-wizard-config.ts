@@ -17,18 +17,37 @@ export const step2Schema = z
   .object({
     name: z.string().min(1, 'Program Name is required'),
     description: z.string().optional(),
-    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).nullable().optional(),
-    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).nullable().optional(),
+    startDate: z.date().nullable().optional(),
+    endDate: z.date().nullable().optional(),
     framework: z.string().optional(),
     standardID: z.string().optional(),
     programType: z.nativeEnum(ProgramProgramType).optional(),
   })
   .superRefine((data, ctx) => {
+    const now = new Date()
+
+    // ✅ Framework requirement
     if (data.programType === ProgramProgramType.FRAMEWORK && !data.framework) {
       ctx.addIssue({
         path: ['framework'],
         code: z.ZodIssueCode.custom,
         message: 'Framework is required when program type is Framework',
+      })
+    }
+
+    if (data.endDate && data.endDate < now) {
+      ctx.addIssue({
+        path: ['endDate'],
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be in the future',
+      })
+    }
+
+    if (data.startDate && data.endDate && data.endDate <= data.startDate) {
+      ctx.addIssue({
+        path: ['endDate'],
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be after start date',
       })
     }
   })
