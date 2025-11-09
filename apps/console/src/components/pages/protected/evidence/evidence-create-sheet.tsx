@@ -173,7 +173,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   const handleSheetClose = () => {
     setIsDiscardDialogOpen(true)
-    handleInitialValue()
   }
 
   const programIDs = form.watch('programIDs')
