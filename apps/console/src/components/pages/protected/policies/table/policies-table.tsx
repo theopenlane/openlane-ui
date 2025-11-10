@@ -125,6 +125,7 @@ export const PoliciesTable = () => {
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
   const { errorNotification } = useNotification()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
     approvalRequired: false,
     approver: false,
     delegate: false,

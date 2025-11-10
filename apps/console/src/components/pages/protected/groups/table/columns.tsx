@@ -14,6 +14,12 @@ type Params = {
 export const getGroupTableColumns = ({ userMap }: Params) => {
   const columns: ColumnDef<Group>[] = [
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       header: 'Name',
       accessorKey: 'name',
       cell: ({ row }) => {
