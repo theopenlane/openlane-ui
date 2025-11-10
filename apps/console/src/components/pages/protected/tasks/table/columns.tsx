@@ -59,6 +59,12 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       size: 50,
     },
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       accessorKey: 'title',
       header: 'Title',
       cell: ({ cell }) => <div>{cell.getValue() as string}</div>,

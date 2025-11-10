@@ -48,7 +48,7 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
       size: 180,
     },
     {
-      accessorKey: 'id',
+      accessorKey: 'satisfies',
       header: 'Satisfies',
       cell: ({ row }) => {
         const controlEdges = row.original?.controls?.edges || []
