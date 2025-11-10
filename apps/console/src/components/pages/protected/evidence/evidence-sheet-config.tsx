@@ -58,7 +58,7 @@ export const buildOr = (groups: RefFrameworkGroup) =>
 
     return {
       refCodeIn: refCodes,
-      or: [{ referenceFramework: framework }],
+      and: [{ referenceFramework: framework }],
     }
   })
 

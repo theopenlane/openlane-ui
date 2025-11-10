@@ -169,7 +169,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
       queryClient.invalidateQueries({ queryKey: ['controls'] })
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
 
-      successNotification({ title: 'Controls added to organization successfully!' })
+      successNotification({ title: `${isSubcontrol ? 'Subcontrol' : 'Control'} added to organization successfully!` })
       setIsDialogOpen(false)
       setPendingAdd(null)
     } catch (error) {
@@ -185,9 +185,9 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
         {evidenceControls &&
-          evidenceControls.map(({ id, refCode, referenceFramework }, i) => (
+          evidenceControls.map(({ id, refCode, referenceFramework }) => (
             <ControlChip
-              key={i}
+              key={id}
               clickable={false}
               control={{
                 id,
@@ -201,9 +201,9 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
           ))}
 
         {evidenceSubcontrols &&
-          evidenceSubcontrols.map(({ id, refCode, referenceFramework }, i) => (
+          evidenceSubcontrols.map(({ id, refCode, referenceFramework }) => (
             <ControlChip
-              key={i}
+              key={id}
               control={{
                 id,
                 refCode: refCode,
@@ -223,7 +223,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
       </div>
       {suggestedControlsMap.length > 0 && (
         <>
-          <div className="w-full my-2 border-t border color-logo-bg " />
+          <div className="w-full my-2 border-t border border-logo-bg " />
           <div className="flex gap-2 items-center">
             <div className="text-base font-medium py-2">Suggested</div>
             <SystemTooltip
@@ -234,8 +234,8 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
           <div className="flex flex-wrap gap-2">
             {suggestedControlsMap
               .filter((c) => {
-                const inControls = evidenceControls?.some((item) => item.refCode === c.refCode)
-                const inSubcontrols = evidenceSubcontrols?.some((item) => item.refCode === c.refCode)
+                const inControls = evidenceControls?.some((item) => item.refCode === c.refCode && item.referenceFramework === c.referenceFramework)
+                const inSubcontrols = evidenceSubcontrols?.some((item) => item.refCode === c.refCode && item.referenceFramework === c.referenceFramework)
                 return !inControls && !inSubcontrols
               })
               .map(({ id, refCode, referenceFramework, typeName, source }) => (
@@ -249,7 +249,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
                     __typename: typeName,
                   }}
                   canAdd
-                  onAdd={() => handleAdd(id, typeName === ItemType.Control ? false : true, refCode, source, referenceFramework)}
+                  onAdd={() => handleAdd(id, typeName === ItemType.Subcontrol, refCode, source, referenceFramework)}
                 />
               ))}
           </div>
@@ -265,7 +265,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
             This {selectedControls[0]?.typeName === ItemType.Control ? 'Control' : 'Subcontrol'} (<b>{selectedControls[0]?.refCode}</b>) is not in your organization, would you like to add it now?
           </>
         }
-        confirmationText="Remove"
+        confirmationText="Add"
         confirmationTextVariant="destructive"
       />
     </div>
