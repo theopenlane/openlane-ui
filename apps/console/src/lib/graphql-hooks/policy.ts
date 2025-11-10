@@ -39,12 +39,35 @@ import {
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useSession } from 'next-auth/react'
+import { wherePoliciesDashboard } from '@/components/pages/protected/policies/policies-dashboard/dashboard-config.ts'
 
 type UseInternalPoliciesArgs = {
   where?: GetInternalPoliciesListQueryVariables['where']
   orderBy?: GetInternalPoliciesListQueryVariables['orderBy']
   pagination?: TPagination
   enabled?: boolean
+}
+
+export const useInternalPoliciesCount = (pagination: TPagination) => {
+  const { client } = useGraphQLClient()
+  const where = {
+    ...wherePoliciesDashboard,
+  }
+
+  const queryResult = useQuery<GetInternalPoliciesListQuery>({
+    queryKey: ['internalPolicies', where, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request(GET_INTERNAL_POLICIES_LIST, {
+        where,
+        ...pagination?.query,
+      }),
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
+    isLoading: queryResult.isFetching,
+  }
 }
 
 export const useInternalPolicies = ({ where, orderBy, pagination, enabled }: UseInternalPoliciesArgs) => {
