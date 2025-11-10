@@ -52,6 +52,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   ])
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
     referenceID: false,
     auditorReferenceID: false,
     category: false,
