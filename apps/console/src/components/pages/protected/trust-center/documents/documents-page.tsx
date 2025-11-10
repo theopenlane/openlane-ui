@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
 import { trustCenterDocsColumns, TTrustCenterDoc } from './table-config'
@@ -16,6 +16,7 @@ import { Button } from '@repo/ui/button'
 import { File } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const DocumentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -23,6 +24,7 @@ const DocumentsPage = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const router = useRouter()
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { docs, paginationMeta, isLoading } = useGetTrustCenterDocs({
     where: {
@@ -51,6 +53,13 @@ const DocumentsPage = () => {
   const handleRowClick = (row: TTrustCenterDoc) => {
     router.push(`/trust-center/documents?id=${row.id}`)
   }
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center Documents', href: '/trust-center/documents' },
+    ])
+  }, [setCrumbs])
 
   if (isLoading) return <Loading />
   const hasData = tableData.length > 0
