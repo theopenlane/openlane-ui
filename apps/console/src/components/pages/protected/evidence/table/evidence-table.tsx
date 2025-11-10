@@ -60,7 +60,6 @@ export const EvidenceTable = () => {
     createdAt: false,
     updatedAt: false,
     description: false,
-    satisfies: false,
   })
 
   const userIds = useMemo(() => {
