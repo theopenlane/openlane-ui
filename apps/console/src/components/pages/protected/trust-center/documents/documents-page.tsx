@@ -55,48 +55,47 @@ const DocumentsPage = () => {
   if (isLoading) return <Loading />
   const hasData = tableData.length > 0
 
-  if (!hasData) {
-    return (
-      <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
-        <PanelHeader heading="Documents" subheading="You haven't uploaded any documents yet." />{' '}
-        <Link href="/trust-center/documents?create=true">
-          <Button variant="primary" icon={<File size={16} strokeWidth={2} />} iconPosition="left">
-            Upload Document
-          </Button>
-        </Link>
-        <CreateDocumentSheet />
-      </Panel>
-    )
-  }
-
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Trust Center Documents</h2>
-      <div className="flex items-center justify-between gap-2 mb-4">
-        <DocumentsTableToolbar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          mappedColumns={trustCenterDocsColumns.map((col) => ({
-            accessorKey: 'accessorKey' in col ? String(col.accessorKey) : '',
-            header: typeof col.header === 'string' ? col.header : 'Column',
-          }))}
-          columnVisibility={columnVisibility}
-          setColumnVisibility={setColumnVisibility}
-          handleFilterChange={handleFilterChange}
-        />
-      </div>
-      <DataTable
-        columns={trustCenterDocsColumns}
-        data={tableData}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        paginationMeta={paginationMeta}
-        loading={isLoading}
-        columnVisibility={columnVisibility}
-        onRowClick={handleRowClick}
-      />
+    <>
       <CreateDocumentSheet />
-    </div>
+      {hasData ? (
+        <div className="p-4">
+          <h2 className="text-xl font-semibold mb-4">Trust Center Documents</h2>
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <DocumentsTableToolbar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              mappedColumns={trustCenterDocsColumns.map((col) => ({
+                accessorKey: 'accessorKey' in col ? String(col.accessorKey) : '',
+                header: typeof col.header === 'string' ? col.header : 'Column',
+              }))}
+              columnVisibility={columnVisibility}
+              setColumnVisibility={setColumnVisibility}
+              handleFilterChange={handleFilterChange}
+            />
+          </div>
+          <DataTable
+            columns={trustCenterDocsColumns}
+            data={tableData}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            paginationMeta={paginationMeta}
+            loading={isLoading}
+            columnVisibility={columnVisibility}
+            onRowClick={handleRowClick}
+          />
+        </div>
+      ) : (
+        <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
+          <PanelHeader heading="Documents" subheading="You haven't uploaded any documents yet." />{' '}
+          <Link href="/trust-center/documents?create=true">
+            <Button variant="primary" icon={<File size={16} strokeWidth={2} />} iconPosition="left">
+              Upload Document
+            </Button>
+          </Link>
+        </Panel>
+      )}
+    </>
   )
 }
 

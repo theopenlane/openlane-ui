@@ -83,10 +83,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen)
     const current = new URLSearchParams(window.location.search)
-    if (isOpen) {
-      if (documentId) current.set('id', documentId)
-      else current.set('create', 'true')
-    } else {
+    if (!isOpen) {
       current.delete('create')
       current.delete('id')
     }
@@ -128,6 +125,7 @@ export const CreateDocumentSheet: React.FC = () => {
             },
             trustCenterDocFile: data.file,
           })
+          handleOpenChange(false)
         }
 
         successNotification({
@@ -172,7 +170,6 @@ export const CreateDocumentSheet: React.FC = () => {
         title: 'Document Deleted',
         description: 'The document has been successfully deleted.',
       })
-      reset()
       setIsDeleteDialogOpen(false)
       handleOpenChange(false)
     } catch (error) {
