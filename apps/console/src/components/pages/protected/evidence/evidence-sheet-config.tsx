@@ -49,10 +49,10 @@ export const buildOr = (groups: RefFrameworkGroup) =>
   Object.entries(groups).map(([framework, items]) => {
     const refCodes = items.map((i) => i.refCode)
 
-    if (framework === 'CUSTOM') {
+    if (framework === 'CUSTOM' || framework === '') {
       return {
         refCodeIn: refCodes,
-        or: [{ referenceFrameworkIsNil: true }],
+        and: [{ referenceFrameworkIsNil: true }],
       }
     }
 
