@@ -49,8 +49,8 @@ const StandardDetailsPage = () => {
           <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />
         </div>
         <p className="">{data?.standard.description}</p>
-        <div className="flex gap-14">
-          <div className="flex flex-col gap-7">
+        <div className="flex gap-14 w-full">
+          <div className="flex flex-col gap-7 w-full">
             <StandardDetailsAccordion
               isDialogOpen={isDialogOpen}
               setIsDialogOpen={setIsDialogOpen}
