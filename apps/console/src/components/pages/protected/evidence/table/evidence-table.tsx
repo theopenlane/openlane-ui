@@ -50,6 +50,7 @@ export const EvidenceTable = () => {
 
   const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
     collectionProcedure: false,
     source: false,
     creationDate: false,

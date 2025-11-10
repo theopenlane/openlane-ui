@@ -43,6 +43,7 @@ const TasksPage: React.FC = () => {
   const statusesWithoutCompleteAndWontDo = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED && status !== TaskTaskStatus.WONT_DO), [allStatuses])
   const { data: permission } = useOrganizationRoles()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
     createdAt: false,
     createdBy: false,
     updatedAt: false,

@@ -30,6 +30,7 @@ const Risks = () => {
   const [tab, setTab] = useState<'created' | 'assigned'>('created')
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
     createdBy: false,
     createdAt: false,
     updatedBy: false,
