@@ -70,7 +70,10 @@ export const getControlsAndSubcontrolsColumns = ({
       cell: ({ row }) => {
         const { id, refCode, referenceFramework } = row.original
 
-        const checked = selectedObject === AccordionEnum.Control ? !!evidenceControls?.find((c) => c.id === row.original.id) : !!evidenceSubcontrols?.find((c) => c.id === row.original.id)
+        const checked =
+          selectedObject === AccordionEnum.Control
+            ? !!evidenceControls?.find((c) => c.refCode === refCode && c.referenceFramework === referenceFramework)
+            : !!evidenceSubcontrols?.find((c) => c.refCode === refCode && c.referenceFramework === referenceFramework)
 
         return (
           <div className="flex items-center gap-2">

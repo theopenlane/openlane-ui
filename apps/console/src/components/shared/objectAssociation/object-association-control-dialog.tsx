@@ -90,7 +90,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     isLoading: subcontrolsLoading,
     isFetching: subcontrolsFetching,
   } = useGetAllSubcontrols({
-    where: { refCodeContainsFold: debouncedSearch },
+    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
     pagination,
   })
 

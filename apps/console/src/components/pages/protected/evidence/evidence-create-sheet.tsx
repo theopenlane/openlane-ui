@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -75,8 +75,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
-
-  const hasFetchedRef = useRef(false)
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -181,8 +179,8 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
 
   const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where: hasFetchedRef.current ? undefined : where ?? undefined,
-    enabled: !!where && !hasFetchedRef.current,
+    where: where,
+    enabled: !!where,
   })
 
   const { data: standards } = useGetStandards({})
@@ -209,11 +207,10 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       return
     }
 
-    if (!suggestedItems.length || hasFetchedRef.current) return
+    if (!suggestedItems.length) return
 
     const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
 
-    hasFetchedRef.current = true
     setSuggestedControlsMap(uniqueItems)
   }, [where, suggestedItems])
 
@@ -584,7 +581,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
             onOpenChange(false)
             setEvidenceSubcontrols(null)
             setEvidenceControls(null)
-            hasFetchedRef.current = false
             form.reset()
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}

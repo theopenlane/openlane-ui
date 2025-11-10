@@ -122,28 +122,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
 
-  const { data: mappedControls, refetch } = useGetSuggestedControlsOrSubcontrols({
+  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
     where: where,
     enabled: !!where,
   })
-
-  useEffect(() => {
-    if (evidenceControls && evidenceSubcontrols) {
-      refetch()
-    }
-  }, [evidenceControls, evidenceSubcontrols, refetch])
 
   const { data: standards } = useGetStandards({})
 
   const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
 
   useEffect(() => {
-    if (!where) {
-      setSuggestedControlsMap([])
-      return
-    }
-
-    if (!mappedControls) {
+    if (!where || !mappedControls || !standardNames.size) {
       setSuggestedControlsMap([])
       return
     }
