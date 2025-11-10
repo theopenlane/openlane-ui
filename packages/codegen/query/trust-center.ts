@@ -21,6 +21,8 @@ export const GET_TRUST_CENTER = gql`
           }
           setting {
             id
+            title
+            overview
             primaryColor
             themeMode
             foregroundColor

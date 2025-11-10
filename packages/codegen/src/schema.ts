@@ -62274,6 +62274,8 @@ export type GetTrustCenterQuery = {
         setting?: {
           __typename?: 'TrustCenterSetting'
           id: string
+          title?: string | null
+          overview?: string | null
           primaryColor?: string | null
           themeMode?: TrustCenterSettingTrustCenterThemeMode | null
           foregroundColor?: string | null
@@ -62283,8 +62285,6 @@ export type GetTrustCenterQuery = {
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
           faviconRemoteURL?: string | null
-          overview?: string | null
-          title?: string | null
           logoRemoteURL?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
