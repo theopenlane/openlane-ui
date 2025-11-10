@@ -8,7 +8,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { GetAllRisksQueryVariables, OrderDirection, RiskTableFieldsFragment, RiskWhereInput, RiskOrderField, ExportExportType, ExportExportFormat } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useTableRisks } from '@/lib/graphql-hooks/risks.ts'
+import { useRisks } from '@/lib/graphql-hooks/risks.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
 import { DataTable } from '@repo/ui/data-table'
@@ -78,7 +78,7 @@ const RiskTable: React.FC = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { risks, paginationMeta, isError } = useTableRisks({
+  const { risks, paginationMeta, isError } = useRisks({
     where,
     orderBy: orderByFilter,
     pagination,

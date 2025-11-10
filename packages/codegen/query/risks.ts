@@ -21,20 +21,11 @@ const RISK_FIELDS = gql`
       gravatarLogoURL
       logoURL
     }
-    updatedAt
-    updatedBy
-    createdAt
-    createdBy
     delegate {
       id
       displayName
       gravatarLogoURL
       logoURL
-    }
-    stakeholder {
-      displayName
-      logoURL
-      gravatarLogoURL
     }
     procedures {
       edges {
@@ -45,13 +36,6 @@ const RISK_FIELDS = gql`
           summary
         }
       }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
     }
     controls {
       edges {
@@ -61,13 +45,6 @@ const RISK_FIELDS = gql`
           refCode
         }
       }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
     }
     subcontrols {
       edges {
@@ -78,13 +55,6 @@ const RISK_FIELDS = gql`
           controlId: controlID
         }
       }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
     }
     programs {
       edges {
@@ -95,13 +65,6 @@ const RISK_FIELDS = gql`
           description
         }
       }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
     }
     tasks {
       edges {
@@ -112,13 +75,6 @@ const RISK_FIELDS = gql`
           details
         }
       }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
     }
     internalPolicies {
       edges {
@@ -128,13 +84,6 @@ const RISK_FIELDS = gql`
           name
         }
       }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
     }
   }
 `
@@ -142,6 +91,7 @@ const RISK_FIELDS = gql`
 const RISK_TABLE_FIELDS = gql`
   fragment RiskTableFields on Risk {
     id
+    displayID
     name
     category
     riskType
@@ -181,27 +131,6 @@ export const GET_RISK_BY_ID = gql`
 
 export const GET_ALL_RISKS = gql`
   query GetAllRisks($where: RiskWhereInput, $orderBy: [RiskOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
-    risks(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
-      pageInfo {
-        endCursor
-        startCursor
-        hasPreviousPage
-        hasNextPage
-      }
-      totalCount
-      edges {
-        node {
-          ...RiskFields
-        }
-      }
-    }
-  }
-
-  ${RISK_FIELDS}
-`
-
-export const GET_TABLE_RISKS = gql`
-  query GetTableRisks($where: RiskWhereInput, $orderBy: [RiskOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     risks(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       pageInfo {
         endCursor

@@ -4,7 +4,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { AlertTriangle } from 'lucide-react'
 import { VisibilityState } from '@tanstack/table-core'
-import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
+import { useRisks } from '@/lib/graphql-hooks/risks'
 import { useSearchParams } from 'next/navigation'
 import { RiskRiskStatus, RiskWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -54,7 +54,7 @@ const Risks = () => {
     }
   }, [tab, session?.user?.userId, stakeholderGroupIds, programId])
 
-  const { risks, paginationMeta } = useRisksWithFilter({ where })
+  const { risks, paginationMeta } = useRisks({ where })
 
   const formattedRisks: FormattedRisk[] =
     risks?.map((risk) => {
