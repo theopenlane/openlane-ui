@@ -32,7 +32,11 @@ export const QuestionnairesTable = () => {
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ updatedBy: false, createdBy: false })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
+    updatedBy: false,
+    createdBy: false,
+  })
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)

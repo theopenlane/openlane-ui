@@ -62,6 +62,12 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       minSize: 20,
     },
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       accessorKey: 'name',
       header: 'Name',
       minSize: 100,
