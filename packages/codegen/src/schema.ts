@@ -62321,6 +62321,93 @@ export type DeleteCustomDomainMutationVariables = Exact<{
 
 export type DeleteCustomDomainMutation = { __typename?: 'Mutation'; deleteCustomDomain: { __typename?: 'CustomDomainDeletePayload'; deletedID: string } }
 
+export type GetTrustCenterDocsQueryVariables = Exact<{
+  where?: InputMaybe<TrustCenterDocWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterDocOrder> | TrustCenterDocOrder>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetTrustCenterDocsQuery = {
+  __typename?: 'Query'
+  trustCenters: {
+    __typename?: 'TrustCenterConnection'
+    edges?: Array<{
+      __typename?: 'TrustCenterEdge'
+      node?: {
+        __typename?: 'TrustCenter'
+        id: string
+        trustCenterDocs: {
+          __typename?: 'TrustCenterDocConnection'
+          totalCount: number
+          edges?: Array<{
+            __typename?: 'TrustCenterDocEdge'
+            node?: {
+              __typename?: 'TrustCenterDoc'
+              id: string
+              title: string
+              category: string
+              visibility?: TrustCenterDocTrustCenterDocumentVisibility | null
+              tags?: Array<string> | null
+              createdAt?: any | null
+              updatedAt?: any | null
+            } | null
+          } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type UpdateTrustCenterDocMutationVariables = Exact<{
+  updateTrustCenterDocId: Scalars['ID']['input']
+  input: UpdateTrustCenterDocInput
+  trustCenterDocFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterDocMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterDoc: { __typename?: 'TrustCenterDocUpdatePayload'; trustCenterDoc: { __typename?: 'TrustCenterDoc'; id: string } }
+}
+
+export type CreateTrsutCenterDocMutationVariables = Exact<{
+  input: CreateTrustCenterDocInput
+  trustCenterDocFile: Scalars['Upload']['input']
+}>
+
+export type CreateTrsutCenterDocMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterDoc: { __typename?: 'TrustCenterDocCreatePayload'; trustCenterDoc: { __typename?: 'TrustCenterDoc'; id: string } }
+}
+
+export type GetTruestCenterDocByIdQueryVariables = Exact<{
+  trustCenterDocId: Scalars['ID']['input']
+}>
+
+export type GetTruestCenterDocByIdQuery = {
+  __typename?: 'Query'
+  trustCenterDoc: {
+    __typename?: 'TrustCenterDoc'
+    id: string
+    title: string
+    category: string
+    visibility?: TrustCenterDocTrustCenterDocumentVisibility | null
+    tags?: Array<string> | null
+    watermarkingEnabled: boolean
+    watermarkStatus?: TrustCenterDocWatermarkStatus | null
+    file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string } | null
+  }
+}
+
+export type DeleteTrustCenterDocMutationVariables = Exact<{
+  deleteTrustCenterDocId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteTrustCenterDoc: { __typename?: 'TrustCenterDocDeletePayload'; deletedID: string } }
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>

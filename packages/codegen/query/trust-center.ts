@@ -75,3 +75,80 @@ export const DELETE_CUSTOM_DOMAIN = gql`
     }
   }
 `
+
+export const GET_TRUST_CENTER_DOCS = gql`
+  query GetTrustCenterDocs($where: TrustCenterDocWhereInput, $first: Int, $orderBy: [TrustCenterDocOrder!], $after: Cursor, $before: Cursor, $last: Int) {
+    trustCenters {
+      edges {
+        node {
+          id
+          trustCenterDocs(where: $where, first: $first, orderBy: $orderBy, after: $after, before: $before, last: $last) {
+            edges {
+              node {
+                id
+                title
+                category
+                visibility
+                tags
+                createdAt
+                updatedAt
+              }
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
+              hasPreviousPage
+              startCursor
+            }
+            totalCount
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER_DOC = gql`
+  mutation UpdateTrustCenterDoc($updateTrustCenterDocId: ID!, $input: UpdateTrustCenterDocInput!, $trustCenterDocFile: Upload) {
+    updateTrustCenterDoc(id: $updateTrustCenterDocId, input: $input, trustCenterDocFile: $trustCenterDocFile) {
+      trustCenterDoc {
+        id
+      }
+    }
+  }
+`
+export const CREATE_TRUST_CENTER_DOC = gql`
+  mutation CreateTrsutCenterDoc($input: CreateTrustCenterDocInput!, $trustCenterDocFile: Upload!) {
+    createTrustCenterDoc(input: $input, trustCenterDocFile: $trustCenterDocFile) {
+      trustCenterDoc {
+        id
+      }
+    }
+  }
+`
+
+export const GET_TRUST_CENTER_DOC_BY_ID = gql`
+  query GetTruestCenterDocByID($trustCenterDocId: ID!) {
+    trustCenterDoc(id: $trustCenterDocId) {
+      id
+      title
+      category
+      visibility
+      tags
+      file {
+        presignedURL
+        providedFileName
+      }
+      watermarkingEnabled
+      watermarkStatus
+    }
+  }
+`
+
+export const DELETE_TRUST_CENTER_DOC = gql`
+  mutation DeleteTrustCenterDoc($deleteTrustCenterDocId: ID!) {
+    deleteTrustCenterDoc(id: $deleteTrustCenterDocId) {
+      deletedID
+    }
+  }
+`
