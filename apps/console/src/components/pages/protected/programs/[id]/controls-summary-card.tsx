@@ -51,7 +51,7 @@ export function ControlsSummaryCard() {
     <Card className="p-6">
       <div className="flex justify-between items-center">
         <p className="text-lg">Control status</p>
-        <Link href={`/controls?tab=controls`} onClick={handleClick}>
+        <Link href={`/controls?tab=table`} onClick={handleClick}>
           <Button variant="secondary" iconPosition="left" icon={<Settings2 size={16} />}>
             Go to controls
           </Button>

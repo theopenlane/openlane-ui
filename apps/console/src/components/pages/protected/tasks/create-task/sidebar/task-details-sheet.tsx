@@ -104,6 +104,8 @@ const TaskDetailsSheet = () => {
     handleCloseParams()
   }
 
+  const isCreateButtonVisible = !!((taskData?.controls.edges?.length ?? 0) > 0 || (taskData?.subcontrols.edges?.length ?? 0) > 0 || taskData?.category === ObjectTypeObjects.EVIDENCE)
+
   const handleCloseParams = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
     newSearchParams.delete('id')
@@ -192,25 +194,27 @@ const TaskDetailsSheet = () => {
                 {isEditAllowed && !isEditing && (
                   <div className="flex gap-4 pb-4 pt-2">
                     <>
-                      <CreateButton type="evidence" onClick={() => setIsSheetOpen(true)} />
+                      {isCreateButtonVisible && <CreateButton title={'Create Evidence'} type="evidence" onClick={() => setIsSheetOpen(true)} />}
                       {taskData && (
-                        <EvidenceCreateSheet
-                          open={isSheetOpen}
-                          onOpenChange={setIsSheetOpen}
-                          formData={evidenceFormData}
-                          controlParam={controlParams}
-                          excludeObjectTypes={[
-                            ObjectTypeObjects.EVIDENCE,
-                            ObjectTypeObjects.RISK,
-                            ObjectTypeObjects.PROCEDURE,
-                            ObjectTypeObjects.GROUP,
-                            ObjectTypeObjects.INTERNAL_POLICY,
-                            ObjectTypeObjects.CONTROL,
-                            ObjectTypeObjects.SUB_CONTROL,
-                            ObjectTypeObjects.PROGRAM,
-                          ]}
-                          defaultSelectedObject={ObjectTypeObjects.TASK}
-                        />
+                        <>
+                          <EvidenceCreateSheet
+                            open={isSheetOpen}
+                            onOpenChange={setIsSheetOpen}
+                            formData={evidenceFormData}
+                            controlParam={controlParams}
+                            excludeObjectTypes={[
+                              ObjectTypeObjects.EVIDENCE,
+                              ObjectTypeObjects.RISK,
+                              ObjectTypeObjects.PROCEDURE,
+                              ObjectTypeObjects.GROUP,
+                              ObjectTypeObjects.INTERNAL_POLICY,
+                              ObjectTypeObjects.CONTROL,
+                              ObjectTypeObjects.SUB_CONTROL,
+                              ObjectTypeObjects.PROGRAM,
+                            ]}
+                            defaultSelectedObject={ObjectTypeObjects.TASK}
+                          />
+                        </>
                       )}
                     </>
                     <MarkAsComplete taskData={taskData} />

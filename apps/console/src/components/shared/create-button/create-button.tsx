@@ -82,6 +82,7 @@ export const CreateButton: React.FC<CreateButtonProps> = ({ type, href, onClick,
       title={title ?? finalAria}
     >
       <LeftIcon size={leftIconSize} className="mr-1" aria-hidden />
+      {title && <span className="text-sm leading-none ml-1 mr-2">{title}</span>}
       <span className="h-4 border-r" />
       <RightIcon size={16} className="ml-1" aria-hidden />
     </div>
