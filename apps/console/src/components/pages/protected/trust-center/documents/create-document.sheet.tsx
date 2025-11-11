@@ -295,7 +295,7 @@ export const CreateDocumentSheet: React.FC = () => {
 
           {/* File Upload + Existing File */}
           <div>
-            <Label>PDF File</Label>
+            <Label>Document file</Label>
             {existingFile && !uploadedFile && existingFile.presignedURL && (
               <div className="flex items-center justify-between mb-2">
                 <a href={existingFile.presignedURL} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 truncate" title={existingFile.providedFileName}>

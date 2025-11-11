@@ -55,10 +55,7 @@ const DocumentsPage = () => {
   }
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Trust Center Documents', href: '/trust-center/documents' },
-    ])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Reports & Certifications', href: '/trust-center/documents' }])
   }, [setCrumbs])
 
   if (isLoading) return <Loading />
