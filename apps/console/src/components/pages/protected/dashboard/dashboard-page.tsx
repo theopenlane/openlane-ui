@@ -20,7 +20,7 @@ const DashboardPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
+  const [, setSelectedProgram] = useState<string>('All programs')
   const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   const { data, isLoading } = useGetAllPrograms({
@@ -78,16 +78,13 @@ const DashboardPage: React.FC = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="h-8 !px-2 !pl-3" icon={<SlidersHorizontal />} iconPosition="left">
                     <span className="text-muted-foreground">Filter by:</span>
-                    <span>{selectedProgram}</span>
+                    <span>Program</span>
                   </Button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
                   <DropdownMenuRadioGroup value={programId ?? 'All programs'} onValueChange={(val) => handleSelectChange(val)}>
-                    {/* All programs */}
                     <DropdownMenuRadioItem value="All programs">All programs</DropdownMenuRadioItem>
-
-                    {/* Dynamic list */}
                     {data?.programs?.edges?.map((edge) => {
                       const program = edge?.node
                       if (!program) return null
