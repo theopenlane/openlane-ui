@@ -3,13 +3,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
-import { trustCenterDocsColumns, TTrustCenterDoc } from './table-config'
 import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
-import DocumentsTableToolbar from './documents-table-toolbar'
-import { CreateDocumentSheet } from './create-document.sheet'
+import { CreateDocumentSheet } from './sheet/create-document.sheet'
 import { TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
@@ -17,6 +15,8 @@ import { File } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import DocumentsTableToolbar from './table/documents-table-toolbar'
+import { trustCenterDocsColumns, TTrustCenterDoc } from './table/table-config'
 
 const DocumentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -95,8 +95,8 @@ const DocumentsPage = () => {
         <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
           <PanelHeader
             heading="Documents"
-            subheading="You haven’t added any Trust Center documents yet.
-Upload reports, certifications, or other materials you’d like customers to see when visiting your Trust Center."
+            subheading="You haven't added any Trust Center documents yet.
+Upload reports, certifications, or other materials you'd like customers to see when visiting your Trust Center."
           />{' '}
           <Link href="/trust-center/documents?create=true">
             <Button variant="primary" icon={<File size={16} strokeWidth={2} />} iconPosition="left">

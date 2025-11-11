@@ -62398,7 +62398,7 @@ export type GetTruestCenterDocByIdQuery = {
     tags?: Array<string> | null
     watermarkingEnabled: boolean
     watermarkStatus?: TrustCenterDocWatermarkStatus | null
-    file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string } | null
+    file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string; providedFileSize?: number | null } | null
   }
 }
 

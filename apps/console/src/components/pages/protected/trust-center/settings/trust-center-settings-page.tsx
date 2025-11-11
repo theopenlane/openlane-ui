@@ -15,7 +15,7 @@ const TrustCenterSettingsPage = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   React.useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center Settings' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Settings', href: '/trust-center/settings' }])
   }, [setCrumbs])
 
   if (isLoading) {

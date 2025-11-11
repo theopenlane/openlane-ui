@@ -83,8 +83,8 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
 ]
 
 import { Eye, Folder } from 'lucide-react'
-import { enumToOptions } from '../../tasks/table/table-config'
 import { FilterField } from '@/types'
+import { enumToOptions } from '../../../tasks/table/table-config'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {

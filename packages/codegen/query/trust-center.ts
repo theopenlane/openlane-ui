@@ -138,6 +138,7 @@ export const GET_TRUST_CENTER_DOC_BY_ID = gql`
       file {
         presignedURL
         providedFileName
+        providedFileSize
       }
       watermarkingEnabled
       watermarkStatus

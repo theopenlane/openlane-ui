@@ -8,9 +8,9 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { trustCenterDocsFilterFields } from './table-config'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
+import { trustCenterDocsFilterFields } from './table-config'
 
 type TProps = {
   searching?: boolean
