@@ -95,8 +95,13 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
       {
         id: 'select',
         header: '',
-        size: 40,
-        cell: ({ row }) => <Checkbox checked={selected.includes(row.original.domain)} onCheckedChange={() => toggle(row.original.domain)} />,
+        cell: ({ row }) => (
+          <div>
+            <Checkbox checked={selected.includes(row.original.domain)} onCheckedChange={() => toggle(row.original.domain)} />
+          </div>
+        ),
+        size: 5,
+        maxSize: 5,
       },
       {
         accessorKey: 'standardLabel',
