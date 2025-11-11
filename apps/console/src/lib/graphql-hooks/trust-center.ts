@@ -1,5 +1,7 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
+  BULK_DELETE_TRUST_CENTER_DOC,
+  BULK_UPDATE_TRUST_CENTER_DOC,
   CREATE_CUSTOM_DOMAIN,
   CREATE_TRUST_CENTER_DOC,
   DELETE_CUSTOM_DOMAIN,
@@ -11,6 +13,10 @@ import {
   UPDATE_TRUST_CENTER_SETTING,
 } from '@repo/codegen/query/trust-center'
 import {
+  BulkDeleteTrustCenterDocMutation,
+  BulkDeleteTrustCenterDocMutationVariables,
+  BulkUpdateTrustCenterDocMutation,
+  BulkUpdateTrustCenterDocMutationVariables,
   CreateCustomDomainMutation,
   CreateCustomDomainMutationVariables,
   CreateTrsutCenterDocMutation,
@@ -210,6 +216,32 @@ export const useDeleteTrustCenterDoc = () => {
       queryClient.invalidateQueries({
         queryKey: ['trustCenter', 'docs'],
       })
+    },
+  })
+}
+
+export const useBulkDeleteTrustCenterDocs = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<BulkDeleteTrustCenterDocMutation, unknown, BulkDeleteTrustCenterDocMutationVariables>({
+    mutationFn: async (variables) => {
+      return await client.request<BulkDeleteTrustCenterDocMutation, BulkDeleteTrustCenterDocMutationVariables>(BULK_DELETE_TRUST_CENTER_DOC, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter', 'docs'],
+      })
+    },
+  })
+}
+
+export const useBulkUpdateTrustCenterDocs = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<BulkUpdateTrustCenterDocMutation, unknown, BulkUpdateTrustCenterDocMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_UPDATE_TRUST_CENTER_DOC, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenter', 'docs'] })
     },
   })
 }

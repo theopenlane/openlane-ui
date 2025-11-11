@@ -25814,6 +25814,8 @@ export interface Mutation {
   updateBulkScan: ScanBulkUpdatePayload
   /** Update multiple existing tasks */
   updateBulkTask: TaskBulkUpdatePayload
+  /** Update multiple existing trust center docs */
+  updateBulkTrustCenterDoc: TrustCenterDocBulkUpdatePayload
   /** Update an existing contact */
   updateContact: ContactUpdatePayload
   /** Update an existing control */
@@ -27153,6 +27155,11 @@ export interface MutationUpdateBulkScanArgs {
 export interface MutationUpdateBulkTaskArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateTaskInput
+}
+
+export interface MutationUpdateBulkTrustCenterDocArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateTrustCenterDocInput
 }
 
 export interface MutationUpdateContactArgs {
@@ -48542,6 +48549,15 @@ export interface TrustCenterDocBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkTrustCenterDoc mutation */
+export interface TrustCenterDocBulkUpdatePayload {
+  __typename?: 'TrustCenterDocBulkUpdatePayload'
+  /** Updated trust center docs */
+  trustCenterDocs?: Maybe<Array<TrustCenterDoc>>
+  /** IDs of the updated trust center docs */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface TrustCenterDocConnection {
   __typename?: 'TrustCenterDocConnection'
@@ -62407,6 +62423,22 @@ export type DeleteTrustCenterDocMutationVariables = Exact<{
 }>
 
 export type DeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteTrustCenterDoc: { __typename?: 'TrustCenterDocDeletePayload'; deletedID: string } }
+
+export type BulkDeleteTrustCenterDocMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type BulkDeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type BulkUpdateTrustCenterDocMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateTrustCenterDocInput
+}>
+
+export type BulkUpdateTrustCenterDocMutation = {
+  __typename?: 'Mutation'
+  updateBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkUpdatePayload'; trustCenterDocs?: Array<{ __typename?: 'TrustCenterDoc'; id: string }> | null }
+}
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']

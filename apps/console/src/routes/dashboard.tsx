@@ -112,8 +112,8 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: Settings,
       },
       {
-        title: 'Documents',
-        href: '/trust-center/documents',
+        title: 'Reports & Certifications',
+        href: '/trust-center/reports-and-certifications',
         icon: File,
       },
     ],
