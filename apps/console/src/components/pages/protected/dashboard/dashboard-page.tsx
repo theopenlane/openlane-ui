@@ -12,16 +12,15 @@ import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import Loading from '@/app/(protected)/dashboard/loading'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
 import { SlidersHorizontal } from 'lucide-react'
 
 const DashboardPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
+  const [, setSelectedProgram] = useState<string>('All programs')
   const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   const { data, isLoading } = useGetAllPrograms({
@@ -64,13 +63,8 @@ const DashboardPage: React.FC = () => {
     }
   }
 
-  if (isLoading) {
-    return <Loading />
-  }
-
-  if (!data?.programs.edges?.length) {
-    return <NewUserLanding />
-  }
+  if (isLoading) return <Loading />
+  if (!data?.programs.edges?.length) return <NewUserLanding />
 
   return (
     <>
@@ -89,37 +83,18 @@ const DashboardPage: React.FC = () => {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
-                  {/* All programs */}
-                  <DropdownMenuItem
-                    className="flex items-center gap-2"
-                    onSelect={(e) => {
-                      e.preventDefault()
-                      handleSelectChange('All programs')
-                    }}
-                  >
-                    <Checkbox checked={selectedProgram === 'All programs'} />
-                    <span>All programs</span>
-                  </DropdownMenuItem>
-
-                  {/* Dynamic program list */}
-                  {data?.programs?.edges?.map((edge) => {
-                    const program = edge?.node
-                    if (!program) return null
-
-                    return (
-                      <DropdownMenuItem
-                        key={program.id}
-                        className="flex items-center gap-2"
-                        onSelect={(e) => {
-                          e.preventDefault()
-                          handleSelectChange(program.id)
-                        }}
-                      >
-                        <Checkbox checked={program.id === programId} />
-                        <span>{program.name}</span>
-                      </DropdownMenuItem>
-                    )
-                  })}
+                  <DropdownMenuRadioGroup value={programId ?? 'All programs'} onValueChange={(val) => handleSelectChange(val)}>
+                    <DropdownMenuRadioItem value="All programs">All programs</DropdownMenuRadioItem>
+                    {data?.programs?.edges?.map((edge) => {
+                      const program = edge?.node
+                      if (!program) return null
+                      return (
+                        <DropdownMenuRadioItem key={program.id} value={program.id}>
+                          {program.name}
+                        </DropdownMenuRadioItem>
+                      )
+                    })}
+                  </DropdownMenuRadioGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
