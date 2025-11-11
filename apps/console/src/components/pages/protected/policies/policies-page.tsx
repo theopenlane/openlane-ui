@@ -1,5 +1,4 @@
 'use client'
-import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
 import React, { useContext, useEffect, useState } from 'react'
 import { PoliciesTable } from './table/policies-table'
 import PoliciesDashboard from './policies-dashboard/policies-dashboard'
@@ -16,9 +15,15 @@ import { isStringArray, loadFilters, saveFilters } from '@/components/shared/tab
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { PolicySuggestedActions } from './policies-suggested-actions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
+import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 
-const PoliciesPage = () => {
-  const [active, setActive] = useState<'dashboard' | 'table'>('dashboard')
+type TPoliciesPageProps = {
+  active: 'dashboard' | 'table'
+  setActive: (tab: 'dashboard' | 'table') => void
+}
+
+const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   const { data: permission } = useOrganizationRoles()
   const { groupOptions } = useGroupSelect()
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -58,12 +63,13 @@ const PoliciesPage = () => {
       { label: 'Policies', href: '/policies' },
     ])
   }, [setCrumbs])
+
   return (
     <div>
       <div className="flex justify-between items-center">
         <div className="flex gap-4 items-center">
           <h1 className="text-3xl tracking-[-0.056rem] text-header">Internal Policies</h1>
-          <TabSwitcher active={active} setActive={setActive} />
+          <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.POLICY} />
         </div>
 
         {active === 'dashboard' && (
