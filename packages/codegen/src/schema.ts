@@ -61495,6 +61495,8 @@ export type GetAllStandardsQuery = {
   __typename?: 'Query'
   standards: {
     __typename?: 'StandardConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     edges?: Array<{
       __typename?: 'StandardEdge'
       node?: {

@@ -3,6 +3,13 @@ import { gql } from 'graphql-request'
 export const GET_ALL_STANDARDS = gql`
   query GetAllStandards($where: StandardWhereInput) {
     standards(where: $where) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
       edges {
         node {
           id
