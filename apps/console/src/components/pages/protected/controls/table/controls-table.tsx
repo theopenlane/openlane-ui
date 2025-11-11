@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState, useEffect, useContext } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
@@ -26,10 +26,11 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
-import TabSwitcher from '@/components/shared/control-switcher/tab-switcher.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
+import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -203,7 +204,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
-          <TabSwitcher active={active} setActive={setActive} />
+          <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
         </div>
       </div>
       <ControlsTableToolbar
