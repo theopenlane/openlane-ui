@@ -116,6 +116,7 @@ export const ProceduresTable = () => {
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
     approvalRequired: false,
     approver: false,
     delegate: false,
