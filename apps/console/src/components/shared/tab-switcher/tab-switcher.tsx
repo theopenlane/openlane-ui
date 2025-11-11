@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Presentation, Table } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
@@ -16,27 +16,27 @@ type TTabSwitcherProps = {
 export const STORAGE_KEY_PREFIX = 'tab-switch'
 
 const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive }) => {
-  const [internalActive, setInternalActive] = useState<TTab>('dashboard')
-  const active = externalActive ?? internalActive
-  const setActive = externalSetActive ?? setInternalActive
   const storageKeyWithPrefix = `${STORAGE_KEY_PREFIX}-${storageKey}`
 
-  useEffect(() => {
-    if (!storageKey) {
-      return
+  const [internalActive, setInternalActive] = useState<TTab>(() => {
+    if (typeof window !== 'undefined') {
+      const savedTab = localStorage.getItem(storageKeyWithPrefix)
+      if (savedTab === 'dashboard' || savedTab === 'table') {
+        return savedTab
+      }
     }
-    const savedTab = localStorage.getItem(storageKeyWithPrefix) as TTab | null
-    if (savedTab === 'dashboard' || savedTab === 'table') {
-      setActive(savedTab)
-    }
-  }, [setActive, storageKey, storageKeyWithPrefix])
+    return 'dashboard'
+  })
 
-  useEffect(() => {
-    if (!storageKey) {
-      return
-    }
-    localStorage.setItem(storageKeyWithPrefix, active)
-  }, [storageKey, active, storageKeyWithPrefix])
+  const active = externalActive ?? internalActive
+  const setActive =
+    externalSetActive ??
+    ((tab: TTab) => {
+      setInternalActive(tab)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(storageKeyWithPrefix, tab)
+      }
+    })
 
   return (
     <div className="flex items-center p-[3px] gap-1 border rounded-md cursor-pointer overflow-hidden bg-background">
