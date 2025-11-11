@@ -22,6 +22,7 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
   const storageKeyWithPrefix = `${STORAGE_KEY_PREFIX}-${storageKey}`
 
   useEffect(() => {
+    console.log('hi 1')
     if (!storageKey) {
       return
     }
@@ -32,6 +33,7 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
   }, [setActive, storageKey, storageKeyWithPrefix])
 
   useEffect(() => {
+    console.log('hi 2')
     if (!storageKey) {
       return
     }

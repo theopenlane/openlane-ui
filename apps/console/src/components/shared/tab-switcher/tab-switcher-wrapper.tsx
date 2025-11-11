@@ -15,6 +15,7 @@ const TabSwitcherWrapper: React.FC<TTabSwitcherWrapperProps> = ({ storageKey, ch
   const [active, setActive] = useState<TTab | null>(null)
 
   useEffect(() => {
+    console.log('hi 3')
     if (typeof window === 'undefined') {
       return
     }
