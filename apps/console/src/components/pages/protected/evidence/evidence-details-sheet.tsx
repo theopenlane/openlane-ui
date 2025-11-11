@@ -37,7 +37,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -73,6 +73,9 @@ import ObjectAssociationProgramsChips from '@/components/shared/objectAssociatio
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
+import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
+import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -103,12 +106,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
-  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsRefMap, setAssociationSubControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
-  const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
+
+  const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
+  const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -116,6 +119,38 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
+
+  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
+
+  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
+    where: where,
+    enabled: !!where,
+  })
+
+  const { data: standards } = useGetStandards({})
+
+  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
+
+  useEffect(() => {
+    if (!where || !mappedControls || !standardNames.size) {
+      setSuggestedControlsMap([])
+      return
+    }
+
+    const items = flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
+      .map((item) => ({
+        id: item.id,
+        refCode: item.refCode,
+        referenceFramework: item.referenceFramework ?? null,
+        source: item.source ?? '',
+        typeName: item.type,
+      }))
+      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
+
+    const uniqueItems = Array.from(new Map(items.map((item) => [item.id, item])).values())
+
+    setSuggestedControlsMap(uniqueItems)
+  }, [where, mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
@@ -159,16 +194,38 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     [evidence],
   )
 
-  const initialAssociationsControlsAndPrograms = useMemo(
-    () => ({
-      programDisplayIDs: (evidence?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
-      subcontrolRefCodes: evidence?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-      subcontrolReferenceFramework: Object.fromEntries(evidence?.subcontrols?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
-      controlRefCodes: evidence?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-      controlReferenceFramework: Object.fromEntries(evidence?.controls?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
-    }),
-    [evidence],
-  )
+  const initialAssociationsControlsAndPrograms = useMemo(() => {
+    if (!evidence)
+      return {
+        programDisplayIDs: [],
+        subcontrolRefCodes: [],
+        subcontrolReferenceFramework: {},
+        controlRefCodes: [],
+        controlReferenceFramework: {},
+      }
+
+    const controls: Control[] = evidence.controls?.edges?.map((edge) => edge?.node).filter((n): n is Control => !!n) ?? []
+    const subcontrols: Subcontrol[] = evidence.subcontrols?.edges?.map((edge) => edge?.node).filter((n): n is Subcontrol => !!n) ?? []
+
+    return {
+      controls,
+      subcontrols,
+      programDisplayIDs: (evidence.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+      subcontrolRefCodes: subcontrols.map((s) => s.refCode),
+      subcontrolReferenceFramework: Object.fromEntries(subcontrols.map((s) => [s.id, s.referenceFramework ?? ''])),
+      controlRefCodes: controls.map((c) => c.refCode),
+      controlReferenceFramework: Object.fromEntries(controls.map((c) => [c.id, c.referenceFramework ?? ''])),
+    }
+  }, [evidence])
+
+  useEffect(() => {
+    if (initialAssociationsControlsAndPrograms.controls) {
+      setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
+    }
+    if (initialAssociationsControlsAndPrograms.subcontrols) {
+      setEvidenceSubcontrols(initialAssociationsControlsAndPrograms.subcontrols)
+    }
+  }, [initialAssociationsControlsAndPrograms])
 
   useEffect(() => {
     if (evidence) {
@@ -201,12 +258,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
       form.setValue('programIDs', initialAssociations.programIDs ? initialAssociations.programIDs : [])
       form.setValue('subcontrolIDs', initialAssociations.subcontrolIDs ? initialAssociations.subcontrolIDs : [])
-
-      setAssociationControlsRefMap(initialAssociationsControlsAndPrograms.controlRefCodes ? initialAssociationsControlsAndPrograms.controlRefCodes : [])
-      setAssociationControlsFrameworksMap(initialAssociationsControlsAndPrograms.controlReferenceFramework || {})
-
-      setAssociationSubControlsRefMap(initialAssociationsControlsAndPrograms.subcontrolRefCodes ? initialAssociationsControlsAndPrograms.subcontrolRefCodes : [])
-      setAssociationSubControlsFrameworksMap(initialAssociationsControlsAndPrograms.subcontrolReferenceFramework || {})
 
       setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
     }
@@ -334,8 +385,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-          ? oldValue.getTime() === newValue.getTime()
-          : oldValue === newValue
+        ? oldValue.getTime() === newValue.getTime()
+        : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -402,35 +453,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
     return (
       <div className="flex justify-end flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => (
-          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
-        ))}
+        {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
       </div>
     )
-  }
-
-  const handleSaveControls = (
-    newIds: string[],
-    subcontrolsNewIds: string[],
-    newControlRefCodes: string[],
-    newSubcontrolRefCodes: string[],
-    frameworks: Record<string, string>,
-    subcontrolFrameworks: Record<string, string>,
-  ) => {
-    const mergedControlRefCodes = [...(associationControlsRefMap || []), ...(newControlRefCodes || [])]
-    const uniqueControlRefCodes = Array.from(new Set(mergedControlRefCodes))
-
-    const mergedSubcontrolRefCodes = [...(associationSubControlsRefMap || []), ...(newSubcontrolRefCodes || [])]
-    const uniqueSubcontrolRefCodes = Array.from(new Set(mergedSubcontrolRefCodes))
-
-    form.setValue('controlIDs', newIds)
-    form.setValue('subcontrolIDs', subcontrolsNewIds)
-
-    setAssociationControlsRefMap(uniqueControlRefCodes)
-    setAssociationSubControlsRefMap(uniqueSubcontrolRefCodes)
-
-    setAssociationControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(frameworks || {}) }))
-    setAssociationSubControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(subcontrolFrameworks || {}) }))
   }
 
   const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
@@ -936,14 +961,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <div className="mt-5 flex flex-col gap-5">
                             <ObjectAssociationControlsChips
                               form={form}
-                              controlsRefMap={associationControlsRefMap}
-                              setControlsRefMap={setAssociationControlsRefMap}
-                              subcontrolsRefMap={associationSubControlsRefMap}
-                              setSubcontrolsRefMap={setAssociationSubControlsRefMap}
-                              subcontrolFrameworksMap={associationSubControlsFrameworksMap}
-                              setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
-                              frameworksMap={associationControlsFrameworksMap}
-                              setFrameworksMap={setAssociationControlsFrameworksMap}
+                              suggestedControlsMap={suggestedControlsMap}
+                              evidenceControls={evidenceControls}
+                              setEvidenceControls={setEvidenceControls}
+                              evidenceSubcontrols={evidenceSubcontrols}
+                              setEvidenceSubcontrols={setEvidenceSubcontrols}
                             />
                           </div>
                         </AccordionContent>
@@ -952,12 +974,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     <ControlSelectionDialog
                       open={openControlsDialog}
                       onClose={() => setOpenControlsDialog(false)}
-                      initialFramework={associationControlsFrameworksMap}
-                      initialControlRefCodes={associationControlsRefMap}
-                      initialSubcontrolRefCodes={associationSubControlsRefMap}
-                      initialSubcontrolFramework={associationSubControlsFrameworksMap}
-                      onSave={handleSaveControls}
                       form={form}
+                      evidenceControls={evidenceControls}
+                      setEvidenceControls={setEvidenceControls}
+                      evidenceSubcontrols={evidenceSubcontrols}
+                      setEvidenceSubcontrols={setEvidenceSubcontrols}
                     />
                   </Panel>
                   <Panel className="mt-5">
@@ -1038,6 +1059,24 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
             handleCloseParams()
+            form.reset({
+              name: evidence?.name ?? '',
+              description: evidence?.description ?? '',
+              renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate as string) : undefined,
+              creationDate: evidence?.creationDate ? new Date(evidence.creationDate as string) : undefined,
+              status: evidence?.status ?? undefined,
+              tags: evidence?.tags ?? [],
+              collectionProcedure: evidence?.collectionProcedure ?? '',
+              source: evidence?.source ?? '',
+              url: evidence?.url ?? '',
+              controlIDs: initialAssociations.controlIDs ?? [],
+              subcontrolIDs: initialAssociations.subcontrolIDs ?? [],
+              programIDs: initialAssociations.programIDs ?? [],
+            })
+
+            setEvidenceControls(initialAssociationsControlsAndPrograms.controls ?? [])
+            setEvidenceSubcontrols(initialAssociationsControlsAndPrograms.subcontrols ?? [])
+            setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ?? [])
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}
         />

@@ -59209,6 +59209,56 @@ export type DeleteBulkControlMutationVariables = Exact<{
 
 export type DeleteBulkControlMutation = { __typename?: 'Mutation'; deleteBulkControl: { __typename?: 'ControlBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type GetSuggestedControlsOrSubcontrolsQueryVariables = Exact<{
+  where?: InputMaybe<MappedControlWhereInput>
+}>
+
+export type GetSuggestedControlsOrSubcontrolsQuery = {
+  __typename?: 'Query'
+  mappedControls: {
+    __typename?: 'MappedControlConnection'
+    edges?: Array<{
+      __typename?: 'MappedControlEdge'
+      node?: {
+        __typename?: 'MappedControl'
+        id: string
+        source?: MappedControlMappingSource | null
+        fromControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+        }
+        toControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+        }
+        fromSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+        }
+        toSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetExistingControlsForOrganizationQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+}>
+
+export type GetExistingControlsForOrganizationQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null; standardID?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
+    } | null> | null
+  }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -61733,6 +61783,21 @@ export type UpdateSubcontrolCommentMutationVariables = Exact<{
 }>
 
 export type UpdateSubcontrolCommentMutation = { __typename?: 'Mutation'; updateSubcontrolComment: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
+
+export type GetExistingSubcontrolsForOrganizationQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetExistingSubcontrolsForOrganizationQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
+    } | null> | null
+  }
+}
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
