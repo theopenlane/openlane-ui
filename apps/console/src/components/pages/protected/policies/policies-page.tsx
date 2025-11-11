@@ -15,7 +15,6 @@ import { isStringArray, loadFilters, saveFilters } from '@/components/shared/tab
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { PolicySuggestedActions } from './policies-suggested-actions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useInternalPoliciesCount } from '@/lib/graphql-hooks/policy.ts'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 
