@@ -148,7 +148,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreatePolicyUploadDialog
                         trigger={
-                          <div className="flex items-center bg-transparent space-x-2 px-1">
+                          <div className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>

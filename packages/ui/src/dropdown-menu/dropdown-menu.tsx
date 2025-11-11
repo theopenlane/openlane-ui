@@ -67,13 +67,19 @@ DropdownMenuCheckboxItem.displayName = DropdownMenuPrimitive.CheckboxItem.displa
 
 const DropdownMenuRadioItem = React.forwardRef<React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>, React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem>>(
   ({ className, children, ...props }, ref) => (
-    <DropdownMenuPrimitive.RadioItem ref={ref} className={cn(menuRadioItem(), className)} {...props}>
-      <span className={menuRadioItemSpan()}>
+    <DropdownMenuPrimitive.RadioItem
+      ref={ref}
+      className={cn('flex items-center gap-2 px-2 py-1.5 cursor-pointer select-none text-sm outline-none focus:bg-accent focus:text-accent-foreground rounded-sm', className)}
+      {...props}
+    >
+      <span className="relative flex h-4 w-4 items-center justify-center">
+        <span className="absolute h-3.5 w-3.5 rounded-full border border-muted-foreground/60" />
         <DropdownMenuPrimitive.ItemIndicator>
           <DotFilledIcon className={icon()} />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
-      {children}
+
+      <span>{children}</span>
     </DropdownMenuPrimitive.RadioItem>
   ),
 )

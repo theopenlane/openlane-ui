@@ -23,6 +23,7 @@ import {
   CREATE_CSV_BULK_MAPPED_CONTROL,
   DELETE_NOTE,
   BULK_DELETE_CONTROL,
+  GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
 } from '@repo/codegen/query/control'
 
 import {
@@ -67,6 +68,8 @@ import {
   DeleteNoteMutationVariables,
   DeleteBulkControlMutation,
   DeleteBulkControlMutationVariables,
+  MappedControlWhereInput,
+  GetSuggestedControlsOrSubcontrolsQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -500,4 +503,21 @@ export const useBulkDeleteControls = () => {
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
+}
+
+export const useGetSuggestedControlsOrSubcontrols = ({ where, enabled = true }: { where?: MappedControlWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetSuggestedControlsOrSubcontrolsQuery>({
+    queryKey: ['mappedcontrols', where],
+    queryFn: () =>
+      client.request(GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS, {
+        where,
+      }),
+    enabled,
+  })
+
+  return {
+    ...queryResult,
+  }
 }

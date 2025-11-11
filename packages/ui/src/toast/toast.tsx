@@ -66,6 +66,7 @@ const Toast = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Root>, TT
         {title && <div className={titleSlot()}>{title}</div>}
         {description && <div className={descriptionSlot()}>{description}</div>}
       </div>
+      <ToastClose />
     </ToastPrimitives.Root>
   )
 })

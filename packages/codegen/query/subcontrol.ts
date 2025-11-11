@@ -292,3 +292,19 @@ export const UPDATE_SUBCONTROL_COMMENT = gql`
     }
   }
 `
+
+export const GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION = gql`
+  query GetExistingSubcontrolsForOrganization($where: SubcontrolWhereInput) {
+    subcontrols(where: $where) {
+      edges {
+        node {
+          id
+          refCode
+          referenceFramework
+          ownerID
+          systemOwned
+        }
+      }
+    }
+  }
+`

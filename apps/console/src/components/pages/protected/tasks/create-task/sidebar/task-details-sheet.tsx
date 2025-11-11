@@ -30,6 +30,7 @@ import { TasksDetailsSheetSkeleton } from '../../skeleton/tasks-details-sheet-sk
 import EvidenceCreateSheet from '../../../evidence/evidence-create-sheet'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -79,6 +80,21 @@ const TaskDetailsSheet = () => {
       })
     }
   }, [taskData, form])
+
+  const controlParams: CustomEvidenceControl[] = [
+    ...(taskData?.controls?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []),
+    ...(taskData?.subcontrols?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []),
+  ]
+    .filter((control): control is NonNullable<typeof control> => control != null)
+    .map((control) => {
+      const isSubcontrol = taskData?.subcontrols?.edges?.some((e) => e?.node?.id === control.id)
+      return {
+        id: control.id,
+        referenceFramework: control.referenceFramework,
+        refCode: control.refCode ?? '',
+        __typename: isSubcontrol ? 'Subcontrol' : 'Control',
+      }
+    })
 
   const handleSheetClose = () => {
     if (isEditing) {
@@ -185,6 +201,7 @@ const TaskDetailsSheet = () => {
                             open={isSheetOpen}
                             onOpenChange={setIsSheetOpen}
                             formData={evidenceFormData}
+                            controlParam={controlParams}
                             excludeObjectTypes={[
                               ObjectTypeObjects.EVIDENCE,
                               ObjectTypeObjects.RISK,
