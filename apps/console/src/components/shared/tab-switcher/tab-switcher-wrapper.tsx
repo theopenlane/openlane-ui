@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys'
-import { STORAGE_KEY_PREFIX } from '@/components/shared/tab-switcher/tab-switcher.tsx'
+import { STORAGE_KEY_PREFIX } from '@/components/shared/tab-switcher/tab-switcher'
 
 type TTab = 'dashboard' | 'table'
 
@@ -12,29 +12,26 @@ type TTabSwitcherWrapperProps = {
 }
 
 const TabSwitcherWrapper: React.FC<TTabSwitcherWrapperProps> = ({ storageKey, children }) => {
-  const [active, setActive] = useState<TTab | null>(null)
+  const fullKey = `${STORAGE_KEY_PREFIX}-${storageKey}`
 
-  useEffect(() => {
-    console.log('hi 3')
-    if (typeof window === 'undefined') {
-      return
-    }
+  const [active, setActive] = useState<TTab>(() => {
+    if (typeof window === 'undefined') return 'dashboard'
 
-    const fullKey = `${STORAGE_KEY_PREFIX}-${storageKey}`
-    const saved = localStorage.getItem(fullKey) as TTab | null
-
+    const saved = localStorage.getItem(fullKey)
     if (saved === 'dashboard' || saved === 'table') {
-      setActive(saved)
-    } else {
-      setActive('dashboard')
+      return saved
     }
-  }, [storageKey])
+    return 'dashboard'
+  })
 
-  if (!active) {
-    return null
+  const handleSetActive = (tab: TTab) => {
+    setActive(tab)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(fullKey, tab)
+    }
   }
 
-  return <>{children({ active, setActive })}</>
+  return <>{children({ active, setActive: handleSetActive })}</>
 }
 
 export default TabSwitcherWrapper
