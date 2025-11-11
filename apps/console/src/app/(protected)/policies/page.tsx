@@ -1,13 +1,13 @@
 import React from 'react'
 import { Metadata } from 'next'
-import PoliciesPage from '@/components/pages/protected/policies/policies-page'
+import { PolicySwitcher } from '@/components/shared/tab-switcher/policy-switcher.tsx'
 
 export const metadata: Metadata = {
   title: 'Internal Policies',
 }
 
 const Page: React.FC = () => {
-  return <PoliciesPage />
+  return <PolicySwitcher />
 }
 
 export default Page

@@ -42,6 +42,7 @@ const RiskTable: React.FC = () => {
   ])
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
     businessCosts: false,
     details: false,
     impact: false,

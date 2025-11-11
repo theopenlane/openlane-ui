@@ -16,6 +16,12 @@ type TGetEvidenceColumnsProps = {
 export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
   const columns: ColumnDef<Evidence>[] = [
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => {
@@ -42,7 +48,7 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
       size: 180,
     },
     {
-      accessorKey: 'id',
+      accessorKey: 'satisfies',
       header: 'Satisfies',
       cell: ({ row }) => {
         const controlEdges = row.original?.controls?.edges || []

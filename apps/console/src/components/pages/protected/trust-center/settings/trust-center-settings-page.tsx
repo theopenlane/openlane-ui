@@ -8,6 +8,7 @@ import ConfigureUrlSection from './configure-url-section'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import TitleAndOverview from './title-and-overview'
 
 const TrustCenterSettingsPage = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -33,6 +34,7 @@ const TrustCenterSettingsPage = () => {
 
   return (
     <div className="space-y-8 p-6">
+      <TitleAndOverview />
       <ConfigureUrlSection trustCenter={data.trustCenters.edges?.[0] || undefined} />
       <ThemeSection setting={setting} />
       <BrandSection setting={setting} />

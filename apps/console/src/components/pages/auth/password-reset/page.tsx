@@ -79,11 +79,11 @@ export default function PasswordResetPage() {
         <form onSubmit={handleSubmit} className={form()}>
           <hr />
           <span>
-            <p className="text-xl text-logo-dark text-border font-medium mb-4 text-left">Choose a new password</p>
-            <p className="text-sm text-text-dark text-left mb-4">Please enter a new password for your account.</p>
+            <p className="text-xl text-logo-dark font-medium mb-4 text-left">Choose a new password</p>
+            <p className="text-sm text-logo-dark text-left mb-4">Please enter a new password for your account.</p>
           </span>
           <div className={input()}>
-            <Label htmlFor="password" className="text-text-dark">
+            <Label htmlFor="password" className="text-logo-dark">
               New password*
             </Label>
             <PasswordInput
@@ -93,12 +93,12 @@ export default function PasswordResetPage() {
               required
               variant="light"
               placeholder="password"
-              className="!border-neutral-300 dark:!border-neutral-300"
+              className="!border-neutral-300 dark:!border-neutral-300 text-logo-dark"
             />
           </div>
 
           <div className={input()}>
-            <Label htmlFor="confirmPassword" className="text-text-dark">
+            <Label htmlFor="confirmPassword" className="text-logo-dark">
               Confirm password*
             </Label>
             <PasswordInput
@@ -108,7 +108,7 @@ export default function PasswordResetPage() {
               required
               variant="light"
               placeholder="confirm password"
-              className="!border-neutral-300 dark:!border-neutral-300"
+              className="!border-neutral-300 dark:!border-neutral-300 text-logo-dark"
             />
           </div>
 
