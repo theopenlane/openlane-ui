@@ -20,7 +20,7 @@ export function PolicyEmptyActions() {
     {
       id: 'import-custom',
       title: 'Import Existing Documents',
-      desc: 'Upload a CSV with your policy ref codes, descriptions, status and more to bulk-create policies',
+      desc: 'Already have policies written? Import your existing documents to get them organized in Openlane.',
       Icon: UploadIcon,
       dialog: <CreatePolicyUploadDialog trigger={<Button variant="primary">Upload</Button>} />,
     },
