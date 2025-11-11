@@ -66,7 +66,7 @@ const DocumentsPage = () => {
       <CreateDocumentSheet />
       {hasData ? (
         <div className="p-4">
-          <h2 className="text-xl font-semibold mb-4">Trust Center Documents</h2>
+          <h2 className="text-xl font-semibold mb-4">Reports & Certifications</h2>
           <div className="flex items-center justify-between gap-2 mb-4">
             <DocumentsTableToolbar
               searchTerm={searchTerm}
@@ -93,8 +93,11 @@ const DocumentsPage = () => {
         </div>
       ) : (
         <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
-          <PanelHeader heading="Documents" subheading="You haven’t added any Trust Center documents yet.
-Upload reports, certifications, or other materials you’d like customers to see when visiting your Trust Center." />{' '}
+          <PanelHeader
+            heading="Documents"
+            subheading="You haven’t added any Trust Center documents yet.
+Upload reports, certifications, or other materials you’d like customers to see when visiting your Trust Center."
+          />{' '}
           <Link href="/trust-center/documents?create=true">
             <Button variant="primary" icon={<File size={16} strokeWidth={2} />} iconPosition="left">
               Upload Document
