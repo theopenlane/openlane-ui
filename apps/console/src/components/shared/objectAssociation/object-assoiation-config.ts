@@ -340,7 +340,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         name: item?.node?.name ?? '',
         description: item?.node?.description ?? '',
         inputName: inputName || '',
-        refCode: '',
+        refCode: item?.node?.name ?? '',
         details: '',
       }))
     }
@@ -352,7 +352,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         name: item?.node?.name ?? '',
         description: item?.node?.summary ?? '',
         inputName: inputName || '',
-        refCode: '',
+        refCode: item?.node?.name ?? '',
         details: '',
       }))
     }

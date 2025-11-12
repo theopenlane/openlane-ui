@@ -60418,7 +60418,7 @@ export type GetAllInternalPoliciesQuery = {
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; summary?: string | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; summary?: string | null; displayID: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
