@@ -63,11 +63,7 @@ export default function ProgramsCreate({ disableHeader = false, noPrograms = fal
   useEffect(() => {
     if (path.includes('/programs/create'))
       // we can be on /programs without any programs and this component can render so we only want to apply crumbs on programs/create
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Programs', href: '/programs' },
-        { label: 'Create', href: '/programs/create' },
-      ])
+      setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }, { label: 'Create', href: '/programs/create' }])
   }, [setCrumbs, path])
 
   return (
