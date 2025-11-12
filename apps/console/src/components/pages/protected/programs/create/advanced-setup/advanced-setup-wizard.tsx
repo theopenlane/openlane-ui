@@ -198,6 +198,7 @@ export default function AdvancedSetupWizard() {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance' },
       { label: 'Programs', href: '/programs' },
       { label: 'Create', href: '/programs/create' },
       { label: 'Advanced Setup', href: '/programs/create/advanced-setup' },

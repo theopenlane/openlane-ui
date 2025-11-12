@@ -9,6 +9,7 @@ import RiskAssessmentIllustration from './illustrations/risk-assessment-illustra
 import FrameworkBasedIllustration from './illustrations/framework-based-illustration'
 import React, { useEffect, useContext } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { usePathname } from 'next/navigation'
 
 const quickstartOptions = [
   {
@@ -57,14 +58,13 @@ interface ProgramsCreateProps {
 
 export default function ProgramsCreate({ disableHeader = false, noPrograms = false }: ProgramsCreateProps) {
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const path = usePathname()
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Programs', href: '/programs' },
-      { label: 'Create', href: '/programs/create' },
-    ])
-  }, [setCrumbs])
+    if (path.includes('/programs/create'))
+      // we can be on /programs without any programs and this component can render so we only want to apply crumbs on programs/create
+      setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }, { label: 'Create', href: '/programs/create' }])
+  }, [setCrumbs, path])
 
   return (
     <div className="max-w-6xl mx-auto">
