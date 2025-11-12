@@ -30887,8 +30887,10 @@ export enum OrganizationSettingHistoryRegion {
 
 /** OrganizationSettingHistorySSOProvider is enum for the field identity_provider */
 export enum OrganizationSettingHistorySsoProvider {
+  GENERIC_OIDC = 'GENERIC_OIDC',
   GITHUB = 'GITHUB',
   GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
+  MICROSOFT_ENTRA_ID = 'MICROSOFT_ENTRA_ID',
   NONE = 'NONE',
   OKTA = 'OKTA',
   ONE_LOGIN = 'ONE_LOGIN',
@@ -31280,8 +31282,10 @@ export enum OrganizationSettingRegion {
 
 /** OrganizationSettingSSOProvider is enum for the field identity_provider */
 export enum OrganizationSettingSsoProvider {
+  GENERIC_OIDC = 'GENERIC_OIDC',
   GITHUB = 'GITHUB',
   GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
+  MICROSOFT_ENTRA_ID = 'MICROSOFT_ENTRA_ID',
   NONE = 'NONE',
   OKTA = 'OKTA',
   ONE_LOGIN = 'ONE_LOGIN',
