@@ -111,6 +111,22 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     return { ...base, ...result }
   }, [filters])
 
+  const whereWithSearch: ControlWhereInput = useMemo(() => {
+    const baseWhere = { ...whereFilter, ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        ...(baseWhere.and || []),
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [whereFilter, debouncedSearch])
+
   useEffect(() => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
@@ -128,7 +144,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   }, [setCrumbs])
 
   const { controls, isError, paginationMeta, isLoading, isFetching } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...whereFilter },
+    where: whereWithSearch,
     orderBy,
     pagination,
     enabled: !!filters,
