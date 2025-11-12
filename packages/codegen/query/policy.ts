@@ -85,6 +85,7 @@ export const GET_ALL_INTERNAL_POLICIES = gql`
           id
           name
           summary
+          displayID
         }
       }
       pageInfo {
