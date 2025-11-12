@@ -247,6 +247,7 @@ export default function CreateControlForm() {
   const onCancel = () => {
     setClearData(true)
     reset()
+    router.push(`/controls`)
   }
 
   if (!permissionsLoading && !createAllowed) {
@@ -384,7 +385,7 @@ export default function CreateControlForm() {
                 <Button variant="primary" type="submit">
                   Create
                 </Button>
-                <Button type="button" variant="back" onClick={onCancel}>
+                <Button type="button" variant="secondary" onClick={onCancel}>
                   Cancel
                 </Button>
               </div>
