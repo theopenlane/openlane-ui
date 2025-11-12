@@ -91,10 +91,7 @@ const ProgramsDashboardPage = () => {
   }, [allKeys])
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Programs', href: '/programs' },
-    ])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }])
   }, [setCrumbs])
 
   if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
