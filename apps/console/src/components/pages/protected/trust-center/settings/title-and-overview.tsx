@@ -9,12 +9,10 @@ import { Button } from '@repo/ui/button'
 import { InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Label } from '@repo/ui/label'
-import { useNotification } from '@/hooks/useNotification'
 
 const TitleAndOverview = () => {
   const { data } = useGetTrustCenter()
   const { updateTrustCenterSetting, isPending } = useHandleUpdateSetting()
-  const { successNotification, errorNotification } = useNotification()
 
   const setting = data?.trustCenters?.edges?.[0]?.node?.setting
 
@@ -31,23 +29,14 @@ const TitleAndOverview = () => {
   }, [setting])
 
   const handleSave = async () => {
-    if (!setting?.id) return
-    try {
-      await updateTrustCenterSetting({
-        id: setting.id,
-        input: { title, overview },
-      })
-      successNotification({
-        title: 'Changes saved successfully!',
-        description: 'Your Trust Center title and overview have been updated.',
-      })
-      setIsDirty(false)
-    } catch {
-      errorNotification({
-        title: 'Failed to save changes',
-        description: "We couldn't update your Trust Center details. Please try again.",
-      })
+    if (!setting?.id) {
+      return
     }
+
+    updateTrustCenterSetting({
+      id: setting.id,
+      input: { title, overview },
+    })
   }
 
   if (!setting) return null
