@@ -1,14 +1,41 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_CUSTOM_DOMAIN, DELETE_CUSTOM_DOMAIN, GET_TRUST_CENTER, UPDATE_TRUST_CENTER_SETTING } from '@repo/codegen/query/trust-center'
 import {
+  BULK_DELETE_TRUST_CENTER_DOC,
+  BULK_UPDATE_TRUST_CENTER_DOC,
+  CREATE_CUSTOM_DOMAIN,
+  CREATE_TRUST_CENTER_DOC,
+  DELETE_CUSTOM_DOMAIN,
+  DELETE_TRUST_CENTER_DOC,
+  GET_TRUST_CENTER,
+  GET_TRUST_CENTER_DOC_BY_ID,
+  GET_TRUST_CENTER_DOCS,
+  UPDATE_TRUST_CENTER_DOC,
+  UPDATE_TRUST_CENTER_SETTING,
+} from '@repo/codegen/query/trust-center'
+import {
+  BulkDeleteTrustCenterDocMutation,
+  BulkDeleteTrustCenterDocMutationVariables,
+  BulkUpdateTrustCenterDocMutation,
+  BulkUpdateTrustCenterDocMutationVariables,
   CreateCustomDomainMutation,
   CreateCustomDomainMutationVariables,
+  CreateTrsutCenterDocMutation,
+  CreateTrsutCenterDocMutationVariables,
+  DeleteTrustCenterDocMutation,
+  DeleteTrustCenterDocMutationVariables,
+  GetTruestCenterDocByIdQuery,
+  GetTruestCenterDocByIdQueryVariables,
+  GetTrustCenterDocsQuery,
+  GetTrustCenterDocsQueryVariables,
   GetTrustCenterQuery,
+  UpdateTrustCenterDocMutation,
+  UpdateTrustCenterDocMutationVariables,
   UpdateTrustCenterSettingMutation,
   UpdateTrustCenterSettingMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+import { TPagination } from '@repo/ui/pagination-types'
 
 export const useGetTrustCenter = () => {
   const { client } = useGraphQLClient()
@@ -76,6 +103,145 @@ export function useDeleteCustomDomain() {
       queryClient.invalidateQueries({
         queryKey: ['trustCenter'],
       })
+    },
+  })
+}
+
+type UseGetTrustCenterDocsArgs = {
+  where?: GetTrustCenterDocsQueryVariables['where']
+  pagination?: TPagination | null
+  orderBy?: GetTrustCenterDocsQueryVariables['orderBy']
+  enabled?: boolean
+}
+
+export const useGetTrustCenterDocs = ({ where, pagination, orderBy, enabled = true }: UseGetTrustCenterDocsArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetTrustCenterDocsQuery>({
+    queryKey: ['trustCenter', 'docs', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request<GetTrustCenterDocsQuery, GetTrustCenterDocsQueryVariables>(GET_TRUST_CENTER_DOCS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.trustCenters?.edges?.[0]?.node?.trustCenterDocs?.edges ?? []
+  const docs = edges.map((edge) => edge?.node)
+  const paginationMeta = {
+    totalCount: queryResult.data?.trustCenters?.edges?.[0]?.node?.trustCenterDocs?.totalCount ?? 0,
+    pageInfo: queryResult.data?.trustCenters?.edges?.[0]?.node?.trustCenterDocs?.pageInfo ?? {},
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    docs,
+    paginationMeta,
+  }
+}
+
+export const useCreateTrustCenterDoc = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateTrsutCenterDocMutation, unknown, CreateTrsutCenterDocMutationVariables>({
+    mutationFn: async (variables) =>
+      fetchGraphQLWithUpload({
+        query: CREATE_TRUST_CENTER_DOC,
+        variables,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter', 'docs'],
+      })
+    },
+  })
+}
+
+export const useUpdateTrustCenterDoc = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateTrustCenterDocMutation, unknown, UpdateTrustCenterDocMutationVariables>({
+    mutationFn: async (variables) => {
+      const { input, updateTrustCenterDocId, trustCenterDocFile } = variables as UpdateTrustCenterDocMutationVariables & {
+        trustCenterDocFile?: File
+      }
+      if (trustCenterDocFile) {
+        return fetchGraphQLWithUpload({
+          query: UPDATE_TRUST_CENTER_DOC,
+          variables: {
+            input,
+            updateTrustCenterDocId,
+            trustCenterDocFile,
+          },
+        })
+      }
+      return client.request<UpdateTrustCenterDocMutation, UpdateTrustCenterDocMutationVariables>(UPDATE_TRUST_CENTER_DOC, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter', 'docs'],
+      })
+    },
+  })
+}
+
+type UseGetTrustCenterDocByIdArgs = {
+  trustCenterDocId: string
+  enabled?: boolean
+}
+
+export const useGetTrustCenterDocById = ({ trustCenterDocId, enabled = true }: UseGetTrustCenterDocByIdArgs) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetTruestCenterDocByIdQuery>({
+    queryKey: ['trustCenter', 'docs', trustCenterDocId],
+
+    queryFn: async () =>
+      client.request<GetTruestCenterDocByIdQuery, GetTruestCenterDocByIdQueryVariables>(GET_TRUST_CENTER_DOC_BY_ID, {
+        trustCenterDocId,
+      }),
+    enabled: !!trustCenterDocId && enabled,
+  })
+}
+
+export const useDeleteTrustCenterDoc = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteTrustCenterDocMutation, unknown, DeleteTrustCenterDocMutationVariables>({
+    mutationFn: async (variables) => client.request<DeleteTrustCenterDocMutation, DeleteTrustCenterDocMutationVariables>(DELETE_TRUST_CENTER_DOC, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter', 'docs'],
+      })
+    },
+  })
+}
+
+export const useBulkDeleteTrustCenterDocs = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<BulkDeleteTrustCenterDocMutation, unknown, BulkDeleteTrustCenterDocMutationVariables>({
+    mutationFn: async (variables) => {
+      return await client.request<BulkDeleteTrustCenterDocMutation, BulkDeleteTrustCenterDocMutationVariables>(BULK_DELETE_TRUST_CENTER_DOC, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter', 'docs'],
+      })
+    },
+  })
+}
+
+export const useBulkUpdateTrustCenterDocs = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<BulkUpdateTrustCenterDocMutation, unknown, BulkUpdateTrustCenterDocMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_UPDATE_TRUST_CENTER_DOC, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenter', 'docs'] })
     },
   })
 }
