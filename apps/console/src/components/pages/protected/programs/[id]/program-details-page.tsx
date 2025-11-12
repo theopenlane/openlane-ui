@@ -32,11 +32,7 @@ const ProgramDetailsPage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Programs', href: '/programs' },
-      { label: basicInfoData?.program?.name, isLoading },
-    ])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }, { label: basicInfoData?.program?.name, isLoading }])
   }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {
