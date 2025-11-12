@@ -120,6 +120,7 @@ export default function RiskAssessmentWizard() {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance' },
       { label: 'Programs', href: '/programs' },
       { label: 'Create', href: '/programs/create' },
       { label: 'Risk Assessment', href: '/programs/create/risk-assessment' },
