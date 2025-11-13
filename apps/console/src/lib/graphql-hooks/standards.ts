@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { InfiniteData, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import {
@@ -8,7 +8,7 @@ import {
   GET_ALL_STANDARDS,
   GET_ALL_STANDARDS_SELECT,
   GET_STANDARD_DETAILS,
-  GET_STANDARDS_TABLE,
+  GET_STANDARDS_PAGINATED,
   UPDATE_STANDARD,
 } from '@repo/codegen/query/standards'
 
@@ -25,9 +25,11 @@ import {
   UpdateStandardMutationVariables,
   DeleteStandardMutation,
   DeleteStandardMutationVariables,
-  GetStandardsTableQuery,
+  GetStandardsPaginatedQuery,
+  GetStandardsPaginatedQueryVariables,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
+import { TPagination } from '@repo/ui/pagination-types'
 
 export const useGetStandards = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
@@ -43,7 +45,7 @@ export const useGetStandardDetails = (standardId: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetStandardDetailsQuery>({
-    queryKey: ['standard', standardId],
+    queryKey: ['standards', standardId],
     queryFn: () => client.request(GET_STANDARD_DETAILS, { standardId }),
     enabled: !!standardId,
   })
@@ -90,7 +92,7 @@ export const useCreateStandard = () => {
     mutationFn: async (variables) => client.request<CreateStandardMutation, CreateStandardMutationVariables>(CREATE_STANDARD, variables),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['standards'] })
+      queryClient.removeQueries({ queryKey: ['standards'] })
     },
   })
 }
@@ -102,7 +104,7 @@ export const useUpdateStandard = () => {
     mutationFn: async (variables) => client.request<UpdateStandardMutation, UpdateStandardMutationVariables>(UPDATE_STANDARD, variables),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['standards'] })
+      queryClient.removeQueries({ queryKey: ['standards'] })
     },
   })
 }
@@ -114,21 +116,39 @@ export const useDeleteStandard = () => {
     mutationFn: async (variables) => client.request<DeleteStandardMutation, DeleteStandardMutationVariables>(DELETE_STANDARD, variables),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['standards'] })
+      queryClient.removeQueries({ queryKey: ['standards'] })
     },
   })
 }
 
-export const useGetAllStandardsTable = () => {
+export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pagination: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetStandardsTableQuery>({
-    queryKey: ['standards', 'table'],
-    queryFn: async () => client.request<GetStandardsTableQuery>(GET_STANDARDS_TABLE),
+  const queryResult = useInfiniteQuery<GetStandardsPaginatedQuery, Error, InfiniteData<GetStandardsPaginatedQuery>>({
+    queryKey: ['standards', 'infinite'],
+    initialPageParam: 1,
+    queryFn: () =>
+      client.request<GetStandardsPaginatedQuery, GetStandardsPaginatedQueryVariables>(GET_STANDARDS_PAGINATED, {
+        ...pagination.query,
+      }),
+    getNextPageParam: (lastPage, allPages) => (lastPage.standards?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined),
+    staleTime: Infinity,
+    enabled,
   })
 
-  const edges = queryResult.data?.standards.edges ?? []
-  const standards = edges.map((e) => e?.node).filter(Boolean)
+  const standards = queryResult.data?.pages.flatMap((page) => page.standards?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node) ?? []) ?? []
 
-  return { ...queryResult, standards }
+  const lastPage = queryResult.data?.pages.at(-1)
+
+  const paginationMeta = {
+    totalCount: lastPage?.standards?.totalCount ?? 0,
+    pageInfo: lastPage?.standards?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    standards,
+    paginationMeta,
+  }
 }

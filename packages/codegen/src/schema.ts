@@ -61579,16 +61579,31 @@ export type GetAllStandardsSelectQuery = {
   standards: { __typename?: 'StandardConnection'; edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null } | null> | null }
 }
 
-export type GetStandardsTableQueryVariables = Exact<{ [key: string]: never }>
+export type GetStandardsPaginatedQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
 
-export type GetStandardsTableQuery = {
+export type GetStandardsPaginatedQuery = {
   __typename?: 'Query'
   standards: {
     __typename?: 'StandardConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'StandardEdge'
-      node?: { __typename?: 'Standard'; id: string; shortName?: string | null; description?: string | null; tags?: Array<string> | null; systemOwned?: boolean | null } | null
+      node?: {
+        __typename?: 'Standard'
+        id: string
+        shortName?: string | null
+        description?: string | null
+        tags?: Array<string> | null
+        systemOwned?: boolean | null
+        governingBodyLogoURL?: string | null
+      } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 

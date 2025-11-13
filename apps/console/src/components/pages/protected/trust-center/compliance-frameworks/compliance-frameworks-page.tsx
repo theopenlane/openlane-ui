@@ -2,188 +2,157 @@
 
 import React, { useState, useMemo, useEffect, useContext, useCallback } from 'react'
 import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
-import { DataTable } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useRouter } from 'next/navigation'
 import { useGetTrustCenterCompliances, useCreateTrustCenterCompliance, useDeleteTrustCenterCompliance } from '@/lib/graphql-hooks/trust-center-compliance'
-import { ColumnDef } from '@tanstack/table-core'
 import { Badge } from '@repo/ui/badge'
-import { CreateStandardSheet } from './sheet/create-standard-sheet'
-import { useGetAllStandardsTable } from '@/lib/graphql-hooks/standards'
 
-type FrameworkRow = {
-  id: string
-  shortName: string
-  description?: string | null
-  tags: string[]
-  systemOwned?: boolean
-}
+import { CreateStandardSheet } from './sheet/create-standard-sheet'
+import { useGetAllStandardsInfinite } from '@/lib/graphql-hooks/standards'
+import { Card, CardContent, CardHeader } from '@repo/ui/cardpanel'
+import { Switch } from '@repo/ui/switch'
+import InfiniteScroll from '@repo/ui/infinite-scroll'
+import { TPagination } from '@repo/ui/pagination-types'
+import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
+import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
+import { PencilIcon } from 'lucide-react'
+import Link from 'next/link'
 
 export default function ComplianceFrameworksPage() {
-  const [showAllStandards, setShowAllStandards] = useState(false)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const router = useRouter()
 
-  const { compliances, isLoading: compliancesLoading } = useGetTrustCenterCompliances()
-  const { standards, isLoading: standardsLoading } = useGetAllStandardsTable()
+  const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
+
+  const {
+    standards,
+    isError: standardsError,
+    paginationMeta,
+    fetchNextPage,
+  } = useGetAllStandardsInfinite({
+    pagination: cardPagination,
+    enabled: true,
+  })
+
+  const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
+
+  const loading = compliancesLoading || paginationMeta.isLoading
+  const hasError = standardsError || compliancesError
 
   const { mutateAsync: createCompliance } = useCreateTrustCenterCompliance()
   const { mutateAsync: deleteCompliance } = useDeleteTrustCenterCompliance()
 
-  const loading = compliancesLoading || standardsLoading
-
   const complianceMap = useMemo(() => {
     const map = new Map<string, string>()
     compliances?.forEach((c) => {
-      if (c?.standard?.id && c?.id) map.set(c.standard.id, c.id)
+      if (c?.standard?.id && c?.id) {
+        map.set(c.standard.id, c.id)
+      }
     })
     return map
   }, [compliances])
 
-  const tableData = useMemo<FrameworkRow[]>(() => {
-    if (showAllStandards) {
-      return (
-        standards?.map((std) => ({
-          id: std?.id ?? '',
-          shortName: std?.shortName ?? '',
-          description: std?.description ?? '',
-          tags: std?.tags ?? [],
-          systemOwned: std?.systemOwned ?? false,
-        })) ?? []
-      )
-    }
+  const handleToggle = useCallback(
+    async (standardID: string, checked: boolean) => {
+      const complianceID = complianceMap.get(standardID)
 
-    return (
-      compliances?.map((comp) => ({
-        id: comp?.standard?.id ?? '',
-        shortName: comp?.standard?.shortName ?? '',
-        description: comp?.standard?.description ?? '',
-        tags: comp?.standard?.tags ?? [],
-        systemOwned: comp?.standard?.systemOwned ?? false,
-      })) ?? []
-    )
-  }, [showAllStandards, compliances, standards])
-
-  const handleAdd = useCallback(
-    async (standardID: string) => {
-      await createCompliance({
-        input: { standardID },
-      })
+      try {
+        if (checked) {
+          await createCompliance({ input: { standardID } })
+        } else if (complianceID) {
+          await deleteCompliance({
+            deleteTrustCenterComplianceId: complianceID,
+          })
+        }
+      } finally {
+        // setPendingId(null)
+      }
     },
-    [createCompliance],
+    [createCompliance, deleteCompliance, complianceMap],
   )
 
-  const handleRemove = useCallback(
-    async (complianceID: string) => {
-      await deleteCompliance({
-        deleteTrustCenterComplianceId: complianceID,
-      })
-    },
-    [deleteCompliance],
-  )
-
-  const columns: ColumnDef<FrameworkRow>[] = useMemo(
-    () => [
-      {
-        accessorKey: 'shortName',
-        header: 'Framework',
-        cell: ({ row }) => row.original.shortName ?? '',
-      },
-      {
-        accessorKey: 'description',
-        header: 'Description',
-        cell: ({ row }) => <div className="line-clamp-3">{row.original.description || '—'}</div>,
-      },
-      {
-        accessorKey: 'tags',
-        header: 'Tags',
-        cell: ({ row }) =>
-          row.original.tags?.map((tag) => (
-            <Badge variant="outline" key={tag}>
-              {tag}
-            </Badge>
-          )),
-      },
-      {
-        accessorKey: 'systemOwned',
-        header: 'Type',
-        cell: ({ row }) => <Badge variant="secondary">{row.original.systemOwned ? 'System' : 'Custom'}</Badge>,
-      },
-      {
-        id: 'actions',
-        header: 'Actions',
-        cell: ({ row }) => {
-          const standardID = row.original.id
-          const complianceID = complianceMap.get(standardID)
-          const alreadyAssociated = !!complianceID
-
-          return (
-            <div className="flex gap-2">
-              {alreadyAssociated ? (
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleRemove(complianceID)
-                  }}
-                >
-                  Remove
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleAdd(standardID)
-                  }}
-                >
-                  Add
-                </Button>
-              )}
-            </div>
-          )
-        },
-      },
-    ],
-    [complianceMap, handleAdd, handleRemove],
-  )
+  const handlePaginationChange = (pagination: TPagination) => {
+    setCardPagination(pagination)
+  }
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Trust Center' },
-      {
-        label: 'Compliance Frameworks',
-        href: '/trust-center/compliance-frameworks',
-      },
-    ])
+    if (cardPagination.page === 1) return
+    console.log('fetchNextPage')
+    fetchNextPage()
+  }, [cardPagination, fetchNextPage])
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Compliance Frameworks', href: '/trust-center/compliance-frameworks' }])
   }, [setCrumbs])
 
-  if (loading) return <Loading />
+  const resetPagination = () => {
+    setCardPagination({ ...CARD_DEFAULT_PAGINATION })
+  }
+
+  if (loading && !isFetched) return <Loading />
+
+  if (hasError) {
+    return (
+      <div className="p-4">
+        <p className="text-red-500">Error loading frameworks.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="p-4">
+      {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-2 mb-6">
-        <h2 className="text-2xl">Compliance Frameworks</h2>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 ml-auto">
-            <Checkbox checked={showAllStandards} onCheckedChange={(value) => setShowAllStandards(!!value)} />
-            <span className="text-sm">Show all standards</span>
-          </div>
+        <h2 className="text-2xl font-semibold">Compliance Frameworks</h2>
 
-          <Button variant="secondary" onClick={() => router.push('/trust-center/compliance-frameworks?create=true')}>
-            Create Custom Framework
-          </Button>
-        </div>
+        <Button variant="secondary" onClick={() => router.push('/trust-center/compliance-frameworks?create=true')}>
+          Create Custom Framework
+        </Button>
       </div>
 
-      <DataTable columns={columns} data={tableData} onRowClick={(row) => router.push(`/trust-center/compliance-frameworks?id=${row.id}`)} />
+      <InfiniteScroll pageSize={10} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+          {standards.map((standard) => {
+            if (!standard) return null
 
-      <CreateStandardSheet />
+            const complianceID = complianceMap.get(standard.id)
+            const isAssociated = !!complianceID
+
+            return (
+              <Card key={standard.id} className="transition p-6">
+                <CardHeader className="flex flex-row justify-between items-center p-0 space-y-2">
+                  <div className="flex gap-3 items-center">
+                    <StandardsIconMapper height={28} width={28} key={standard?.id} shortName={standard?.shortName ?? ''} />
+                    <p>{standard.shortName}</p>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    {standard.systemOwned ? <Badge className="bg-primary">Provided</Badge> : <Badge variant="outline">Custom</Badge>}
+                    {!standard.systemOwned && (
+                      <Link href={`/trust-center/compliance-frameworks?id=${standard.id}`} className="w-fit">
+                        <Button className="!p-2 h-8" variant="secondary">
+                          <PencilIcon />
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="flex p-0  gap-6 justify-between h-16">
+                  <p className="text-sm text-muted-foreground line-clamp-3">{standard.description || 'No description provided'}</p>
+
+                  <div className="mt-4 flex justify-end" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-end gap-3">
+                      <Switch checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      </InfiniteScroll>
+      <CreateStandardSheet resetPagination={resetPagination} />
     </div>
   )
 }

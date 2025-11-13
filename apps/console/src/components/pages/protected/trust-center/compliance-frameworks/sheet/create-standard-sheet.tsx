@@ -29,7 +29,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export const CreateStandardSheet = () => {
+export const CreateStandardSheet = ({ resetPagination }: { resetPagination: () => void }) => {
   const router = useRouter()
   const params = useSearchParams()
   const isCreate = params.get('create') === 'true'
@@ -83,6 +83,8 @@ export const CreateStandardSheet = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
+      resetPagination()
+
       if (isEditMode) {
         await updateStandard({
           updateStandardId: id!,
@@ -125,6 +127,8 @@ export const CreateStandardSheet = () => {
   const handleDelete = async () => {
     if (!id) return
     try {
+      resetPagination()
+
       await deleteStandard({ deleteStandardId: id })
 
       successNotification({

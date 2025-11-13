@@ -75,18 +75,25 @@ export const GET_ALL_STANDARDS_SELECT = gql`
   }
 `
 
-export const GET_STANDARDS_TABLE = gql`
-  query GetStandardsTable {
-    standards {
+export const GET_STANDARDS_PAGINATED = gql`
+  query GetStandardsPaginated($first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    standards(first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
           shortName
           description
-          tags
           systemOwned
+          governingBodyLogoURL
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
