@@ -132,7 +132,7 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       case 'dropdownSearch':
         if (val) {
           andConditions.push({
-            [key]: [{ id: val as string }],
+            [key]: [{ userID: val as string }],
           })
         }
         break

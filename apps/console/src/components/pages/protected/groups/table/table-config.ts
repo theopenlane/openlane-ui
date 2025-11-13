@@ -14,14 +14,14 @@ export const GROUP_SORT_FIELDS: { key: GroupOrderField; label: string }[] = [
 export function useGroupsFilters(): FilterField[] | null {
   const [filters, setFilters] = useState<FilterField[] | null>(null)
   const { userOptions } = useUserSelect({})
-
+  console.log('userOptions', userOptions)
   useEffect(() => {
     if (!userOptions || userOptions.length === 0 || filters) return
 
     const newFilters: FilterField[] = [
       {
-        key: 'hasOwnerWith',
-        label: 'Owner',
+        key: 'hasMembersWith',
+        label: 'Member',
         type: 'dropdownSearch',
         icon: FilterIcons.Visibility,
         options: userOptions,

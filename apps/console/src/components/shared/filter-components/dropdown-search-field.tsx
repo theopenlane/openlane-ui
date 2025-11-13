@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { FilterField } from '@/types'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { ChevronDown } from 'lucide-react'
@@ -23,10 +22,10 @@ export const DropdownSearchField: React.FC<DropdownSearchFieldProps> = ({ field,
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !value && 'text-muted-foreground')}>
-          {selectedLabel}
-          <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-        </Button>
+        <div className="flex text-sm h-10 px-3 justify-between border bg-input rounded-md items-center cursor-pointer">
+          <span className="truncate">{selectedLabel}</span>
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </div>
       </PopoverTrigger>
 
       <PopoverContent className="p-2 w-[240px]">
