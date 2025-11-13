@@ -113,13 +113,14 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       form.reset()
 
       if (!res.createEvidence.evidence.id) return
+      const id = res.createEvidence.evidence.id
       if (defaultSelectedObject === ObjectTypeObjects.TASK || defaultSelectedObject === ObjectTypeObjects.CONTROL) {
         successNotification({
           title: 'Evidence Created',
           description: (
             <>
               Evidence has been successfully created.{' '}
-              <Link href="/evidence" className="text-blue-600 underline">
+              <Link href={`/evidence?id=${id}`} className="text-blue-600 underline">
                 View Evidence
               </Link>
             </>
@@ -132,7 +133,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           title: 'Evidence Created',
           description: `Evidence has been successfully created`,
         })
-        router.push(`/evidence?id=${res.createEvidence.evidence.id}`)
+        router.push(`/evidence?id=${id}`)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
