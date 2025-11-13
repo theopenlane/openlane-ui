@@ -8,7 +8,6 @@ import CreateGroupDialog from './components/dialogs/create-group-dialog'
 import GroupDetailsSheet from './components/group-details-sheet'
 import { Input } from '@repo/ui/input'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { FilterField } from '@/types'
 import { useSession } from 'next-auth/react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -25,23 +24,10 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { FilterIcons } from '@/components/shared/enum-mapper/groups-enum'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { TFilterState } from '@/components/shared/table-filter/filter-storage'
-
-const filterFields: FilterField[] = [
-  {
-    key: 'visibilityIn',
-    label: 'Visibility',
-    type: 'multiselect',
-    icon: FilterIcons.Visibility,
-    options: [
-      { label: 'Public', value: GroupSettingVisibility.PUBLIC },
-      { label: 'Private', value: GroupSettingVisibility.PRIVATE },
-    ],
-  },
-]
+import { useGroupsFilters } from './table/table-config'
 
 const GroupsPage = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
@@ -60,7 +46,7 @@ const GroupsPage = () => {
   })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data: permissions } = useOrganizationRoles()
-
+  const filterFields = useGroupsFilters()
   const quickFilters: TQuickFilter[] = useMemo(() => {
     return [
       {
@@ -148,7 +134,7 @@ const GroupsPage = () => {
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
           )}
-          <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableFilterKeysEnum.GROUP} quickFilters={quickFilters} />
+          {filterFields && filterFields.length > 0 && <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableFilterKeysEnum.GROUP} quickFilters={quickFilters} />}
           {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
             <CreateGroupDialog
               trigger={

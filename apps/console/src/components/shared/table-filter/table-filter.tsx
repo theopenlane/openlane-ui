@@ -16,6 +16,7 @@ import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue, sav
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
+import { DropdownSearchField } from '../filter-components/dropdown-search-field'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -151,6 +152,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
       handleQuickFilterSave(activeQuickFilter)
     } else {
       saveFilters(pageKey, values)
+
       onFilterChange?.(buildWhereCondition(values, filterFields))
       resetQuickFilters()
     }
@@ -276,7 +278,8 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             </ul>
           )
         }
-
+        case 'dropdownSearch':
+          return <DropdownSearchField field={field} value={values[field.key] as string | undefined} onChange={(val) => handleChange(field.key, val)} />
         default:
           return null
       }
