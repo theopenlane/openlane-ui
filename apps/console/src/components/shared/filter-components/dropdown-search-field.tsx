@@ -5,6 +5,7 @@ import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@repo/ui/button'
 
 type DropdownSearchFieldProps = {
   field: FilterField
@@ -22,13 +23,12 @@ export const DropdownSearchField: React.FC<DropdownSearchFieldProps> = ({ field,
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex text-sm h-10 px-3 justify-between border bg-input rounded-md items-center cursor-pointer">
-          <span className="truncate">{selectedLabel}</span>
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </div>
+        <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !value && 'text-muted-foreground')}>
+          {selectedLabel}
+          <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+        </Button>
       </PopoverTrigger>
-
-      <PopoverContent className="p-2 w-[240px]">
+      <PopoverContent align="start" className="p-2 w-[400px]">
         <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-2" />
         <ul className="max-h-48 overflow-y-auto border rounded-md">
           {filteredOptions.length > 0 ? (
