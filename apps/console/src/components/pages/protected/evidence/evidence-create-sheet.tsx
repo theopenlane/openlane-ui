@@ -10,7 +10,6 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { useRouter } from 'next/navigation'
 import { CreateEvidenceInput } from '@repo/codegen/src/schema'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,7 +22,7 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import { TUploadedFile } from './upload/types/TUploadedFile'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
@@ -35,6 +34,7 @@ import ObjectAssociationControlsChips from '@/components/shared/objectAssociatio
 import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
 import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import Link from 'next/link'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -43,7 +43,6 @@ type TEvidenceCreateSheetProps = {
   defaultSelectedObject?: ObjectTypeObjects
   open: boolean
   onOpenChange: (open: boolean) => void
-  controlIdsFromControl?: { controlIdFromControl: string; subcontrolIdFromControl: string | undefined }
   controlParam?: CustomEvidenceControl[]
 }
 
@@ -54,7 +53,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   defaultSelectedObject,
   open,
   onOpenChange,
-  controlIdsFromControl,
   controlParam,
 }: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
@@ -66,9 +64,8 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
-  const router = useRouter()
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
-
+  const router = useRouter()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
 
@@ -101,14 +98,10 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
     try {
       const res = await createEvidence(formData)
-      successNotification({
-        title: 'Evidence Created',
-        description: `Evidence has been successfully created`,
-      })
       queryClient.invalidateQueries({
         predicate: (query) => {
           const key = query.queryKey[0]
-          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives'].includes(key as string)
+          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key as string)
         },
       })
 
@@ -118,12 +111,29 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       setEvidenceSubcontrols(null)
       setEvidenceControls(null)
       form.reset()
-      const { controlIdFromControl, subcontrolIdFromControl } = controlIdsFromControl || {}
 
       if (!res.createEvidence.evidence.id) return
-      if (subcontrolIdFromControl) router.push(`/controls/${controlIdFromControl}/${subcontrolIdFromControl}?controlEvidenceId=${res.createEvidence.evidence.id}`)
-      else if (!subcontrolIdFromControl && controlIdFromControl) router.push(`/controls/${controlIdFromControl}?controlEvidenceId=${res.createEvidence.evidence.id}`)
-      else router.push(`/evidence?id=${res.createEvidence.evidence.id}`)
+      if (defaultSelectedObject === ObjectTypeObjects.TASK || defaultSelectedObject === ObjectTypeObjects.CONTROL) {
+        successNotification({
+          title: 'Evidence Created',
+          description: (
+            <>
+              Evidence has been successfully created.{' '}
+              <Link href="/evidence" className="text-blue-600 underline">
+                View Evidence
+              </Link>
+            </>
+          ),
+        })
+        onOpenChange(false)
+        return
+      } else {
+        successNotification({
+          title: 'Evidence Created',
+          description: `Evidence has been successfully created`,
+        })
+        router.push(`/evidence?id=${res.createEvidence.evidence.id}`)
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
