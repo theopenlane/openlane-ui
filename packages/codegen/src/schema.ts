@@ -61579,6 +61579,38 @@ export type GetAllStandardsSelectQuery = {
   standards: { __typename?: 'StandardConnection'; edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null } | null> | null }
 }
 
+export type GetStandardsTableQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetStandardsTableQuery = {
+  __typename?: 'Query'
+  standards: {
+    __typename?: 'StandardConnection'
+    edges?: Array<{
+      __typename?: 'StandardEdge'
+      node?: { __typename?: 'Standard'; id: string; shortName?: string | null; description?: string | null; tags?: Array<string> | null; systemOwned?: boolean | null } | null
+    } | null> | null
+  }
+}
+
+export type CreateStandardMutationVariables = Exact<{
+  input: CreateStandardInput
+}>
+
+export type CreateStandardMutation = { __typename?: 'Mutation'; createStandard: { __typename?: 'StandardCreatePayload'; standard: { __typename?: 'Standard'; id: string } } }
+
+export type UpdateStandardMutationVariables = Exact<{
+  updateStandardId: Scalars['ID']['input']
+  input: UpdateStandardInput
+}>
+
+export type UpdateStandardMutation = { __typename?: 'Mutation'; updateStandard: { __typename?: 'StandardUpdatePayload'; standard: { __typename?: 'Standard'; id: string } } }
+
+export type DeleteStandardMutationVariables = Exact<{
+  deleteStandardId: Scalars['ID']['input']
+}>
+
+export type DeleteStandardMutation = { __typename?: 'Mutation'; deleteStandard: { __typename?: 'StandardDeletePayload'; deletedID: string } }
+
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
   after?: InputMaybe<Scalars['Cursor']['input']>
@@ -62338,6 +62370,48 @@ export type UpdatePersonalAccessTokenMutation = {
   __typename?: 'Mutation'
   updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
+
+export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetTrustCenterCompliancesQuery = {
+  __typename?: 'Query'
+  trustCenterCompliances: {
+    __typename?: 'TrustCenterComplianceConnection'
+    edges?: Array<{
+      __typename?: 'TrustCenterComplianceEdge'
+      node?: {
+        __typename?: 'TrustCenterCompliance'
+        id: string
+        standard: { __typename?: 'Standard'; id: string; shortName?: string | null; description?: string | null; tags?: Array<string> | null; systemOwned?: boolean | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustCenterComplianceMutationVariables = Exact<{
+  input: CreateTrustCenterComplianceInput
+}>
+
+export type CreateTrustCenterComplianceMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterCompliance: { __typename?: 'TrustCenterComplianceCreatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
+}
+
+export type UpdateTrustCenterComplianceMutationVariables = Exact<{
+  updateTrustCenterComplianceId: Scalars['ID']['input']
+  input: UpdateTrustCenterComplianceInput
+}>
+
+export type UpdateTrustCenterComplianceMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterCompliance: { __typename?: 'TrustCenterComplianceUpdatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
+}
+
+export type DeleteTrustCenterComplianceMutationVariables = Exact<{
+  deleteTrustCenterComplianceId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
 

@@ -1,9 +1,32 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_CONTROLS_BY_CLONE, GET_ALL_STANDARDS, GET_ALL_STANDARDS_SELECT, GET_STANDARD_DETAILS } from '@repo/codegen/query/standards'
+import {
+  CREATE_CONTROLS_BY_CLONE,
+  CREATE_STANDARD,
+  DELETE_STANDARD,
+  GET_ALL_STANDARDS,
+  GET_ALL_STANDARDS_SELECT,
+  GET_STANDARD_DETAILS,
+  GET_STANDARDS_TABLE,
+  UPDATE_STANDARD,
+} from '@repo/codegen/query/standards'
 
-import { CloneControlInput, CreateControlsByCloneMutation, GetAllStandardsQuery, GetAllStandardsQueryVariables, GetStandardDetailsQuery, Standard } from '@repo/codegen/src/schema'
+import {
+  CloneControlInput,
+  CreateControlsByCloneMutation,
+  GetAllStandardsQuery,
+  GetAllStandardsQueryVariables,
+  GetStandardDetailsQuery,
+  Standard,
+  CreateStandardMutation,
+  CreateStandardMutationVariables,
+  UpdateStandardMutation,
+  UpdateStandardMutationVariables,
+  DeleteStandardMutation,
+  DeleteStandardMutationVariables,
+  GetStandardsTableQuery,
+} from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 
 export const useGetStandards = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {
@@ -58,4 +81,54 @@ export const useStandardsSelect = ({ where, enabled = true }: { where?: GetAllSt
     standardOptions,
     ...res,
   }
+}
+
+export const useCreateStandard = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<CreateStandardMutation, Error, CreateStandardMutationVariables>({
+    mutationFn: async (variables) => client.request<CreateStandardMutation, CreateStandardMutationVariables>(CREATE_STANDARD, variables),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
+    },
+  })
+}
+
+export const useUpdateStandard = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateStandardMutation, Error, UpdateStandardMutationVariables>({
+    mutationFn: async (variables) => client.request<UpdateStandardMutation, UpdateStandardMutationVariables>(UPDATE_STANDARD, variables),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
+    },
+  })
+}
+
+export const useDeleteStandard = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteStandardMutation, Error, DeleteStandardMutationVariables>({
+    mutationFn: async (variables) => client.request<DeleteStandardMutation, DeleteStandardMutationVariables>(DELETE_STANDARD, variables),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
+    },
+  })
+}
+
+export const useGetAllStandardsTable = () => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetStandardsTableQuery>({
+    queryKey: ['standards', 'table'],
+    queryFn: async () => client.request<GetStandardsTableQuery>(GET_STANDARDS_TABLE),
+  })
+
+  const edges = queryResult.data?.standards.edges ?? []
+  const standards = edges.map((e) => e?.node).filter(Boolean)
+
+  return { ...queryResult, standards }
 }

@@ -74,3 +74,46 @@ export const GET_ALL_STANDARDS_SELECT = gql`
     }
   }
 `
+
+export const GET_STANDARDS_TABLE = gql`
+  query GetStandardsTable {
+    standards {
+      edges {
+        node {
+          id
+          shortName
+          description
+          tags
+          systemOwned
+        }
+      }
+    }
+  }
+`
+
+export const CREATE_STANDARD = gql`
+  mutation CreateStandard($input: CreateStandardInput!) {
+    createStandard(input: $input) {
+      standard {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_STANDARD = gql`
+  mutation UpdateStandard($updateStandardId: ID!, $input: UpdateStandardInput!) {
+    updateStandard(id: $updateStandardId, input: $input) {
+      standard {
+        id
+      }
+    }
+  }
+`
+export const DELETE_STANDARD = gql`
+  mutation DeleteStandard($deleteStandardId: ID!) {
+    deleteStandard(id: $deleteStandardId) {
+      deletedID
+    }
+  }
+`
