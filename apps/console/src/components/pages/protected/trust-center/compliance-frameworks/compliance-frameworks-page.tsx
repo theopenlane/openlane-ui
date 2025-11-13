@@ -78,7 +78,6 @@ export default function ComplianceFrameworksPage() {
 
   useEffect(() => {
     if (cardPagination.page === 1) return
-    console.log('fetchNextPage')
     fetchNextPage()
   }, [cardPagination, fetchNextPage])
 
