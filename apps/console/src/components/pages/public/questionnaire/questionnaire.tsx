@@ -17,20 +17,52 @@ interface QuestionnaireData {
 export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) => {
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null)
   const [loading, setLoading] = useState(true)
-  const { errorNotification } = useNotification()
+  const { errorNotification, successNotification } = useNotification()
 
   const survey = useMemo(() => {
     if (!questionnaireData) return null
     const surveyModel = new Model(questionnaireData)
 
-    surveyModel.onComplete.add((sender) => {
-      console.log('Survey completed!')
-      console.log('Survey results:', sender.data)
-      console.log('Survey JSON:', JSON.stringify(sender.data, null, 2))
+    surveyModel.onCompleting.add(async (sender, options) => {
+      try {
+        const response = await fetch('/api/questionnaire', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            data: sender.data,
+          }),
+        })
+
+        const result = await response.json()
+
+        if (!response.ok || !result.success) {
+          options.allow = false
+          errorNotification({
+            title: 'Submission Failed',
+            description: result.message || 'Could not submit questionnaire. Please try again.',
+          })
+          return
+        }
+
+        successNotification({
+          title: 'Questionnaire Submitted',
+          description: 'Your questionnaire has been submitted successfully.',
+        })
+      } catch (error) {
+        options.allow = false
+        console.error('Error submitting questionnaire:', error)
+        errorNotification({
+          title: 'Error',
+          description: 'An unexpected error occurred while submitting. Please try again.',
+        })
+      }
     })
 
     return surveyModel
-  }, [questionnaireData])
+  }, [questionnaireData, token, successNotification, errorNotification])
 
   useEffect(() => {
     const fetchQuestionnaire = async () => {
