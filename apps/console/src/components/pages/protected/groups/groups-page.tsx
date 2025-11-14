@@ -98,11 +98,13 @@ const GroupsPage = () => {
 
       return { [key]: value } as GroupWhereInput
     }
-    const baseWhere = whereGenerator<GroupWhereInput>(whereFilters, mapCustomKey)
 
+    const baseWhere = whereGenerator<GroupWhereInput>(whereFilters, mapCustomKey)
+    const hasIsManagedFilter = baseWhere.and?.some((cond) => 'isManaged' in cond)
     const conditions: GroupWhereInput = {
       ...baseWhere,
       nameContainsFold: debouncedSearchQuery,
+      ...(hasIsManagedFilter ? {} : { isManaged: false }),
     }
 
     return conditions

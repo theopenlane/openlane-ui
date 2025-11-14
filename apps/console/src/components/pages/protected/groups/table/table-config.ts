@@ -14,7 +14,7 @@ export const GROUP_SORT_FIELDS: { key: GroupOrderField; label: string }[] = [
 export function useGroupsFilters(): FilterField[] | null {
   const [filters, setFilters] = useState<FilterField[] | null>(null)
   const { userOptions } = useUserSelect({})
-  console.log('userOptions', userOptions)
+
   useEffect(() => {
     if (!userOptions || userOptions.length === 0 || filters) return
 
@@ -23,9 +23,10 @@ export function useGroupsFilters(): FilterField[] | null {
         key: 'hasMembersWith',
         label: 'Member',
         type: 'dropdownSearch',
-        icon: FilterIcons.Visibility,
+        icon: FilterIcons.Owners,
         options: userOptions,
       },
+      { key: 'isManaged', label: 'System Managed', type: 'boolean', icon: FilterIcons.SystemOwned },
     ]
 
     setFilters(newFilters)

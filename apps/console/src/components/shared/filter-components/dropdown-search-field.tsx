@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import { FilterField } from '@/types'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Input } from '@repo/ui/input'
-import { Checkbox } from '@repo/ui/checkbox'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { Button } from '@repo/ui/button'
@@ -28,24 +27,37 @@ export const DropdownSearchField: React.FC<DropdownSearchFieldProps> = ({ field,
           <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="p-2 w-[400px]">
+
+      <PopoverContent
+        align="start"
+        className="p-2 w-[400px]"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-2" />
-        <ul className="max-h-48 overflow-y-auto border rounded-md">
+
+        <div className="max-h-48 overflow-y-auto border rounded-md flex flex-col">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((opt) => (
-              <li
+              <div
                 key={opt.value}
-                onClick={() => onChange(value === opt.value ? undefined : opt.value)}
+                role="radio"
+                aria-checked={value === opt.value}
+                onClick={() => onChange(opt.value)}
                 className={cn('flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted text-sm', value === opt.value && 'bg-muted font-medium')}
               >
-                <Checkbox checked={value === opt.value} />
-                <span>{opt.label}</span>
-              </li>
+                <div className="relative h-4 w-4 flex items-center justify-center">
+                  <div className="h-3 w-3 rounded-full border border-primary" />
+                  {value === opt.value && <div className="absolute h-1 w-1 rounded-full bg-primary" />}
+                </div>
+                {opt.label}
+              </div>
             ))
           ) : (
-            <li className="px-3 py-2 text-sm text-muted-foreground">No results found</li>
+            <div className="px-3 py-2 text-sm text-muted-foreground">No results found</div>
           )}
-        </ul>
+        </div>
       </PopoverContent>
     </Popover>
   )
