@@ -19,6 +19,8 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -42,7 +44,7 @@ const TasksPage: React.FC = () => {
   const allStatuses = useMemo(() => Object.values(TaskTaskStatus), [])
   const statusesWithoutCompleteAndWontDo = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED && status !== TaskTaskStatus.WONT_DO), [allStatuses])
   const { data: permission } = useOrganizationRoles()
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     id: false,
     createdAt: false,
     createdBy: false,
@@ -51,7 +53,10 @@ const TasksPage: React.FC = () => {
     details: false,
     completed: false,
     tags: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.TASK, defaultVisibility))
+
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
   const [hasTasks, setHasTasks] = useState(false)

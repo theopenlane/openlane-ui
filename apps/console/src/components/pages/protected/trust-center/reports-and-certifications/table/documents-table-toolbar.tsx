@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { PlusCircle, SearchIcon, LoaderCircle, Trash2 } from 'lucide-react'
+import { LoaderCircle, PlusCircle, SearchIcon, Trash2 } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -14,6 +14,7 @@ import { trustCenterDocsFilterFields } from './table-config'
 import { useBulkDeleteTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BulkEditTrustCenterDocsDialog } from './bulk-edit-trust-center-dialog'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TProps = {
   searching?: boolean
@@ -96,7 +97,7 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
         {selectedDocs.length === 0 ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} />
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.DOCUMENTS} />
             )}
             <TableFilter filterFields={trustCenterDocsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.TRUST_CENTER_DOCS} />
             <Button variant="primary" icon={<PlusCircle size={16} strokeWidth={2} />} iconPosition="left" onClick={handleCreateClick}>
