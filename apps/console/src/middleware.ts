@@ -20,12 +20,13 @@ export default auth(async (req) => {
     '/forgot-password',
     '/password-reset',
     '/signup',
+    '/questionnaire',
   ]
 
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 
   const path = req.nextUrl.pathname
-  const isPublicPage = publicPages.includes(path)
+  const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/')
   const validForPersonalOrg = personalOrgPages.includes(path)
   const isInvite = path === '/invite'
   const isUnsubscribe = path === '/unsubscribe'
