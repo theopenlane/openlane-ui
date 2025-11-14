@@ -14,11 +14,12 @@ import { useSession } from 'next-auth/react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
-import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { FormattedRisk, getRiskColumns } from './risks-table-config'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 const Risks = () => {
   const { data: session } = useSession()
@@ -29,13 +30,15 @@ const Risks = () => {
   const { groups } = useGetAllGroups({ where: {} })
   const [tab, setTab] = useState<'created' | 'assigned'>('created')
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     id: false,
     createdBy: false,
     createdAt: false,
     updatedBy: false,
     updatedAt: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.RISK_OVERVIEW, defaultVisibility))
 
   const stakeholderGroupIds = useMemo(() => groups?.map((group) => group.id) ?? [], [groups])
 
@@ -124,7 +127,12 @@ const Risks = () => {
             </Button> */}
 
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              <ColumnVisibilityMenu
+                mappedColumns={mappedColumns}
+                columnVisibility={columnVisibility}
+                setColumnVisibility={setColumnVisibility}
+                storageKey={TableColumnVisibilityKeysEnum.RISK_OVERVIEW}
+              />
             )}
           </div>
 

@@ -24,6 +24,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useBulkDeleteTask } from '@/lib/graphql-hooks/tasks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -220,7 +221,12 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                 }
               />
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} />
+                <ColumnVisibilityMenu
+                  mappedColumns={props.mappedColumns}
+                  columnVisibility={props.columnVisibility}
+                  setColumnVisibility={props.setColumnVisibility}
+                  storageKey={TableColumnVisibilityKeysEnum.TASK}
+                />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableFilterKeysEnum.TASK} quickFilters={quickFilters} />}
               <CreateTaskDialog />

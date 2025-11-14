@@ -16,6 +16,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -87,7 +88,12 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
             }
           />
           {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+            <ColumnVisibilityMenu
+              mappedColumns={mappedColumns}
+              columnVisibility={columnVisibility}
+              setColumnVisibility={setColumnVisibility}
+              storageKey={TableColumnVisibilityKeysEnum.QUESTIONNAIRE}
+            />
           )}
           <TableFilter filterFields={QUESTIONNAIRE_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.QUESTIONNAIRE} />
           {createDropdown()}

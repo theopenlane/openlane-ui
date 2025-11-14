@@ -32,6 +32,8 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -115,7 +117,7 @@ export const ProceduresTable = () => {
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     id: false,
     approvalRequired: false,
     approver: false,
@@ -128,7 +130,9 @@ export const ProceduresTable = () => {
     tags: false,
     createdAt: false,
     createdBy: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.PROCEDURE, defaultVisibility))
   const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures })
 
   const handleCreateNew = async () => {

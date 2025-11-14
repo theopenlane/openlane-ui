@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
-import { SearchIcon } from 'lucide-react'
+import { PlusCircle, SearchIcon } from 'lucide-react'
 import { GetAllGroupsQueryVariables, GroupSettingVisibility, GroupWhereInput } from '@repo/codegen/src/schema'
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
 import GroupDetailsSheet from './components/group-details-sheet'
@@ -14,10 +14,9 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import GroupInfiniteCards from '@/components/pages/protected/groups/components/group-infinite-cards.tsx'
 import { Button } from '@repo/ui/button'
-import { PlusCircle } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from './table/columns'
-import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { canCreate } from '@/lib/authz/utils'
@@ -25,6 +24,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
@@ -37,13 +37,15 @@ const GroupsPage = () => {
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     id: false,
     updatedAt: false,
     updatedBy: false,
     createdAt: false,
     createdBy: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.GROUP, defaultVisibility))
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data: permissions } = useOrganizationRoles()
   const filterFields = useGroupsFilters()
@@ -132,7 +134,7 @@ const GroupsPage = () => {
         <TableCardView activeTab={activeTab} onTabChange={setActiveTab}></TableCardView>
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.GROUP} />
           )}
           {filterFields && filterFields.length > 0 && <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableFilterKeysEnum.GROUP} quickFilters={quickFilters} />}
           {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
