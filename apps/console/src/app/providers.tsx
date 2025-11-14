@@ -30,12 +30,13 @@ const publicPages = [
   '/forgot-password',
   '/password-reset',
   '/signup',
+  '/questionnaire',
 ]
 
 const Providers = ({ children }: ProvidersProps) => {
   const { status } = useSession()
   const pathname = usePathname()
-  const isPublicPage = publicPages.includes(pathname)
+  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/')
 
   const queryClient = useMemo(
     () =>
