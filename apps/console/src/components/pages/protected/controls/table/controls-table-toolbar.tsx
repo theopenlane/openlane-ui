@@ -27,6 +27,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteControls } from '@/lib/graphql-hooks/controls'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -206,7 +207,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                 )}
               />
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.CONTROL} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.CONTROL} />}
               {(createControlAllowed || createSubcontrolAllowed) && (

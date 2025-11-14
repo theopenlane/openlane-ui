@@ -7,6 +7,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { EVIDENCE_FILTERABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -37,7 +38,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({ searching,
         />
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} />
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.EVIDENCE} />
           )}
           <TableFilter filterFields={EVIDENCE_FILTERABLE_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.EVIDENCE} />
         </div>

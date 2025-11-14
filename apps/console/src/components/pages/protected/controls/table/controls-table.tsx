@@ -31,6 +31,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -52,7 +54,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     },
   ])
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     id: false,
     referenceID: false,
     auditorReferenceID: false,
@@ -68,7 +70,9 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     updatedAt: false,
     controlImplementationsDetails: false,
     desiredOutcome: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CONTROL, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)

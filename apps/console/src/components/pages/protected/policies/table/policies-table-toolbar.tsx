@@ -21,6 +21,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeletePolicy } from '@/lib/graphql-hooks/policy'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -180,7 +181,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               />
 
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.POLICY} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
