@@ -104,3 +104,15 @@ export const useUserSelect = (args: UserSelectArgs) => {
 
   return { userOptions, ...rest }
 }
+
+export const useUserSelectEmail = (args: UserSelectArgs) => {
+  const { data, ...rest } = useGetOrgMemberships(args)
+
+  const userOptions =
+    data?.orgMemberships?.edges?.map((edge) => ({
+      label: edge?.node?.user.email || '',
+      value: edge?.node?.user.id || '',
+    })) ?? []
+
+  return { userOptions, ...rest }
+}

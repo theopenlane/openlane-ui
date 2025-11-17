@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreVertical, Trash2, UserRoundPen } from 'lucide-react'
+import { MoreVertical, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -31,6 +31,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { TransferOwnershipDialog } from '../../general-settings/transfer-ownership-dialog'
 
 type MemberActionsProps = {
   memberId: string
@@ -111,20 +112,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
 
   const { control, handleSubmit } = form
 
-  if (memberRole === OrgMembershipRole.OWNER) {
-    //CANT EDIT OWNER
-    return null
-  }
-
-  if (memberUserId === userData?.user.id) {
-    //CANT EDIT YOURSELF
-    return null
-  }
-
-  if (!canEdit(data?.roles)) {
-    //MEMBERS CANT EDIT ANYONE
-    return null
-  }
+  const cannotEditMember = memberRole === OrgMembershipRole.OWNER || memberUserId === userData?.user.id
 
   return (
     <DropdownMenu modal={false}>
@@ -134,88 +122,104 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-5">
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <div className="flex" onClick={() => setShowDeleteConfirmation(true)}>
-              <Trash2 width={ICON_SIZE} /> &nbsp; Remove Member
-            </div>
-            <ConfirmationDialog
-              open={showDeleteConfirmation}
-              onOpenChange={setShowDeleteConfirmation}
-              onConfirm={handleDeleteMember}
-              title={`Delete Member`}
-              description={
-                <>
-                  This action cannot be undone. This will permanently remove <b>{memberName}</b> from the organization.
-                </>
+        {!cannotEditMember && (
+          <>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault()
+                }}
+              >
+                <div className="flex" onClick={() => setShowDeleteConfirmation(true)}>
+                  <Trash2 width={ICON_SIZE} /> &nbsp; Remove Member
+                </div>
+                <ConfirmationDialog
+                  open={showDeleteConfirmation}
+                  onOpenChange={setShowDeleteConfirmation}
+                  onConfirm={handleDeleteMember}
+                  title={`Delete Member`}
+                  description={
+                    <>
+                      This action cannot be undone. This will permanently remove <b>{memberName}</b> from the organization.
+                    </>
+                  }
+                />
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault()
+                }}
+              >
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <UserRoundPen width={ICON_SIZE} /> &nbsp; Change Role
+                    </div>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Change Role</AlertDialogTitle>
+                      <AlertDialogDescription>Change the role of the member in the organization.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className={roleRow()}>
+                      <Form {...form}>
+                        New Role:{' '}
+                        <FormField
+                          name="role"
+                          control={control}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select role" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.values(OrgMembershipRole)
+                                      .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER'))
+                                      .map((role) => (
+                                        <SelectItem key={role} value={role}>
+                                          {role.charAt(0) + role.slice(1).toLowerCase()}
+                                        </SelectItem>
+                                      ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </Form>
+                    </div>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel asChild>
+                        <Button variant="secondary">Cancel</Button>
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button variant="primary" onClick={handleSubmit((data) => handleChangeRole(data.role))}>
+                          Change Role
+                        </Button>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </>
+        )}
+        {canEdit(data?.roles) && (
+          <DropdownMenuGroup>
+            <TransferOwnershipDialog
+              trigger={
+                <div className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-sm hover:bg-muted">
+                  <UsersRound width={ICON_SIZE} /> Transfer Ownership
+                </div>
               }
             />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <UserRoundPen width={ICON_SIZE} /> &nbsp; Change Role
-                </div>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Change Role</AlertDialogTitle>
-                  <AlertDialogDescription>Change the role of the member in the organization.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <div className={roleRow()}>
-                  <Form {...form}>
-                    New Role:{' '}
-                    <FormField
-                      name="role"
-                      control={control}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select role" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.values(OrgMembershipRole)
-                                  .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER'))
-                                  .map((role) => (
-                                    <SelectItem key={role} value={role}>
-                                      {role.charAt(0) + role.slice(1).toLowerCase()}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </Form>
-                </div>
-                <AlertDialogFooter>
-                  <AlertDialogCancel asChild>
-                    <Button variant="secondary">Cancel</Button>
-                  </AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button variant="primary" onClick={handleSubmit((data) => handleChangeRole(data.role))}>
-                      Change Role
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
+          </DropdownMenuGroup>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

@@ -60321,6 +60321,12 @@ export type UpdateOrganizationSettingMutation = {
   updateOrganizationSetting: { __typename?: 'OrganizationSettingUpdatePayload'; organizationSetting: { __typename?: 'OrganizationSetting'; id: string } }
 }
 
+export type TransferOrganizationOwnershipMutationVariables = Exact<{
+  newOwnerEmail: Scalars['String']['input']
+}>
+
+export type TransferOrganizationOwnershipMutation = { __typename?: 'Mutation'; transferOrganizationOwnership: { __typename?: 'OrganizationTransferOwnershipPayload'; invitationSent: boolean } }
+
 export type GetPasskeysQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetPasskeysQuery = {
