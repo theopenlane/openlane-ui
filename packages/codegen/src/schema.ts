@@ -60449,46 +60449,6 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  controls: {
-    __typename?: 'ControlConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  programs: {
-    __typename?: 'ProgramConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  tasks: {
-    __typename?: 'TaskConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  controlObjectives: {
-    __typename?: 'ControlObjectiveConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
 }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
@@ -60517,18 +60477,26 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
+  }
+}
+
+export type GetInternalPolicyAssociationsByIdQueryVariables = Exact<{
+  internalPolicyId: Scalars['ID']['input']
+}>
+
+export type GetInternalPolicyAssociationsByIdQuery = {
+  __typename?: 'Query'
+  internalPolicy: {
+    __typename?: 'InternalPolicy'
     procedures: {
       __typename?: 'ProcedureConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controls: {
       __typename?: 'ControlConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
@@ -60537,25 +60505,21 @@ export type GetInternalPolicyDetailsByIdQuery = {
         __typename?: 'SubcontrolEdge'
         node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
       } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
       __typename?: 'ProgramConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     tasks: {
       __typename?: 'TaskConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
   }
 }

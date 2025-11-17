@@ -121,7 +121,6 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
       })
 
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policyId!] })
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

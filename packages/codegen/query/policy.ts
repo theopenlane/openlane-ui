@@ -130,116 +130,6 @@ export const INTERNAL_POLICY_BY_ID = gql`
       gravatarLogoURL
       logoURL
     }
-    narratives {
-      edges {
-        node {
-          id
-          displayID
-        }
-      }
-    }
-    procedures {
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    controls {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    subcontrols {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-          controlId: controlID
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    programs {
-      edges {
-        node {
-          id
-          displayID
-          name
-          description
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    tasks {
-      edges {
-        node {
-          id
-          displayID
-          title
-          details
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    controlObjectives {
-      edges {
-        node {
-          id
-          displayID
-          name
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
   }
 `
 
@@ -250,6 +140,79 @@ export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
     }
   }
   ${INTERNAL_POLICY_BY_ID}
+`
+
+export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
+  query GetInternalPolicyAssociationsById($internalPolicyId: ID!) {
+    internalPolicy(id: $internalPolicyId) {
+      procedures {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+          }
+        }
+        totalCount
+      }
+      controls {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+          }
+        }
+        totalCount
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+            controlId: controlID
+          }
+        }
+        totalCount
+      }
+      programs {
+        edges {
+          node {
+            id
+            displayID
+            name
+            description
+          }
+        }
+        totalCount
+      }
+      tasks {
+        edges {
+          node {
+            id
+            displayID
+            title
+            details
+          }
+        }
+        totalCount
+      }
+      controlObjectives {
+        edges {
+          node {
+            id
+            displayID
+            name
+          }
+        }
+        totalCount
+      }
+    }
+  }
 `
 
 export const CREATE_CSV_BULK_INTERNAL_POLICY = gql`

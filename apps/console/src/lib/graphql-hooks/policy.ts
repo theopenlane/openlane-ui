@@ -12,6 +12,7 @@ import {
   GET_INTERNAL_POLICIES_DASHBOARD,
   GET_POLICY_SUGGESTED_ACTIONS,
   BULK_DELETE_POLICY,
+  GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -27,6 +28,8 @@ import {
   GetInternalPoliciesDashboardQuery,
   GetInternalPoliciesListQuery,
   GetInternalPoliciesListQueryVariables,
+  GetInternalPolicyAssociationsByIdQuery,
+  GetInternalPolicyAssociationsByIdQueryVariables,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
   InternalPolicy,
@@ -117,6 +120,19 @@ export const useGetInternalPolicyDetailsById = (internalPolicyId: string | null,
   return useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({
     queryKey: ['internalPolicies', internalPolicyId],
     queryFn: async () => client.request(GET_INTERNAL_POLICY_DETAILS_BY_ID, { internalPolicyId }),
+    enabled: !!internalPolicyId && enabled,
+  })
+}
+
+export const useGetInternalPolicyAssociationsById = (internalPolicyId: string | null, enabled: boolean = true) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetInternalPolicyAssociationsByIdQuery, GetInternalPolicyAssociationsByIdQueryVariables>({
+    queryKey: ['internalPolicies', 'associations', internalPolicyId],
+    queryFn: async () =>
+      client.request(GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID, {
+        internalPolicyId,
+      }),
     enabled: !!internalPolicyId && enabled,
   })
 }
