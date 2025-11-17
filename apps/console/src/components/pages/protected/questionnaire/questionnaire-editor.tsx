@@ -7,7 +7,7 @@ import { editorLocalization } from 'survey-creator-core'
 import { useTheme } from 'next-themes'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
-import 'survey-core/defaultV2.min.css'
+import 'survey-core/survey-core.min.css'
 import 'survey-creator-core/survey-creator-core.min.css'
 
 import { lightTheme } from './theme-light'
