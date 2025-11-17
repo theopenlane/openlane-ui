@@ -42,7 +42,6 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
 
     switch (centerNode.type) {
       case ObjectAssociationNodeEnum.CONTROL:
-        return <SetObjectAssociationDialog />
       case ObjectAssociationNodeEnum.SUBCONTROL:
         return <SetObjectAssociationDialog />
       case ObjectAssociationNodeEnum.POLICY:
