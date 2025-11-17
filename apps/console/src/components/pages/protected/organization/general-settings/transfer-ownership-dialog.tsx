@@ -4,7 +4,7 @@ import { useUserSelectEmail } from '@/lib/graphql-hooks/members'
 import { useTransferOrganizationOwnership } from '@/lib/graphql-hooks/organization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { UsersRound } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
@@ -57,9 +57,10 @@ export const TransferOwnershipDialog: React.FC<TransferOwnershipDialogProps> = (
         newOwnerEmail: email,
       })
       successNotification({
-        title: 'Ownership transferred',
-        description: 'Ownership transferred successfully.',
+        title: 'Ownership transfer initiated',
+        description: 'An invitation has been sent to the new owner.',
       })
+      setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -97,19 +98,24 @@ export const TransferOwnershipDialog: React.FC<TransferOwnershipDialogProps> = (
       <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-md">
         <DialogHeader>
           <DialogTitle>Transfer ownership</DialogTitle>
+          <DialogDescription>
+            <p className="mt-2 text-sm font-normal">
+              Ownership transfers instantly for existing organization members. If the user isn&#39;t in the organization yet, they&#39;ll get an email to join and accept the ownership transfer.
+            </p>
+          </DialogDescription>
         </DialogHeader>
         <div className="relative">
           <Input placeholder="Email" value={email} onChange={handleEmailInput} className="mb-2" />
 
           {showDropdown && filteredOptions.length > 0 && (
-            <div className="absolute left-0 right-0 mt-1 z-50 bg-background border rounded-md shadow-md max-h-48 overflow-y-auto">
+            <div role="listbox" className="absolute left-0 right-0 mt-1 z-50 bg-background border rounded-md shadow-md max-h-48 overflow-y-auto">
               {filteredOptions.map((opt) => {
                 const selected = email === opt.label
                 return (
                   <div
                     key={opt.value}
-                    role="radio"
-                    aria-checked={selected}
+                    role="option"
+                    aria-selected={selected}
                     onClick={() => handleSelectOption(opt.label)}
                     className={cn('flex items-center gap-2 px-3 py-1.5 cursor-pointer text-sm hover:bg-muted', selected && 'bg-muted font-medium')}
                   >

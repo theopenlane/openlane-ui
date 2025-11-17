@@ -113,6 +113,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   const { control, handleSubmit } = form
 
   const cannotEditMember = memberRole === OrgMembershipRole.OWNER || memberUserId === userData?.user.id
+  const canTransferOwnership = canEdit(data?.roles) && memberRole === OrgMembershipRole.OWNER
 
   return (
     <DropdownMenu modal={false}>
@@ -121,7 +122,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
           <MoreVertical className={actionIcon()} />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-5">
+      <DropdownMenuContent className="min-w-[200px]">
         {!cannotEditMember && (
           <>
             <DropdownMenuGroup>
@@ -209,7 +210,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
             </DropdownMenuGroup>
           </>
         )}
-        {canEdit(data?.roles) && (
+        {canTransferOwnership && (
           <DropdownMenuGroup>
             <TransferOwnershipDialog
               trigger={
