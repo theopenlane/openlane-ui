@@ -10,9 +10,10 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
 import { addDays } from 'date-fns'
-import { InternalPolicyWhereInput, InternalPolicyOrderField, OrderDirection, Organization, GetInternalPoliciesListQueryVariables } from '@repo/codegen/src/schema'
+import { GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, InternalPolicyWhereInput, OrderDirection, Organization } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
 import { Button } from '@repo/ui/button'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const now = new Date()
 const dueSoonLimit = addDays(now, 7)
@@ -118,6 +119,7 @@ export default function ReviewDueSoonTable() {
         }}
         loading={isLoading}
         onSortChange={setOrderBy}
+        tableKey={TableKeyEnum.POLICIES_REVIEW_DUE_SOON}
       />
     </div>
   )

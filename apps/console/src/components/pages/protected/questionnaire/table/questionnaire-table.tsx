@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
@@ -18,6 +18,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -156,6 +157,7 @@ export const QuestionnairesTable = () => {
         onRowClick={handleRowClick}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.QUESTIONNAIRE}
       />
     </div>
   )

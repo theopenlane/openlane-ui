@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo, useEffect, useContext } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
@@ -22,10 +22,9 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedures'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
-import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
@@ -34,6 +33,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -232,6 +232,7 @@ export const ProceduresTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.PROCEDURE}
       />
     </>
   )

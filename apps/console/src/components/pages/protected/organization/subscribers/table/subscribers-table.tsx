@@ -12,6 +12,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)
@@ -73,6 +74,7 @@ export const SubscribersTable = () => {
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.SUBSCRIBE}
       />
     </div>
   )

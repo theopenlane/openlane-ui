@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo, useEffect, useContext } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
@@ -31,6 +31,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -229,6 +230,7 @@ export const PoliciesTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.POLICY}
       />
     </>
   )

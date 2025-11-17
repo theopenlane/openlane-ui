@@ -10,6 +10,7 @@ import { useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/grou
 import { useQueryClient } from '@tanstack/react-query'
 import { Permission } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -132,7 +133,7 @@ const GroupsPermissionsTable = () => {
     },
   ]
 
-  return <DataTable columns={columns} data={permissions} />
+  return <DataTable columns={columns} data={permissions} tableKey={TableKeyEnum.GROUP_PERMISSION} />
 }
 
 export default GroupsPermissionsTable

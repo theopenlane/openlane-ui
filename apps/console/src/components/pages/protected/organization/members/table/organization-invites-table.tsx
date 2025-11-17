@@ -9,6 +9,7 @@ import { useMemo, useState } from 'react'
 import { INVITES_SORT_FIELDS } from '@/components/pages/protected/organization/members/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -60,6 +61,7 @@ export const OrganizationInvitesTable = () => {
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={{ totalCount: data?.invites.totalCount, pageInfo: data?.invites?.pageInfo, isLoading: isFetching }}
+        tableKey={TableKeyEnum.ORG_INVITE}
       />
     </>
   )

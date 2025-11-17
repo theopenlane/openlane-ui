@@ -25,6 +25,7 @@ import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
+import { TableKeyEnum } from '@/data-table/table-key.ts'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -52,9 +53,13 @@ interface BaseDataTableProps<TData, TValue> {
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   footer?: ReactElement | null
+  tableKey: TableKeyEnum
 }
 
+type SortCondition = { field: string; direction?: OrderDirection }
+
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
+export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
 
 export function DataTable<TData, TValue>({
   columns,
@@ -74,10 +79,11 @@ export function DataTable<TData, TValue>({
   setColumnVisibility,
   columnVisibility,
   footer,
+  tableKey,
   stickyHeader = false,
   stickyDialogHeader = false,
 }: DataTableProps<TData, TValue>) {
-  const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
+  const [sortConditions, setSortConditions] = useState<SortCondition[]>(() => getInitialSortConditions(sortFields))
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
@@ -98,19 +104,37 @@ export function DataTable<TData, TValue>({
 
   const handleSortChange = (field: string) => {
     setSortConditions((prev) => {
-      const existingIndex = prev.findIndex((sc) => sc.field === field)
-      const newSortConditions = [...prev]
+      const existing = prev.find((sc) => sc.field === field)
+      let newConditions = [...prev]
 
-      if (existingIndex === -1) {
-        newSortConditions.push({ field, direction: OrderDirection.ASC })
-      } else if (newSortConditions[existingIndex].direction === OrderDirection.ASC) {
-        newSortConditions[existingIndex] = { field, direction: OrderDirection.DESC }
+      if (!existing) {
+        newConditions.push({ field, direction: OrderDirection.ASC })
+      } else if (existing.direction === OrderDirection.ASC) {
+        newConditions = newConditions.map((sc) => (sc.field === field ? { field, direction: OrderDirection.DESC } : sc))
       } else {
-        newSortConditions.splice(existingIndex, 1)
+        newConditions = newConditions.filter((sc) => sc.field !== field)
       }
 
-      return newSortConditions
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, JSON.stringify(newConditions))
+      }
+
+      return newConditions
     })
+  }
+
+  function getInitialSortConditions(sortFields?: { key: string; default?: { direction: OrderDirection } }[]) {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
+      if (stored) {
+        try {
+          return JSON.parse(stored)
+        } catch {}
+      }
+    }
+
+    const defaultField = sortFields?.find((f) => f.default)
+    return defaultField ? [{ field: defaultField.key, direction: defaultField.default!.direction }] : []
   }
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -244,35 +268,10 @@ export function DataTable<TData, TValue>({
   }
 
   useEffect(() => {
-    if (!sortFields) {
-      return
+    if (sortConditions.length > 0) {
+      onSortChange?.(sortConditions)
     }
-
-    const defaultField = sortFields.find((field) => field.default)
-    if (!defaultField) {
-      return
-    }
-
-    setSortConditions((prev) => {
-      if (prev.some((cond) => cond.field === defaultField.key)) {
-        return prev
-      }
-
-      return [
-        ...prev,
-        {
-          field: defaultField.key,
-          direction: defaultField.default?.direction,
-        },
-      ]
-    })
-  }, [sortFields])
-
-  useEffect(() => {
-    if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
-      onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
-    }
-  }, [onSortChange, sortConditions])
+  }, [sortConditions])
 
   return (
     <>

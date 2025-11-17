@@ -13,6 +13,7 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TAccessRole, TData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -138,6 +139,7 @@ const TasksTable = forwardRef(
         }}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.TASK}
       />
     )
   },

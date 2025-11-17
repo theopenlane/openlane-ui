@@ -20,6 +20,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TokenNode = {
   id: string
@@ -232,6 +233,7 @@ export const PersonalAccessTokenTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.PERSONAL_ACCESS_TOKEN}
       />
     </>
   )

@@ -16,6 +16,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import type { Row } from '@tanstack/react-table'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TControlEvidenceFiles = {
   evidenceID: string
@@ -141,6 +142,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={{ totalCount: totalCount, pageInfo: pageInfo, isLoading: fetching }}
+        tableKey={TableKeyEnum.EVIDENCE_FILES}
       />
 
       <ConfirmationDialog

@@ -33,6 +33,7 @@ import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -257,6 +258,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         loading={fetchingUsers || isLoading || isFetching}
+        tableKey={TableKeyEnum.CONTROL}
       />
     </div>
   )

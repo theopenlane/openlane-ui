@@ -14,6 +14,7 @@ import SetObjectAssociationPoliciesDialog from '../../modal/set-object-associati
 import { usePolicy } from '../../create/hooks/use-policy'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import Link from 'next/link'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type FormattedPolicy = {
   id: string
@@ -122,6 +123,7 @@ export default function PoliciesWithoutProceduresTable() {
           isLoading: isFetching,
         }}
         loading={isLoading}
+        tableKey={TableKeyEnum.POLICY_WITHOUT_PROCEDURE}
       />
 
       {selectedPolicyId && <SetObjectAssociationPoliciesDialog fromTable policyId={selectedPolicyId} key={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />}

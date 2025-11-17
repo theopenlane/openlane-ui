@@ -18,6 +18,7 @@ import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type FormattedTask = {
   id: string
@@ -146,6 +147,7 @@ const ProgramTasksTable = () => {
         loading={isLoading}
         sortFields={TASK_SORT_FIELDS}
         onSortChange={setOrderBy}
+        tableKey={TableKeyEnum.PROGRAM}
       />
     </div>
   )

@@ -8,10 +8,11 @@ import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
-import { InternalPolicyDocumentStatus, InternalPolicyWhereInput, Group } from '@repo/codegen/src/schema'
+import { Group, InternalPolicyDocumentStatus, InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type FormattedPolicy = {
   id: string
@@ -93,6 +94,7 @@ export default function AwaitingApprovalTable() {
           isLoading: isFetching,
         }}
         loading={isLoading}
+        tableKey={TableKeyEnum.POLICY_AWAITING_APPROVAL}
       />
     </div>
   )

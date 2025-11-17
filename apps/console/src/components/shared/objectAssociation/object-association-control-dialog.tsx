@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -17,6 +17,7 @@ import { getControlsAndSubcontrolsColumns } from './object-association-controls-
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -94,7 +95,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
@@ -159,6 +160,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           paginationMeta={paginationMeta}
           onSortChange={setOrderBy}
           loading={isLoading || isFetching}
+          tableKey={TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS}
         />
 
         <DialogFooter>

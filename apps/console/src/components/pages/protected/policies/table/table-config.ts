@@ -87,6 +87,5 @@ export const INTERNAL_POLICIES_SORTABLE_FIELDS = [
   },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
-  { key: 'updated_by', label: 'Last Updated By' },
   { key: 'updated_at', label: 'Last Updated' },
 ]

@@ -11,6 +11,7 @@ import { TUploadedFile } from './types/TUploadedFile'
 import { TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TProps = {
   evidenceFiles: TUploadedFile[]
@@ -90,7 +91,14 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
   return (
     <TabsContent value="existingFiles">
-      <DataTable columns={columns} data={files} pagination={pagination} onPaginationChange={(pagination: TPagination) => setPagination(pagination)} paginationMeta={paginationMeta} />
+      <DataTable
+        columns={columns}
+        data={files}
+        pagination={pagination}
+        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.EVIDENCE_EXISTING_FILES}
+      />
     </TabsContent>
   )
 }
