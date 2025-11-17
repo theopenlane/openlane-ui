@@ -59,7 +59,9 @@ interface BaseDataTableProps<TData, TValue> {
 type SortCondition = { field: string; direction?: OrderDirection }
 
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
+
 export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
+export const STORAGE_PAGINATION_KEY_PREFIX = 'pagination:'
 
 export function DataTable<TData, TValue>({
   columns,
@@ -84,23 +86,33 @@ export function DataTable<TData, TValue>({
   stickyDialogHeader = false,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<SortCondition[]>(() => getInitialSortConditions(sortFields))
+  const [localPagination, setLocalPagination] = useState(() => getInitialPagination(tableKey, pagination || { page: 1, pageSize: 10, query: { first: 10 } }))
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
-  const currentPage = pagination?.page || 1
-  const currentPageSize = pagination?.pageSize || 10
+  const currentPage = localPagination.page
+  const currentPageSize = localPagination.pageSize
 
   const [columnSizes, setColumnSizes] = useState<Record<string, number>>({})
 
   const { totalCount, pageInfo, isLoading } = paginationMeta || {}
 
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
-
   const [columnResizeDirection] = useState<ColumnResizeDirection>('ltr')
 
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
   }, [totalCount, currentPageSize])
+
+  const updatePagination = (next: TPagination) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(next))
+    }
+
+    setLocalPagination(next)
+    onPaginationChange?.(next)
+  }
 
   const handleSortChange = (field: string) => {
     setSortConditions((prev) => {
@@ -135,6 +147,18 @@ export function DataTable<TData, TValue>({
 
     const defaultField = sortFields?.find((f) => f.default)
     return defaultField ? [{ field: defaultField.key, direction: defaultField.default!.direction }] : []
+  }
+
+  function getInitialPagination<T extends TPagination>(key: TableKeyEnum, fallback: T): T {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(`${STORAGE_PAGINATION_KEY_PREFIX}${key}`)
+      if (stored) {
+        try {
+          return JSON.parse(stored)
+        } catch {}
+      }
+    }
+    return fallback
   }
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -185,7 +209,6 @@ export function DataTable<TData, TValue>({
     onColumnSizingChange: setColumnSizes,
     columnResizeMode,
     columnResizeDirection,
-
     enableColumnResizing: true,
     state: {
       columnFilters,
@@ -193,7 +216,7 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnSizing: columnSizes,
       pagination: {
-        pageSize: pagination?.pageSize || 10,
+        pageSize: localPagination.pageSize,
         pageIndex: 0,
       },
     },
@@ -207,25 +230,22 @@ export function DataTable<TData, TValue>({
       return
     }
 
-    const newPagination: TPagination = {
-      ...pagination,
-      page: newPage,
-      query,
-    }
-    onPaginationChange?.(newPagination)
+    const next = { ...localPagination, page: newPage, query }
+    updatePagination(next)
   }
 
   const handlePageSizeChange = (newSize: number) => {
     if (!pagination) {
       return
     }
-    const newPagination: TPagination = {
-      ...pagination,
+
+    const next = {
+      ...localPagination,
       page: 1,
       pageSize: newSize,
       query: { first: newSize },
     }
-    onPaginationChange?.(newPagination)
+    updatePagination(next)
   }
 
   const goToFirstPage = () => {
@@ -235,15 +255,11 @@ export function DataTable<TData, TValue>({
   const goToLastPage = () => {
     if (!pagination || !totalCount) return
 
-    const totalPages = Math.ceil(totalCount / currentPageSize)
-    const itemsBeforeLastPage = currentPageSize * (totalPages - 1)
-    const remainingItems = totalCount - itemsBeforeLastPage
+    const lastPage = Math.ceil(totalCount / currentPageSize)
+    const itemsBeforeLast = currentPageSize * (lastPage - 1)
+    const remaining = totalCount - itemsBeforeLast
 
-    const query = {
-      last: remainingItems,
-    }
-
-    setNewPagination(totalPages, query)
+    setNewPagination(lastPage, { last: remaining })
   }
 
   const handlePageChange = (newPage: number) => {
@@ -406,7 +422,7 @@ export function DataTable<TData, TValue>({
           {footer}
         </div>
       </div>
-      {/* Pagination also gets opacity and interaction block on loading */}
+
       {pagination && (
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
           <Pagination currentPage={currentPage} totalPages={totalPages} pageSize={currentPageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
