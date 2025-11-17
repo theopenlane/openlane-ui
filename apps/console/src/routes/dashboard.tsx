@@ -116,6 +116,11 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         href: '/trust-center/reports-and-certifications',
         icon: File,
       },
+      {
+        title: 'Subprocessors',
+        href: '/trust-center/subprocessors',
+        icon: File,
+      },
     ],
   },
 ]
