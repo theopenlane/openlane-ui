@@ -25,7 +25,7 @@ import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
-import { TableKeyEnum } from '@/data-table/table-key.ts'
+import { TableKeyEnum } from '../data-table/table-key.ts'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {

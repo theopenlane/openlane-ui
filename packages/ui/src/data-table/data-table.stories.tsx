@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { DataTable } from './data-table'
 import { columns, mockData } from './mocks/data-table.mock'
-import { TableKeyEnum } from '@/data-table/table-key.ts'
+import { TableKeyEnum } from '../data-table/table-key.ts'
 
 const meta: Meta<typeof DataTable> = {
   title: 'UI/DataTable',
