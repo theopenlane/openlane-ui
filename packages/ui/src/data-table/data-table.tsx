@@ -35,6 +35,18 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
 
 type TStickyOption = { stickyHeader: true; stickyDialogHeader?: false } | { stickyHeader?: false; stickyDialogHeader: true } | { stickyHeader?: false; stickyDialogHeader?: false }
 
+export function getInitialPagination<T extends TPagination>(key: TableKeyEnum, fallback: T): T {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`${STORAGE_PAGINATION_KEY_PREFIX}${key}`)
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {}
+    }
+  }
+  return fallback
+}
+
 interface BaseDataTableProps<TData, TValue> {
   columns: CustomColumnDef<TData, TValue>[]
   loading?: boolean
@@ -86,13 +98,11 @@ export function DataTable<TData, TValue>({
   stickyDialogHeader = false,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<SortCondition[]>(() => getInitialSortConditions(sortFields))
-  const [localPagination, setLocalPagination] = useState(() => getInitialPagination(tableKey, pagination || { page: 1, pageSize: 10, query: { first: 10 } }))
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
-  const currentPage = localPagination.page
-  const currentPageSize = localPagination.pageSize
+  const currentPage = pagination?.page || 1
+  const currentPageSize = pagination?.pageSize || 10
 
   const [columnSizes, setColumnSizes] = useState<Record<string, number>>({})
 
@@ -110,7 +120,6 @@ export function DataTable<TData, TValue>({
       localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(next))
     }
 
-    setLocalPagination(next)
     onPaginationChange?.(next)
   }
 
@@ -147,18 +156,6 @@ export function DataTable<TData, TValue>({
 
     const defaultField = sortFields?.find((f) => f.default)
     return defaultField ? [{ field: defaultField.key, direction: defaultField.default!.direction }] : []
-  }
-
-  function getInitialPagination<T extends TPagination>(key: TableKeyEnum, fallback: T): T {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(`${STORAGE_PAGINATION_KEY_PREFIX}${key}`)
-      if (stored) {
-        try {
-          return JSON.parse(stored)
-        } catch {}
-      }
-    }
-    return fallback
   }
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -216,7 +213,7 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnSizing: columnSizes,
       pagination: {
-        pageSize: localPagination.pageSize,
+        pageSize: pagination?.pageSize || 10,
         pageIndex: 0,
       },
     },
@@ -230,7 +227,7 @@ export function DataTable<TData, TValue>({
       return
     }
 
-    const next = { ...localPagination, page: newPage, query }
+    const next = { ...pagination, page: newPage, query }
     updatePagination(next)
   }
 
@@ -240,7 +237,7 @@ export function DataTable<TData, TValue>({
     }
 
     const next = {
-      ...localPagination,
+      ...pagination,
       page: 1,
       pageSize: newSize,
       query: { first: newSize },
@@ -422,7 +419,7 @@ export function DataTable<TData, TValue>({
           {footer}
         </div>
       </div>
-
+      {/* Pagination also gets opacity and interaction block on loading */}
       {pagination && (
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
           <Pagination currentPage={currentPage} totalPages={totalPages} pageSize={currentPageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />

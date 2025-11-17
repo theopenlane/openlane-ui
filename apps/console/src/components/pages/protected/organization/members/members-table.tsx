@@ -4,7 +4,7 @@ import { OrderDirection, OrgMembership, OrgMembershipOrderField, OrgMembershipRo
 import { pageStyles } from './page.styles'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
@@ -31,7 +31,7 @@ export const MembersTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.MEMBER, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>([
     {
