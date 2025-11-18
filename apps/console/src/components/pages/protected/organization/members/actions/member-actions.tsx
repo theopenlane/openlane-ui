@@ -112,8 +112,15 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
 
   const { control, handleSubmit } = form
 
-  const cannotEditMember = memberRole === OrgMembershipRole.OWNER || memberUserId === userData?.user.id
-  const canTransferOwnership = canEdit(data?.roles) && memberRole === OrgMembershipRole.OWNER
+  if (memberUserId === userData?.user.id && memberRole !== OrgMembershipRole.OWNER) {
+    //CANT EDIT YOURSELF IF NOT OWNER
+    return null
+  }
+
+  if (!canEdit(data?.roles)) {
+    //MEMBERS CANT EDIT ANYONE
+    return null
+  }
 
   return (
     <DropdownMenu modal={false}>
@@ -123,7 +130,17 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-[200px]">
-        {!cannotEditMember && (
+        {memberRole === OrgMembershipRole.OWNER && memberUserId === userData?.user.id ? (
+          <DropdownMenuGroup>
+            <TransferOwnershipDialog
+              trigger={
+                <div className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-sm hover:bg-muted">
+                  <UsersRound width={ICON_SIZE} /> Transfer Ownership
+                </div>
+              }
+            />
+          </DropdownMenuGroup>
+        ) : (
           <>
             <DropdownMenuGroup>
               <DropdownMenuItem
@@ -147,7 +164,6 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                 />
               </DropdownMenuItem>
             </DropdownMenuGroup>
-
             <DropdownMenuGroup>
               <DropdownMenuItem
                 onSelect={(e) => {
@@ -209,17 +225,6 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </>
-        )}
-        {canTransferOwnership && (
-          <DropdownMenuGroup>
-            <TransferOwnershipDialog
-              trigger={
-                <div className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-sm hover:bg-muted">
-                  <UsersRound width={ICON_SIZE} /> Transfer Ownership
-                </div>
-              }
-            />
-          </DropdownMenuGroup>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
