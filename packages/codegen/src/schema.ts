@@ -1719,8 +1719,6 @@ export interface AddProgramMembershipInput {
 
 export interface Assessment extends Node {
   __typename?: 'Assessment'
-  /** the id of the group that owns the assessment */
-  assessmentOwnerID?: Maybe<Scalars['String']['output']>
   assessmentResponses: AssessmentResponseConnection
   assessmentType: AssessmentAssessmentType
   blockedGroups: GroupConnection
@@ -1728,16 +1726,22 @@ export interface Assessment extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   id: Scalars['ID']['output']
+  /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
+  jsonconfig?: Maybe<Scalars['Map']['output']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
+  responseDueDuration: Scalars['Int']['output']
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
-  template: Template
-  /** the template id associated with the assessment */
-  templateID: Scalars['ID']['output']
+  template?: Maybe<Template>
+  /** the template id associated with this assessment. You can either provide this alone or provide both the jsonconfig and uischema */
+  templateID?: Maybe<Scalars['ID']['output']>
+  /** the uischema for the template to render in the UI. If not provided, it will be inherited from the template */
+  uischema?: Maybe<Scalars['Map']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
@@ -1821,23 +1825,27 @@ export interface AssessmentEdge {
 
 export interface AssessmentHistory extends Node {
   __typename?: 'AssessmentHistory'
-  /** the id of the group that owns the assessment */
-  assessmentOwnerID?: Maybe<Scalars['String']['output']>
   assessmentType: AssessmentHistoryAssessmentType
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
+  jsonconfig?: Maybe<Scalars['Map']['output']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
   name: Scalars['String']['output']
   operation: AssessmentHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
+  /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
+  responseDueDuration: Scalars['Int']['output']
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
-  /** the template id associated with the assessment */
-  templateID: Scalars['String']['output']
+  /** the template id associated with this assessment. You can either provide this alone or provide both the jsonconfig and uischema */
+  templateID?: Maybe<Scalars['String']['output']>
+  /** the uischema for the template to render in the UI. If not provided, it will be inherited from the template */
+  uischema?: Maybe<Scalars['Map']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -1889,6 +1897,7 @@ export enum AssessmentHistoryOrderField {
   created_at = 'created_at',
   history_time = 'history_time',
   name = 'name',
+  response_due_duration = 'response_due_duration',
   updated_at = 'updated_at',
 }
 
@@ -1898,22 +1907,6 @@ export enum AssessmentHistoryOrderField {
  */
 export interface AssessmentHistoryWhereInput {
   and?: InputMaybe<Array<AssessmentHistoryWhereInput>>
-  /** assessment_owner_id field predicates */
-  assessmentOwnerID?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDContains?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDGT?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDGTE?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  assessmentOwnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  assessmentOwnerIDLT?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDLTE?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDNEQ?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  assessmentOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** assessment_type field predicates */
   assessmentType?: InputMaybe<AssessmentHistoryAssessmentType>
   assessmentTypeIn?: InputMaybe<Array<AssessmentHistoryAssessmentType>>
@@ -2019,6 +2012,15 @@ export interface AssessmentHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** response_due_duration field predicates */
+  responseDueDuration?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationGT?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationGTE?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  responseDueDurationLT?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationLTE?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationNEQ?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['String']['input']>
   templateIDContains?: InputMaybe<Scalars['String']['input']>
@@ -2029,10 +2031,12 @@ export interface AssessmentHistoryWhereInput {
   templateIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   templateIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   templateIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  templateIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   templateIDLT?: InputMaybe<Scalars['String']['input']>
   templateIDLTE?: InputMaybe<Scalars['String']['input']>
   templateIDNEQ?: InputMaybe<Scalars['String']['input']>
   templateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  templateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -2075,6 +2079,7 @@ export enum AssessmentOrderField {
   assessment_type = 'assessment_type',
   created_at = 'created_at',
   name = 'name',
+  response_due_duration = 'response_due_duration',
   updated_at = 'updated_at',
 }
 
@@ -2089,7 +2094,6 @@ export interface AssessmentResponse extends Node {
   completedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  /** the document containing the user's response data */
   document?: Maybe<DocumentData>
   /** the document containing the user's response data */
   documentDataID?: Maybe<Scalars['ID']['output']>
@@ -2116,13 +2120,7 @@ export enum AssessmentResponseAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
-}
-
-/** Return response for createBulkAssessmentResponse mutation */
-export interface AssessmentResponseBulkCreatePayload {
-  __typename?: 'AssessmentResponseBulkCreatePayload'
-  /** Created assessmentResponses */
-  assessmentResponses?: Maybe<Array<AssessmentResponse>>
+  SENT = 'SENT',
 }
 
 /** A connection to a list of items. */
@@ -2196,6 +2194,7 @@ export enum AssessmentResponseHistoryAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
+  SENT = 'SENT',
 }
 
 /** A connection to a list of items. */
@@ -2235,13 +2234,14 @@ export interface AssessmentResponseHistoryOrder {
 
 /** Properties by which AssessmentResponseHistory connections can be ordered. */
 export enum AssessmentResponseHistoryOrderField {
-  ASSIGNED_AT = 'ASSIGNED_AT',
-  COMPLETED_AT = 'COMPLETED_AT',
-  DUE_DATE = 'DUE_DATE',
-  STARTED_AT = 'STARTED_AT',
+  assigned_at = 'assigned_at',
+  completed_at = 'completed_at',
   created_at = 'created_at',
+  due_date = 'due_date',
+  email = 'email',
   history_time = 'history_time',
   send_attempts = 'send_attempts',
+  started_at = 'started_at',
   status = 'status',
   updated_at = 'updated_at',
 }
@@ -2313,22 +2313,6 @@ export interface AssessmentResponseHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** document_data_id field predicates */
-  documentDataID?: InputMaybe<Scalars['String']['input']>
-  documentDataIDContains?: InputMaybe<Scalars['String']['input']>
-  documentDataIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  documentDataIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  documentDataIDGT?: InputMaybe<Scalars['String']['input']>
-  documentDataIDGTE?: InputMaybe<Scalars['String']['input']>
-  documentDataIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  documentDataIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  documentDataIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  documentDataIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  documentDataIDLT?: InputMaybe<Scalars['String']['input']>
-  documentDataIDLTE?: InputMaybe<Scalars['String']['input']>
-  documentDataIDNEQ?: InputMaybe<Scalars['String']['input']>
-  documentDataIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  documentDataIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** due_date field predicates */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   dueDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -2475,21 +2459,15 @@ export interface AssessmentResponseOrder {
 
 /** Properties by which AssessmentResponse connections can be ordered. */
 export enum AssessmentResponseOrderField {
-  ASSIGNED_AT = 'ASSIGNED_AT',
-  COMPLETED_AT = 'COMPLETED_AT',
-  DUE_DATE = 'DUE_DATE',
-  STARTED_AT = 'STARTED_AT',
+  assigned_at = 'assigned_at',
+  completed_at = 'completed_at',
   created_at = 'created_at',
+  due_date = 'due_date',
+  email = 'email',
   send_attempts = 'send_attempts',
+  started_at = 'started_at',
   status = 'status',
   updated_at = 'updated_at',
-}
-
-/** Return response for updateAssessmentResponse mutation */
-export interface AssessmentResponseUpdatePayload {
-  __typename?: 'AssessmentResponseUpdatePayload'
-  /** Updated assessmentResponse */
-  assessmentResponse: AssessmentResponse
 }
 
 /**
@@ -2559,22 +2537,6 @@ export interface AssessmentResponseWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** document_data_id field predicates */
-  documentDataID?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDContains?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDGT?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDGTE?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  documentDataIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  documentDataIDLT?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDLTE?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  documentDataIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  documentDataIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** due_date field predicates */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   dueDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -2703,22 +2665,6 @@ export interface AssessmentUpdatePayload {
  */
 export interface AssessmentWhereInput {
   and?: InputMaybe<Array<AssessmentWhereInput>>
-  /** assessment_owner_id field predicates */
-  assessmentOwnerID?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDContains?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDGT?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDGTE?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  assessmentOwnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  assessmentOwnerIDLT?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDLTE?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDNEQ?: InputMaybe<Scalars['String']['input']>
-  assessmentOwnerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  assessmentOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** assessment_type field predicates */
   assessmentType?: InputMaybe<AssessmentAssessmentType>
   assessmentTypeIn?: InputMaybe<Array<AssessmentAssessmentType>>
@@ -2812,6 +2758,15 @@ export interface AssessmentWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** response_due_duration field predicates */
+  responseDueDuration?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationGT?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationGTE?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  responseDueDurationLT?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationLTE?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationNEQ?: InputMaybe<Scalars['Int']['input']>
+  responseDueDurationNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -2822,10 +2777,12 @@ export interface AssessmentWhereInput {
   templateIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   templateIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   templateIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  templateIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   templateIDLT?: InputMaybe<Scalars['ID']['input']>
   templateIDLTE?: InputMaybe<Scalars['ID']['input']>
   templateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   templateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  templateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -7560,18 +7517,22 @@ export interface CreateActionPlanInput {
  * Input was generated by ent.
  */
 export interface CreateAssessmentInput {
-  /** the id of the group that owns the assessment */
-  assessmentOwnerID?: InputMaybe<Scalars['String']['input']>
   assessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assessmentType?: InputMaybe<AssessmentAssessmentType>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
+  jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
+  responseDueDuration?: InputMaybe<Scalars['Int']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  templateID: Scalars['ID']['input']
+  templateID?: InputMaybe<Scalars['ID']['input']>
+  /** the uischema for the template to render in the UI. If not provided, it will be inherited from the template */
+  uischema?: InputMaybe<Scalars['Map']['input']>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -7581,20 +7542,12 @@ export interface CreateAssessmentInput {
  */
 export interface CreateAssessmentResponseInput {
   assessmentID: Scalars['ID']['input']
-  /** when the assessment was assigned to the user */
-  assignedAt: Scalars['Time']['input']
-  /** when the user completed the assessment */
-  completedAt?: InputMaybe<Scalars['Time']['input']>
   documentID?: InputMaybe<Scalars['ID']['input']>
   /** when the assessment is due */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   /** the email address of the recipient */
   email: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** when the user started the assessment */
-  startedAt?: InputMaybe<Scalars['Time']['input']>
-  /** the current status of the assessment for this user */
-  status?: InputMaybe<AssessmentResponseAssessmentResponseStatus>
 }
 
 /**
@@ -9465,6 +9418,7 @@ export interface CreateTaskInput {
  * Input was generated by ent.
  */
 export interface CreateTemplateInput {
+  assessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the description of the template */
   description?: InputMaybe<Scalars['String']['input']>
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -25792,8 +25746,6 @@ export interface Mutation {
   updateActionPlan: ActionPlanUpdatePayload
   /** Update an existing assessment */
   updateAssessment: AssessmentUpdatePayload
-  /** Update an existing assessmentResponse */
-  updateAssessmentResponse: AssessmentResponseUpdatePayload
   /** Update an existing asset */
   updateAsset: AssetUpdatePayload
   /** Update multiple existing actionPlans */
@@ -27100,11 +27052,6 @@ export interface MutationUpdateActionPlanArgs {
 export interface MutationUpdateAssessmentArgs {
   id: Scalars['ID']['input']
   input: UpdateAssessmentInput
-}
-
-export interface MutationUpdateAssessmentResponseArgs {
-  id: Scalars['ID']['input']
-  input: UpdateAssessmentResponseInput
 }
 
 export interface MutationUpdateAssetArgs {
@@ -47371,6 +47318,7 @@ export interface TaskWhereInput {
 
 export interface Template extends Node {
   __typename?: 'Template'
+  assessments: AssessmentConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the description of the template */
@@ -47404,6 +47352,15 @@ export interface Template extends Node {
   uischema?: Maybe<Scalars['Map']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface TemplateAssessmentsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssessmentOrder>>
+  where?: InputMaybe<AssessmentWhereInput>
 }
 
 export interface TemplateDocumentsArgs {
@@ -47866,6 +47823,9 @@ export interface TemplateWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessments edge predicates */
+  hasAssessments?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentsWith?: InputMaybe<Array<AssessmentWhereInput>>
   /** documents edge predicates */
   hasDocuments?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentsWith?: InputMaybe<Array<DocumentDataWhereInput>>
@@ -51677,15 +51637,17 @@ export interface UpdateAssessmentInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  /** the id of the group that owns the assessment */
-  assessmentOwnerID?: InputMaybe<Scalars['String']['input']>
-  clearAssessmentOwnerID?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
+  jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -51693,29 +51655,13 @@ export interface UpdateAssessmentInput {
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
+  responseDueDuration?: InputMaybe<Scalars['Int']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
-}
-
-/**
- * UpdateAssessmentResponseInput is used for update AssessmentResponse object.
- * Input was generated by ent.
- */
-export interface UpdateAssessmentResponseInput {
-  assessmentID?: InputMaybe<Scalars['ID']['input']>
-  clearCompletedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearDocument?: InputMaybe<Scalars['Boolean']['input']>
-  clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
-  /** when the user completed the assessment */
-  completedAt?: InputMaybe<Scalars['Time']['input']>
-  documentID?: InputMaybe<Scalars['ID']['input']>
-  /** when the assessment is due */
-  dueDate?: InputMaybe<Scalars['Time']['input']>
-  /** when the user started the assessment */
-  startedAt?: InputMaybe<Scalars['Time']['input']>
-  /** the current status of the assessment for this user */
-  status?: InputMaybe<AssessmentResponseAssessmentResponseStatus>
+  /** the uischema for the template to render in the UI. If not provided, it will be inherited from the template */
+  uischema?: InputMaybe<Scalars['Map']['input']>
 }
 
 /**
@@ -54772,9 +54718,11 @@ export interface UpdateTaskInput {
  * Input was generated by ent.
  */
 export interface UpdateTemplateInput {
+  addAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearAssessments?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
@@ -54794,6 +54742,7 @@ export interface UpdateTemplateInput {
   kind?: InputMaybe<TemplateTemplateKind>
   /** the name of the template */
   name?: InputMaybe<Scalars['String']['input']>
+  removeAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -58451,6 +58400,118 @@ export interface WebauthnWhereInput {
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
+
+export type CreateAssessmentMutationVariables = Exact<{
+  input: CreateAssessmentInput
+}>
+
+export type CreateAssessmentMutation = {
+  __typename?: 'Mutation'
+  createAssessment: {
+    __typename?: 'AssessmentCreatePayload'
+    assessment: {
+      __typename?: 'Assessment'
+      id: string
+      name: string
+      assessmentType: AssessmentAssessmentType
+      jsonconfig?: any | null
+      uischema?: any | null
+      templateID?: string | null
+      responseDueDuration: number
+      tags?: Array<string> | null
+      createdAt?: any | null
+      updatedAt?: any | null
+      createdBy?: string | null
+      updatedBy?: string | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type GetAssessmentQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentQuery = {
+  __typename?: 'Query'
+  assessment: {
+    __typename?: 'Assessment'
+    id: string
+    name: string
+    assessmentType: AssessmentAssessmentType
+    jsonconfig?: any | null
+    uischema?: any | null
+    templateID?: string | null
+    responseDueDuration: number
+    tags?: Array<string> | null
+    createdAt?: any | null
+    updatedAt?: any | null
+  }
+}
+
+export type FilterAssessmentsQueryVariables = Exact<{
+  where?: InputMaybe<AssessmentWhereInput>
+  orderBy?: InputMaybe<Array<AssessmentOrder> | AssessmentOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type FilterAssessmentsQuery = {
+  __typename?: 'Query'
+  assessments: {
+    __typename?: 'AssessmentConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'AssessmentEdge'
+      node?: {
+        __typename?: 'Assessment'
+        id: string
+        name: string
+        assessmentType: AssessmentAssessmentType
+        templateID?: string | null
+        responseDueDuration: number
+        tags?: Array<string> | null
+        createdAt?: any | null
+        updatedAt?: any | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type UpdateAssessmentMutationVariables = Exact<{
+  updateAssessmentId: Scalars['ID']['input']
+  input: UpdateAssessmentInput
+}>
+
+export type UpdateAssessmentMutation = {
+  __typename?: 'Mutation'
+  updateAssessment: {
+    __typename?: 'AssessmentUpdatePayload'
+    assessment: {
+      __typename?: 'Assessment'
+      id: string
+      name: string
+      assessmentType: AssessmentAssessmentType
+      jsonconfig?: any | null
+      uischema?: any | null
+      templateID?: string | null
+      responseDueDuration: number
+      tags?: Array<string> | null
+      createdAt?: any | null
+      updatedAt?: any | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type DeleteAssessmentMutationVariables = Exact<{
+  deleteAssessmentId: Scalars['ID']['input']
+}>
+
+export type DeleteAssessmentMutation = { __typename?: 'Mutation'; deleteAssessment: { __typename?: 'AssessmentDeletePayload'; deletedID: string } }
 
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'

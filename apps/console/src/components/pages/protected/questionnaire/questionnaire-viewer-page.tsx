@@ -5,7 +5,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Edit, Send, Trash2 } from 'lucide-react'
-import { useDeleteTemplate } from '@/lib/graphql-hooks/templates'
+import { useDeleteAssessment } from '@/lib/graphql-hooks/assessments'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
@@ -31,7 +31,7 @@ const QuestionnaireViewerPage: React.FC = () => {
   const editAllowed = canEdit(permission?.roles)
 
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: deleteTemplate } = useDeleteTemplate()
+  const { mutateAsync: deleteAssessment } = useDeleteAssessment()
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -58,7 +58,7 @@ const QuestionnaireViewerPage: React.FC = () => {
 
   const handleDelete = async () => {
     try {
-      await deleteTemplate({ deleteTemplateId: existingId })
+      await deleteAssessment({ deleteAssessmentId: existingId })
       successNotification({ title: 'Questionnaire deleted successfully' })
       router.push('/questionnaires')
     } catch (error) {
@@ -76,13 +76,7 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            <Button
-              disabled
-              type="button"
-              className="h-8 px-3"
-              icon={<Send />}
-              iconPosition="left"
-            >
+            <Button disabled type="button" className="h-8 px-3" icon={<Send />} iconPosition="left">
               Send (Coming Soon)
             </Button>
 
