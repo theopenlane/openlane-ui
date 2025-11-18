@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { useGetInternalPolicyDetailsById, useInternalPolicies } from '@/lib/graphql-hooks/policy'
+import { useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useInternalPolicies } from '@/lib/graphql-hooks/policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
@@ -36,6 +36,8 @@ export default function PoliciesWithoutProceduresTable() {
   const setAssociationRefCodes = usePolicy((state) => state.setAssociationRefCodes)
 
   const { data: policyData } = useGetInternalPolicyDetailsById(selectedPolicyId)
+  const { data: assocData } = useGetInternalPolicyAssociationsById(selectedPolicyId)
+
   const policy = policyData?.internalPolicy
 
   const where: InternalPolicyWhereInput = {
@@ -91,27 +93,27 @@ export default function PoliciesWithoutProceduresTable() {
   ]
 
   useEffect(() => {
-    if (policy) {
+    if (policy && assocData) {
       const policyAssociations: TObjectAssociationMap = {
-        controlIDs: (policy?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        procedureIDs: (policy?.procedures?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        programIDs: (policy?.programs?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        controlObjectiveIDs: (policy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        taskIDs: (policy?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        controlIDs: (assocData?.internalPolicy.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        procedureIDs: (assocData?.internalPolicy.procedures?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        programIDs: (assocData?.internalPolicy.programs?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        controlObjectiveIDs: (assocData?.internalPolicy.controlObjectives?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        taskIDs: (assocData?.internalPolicy.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
       }
 
       const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: (policy?.controls?.edges?.map((item) => item?.node?.refCode).filter(Boolean) as string[]) || [],
-        procedureIDs: (policy?.procedures?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        programIDs: (policy?.programs?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        controlObjectiveIDs: (policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        taskIDs: (policy?.tasks?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        controlIDs: (assocData?.internalPolicy.controls?.edges?.map((item) => item?.node?.refCode).filter(Boolean) as string[]) || [],
+        procedureIDs: (assocData?.internalPolicy.procedures?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        programIDs: (assocData?.internalPolicy.programs?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        controlObjectiveIDs: (assocData?.internalPolicy.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        taskIDs: (assocData?.internalPolicy.tasks?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
       }
 
       setAssociations(policyAssociations)
       setAssociationRefCodes(policyAssociationsRefCodes)
     }
-  }, [policy, setAssociations, setAssociationRefCodes])
+  }, [policy, setAssociations, setAssociationRefCodes, assocData])
 
   return (
     <div className="py-6 rounded-lg">

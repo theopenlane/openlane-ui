@@ -21,7 +21,7 @@ function UrlInput({ value, onChange, disabled, className, verifiedStatus }: UrlI
       <Input maxWidth value={value} placeholder="subdomain.domain.com" onChange={(e) => onChange(e.target.value)} className="border-none" disabled={disabled} />
       {verifiedStatus !== undefined && (
         <div className="flex items-center justify-end opacity-50 pr-3">
-          <div className={clsx('h-2 w-2 rounded mr-1', isVerified ? 'bg-brand' : 'bg-warning')} />
+          <div className={clsx('h-2 w-2 rounded-full mr-1', isVerified ? 'bg-primary' : 'bg-warning')} />
           <span className="font-normal text-xs">{isVerified ? 'Verified' : 'Pending'}</span>
         </div>
       )}

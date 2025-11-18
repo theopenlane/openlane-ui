@@ -77,13 +77,43 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     })
   }, [selectedObject])
 
+  const controlsWhere = useMemo(() => {
+    const baseWhere = { ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [debouncedSearch])
+
+  const subcontrolsWhere = useMemo(() => {
+    const baseWhere = { ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [debouncedSearch])
+
   const {
     controls,
     paginationMeta: controlsPagination,
     isLoading: controlsLoading,
     isFetching: controlsFetching,
   } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
+    where: controlsWhere,
     orderBy,
     pagination,
   })
@@ -94,7 +124,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     isLoading: subcontrolsLoading,
     isFetching: subcontrolsFetching,
   } = useGetAllSubcontrols({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
+    where: subcontrolsWhere,
     pagination,
   })
 
@@ -132,6 +162,15 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     onClose()
   }
 
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+      query: { first: prev.pageSize },
+    }))
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
@@ -139,7 +178,17 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           <DialogTitle>Select Controls</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 items-center">
-          <Select value={selectedObject} onValueChange={(val: string) => setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)}>
+          <Select
+            value={selectedObject}
+            onValueChange={(val: string) => {
+              setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)
+              setPagination((prev) => ({
+                ...prev,
+                page: 1,
+                query: { first: prev.pageSize },
+              }))
+            }}
+          >
             <SelectTrigger>{selectedObject}</SelectTrigger>
             <SelectContent>
               {(['Control', 'Subcontrol'] as const)
@@ -152,7 +201,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
             </SelectContent>
           </Select>
 
-          <Input placeholder="Search controls" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <Input placeholder="Search controls" value={searchTerm} onChange={(e) => handleSearchChange(e.target.value)} />
         </div>
 
         <DataTable
