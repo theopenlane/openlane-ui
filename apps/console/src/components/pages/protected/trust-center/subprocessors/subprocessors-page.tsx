@@ -6,8 +6,8 @@ import { Loading } from '@/components/shared/loading/loading'
 import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { SubprocessorWhereInput } from '@repo/codegen/src/schema'
+import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { TrustCenterSubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { Building2 } from 'lucide-react'
@@ -16,40 +16,50 @@ import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
-import { CreateSubprocessorSheet } from './sheet/create-subprocessor-sheet'
+import { CreateTrustCenterSubprocessorSheet } from './sheet/create-trust-center-subprocessor-sheet'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ id: false, createdBy: false, updatedAt: false })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false,
+    createdBy: false,
+    updatedAt: false,
+  })
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filters, setFilters] = useState<SubprocessorWhereInput | null>(null)
+  const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
 
   const router = useRouter()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
-  const { subprocessors, paginationMeta, isLoading } = useGetSubprocessors({
+  const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
     where: {
-      ...(searchTerm ? { nameContainsFold: searchTerm } : {}),
+      ...(searchTerm ? { subprocessor: { nameContainsFold: searchTerm } } : {}),
       ...(filters ?? {}),
     },
     pagination,
   })
 
-  const handleFilterChange = useCallback((newFilters: SubprocessorWhereInput) => {
+  const handleFilterChange = useCallback((newFilters: TrustCenterSubprocessorWhereInput) => {
     setFilters(newFilters)
     setPagination(DEFAULT_PAGINATION)
   }, [])
 
   const tableData: SubprocessorTableItem[] = useMemo(
     () =>
-      subprocessors.map((item) => ({
+      trustCenterSubprocessors.map((item) => ({
         id: item?.id ?? '',
-        name: item?.name ?? '',
-        description: item?.description ?? '',
-        logo: item?.logoFile?.presignedURL ?? item?.logoRemoteURL ?? null,
+        name: item?.subprocessor?.name ?? '',
+        description: item?.subprocessor?.description ?? '',
+        logo: item?.subprocessor?.logoFile?.presignedURL ?? item?.subprocessor?.logoRemoteURL ?? null,
+        category: item?.category ?? '',
+        countries: item?.countries ?? [],
+        createdAt: item?.createdAt ?? null,
+        createdBy: item?.createdBy ?? null,
+        updatedAt: item?.updatedAt ?? null,
+        updatedBy: item?.updatedBy ?? null,
       })) ?? [],
-    [subprocessors],
+    [trustCenterSubprocessors],
   )
 
   const { columns, mappedColumns } = useMemo(() => getSubprocessorsColumns({ selectedRows, setSelectedRows }), [selectedRows])
@@ -65,7 +75,8 @@ const SubprocessorsPage = () => {
 
   return (
     <>
-      <CreateSubprocessorSheet />
+      <CreateTrustCenterSubprocessorSheet />
+
       {showCreatePanel ? (
         <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
           <PanelHeader heading="Subprocessors" subheading="You haven't added any subprocessors yet. Add third-party vendors that process customer data on your behalf." />

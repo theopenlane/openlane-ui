@@ -1,15 +1,21 @@
 'use client'
 
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { FilterField } from '@/types'
-import { FilterIcons } from '@/components/shared/enum-mapper/tokens-enum'
+import { SubprocessorsFilterIcons } from '@/components/shared/enum-mapper/subprocessors-enum'
 
 export type SubprocessorTableItem = {
   id: string
   name: string
   description: string
   logo: string | null
+  category: string | null
+  countries: string[]
+  createdAt: string | null
+  createdBy: string | null
+  updatedAt: string | null
+  updatedBy: string | null
 }
 
 type SubprocessorsColumnsProps = {
@@ -26,6 +32,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows }: Subpr
   }
 
   const columns: ColumnDef<SubprocessorTableItem>[] = [
+    // SELECT COLUMN
     {
       id: 'select',
       header: ({ table }) => {
@@ -40,14 +47,13 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows }: Subpr
                 const newSelection = checked
                   ? [...selectedRows.filter((s) => !rows.some((r) => r.id === s.id)), ...rows.map((r) => ({ id: r.id }))]
                   : selectedRows.filter((s) => !rows.some((r) => r.id === s.id))
-
                 setSelectedRows(newSelection)
               }}
             />
           </div>
         )
       },
-      cell: ({ row }: { row: Row<SubprocessorTableItem> }) => {
+      cell: ({ row }) => {
         const isChecked = selectedRows.some((r) => r.id === row.original.id)
 
         return (
@@ -61,35 +67,78 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows }: Subpr
       enableHiding: false,
     },
 
+    // LOGO
     {
       accessorKey: 'logo',
       header: 'Logo',
       cell: ({ row }) => {
         const logo = row.original.logo
-
         if (!logo) return <div className="text-muted-foreground">—</div>
-
-        return (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
-          </>
-        )
+        //  eslint-disable-next-line @next/next/no-img-element
+        return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
       },
     },
 
+    // NAME
     {
       accessorKey: 'name',
       header: 'Name',
     },
 
+    // DESCRIPTION
     {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => row.original.description || '—',
     },
+
+    // CATEGORY
+    {
+      accessorKey: 'category',
+      header: 'Category',
+      cell: ({ row }) => row.original.category || '—',
+    },
+
+    // COUNTRIES
+    {
+      accessorKey: 'countries',
+      header: 'Countries',
+      cell: ({ row }) => {
+        if (!row.original.countries?.length) return '—'
+        return row.original.countries.join(', ')
+      },
+    },
+
+    // CREATED AT
+    {
+      accessorKey: 'createdAt',
+      header: 'Created At',
+      cell: ({ row }) => row.original.createdAt || '—',
+    },
+
+    // CREATED BY
+    {
+      accessorKey: 'createdBy',
+      header: 'Created By',
+      cell: ({ row }) => row.original.createdBy || '—',
+    },
+
+    // UPDATED AT
+    {
+      accessorKey: 'updatedAt',
+      header: 'Updated At',
+      cell: ({ row }) => row.original.updatedAt || '—',
+    },
+
+    // UPDATED BY
+    {
+      accessorKey: 'updatedBy',
+      header: 'Updated By',
+      cell: ({ row }) => row.original.updatedBy || '—',
+    },
   ]
 
+  // RETURN MAPPED COLUMNS (for the toolbar)
   const mappedColumns = columns
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
     .map((column) => ({
@@ -102,15 +151,15 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows }: Subpr
 
 export const subprocessorsFilterFields: FilterField[] = [
   {
-    key: 'nameContainsFold',
-    label: 'Name contains',
+    key: 'category',
+    label: 'Category',
     type: 'text',
-    icon: FilterIcons.Name,
+    icon: SubprocessorsFilterIcons.Category,
   },
   {
-    key: 'descriptionContainsFold',
-    label: 'Description contains',
+    key: 'countriesHas',
+    label: 'Country contains',
     type: 'text',
-    icon: FilterIcons.Name,
+    icon: SubprocessorsFilterIcons.Country,
   },
 ]

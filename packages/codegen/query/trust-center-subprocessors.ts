@@ -1,53 +1,63 @@
 import { gql } from 'graphql-request'
 
-export const CREATE_SUBPROCESSOR = gql`
-  mutation CreateSubprocessor($input: CreateSubprocessorInput!, $logoFile: Upload) {
-    createSubprocessor(input: $input, logoFile: $logoFile) {
-      subprocessor {
-        id
-      }
-    }
-  }
-`
-
-export const UPDATE_SUBPROCESSOR = gql`
-  mutation UpdateSubprocessor($updateSubprocessorId: ID!, $input: UpdateSubprocessorInput!, $logoFile: Upload) {
-    updateSubprocessor(id: $updateSubprocessorId, input: $input, logoFile: $logoFile) {
-      subprocessor {
-        id
-      }
-    }
-  }
-`
-
-export const GET_SUBPROCESSORS = gql`
-  query GetSubprocessors($where: SubprocessorWhereInput, $first: Int, $orderBy: [SubprocessorOrder!], $after: Cursor, $before: Cursor, $last: Int) {
-    subprocessors(where: $where, first: $first, orderBy: $orderBy, after: $after, before: $before, last: $last) {
+export const GET_TRUST_CENTER_SUBPROCESSORS = gql`
+  query GetTrustCenterSubprocessors($where: TrustCenterSubprocessorWhereInput, $first: Int, $last: Int, $after: Cursor, $before: Cursor, $orderBy: [TrustCenterSubprocessorOrder!]) {
+    trustCenterSubprocessors(where: $where, first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
       edges {
         node {
           id
-          name
-          description
-          logoFile {
-            presignedURL
+          subprocessor {
+            id
+            name
+            description
+            logoRemoteURL
+            logoFile {
+              presignedURL
+            }
           }
-          logoRemoteURL
+          category
+          countries
+          createdAt
+          createdBy
+          updatedAt
+          updatedBy
         }
+        cursor
       }
       pageInfo {
+        startCursor
         endCursor
         hasNextPage
         hasPreviousPage
-        startCursor
       }
       totalCount
     }
   }
 `
 
-export const DELETE_BULK_SUBPROCESSORS = gql`
-  mutation DeleteBulkSubprocessors($ids: [ID!]!) {
-    deleteBulkSubprocessor(ids: $ids) {
+export const CREATE_TRUST_CENTER_SUBPROCESSOR = gql`
+  mutation CreateTrustCenterSubprocessor($input: CreateTrustCenterSubprocessorInput!) {
+    createTrustCenterSubprocessor(input: $input) {
+      trustCenterSubprocessor {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER_SUBPROCESSOR = gql`
+  mutation UpdateTrustCenterSubprocessor($id: ID!, $input: UpdateTrustCenterSubprocessorInput!) {
+    updateTrustCenterSubprocessor(id: $id, input: $input) {
+      trustCenterSubprocessor {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_BULK_TRUST_CENTER_SUBPROCESSORS = gql`
+  mutation DeleteBulkTrustCenterSubprocessors($ids: [ID!]!) {
+    deleteBulkTrustCenterSubprocessor(ids: $ids) {
       deletedIDs
     }
   }

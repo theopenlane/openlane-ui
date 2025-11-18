@@ -15,6 +15,7 @@ import {
   MailCheck,
   NotebookPen,
   ScrollText,
+  Server,
   ServerCog,
   Settings,
   Settings2,
@@ -119,7 +120,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       {
         title: 'Subprocessors',
         href: '/trust-center/subprocessors',
-        icon: File,
+        icon: Server,
       },
     ],
   },

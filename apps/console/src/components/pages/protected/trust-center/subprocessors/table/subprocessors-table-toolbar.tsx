@@ -12,7 +12,7 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { SubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
-import { useBulkDeleteSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { useBulkDeleteSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { subprocessorsFilterFields } from './table-config'
 
 type TProps = {

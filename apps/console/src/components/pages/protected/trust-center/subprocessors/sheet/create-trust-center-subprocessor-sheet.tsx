@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose, Pencil, Save, Trash2 } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -8,58 +8,79 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCreateSubprocessor, useUpdateSubprocessor, useBulkDeleteSubprocessors, useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { NameField } from './form-fields/name-field'
-import { DescriptionField } from './form-fields/description-field'
-import { LogoField } from './form-fields/logo-field'
+import {
+  useCreateTrustCenterSubprocessor,
+  useGetTrustCenterSubprocessors,
+  useUpdateTrustCenterSubprocessor,
+  useBulkDeleteTrustCenterSubprocessors,
+} from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
+
+import { SubprocessorSelectField } from './form-fields/subprocessor-select-field'
+import { CategoryField } from './form-fields/category-field'
+import { CountriesField } from './form-fields/countries-field'
 
 /* ----------------------------- ZOD SCHEMA ----------------------------- */
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  logoFile: z.instanceof(File).optional(),
+  subprocessorID: z.string().min(1, 'Please select a subprocessor'),
+  category: z.string().min(1, 'Category is required'),
+  countries: z.array(z.string()).min(1, 'Select at least one country'),
 })
 
 type FormData = z.infer<typeof schema>
 
 /* --------------------------------------------------------------------- */
 
-export const CreateSubprocessorSheet: React.FC = () => {
+export const CreateTrustCenterSubprocessorSheet: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const isCreateMode = searchParams.get('create') === 'true'
-  const subprocessorId = searchParams.get('id')
-  const isEditMode = !!subprocessorId
+  const trustCenterSubprocessorId = searchParams.get('id')
+  const isEditMode = !!trustCenterSubprocessorId
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [uploadedLogo, setUploadedLogo] = useState<File | null>(null)
-  const [open, setOpen] = useState(isCreateMode || !!subprocessorId)
+  const [open, setOpen] = useState(isCreateMode || !!trustCenterSubprocessorId)
 
   const { successNotification, errorNotification } = useNotification()
 
-  const { mutateAsync: createSubprocessor } = useCreateSubprocessor()
-  const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
-  const { mutateAsync: bulkDeleteSubprocessors } = useBulkDeleteSubprocessors()
+  const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
+  const { mutateAsync: updateTCSubprocessor } = useUpdateTrustCenterSubprocessor()
+  const { mutateAsync: bulkDeleteTCSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
 
-  const { data: allSubprocessors } = useGetSubprocessors({
+  // Fetch all trust center subprocessors (for edit mode prefill)
+  const { trustCenterSubprocessors } = useGetTrustCenterSubprocessors({
+    enabled: !!trustCenterSubprocessorId,
+  })
+
+  // Find existing record (when editing)
+  const existing = useMemo(() => trustCenterSubprocessors.find((item) => item?.id === trustCenterSubprocessorId) ?? null, [trustCenterSubprocessors, trustCenterSubprocessorId])
+
+  // Fetch all base subprocessors for the dropdown
+  const { subprocessors } = useGetSubprocessors({
     enabled: true,
   })
 
-  const existing = allSubprocessors?.subprocessors.edges?.find((sp) => sp?.node?.id === subprocessorId) || null
+  const subprocessorOptions = useMemo(
+    () =>
+      subprocessors.map((sp) => ({
+        label: sp?.name ?? '',
+        value: sp?.id ?? '',
+      })) ?? [],
+    [subprocessors],
+  )
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: '',
-      description: '',
-      logoFile: undefined,
+      subprocessorID: '',
+      category: '',
+      countries: [],
     },
   })
 
@@ -78,21 +99,14 @@ export const CreateSubprocessorSheet: React.FC = () => {
     router.push(`?${params.toString()}`)
   }
 
-  const handleLogoUpload = (uploaded: TUploadedFile) => {
-    if (uploaded.file) {
-      setUploadedLogo(uploaded.file)
-      formMethods.setValue('logoFile', uploaded.file, { shouldValidate: true })
-    }
-  }
-
   const handleDeleteConfirm = async () => {
-    if (!subprocessorId) return
+    if (!trustCenterSubprocessorId) return
 
     try {
-      await bulkDeleteSubprocessors({ ids: [subprocessorId] })
+      await bulkDeleteTCSubprocessors({ ids: [trustCenterSubprocessorId] })
       successNotification({
-        title: 'Subprocessor Deleted',
-        description: 'The subprocessor has been successfully deleted.',
+        title: 'Subprocessor Removed',
+        description: 'The Trust Center subprocessor entry has been deleted.',
       })
       setIsDeleteDialogOpen(false)
       handleOpenChange(false)
@@ -107,41 +121,40 @@ export const CreateSubprocessorSheet: React.FC = () => {
   const onSubmit = async (data: FormData) => {
     try {
       if (isEditMode) {
-        await updateSubprocessor({
-          updateSubprocessorId: subprocessorId!,
+        await updateTCSubprocessor({
+          id: trustCenterSubprocessorId!,
           input: {
-            name: data.name,
-            description: data.description || '',
+            subprocessorID: data.subprocessorID,
+            category: data.category,
+            countries: data.countries,
           },
-          logoFile: data.logoFile,
         })
 
         successNotification({
           title: 'Subprocessor Updated',
-          description: 'The subprocessor has been successfully updated.',
+          description: 'The Trust Center subprocessor has been successfully updated.',
         })
 
         setIsEditing(false)
       } else {
-        if (!data.logoFile) throw new Error('Please upload a logo.')
-        await createSubprocessor({
+        await createTCSubprocessor({
           input: {
-            name: data.name,
-            description: data.description || '',
+            subprocessorID: data.subprocessorID,
+            category: data.category,
+            countries: data.countries,
           },
-          logoFile: data.logoFile,
         })
 
         successNotification({
-          title: 'Subprocessor Created',
-          description: 'The subprocessor has been successfully created.',
+          title: 'Subprocessor Added',
+          description: 'The Trust Center subprocessor has been successfully created.',
         })
 
         handleOpenChange(false)
       }
     } catch (error) {
       errorNotification({
-        title: isEditMode ? 'Error Updating Subprocessor' : 'Error Creating Subprocessor',
+        title: isEditMode ? 'Error Updating Trust Center Subprocessor' : 'Error Creating Trust Center Subprocessor',
         description: parseErrorMessage(error),
       })
     }
@@ -149,10 +162,11 @@ export const CreateSubprocessorSheet: React.FC = () => {
 
   const prefillForm = useCallback(() => {
     if (!existing) return
+
     reset({
-      name: existing?.node?.name ?? '',
-      description: existing?.node?.description ?? '',
-      logoFile: undefined,
+      subprocessorID: existing?.subprocessor?.id ?? '',
+      category: existing?.category ?? '',
+      countries: existing?.countries ?? [],
     })
   }, [existing, reset])
 
@@ -160,13 +174,17 @@ export const CreateSubprocessorSheet: React.FC = () => {
     if (isEditMode && existing) {
       prefillForm()
     } else if (!isEditMode) {
-      reset({ name: '', description: '', logoFile: undefined })
+      reset({
+        subprocessorID: '',
+        category: '',
+        countries: [],
+      })
     }
   }, [isEditMode, existing, reset, open, prefillForm])
 
   useEffect(() => {
-    if (subprocessorId || isCreateMode) setOpen(true)
-  }, [subprocessorId, isCreateMode])
+    if (trustCenterSubprocessorId || isCreateMode) setOpen(true)
+  }, [trustCenterSubprocessorId, isCreateMode])
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
@@ -180,6 +198,7 @@ export const CreateSubprocessorSheet: React.FC = () => {
             {isEditMode ? (
               <div className="flex justify-start gap-2 items-center">
                 <div className="flex gap-3">
+                  {/* Copy link */}
                   <Button
                     className="h-8 p-2"
                     icon={<Copy />}
@@ -189,7 +208,7 @@ export const CreateSubprocessorSheet: React.FC = () => {
                       navigator.clipboard.writeText(window.location.href)
                       successNotification({
                         title: 'Link copied',
-                        description: 'Subprocessor link copied to clipboard.',
+                        description: 'Trust Center Subprocessor link copied to clipboard.',
                       })
                     }}
                   >
@@ -216,7 +235,7 @@ export const CreateSubprocessorSheet: React.FC = () => {
                             Cancel
                           </Button>
 
-                          <Button variant="primary" type="submit" form="subprocessor-form" className="h-8 p-2" icon={<Save />} iconPosition="left">
+                          <Button variant="primary" type="submit" form="tc-subprocessor-form" className="h-8 p-2" icon={<Save />} iconPosition="left">
                             Save
                           </Button>
                         </>
@@ -237,10 +256,10 @@ export const CreateSubprocessorSheet: React.FC = () => {
                   open={isDeleteDialogOpen}
                   onOpenChange={setIsDeleteDialogOpen}
                   onConfirm={handleDeleteConfirm}
-                  title="Delete Subprocessor"
+                  title="Delete Trust Center Subprocessor"
                   description={
                     <>
-                      This action cannot be undone. This will permanently remove <b>{existing?.node?.name ?? 'this subprocessor'}</b>.
+                      This action cannot be undone. This will permanently remove <b>{existing?.subprocessor?.name ?? 'this Trust Center subprocessor'}</b>.
                     </>
                   }
                   confirmationText="Delete"
@@ -249,7 +268,7 @@ export const CreateSubprocessorSheet: React.FC = () => {
               </div>
             ) : (
               <div className="pt-4 flex justify-end">
-                <Button type="submit" form="subprocessor-form" disabled={isSubmitting || !uploadedLogo} variant="secondary">
+                <Button type="submit" form="tc-subprocessor-form" disabled={isSubmitting} variant="secondary" icon={<Save />} iconPosition="left">
                   Create
                 </Button>
               </div>
@@ -258,10 +277,12 @@ export const CreateSubprocessorSheet: React.FC = () => {
         </SheetHeader>
 
         <FormProvider {...formMethods}>
-          <form id="subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
-            <NameField isEditing={isEditing || isCreateMode} />
-            <DescriptionField isEditing={isEditing || isCreateMode} />
-            <LogoField isEditing={isEditing || isCreateMode} onFileUpload={handleLogoUpload} existingLogo={existing?.node?.logoRemoteURL ?? null} />
+          <form id="tc-subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
+            <SubprocessorSelectField options={subprocessorOptions} isEditing={isEditing || isCreateMode} />
+
+            <CategoryField isEditing={isEditing || isCreateMode} />
+
+            <CountriesField isEditing={isEditing || isCreateMode} />
           </form>
         </FormProvider>
       </SheetContent>
