@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
 import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
 import SubscribersTableToolbar from '@/components/pages/protected/organization/subscribers/table/subscribers-table-toolbar.tsx'
@@ -12,6 +12,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)
@@ -19,12 +20,13 @@ export const SubscribersTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBE, [
     {
       field: SubscriberOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>(defaultSorting)
 
   const whereFilter = useMemo(() => {
     return {
@@ -67,12 +69,14 @@ export const SubscribersTable = () => {
       <DataTable
         columns={subscribersColumns}
         data={subscribers}
+        defaultSorting={defaultSorting}
         sortFields={SUBSCRIBERS_SORT_FIELDS}
         onSortChange={setOrderBy}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.SUBSCRIBE}
       />
     </div>
   )

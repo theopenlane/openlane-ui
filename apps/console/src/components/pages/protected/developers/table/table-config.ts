@@ -1,6 +1,5 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/tokens-enum'
 import { FilterField } from '@/types'
-import { OrderDirection } from '@repo/codegen/src/schema'
 
 export const TOKEN_FILTER_FIELDS: FilterField[] = [
   { key: 'nameContainsFold', label: 'Name', type: 'text', icon: FilterIcons.Name },
@@ -18,13 +17,6 @@ export const TOKEN_SORT_FIELDS = [
     key: 'name',
     label: 'Name',
   },
-  {
-    key: 'created_at',
-    label: 'Created At',
-    default: {
-      key: 'created_at',
-      direction: OrderDirection.DESC,
-    },
-  },
+  { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' },
 ]

@@ -14,6 +14,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams<{ id: string }>()
@@ -186,6 +187,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
             }}
             onPaginationChange={setPagination}
             loading={isLoading}
+            tableKey={TableKeyEnum.CONTROLS_MAPPED_CATEGORIES}
           />
 
           {/* Actions */}

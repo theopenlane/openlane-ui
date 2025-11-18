@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
@@ -18,6 +18,7 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type UserRow = {
   id: string
@@ -194,6 +195,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
               pageInfo: data?.orgMemberships?.pageInfo,
               isLoading: isFetching,
             }}
+            tableKey={TableKeyEnum.PROGRAM_ASSIGN_USER}
           />
 
           <div className="flex gap-2 mt-4 justify-end">

@@ -4,6 +4,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { Permission } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupPermissions } from '@/lib/graphql-hooks/groups'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 interface GroupPermission {
   id: string
@@ -41,7 +42,7 @@ const GroupDeletePermissionsTable: React.FC = () => {
     },
   ]
 
-  return <DataTable columns={columns} data={groupPermissions} />
+  return <DataTable columns={columns} data={groupPermissions} tableKey={TableKeyEnum.GROUP_DELETE_PERMISSION} />
 }
 
 export default GroupDeletePermissionsTable
