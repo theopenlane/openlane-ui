@@ -53,13 +53,24 @@ export const TransferOwnershipDialog: React.FC<TransferOwnershipDialogProps> = (
       return
     }
     try {
-      await transferOwnership({
+      const response = await transferOwnership({
         newOwnerEmail: email,
       })
-      successNotification({
-        title: 'Ownership transfer initiated',
-        description: 'An invitation has been sent to the new owner.',
-      })
+
+      const invitationSent = response.transferOrganizationOwnership.invitationSent
+
+      if (invitationSent) {
+        successNotification({
+          title: 'Ownership transfer initiated',
+          description: 'An invitation has been sent to the new owner.',
+        })
+      } else {
+        successNotification({
+          title: 'Ownership transferred',
+          description: 'Ownership transferred successfully.',
+        })
+      }
+
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
