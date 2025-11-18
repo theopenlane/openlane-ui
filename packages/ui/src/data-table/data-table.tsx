@@ -131,7 +131,13 @@ export function DataTable<TData, TValue>({
 
   const updatePagination = (next: TPagination) => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(next))
+      const safePagination = {
+        page: next.page,
+        pageSize: next.pageSize,
+        query: next.query,
+      }
+
+      localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(safePagination))
     }
 
     onPaginationChange?.(next)
