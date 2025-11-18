@@ -37,14 +37,13 @@ const TasksPage: React.FC = () => {
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { handleExport } = useFileExport()
-  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.TASK, [
-      {
-        field: TaskOrderField.due,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.TASK, [
+    {
+      field: TaskOrderField.due,
+      direction: OrderDirection.ASC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(defaultSorting)
   const allStatuses = useMemo(() => Object.values(TaskTaskStatus), [])
   const statusesWithoutCompleteAndWontDo = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED && status !== TaskTaskStatus.WONT_DO), [allStatuses])
   const { data: permission } = useOrganizationRoles()
@@ -202,7 +201,7 @@ const TasksPage: React.FC = () => {
           selectedTasks={selectedTasks}
           setSelectedTasks={setSelectedTasks}
           canEdit={canEdit}
-          defaultSorting={orderBy}
+          defaultSorting={defaultSorting}
           permission={permission}
         />
       ) : (

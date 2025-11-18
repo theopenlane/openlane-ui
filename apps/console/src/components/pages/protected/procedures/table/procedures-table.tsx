@@ -45,14 +45,13 @@ export const ProceduresTable = () => {
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
-  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.PROCEDURE, [
-      {
-        field: ProcedureOrderField.name,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROCEDURE, [
+    {
+      field: ProcedureOrderField.name,
+      direction: OrderDirection.ASC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>(defaultSorting)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -234,7 +233,7 @@ export const ProceduresTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.PROCEDURE}
       />
     </>

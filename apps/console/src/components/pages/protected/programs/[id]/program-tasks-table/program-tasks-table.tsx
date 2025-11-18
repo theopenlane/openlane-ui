@@ -95,14 +95,13 @@ const ProgramTasksTable = () => {
         statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
       }
     : {}
-  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.PROGRAM, [
-      {
-        field: TaskOrderField.due,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROGRAM, [
+    {
+      field: TaskOrderField.due,
+      direction: OrderDirection.ASC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(defaultSorting)
 
   const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!id })
 
@@ -149,7 +148,7 @@ const ProgramTasksTable = () => {
         loading={isLoading}
         sortFields={TASK_SORT_FIELDS}
         onSortChange={setOrderBy}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.PROGRAM}
       />
     </div>

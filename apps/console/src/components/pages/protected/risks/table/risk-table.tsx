@@ -37,14 +37,13 @@ const RiskTable: React.FC = () => {
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.RISK, [
-      {
-        field: RiskOrderField.name,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.RISK, [
+    {
+      field: RiskOrderField.name,
+      direction: OrderDirection.ASC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>(defaultSorting)
 
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -207,7 +206,7 @@ const RiskTable: React.FC = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.RISK}
       />
     </>

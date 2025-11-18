@@ -25,15 +25,13 @@ export const OrganizationInvitesTable = () => {
   const [filters, setFilters] = useState<InviteWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { columns } = InvitesColumns()
-
-  const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.ORG_INVITE, [
-      {
-        field: InviteOrderField.created_at,
-        direction: OrderDirection.DESC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.ORG_INVITE, [
+    {
+      field: InviteOrderField.created_at,
+      direction: OrderDirection.DESC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>(defaultSorting)
 
   const whereFilter = useMemo(() => {
     const conditions: InviteWhereInput = {
@@ -57,7 +55,7 @@ export const OrganizationInvitesTable = () => {
       <DataTable
         loading={isLoading}
         sortFields={INVITES_SORT_FIELDS}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         onSortChange={setOrderBy}
         columns={columns}
         data={invites}

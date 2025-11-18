@@ -20,14 +20,13 @@ export const SubscribersTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.SUBSCRIBE, [
-      {
-        field: SubscriberOrderField.created_at,
-        direction: OrderDirection.DESC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBE, [
+    {
+      field: SubscriberOrderField.created_at,
+      direction: OrderDirection.DESC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>(defaultSorting)
 
   const whereFilter = useMemo(() => {
     return {
@@ -70,7 +69,7 @@ export const SubscribersTable = () => {
       <DataTable
         columns={subscribersColumns}
         data={subscribers}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         sortFields={SUBSCRIBERS_SORT_FIELDS}
         onSortChange={setOrderBy}
         loading={isLoading}

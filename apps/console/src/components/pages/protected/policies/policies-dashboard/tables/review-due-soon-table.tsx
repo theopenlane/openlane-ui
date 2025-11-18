@@ -79,14 +79,14 @@ export default function ReviewDueSoonTable() {
     reviewDueLTE: dueSoonLimit.toISOString(),
   }
 
-  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, [
-      {
-        field: InternalPolicyOrderField.review_due,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, [
+    {
+      field: InternalPolicyOrderField.review_due,
+      direction: OrderDirection.ASC,
+    },
+  ])
+
+  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(defaultSorting)
 
   const { data, policies, isLoading, isFetching } = useInternalPolicies({
     where,
@@ -121,7 +121,7 @@ export default function ReviewDueSoonTable() {
         }}
         loading={isLoading}
         onSortChange={setOrderBy}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.POLICIES_REVIEW_DUE_SOON}
       />
     </div>

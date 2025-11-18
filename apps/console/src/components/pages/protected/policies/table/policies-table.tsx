@@ -41,15 +41,13 @@ export const PoliciesTable = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
-
-  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.POLICY, [
-      {
-        field: InternalPolicyOrderField.name,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICY, [
+    {
+      field: InternalPolicyOrderField.name,
+      direction: OrderDirection.ASC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(defaultSorting)
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
@@ -223,7 +221,7 @@ export const PoliciesTable = () => {
       <DataTable
         sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         columns={columns}
         data={policies}
         onRowClick={handleRowClick}

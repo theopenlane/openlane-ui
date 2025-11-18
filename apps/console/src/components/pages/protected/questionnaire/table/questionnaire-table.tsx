@@ -26,14 +26,13 @@ export const QuestionnairesTable = () => {
   const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, [
-      {
-        field: TemplateOrderField.name,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, [
+    {
+      field: TemplateOrderField.name,
+      direction: OrderDirection.ASC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -159,7 +158,7 @@ export const QuestionnairesTable = () => {
         onRowClick={handleRowClick}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.QUESTIONNAIRE}
       />
     </div>

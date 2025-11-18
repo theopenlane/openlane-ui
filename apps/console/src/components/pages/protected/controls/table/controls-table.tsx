@@ -48,14 +48,13 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.CONTROL, [
-      {
-        field: ControlOrderField.ref_code,
-        direction: OrderDirection.ASC,
-      },
-    ]),
-  )
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, [
+    {
+      field: ControlOrderField.ref_code,
+      direction: OrderDirection.ASC,
+    },
+  ])
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -251,7 +250,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       <DataTable
         columns={columns}
         data={controls}
-        defaultSorting={orderBy}
+        defaultSorting={defaultSorting}
         onRowClick={handleRowClick}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
