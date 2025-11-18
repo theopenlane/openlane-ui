@@ -5,7 +5,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Edit, Send, Trash2 } from 'lucide-react'
-import { useDeleteAssessment } from '@/lib/graphql-hooks/assessments'
+import { useDeleteAssessment, useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessments'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
@@ -32,6 +32,7 @@ const QuestionnaireViewerPage: React.FC = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
+  const { mutateAsync: createAssessmentResponse } = useCreateAssessmentResponse()
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -49,11 +50,24 @@ const QuestionnaireViewerPage: React.FC = () => {
     router.push(`/questionnaires/questionnaire-editor?id=${existingId}`)
   }
 
-  const handleSend: SubmitHandler<{ email: string }> = (data) => {
-    return null
-    successNotification({ title: `Email sent to ${data.email}` })
-    form.reset()
-    setIsSendDialogOpen(false)
+  const handleSend: SubmitHandler<{ email: string }> = async (data) => {
+    try {
+      await createAssessmentResponse({
+        input: {
+          email: data.email,
+          assessmentID: existingId,
+        },
+      })
+      successNotification({ title: `Questionnaire sent to ${data.email}` })
+      form.reset()
+      setIsSendDialogOpen(false)
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
   }
 
   const handleDelete = async () => {
@@ -76,8 +90,8 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            <Button disabled type="button" className="h-8 px-3" icon={<Send />} iconPosition="left">
-              Send (Coming Soon)
+            <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
+              Send
             </Button>
 
             {editAllowed && (

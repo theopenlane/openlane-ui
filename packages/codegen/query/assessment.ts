@@ -96,3 +96,18 @@ export const DELETE_ASSESSMENT = gql`
     }
   }
 `
+
+export const CREATE_ASSESSMENT_RESPONSE = gql`
+  mutation CreateAssessmentResponse($input: CreateAssessmentResponseInput!) {
+    createAssessmentResponse(input: $input) {
+      assessmentResponse {
+        id
+        email
+        dueDate
+        assessmentID
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`
