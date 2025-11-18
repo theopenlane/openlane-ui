@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
@@ -26,12 +26,13 @@ export const QuestionnairesTable = () => {
   const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, [
     {
       field: TemplateOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -157,6 +158,7 @@ export const QuestionnairesTable = () => {
         onRowClick={handleRowClick}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.QUESTIONNAIRE}
       />
     </div>

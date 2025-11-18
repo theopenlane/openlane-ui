@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import {
   ControlControlStatus,
@@ -48,12 +48,13 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, [
     {
       field: ControlOrderField.ref_code,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -249,6 +250,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       <DataTable
         columns={columns}
         data={controls}
+        defaultSorting={defaultSorting}
         onRowClick={handleRowClick}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}

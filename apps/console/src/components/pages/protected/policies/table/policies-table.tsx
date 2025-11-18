@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
@@ -41,13 +41,13 @@ export const PoliciesTable = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
-
-  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICY, [
     {
       field: InternalPolicyOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(defaultSorting)
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
@@ -221,6 +221,7 @@ export const PoliciesTable = () => {
       <DataTable
         sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
+        defaultSorting={defaultSorting}
         columns={columns}
         data={policies}
         onRowClick={handleRowClick}

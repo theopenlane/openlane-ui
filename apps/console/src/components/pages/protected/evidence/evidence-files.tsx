@@ -1,7 +1,7 @@
 import { useGetEvidenceWithFilesPaginated, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 import React, { useState } from 'react'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
@@ -32,12 +32,13 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
     name: string | null
   }>({ id: null, name: null })
   const { successNotification, errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<FileOrder[]>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE_FILES, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const { files, isLoading: fetching, isError, pageInfo, totalCount } = useGetEvidenceWithFilesPaginated({ evidenceId: evidenceID, orderBy: orderBy, pagination: pagination })
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
 
@@ -136,6 +137,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
       <DataTable
         columns={columns}
         sortFields={EVIDENCE_FILES_SORT_FIELDS}
+        defaultSorting={defaultSorting}
         onSortChange={setOrderBy}
         data={files.filter((f) => !!f)}
         loading={fetching}
