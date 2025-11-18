@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
@@ -95,12 +95,14 @@ const ProgramTasksTable = () => {
         statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
       }
     : {}
-  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
-    {
-      field: TaskOrderField.due,
-      direction: OrderDirection.ASC,
-    },
-  ])
+  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(
+    getInitialSortConditions(TableKeyEnum.PROGRAM, [
+      {
+        field: TaskOrderField.due,
+        direction: OrderDirection.ASC,
+      },
+    ]),
+  )
 
   const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!id })
 
@@ -147,6 +149,7 @@ const ProgramTasksTable = () => {
         loading={isLoading}
         sortFields={TASK_SORT_FIELDS}
         onSortChange={setOrderBy}
+        defaultSorting={orderBy}
         tableKey={TableKeyEnum.PROGRAM}
       />
     </div>

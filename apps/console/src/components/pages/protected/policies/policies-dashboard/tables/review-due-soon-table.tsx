@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
@@ -79,12 +79,14 @@ export default function ReviewDueSoonTable() {
     reviewDueLTE: dueSoonLimit.toISOString(),
   }
 
-  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
-    {
-      field: InternalPolicyOrderField.review_due,
-      direction: OrderDirection.ASC,
-    },
-  ])
+  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(
+    getInitialSortConditions(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, [
+      {
+        field: InternalPolicyOrderField.review_due,
+        direction: OrderDirection.ASC,
+      },
+    ]),
+  )
 
   const { data, policies, isLoading, isFetching } = useInternalPolicies({
     where,
@@ -119,6 +121,7 @@ export default function ReviewDueSoonTable() {
         }}
         loading={isLoading}
         onSortChange={setOrderBy}
+        defaultSorting={orderBy}
         tableKey={TableKeyEnum.POLICIES_REVIEW_DUE_SOON}
       />
     </div>

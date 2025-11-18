@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
-import { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
+import { OrderDirection, TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
@@ -28,6 +28,7 @@ type TTasksTableProps = {
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
   permission: TData | undefined
+  defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
 }
 
 const TasksTable = forwardRef(
@@ -45,6 +46,7 @@ const TasksTable = forwardRef(
       setSelectedTasks,
       canEdit,
       permission,
+      defaultSorting,
     }: TTasksTableProps,
     ref,
   ) => {
@@ -127,6 +129,7 @@ const TasksTable = forwardRef(
         onSortChange={onSortChange}
         data={tasks}
         loading={fetching || fetchingUsers}
+        defaultSorting={defaultSorting}
         onRowClick={(task) => {
           replace({ id: task.id })
         }}

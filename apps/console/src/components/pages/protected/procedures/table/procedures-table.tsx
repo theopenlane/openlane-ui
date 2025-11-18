@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
@@ -45,12 +45,14 @@ export const ProceduresTable = () => {
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
-  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
-    {
-      field: ProcedureOrderField.name,
-      direction: OrderDirection.ASC,
-    },
-  ])
+  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>(
+    getInitialSortConditions(TableKeyEnum.PROCEDURE, [
+      {
+        field: ProcedureOrderField.name,
+        direction: OrderDirection.ASC,
+      },
+    ]),
+  )
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -232,6 +234,7 @@ export const ProceduresTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        defaultSorting={orderBy}
         tableKey={TableKeyEnum.PROCEDURE}
       />
     </>

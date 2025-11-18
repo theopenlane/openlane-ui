@@ -11,7 +11,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useRisks } from '@/lib/graphql-hooks/risks.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -37,12 +37,14 @@ const RiskTable: React.FC = () => {
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
-    {
-      field: RiskOrderField.name,
-      direction: OrderDirection.ASC,
-    },
-  ])
+  const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>(
+    getInitialSortConditions(TableKeyEnum.RISK, [
+      {
+        field: RiskOrderField.name,
+        direction: OrderDirection.ASC,
+      },
+    ]),
+  )
 
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -205,6 +207,7 @@ const RiskTable: React.FC = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        defaultSorting={orderBy}
         tableKey={TableKeyEnum.RISK}
       />
     </>

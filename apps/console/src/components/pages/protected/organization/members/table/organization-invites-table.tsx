@@ -1,7 +1,7 @@
 'use client'
 
 import { GetInvitesQueryVariables, InviteInviteStatus, InviteOrderField, InviteRole, InviteWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { InvitesColumns } from '@/components/pages/protected/organization/members/table/columns.tsx'
 import OrganizationInvitesTableToolbar from '@/components/pages/protected/organization/members/table/organization-invites-table-toolbar.tsx'
@@ -26,12 +26,14 @@ export const OrganizationInvitesTable = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { columns } = InvitesColumns()
 
-  const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>([
-    {
-      field: InviteOrderField.created_at,
-      direction: OrderDirection.DESC,
-    },
-  ])
+  const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>(
+    getInitialSortConditions(TableKeyEnum.ORG_INVITE, [
+      {
+        field: InviteOrderField.created_at,
+        direction: OrderDirection.DESC,
+      },
+    ]),
+  )
 
   const whereFilter = useMemo(() => {
     const conditions: InviteWhereInput = {
@@ -55,6 +57,7 @@ export const OrganizationInvitesTable = () => {
       <DataTable
         loading={isLoading}
         sortFields={INVITES_SORT_FIELDS}
+        defaultSorting={orderBy}
         onSortChange={setOrderBy}
         columns={columns}
         data={invites}

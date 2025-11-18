@@ -1,5 +1,3 @@
-import { InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
-
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { FilterField } from '@/types'
 import { useEffect, useState } from 'react'
@@ -77,14 +75,7 @@ export function usePoliciesFilters(): FilterField[] | null {
 export const INTERNAL_POLICIES_SORTABLE_FIELDS = [
   { key: 'REVIEW_FREQUENCY', label: 'Review Frequency' },
   { key: 'STATUS', label: 'Status' },
-  {
-    key: 'name',
-    label: 'Name',
-    default: {
-      key: InternalPolicyOrderField.name,
-      direction: OrderDirection.ASC,
-    },
-  },
+  { key: 'name', label: 'Name' },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
   { key: 'updated_at', label: 'Last Updated' },
