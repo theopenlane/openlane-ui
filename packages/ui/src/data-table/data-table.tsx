@@ -134,7 +134,12 @@ export function DataTable<TData, TValue>({
       const safePagination = {
         page: next.page,
         pageSize: next.pageSize,
-        query: next.query,
+        query: {
+          first: next.query?.first,
+          last: next.query?.last,
+          after: next.query?.after,
+          before: next.query?.before,
+        },
       }
 
       localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(safePagination))
