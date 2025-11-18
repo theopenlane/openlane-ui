@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
 import { PlusCircle, SearchIcon } from 'lucide-react'
@@ -84,6 +84,15 @@ const GroupsPage = () => {
     ]
   }, [session?.user?.userId])
 
+  const containsIsManaged = useCallback((cond: GroupWhereInput): boolean => {
+    if (!cond || typeof cond !== 'object') return false
+    if ('isManaged' in cond) return true
+
+    if (cond.and?.some(containsIsManaged)) return true
+    if (cond.or?.some(containsIsManaged)) return true
+    return false
+  }, [])
+
   const whereFilter = useMemo(() => {
     const mapCustomKey = (key: string, value: unknown): GroupWhereInput => {
       if (key === 'visibilityIn') {
@@ -100,7 +109,7 @@ const GroupsPage = () => {
     }
 
     const baseWhere = whereGenerator<GroupWhereInput>(whereFilters, mapCustomKey)
-    const hasIsManagedFilter = baseWhere.and?.some((cond) => 'isManaged' in cond)
+    const hasIsManagedFilter = containsIsManaged(baseWhere)
     const conditions: GroupWhereInput = {
       ...baseWhere,
       nameContainsFold: debouncedSearchQuery,
@@ -108,7 +117,7 @@ const GroupsPage = () => {
     }
 
     return conditions
-  }, [whereFilters, debouncedSearchQuery])
+  }, [whereFilters, debouncedSearchQuery, containsIsManaged])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
