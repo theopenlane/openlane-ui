@@ -42,7 +42,6 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
   }
 
   const columns: ColumnDef<SubprocessorTableItem>[] = [
-    // SELECT COLUMN
     {
       id: 'select',
       header: ({ table }) => {
@@ -77,7 +76,6 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       enableHiding: false,
     },
 
-    // LOGO
     {
       accessorKey: 'logo',
       header: 'Logo',
@@ -89,27 +87,23 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       },
     },
 
-    // NAME
     {
       accessorKey: 'name',
       header: 'Name',
     },
 
-    // DESCRIPTION
     {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => row.original.description || '—',
     },
 
-    // CATEGORY
     {
       accessorKey: 'category',
       header: 'Category',
       cell: ({ row }) => row.original.category || '—',
     },
 
-    // COUNTRIES
     {
       accessorKey: 'countries',
       header: 'Countries',
@@ -129,7 +123,6 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       minSize: 60,
     },
 
-    // CREATED AT
     {
       accessorKey: 'createdAt',
       header: 'Created At',
@@ -137,7 +130,6 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       size: 100,
     },
 
-    // CREATED BY
     {
       header: 'Created By',
       accessorKey: 'createdBy',
@@ -155,14 +147,12 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       },
     },
 
-    // UPDATED AT
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
       cell: ({ row }) => (row.original.updatedAt ? formatDate(row.original.updatedAt) : '—'),
     },
 
-    // UPDATED BY
     {
       header: 'Updated By',
       accessorKey: 'updatedBy',
@@ -181,7 +171,6 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     },
   ]
 
-  // RETURN MAPPED COLUMNS (for the toolbar)
   const mappedColumns = columns
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
     .map((column) => ({
@@ -199,10 +188,10 @@ export const subprocessorsFilterFields: FilterField[] = [
     type: 'text',
     icon: SubprocessorsFilterIcons.Category,
   },
-  {
-    key: 'country',
-    label: 'Country',
-    type: 'text',
-    icon: SubprocessorsFilterIcons.Country,
-  },
+  // {
+  //   key: 'country',
+  //   label: 'Country',
+  //   type: 'text',
+  //   icon: SubprocessorsFilterIcons.Country,
+  // },
 ]
