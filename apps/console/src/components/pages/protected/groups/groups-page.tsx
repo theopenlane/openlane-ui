@@ -109,7 +109,53 @@ const GroupsPage = () => {
     }
 
     const baseWhere = whereGenerator<GroupWhereInput>(whereFilters, mapCustomKey)
+    const includeSystemManaged = baseWhere?.and?.map((x) => x.isManaged).find((v) => v !== undefined)
+    const andClauses = baseWhere?.and ?? []
+    const extractedUserId = andClauses
+      .flatMap((x) => x.hasMembersWith ?? [])
+      .map((m) => m.userID)
+      .find((id) => id !== undefined)
     const hasIsManagedFilter = containsIsManaged(baseWhere)
+    if (includeSystemManaged) {
+      if (extractedUserId) {
+        return {
+          and: [
+            {
+              hasMembersWith: [
+                {
+                  userID: extractedUserId ?? session?.user?.userId ?? '',
+                },
+              ],
+            },
+            {
+              isManaged: includeSystemManaged,
+            },
+          ],
+          nameContainsFold: debouncedSearchQuery,
+        } as GroupWhereInput
+      } else {
+        return {
+          and: [
+            {
+              or: [
+                {
+                  hasMembersWith: [
+                    {
+                      userID: session?.user?.userId ?? '',
+                    },
+                  ],
+                },
+                {
+                  isManaged: includeSystemManaged,
+                },
+              ],
+            },
+          ],
+          nameContainsFold: debouncedSearchQuery,
+        } as GroupWhereInput
+      }
+    }
+
     const conditions: GroupWhereInput = {
       ...baseWhere,
       nameContainsFold: debouncedSearchQuery,
@@ -117,7 +163,7 @@ const GroupsPage = () => {
     }
 
     return conditions
-  }, [whereFilters, debouncedSearchQuery, containsIsManaged])
+  }, [whereFilters, debouncedSearchQuery, containsIsManaged, session?.user?.userId])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined

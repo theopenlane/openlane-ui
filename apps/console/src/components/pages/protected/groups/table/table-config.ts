@@ -26,7 +26,7 @@ export function useGroupsFilters(): FilterField[] | null {
         icon: FilterIcons.Owners,
         options: userOptions,
       },
-      { key: 'isManaged', label: 'System Managed', type: 'boolean', icon: FilterIcons.SystemOwned },
+      { key: 'isManaged', label: 'Include System Managed', type: 'boolean', icon: FilterIcons.SystemOwned },
     ]
 
     setFilters(newFilters)
