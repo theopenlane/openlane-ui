@@ -25,6 +25,8 @@ import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
+import { TableKeyEnum } from '../data-table/table-key.ts'
+import { orderBy } from 'lodash'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -43,7 +45,7 @@ interface BaseDataTableProps<TData, TValue> {
   noResultsText?: string
   noDataMarkup?: ReactElement
   onRowClick?: (rowData: TData) => void
-  sortFields?: { key: string; label: string; default?: { key: string; direction: OrderDirection } }[]
+  sortFields?: { key: string; label: string }[]
   onSortChange?: (sortCondition: any[]) => void
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
@@ -52,9 +54,25 @@ interface BaseDataTableProps<TData, TValue> {
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   footer?: ReactElement | null
+  tableKey: TableKeyEnum
+  defaultSorting?: { field: string; direction?: OrderDirection }[] | undefined
 }
 
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
+export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
+
+export function getInitialSortConditions(tableKey: TableKeyEnum, sortFields?: { field: string; direction: OrderDirection }[]) {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {}
+    }
+  }
+
+  return sortFields
+}
 
 export function DataTable<TData, TValue>({
   columns,
@@ -74,10 +92,12 @@ export function DataTable<TData, TValue>({
   setColumnVisibility,
   columnVisibility,
   footer,
+  tableKey,
+  defaultSorting,
   stickyHeader = false,
   stickyDialogHeader = false,
 }: DataTableProps<TData, TValue>) {
-  const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
+  const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>(defaultSorting ?? [])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
@@ -244,33 +264,9 @@ export function DataTable<TData, TValue>({
   }
 
   useEffect(() => {
-    if (!sortFields) {
-      return
-    }
-
-    const defaultField = sortFields.find((field) => field.default)
-    if (!defaultField) {
-      return
-    }
-
-    setSortConditions((prev) => {
-      if (prev.some((cond) => cond.field === defaultField.key)) {
-        return prev
-      }
-
-      return [
-        ...prev,
-        {
-          field: defaultField.key,
-          direction: defaultField.default?.direction,
-        },
-      ]
-    })
-  }, [sortFields])
-
-  useEffect(() => {
     if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
       onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
+      localStorage.setItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, JSON.stringify(sortConditions))
     }
   }, [onSortChange, sortConditions])
 

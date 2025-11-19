@@ -22,6 +22,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const options = Object.values(ObjectTypes)
 
@@ -287,7 +288,16 @@ const AssignPermissionsDialog = () => {
               )}
             </div>
 
-            {selectedObject && <DataTable columns={columns} data={tableData} onPaginationChange={setPagination} pagination={pagination} paginationMeta={{ totalCount, pageInfo, isLoading }} />}
+            {selectedObject && (
+              <DataTable
+                columns={columns}
+                data={tableData}
+                onPaginationChange={setPagination}
+                pagination={pagination}
+                paginationMeta={{ totalCount, pageInfo, isLoading }}
+                tableKey={TableKeyEnum.GROUP_ASSIGN_PERMISSION}
+              />
+            )}
 
             <DialogFooter className="flex justify-start pt-4">
               <Button variant="secondary" className="w-[180px]" onClick={handleNext} disabled={selectedPermissions.length === 0}>
@@ -298,7 +308,7 @@ const AssignPermissionsDialog = () => {
         ) : (
           <>
             <p>You are about to add {selectedPermissions.length} relationship(s) to the group.</p>
-            <DataTable columns={columnsStep2} data={selectedPermissions} />
+            <DataTable columns={columnsStep2} data={selectedPermissions} tableKey={TableKeyEnum.GROUP_SELECTED_PERMISSION} />
             <DialogFooter className="flex justify-between pt-4">
               <Button variant="secondary" onClick={handleBack}>
                 Back

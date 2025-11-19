@@ -5,9 +5,8 @@ export const ObjectWithDetailsSkeleton = () => (
       <div className="flex flex-col gap-8 w-full">
         <Skeleton height={30} width={100} />
         <Skeleton height={10} width="40%" />
-        <div className="flex justify-between gap-4 w-full">
+        <div className="flex gap-4 w-full">
           <Skeleton height={10} width={50} />
-          <Skeleton height={20} width={50} />
         </div>
         <Skeleton height={100} width="60%" />
         <div className="flex justify-between gap-4 w-full">

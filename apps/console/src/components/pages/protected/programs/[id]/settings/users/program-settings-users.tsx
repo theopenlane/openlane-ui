@@ -23,6 +23,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type MemberRow = {
   id: string
@@ -251,6 +252,7 @@ export const ProgramSettingsUsers = () => {
               pageInfo: data?.programMemberships?.pageInfo,
               isLoading: isFetching,
             }}
+            tableKey={TableKeyEnum.PROGRAM_SETTINGS_USERS}
           />
         </div>
       </section>

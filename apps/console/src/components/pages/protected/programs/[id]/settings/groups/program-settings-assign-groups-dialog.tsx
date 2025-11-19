@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
@@ -18,6 +18,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type GroupRow = {
   id: string
@@ -215,7 +216,15 @@ export const ProgramSettingsAssignGroupDialog = () => {
             </div>
           </div>
 
-          <DataTable columns={groupColumns} data={rows} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
+          <DataTable
+            columns={groupColumns}
+            data={rows}
+            loading={isLoading}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            paginationMeta={paginationMeta}
+            tableKey={TableKeyEnum.GROUP_PROGRAM_SETTINGS}
+          />
 
           <div className="flex gap-2 mt-4 justify-end">
             <Button onClick={handleAssign} disabled={selectedGroups.length === 0 || isPending}>

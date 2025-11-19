@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo, useEffect, useContext } from 'react'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
@@ -31,6 +31,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -40,13 +41,13 @@ export const PoliciesTable = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
-
-  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICY, [
     {
       field: InternalPolicyOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(defaultSorting)
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
@@ -220,6 +221,7 @@ export const PoliciesTable = () => {
       <DataTable
         sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
+        defaultSorting={defaultSorting}
         columns={columns}
         data={policies}
         onRowClick={handleRowClick}
@@ -229,6 +231,7 @@ export const PoliciesTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.POLICY}
       />
     </>
   )
