@@ -4,6 +4,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { FilterField } from '@/types'
 import { SubprocessorsFilterIcons } from '@/components/shared/enum-mapper/subprocessors-enum'
+import { CountryFlag } from '@repo/ui/country-flag'
+import { formatDate } from '@/utils/date'
+import { Avatar } from '@/components/shared/avatar/avatar'
+import { User } from '@repo/codegen/src/schema'
 
 export type SubprocessorTableItem = {
   id: string
@@ -18,12 +22,18 @@ export type SubprocessorTableItem = {
   updatedBy: string | null
 }
 
-type SubprocessorsColumnsProps = {
+type Params = {
   selectedRows: { id: string }[]
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  userMap: Record<string, User>
 }
 
-export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows }: SubprocessorsColumnsProps) => {
+type ColumnConfig = {
+  columns: ColumnDef<SubprocessorTableItem>[]
+  mappedColumns: { accessorKey: string; header: string }[]
+}
+
+export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap }: Params): ColumnConfig => {
   const toggleSelection = (row: { id: string }) => {
     setSelectedRows((prev) => {
       const exists = prev.some((r) => r.id === row.id)
@@ -104,37 +114,70 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows }: Subpr
       accessorKey: 'countries',
       header: 'Countries',
       cell: ({ row }) => {
-        if (!row.original.countries?.length) return '—'
-        return row.original.countries.join(', ')
+        const codes = row.original.countries ?? []
+
+        if (!codes.length) return '—'
+
+        return (
+          <div className="flex items-center gap-1 flex-wrap">
+            {codes.map((iso3) => (
+              <CountryFlag key={iso3} value={iso3} />
+            ))}
+          </div>
+        )
       },
+      minSize: 60,
     },
 
     // CREATED AT
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ row }) => row.original.createdAt || '—',
+      cell: ({ row }) => (row.original.createdAt ? formatDate(row.original.createdAt) : '—'),
+      size: 100,
     },
 
     // CREATED BY
     {
-      accessorKey: 'createdBy',
       header: 'Created By',
-      cell: ({ row }) => row.original.createdBy || '—',
+      accessorKey: 'createdBy',
+      cell: ({ row }) => {
+        const user = userMap[row.original.createdBy ?? '']
+
+        return user ? (
+          <div className="flex items-center space-x-1">
+            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <p>{user.displayName}</p>
+          </div>
+        ) : (
+          <span className="text-muted-foreground italic">Deleted user</span>
+        )
+      },
     },
 
     // UPDATED AT
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
-      cell: ({ row }) => row.original.updatedAt || '—',
+      cell: ({ row }) => (row.original.updatedAt ? formatDate(row.original.updatedAt) : '—'),
     },
 
     // UPDATED BY
     {
-      accessorKey: 'updatedBy',
       header: 'Updated By',
-      cell: ({ row }) => row.original.updatedBy || '—',
+      accessorKey: 'updatedBy',
+      cell: ({ row }) => {
+        const user = userMap[row.original.updatedBy ?? '']
+
+        return user ? (
+          <div className="flex items-center space-x-1">
+            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <p>{user.displayName}</p>
+          </div>
+        ) : (
+          <span className="text-muted-foreground italic">Deleted user</span>
+        )
+      },
     },
   ]
 
@@ -157,8 +200,8 @@ export const subprocessorsFilterFields: FilterField[] = [
     icon: SubprocessorsFilterIcons.Category,
   },
   {
-    key: 'countriesHas',
-    label: 'Country contains',
+    key: 'country',
+    label: 'Country',
     type: 'text',
     icon: SubprocessorsFilterIcons.Country,
   },

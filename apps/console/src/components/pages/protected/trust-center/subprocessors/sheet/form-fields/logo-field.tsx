@@ -24,9 +24,9 @@ export const LogoField = ({ isEditing, onFileUpload, existingLogo }: Props) => {
         <>
           <FileUpload
             onFileUpload={onFileUpload}
+            acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
+            acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
             maxFileSizeInMb={5}
-            acceptedFileTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/webp']}
-            acceptedFileTypesShort={['PNG', 'JPG', 'WEBP']}
             multipleFiles={false}
           />
           {errors.logoFile && <p className="text-red-500 text-sm mt-1">{String(errors.logoFile.message)}</p>}

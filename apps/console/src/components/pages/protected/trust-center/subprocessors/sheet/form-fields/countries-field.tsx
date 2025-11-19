@@ -10,11 +10,10 @@ export const CountriesField = ({ isEditing }: { isEditing: boolean }) => {
   return (
     <FormField
       control={control}
-      name="country" // should match your form schema (string[])
+      name="countries"
       render={({ field }) => (
         <FormItem>
           <FormLabel>Countries</FormLabel>
-
           <FormControl>
             <CountryDropdown value={field.value ?? []} onChange={field.onChange} disabled={!isEditing} placeholder="Select countries" />
           </FormControl>

@@ -41,7 +41,7 @@ export const CreateSubprocessorDialog = ({
   const isEditMode = !!existing
 
   const [open, setOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(!existing) // auto-edit if create
+  const [isEditing, setIsEditing] = useState(!existing)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [uploadedLogo, setUploadedLogo] = useState<File | null>(null)
 
@@ -93,6 +93,7 @@ export const CreateSubprocessorDialog = ({
   }
 
   const onSubmit = async (data: FormData) => {
+    console.log(data)
     try {
       if (isEditMode) {
         await updateSubprocessor({

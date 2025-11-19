@@ -71,7 +71,8 @@
     "./donut-chart": "./src/chart/donut-chart.tsx",
     "./infinite-scroll": "./src/infinite-scroll/infinite-scroll.tsx",
     "./radio-group": "./src/radio-group/radio-group.tsx",
-    "./country-dropdown": "./src/country-dropdown/country-dropdown.tsx"
+    "./country-dropdown": "./src/country-dropdown/country-dropdown.tsx",
+    "./country-flag": "./src/country-flag/country-flag.tsx"
   },
   "scripts": {
     "lint": "eslint src/"

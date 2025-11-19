@@ -12,8 +12,8 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { SubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
-import { useBulkDeleteSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { subprocessorsFilterFields } from './table-config'
+import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
 
 type TProps = {
   searching?: boolean
@@ -42,7 +42,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const searchParams = useSearchParams()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
-  const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteSubprocessors()
+  const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
 
   const handleCreateClick = () => {
     const params = new URLSearchParams(searchParams)

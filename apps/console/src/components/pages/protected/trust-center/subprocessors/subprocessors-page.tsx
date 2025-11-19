@@ -7,7 +7,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { TrustCenterSubprocessorWhereInput } from '@repo/codegen/src/schema'
+import { TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { Building2 } from 'lucide-react'
@@ -17,6 +17,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
 import { CreateTrustCenterSubprocessorSheet } from './sheet/create-trust-center-subprocessor-sheet'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -34,16 +35,38 @@ const SubprocessorsPage = () => {
 
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
     where: {
-      ...(searchTerm ? { subprocessor: { nameContainsFold: searchTerm } } : {}),
+      ...(searchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: searchTerm }, { descriptionContainsFold: searchTerm }] }] } : {}),
       ...(filters ?? {}),
     },
     pagination,
+  })
+
+  const userIds = useMemo(() => {
+    if (!trustCenterSubprocessors) return []
+    const ids = new Set<string>()
+    trustCenterSubprocessors.forEach((item) => {
+      if (item?.createdBy) ids.add(item?.createdBy)
+      if (item?.updatedBy) ids.add(item?.updatedBy)
+    })
+    return Array.from(ids)
+  }, [trustCenterSubprocessors])
+
+  const { users } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
   })
 
   const handleFilterChange = useCallback((newFilters: TrustCenterSubprocessorWhereInput) => {
     setFilters(newFilters)
     setPagination(DEFAULT_PAGINATION)
   }, [])
+
+  const userMap = useMemo(() => {
+    const map: Record<string, User> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
 
   const tableData: SubprocessorTableItem[] = useMemo(
     () =>
@@ -62,7 +85,7 @@ const SubprocessorsPage = () => {
     [trustCenterSubprocessors],
   )
 
-  const { columns, mappedColumns } = useMemo(() => getSubprocessorsColumns({ selectedRows, setSelectedRows }), [selectedRows])
+  const { columns, mappedColumns } = useMemo(() => getSubprocessorsColumns({ selectedRows, setSelectedRows, userMap }), [selectedRows, userMap])
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Subprocessors', href: '/trust-center/subprocessors' }])
