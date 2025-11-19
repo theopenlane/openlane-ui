@@ -71,6 +71,20 @@ interface BaseDataTableProps<TData, TValue> {
 }
 
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
+export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
+
+export function getInitialSortConditions(tableKey: TableKeyEnum, sortFields?: { field: string; direction: OrderDirection }[]) {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {}
+    }
+  }
+
+  return sortFields
+}
 
 export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
 export const STORAGE_PAGINATION_KEY_PREFIX = 'pagination:'
