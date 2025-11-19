@@ -8,7 +8,11 @@ import { CreateSubprocessorDialog } from '../create-subprocessor-dialog'
 type Option = { label: string; value: string }
 
 export const SubprocessorSelectField = ({ options, isEditing }: { options: Option[]; isEditing: boolean }) => {
-  const { control, getValues } = useFormContext()
+  const {
+    control,
+    getValues,
+    formState: { errors },
+  } = useFormContext()
 
   const currentValue = getValues('subprocessorID')
   const currentLabel = options.find((o) => o.value === currentValue)?.label ?? '—'
@@ -24,14 +28,18 @@ export const SubprocessorSelectField = ({ options, isEditing }: { options: Optio
           <div className="flex gap-2 items-center">
             <FormControl>
               {isEditing ? (
-                <SearchableSingleSelect width={300} options={options} placeholder="Select subprocessor" value={field.value ?? ''} onChange={field.onChange} />
+                <>
+                  <SearchableSingleSelect width={300} options={options} placeholder="Select subprocessor" value={field.value ?? ''} onChange={field.onChange} />
+                </>
               ) : (
                 <div className="text-sm text-muted-foreground py-2">{currentLabel}</div>
               )}
             </FormControl>
 
+            {/* Only show “Create custom” button when editing */}
             {isEditing && <CreateSubprocessorDialog />}
           </div>
+          {errors.subprocessorID && <p className="text-red-500 text-sm mt-1">{String(errors.subprocessorID.message)}</p>}
         </FormItem>
       )}
     />
