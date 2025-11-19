@@ -61423,12 +61423,6 @@ export type SearchQuery = {
       edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
-    controlObjectives?: {
-      __typename?: 'ControlObjectiveConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename: 'ControlObjective'; id: string; name: string } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
-    } | null
     controls?: {
       __typename?: 'ControlConnection'
       totalCount: number
