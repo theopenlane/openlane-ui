@@ -72,10 +72,6 @@ export const PROCEDURES_SORTABLE_FIELDS = [
   {
     key: 'name',
     label: 'Name',
-    default: {
-      key: ProcedureOrderField.name,
-      direction: OrderDirection.ASC,
-    },
   },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },

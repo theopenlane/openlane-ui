@@ -54,10 +54,6 @@ export const RISKS_SORT_FIELDS = [
   {
     key: RiskOrderField.name,
     label: 'Name',
-    default: {
-      key: RiskOrderField.name,
-      direction: OrderDirection.ASC,
-    },
   },
   {
     key: RiskOrderField.score,

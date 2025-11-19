@@ -5,7 +5,7 @@ import ObjectAssociation from '@/components/shared/objectAssociation/object-asso
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useMemo, useState } from 'react'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
@@ -16,8 +16,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export function SetObjectAssociationDialog() {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
-  const pathname = usePathname()
-  const isControl = pathname.startsWith('/controls')
+  const isControl = subcontrolId ? false : !!id
   const isSubcontrol = !!subcontrolId
 
   const { data: controlData } = useGetControlById(isControl ? id : null)
@@ -115,7 +114,7 @@ export function SetObjectAssociationDialog() {
         })
       } else {
         await updateSubcontrol({
-          updateSubcontrolId: id!,
+          updateSubcontrolId: subcontrolId!,
           input: associationInputs,
         })
       }

@@ -174,7 +174,7 @@ const TaskDetailsSheet = () => {
         side="right"
         className="flex flex-col"
         minWidth={470}
-        header={<TasksSheetHeader close={handleSheetClose} isEditing={isEditing} isPending={isPending} setIsEditing={setIsEditing} displayID={taskData?.displayID} isEditAllowed={isEditAllowed} />}
+        header={<TasksSheetHeader close={handleSheetClose} isEditing={isEditing} isPending={isPending} setIsEditing={setIsEditing} title={taskData?.title} isEditAllowed={isEditAllowed} />}
       >
         {fetching ? (
           <TasksDetailsSheetSkeleton />

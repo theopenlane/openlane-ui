@@ -21,6 +21,7 @@
     "./checkbox": "./src/checkbox/checkbox.tsx",
     "./command": "./src/command.tsx",
     "./data-table": "./src/data-table/data-table.tsx",
+    "./table-key": "./src/data-table/table-key.ts",
     "./dialog": "./src/dialog/dialog.tsx",
     "./dropdown-menu": "./src/dropdown-menu/dropdown-menu.tsx",
     "./form": "./src/form/form.tsx",

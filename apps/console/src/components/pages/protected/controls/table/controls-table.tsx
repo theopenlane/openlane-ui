@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import {
   ControlControlStatus,
@@ -33,6 +33,7 @@ import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -47,12 +48,13 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, [
     {
       field: ControlOrderField.ref_code,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -248,6 +250,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       <DataTable
         columns={columns}
         data={controls}
+        defaultSorting={defaultSorting}
         onRowClick={handleRowClick}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
@@ -257,6 +260,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         loading={fetchingUsers || isLoading || isFetching}
+        tableKey={TableKeyEnum.CONTROL}
       />
     </div>
   )
