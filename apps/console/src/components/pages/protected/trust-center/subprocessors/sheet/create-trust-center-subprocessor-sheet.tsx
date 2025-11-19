@@ -24,7 +24,6 @@ import { SubprocessorSelectField } from './form-fields/subprocessor-select-field
 import { CategoryField } from './form-fields/category-field'
 import { CountriesField } from './form-fields/countries-field'
 
-/* ----------------------------- ZOD SCHEMA ----------------------------- */
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
   category: z.string().min(1, 'Category is required'),
@@ -32,8 +31,6 @@ const schema = z.object({
 })
 
 type FormData = z.infer<typeof schema>
-
-/* --------------------------------------------------------------------- */
 
 export const CreateTrustCenterSubprocessorSheet: React.FC = () => {
   const router = useRouter()
@@ -53,15 +50,12 @@ export const CreateTrustCenterSubprocessorSheet: React.FC = () => {
   const { mutateAsync: updateTCSubprocessor } = useUpdateTrustCenterSubprocessor()
   const { mutateAsync: bulkDeleteTCSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
 
-  // Fetch all trust center subprocessors (for edit mode prefill)
   const { trustCenterSubprocessors } = useGetTrustCenterSubprocessors({
     enabled: !!trustCenterSubprocessorId,
   })
 
-  // Find existing record (when editing)
   const existing = useMemo(() => trustCenterSubprocessors.find((item) => item?.id === trustCenterSubprocessorId) ?? null, [trustCenterSubprocessors, trustCenterSubprocessorId])
 
-  // Fetch all base subprocessors for the dropdown
   const { subprocessors } = useGetSubprocessors({
     enabled: true,
   })
@@ -86,8 +80,6 @@ export const CreateTrustCenterSubprocessorSheet: React.FC = () => {
 
   const { handleSubmit, reset, formState } = formMethods
   const { isSubmitting } = formState
-
-  /* ----------------------------- Helpers ----------------------------- */
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen)

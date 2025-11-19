@@ -30,7 +30,6 @@ export const SubprocessorSelectField = ({ options, isEditing }: { options: Optio
               )}
             </FormControl>
 
-            {/* Hide the button when not editing */}
             {isEditing && <CreateSubprocessorDialog />}
           </div>
         </FormItem>
