@@ -100,7 +100,7 @@ export const CreateSubprocessorDialog = () => {
         </DialogHeader>
 
         <FormProvider {...formMethods}>
-          <form id="subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-4">
+          <form id="subprocessor-form" className="space-y-5 mt-4">
             <NameField isEditing />
             <DescriptionField isEditing />
             <LogoField isEditing onFileUpload={handleLogoUpload} existingLogo={null} />
@@ -108,7 +108,7 @@ export const CreateSubprocessorDialog = () => {
         </FormProvider>
 
         <div className="flex justify-end mt-6">
-          <Button type="submit" form="subprocessor-form" variant="primary" disabled={isSubmitting || !uploadedLogo}>
+          <Button onClick={handleSubmit(onSubmit)} type="button" form="subprocessor-form" variant="primary" disabled={isSubmitting || !uploadedLogo}>
             Create
           </Button>
         </div>

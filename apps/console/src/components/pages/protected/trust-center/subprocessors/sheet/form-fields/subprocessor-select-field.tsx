@@ -28,9 +28,7 @@ export const SubprocessorSelectField = ({ options, isEditing }: { options: Optio
           <div className="flex gap-2 items-center">
             <FormControl>
               {isEditing ? (
-                <>
-                  <SearchableSingleSelect width={300} options={options} placeholder="Select subprocessor" value={field.value ?? ''} onChange={field.onChange} />
-                </>
+                <SearchableSingleSelect width={300} options={options} placeholder="Select subprocessor" value={field.value ?? ''} onChange={field.onChange} />
               ) : (
                 <div className="text-sm text-muted-foreground py-2">{currentLabel}</div>
               )}
