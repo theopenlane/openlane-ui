@@ -27,7 +27,6 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-/* ------------------------------ COMPONENT ------------------------------ */
 export const CreateSubprocessorDialog = ({
   existing,
 }: {
@@ -62,8 +61,6 @@ export const CreateSubprocessorDialog = ({
 
   const { handleSubmit, reset, formState } = formMethods
   const { isSubmitting } = formState
-
-  /* ----------------------------- Helpers ----------------------------- */
 
   const handleLogoUpload = (uploaded: TUploadedFile) => {
     if (uploaded.file) {
@@ -177,14 +174,12 @@ export const CreateSubprocessorDialog = ({
         </FormProvider>
 
         <DialogFooter className="flex justify-between mt-6">
-          {/* Left side (Delete in edit mode) */}
           {isEditMode && (
             <Button variant="secondary" icon={<Trash2 size={16} />} iconPosition="left" className="!p-2 h-8" onClick={() => setIsDeleteDialogOpen(true)}>
               Delete
             </Button>
           )}
 
-          {/* Right side buttons */}
           <div className="flex gap-2">
             {isEditMode ? (
               <>
@@ -212,7 +207,6 @@ export const CreateSubprocessorDialog = ({
         </DialogFooter>
       </DialogContent>
 
-      {/* Delete Confirmation */}
       <ConfirmationDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
