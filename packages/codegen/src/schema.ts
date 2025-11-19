@@ -1734,7 +1734,7 @@ export interface Assessment extends Node {
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
-  responseDueDuration: Scalars['Int']['output']
+  responseDueDuration?: Maybe<Scalars['Int']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   template?: Maybe<Template>
@@ -1839,7 +1839,7 @@ export interface AssessmentHistory extends Node {
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
-  responseDueDuration: Scalars['Int']['output']
+  responseDueDuration?: Maybe<Scalars['Int']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the template id associated with this assessment. You can either provide this alone or provide both the jsonconfig and uischema */
@@ -2017,10 +2017,12 @@ export interface AssessmentHistoryWhereInput {
   responseDueDurationGT?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationGTE?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  responseDueDurationIsNil?: InputMaybe<Scalars['Boolean']['input']>
   responseDueDurationLT?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationLTE?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationNEQ?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  responseDueDurationNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['String']['input']>
   templateIDContains?: InputMaybe<Scalars['String']['input']>
@@ -2097,7 +2099,7 @@ export interface AssessmentResponse extends Node {
   document?: Maybe<DocumentData>
   /** the document containing the user's response data */
   documentDataID?: Maybe<Scalars['ID']['output']>
-  /** when the assessment is due */
+  /** when the assessment response is due */
   dueDate?: Maybe<Scalars['Time']['output']>
   /** the email address of the recipient */
   email: Scalars['String']['output']
@@ -2169,7 +2171,7 @@ export interface AssessmentResponseHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the document containing the user's response data */
   documentDataID?: Maybe<Scalars['String']['output']>
-  /** when the assessment is due */
+  /** when the assessment response is due */
   dueDate?: Maybe<Scalars['Time']['output']>
   /** the email address of the recipient */
   email: Scalars['String']['output']
@@ -2763,10 +2765,12 @@ export interface AssessmentWhereInput {
   responseDueDurationGT?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationGTE?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  responseDueDurationIsNil?: InputMaybe<Scalars['Boolean']['input']>
   responseDueDurationLT?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationLTE?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationNEQ?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  responseDueDurationNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -7543,7 +7547,7 @@ export interface CreateAssessmentInput {
 export interface CreateAssessmentResponseInput {
   assessmentID: Scalars['ID']['input']
   documentID?: InputMaybe<Scalars['ID']['input']>
-  /** when the assessment is due */
+  /** when the assessment response is due */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   /** the email address of the recipient */
   email: Scalars['String']['input']
@@ -7855,7 +7859,7 @@ export interface CreateDocumentDataInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  templateID: Scalars['ID']['input']
+  templateID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -11460,9 +11464,9 @@ export interface DocumentData extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
-  template: Template
+  template?: Maybe<Template>
   /** the template id of the document */
-  templateID: Scalars['ID']['output']
+  templateID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -11548,7 +11552,7 @@ export interface DocumentDataHistory extends Node {
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the template id of the document */
-  templateID: Scalars['String']['output']
+  templateID?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -11697,10 +11701,12 @@ export interface DocumentDataHistoryWhereInput {
   templateIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   templateIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   templateIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  templateIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   templateIDLT?: InputMaybe<Scalars['String']['input']>
   templateIDLTE?: InputMaybe<Scalars['String']['input']>
   templateIDNEQ?: InputMaybe<Scalars['String']['input']>
   templateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  templateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -11835,10 +11841,12 @@ export interface DocumentDataWhereInput {
   templateIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   templateIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   templateIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  templateIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   templateIDLT?: InputMaybe<Scalars['ID']['input']>
   templateIDLTE?: InputMaybe<Scalars['ID']['input']>
   templateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   templateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  templateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -51642,6 +51650,7 @@ export interface UpdateAssessmentInput {
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearResponseDueDuration?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
@@ -52156,6 +52165,7 @@ export interface UpdateDocumentDataInput {
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
   /** the json data of the document */
   data?: InputMaybe<Scalars['Map']['input']>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58417,7 +58427,7 @@ export type CreateAssessmentMutation = {
       jsonconfig?: any | null
       uischema?: any | null
       templateID?: string | null
-      responseDueDuration: number
+      responseDueDuration?: number | null
       tags?: Array<string> | null
       createdAt?: any | null
       updatedAt?: any | null
@@ -58442,7 +58452,7 @@ export type GetAssessmentQuery = {
     jsonconfig?: any | null
     uischema?: any | null
     templateID?: string | null
-    responseDueDuration: number
+    responseDueDuration?: number | null
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
@@ -58471,7 +58481,7 @@ export type FilterAssessmentsQuery = {
         name: string
         assessmentType: AssessmentAssessmentType
         templateID?: string | null
-        responseDueDuration: number
+        responseDueDuration?: number | null
         tags?: Array<string> | null
         createdAt?: any | null
         updatedAt?: any | null
@@ -58498,7 +58508,7 @@ export type UpdateAssessmentMutation = {
       jsonconfig?: any | null
       uischema?: any | null
       templateID?: string | null
-      responseDueDuration: number
+      responseDueDuration?: number | null
       tags?: Array<string> | null
       createdAt?: any | null
       updatedAt?: any | null
@@ -58512,6 +58522,18 @@ export type DeleteAssessmentMutationVariables = Exact<{
 }>
 
 export type DeleteAssessmentMutation = { __typename?: 'Mutation'; deleteAssessment: { __typename?: 'AssessmentDeletePayload'; deletedID: string } }
+
+export type CreateAssessmentResponseMutationVariables = Exact<{
+  input: CreateAssessmentResponseInput
+}>
+
+export type CreateAssessmentResponseMutation = {
+  __typename?: 'Mutation'
+  createAssessmentResponse: {
+    __typename?: 'AssessmentResponseCreatePayload'
+    assessmentResponse: { __typename?: 'AssessmentResponse'; id: string; email: string; dueDate?: any | null; assessmentID: string; createdAt?: any | null; updatedAt?: any | null }
+  }
+}
 
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'

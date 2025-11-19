@@ -1,5 +1,4 @@
 import { FilterField } from '@/types'
-import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts'
 
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
