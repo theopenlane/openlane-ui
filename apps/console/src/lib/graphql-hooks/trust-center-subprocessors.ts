@@ -4,6 +4,7 @@ import {
   CREATE_TRUST_CENTER_SUBPROCESSOR,
   UPDATE_TRUST_CENTER_SUBPROCESSOR,
   DELETE_BULK_TRUST_CENTER_SUBPROCESSORS,
+  DELETE_TRUST_CENTER_SUBPROCESSOR,
 } from '@repo/codegen/query/trust-center-subprocessors'
 
 import {
@@ -15,6 +16,8 @@ import {
   UpdateTrustCenterSubprocessorMutationVariables,
   DeleteBulkTrustCenterSubprocessorsMutation,
   DeleteBulkTrustCenterSubprocessorsMutationVariables,
+  DeleteTrustCenterSubprocessorMutation,
+  DeleteTrustCenterSubprocessorMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { useQuery, useMutation } from '@tanstack/react-query'
@@ -93,6 +96,20 @@ export const useBulkDeleteTrustCenterSubprocessors = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
+    },
+  })
+}
+
+export const useDeleteTrustCenterSubprocessor = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteTrustCenterSubprocessorMutation, unknown, DeleteTrustCenterSubprocessorMutationVariables>({
+    mutationFn: async (variables) => client.request(DELETE_TRUST_CENTER_SUBPROCESSOR, variables),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenterSubprocessors'],
+      })
     },
   })
 }

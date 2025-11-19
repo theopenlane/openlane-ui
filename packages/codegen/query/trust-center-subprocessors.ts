@@ -62,3 +62,11 @@ export const DELETE_BULK_TRUST_CENTER_SUBPROCESSORS = gql`
     }
   }
 `
+
+export const DELETE_TRUST_CENTER_SUBPROCESSOR = gql`
+  mutation DeleteTrustCenterSubprocessor($deleteTrustCenterSubprocessorId: ID!) {
+    deleteTrustCenterSubprocessor(id: $deleteTrustCenterSubprocessorId) {
+      deletedID
+    }
+  }
+`

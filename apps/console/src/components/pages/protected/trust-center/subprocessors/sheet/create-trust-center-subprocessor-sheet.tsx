@@ -12,12 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
-import {
-  useCreateTrustCenterSubprocessor,
-  useGetTrustCenterSubprocessors,
-  useUpdateTrustCenterSubprocessor,
-  useBulkDeleteTrustCenterSubprocessors,
-} from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { useCreateTrustCenterSubprocessor, useGetTrustCenterSubprocessors, useUpdateTrustCenterSubprocessor, useDeleteTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 
 import { SubprocessorSelectField } from './form-fields/subprocessor-select-field'
@@ -48,7 +43,7 @@ export const CreateTrustCenterSubprocessorSheet: React.FC = () => {
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
   const { mutateAsync: updateTCSubprocessor } = useUpdateTrustCenterSubprocessor()
-  const { mutateAsync: bulkDeleteTCSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
+  const { mutateAsync: deleteTCSubprocessor } = useDeleteTrustCenterSubprocessor()
 
   const { trustCenterSubprocessors } = useGetTrustCenterSubprocessors({
     enabled: !!trustCenterSubprocessorId,
@@ -56,9 +51,7 @@ export const CreateTrustCenterSubprocessorSheet: React.FC = () => {
 
   const existing = useMemo(() => trustCenterSubprocessors.find((item) => item?.id === trustCenterSubprocessorId) ?? null, [trustCenterSubprocessors, trustCenterSubprocessorId])
 
-  const { subprocessors } = useGetSubprocessors({
-    enabled: true,
-  })
+  const { subprocessors } = useGetSubprocessors({ where: { hasTrustCenterSubprocessors: false } })
 
   const subprocessorOptions = useMemo(
     () =>
@@ -95,7 +88,7 @@ export const CreateTrustCenterSubprocessorSheet: React.FC = () => {
     if (!trustCenterSubprocessorId) return
 
     try {
-      await bulkDeleteTCSubprocessors({ ids: [trustCenterSubprocessorId] })
+      await deleteTCSubprocessor({ deleteTrustCenterSubprocessorId: trustCenterSubprocessorId })
       successNotification({
         title: 'Subprocessor Removed',
         description: 'The Trust Center subprocessor entry has been deleted.',
