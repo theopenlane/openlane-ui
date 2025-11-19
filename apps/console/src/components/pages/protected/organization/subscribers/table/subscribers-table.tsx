@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
 import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
 import SubscribersTableToolbar from '@/components/pages/protected/organization/subscribers/table/subscribers-table-toolbar.tsx'
@@ -18,7 +18,7 @@ export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.SUBSCRIBE, DEFAULT_PAGINATION))
   const { errorNotification } = useNotification()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBE, [
     {

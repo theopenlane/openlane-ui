@@ -5,7 +5,7 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -32,7 +32,8 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
   const [open, setOpen] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<UserRow[]>([])
   const [rows, setRows] = useState<UserRow[]>([])
-  const [pagination, setPagination] = useState<TPagination>(defaultPagination)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROGRAM_ASSIGN_USER, defaultPagination))
+
   const [searchValue, setSearchValue] = useState('')
 
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
