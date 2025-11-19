@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -12,6 +12,7 @@ import { useGetAllProgramsPaginated } from '@/lib/graphql-hooks/programs'
 import { getProgramsColumns } from './object-association-programs-columns'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TProgramSelectionDialogProps = {
   open: boolean
@@ -81,7 +82,15 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Select Programs</DialogTitle>
         </DialogHeader>
-        <DataTable columns={columns} data={programs || []} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} loading={isLoading || isFetching} />
+        <DataTable
+          columns={columns}
+          data={programs || []}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={paginationMeta}
+          loading={isLoading || isFetching}
+          tableKey={TableKeyEnum.OBJECT_ASSOCIATION_PROGRAMS}
+        />
 
         <DialogFooter>
           <Button variant="secondary" onClick={onClose}>

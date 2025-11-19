@@ -115,6 +115,11 @@ export const config = {
           if (!result.success) {
             console.error('login failed: ', result.message)
 
+            // ensure we give proper feedback to the user
+            if (result.message.includes('email address is not allowed')) {
+              return `/login?error=${encodeURIComponent(result.message)}`
+            }
+
             return `/login?error=${encodeURIComponent('login failed, please try again')}`
           }
 

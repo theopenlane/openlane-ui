@@ -13,6 +13,7 @@ import { VisibilityState } from '@tanstack/table-core'
 import { getQuestionnaireColumns } from './questionnaire-table-config'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const Questionnaire = () => {
   const { data } = useTemplates({})
@@ -78,7 +79,14 @@ const Questionnaire = () => {
           </div>
         </div>
       </div> */}
-      <DataTable columns={columns} data={templates} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} loading={fetchingUsers} />
+      <DataTable
+        columns={columns}
+        data={templates}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        loading={fetchingUsers}
+        tableKey={TableKeyEnum.QUESTIONNAIRE_OVERVIEW}
+      />
     </CardContent>
   )
 

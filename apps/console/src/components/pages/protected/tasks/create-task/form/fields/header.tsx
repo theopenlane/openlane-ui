@@ -11,11 +11,11 @@ interface TasksSheetHeaderProps {
   isEditing: boolean
   setIsEditing: (value: boolean) => void
   isPending: boolean
-  displayID?: string | null
+  title?: string | null
   isEditAllowed: boolean
 }
 
-const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID, isEditAllowed }: TasksSheetHeaderProps) => {
+const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed }: TasksSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
@@ -66,7 +66,7 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID
               )}
             </>
           )}
-          {displayID && id && <DeleteTaskDialog taskName={displayID} taskId={id} />}
+          {title && id && <DeleteTaskDialog taskName={title} taskId={id} />}
         </div>
       </div>
     </SheetHeader>

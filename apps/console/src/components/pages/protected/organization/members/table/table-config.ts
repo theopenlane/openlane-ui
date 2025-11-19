@@ -70,14 +70,7 @@ export const INVITES_SORT_FIELDS = [
   { key: 'send_attempts', label: 'Send Attempts' },
   { key: 'expires', label: 'Expires' },
   { key: 'STATUS', label: 'Status' },
-  {
-    key: 'created_at',
-    label: 'Created At',
-    default: {
-      key: 'created_at',
-      direction: OrderDirection.DESC,
-    },
-  },
+  { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' },
 ]
 
