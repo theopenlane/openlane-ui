@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState, useMemo, useContext, useEffect } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { useContext, useEffect, useMemo, useState } from 'react'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
-import { FilterAssessmentsQueryVariables, OrderDirection, Assessment, AssessmentOrderField, AssessmentWhereInput } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, Assessment, AssessmentOrderField, AssessmentWhereInput, FilterTemplatesQueryVariables } from '@repo/codegen/src/schema.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -18,6 +18,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -25,12 +26,13 @@ export const QuestionnairesTable = () => {
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<FilterAssessmentsQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, [
     {
       field: AssessmentOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -155,6 +157,8 @@ export const QuestionnairesTable = () => {
         onRowClick={handleRowClick}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        defaultSorting={defaultSorting}
+        tableKey={TableKeyEnum.QUESTIONNAIRE}
       />
     </div>
   )

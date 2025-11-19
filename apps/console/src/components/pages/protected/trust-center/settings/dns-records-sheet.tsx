@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { DnsVerificationDnsVerificationStatus, GetTrustCenterQuery } from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type DnsRecord = {
   type: string
@@ -186,7 +187,7 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
         </div>
 
         <div className="mt-8">
-          <DataTable columns={dnsColumns} data={tableData} pagination={undefined} />
+          <DataTable columns={dnsColumns} data={tableData} pagination={undefined} tableKey={TableKeyEnum.DNS_RECORDS} />
         </div>
       </SheetContent>
     </Sheet>

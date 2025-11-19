@@ -8,7 +8,7 @@ import {
   OrderDirection,
   PersonalAccessTokenOrderField,
 } from '@repo/codegen/src/schema'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
@@ -20,6 +20,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TokenNode = {
   id: string
@@ -46,12 +47,13 @@ export const PersonalAccessTokenTable = () => {
   }>
 
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
-  const [orderBy, setOrderBy] = useState<CommonOrderByType>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, [
     {
       field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<CommonOrderByType>(defaultSorting)
 
   const whereFilter = useMemo(() => {
     return { ...filters } as CommonWhereType
@@ -224,6 +226,7 @@ export const PersonalAccessTokenTable = () => {
     <>
       <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
       <DataTable
+        defaultSorting={defaultSorting}
         loading={isFetching}
         columns={columns}
         data={tokens}
@@ -232,6 +235,7 @@ export const PersonalAccessTokenTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.PERSONAL_ACCESS_TOKEN}
       />
     </>
   )

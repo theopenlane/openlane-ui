@@ -22,6 +22,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type GroupRow = {
   id: string
@@ -251,7 +252,7 @@ export const ProgramSettingsGroups = () => {
             {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignGroupDialog />}
           </div>
 
-          <DataTable columns={groupColumns} data={paginatedGroups} loading={isLoading} />
+          <DataTable columns={groupColumns} data={paginatedGroups} loading={isLoading} tableKey={TableKeyEnum.PROGRAM_SETTINGS_GROUP} />
           <Pagination
             currentPage={pagination.page}
             totalPages={Math.ceil(groups.length / pagination.pageSize)}

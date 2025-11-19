@@ -10,6 +10,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
 import { TDocumentFile, useGetFilesColumns } from './document-files-table-config'
 import { DocumentUploadDialog } from './document-upload-dialog'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TDocumentFiles = {
   documentId: string
@@ -81,7 +82,7 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId }) => {
         </div>
       </div>
 
-      <DataTable columns={columns} data={file} loading={!documentData} />
+      <DataTable columns={columns} data={file} loading={!documentData} tableKey={TableKeyEnum.TRUST_CENTER_DOCUMENT_FILES} />
 
       <ConfirmationDialog
         open={deleteDialogIsOpen}

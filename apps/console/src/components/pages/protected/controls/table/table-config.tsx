@@ -1,5 +1,5 @@
 import { FilterField } from '@/types'
-import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Group, OrderDirection, User } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Group, User } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -77,14 +77,7 @@ export const CONTROLS_SORT_FIELDS = [
   { key: 'category', label: 'Category' },
   { key: 'subcategory', label: 'Subcategory' },
   { key: 'CONTROL_OWNER_name', label: 'Owners' },
-  {
-    key: 'ref_code',
-    label: 'Ref',
-    default: {
-      key: ControlOrderField.ref_code,
-      direction: OrderDirection.ASC,
-    },
-  },
+  { key: 'ref_code', label: 'Ref' },
 ]
 
 type Params = {
