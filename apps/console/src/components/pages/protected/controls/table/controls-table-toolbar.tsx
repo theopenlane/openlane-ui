@@ -194,7 +194,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     <Button
                       size="sm"
                       variant="transparent"
-                      className={`px-1 flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      className={`px-1 flex items-center justify-start space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
                         handleExport()
                         close()
