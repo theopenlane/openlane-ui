@@ -64,10 +64,6 @@ export const TASK_SORT_FIELDS = [
   {
     key: 'due',
     label: 'Due Date',
-    default: {
-      key: 'due',
-      direction: OrderDirection.ASC,
-    },
   },
   { key: 'STATUS', label: 'Status' },
   { key: 'category', label: 'Type' },

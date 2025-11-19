@@ -17,6 +17,7 @@ import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { SearchIcon } from 'lucide-react'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 interface AssignPermissionsDialogProps {
   open: boolean
@@ -147,7 +148,7 @@ export function AssignPermissionsDialog({ open, onOpenChange }: AssignPermission
             className="max-w-[204px]"
           />
 
-          <DataTable columns={columns} data={pageData} loading={isLoading} showFilter={false} showVisibility={false} />
+          <DataTable columns={columns} data={pageData} loading={isLoading} showFilter={false} showVisibility={false} tableKey={TableKeyEnum.POLICY_PROCEDURE_ASSIGN_PERMISSION} />
           <Pagination
             currentPage={pagination.page}
             onPageChange={(page) => setPagination((prev) => ({ ...prev, page }))}

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useState, useMemo } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
 import { VisibilityState } from '@tanstack/react-table'
@@ -19,6 +19,7 @@ import DocumentsTableToolbar from './table/documents-table-toolbar'
 import { getTrustCenterDocColumns } from './table/table-config'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -109,6 +110,7 @@ const ReportsAndCertificationsPage = () => {
             loading={isLoading}
             columnVisibility={columnVisibility}
             onRowClick={(row) => router.push(`/trust-center/reports-and-certifications?id=${row.id}`)}
+            tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
           />
         </div>
       )}

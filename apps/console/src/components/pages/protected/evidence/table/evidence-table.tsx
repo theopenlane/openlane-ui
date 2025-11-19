@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { Evidence, EvidenceOrderField, EvidenceWhereInput, GetEvidenceListQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -18,6 +18,7 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
@@ -28,12 +29,13 @@ export const EvidenceTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>(defaultSorting)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -129,6 +131,7 @@ export const EvidenceTable = () => {
       <DataTable
         sortFields={EVIDENCE_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
+        defaultSorting={defaultSorting}
         columns={columns}
         data={evidences}
         onRowClick={handleRowClick}
@@ -138,6 +141,7 @@ export const EvidenceTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.EVIDENCE}
       />
     </>
   )

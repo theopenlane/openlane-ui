@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -17,6 +17,7 @@ import { getControlsAndSubcontrolsColumns } from './object-association-controls-
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -62,7 +63,8 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     query: { first: 5 },
   })
 
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   useEffect(() => {
     setPagination({
@@ -124,7 +126,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
@@ -208,6 +210,8 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           paginationMeta={paginationMeta}
           onSortChange={setOrderBy}
           loading={isLoading || isFetching}
+          defaultSorting={defaultSorting}
+          tableKey={TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS}
         />
 
         <DialogFooter>

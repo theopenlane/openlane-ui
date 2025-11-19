@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
-import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
@@ -16,6 +16,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -154,7 +155,7 @@ const InheritPermissionDialog = () => {
                   </div>
                 </div>
 
-                <DataTable columns={columns} data={permissionsData} />
+                <DataTable columns={columns} data={permissionsData} tableKey={TableKeyEnum.GROUP_INHERIT_PERMISSION} />
               </>
             )}
           </div>

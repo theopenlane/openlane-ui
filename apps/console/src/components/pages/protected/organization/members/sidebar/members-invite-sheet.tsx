@@ -1,23 +1,30 @@
 'use client'
 import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { PanelRightClose, SearchIcon } from 'lucide-react'
-import { SubmitHandler, Control, useForm } from 'react-hook-form'
-import { z, infer as zInfer } from 'zod'
+import { InfoIcon, PanelRightClose, SearchIcon } from 'lucide-react'
+import { Control, SubmitHandler, useForm } from 'react-hook-form'
+import { infer as zInfer, z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AllGroupsPaginatedFieldsFragment, CreateInviteInput, GetAllGroupsPaginatedQueryVariables, GroupOrderField, InputMaybe, InviteRole, OrderDirection } from '@repo/codegen/src/schema'
+import {
+  AllGroupsPaginatedFieldsFragment,
+  CreateInviteInput,
+  GetAllGroupsPaginatedQueryVariables,
+  GroupOrderField,
+  GroupWhereInput,
+  InputMaybe,
+  InviteRole,
+  OrderDirection,
+} from '@repo/codegen/src/schema'
 import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { Tag } from 'emblor'
 import { useEffect, useMemo, useState } from 'react'
-import { InfoIcon } from 'lucide-react'
 import { TagInput } from '@repo/ui/tag-input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useAllGroupsGrouped } from '@/lib/graphql-hooks/groups.ts'
-import { GroupWhereInput } from '@repo/codegen/src/schema'
 import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -29,6 +36,7 @@ import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -338,6 +346,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                 loading={isLoading}
                 columnVisibility={columnVisibility}
                 stickyDialogHeader
+                tableKey={TableKeyEnum.MEMBERS_INVITE_SHEET}
               />
             </div>
           </div>
