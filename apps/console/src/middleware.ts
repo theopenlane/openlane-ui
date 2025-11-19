@@ -31,6 +31,7 @@ export default auth(async (req) => {
   const isInvite = path === '/invite'
   const isUnsubscribe = path === '/unsubscribe'
   const isWaitlist = path === '/waitlist'
+  const isQuestionnaire = path === '/questionnaire' || path.startsWith('/questionnaire/')
 
   const session = req.auth
 
@@ -57,6 +58,12 @@ export default auth(async (req) => {
 
   if (isPublicPage) {
     if (req.cookies.get('user_sso')) {
+      return NextResponse.next()
+    }
+
+    // authenticated users should be able to access this page
+    // so they can submit the questionnaire too.
+    if (isQuestionnaire) {
       return NextResponse.next()
     }
 
