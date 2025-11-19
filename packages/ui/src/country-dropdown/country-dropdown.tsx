@@ -26,7 +26,6 @@ interface CountryDropdownProps {
   className?: string
 }
 
-// cache flags
 const flagCache = new Map<string, JSX.Element>()
 const getFlag = (alpha2: string) => {
   const key = alpha2.toLowerCase()
@@ -64,7 +63,7 @@ export function CountryDropdown({ value = [], onChange, disabled, placeholder = 
             <span className="text-muted-foreground">{placeholder}</span>
           ) : (
             selectedCountries.map((c) => (
-              <div key={c.alpha3} className="flex items-center gap-1 bg-accent px-1 py-0.5 rounded text-xs">
+              <div key={c.alpha3} className="flex items-center gap-1 bg-accent px-1 py-0.5 text-xs rounded-md">
                 {getFlag(c.alpha2)}
                 {c.name}
               </div>

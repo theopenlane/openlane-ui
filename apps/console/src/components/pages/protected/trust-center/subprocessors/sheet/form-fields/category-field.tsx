@@ -14,9 +14,14 @@ export const CategoryField = ({ isEditing }: { isEditing: boolean }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Category</FormLabel>
-          <FormControl>
-            <Input placeholder="Enter category (e.g. Data Warehouse, Infrastructure Hosting)" {...field} disabled={!isEditing} />
-          </FormControl>
+
+          {isEditing ? (
+            <FormControl>
+              <Input placeholder="Enter category (e.g. Data Warehouse, Infrastructure Hosting)" {...field} />
+            </FormControl>
+          ) : (
+            <div className="mt-2 text-base text-muted-foreground">{field.value?.trim() || '—'}</div>
+          )}
         </FormItem>
       )}
     />
