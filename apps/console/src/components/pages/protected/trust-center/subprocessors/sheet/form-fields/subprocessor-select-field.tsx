@@ -36,7 +36,6 @@ export const SubprocessorSelectField = ({ options, isEditing }: { options: Optio
               )}
             </FormControl>
 
-            {/* Only show “Create custom” button when editing */}
             {isEditing && <CreateSubprocessorDialog />}
           </div>
           {errors.subprocessorID && <p className="text-red-500 text-sm mt-1">{String(errors.subprocessorID.message)}</p>}
