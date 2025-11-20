@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
@@ -9,7 +9,7 @@ import { useParams } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
-import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -19,8 +19,6 @@ export function SetObjectAssociationDialog() {
   const isControl = subcontrolId ? false : !!id
   const isSubcontrol = !!subcontrolId
 
-  const { data: controlData } = useGetControlById(isControl ? id : null)
-  const { data: subcontrolData } = useGetSubcontrolById(isSubcontrol ? subcontrolId : null)
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
 
@@ -30,29 +28,31 @@ export function SetObjectAssociationDialog() {
   const [saveEnabled, setSaveEnabled] = useState(false)
 
   const { errorNotification, successNotification } = useNotification()
+  const { data: controlAssociationsData } = useGetControlAssociationsById(id)
+  const { data: subcontrolAssociationsData } = useGetSubcontrolAssociationsById(isSubcontrol ? subcontrolId : null)
 
   const initialData: TObjectAssociationMap = useMemo(() => {
-    if (isControl && controlData?.control) {
+    if (isControl && controlAssociationsData?.control) {
       return {
-        programIDs: (controlData.control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        taskIDs: (controlData.control.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        riskIDs: (controlData.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        procedureIDs: (controlData.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        internalPolicyIDs: (controlData.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        programIDs: (controlAssociationsData.control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        taskIDs: (controlAssociationsData.control.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        riskIDs: (controlAssociationsData.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        procedureIDs: (controlAssociationsData.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        internalPolicyIDs: (controlAssociationsData.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
     }
 
-    if (!isControl && subcontrolData?.subcontrol) {
+    if (!isControl && subcontrolAssociationsData?.subcontrol) {
       return {
-        taskIDs: (subcontrolData.subcontrol.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        riskIDs: (subcontrolData.subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        procedureIDs: (subcontrolData.subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        internalPolicyIDs: (subcontrolData.subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        taskIDs: (subcontrolAssociationsData.subcontrol.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        riskIDs: (subcontrolAssociationsData.subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        procedureIDs: (subcontrolAssociationsData.subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        internalPolicyIDs: (subcontrolAssociationsData.subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
     }
 
     return {}
-  }, [isControl, controlData, subcontrolData])
+  }, [isControl, subcontrolAssociationsData, controlAssociationsData])
 
   function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
     const added: TObjectAssociationMap = {}

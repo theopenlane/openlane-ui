@@ -84,6 +84,25 @@ export const GET_SUBCONTROL_BY_ID = gql`
         }
       }
 
+      delegate {
+        id
+        displayName
+        logoURL
+        gravatarLogoURL
+      }
+
+      controlOwner {
+        id
+        displayName
+        logoURL
+        gravatarLogoURL
+      }
+    }
+  }
+`
+export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
+  query GetSubcontrolAssociationsById($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
       internalPolicies {
         totalCount
         edges {
@@ -99,7 +118,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
           }
         }
       }
-
       procedures {
         totalCount
         edges {
@@ -115,7 +133,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
           }
         }
       }
-
       tasks {
         totalCount
         edges {
@@ -134,7 +151,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
           }
         }
       }
-
       risks {
         totalCount
         edges {
@@ -145,20 +161,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
             details
           }
         }
-      }
-
-      delegate {
-        id
-        displayName
-        logoURL
-        gravatarLogoURL
-      }
-
-      controlOwner {
-        id
-        displayName
-        logoURL
-        gravatarLogoURL
       }
     }
   }
