@@ -1,7 +1,7 @@
 import { useGetEvidenceWithFilesPaginated, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 import React, { useState } from 'react'
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
@@ -24,7 +24,7 @@ type TControlEvidenceFiles = {
 }
 
 const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowed }) => {
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE_FILES, DEFAULT_PAGINATION))
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
   const [deleteFileInfo, setDeleteFileInfo] = useState<{

@@ -255,7 +255,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             initialData={initialData}
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
-            objectAssociationsDisplayIDs={policy?.displayID ? [policy?.displayID] : []}
+            objectAssociationsDisplayIDs={policy?.name ? [policy?.name] : []}
           />
           {!editAllowed && !deleteAllowed ? (
             <></>

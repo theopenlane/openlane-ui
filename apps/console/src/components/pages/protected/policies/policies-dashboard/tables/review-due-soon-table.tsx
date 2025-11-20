@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
@@ -72,7 +72,12 @@ const columns: ColumnDef<FormattedPolicy>[] = [
 ]
 
 export default function ReviewDueSoonTable() {
-  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+    }),
+  )
 
   const where: InternalPolicyWhereInput = {
     ...wherePoliciesDashboard,

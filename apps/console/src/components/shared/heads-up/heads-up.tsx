@@ -18,7 +18,7 @@ const HeadsUpDisplay = ({ displayIDs, descriptionText, accordionLabel, title = '
         <p className="font-semibold">{title}</p>
         <p className="text-sm ">{descriptionText}</p>
         <div className="w-3/5 pt-3">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible defaultValue="objects" className="w-full">
             <AccordionItem value="objects">
               <AccordionTrigger className="py-2 w-full flex justify-between items-center gap-2 group border p-3 bg-background-secondary">
                 <span className="text-sm">{accordionLabel}</span>

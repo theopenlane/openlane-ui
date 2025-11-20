@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import {
   ControlControlStatus,
@@ -77,7 +77,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CONTROL, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 
@@ -212,7 +212,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     handleExport({
       exportType: ExportExportType.CONTROL,
       filters: JSON.stringify(whereFilter),
-      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }
