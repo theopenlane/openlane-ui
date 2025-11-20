@@ -8,6 +8,7 @@ import {
   Folder,
   FolderTree,
   Key,
+  Link,
   RefreshCw,
   RouteOff,
   ScanEye,
@@ -96,6 +97,7 @@ export enum ControlsFilterIconName {
   Owners = 'Owners',
   ProgramName = 'ProgramName',
   Type = 'Type',
+  LinkedPolicies = 'LinkedPolicies',
 }
 
 export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
@@ -108,6 +110,7 @@ export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
   [ControlsFilterIconName.Owners]: UsersRound,
   [ControlsFilterIconName.ProgramName]: ShieldCheck,
   [ControlsFilterIconName.Type]: Tag,
+  [ControlsFilterIconName.LinkedPolicies]: Link,
 }
 
 // Status options for select dropdowns

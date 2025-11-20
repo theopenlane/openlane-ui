@@ -64,6 +64,18 @@ export function usePoliciesFilters(): FilterField[] | null {
         options: InternalPolicyStatusFilterOptions,
         icon: FilterIcons.Status,
       },
+      {
+        key: 'hasControls',
+        label: 'Linked Controls',
+        type: 'boolean',
+        icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasSubcontrols',
+        label: 'Linked Subcontrols',
+        type: 'boolean',
+        icon: FilterIcons.LinkedControls,
+      },
     ]
 
     setFilters(newFilters)
