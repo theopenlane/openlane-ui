@@ -1,6 +1,6 @@
 import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
 import { FilterField } from '@/types'
-import { InviteInviteStatus, InviteRole, OrderDirection, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
+import { InviteInviteStatus, InviteRole, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
 
 function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
   return Object.entries(e).map(([key, value]) => ({
