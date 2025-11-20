@@ -66,6 +66,12 @@ export const getControlsFilterFields = (
     options: controlControlTypeOptions,
     icon: FilterIcons.Type,
   },
+  {
+    key: 'hasInternalPolicies',
+    label: 'Linked Policies',
+    type: 'boolean',
+    icon: FilterIcons.LinkedPolicies,
+  },
 ]
 
 export const CONTROLS_SORT_FIELDS = [
