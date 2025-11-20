@@ -278,7 +278,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                   {props.objectAssociationsDisplayIDs && (
                     <HeadsUpDisplay
                       accordionLabel={'Show programs linked to this task'}
-                      descriptionText={'This requested task you are creating will be automatically linked to the associated program. We have pre-selected the object association below'}
+                      descriptionText={'This requested task you are creating will be automatically linked to the associated task. We have pre-selected the object association below'}
                       displayIDs={props.objectAssociationsDisplayIDs}
                     ></HeadsUpDisplay>
                   )}

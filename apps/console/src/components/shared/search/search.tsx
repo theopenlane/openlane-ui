@@ -26,8 +26,6 @@ type GroupNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['se
 
 type TaskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['tasks']>['edges']>[number]>['node']
 
-type ControlObjectiveNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['controlObjectives']>['edges']>[number]>['node']
-
 type ControlNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['controls']>['edges']>[number]>['node']
 
 type SubcontrolNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['subcontrols']>['edges']>[number]>['node']
@@ -358,14 +356,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
             searchType: 'Tasks',
             nodes: (search.tasks.edges ?? []).map((edge) => edge?.node),
           })}
-        {/* /* Control Objectives */}
-        {shouldRenderSection('ControlObjectives') &&
-          !!search.controlObjectives?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'ControlObjectives',
-            nodes: (search.controlObjectives.edges ?? []).map((edge) => edge?.node),
-          })}
+
         {/* /* Controls */}
         {shouldRenderSection('Controls') &&
           !!search.controls?.edges?.length &&
@@ -395,7 +386,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
   )
 }
 
-type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlObjectiveNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[] | PolicyNode[] | ProcedureNode[]
+type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[] | PolicyNode[] | ProcedureNode[]
 
 interface SearchNodeProps {
   searchType: string
@@ -418,7 +409,6 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
         return searchNode.refCode
       case 'Program':
       case 'Group':
-      case 'ControlObjective':
       case 'Risk':
       case 'InternalPolicy':
       case 'Procedure':

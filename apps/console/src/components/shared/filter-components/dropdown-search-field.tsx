@@ -14,13 +14,18 @@ type DropdownSearchFieldProps = {
 
 export const DropdownSearchField: React.FC<DropdownSearchFieldProps> = ({ field, value, onChange }) => {
   const [search, setSearch] = useState('')
-
+  const [open, setOpen] = useState(false)
   const filteredOptions = useMemo(() => field.options?.filter((opt) => opt.label.toLowerCase().includes(search.toLowerCase())) ?? [], [field.options, search])
 
   const selectedLabel = value ? field.options?.find((o) => o.value === value)?.label : `Select ${field.label}`
 
+  const handleClick = (value: string | undefined) => {
+    onChange(value)
+    setOpen(false)
+  }
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !value && 'text-muted-foreground')}>
           {selectedLabel}
@@ -28,13 +33,7 @@ export const DropdownSearchField: React.FC<DropdownSearchFieldProps> = ({ field,
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent
-        align="start"
-        className="p-2 w-[400px]"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
+      <PopoverContent align="start" className="p-2 w-[400px]">
         <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-2" />
 
         <div className="max-h-48 overflow-y-auto border rounded-md flex flex-col">
@@ -44,7 +43,7 @@ export const DropdownSearchField: React.FC<DropdownSearchFieldProps> = ({ field,
                 key={opt.value}
                 role="radio"
                 aria-checked={value === opt.value}
-                onClick={() => onChange(opt.value)}
+                onClick={() => handleClick(opt.value)}
                 className={cn('flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted text-sm', value === opt.value && 'bg-muted font-medium')}
               >
                 <div className="relative h-4 w-4 flex items-center justify-center">

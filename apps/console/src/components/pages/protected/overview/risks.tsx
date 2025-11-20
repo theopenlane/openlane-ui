@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { AlertTriangle } from 'lucide-react'
 import { VisibilityState } from '@tanstack/table-core'
@@ -26,7 +26,12 @@ const Risks = () => {
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.OVERVIEW_RISK, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+    }),
+  )
 
   const { groups } = useGetAllGroups({ where: {} })
   const [tab, setTab] = useState<'created' | 'assigned'>('created')

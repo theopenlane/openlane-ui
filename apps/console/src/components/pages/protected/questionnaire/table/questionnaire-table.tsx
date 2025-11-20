@@ -1,7 +1,7 @@
 'use client'
 
-import { useContext, useEffect, useMemo, useState } from 'react'
 import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'

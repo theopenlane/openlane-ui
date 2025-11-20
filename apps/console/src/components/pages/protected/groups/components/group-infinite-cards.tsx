@@ -5,6 +5,8 @@ import { useGetAllGroupsInfinite } from '@/lib/graphql-hooks/groups.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { GroupOrder, GroupWhereInput } from '@repo/codegen/src/schema.ts'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
+import { getInitialPagination } from '@repo/ui/data-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TGroupInfiniteCardsProps = {
   whereFilter: GroupWhereInput | null
@@ -12,7 +14,7 @@ type TGroupInfiniteCardsProps = {
 }
 
 const GroupInfiniteCards = ({ whereFilter, orderByFilter }: TGroupInfiniteCardsProps) => {
-  const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
+  const [cardPagination, setCardPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.GROUP, CARD_DEFAULT_PAGINATION))
   const { groups, isError, paginationMeta, fetchNextPage } = useGetAllGroupsInfinite({
     where: whereFilter,
     orderBy: orderByFilter,
