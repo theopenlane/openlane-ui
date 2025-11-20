@@ -129,30 +129,11 @@ const GroupsPage = () => {
                 },
               ],
             },
-            {
-              isManaged: includeSystemManaged,
-            },
           ],
           nameContainsFold: debouncedSearchQuery,
         } as GroupWhereInput
       } else {
         return {
-          and: [
-            {
-              or: [
-                {
-                  hasMembersWith: [
-                    {
-                      userID: session?.user?.userId ?? '',
-                    },
-                  ],
-                },
-                {
-                  isManaged: includeSystemManaged,
-                },
-              ],
-            },
-          ],
           nameContainsFold: debouncedSearchQuery,
         } as GroupWhereInput
       }
