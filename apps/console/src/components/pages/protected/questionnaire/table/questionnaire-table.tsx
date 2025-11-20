@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
@@ -22,7 +22,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.QUESTIONNAIRE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()

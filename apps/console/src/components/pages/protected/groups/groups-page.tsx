@@ -28,6 +28,8 @@ import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-
 import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
+import { getInitialPagination } from '@repo/ui/data-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const GroupsPage = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
@@ -36,7 +38,7 @@ const GroupsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.GROUP, DEFAULT_PAGINATION))
   const defaultVisibility: VisibilityState = {
     id: false,
     updatedAt: false,

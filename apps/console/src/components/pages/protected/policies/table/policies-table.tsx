@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
@@ -35,7 +35,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const PoliciesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.POLICY, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
