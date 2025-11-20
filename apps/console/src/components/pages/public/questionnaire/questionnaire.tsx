@@ -7,13 +7,10 @@ import { Model } from 'survey-core'
 import { useSession } from 'next-auth/react'
 import 'survey-core/survey-core.min.css'
 import { jwtDecode } from 'jwt-decode'
+import { useQuestionnaire, useSubmitQuestionnaire } from '@/lib/query-hooks/questionnaire'
 
 interface QuestionnairePageProps {
   token?: string
-}
-
-interface QuestionnaireData {
-  [key: string]: unknown
 }
 
 interface JWTPayload {
@@ -21,11 +18,17 @@ interface JWTPayload {
 }
 
 export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) => {
-  const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null)
-  const [loading, setLoading] = useState(true)
   const [emailMismatch, setEmailMismatch] = useState(false)
-  const { errorNotification, successNotification } = useNotification()
+  const { errorNotification } = useNotification()
   const { data: sessionData } = useSession()
+
+  const { data: questionnaireResponse, isLoading: loading } = useQuestionnaire({
+    token,
+    enabled: !!token && !emailMismatch,
+  })
+
+  const questionnaireData = questionnaireResponse?.data?.jsonconfig ?? null
+  const submitQuestionnaire = useSubmitQuestionnaire()
 
   const decodeJWT = (token: string): JWTPayload | null => {
     try {
@@ -38,49 +41,23 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   }
 
   const survey = useMemo(() => {
-    if (!questionnaireData) return null
+    if (!questionnaireData || !token) return null
     const surveyModel = new Model(questionnaireData)
 
     surveyModel.onCompleting.add(async (sender, options) => {
       try {
-        const response = await fetch('/api/questionnaire', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            data: sender.data,
-          }),
-        })
-
-        const result = await response.json()
-
-        if (!response.ok || !result.success) {
-          options.allow = false
-          errorNotification({
-            title: 'Submission Failed',
-            description: result.message || 'Could not submit questionnaire. Please try again.',
-          })
-          return
-        }
-
-        successNotification({
-          title: 'Questionnaire Submitted',
-          description: 'Your questionnaire has been submitted successfully.',
+        await submitQuestionnaire.mutateAsync({
+          token,
+          data: sender.data,
         })
       } catch (error) {
         options.allow = false
         console.error('Error submitting questionnaire:', error)
-        errorNotification({
-          title: 'Error',
-          description: 'An unexpected error occurred while submitting. Please try again.',
-        })
       }
     })
 
     return surveyModel
-  }, [questionnaireData, token, successNotification, errorNotification])
+  }, [questionnaireData, token, submitQuestionnaire])
 
   useEffect(() => {
     if (!token) return
@@ -94,7 +71,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
 
       if (!anonEmail) {
         setEmailMismatch(true)
-        setLoading(false)
         errorNotification({
           title: 'Invalid Token',
           description: 'The questionnaire token does not contain a valid email.',
@@ -104,7 +80,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
 
       if (anonEmail !== sessionEmail) {
         setEmailMismatch(true)
-        setLoading(false)
         errorNotification({
           title: 'Email Mismatch',
           description: 'The questionnaire token does not match your current logged-in account.',
@@ -115,56 +90,13 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   }, [token, sessionData, errorNotification])
 
   useEffect(() => {
-    const fetchQuestionnaire = async () => {
-      if (!token) {
-        errorNotification({
-          title: 'Missing Token',
-          description: 'No authentication token provided. Please check your link.',
-        })
-        setLoading(false)
-        return
-      }
-
-      if (emailMismatch) {
-        return
-      }
-
-      try {
-        const response = await fetch('/api/questionnaire', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        const result = await response.json()
-
-        console.log('API response:', result)
-        if (response.ok && result.success) {
-          console.log('Survey data:', result.data)
-          setQuestionnaireData(result.data.jsonconfig)
-          setLoading(false)
-          return
-        }
-
-        errorNotification({
-          title: 'Failed to Load Questionnaire',
-          description: result.message || 'Could not load questionnaire. Please try again.',
-        })
-      } catch (error) {
-        console.error('Error fetching questionnaire:', error)
-        errorNotification({
-          title: 'Error',
-          description: 'An unexpected error occurred. Please try again.',
-        })
-      } finally {
-        setLoading(false)
-      }
+    if (!token && !emailMismatch) {
+      errorNotification({
+        title: 'Missing Token',
+        description: 'No authentication token provided. Please check your link.',
+      })
     }
-
-    fetchQuestionnaire()
-  }, [token, errorNotification, emailMismatch])
+  }, [token, emailMismatch, errorNotification])
 
   if (emailMismatch) {
     return (

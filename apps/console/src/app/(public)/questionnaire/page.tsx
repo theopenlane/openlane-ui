@@ -30,7 +30,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = async ({ searchParams }) => 
           </div>
         </div>
 
-        <AuthMarketingPanel />
+        <AuthMarketingPanel hideCopy={true} />
       </div>
     </Suspense>
   )
