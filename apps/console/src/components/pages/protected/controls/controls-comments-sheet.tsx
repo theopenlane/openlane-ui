@@ -155,7 +155,7 @@ const ControlCommentsSheet = () => {
         <p className="text-lg font-semibold">Comments</p>
         <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
           {!commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-primary" />}
-          <p className="text-sm">Newest at bottom</p>
+          <p className="text-sm">{!commentSortIsAsc ? 'Newest at top' : 'Newest at bottom'}</p>
         </div>
       </div>
 
