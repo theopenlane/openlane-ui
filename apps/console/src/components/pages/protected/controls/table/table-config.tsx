@@ -201,6 +201,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Owner',
       accessorKey: ControlOrderField.CONTROL_OWNER_name,
+      meta: {
+        exportPrefix: 'controlOwner.name',
+      },
       cell: ({ row }) => {
         const owner = row.original.controlOwner
         const controlId = row.original.id
@@ -241,6 +244,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Subcontrols',
       accessorKey: 'subcontrol',
+      meta: {
+        exportPrefix: 'subcontrols.refCode',
+      },
       size: 200,
       cell: SubcontrolCell,
     },
@@ -300,6 +306,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Desired Outcome',
       accessorKey: 'desiredOutcome',
+      meta: {
+        exportPrefix: 'controlObjectives.desiredOutcome',
+      },
       cell: ({ row }) => {
         const desiredOutcome = row.original.controlObjectives?.edges?.[0]?.node?.desiredOutcome ?? '-'
         return (
@@ -312,6 +321,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Implementation Details',
       accessorKey: 'controlImplementationsDetails',
+      meta: {
+        exportPrefix: 'controlImplementations.details',
+      },
       cell: ({ row }) => {
         const controlImplementationsDetails = row.original.controlImplementations?.edges?.[0]?.node?.details ?? '-'
         return (
