@@ -300,6 +300,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Desired Outcome',
       accessorKey: 'desiredOutcome',
+      meta: {
+        exportPrefix: 'controlObjectives',
+      },
       cell: ({ row }) => {
         const desiredOutcome = row.original.controlObjectives?.edges?.[0]?.node?.desiredOutcome ?? '-'
         return (
@@ -312,6 +315,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Implementation Details',
       accessorKey: 'controlImplementationsDetails',
+      meta: {
+        exportPrefix: 'controlImplementations',
+      },
       cell: ({ row }) => {
         const controlImplementationsDetails = row.original.controlImplementations?.edges?.[0]?.node?.details ?? '-'
         return (
