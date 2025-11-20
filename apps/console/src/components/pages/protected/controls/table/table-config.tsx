@@ -244,6 +244,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Subcontrols',
       accessorKey: 'subcontrol',
+      meta: {
+        exportPrefix: 'subcontrols.refCode',
+      },
       size: 200,
       cell: SubcontrolCell,
     },
