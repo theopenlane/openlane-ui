@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { ColumnDef } from '@tanstack/react-table'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { PlusCircle } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -20,12 +20,15 @@ type TProps = {
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    page: 1,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.EVIDENCE_EXISTING_FILES, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      page: 1,
+      query: { first: 5 },
+    }),
+  )
+
   const { data, isLoading, paginationMeta } = useGetEvidenceFiles({ pagination })
 
   const [files, setFiles] = useState<TEvidenceFilesColumn[]>([])
