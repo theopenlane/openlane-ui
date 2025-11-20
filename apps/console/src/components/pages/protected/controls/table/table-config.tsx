@@ -201,6 +201,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Owner',
       accessorKey: ControlOrderField.CONTROL_OWNER_name,
+      meta: {
+        exportPrefix: 'controlOwner',
+      },
       cell: ({ row }) => {
         const owner = row.original.controlOwner
         const controlId = row.original.id
