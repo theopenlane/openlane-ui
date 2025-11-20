@@ -33,8 +33,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
   const isOrganizationSelected = !activeOrg?.personalOrg
 
-  const navItems = !isOrganizationSelected ? [] : topNavigationItems()
-  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(orgPermission)
+  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData)
+  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(orgPermission, sessionData)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   const [primaryExpanded, setPrimaryExpanded] = useState(() => {
