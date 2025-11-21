@@ -19,7 +19,7 @@ import { useProcedure } from '../hooks/use-procedure.tsx'
 import StatusCard from '@/components/pages/protected/procedures/create/cards/status-card.tsx'
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
-import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useCreateProcedure, useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -60,6 +60,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [isInitialized, setIsInitialized] = useState(false)
 
+  const { data: assocData } = useGetProcedureAssociationsById(procedure?.id || null)
+
   const isProcedureCreate = path === '/procedures/create'
 
   useEffect(() => {
@@ -70,21 +72,21 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   }, [setCrumbs])
 
   useEffect(() => {
-    if (procedure) {
+    if (procedure && assocData) {
       const procedureAssociations: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        risks: procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        risks: assocData.procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
       }
 
       const procedureAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        risks: procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
+        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        risks: assocData.procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
       }
 
       form.reset({
@@ -108,7 +110,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
-  }, [form, procedure, procedureState])
+  }, [form, procedure, procedureState, assocData])
 
   useEffect(() => {
     if (!isInitialized && isProcedureCreate && Object.keys(procedureState.associations).length > 0) {

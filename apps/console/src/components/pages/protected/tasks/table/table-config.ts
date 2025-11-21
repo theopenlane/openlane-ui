@@ -1,6 +1,5 @@
 import { FilterField } from '@/types'
 import { TaskStatusWithoutCompletedAndOpen, TaskTypes } from '@/components/pages/protected/tasks/util/task'
-import { OrderDirection } from '@repo/codegen/src/schema'
 import { TOrgMembers } from '../hooks/useTaskStore'
 import { FilterIcons } from '@/components/shared/enum-mapper/task-enum'
 

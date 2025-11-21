@@ -24,6 +24,7 @@ import {
   DELETE_NOTE,
   BULK_DELETE_CONTROL,
   GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
+  GET_CONTROL_ASSOCIATIONS_BY_ID,
 } from '@repo/codegen/query/control'
 
 import {
@@ -70,6 +71,8 @@ import {
   DeleteBulkControlMutationVariables,
   MappedControlWhereInput,
   GetSuggestedControlsOrSubcontrolsQuery,
+  GetControlAssociationsByIdQuery,
+  GetControlAssociationsByIdQueryVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -118,6 +121,16 @@ export const useGetControlById = (controlId?: string | null) => {
   return useQuery<GetControlByIdQuery, unknown>({
     queryKey: ['controls', controlId],
     queryFn: async () => client.request(GET_CONTROL_BY_ID, { controlId }),
+    enabled: !!controlId,
+  })
+}
+
+export const useGetControlAssociationsById = (controlId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlAssociationsByIdQuery, unknown>({
+    queryKey: ['controls', controlId, 'associations'],
+    queryFn: async () => client.request<GetControlAssociationsByIdQuery, GetControlAssociationsByIdQueryVariables>(GET_CONTROL_ASSOCIATIONS_BY_ID, { controlId: controlId as string }),
     enabled: !!controlId,
   })
 }

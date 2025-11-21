@@ -128,7 +128,7 @@ export const useGetInternalPolicyAssociationsById = (internalPolicyId: string | 
   const { client } = useGraphQLClient()
 
   return useQuery<GetInternalPolicyAssociationsByIdQuery, GetInternalPolicyAssociationsByIdQueryVariables>({
-    queryKey: ['internalPolicies', 'associations', internalPolicyId],
+    queryKey: ['internalPolicies', internalPolicyId, 'associations'],
     queryFn: async () =>
       client.request(GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID, {
         internalPolicyId,

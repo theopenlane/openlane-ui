@@ -11,6 +11,7 @@ import {
   BULK_EDIT_PROCEDURE,
   CREATE_UPLOAD_PROCEDURE,
   BULK_DELETE_PROCEDURE,
+  GET_PROCEDURE_ASSOCIATIONS_BY_ID,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -34,6 +35,8 @@ import {
   CreateUploadProcedureMutationVariables,
   DeleteBulkProcedureMutation,
   DeleteBulkProcedureMutationVariables,
+  GetProcedureAssociationsByIdQuery,
+  GetProcedureAssociationsByIdQueryVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -101,6 +104,19 @@ export const useGetProcedureDetailsById = (procedureId: string | null, enabled: 
   return useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({
     queryKey: ['procedures', procedureId],
     queryFn: () => client.request(GET_PROCEDURE_DETAILS_BY_ID, { procedureId }),
+    enabled: !!procedureId && enabled,
+  })
+}
+
+export const useGetProcedureAssociationsById = (procedureId: string | null, enabled: boolean = true) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProcedureAssociationsByIdQuery, unknown>({
+    queryKey: ['procedures', procedureId, 'associations'],
+    queryFn: async () =>
+      client.request<GetProcedureAssociationsByIdQuery, GetProcedureAssociationsByIdQueryVariables>(GET_PROCEDURE_ASSOCIATIONS_BY_ID, {
+        procedureId: procedureId as string,
+      }),
     enabled: !!procedureId && enabled,
   })
 }

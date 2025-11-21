@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
@@ -96,17 +96,19 @@ const ControlDetailsPage: React.FC = () => {
   const plateEditorHelper = usePlateEditor()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const { data: associationsData } = useGetControlAssociationsById(id)
+
   const memoizedSections = useMemo(() => {
-    if (!data?.control) return {}
+    if (!associationsData?.control || !data) return {}
     return {
-      policies: data?.control.internalPolicies,
-      procedures: data?.control.procedures,
-      tasks: data?.control.tasks,
-      programs: data?.control.programs,
-      risks: data?.control.risks,
-      subcontrols: data?.control.subcontrols,
+      policies: associationsData.control.internalPolicies,
+      procedures: associationsData.control.procedures,
+      tasks: associationsData.control.tasks,
+      programs: associationsData.control.programs,
+      risks: associationsData.control.risks,
+      subcontrols: data.control.subcontrols,
     }
-  }, [data?.control])
+  }, [associationsData?.control, data])
 
   const memoizedCenterNode = useMemo(() => {
     if (!data?.control) return null
@@ -307,11 +309,11 @@ const ControlDetailsPage: React.FC = () => {
                   className="px-1 bg-transparent"
                   defaultSelectedObject={ObjectTypeObjects.CONTROL}
                   initialData={{
-                    programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    internalPolicyIDs: (control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    programIDs: (associationsData?.control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    procedureIDs: (associationsData?.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    internalPolicyIDs: (associationsData?.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                     controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    riskIDs: (control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    riskIDs: (associationsData?.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                     controlIDs: [id],
                   }}
                 />
@@ -380,14 +382,14 @@ const ControlDetailsPage: React.FC = () => {
           referenceFramework: {
             [control?.id ?? 'default']: control?.referenceFramework ?? '',
           },
-          programDisplayIDs: (control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+          programDisplayIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
           objectAssociations: {
             controlIDs: [control?.id],
-            programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            programIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
             controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [
-            ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+            ...((associationsData?.control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...(control.refCode ? [control.refCode] : []),
           ],
