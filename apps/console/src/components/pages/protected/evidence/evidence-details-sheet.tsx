@@ -605,7 +605,16 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     </HoverPencilWrapper>
                   </div>
                 )}
-
+                {!isEditing && ((evidenceControls?.length ?? 0) > 0 || (evidenceSubcontrols?.length ?? 0) > 0) && (
+                  <Card className={wrapper()}>
+                    <CardContent className={content()}>
+                      <div className="flex flex-col gap-4">
+                        <p className="text-sm font-medium leading-5">Controls</p>
+                        <ObjectAssociationControlsChips isEditing={false} evidenceControls={evidenceControls} evidenceSubcontrols={evidenceSubcontrols} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 <div className="mt-6 mb-8">
                   <Card className={wrapper()}>
                     <CardContent className={content()}>
@@ -921,14 +930,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 </div>
                               </div>
                             )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card className={wrapper()}>
-                        <CardContent className={content()}>
-                          <div className="flex flex-col gap-4">
-                            <p className="text-sm font-medium leading-5">Controls</p>
-                            <ObjectAssociationControlsChips isEditing={false} evidenceControls={evidenceControls} evidenceSubcontrols={evidenceSubcontrols} />
                           </div>
                         </CardContent>
                       </Card>
