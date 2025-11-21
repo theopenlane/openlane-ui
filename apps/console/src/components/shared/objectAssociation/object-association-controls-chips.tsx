@@ -209,6 +209,7 @@ const ObjectAssociationControlsChips = ({
         evidenceSubcontrols.map(({ id, refCode, referenceFramework }) => (
           <ControlChip
             key={id}
+            clickable={false}
             control={{
               id,
               refCode: refCode,
@@ -243,6 +244,7 @@ const ObjectAssociationControlsChips = ({
           evidenceSubcontrols.map(({ id, refCode, referenceFramework }) => (
             <ControlChip
               key={id}
+              clickable={false}
               control={{
                 id,
                 refCode: refCode,
