@@ -161,7 +161,7 @@ const RiskTable: React.FC = () => {
     handleExport({
       exportType: ExportExportType.RISK,
       filters: JSON.stringify(where),
-      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }

@@ -132,11 +132,15 @@ const TasksPage: React.FC = () => {
   }
 
   const emptyUserMap = {}
-  const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+  const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
+    .filter(
+      (column): column is { accessorKey: string; header: string; meta: { exportPrefix?: string } } =>
+        'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string',
+    )
     .map((column) => ({
       accessorKey: column.accessorKey,
       header: column.header,
+      meta: column.meta,
     }))
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
@@ -151,7 +155,7 @@ const TasksPage: React.FC = () => {
     handleExport({
       exportType: ExportExportType.TASK,
       filters: JSON.stringify(whereFilter),
-      fields: mappedColumns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: mappedColumns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }

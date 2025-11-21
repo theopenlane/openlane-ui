@@ -92,6 +92,9 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
     {
       accessorKey: 'assigner',
       header: 'Assigner',
+      meta: {
+        exportPrefix: 'assigner.displayName',
+      },
       cell: ({ row }) => {
         const fullName = row.original.assigner?.displayName
         return (
@@ -106,6 +109,9 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
     {
       accessorKey: 'assignee',
       header: 'Assignee',
+      meta: {
+        exportPrefix: 'assignee.displayName',
+      },
       cell: ({ row }) => <AssigneeCell assignee={row.original.assignee!} taskId={row.original.id!} />,
       size: 160,
     },

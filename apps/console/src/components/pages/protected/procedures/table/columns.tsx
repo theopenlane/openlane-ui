@@ -118,6 +118,9 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'approver',
       header: 'Approver',
+      meta: {
+        exportPrefix: 'approver.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
@@ -128,6 +131,9 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      meta: {
+        exportPrefix: 'delegate.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate

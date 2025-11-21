@@ -98,6 +98,9 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
     {
       accessorKey: 'stakeholder',
       header: 'Stakeholder',
+      meta: {
+        exportPrefix: 'stakeholder.displayName',
+      },
       cell: ({ row }) => {
         const stakeholder = row.original.stakeholder
         const riskId = row.original.id
@@ -113,6 +116,9 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      meta: {
+        exportPrefix: 'delegate.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
