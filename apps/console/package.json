@@ -51,9 +51,9 @@
     "react-easy-crop": "^5.0.7",
     "react-force-graph-2d": "^1.28.0",
     "stripe": "^18.5.0",
-    "survey-creator-core": "1.12.39",
-    "survey-creator-react": "1.12.39",
-    "survey-react-ui": "1.12.39",
+    "survey-creator-core": "1.12.57",
+    "survey-creator-react": "1.12.57",
+    "survey-react-ui": "1.12.57",
     "swr": "^2.3.3",
     "zustand": "^5.0.0"
   },
