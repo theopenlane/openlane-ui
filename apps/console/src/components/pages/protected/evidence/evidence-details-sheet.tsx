@@ -924,6 +924,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </div>
                         </CardContent>
                       </Card>
+                      <Card className={wrapper()}>
+                        <CardContent className={content()}>
+                          <div className="flex flex-col gap-4">
+                            <p className="text-sm font-medium leading-5">Controls</p>
+                            <p className="text-sm font-medium leading-5 text-gray-500">{`Evidence for ${evidence?.name || 'Untitled'}`}</p>
+                            <ObjectAssociationControlsChips isEditing={false} evidenceControls={evidenceControls} evidenceSubcontrols={evidenceSubcontrols} />
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   )}
                 </div>
