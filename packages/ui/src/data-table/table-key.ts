@@ -27,6 +27,7 @@ export enum TableKeyEnum {
   GROUP_MEMBERS = 'group-members',
   GROUP_PERMISSION = 'group-permission',
   PERSONAL_ACCESS_TOKEN = 'personal-access-token',
+  API_TOKEN = 'api_token',
   CONTROLS_MAPPED_CATEGORIES = 'controls-mapped-categories',
   EVIDENCE_FILES = 'evidence-files',
   EVIDENCE_EXISTING_FILES = 'evidence-existing-files',
