@@ -49,7 +49,17 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
   }
 
   const handleUploadedFile = (uploadedFile: TUploadedFile) => {
-    setEvidenceFiles((prev) => [uploadedFile, ...prev])
+    setEvidenceFiles((prev) => {
+      const isDuplicate = prev.some((file) => uploadedFile.name === file.name && uploadedFile.size === file.size)
+      if (isDuplicate) {
+        errorNotification({
+          title: 'Error',
+          description: 'Duplicate file',
+        })
+        return prev
+      }
+      return [uploadedFile, ...prev]
+    })
   }
 
   const handleDelete = (file: TUploadedFile) => {

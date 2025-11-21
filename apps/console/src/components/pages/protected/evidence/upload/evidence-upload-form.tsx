@@ -8,6 +8,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import ExistingFilesTab from '@/components/pages/protected/evidence/upload/existing-files-tab'
 import { TUploadedFile } from './types/TUploadedFile'
+import { useNotification } from '@/hooks/useNotification'
 
 type TProps = {
   evidenceFiles: (uploadedFiles: TUploadedFile[]) => void
@@ -19,6 +20,7 @@ type TProps = {
 const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
   const defaultTab = 'upload'
   const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
+  const { errorNotification } = useNotification()
 
   useEffect(() => {
     props.evidenceFiles(evidenceFiles)
@@ -55,7 +57,17 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
   }
 
   const handleUploadedFile = (uploadedFile: TUploadedFile) => {
-    setEvidenceFiles((prev) => [uploadedFile, ...prev])
+    setEvidenceFiles((prev) => {
+      const isDuplicate = prev.some((file) => file.name === uploadedFile.name && file.size === uploadedFile.size)
+      if (isDuplicate) {
+        errorNotification({
+          title: 'Error',
+          description: 'Duplicate file',
+        })
+        return prev
+      }
+      return [uploadedFile, ...prev]
+    })
   }
 
   const handleFileStyle = (file: TUploadedFile) => {
