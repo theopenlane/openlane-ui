@@ -70463,6 +70463,16 @@ export type GetTrustCenterQuery = {
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
+        watermarkConfig?: {
+          __typename?: 'TrustCenterWatermarkConfig'
+          id: string
+          text?: string | null
+          fontSize?: number | null
+          color?: string | null
+          opacity?: number | null
+          rotation?: number | null
+          file?: { __typename?: 'File'; presignedURL?: string | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -70597,6 +70607,32 @@ export type BulkUpdateTrustCenterDocMutation = {
   __typename?: 'Mutation'
   updateBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkUpdatePayload'; trustCenterDocs?: Array<{ __typename?: 'TrustCenterDoc'; id: string }> | null }
 }
+
+export type CreateTrustCenterWatermarkConfigMutationVariables = Exact<{
+  input: CreateTrustCenterWatermarkConfigInput
+}>
+
+export type CreateTrustCenterWatermarkConfigMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigCreatePayload'; trustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfig'; id: string } }
+}
+
+export type UpdateTrustCenterWatermarkConfigMutationVariables = Exact<{
+  updateTrustCenterWatermarkConfigId: Scalars['ID']['input']
+  input: UpdateTrustCenterWatermarkConfigInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterWatermarkConfigMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigUpdatePayload'; trustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfig'; id: string } }
+}
+
+export type DeleteTrustCenterWatermarkConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterWatermarkConfigMutation = { __typename?: 'Mutation'; deleteTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigDeletePayload'; deletedID: string } }
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']

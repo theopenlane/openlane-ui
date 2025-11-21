@@ -44,6 +44,17 @@ export const GET_TRUST_CENTER = gql`
             title
             logoRemoteURL
           }
+          watermarkConfig {
+            id
+            file {
+              presignedURL
+            }
+            text
+            fontSize
+            color
+            opacity
+            rotation
+          }
         }
       }
     }
@@ -167,6 +178,34 @@ export const BULK_UPDATE_TRUST_CENTER_DOC = gql`
       trustCenterDocs {
         id
       }
+    }
+  }
+`
+
+export const CREATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
+  mutation CreateTrustCenterWatermarkConfig($input: CreateTrustCenterWatermarkConfigInput!) {
+    createTrustCenterWatermarkConfig(input: $input) {
+      trustCenterWatermarkConfig {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
+  mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $logoFile: Upload) {
+    updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, logoFile: $logoFile) {
+      trustCenterWatermarkConfig {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_TRUST_CENTER_WATERMARK_CONFIG = gql`
+  mutation DeleteTrustCenterWatermarkConfig($id: ID!) {
+    deleteTrustCenterWatermarkConfig(id: $id) {
+      deletedID
     }
   }
 `
