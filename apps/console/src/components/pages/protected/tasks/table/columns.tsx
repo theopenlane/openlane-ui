@@ -109,6 +109,9 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
     {
       accessorKey: 'assignee',
       header: 'Assignee',
+      meta: {
+        exportPrefix: 'assignee.displayName',
+      },
       cell: ({ row }) => <AssigneeCell assignee={row.original.assignee!} taskId={row.original.id!} />,
       size: 160,
     },
