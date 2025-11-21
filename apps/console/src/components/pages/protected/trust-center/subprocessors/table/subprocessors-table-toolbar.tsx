@@ -123,8 +123,6 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             <Button variant="secondary" icon={<Trash2 size={16} />} iconPosition="left" onClick={handleBulkDelete} disabled={isDeleting}>
               Bulk Delete ({selectedRows.length})
             </Button>
-
-            {/* <BulkEditSubprocessorsDialog selectedRows={selectedRows} setSelectedRows={setSelectedRows} /> */}
           </div>
         )}
       </div>
