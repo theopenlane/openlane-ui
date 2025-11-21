@@ -18,6 +18,7 @@ import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
 import { CreateTrustCenterSubprocessorSheet } from './sheet/create-trust-center-subprocessor-sheet'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -135,6 +136,7 @@ const SubprocessorsPage = () => {
             loading={isLoading}
             columnVisibility={columnVisibility}
             onRowClick={(row) => router.push(`/trust-center/subprocessors?id=${row.id}`)}
+            tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
           />
         </div>
       )}
