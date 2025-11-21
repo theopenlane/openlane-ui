@@ -74,3 +74,53 @@ export const GET_ALL_STANDARDS_SELECT = gql`
     }
   }
 `
+
+export const GET_STANDARDS_PAGINATED = gql`
+  query GetStandardsPaginated($first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    standards(first: $first, after: $after, last: $last, before: $before) {
+      edges {
+        node {
+          id
+          shortName
+          description
+          systemOwned
+          governingBodyLogoURL
+        }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
+    }
+  }
+`
+
+export const CREATE_STANDARD = gql`
+  mutation CreateStandard($input: CreateStandardInput!) {
+    createStandard(input: $input) {
+      standard {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_STANDARD = gql`
+  mutation UpdateStandard($updateStandardId: ID!, $input: UpdateStandardInput!) {
+    updateStandard(id: $updateStandardId, input: $input) {
+      standard {
+        id
+      }
+    }
+  }
+`
+export const DELETE_STANDARD = gql`
+  mutation DeleteStandard($deleteStandardId: ID!) {
+    deleteStandard(id: $deleteStandardId) {
+      deletedID
+    }
+  }
+`
