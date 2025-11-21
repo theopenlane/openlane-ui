@@ -5,6 +5,7 @@ import {
   CREATE_SUBCONTROL,
   DELETE_SUBCONTROL,
   GET_ALL_SUBCONTROLS,
+  GET_SUBCONTROL_ASSOCIATIONS_BY_ID,
   GET_SUBCONTROL_BY_ID,
   GET_SUBCONTROL_BY_ID_MINIFIED,
   GET_SUBCONTROL_COMMENTS,
@@ -21,6 +22,8 @@ import {
   DeleteSubcontrolMutationVariables,
   GetAllSubcontrolsQuery,
   GetAllSubcontrolsQueryVariables,
+  GetSubcontrolAssociationsByIdQuery,
+  GetSubcontrolAssociationsByIdQueryVariables,
   GetSubcontrolByIdMinifiedQuery,
   GetSubcontrolByIdMinifiedQueryVariables,
   GetSubcontrolByIdQuery,
@@ -79,6 +82,16 @@ export const useGetSubcontrolById = (subcontrolId?: string | null) => {
   return useQuery<GetSubcontrolByIdQuery, unknown>({
     queryKey: ['subcontrols', subcontrolId],
     queryFn: async () => client.request(GET_SUBCONTROL_BY_ID, { subcontrolId }),
+    enabled: !!subcontrolId,
+  })
+}
+
+export const useGetSubcontrolAssociationsById = (subcontrolId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetSubcontrolAssociationsByIdQuery, unknown>({
+    queryKey: ['subcontrols', subcontrolId, 'associations'],
+    queryFn: async () => client.request<GetSubcontrolAssociationsByIdQuery, GetSubcontrolAssociationsByIdQueryVariables>(GET_SUBCONTROL_ASSOCIATIONS_BY_ID, { subcontrolId: subcontrolId as string }),
     enabled: !!subcontrolId,
   })
 }

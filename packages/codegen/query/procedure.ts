@@ -160,92 +160,85 @@ export const PROCEDURE_BY_ID = gql`
       gravatarLogoURL
       logoURL
     }
-    narratives {
-      edges {
-        node {
-          id
-          displayID
-        }
-      }
-    }
-    risks {
-      edges {
-        node {
-          id
-          name
-          displayID
-          details
-        }
-      }
-      totalCount
-    }
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-        }
-      }
-      totalCount
-    }
-    controls {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-        }
-      }
-      totalCount
-    }
-    subcontrols {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-          control {
+  }
+`
+export const GET_PROCEDURE_ASSOCIATIONS_BY_ID = gql`
+  query GetProcedureAssociationsById($procedureId: ID!) {
+    procedure(id: $procedureId) {
+      risks {
+        edges {
+          node {
             id
+            name
+            displayID
+            details
           }
         }
+        totalCount
       }
-      totalCount
-    }
-    programs {
-      edges {
-        node {
-          id
-          displayID
-          name
-          description
+
+      internalPolicies {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+          }
         }
+        totalCount
       }
-      totalCount
-    }
-    tasks {
-      edges {
-        node {
-          id
-          displayID
-          title
-          details
+
+      controls {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+          }
         }
+        totalCount
       }
-      totalCount
-    }
-    internalPolicies {
-      edges {
-        node {
-          id
-          displayID
-          name
+
+      subcontrols {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+            control {
+              id
+            }
+          }
         }
+        totalCount
       }
-      totalCount
+
+      programs {
+        edges {
+          node {
+            id
+            displayID
+            name
+            description
+          }
+        }
+        totalCount
+      }
+
+      tasks {
+        edges {
+          node {
+            id
+            displayID
+            title
+            details
+          }
+        }
+        totalCount
+      }
     }
   }
 `

@@ -154,79 +154,6 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
         }
       }
     }
-    internalPolicies {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-          approver {
-            gravatarLogoURL
-            logoURL
-            displayName
-          }
-        }
-      }
-    }
-    procedures {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-          approver {
-            gravatarLogoURL
-            logoURL
-            displayName
-          }
-        }
-      }
-    }
-    tasks {
-      totalCount
-      edges {
-        node {
-          id
-          title
-          displayID
-          details
-          assignee {
-            displayName
-            avatarFile {
-              presignedURL
-            }
-            avatarRemoteURL
-          }
-        }
-      }
-    }
-    programs {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          status
-          description
-        }
-      }
-    }
-    risks {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          details
-        }
-      }
-    }
     delegate {
       id
       displayName
@@ -268,6 +195,90 @@ export const GET_CONTROL_BY_ID = gql`
   query GetControlById($controlId: ID!) {
     control(id: $controlId) {
       ...ControlDetailsFields
+    }
+  }
+`
+
+export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
+  query GetControlAssociationsById($controlId: ID!) {
+    control(id: $controlId) {
+      internalPolicies {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+            approver {
+              gravatarLogoURL
+              logoURL
+              displayName
+            }
+          }
+        }
+        totalCount
+      }
+
+      procedures {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+            approver {
+              gravatarLogoURL
+              logoURL
+              displayName
+            }
+          }
+        }
+        totalCount
+      }
+
+      tasks {
+        edges {
+          node {
+            id
+            title
+            displayID
+            details
+            assignee {
+              displayName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+            }
+          }
+        }
+        totalCount
+      }
+
+      programs {
+        edges {
+          node {
+            id
+            name
+            displayID
+            status
+            description
+          }
+        }
+        totalCount
+      }
+
+      risks {
+        edges {
+          node {
+            id
+            name
+            displayID
+            details
+          }
+        }
+        totalCount
+      }
     }
   }
 `
