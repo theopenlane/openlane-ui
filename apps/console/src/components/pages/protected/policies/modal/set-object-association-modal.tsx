@@ -13,6 +13,8 @@ import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
@@ -27,6 +29,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
   const initialAssociationsState = usePolicy((state) => state.initialAssociations)
   const refCodeAssociationsState = usePolicy((state) => state.associationRefCodes)
   const { successNotification, errorNotification } = useNotification()
+  const { data: orgPermission } = useOrganizationRoles()
   const [associations, setAssociations] = useState<{
     associations: TObjectAssociationMap
     refCodes: TObjectAssociationMap
@@ -156,7 +159,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
     <Dialog open={open} onOpenChange={handleDialogChange}>
       {!fromTable && (
         <DialogTrigger asChild>
-          <AddAssociationBtn />
+          <AddAssociationBtn disabled={!canEdit(orgPermission?.roles)} />
         </DialogTrigger>
       )}
       <DialogContent className="max-w-2xl p-6 space-y-4">

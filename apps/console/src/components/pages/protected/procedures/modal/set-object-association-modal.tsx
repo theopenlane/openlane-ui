@@ -13,6 +13,8 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 type TSetObjectAssociationDialog = {
   procedureId?: string
@@ -25,6 +27,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
   const initialAssociationsState = useProcedure((state) => state.initialAssociations)
   const refCodeAssociationsState = useProcedure((state) => state.associationRefCodes)
   const { successNotification, errorNotification } = useNotification()
+  const { data: orgPermission } = useOrganizationRoles()
   const [associations, setAssociations] = useState<{
     associations: TObjectAssociationMap
     refCodes: TObjectAssociationMap
@@ -143,7 +146,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <AddAssociationBtn />
+        <AddAssociationBtn disabled={!canEdit(orgPermission?.roles)} />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>

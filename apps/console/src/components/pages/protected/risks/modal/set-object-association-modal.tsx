@@ -12,6 +12,8 @@ import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-ris
 import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
@@ -23,6 +25,7 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
   const initialAssociationsState = useRisk((state) => state.initialAssociations)
   const refCodeAssociationsState = useRisk((state) => state.associationRefCodes)
   const { successNotification, errorNotification } = useNotification()
+  const { data: orgPermission } = useOrganizationRoles()
   const [associations, setAssociations] = useState<{
     associations: TObjectAssociationMap
     refCodes: TObjectAssociationMap
@@ -139,7 +142,7 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <AddAssociationBtn />
+        <AddAssociationBtn disabled={!canEdit(orgPermission?.roles)} />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
