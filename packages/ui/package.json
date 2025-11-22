@@ -71,7 +71,9 @@
     "./components/*": "./src/components/*",
     "./donut-chart": "./src/chart/donut-chart.tsx",
     "./infinite-scroll": "./src/infinite-scroll/infinite-scroll.tsx",
-    "./radio-group": "./src/radio-group/radio-group.tsx"
+    "./radio-group": "./src/radio-group/radio-group.tsx",
+    "./country-dropdown": "./src/country-dropdown/country-dropdown.tsx",
+    "./country-flag": "./src/country-flag/country-flag.tsx"
   },
   "scripts": {
     "lint": "eslint src/"
@@ -141,14 +143,17 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@remixicon/react": "^4.6.0",
     "@stepperize/react": "^5.0.0",
+    "@tailwindcss/postcss": "^4.1.13",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-table": "^8.20.6",
     "@types/prismjs": "^1.26.5",
     "@uploadthing/react": "7.3.1",
+    "add": "^2.0.6",
     "ai": "^5.0.89",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "country-data-list": "^1.5.5",
     "date-fns": "^4.1.0",
     "emblor": "^1.4.7",
     "html2canvas": "^1.4.1",
@@ -162,6 +167,7 @@
     "platejs": "^49.1.5",
     "prismjs": "^1.29.0",
     "react": "^19.1.0",
+    "react-circle-flags": "^0.0.24",
     "react-day-picker": "^9.8.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
@@ -181,8 +187,7 @@
     "tw-animate-css": "^1.3.8",
     "uploadthing": "7.7.4",
     "use-file-picker": "2.1.2",
-    "zod": "^3.24.2",
-    "@tailwindcss/postcss": "^4.1.13"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@headlessui/react": "latest",

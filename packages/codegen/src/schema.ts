@@ -69908,6 +69908,56 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
   }
 }
 
+export type CreateSubprocessorMutationVariables = Exact<{
+  input: CreateSubprocessorInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type CreateSubprocessorMutation = { __typename?: 'Mutation'; createSubprocessor: { __typename?: 'SubprocessorCreatePayload'; subprocessor: { __typename?: 'Subprocessor'; id: string } } }
+
+export type UpdateSubprocessorMutationVariables = Exact<{
+  updateSubprocessorId: Scalars['ID']['input']
+  input: UpdateSubprocessorInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateSubprocessorMutation = { __typename?: 'Mutation'; updateSubprocessor: { __typename?: 'SubprocessorUpdatePayload'; subprocessor: { __typename?: 'Subprocessor'; id: string } } }
+
+export type GetSubprocessorsQueryVariables = Exact<{
+  where?: InputMaybe<SubprocessorWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubprocessorOrder> | SubprocessorOrder>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetSubprocessorsQuery = {
+  __typename?: 'Query'
+  subprocessors: {
+    __typename?: 'SubprocessorConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubprocessorEdge'
+      node?: {
+        __typename?: 'Subprocessor'
+        id: string
+        name: string
+        description?: string | null
+        logoRemoteURL?: string | null
+        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+}
+
+export type DeleteBulkSubprocessorsMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkSubprocessorsMutation = { __typename?: 'Mutation'; deleteBulkSubprocessor: { __typename?: 'SubprocessorBulkDeletePayload'; deletedIDs: Array<string> } }
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
 }>
@@ -70425,6 +70475,80 @@ export type UpdatePersonalAccessTokenMutation = {
   __typename?: 'Mutation'
   updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
+
+export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
+  where?: InputMaybe<TrustCenterSubprocessorWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterSubprocessorOrder> | TrustCenterSubprocessorOrder>
+}>
+
+export type GetTrustCenterSubprocessorsQuery = {
+  __typename?: 'Query'
+  trustCenterSubprocessors: {
+    __typename?: 'TrustCenterSubprocessorConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'TrustCenterSubprocessorEdge'
+      cursor: any
+      node?: {
+        __typename?: 'TrustCenterSubprocessor'
+        id: string
+        category: string
+        countries?: Array<string> | null
+        createdAt?: any | null
+        createdBy?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        subprocessor: {
+          __typename?: 'Subprocessor'
+          id: string
+          name: string
+          description?: string | null
+          logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        }
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+  }
+}
+
+export type CreateTrustCenterSubprocessorMutationVariables = Exact<{
+  input: CreateTrustCenterSubprocessorInput
+}>
+
+export type CreateTrustCenterSubprocessorMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorCreatePayload'; trustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessor'; id: string } }
+}
+
+export type UpdateTrustCenterSubprocessorMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  input: UpdateTrustCenterSubprocessorInput
+}>
+
+export type UpdateTrustCenterSubprocessorMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorUpdatePayload'; trustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessor'; id: string } }
+}
+
+export type DeleteBulkTrustCenterSubprocessorsMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterSubprocessorsMutation = {
+  __typename?: 'Mutation'
+  deleteBulkTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorBulkDeletePayload'; deletedIDs: Array<string> }
+}
+
+export type DeleteTrustCenterSubprocessorMutationVariables = Exact<{
+  deleteTrustCenterSubprocessorId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterSubprocessorMutation = { __typename?: 'Mutation'; deleteTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorDeletePayload'; deletedID: string } }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
 

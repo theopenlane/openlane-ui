@@ -46,4 +46,5 @@ export enum TableKeyEnum {
   TRUST_CENTER_DOCUMENT_FILES = 'trust-center-document-files',
   TRUST_CENTER_REPORTS_AND_CERTS = 'trust-center-reports-and-certs',
   TABLE_STORIES = 'table-stories',
+  TRUST_CENTER_SUBPROCESSORS = 'subprocessors',
 }
