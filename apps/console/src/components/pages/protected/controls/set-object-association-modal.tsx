@@ -13,6 +13,8 @@ import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export function SetObjectAssociationDialog() {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
@@ -30,6 +32,7 @@ export function SetObjectAssociationDialog() {
   const { errorNotification, successNotification } = useNotification()
   const { data: controlAssociationsData } = useGetControlAssociationsById(id)
   const { data: subcontrolAssociationsData } = useGetSubcontrolAssociationsById(isSubcontrol ? subcontrolId : null)
+  const { data: orgPermission } = useOrganizationRoles()
 
   const initialData: TObjectAssociationMap = useMemo(() => {
     if (isControl && controlAssociationsData?.control) {
@@ -142,7 +145,7 @@ export function SetObjectAssociationDialog() {
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger>
-        <AddAssociationBtn />
+        <AddAssociationBtn disabled={!canEdit(orgPermission?.roles)} />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
