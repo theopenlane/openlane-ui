@@ -62,7 +62,6 @@ export default function SideNav({
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
   const isCreateProgramAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram)
-  const billingExpired = session?.user.modules.length === 0
 
   useEffect(() => {
     if (!openPanel) {
@@ -288,7 +287,7 @@ export default function SideNav({
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
-          {isOrganizationSelected && !session?.user?.isOnboarding && !billingExpired && (
+          {isOrganizationSelected && !session?.user?.isOnboarding && (
             <>
               <Hr className="mx-2" />
               <div className={`flex w-full gap-2 px-2 ${!primaryExpanded ? 'flex-col' : ''}`}>
