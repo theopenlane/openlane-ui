@@ -9,7 +9,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Input } from '@repo/ui/input'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 
-import { TrustCenterWatermarkConfig, useCreateTrustCenterWatermarkConfig, useDeleteTrustCenterWatermarkConfig, useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
+import { TrustCenterWatermarkConfig, useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -31,14 +31,8 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
   const [wmOpacity, setWmOpacity] = useState(opacity ?? 0.2)
   const [wmRotation, setWmRotation] = useState(rotation ?? -45)
 
-  const { mutateAsync: createWatermark, isPending: creating } = useCreateTrustCenterWatermarkConfig()
-
   const { mutateAsync: updateWatermark, isPending: updating } = useUpdateTrustCenterWatermarkConfig()
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: deleteWatermark } = useDeleteTrustCenterWatermarkConfig()
-
-  const isExisting = Boolean(id)
-  const isPending = creating || updating
 
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
@@ -50,22 +44,11 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
     if (!uploadedFile) return
 
     try {
-      if (!isExisting) {
-        await createWatermark({
-          input: {
-            text: null,
-            fontSize: null,
-            color: null,
-          },
-          logoFile: uploadedFile,
-        })
-      } else {
-        await updateWatermark({
-          updateTrustCenterWatermarkConfigId: id!,
-          input: { clearText: true, clearFont: true, clearColor: true },
-          logoFile: uploadedFile,
-        })
-      }
+      await updateWatermark({
+        updateTrustCenterWatermarkConfigId: id!,
+        input: { clearText: true, clearFont: true, clearColor: true },
+        logoFile: uploadedFile,
+      })
 
       successNotification({
         title: 'Watermark image updated',
@@ -83,25 +66,15 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
 
   const saveTextConfig = async () => {
     try {
-      if (!isExisting) {
-        await createWatermark({
-          input: {
-            text: wmText,
-            fontSize: wmFontSize,
-            color: wmColor,
-          },
-        })
-      } else {
-        await updateWatermark({
-          updateTrustCenterWatermarkConfigId: id!,
-          input: {
-            text: wmText,
-            fontSize: wmFontSize,
-            color: wmColor,
-            clearFile: true,
-          },
-        })
-      }
+      await updateWatermark({
+        updateTrustCenterWatermarkConfigId: id!,
+        input: {
+          text: wmText,
+          fontSize: wmFontSize,
+          color: wmColor,
+          clearFile: true,
+        },
+      })
 
       successNotification({
         title: 'Watermark text updated',
@@ -118,22 +91,13 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
 
   const saveVisualConfig = async () => {
     try {
-      if (!isExisting) {
-        await createWatermark({
-          input: {
-            opacity: wmOpacity,
-            rotation: wmRotation,
-          },
-        })
-      } else {
-        await updateWatermark({
-          updateTrustCenterWatermarkConfigId: id!,
-          input: {
-            opacity: wmOpacity,
-            rotation: wmRotation,
-          },
-        })
-      }
+      await updateWatermark({
+        updateTrustCenterWatermarkConfigId: id!,
+        input: {
+          opacity: wmOpacity,
+          rotation: wmRotation,
+        },
+      })
 
       successNotification({
         title: 'Visual settings updated',
@@ -152,22 +116,6 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
     if (!url) return null
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
     return `https://${url}`
-  }
-
-  const removeWatermark = async () => {
-    try {
-      await deleteWatermark({ id: id! })
-
-      successNotification({
-        title: 'Watermark removed',
-        description: 'The watermark has been successfully removed.',
-      })
-    } catch (err) {
-      errorNotification({
-        title: 'Failed to remove watermark',
-        description: parseErrorMessage(err),
-      })
-    }
   }
 
   useEffect(() => {
@@ -194,14 +142,8 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
 
   return (
     <div className="grid grid-cols-[250px_auto] gap-6 items-start mt-12">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center mb-4">
         <h1 className="text-xl text-text-header font-medium">Watermark</h1>
-
-        {id && (
-          <Button variant="destructive" size="sm" onClick={removeWatermark} disabled={isPending}>
-            Remove watermark
-          </Button>
-        )}
       </div>
 
       <div className="flex flex-col">
@@ -240,8 +182,8 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
                   />
                 </div>
 
-                <Button variant="primary" onClick={saveFile} disabled={isPending || !uploadedFile} className="mt-3 block">
-                  {isPending ? 'Saving…' : 'Save'}
+                <Button variant="primary" onClick={saveFile} disabled={updating || !uploadedFile} className="mt-3 block">
+                  {updating ? 'Saving…' : 'Save'}
                 </Button>
               </div>
             </div>
@@ -262,8 +204,8 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
 
               <ColorInput label="Color" value={wmColor} onChange={setWmColor} />
 
-              <Button variant="primary" onClick={saveTextConfig} disabled={isPending} className="size-fit mt-3">
-                {isPending ? 'Saving…' : 'Save'}
+              <Button variant="primary" onClick={saveTextConfig} disabled={updating} className="size-fit mt-3">
+                {updating ? 'Saving…' : 'Save'}
               </Button>
             </div>
           </div>
@@ -281,8 +223,8 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
               <Label className="text-sm">Rotation (°)</Label>
               <Input type="number" value={wmRotation} onChange={(e) => setWmRotation(Number(e.target.value))} />
 
-              <Button variant="primary" onClick={saveVisualConfig} disabled={isPending} className="size-fit mt-3">
-                {isPending ? 'Saving…' : 'Save'}
+              <Button variant="primary" onClick={saveVisualConfig} disabled={updating} className="size-fit mt-3">
+                {updating ? 'Saving…' : 'Save'}
               </Button>
             </div>
           </div>

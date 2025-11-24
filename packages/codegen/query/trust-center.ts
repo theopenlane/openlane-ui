@@ -182,30 +182,12 @@ export const BULK_UPDATE_TRUST_CENTER_DOC = gql`
   }
 `
 
-export const CREATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
-  mutation CreateTrustCenterWatermarkConfig($input: CreateTrustCenterWatermarkConfigInput!) {
-    createTrustCenterWatermarkConfig(input: $input) {
-      trustCenterWatermarkConfig {
-        id
-      }
-    }
-  }
-`
-
 export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
   mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $logoFile: Upload) {
     updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, logoFile: $logoFile) {
       trustCenterWatermarkConfig {
         id
       }
-    }
-  }
-`
-
-export const DELETE_TRUST_CENTER_WATERMARK_CONFIG = gql`
-  mutation DeleteTrustCenterWatermarkConfig($id: ID!) {
-    deleteTrustCenterWatermarkConfig(id: $id) {
-      deletedID
     }
   }
 `

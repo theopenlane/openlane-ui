@@ -4,10 +4,8 @@ import {
   BULK_UPDATE_TRUST_CENTER_DOC,
   CREATE_CUSTOM_DOMAIN,
   CREATE_TRUST_CENTER_DOC,
-  CREATE_TRUST_CENTER_WATERMARK_CONFIG,
   DELETE_CUSTOM_DOMAIN,
   DELETE_TRUST_CENTER_DOC,
-  DELETE_TRUST_CENTER_WATERMARK_CONFIG,
   GET_TRUST_CENTER,
   GET_TRUST_CENTER_DOC_BY_ID,
   GET_TRUST_CENTER_DOCS,
@@ -24,12 +22,8 @@ import {
   CreateCustomDomainMutationVariables,
   CreateTrsutCenterDocMutation,
   CreateTrsutCenterDocMutationVariables,
-  CreateTrustCenterWatermarkConfigMutation,
-  CreateTrustCenterWatermarkConfigMutationVariables,
   DeleteTrustCenterDocMutation,
   DeleteTrustCenterDocMutationVariables,
-  DeleteTrustCenterWatermarkConfigMutation,
-  DeleteTrustCenterWatermarkConfigMutationVariables,
   GetTruestCenterDocByIdQuery,
   GetTruestCenterDocByIdQueryVariables,
   GetTrustCenterDocsQuery,
@@ -256,21 +250,6 @@ export const useBulkUpdateTrustCenterDocs = () => {
   })
 }
 
-export const useCreateTrustCenterWatermarkConfig = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation<CreateTrustCenterWatermarkConfigMutation, unknown, CreateTrustCenterWatermarkConfigMutationVariables>({
-    mutationFn: async (variables) => {
-      return client.request<CreateTrustCenterWatermarkConfigMutation, CreateTrustCenterWatermarkConfigMutationVariables>(CREATE_TRUST_CENTER_WATERMARK_CONFIG, variables)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
-      })
-    },
-  })
-}
-
 export const useUpdateTrustCenterWatermarkConfig = () => {
   const { client, queryClient } = useGraphQLClient()
 
@@ -294,20 +273,6 @@ export const useUpdateTrustCenterWatermarkConfig = () => {
         input,
       })
     },
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
-      })
-    },
-  })
-}
-
-export const useDeleteTrustCenterWatermarkConfig = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation<DeleteTrustCenterWatermarkConfigMutation, unknown, DeleteTrustCenterWatermarkConfigMutationVariables>({
-    mutationFn: async (variables) => client.request<DeleteTrustCenterWatermarkConfigMutation, DeleteTrustCenterWatermarkConfigMutationVariables>(DELETE_TRUST_CENTER_WATERMARK_CONFIG, variables),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
