@@ -13,9 +13,11 @@ type TDetailsFieldProps = {
   form: UseFormReturn<EditRisksFormData>
   risk?: RiskFieldsFragment
   isEditAllowed?: boolean
+  clearData?: boolean
+  onCleared?: () => void
 }
 
-const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk, isEditAllowed = true }) => {
+const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk, isEditAllowed = true, clearData, onCleared }) => {
   const plateEditorHelper = usePlateEditor()
   const { control } = form
 
@@ -24,7 +26,13 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk, isE
       <label htmlFor="risk" className="block text-sm font-medium text-muted-foreground mb-1">
         Details
       </label>
-      <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your risk description" />} />
+      <Controller
+        control={control}
+        name="details"
+        render={({ field }) => (
+          <PlateEditor initialValue={field.value as string} clearData={clearData} onClear={() => onCleared?.()} onChange={field.onChange} placeholder="Write your risk description" />
+        )}
+      />
     </div>
   ) : (
     <Card className="p-4">

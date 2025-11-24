@@ -39,6 +39,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
         title: 'Evidence file(s) uploaded',
         description: `Evidence file(s) have been successfully uploaded`,
       })
+      setEvidenceFiles([])
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -56,6 +57,11 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
     setEvidenceFiles((prev) => {
       return prev.filter((evidenceFile) => evidenceFile.name !== file.name)
     })
+  }
+
+  const handleCancel = () => {
+    setIsOpen(false)
+    setEvidenceFiles([])
   }
 
   return (
@@ -88,7 +94,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
           <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || evidenceFiles?.length === 0}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
+          <Button onClick={handleCancel} variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </div>

@@ -26,6 +26,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { Switch } from '@repo/ui/switch'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -59,6 +60,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [createMultiple, setCreateMultiple] = useState(false)
+  const [clearData, setClearData] = useState<boolean>(false)
 
   const { data: assocData } = useGetProcedureAssociationsById(procedure?.id || null)
 
@@ -154,14 +157,29 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       }
 
       const createdProcedure = await createProcedure(formData)
-
       successNotification({
         title: 'Procedure Created',
         description: 'Procedure has been successfully created',
       })
 
-      form.reset()
-      router.push(`/procedures/${createdProcedure.createProcedure.procedure.id}/view`)
+      if (createMultiple) {
+        setClearData(true)
+        form.reset({
+          name: '',
+          details: '',
+          approvalRequired: data.approvalRequired,
+          status: data.status,
+          procedureType: data.procedureType,
+          reviewDue: data.reviewDue,
+          reviewFrequency: data.reviewFrequency,
+          approverID: data.approverID,
+          delegateID: data.delegateID,
+          tags: data.tags ?? [],
+          ...associationsState,
+        })
+      } else {
+        router.push(`/procedures/${createdProcedure.createProcedure.procedure.id}/view`)
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -332,16 +350,22 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} initialValue={procedure?.details ?? undefined} />
+                    <PlateEditor onChange={handleDetailsChange} clearData={clearData} onClear={() => setClearData(false)} initialValue={procedure?.details ?? undefined} />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}
               />
             </InputRow>
 
-            <Button variant="primary" className="mt-4" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
-            </Button>
+            <div className="flex justify-between items-center">
+              <Button variant="primary" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
+              </Button>
+              <div className="flex items-center gap-2">
+                <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
+                <span>Create multiple</span>
+              </div>
+            </div>
           </div>
 
           <div className="flex-shrink-0 w-[380px] space-y-4">

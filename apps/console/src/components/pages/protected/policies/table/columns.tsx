@@ -116,6 +116,9 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'approver',
       header: 'Approver',
+      meta: {
+        exportPrefix: 'approver.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
@@ -126,6 +129,9 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      meta: {
+        exportPrefix: 'delegate.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
