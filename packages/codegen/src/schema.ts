@@ -8204,7 +8204,6 @@ export interface CreateFileInput {
   storageVolume?: InputMaybe<Scalars['String']['input']>
   /** the key parsed out of a multipart-form request; if we allow multiple files to be uploaded we may want our API specifications to require the use of different keys allowing us to perform easier conditional evaluation on the key and what to do with the file based on key */
   storeKey?: InputMaybe<Scalars['String']['input']>
-  subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -8213,8 +8212,6 @@ export interface CreateFileInput {
   trustCenterSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the full URI of the file */
   uri?: InputMaybe<Scalars['String']['input']>
-  userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  userSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -8881,6 +8878,7 @@ export interface CreateOrganizationInput {
   standardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   standardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  subprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   tagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9491,7 +9489,6 @@ export interface CreateSubcontrolInput {
 export interface CreateSubprocessorInput {
   /** description of the subprocessor */
   description?: InputMaybe<Scalars['String']['input']>
-  fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
@@ -9679,6 +9676,10 @@ export interface CreateTrustCenterInput {
   /** Pirsch ID code */
   pirschIdentificationCode?: InputMaybe<Scalars['String']['input']>
   postIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  previewDomainID?: InputMaybe<Scalars['ID']['input']>
+  previewSettingID?: InputMaybe<Scalars['ID']['input']>
+  /** preview status of the trust center */
+  previewStatus?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -9703,6 +9704,8 @@ export interface CreateTrustCenterSettingInput {
   accentColor?: InputMaybe<Scalars['String']['input']>
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
+  /** environment of the trust center */
+  environment?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the favicon */
   faviconRemoteURL?: InputMaybe<Scalars['String']['input']>
@@ -9726,7 +9729,8 @@ export interface CreateTrustCenterSettingInput {
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
   title?: InputMaybe<Scalars['String']['input']>
-  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  /** the ID of the trust center the settings belong to */
+  trustCenterID?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -9785,7 +9789,6 @@ export interface CreateUserInput {
   displayName: Scalars['String']['input']
   email: Scalars['String']['input']
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   impersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9831,7 +9834,6 @@ export interface CreateUserSettingInput {
   defaultOrgID?: InputMaybe<Scalars['ID']['input']>
   /** whether the user has confirmed their email address */
   emailConfirmed?: InputMaybe<Scalars['Boolean']['input']>
-  fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the user has two factor authentication enabled */
   isTfaEnabled?: InputMaybe<Scalars['Boolean']['input']>
   /** user account is locked if unconfirmed or explicitly locked */
@@ -17522,6 +17524,7 @@ export enum ExportExportType {
   REMEDIATION = 'REMEDIATION',
   REVIEW = 'REVIEW',
   RISK = 'RISK',
+  SUBPROCESSOR = 'SUBPROCESSOR',
   SUBSCRIBER = 'SUBSCRIBER',
   TASK = 'TASK',
   VULNERABILITY = 'VULNERABILITY',
@@ -17763,7 +17766,6 @@ export interface File extends Node {
   storageVolume?: Maybe<Scalars['String']['output']>
   /** the key parsed out of a multipart-form request; if we allow multiple files to be uploaded we may want our API specifications to require the use of different keys allowing us to perform easier conditional evaluation on the key and what to do with the file based on key */
   storeKey?: Maybe<Scalars['String']['output']>
-  subprocessor?: Maybe<Array<Subprocessor>>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
@@ -17776,8 +17778,6 @@ export interface File extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the full URI of the file */
   uri?: Maybe<Scalars['String']['output']>
-  user?: Maybe<Array<User>>
-  userSetting?: Maybe<Array<UserSetting>>
 }
 
 export interface FileEventsArgs {
@@ -18442,21 +18442,12 @@ export interface FileWhereInput {
   /** secrets edge predicates */
   hasSecrets?: InputMaybe<Scalars['Boolean']['input']>
   hasSecretsWith?: InputMaybe<Array<HushWhereInput>>
-  /** subprocessor edge predicates */
-  hasSubprocessor?: InputMaybe<Scalars['Boolean']['input']>
-  hasSubprocessorWith?: InputMaybe<Array<SubprocessorWhereInput>>
   /** template edge predicates */
   hasTemplate?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplateWith?: InputMaybe<Array<TemplateWhereInput>>
   /** trust_center_setting edge predicates */
   hasTrustCenterSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
-  /** user edge predicates */
-  hasUser?: InputMaybe<Scalars['Boolean']['input']>
-  /** user_setting edge predicates */
-  hasUserSetting?: InputMaybe<Scalars['Boolean']['input']>
-  hasUserSettingWith?: InputMaybe<Array<UserSettingWhereInput>>
-  hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -29101,6 +29092,8 @@ export interface Mutation {
   deleteWorkflowInstance: WorkflowInstanceDeletePayload
   /** Delete an existing workflowObjectRef */
   deleteWorkflowObjectRef: WorkflowObjectRefDeletePayload
+  /** Publish changes from preview to live environment */
+  publishTrustCenterSetting: TrustCenterSettingUpdatePayload
   sendTrustCenterNDAEmail: SendTrustCenterNdaEmailPayload
   /** Submit a response to a Trust Center NDA */
   submitTrustCenterNDAResponse: SubmitTrustCenterNdaResponsePayload
@@ -29259,7 +29252,9 @@ export interface Mutation {
   updateTrustCenterNDA: TrustCenterNdaUpdatePayload
   /** Update an existing trust center post */
   updateTrustCenterPost: TrustCenterUpdatePayload
-  /** Update an existing trustCenterSetting */
+  /** Update an existing trustCenterSetting preview settings */
+  updateTrustCenterPreviewSetting: TrustCenterSettingUpdatePayload
+  /** Update an existing trustCenterSetting by targeting the ID */
   updateTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Update an existing trustCenterSubprocessor */
   updateTrustCenterSubprocessor: TrustCenterSubprocessorUpdatePayload
@@ -30984,6 +30979,12 @@ export interface MutationUpdateTrustCenterPostArgs {
   id: Scalars['ID']['input']
   input: UpdateNoteInput
   noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+}
+
+export interface MutationUpdateTrustCenterPreviewSettingArgs {
+  faviconFile?: InputMaybe<Scalars['Upload']['input']>
+  input: UpdateTrustCenterSettingInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
 }
 
 export interface MutationUpdateTrustCenterSettingArgs {
@@ -33246,6 +33247,7 @@ export interface Organization extends Node {
   /** the stripe customer ID this organization is associated to */
   stripeCustomerID?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
+  subprocessorCreators: GroupConnection
   subprocessors: SubprocessorConnection
   subscribers: SubscriberConnection
   tagDefinitions: TagDefinitionConnection
@@ -33833,6 +33835,15 @@ export interface OrganizationSubcontrolsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubcontrolOrder>>
   where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface OrganizationSubprocessorCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationSubprocessorsArgs {
@@ -35587,6 +35598,9 @@ export interface OrganizationWhereInput {
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** subprocessor_creators edge predicates */
+  hasSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubprocessorCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** subprocessors edge predicates */
   hasSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   hasSubprocessorsWith?: InputMaybe<Array<SubprocessorWhereInput>>
@@ -38629,134 +38643,8 @@ export interface Query {
   /** Search across ActionPlan objects */
   actionPlanSearch?: Maybe<ActionPlanConnection>
   actionPlans: ActionPlanConnection
-  /** Search across APIToken objects */
-  adminAPITokenSearch?: Maybe<ApiTokenConnection>
-  /** Search across ActionPlan objects */
-  adminActionPlanSearch?: Maybe<ActionPlanConnection>
-  /** Search across AssessmentResponse objects */
-  adminAssessmentResponseSearch?: Maybe<AssessmentResponseConnection>
-  /** Search across Assessment objects */
-  adminAssessmentSearch?: Maybe<AssessmentConnection>
-  /** Search across Asset objects */
-  adminAssetSearch?: Maybe<AssetConnection>
-  /** Search across Contact objects */
-  adminContactSearch?: Maybe<ContactConnection>
-  /** Search across ControlImplementation objects */
-  adminControlImplementationSearch?: Maybe<ControlImplementationConnection>
-  /** Search across ControlObjective objects */
-  adminControlObjectiveSearch?: Maybe<ControlObjectiveConnection>
-  /** Search across Control objects */
-  adminControlSearch?: Maybe<ControlConnection>
-  /** Search across CustomDomain objects */
-  adminCustomDomainSearch?: Maybe<CustomDomainConnection>
-  /** Search across CustomTypeEnum objects */
-  adminCustomTypeEnumSearch?: Maybe<CustomTypeEnumConnection>
-  /** Search across DNSVerification objects */
-  adminDNSVerificationSearch?: Maybe<DnsVerificationConnection>
-  /** Search across DirectoryAccount objects */
-  adminDirectoryAccountSearch?: Maybe<DirectoryAccountConnection>
-  /** Search across DirectoryGroup objects */
-  adminDirectoryGroupSearch?: Maybe<DirectoryGroupConnection>
-  /** Search across DocumentData objects */
-  adminDocumentDataSearch?: Maybe<DocumentDataConnection>
-  /** Search across Entity objects */
-  adminEntitySearch?: Maybe<EntityConnection>
-  /** Search across EntityType objects */
-  adminEntityTypeSearch?: Maybe<EntityTypeConnection>
-  /** Search across Event objects */
-  adminEventSearch?: Maybe<EventConnection>
-  /** Search across Evidence objects */
-  adminEvidenceSearch?: Maybe<EvidenceConnection>
-  /** Search across File objects */
-  adminFileSearch?: Maybe<FileConnection>
-  /** Search across Finding objects */
-  adminFindingSearch?: Maybe<FindingConnection>
-  /** Search across Group objects */
-  adminGroupSearch?: Maybe<GroupConnection>
-  /** Search across Integration objects */
-  adminIntegrationSearch?: Maybe<IntegrationConnection>
-  /** Search across InternalPolicy objects */
-  adminInternalPolicySearch?: Maybe<InternalPolicyConnection>
-  /** Search across Invite objects */
-  adminInviteSearch?: Maybe<InviteConnection>
-  /** Search across JobRunnerRegistrationToken objects */
-  adminJobRunnerRegistrationTokenSearch?: Maybe<JobRunnerRegistrationTokenConnection>
-  /** Search across JobRunner objects */
-  adminJobRunnerSearch?: Maybe<JobRunnerConnection>
-  /** Search across JobRunnerToken objects */
-  adminJobRunnerTokenSearch?: Maybe<JobRunnerTokenConnection>
-  /** Search across JobTemplate objects */
-  adminJobTemplateSearch?: Maybe<JobTemplateConnection>
-  /** Search across MappableDomain objects */
-  adminMappableDomainSearch?: Maybe<MappableDomainConnection>
-  /** Search across MappedControl objects */
-  adminMappedControlSearch?: Maybe<MappedControlConnection>
-  /** Search across Narrative objects */
-  adminNarrativeSearch?: Maybe<NarrativeConnection>
-  /** Search across OrgSubscription objects */
-  adminOrgSubscriptionSearch?: Maybe<OrgSubscriptionConnection>
-  /** Search across Organization objects */
-  adminOrganizationSearch?: Maybe<OrganizationConnection>
-  /** Search across OrganizationSetting objects */
-  adminOrganizationSettingSearch?: Maybe<OrganizationSettingConnection>
-  /** Search across PersonalAccessToken objects */
-  adminPersonalAccessTokenSearch?: Maybe<PersonalAccessTokenConnection>
-  /** Search across Procedure objects */
-  adminProcedureSearch?: Maybe<ProcedureConnection>
-  /** Search across Program objects */
-  adminProgramSearch?: Maybe<ProgramConnection>
-  /** Search across Remediation objects */
-  adminRemediationSearch?: Maybe<RemediationConnection>
-  /** Search across Review objects */
-  adminReviewSearch?: Maybe<ReviewConnection>
-  /** Search across Risk objects */
-  adminRiskSearch?: Maybe<RiskConnection>
-  /** Search across Scan objects */
-  adminScanSearch?: Maybe<ScanConnection>
-  /** Admin search across all objects */
-  adminSearch?: Maybe<SearchResults>
-  /** Search across Standard objects */
-  adminStandardSearch?: Maybe<StandardConnection>
-  /** Search across Subcontrol objects */
-  adminSubcontrolSearch?: Maybe<SubcontrolConnection>
-  /** Search across Subprocessor objects */
-  adminSubprocessorSearch?: Maybe<SubprocessorConnection>
-  /** Search across Subscriber objects */
-  adminSubscriberSearch?: Maybe<SubscriberConnection>
-  /** Search across TagDefinition objects */
-  adminTagDefinitionSearch?: Maybe<TagDefinitionConnection>
-  /** Search across Task objects */
-  adminTaskSearch?: Maybe<TaskConnection>
-  /** Search across Template objects */
-  adminTemplateSearch?: Maybe<TemplateConnection>
-  /** Search across TrustCenterCompliance objects */
-  adminTrustCenterComplianceSearch?: Maybe<TrustCenterComplianceConnection>
-  /** Search across TrustCenterDoc objects */
-  adminTrustCenterDocSearch?: Maybe<TrustCenterDocConnection>
-  /** Search across TrustCenter objects */
-  adminTrustCenterSearch?: Maybe<TrustCenterConnection>
-  /** Search across User objects */
-  adminUserSearch?: Maybe<UserConnection>
-  /** Search across UserSetting objects */
-  adminUserSettingSearch?: Maybe<UserSettingConnection>
-  /** Search across Vulnerability objects */
-  adminVulnerabilitySearch?: Maybe<VulnerabilityConnection>
-  /** Search across Webauthn objects */
-  adminWebauthnSearch?: Maybe<WebauthnConnection>
-  /** Search across WorkflowAssignment objects */
-  adminWorkflowAssignmentSearch?: Maybe<WorkflowAssignmentConnection>
-  /** Search across WorkflowAssignmentTarget objects */
-  adminWorkflowAssignmentTargetSearch?: Maybe<WorkflowAssignmentTargetConnection>
-  /** Search across WorkflowDefinition objects */
-  adminWorkflowDefinitionSearch?: Maybe<WorkflowDefinitionConnection>
-  /** Search across WorkflowEvent objects */
-  adminWorkflowEventSearch?: Maybe<WorkflowEventConnection>
-  /** Search across WorkflowInstance objects */
-  adminWorkflowInstanceSearch?: Maybe<WorkflowInstanceConnection>
   /** Look up apiToken by ID */
   apiToken: ApiToken
-  /** Search across APIToken objects */
-  apiTokenSearch?: Maybe<ApiTokenConnection>
   apiTokens: ApiTokenConnection
   /** Look up assessment by ID */
   assessment: Assessment
@@ -38793,8 +38681,6 @@ export interface Query {
   /** Look up controlImplementation by ID */
   controlImplementation: ControlImplementation
   controlImplementationHistories: ControlImplementationHistoryConnection
-  /** Search across ControlImplementation objects */
-  controlImplementationSearch?: Maybe<ControlImplementationConnection>
   controlImplementations: ControlImplementationConnection
   /** Look up controlObjective by ID */
   controlObjective: ControlObjective
@@ -38814,8 +38700,6 @@ export interface Query {
   /** Look up customDomain by ID */
   customDomain: CustomDomain
   customDomainHistories: CustomDomainHistoryConnection
-  /** Search across CustomDomain objects */
-  customDomainSearch?: Maybe<CustomDomainConnection>
   customDomains: CustomDomainConnection
   /** Look up customTypeEnum by ID */
   customTypeEnum: CustomTypeEnum
@@ -38825,14 +38709,10 @@ export interface Query {
   /** Look up directoryAccount by ID */
   directoryAccount: DirectoryAccount
   directoryAccountHistories: DirectoryAccountHistoryConnection
-  /** Search across DirectoryAccount objects */
-  directoryAccountSearch?: Maybe<DirectoryAccountConnection>
   directoryAccounts: DirectoryAccountConnection
   /** Look up directoryGroup by ID */
   directoryGroup: DirectoryGroup
   directoryGroupHistories: DirectoryGroupHistoryConnection
-  /** Search across DirectoryGroup objects */
-  directoryGroupSearch?: Maybe<DirectoryGroupConnection>
   directoryGroups: DirectoryGroupConnection
   /** Look up directoryMembership by ID */
   directoryMembership: DirectoryMembership
@@ -38844,14 +38724,10 @@ export interface Query {
   /** Look up dnsVerification by ID */
   dnsVerification: DnsVerification
   dnsVerificationHistories: DnsVerificationHistoryConnection
-  /** Search across DNSVerification objects */
-  dnsVerificationSearch?: Maybe<DnsVerificationConnection>
   dnsVerifications: DnsVerificationConnection
   /** Look up documentData by ID */
   documentData: DocumentData
   documentDataHistories: DocumentDataHistoryConnection
-  /** Search across DocumentData objects */
-  documentDataSearch?: Maybe<DocumentDataConnection>
   documentDataSlice: DocumentDataConnection
   entities: EntityConnection
   /** Look up entity by ID */
@@ -38862,13 +38738,9 @@ export interface Query {
   /** Look up entityType by ID */
   entityType: EntityType
   entityTypeHistories: EntityTypeHistoryConnection
-  /** Search across EntityType objects */
-  entityTypeSearch?: Maybe<EntityTypeConnection>
   entityTypes: EntityTypeConnection
   /** Look up event by ID */
   event: Event
-  /** Search across Event objects */
-  eventSearch?: Maybe<EventConnection>
   events: EventConnection
   /** Look up evidence by ID */
   evidence: Evidence
@@ -38882,8 +38754,6 @@ export interface Query {
   /** Look up file by ID */
   file: File
   fileHistories: FileHistoryConnection
-  /** Search across File objects */
-  fileSearch?: Maybe<FileConnection>
   files: FileConnection
   /** Look up finding by ID */
   finding: Finding
@@ -38916,8 +38786,6 @@ export interface Query {
   /** Look up integration by ID */
   integration: Integration
   integrationHistories: IntegrationHistoryConnection
-  /** Search across Integration objects */
-  integrationSearch?: Maybe<IntegrationConnection>
   integrations: IntegrationConnection
   internalPolicies: InternalPolicyConnection
   /** Look up internalPolicy by ID */
@@ -38937,15 +38805,11 @@ export interface Query {
   jobRunner: JobRunner
   /** Look up jobRunnerRegistrationToken by ID */
   jobRunnerRegistrationToken: JobRunnerRegistrationToken
-  /** Search across JobRunnerRegistrationToken objects */
-  jobRunnerRegistrationTokenSearch?: Maybe<JobRunnerRegistrationTokenConnection>
   jobRunnerRegistrationTokens: JobRunnerRegistrationTokenConnection
   /** Search across JobRunner objects */
   jobRunnerSearch?: Maybe<JobRunnerConnection>
   /** Look up jobRunnerToken by ID */
   jobRunnerToken: JobRunnerToken
-  /** Search across JobRunnerToken objects */
-  jobRunnerTokenSearch?: Maybe<JobRunnerTokenConnection>
   jobRunnerTokens: JobRunnerTokenConnection
   jobRunners: JobRunnerConnection
   /** Look up jobTemplate by ID */
@@ -38957,14 +38821,10 @@ export interface Query {
   /** Look up mappableDomain by ID */
   mappableDomain: MappableDomain
   mappableDomainHistories: MappableDomainHistoryConnection
-  /** Search across MappableDomain objects */
-  mappableDomainSearch?: Maybe<MappableDomainConnection>
   mappableDomains: MappableDomainConnection
   /** Look up mappedControl by ID */
   mappedControl: MappedControl
   mappedControlHistories: MappedControlHistoryConnection
-  /** Search across MappedControl objects */
-  mappedControlSearch?: Maybe<MappedControlConnection>
   mappedControls: MappedControlConnection
   /** Look up narrative by ID */
   narrative: Narrative
@@ -38987,8 +38847,6 @@ export interface Query {
   /** Look up orgSubscription by ID */
   orgSubscription: OrgSubscription
   orgSubscriptionHistories: OrgSubscriptionHistoryConnection
-  /** Search across OrgSubscription objects */
-  orgSubscriptionSearch?: Maybe<OrgSubscriptionConnection>
   orgSubscriptions: OrgSubscriptionConnection
   /** Look up organization by ID */
   organization: Organization
@@ -38998,14 +38856,10 @@ export interface Query {
   /** Look up organizationSetting by ID */
   organizationSetting: OrganizationSetting
   organizationSettingHistories: OrganizationSettingHistoryConnection
-  /** Search across OrganizationSetting objects */
-  organizationSettingSearch?: Maybe<OrganizationSettingConnection>
   organizationSettings: OrganizationSettingConnection
   organizations: OrganizationConnection
   /** Look up personalAccessToken by ID */
   personalAccessToken: PersonalAccessToken
-  /** Search across PersonalAccessToken objects */
-  personalAccessTokenSearch?: Maybe<PersonalAccessTokenConnection>
   personalAccessTokens: PersonalAccessTokenConnection
   /** Look up procedure by ID */
   procedure: Procedure
@@ -39106,18 +38960,12 @@ export interface Query {
   /** Look up trustCenterCompliance by ID */
   trustCenterCompliance: TrustCenterCompliance
   trustCenterComplianceHistories: TrustCenterComplianceHistoryConnection
-  /** Search across TrustCenterCompliance objects */
-  trustCenterComplianceSearch?: Maybe<TrustCenterComplianceConnection>
   trustCenterCompliances: TrustCenterComplianceConnection
   /** Look up trustCenterDoc by ID */
   trustCenterDoc: TrustCenterDoc
   trustCenterDocHistories: TrustCenterDocHistoryConnection
-  /** Search across TrustCenterDoc objects */
-  trustCenterDocSearch?: Maybe<TrustCenterDocConnection>
   trustCenterDocs: TrustCenterDocConnection
   trustCenterHistories: TrustCenterHistoryConnection
-  /** Search across TrustCenter objects */
-  trustCenterSearch?: Maybe<TrustCenterConnection>
   /** Look up trustCenterSetting by ID */
   trustCenterSetting: TrustCenterSetting
   trustCenterSettingHistories: TrustCenterSettingHistoryConnection
@@ -39134,13 +38982,9 @@ export interface Query {
   /** Look up user by ID */
   user: User
   userHistories: UserHistoryConnection
-  /** Search across User objects */
-  userSearch?: Maybe<UserConnection>
   /** Look up userSetting by ID */
   userSetting: UserSetting
   userSettingHistories: UserSettingHistoryConnection
-  /** Search across UserSetting objects */
-  userSettingSearch?: Maybe<UserSettingConnection>
   userSettings: UserSettingConnection
   users: UserConnection
   vulnerabilities: VulnerabilityConnection
@@ -39149,38 +38993,26 @@ export interface Query {
   vulnerabilityHistories: VulnerabilityHistoryConnection
   /** Search across Vulnerability objects */
   vulnerabilitySearch?: Maybe<VulnerabilityConnection>
-  /** Search across Webauthn objects */
-  webauthnSearch?: Maybe<WebauthnConnection>
   webauthns: WebauthnConnection
   /** Look up workflowAssignment by ID */
   workflowAssignment: WorkflowAssignment
   workflowAssignmentHistories: WorkflowAssignmentHistoryConnection
-  /** Search across WorkflowAssignment objects */
-  workflowAssignmentSearch?: Maybe<WorkflowAssignmentConnection>
   /** Look up workflowAssignmentTarget by ID */
   workflowAssignmentTarget: WorkflowAssignmentTarget
   workflowAssignmentTargetHistories: WorkflowAssignmentTargetHistoryConnection
-  /** Search across WorkflowAssignmentTarget objects */
-  workflowAssignmentTargetSearch?: Maybe<WorkflowAssignmentTargetConnection>
   workflowAssignmentTargets: WorkflowAssignmentTargetConnection
   workflowAssignments: WorkflowAssignmentConnection
   /** Look up workflowDefinition by ID */
   workflowDefinition: WorkflowDefinition
   workflowDefinitionHistories: WorkflowDefinitionHistoryConnection
-  /** Search across WorkflowDefinition objects */
-  workflowDefinitionSearch?: Maybe<WorkflowDefinitionConnection>
   workflowDefinitions: WorkflowDefinitionConnection
   /** Look up workflowEvent by ID */
   workflowEvent: WorkflowEvent
   workflowEventHistories: WorkflowEventHistoryConnection
-  /** Search across WorkflowEvent objects */
-  workflowEventSearch?: Maybe<WorkflowEventConnection>
   workflowEvents: WorkflowEventConnection
   /** Look up workflowInstance by ID */
   workflowInstance: WorkflowInstance
   workflowInstanceHistories: WorkflowInstanceHistoryConnection
-  /** Search across WorkflowInstance objects */
-  workflowInstanceSearch?: Maybe<WorkflowInstanceConnection>
   workflowInstances: WorkflowInstanceConnection
   /** Look up workflowObjectRef by ID */
   workflowObjectRef: WorkflowObjectRef
@@ -39218,512 +39050,8 @@ export interface QueryActionPlansArgs {
   where?: InputMaybe<ActionPlanWhereInput>
 }
 
-export interface QueryAdminApiTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminActionPlanSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminAssessmentResponseSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminAssessmentSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminAssetSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminContactSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminControlImplementationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminControlObjectiveSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminControlSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminCustomDomainSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminCustomTypeEnumSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminDnsVerificationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminDirectoryAccountSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminDirectoryGroupSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminDocumentDataSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminEntitySearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminEntityTypeSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminEventSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminEvidenceSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminFileSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminFindingSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminGroupSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminIntegrationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminInternalPolicySearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminInviteSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminJobRunnerRegistrationTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminJobRunnerSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminJobRunnerTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminJobTemplateSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminMappableDomainSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminMappedControlSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminNarrativeSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminOrgSubscriptionSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminOrganizationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminOrganizationSettingSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminPersonalAccessTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminProcedureSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminProgramSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminRemediationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminReviewSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminRiskSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminScanSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminStandardSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminSubcontrolSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminSubprocessorSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminSubscriberSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminTagDefinitionSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminTaskSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminTemplateSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminTrustCenterComplianceSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminTrustCenterDocSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminTrustCenterSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminUserSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminUserSettingSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminVulnerabilitySearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminWebauthnSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminWorkflowAssignmentSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminWorkflowAssignmentTargetSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminWorkflowDefinitionSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminWorkflowEventSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminWorkflowInstanceSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryApiTokenArgs {
   id: Scalars['ID']['input']
-}
-
-export interface QueryApiTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryApiTokensArgs {
@@ -39895,14 +39223,6 @@ export interface QueryControlImplementationHistoriesArgs {
   where?: InputMaybe<ControlImplementationHistoryWhereInput>
 }
 
-export interface QueryControlImplementationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryControlImplementationsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -39987,14 +39307,6 @@ export interface QueryCustomDomainHistoriesArgs {
   where?: InputMaybe<CustomDomainHistoryWhereInput>
 }
 
-export interface QueryCustomDomainSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryCustomDomainsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40038,14 +39350,6 @@ export interface QueryDirectoryAccountHistoriesArgs {
   where?: InputMaybe<DirectoryAccountHistoryWhereInput>
 }
 
-export interface QueryDirectoryAccountSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryDirectoryAccountsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40066,14 +39370,6 @@ export interface QueryDirectoryGroupHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<DirectoryGroupHistoryOrder>
   where?: InputMaybe<DirectoryGroupHistoryWhereInput>
-}
-
-export interface QueryDirectoryGroupSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryDirectoryGroupsArgs {
@@ -40133,14 +39429,6 @@ export interface QueryDnsVerificationHistoriesArgs {
   where?: InputMaybe<DnsVerificationHistoryWhereInput>
 }
 
-export interface QueryDnsVerificationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryDnsVerificationsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40161,14 +39449,6 @@ export interface QueryDocumentDataHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<DocumentDataHistoryOrder>
   where?: InputMaybe<DocumentDataHistoryWhereInput>
-}
-
-export interface QueryDocumentDataSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryDocumentDataSliceArgs {
@@ -40223,14 +39503,6 @@ export interface QueryEntityTypeHistoriesArgs {
   where?: InputMaybe<EntityTypeHistoryWhereInput>
 }
 
-export interface QueryEntityTypeSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryEntityTypesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40242,14 +39514,6 @@ export interface QueryEntityTypesArgs {
 
 export interface QueryEventArgs {
   id: Scalars['ID']['input']
-}
-
-export interface QueryEventSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryEventsArgs {
@@ -40315,14 +39579,6 @@ export interface QueryFileHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<FileHistoryOrder>
   where?: InputMaybe<FileHistoryWhereInput>
-}
-
-export interface QueryFileSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryFilesArgs {
@@ -40495,14 +39751,6 @@ export interface QueryIntegrationHistoriesArgs {
   where?: InputMaybe<IntegrationHistoryWhereInput>
 }
 
-export interface QueryIntegrationSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryIntegrationsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40584,14 +39832,6 @@ export interface QueryJobRunnerRegistrationTokenArgs {
   id: Scalars['ID']['input']
 }
 
-export interface QueryJobRunnerRegistrationTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryJobRunnerRegistrationTokensArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40611,14 +39851,6 @@ export interface QueryJobRunnerSearchArgs {
 
 export interface QueryJobRunnerTokenArgs {
   id: Scalars['ID']['input']
-}
-
-export interface QueryJobRunnerTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryJobRunnerTokensArgs {
@@ -40682,14 +39914,6 @@ export interface QueryMappableDomainHistoriesArgs {
   where?: InputMaybe<MappableDomainHistoryWhereInput>
 }
 
-export interface QueryMappableDomainSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryMappableDomainsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40710,14 +39934,6 @@ export interface QueryMappedControlHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<MappedControlHistoryOrder>
   where?: InputMaybe<MappedControlHistoryWhereInput>
-}
-
-export interface QueryMappedControlSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryMappedControlsArgs {
@@ -40824,14 +40040,6 @@ export interface QueryOrgSubscriptionHistoriesArgs {
   where?: InputMaybe<OrgSubscriptionHistoryWhereInput>
 }
 
-export interface QueryOrgSubscriptionSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryOrgSubscriptionsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40875,14 +40083,6 @@ export interface QueryOrganizationSettingHistoriesArgs {
   where?: InputMaybe<OrganizationSettingHistoryWhereInput>
 }
 
-export interface QueryOrganizationSettingSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryOrganizationSettingsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -40903,14 +40103,6 @@ export interface QueryOrganizationsArgs {
 
 export interface QueryPersonalAccessTokenArgs {
   id: Scalars['ID']['input']
-}
-
-export interface QueryPersonalAccessTokenSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryPersonalAccessTokensArgs {
@@ -41389,14 +40581,6 @@ export interface QueryTrustCenterComplianceHistoriesArgs {
   where?: InputMaybe<TrustCenterComplianceHistoryWhereInput>
 }
 
-export interface QueryTrustCenterComplianceSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryTrustCenterCompliancesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41419,14 +40603,6 @@ export interface QueryTrustCenterDocHistoriesArgs {
   where?: InputMaybe<TrustCenterDocHistoryWhereInput>
 }
 
-export interface QueryTrustCenterDocSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryTrustCenterDocsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41443,14 +40619,6 @@ export interface QueryTrustCenterHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<TrustCenterHistoryOrder>
   where?: InputMaybe<TrustCenterHistoryWhereInput>
-}
-
-export interface QueryTrustCenterSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryTrustCenterSettingArgs {
@@ -41541,14 +40709,6 @@ export interface QueryUserHistoriesArgs {
   where?: InputMaybe<UserHistoryWhereInput>
 }
 
-export interface QueryUserSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryUserSettingArgs {
   id: Scalars['ID']['input']
 }
@@ -41560,14 +40720,6 @@ export interface QueryUserSettingHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<UserSettingHistoryOrder>
   where?: InputMaybe<UserSettingHistoryWhereInput>
-}
-
-export interface QueryUserSettingSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryUserSettingsArgs {
@@ -41618,14 +40770,6 @@ export interface QueryVulnerabilitySearchArgs {
   query: Scalars['String']['input']
 }
 
-export interface QueryWebauthnSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryWebauthnsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41648,14 +40792,6 @@ export interface QueryWorkflowAssignmentHistoriesArgs {
   where?: InputMaybe<WorkflowAssignmentHistoryWhereInput>
 }
 
-export interface QueryWorkflowAssignmentSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryWorkflowAssignmentTargetArgs {
   id: Scalars['ID']['input']
 }
@@ -41667,14 +40803,6 @@ export interface QueryWorkflowAssignmentTargetHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<WorkflowAssignmentTargetHistoryOrder>
   where?: InputMaybe<WorkflowAssignmentTargetHistoryWhereInput>
-}
-
-export interface QueryWorkflowAssignmentTargetSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryWorkflowAssignmentTargetsArgs {
@@ -41708,14 +40836,6 @@ export interface QueryWorkflowDefinitionHistoriesArgs {
   where?: InputMaybe<WorkflowDefinitionHistoryWhereInput>
 }
 
-export interface QueryWorkflowDefinitionSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryWorkflowDefinitionsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41738,14 +40858,6 @@ export interface QueryWorkflowEventHistoriesArgs {
   where?: InputMaybe<WorkflowEventHistoryWhereInput>
 }
 
-export interface QueryWorkflowEventSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
 export interface QueryWorkflowEventsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41766,14 +40878,6 @@ export interface QueryWorkflowInstanceHistoriesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<WorkflowInstanceHistoryOrder>
   where?: InputMaybe<WorkflowInstanceHistoryWhereInput>
-}
-
-export interface QueryWorkflowInstanceSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
 }
 
 export interface QueryWorkflowInstancesArgs {
@@ -46800,43 +45904,25 @@ export interface SearchContext {
 export interface SearchResults {
   __typename?: 'SearchResults'
   actionPlans?: Maybe<ActionPlanConnection>
-  apiTokens?: Maybe<ApiTokenConnection>
   assessmentResponses?: Maybe<AssessmentResponseConnection>
   assessments?: Maybe<AssessmentConnection>
   assets?: Maybe<AssetConnection>
   contacts?: Maybe<ContactConnection>
-  controlImplementations?: Maybe<ControlImplementationConnection>
   controlObjectives?: Maybe<ControlObjectiveConnection>
   controls?: Maybe<ControlConnection>
-  customDomains?: Maybe<CustomDomainConnection>
   customTypeEnums?: Maybe<CustomTypeEnumConnection>
-  directoryAccounts?: Maybe<DirectoryAccountConnection>
-  directoryGroups?: Maybe<DirectoryGroupConnection>
-  dnsVerifications?: Maybe<DnsVerificationConnection>
-  documentData?: Maybe<DocumentDataConnection>
   entities?: Maybe<EntityConnection>
-  entityTypes?: Maybe<EntityTypeConnection>
-  events?: Maybe<EventConnection>
   evidences?: Maybe<EvidenceConnection>
-  files?: Maybe<FileConnection>
   findings?: Maybe<FindingConnection>
   groups?: Maybe<GroupConnection>
-  integrations?: Maybe<IntegrationConnection>
   internalPolicies?: Maybe<InternalPolicyConnection>
   invites?: Maybe<InviteConnection>
-  jobRunnerRegistrationTokens?: Maybe<JobRunnerRegistrationTokenConnection>
-  jobRunnerTokens?: Maybe<JobRunnerTokenConnection>
   jobRunners?: Maybe<JobRunnerConnection>
   jobTemplates?: Maybe<JobTemplateConnection>
-  mappableDomains?: Maybe<MappableDomainConnection>
-  mappedControls?: Maybe<MappedControlConnection>
   narratives?: Maybe<NarrativeConnection>
-  orgSubscriptions?: Maybe<OrgSubscriptionConnection>
-  organizationSettings?: Maybe<OrganizationSettingConnection>
   organizations?: Maybe<OrganizationConnection>
   /** Information to aid in pagination. */
   page: PageInfo
-  personalAccessTokens?: Maybe<PersonalAccessTokenConnection>
   procedures?: Maybe<ProcedureConnection>
   programs?: Maybe<ProgramConnection>
   remediations?: Maybe<RemediationConnection>
@@ -46853,18 +45939,7 @@ export interface SearchResults {
   templates?: Maybe<TemplateConnection>
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
-  trustCenterCompliances?: Maybe<TrustCenterComplianceConnection>
-  trustCenterDocs?: Maybe<TrustCenterDocConnection>
-  trustCenters?: Maybe<TrustCenterConnection>
-  userSettings?: Maybe<UserSettingConnection>
-  users?: Maybe<UserConnection>
   vulnerabilities?: Maybe<VulnerabilityConnection>
-  webauthns?: Maybe<WebauthnConnection>
-  workflowAssignmentTargets?: Maybe<WorkflowAssignmentTargetConnection>
-  workflowAssignments?: Maybe<WorkflowAssignmentConnection>
-  workflowDefinitions?: Maybe<WorkflowDefinitionConnection>
-  workflowEvents?: Maybe<WorkflowEventConnection>
-  workflowInstances?: Maybe<WorkflowInstanceConnection>
 }
 
 /** SearchSnippet represents a piece of matched content with surrounding context */
@@ -49174,13 +48249,12 @@ export interface Subprocessor extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** description of the subprocessor */
   description?: Maybe<Scalars['String']['output']>
-  files: FileConnection
   id: Scalars['ID']['output']
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   logoFile?: Maybe<File>
   /** The local logo file id, takes precedence over the logo remote URL */
-  logoLocalFileID?: Maybe<Scalars['ID']['output']>
+  logoFileID?: Maybe<Scalars['ID']['output']>
   /** URL of the logo */
   logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** name of the standard body */
@@ -49197,15 +48271,6 @@ export interface Subprocessor extends Node {
   trustCenterSubprocessors: TrustCenterSubprocessorConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-}
-
-export interface SubprocessorFilesArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<FileOrder>>
-  where?: InputMaybe<FileWhereInput>
 }
 
 export interface SubprocessorTrustCenterSubprocessorsArgs {
@@ -49276,7 +48341,7 @@ export interface SubprocessorHistory extends Node {
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   /** The local logo file id, takes precedence over the logo remote URL */
-  logoLocalFileID?: Maybe<Scalars['String']['output']>
+  logoFileID?: Maybe<Scalars['String']['output']>
   /** URL of the logo */
   logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** name of the standard body */
@@ -49423,22 +48488,22 @@ export interface SubprocessorHistoryWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** logo_local_file_id field predicates */
-  logoLocalFileID?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDContains?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDGT?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDGTE?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  logoLocalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  logoLocalFileIDLT?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDLTE?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
-  logoLocalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  logoLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** logo_file_id field predicates */
+  logoFileID?: InputMaybe<Scalars['String']['input']>
+  logoFileIDContains?: InputMaybe<Scalars['String']['input']>
+  logoFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  logoFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  logoFileIDGT?: InputMaybe<Scalars['String']['input']>
+  logoFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  logoFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  logoFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  logoFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  logoFileIDLT?: InputMaybe<Scalars['String']['input']>
+  logoFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  logoFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  logoFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** logo_remote_url field predicates */
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   logoRemoteURLContains?: InputMaybe<Scalars['String']['input']>
@@ -49629,9 +48694,6 @@ export interface SubprocessorWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** files edge predicates */
-  hasFiles?: InputMaybe<Scalars['Boolean']['input']>
-  hasFilesWith?: InputMaybe<Array<FileWhereInput>>
   /** logo_file edge predicates */
   hasLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   hasLogoFileWith?: InputMaybe<Array<FileWhereInput>>
@@ -49668,22 +48730,22 @@ export interface SubprocessorWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** logo_local_file_id field predicates */
-  logoLocalFileID?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDGT?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDGTE?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  logoLocalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  logoLocalFileIDLT?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDLTE?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  logoLocalFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  logoLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** logo_file_id field predicates */
+  logoFileID?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDContains?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDGT?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  logoFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  logoFileIDLT?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  logoFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  logoFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** logo_remote_url field predicates */
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   logoRemoteURLContains?: InputMaybe<Scalars['String']['input']>
@@ -52127,6 +51189,12 @@ export interface TrustCenter extends Node {
   /** Pirsch ID code */
   pirschIdentificationCode?: Maybe<Scalars['String']['output']>
   posts: NoteConnection
+  previewDomain?: Maybe<CustomDomain>
+  /** preview domain id for the trust center */
+  previewDomainID?: Maybe<Scalars['ID']['output']>
+  previewSetting?: Maybe<TrustCenterSetting>
+  /** preview status of the trust center */
+  previewStatus?: Maybe<TrustCenterTrustCenterPreviewStatus>
   setting?: Maybe<TrustCenterSetting>
   /** Slug for the trust center */
   slug?: Maybe<Scalars['String']['output']>
@@ -53222,6 +52290,10 @@ export interface TrustCenterHistory extends Node {
   pirschDomainID?: Maybe<Scalars['String']['output']>
   /** Pirsch ID code */
   pirschIdentificationCode?: Maybe<Scalars['String']['output']>
+  /** preview domain id for the trust center */
+  previewDomainID?: Maybe<Scalars['String']['output']>
+  /** preview status of the trust center */
+  previewStatus?: Maybe<TrustCenterHistoryTrustCenterPreviewStatus>
   ref?: Maybe<Scalars['String']['output']>
   /** Slug for the trust center */
   slug?: Maybe<Scalars['String']['output']>
@@ -53271,6 +52343,15 @@ export enum TrustCenterHistoryOrderField {
   created_at = 'created_at',
   history_time = 'history_time',
   updated_at = 'updated_at',
+}
+
+/** TrustCenterHistoryTrustCenterPreviewStatus is enum for the field preview_status */
+export enum TrustCenterHistoryTrustCenterPreviewStatus {
+  DEPROVISIONING = 'DEPROVISIONING',
+  FAILED = 'FAILED',
+  NONE = 'NONE',
+  PROVISIONING = 'PROVISIONING',
+  READY = 'READY',
 }
 
 /**
@@ -53397,6 +52478,29 @@ export interface TrustCenterHistoryWhereInput {
   pirschIdentificationCodeNEQ?: InputMaybe<Scalars['String']['input']>
   pirschIdentificationCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   pirschIdentificationCodeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** preview_domain_id field predicates */
+  previewDomainID?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDContains?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDGT?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDGTE?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  previewDomainIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  previewDomainIDLT?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDLTE?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDNEQ?: InputMaybe<Scalars['String']['input']>
+  previewDomainIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  previewDomainIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** preview_status field predicates */
+  previewStatus?: InputMaybe<TrustCenterHistoryTrustCenterPreviewStatus>
+  previewStatusIn?: InputMaybe<Array<TrustCenterHistoryTrustCenterPreviewStatus>>
+  previewStatusIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  previewStatusNEQ?: InputMaybe<TrustCenterHistoryTrustCenterPreviewStatus>
+  previewStatusNotIn?: InputMaybe<Array<TrustCenterHistoryTrustCenterPreviewStatus>>
+  previewStatusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -53490,6 +52594,8 @@ export interface TrustCenterSetting extends Node {
   backgroundColor?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** environment of the trust center */
+  environment?: Maybe<TrustCenterSettingTrustCenterEnvironment>
   faviconFile?: Maybe<File>
   /** The local favicon file id, takes precedence over the favicon remote URL */
   faviconLocalFileID?: Maybe<Scalars['ID']['output']>
@@ -53518,9 +52624,8 @@ export interface TrustCenterSetting extends Node {
   themeMode?: Maybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
   title?: Maybe<Scalars['String']['output']>
-  trustCenter?: Maybe<TrustCenter>
   /** the ID of the trust center the settings belong to */
-  trustCenterID?: Maybe<Scalars['ID']['output']>
+  trustCenterID?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -53583,6 +52688,8 @@ export interface TrustCenterSettingHistory extends Node {
   backgroundColor?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** environment of the trust center */
+  environment?: Maybe<TrustCenterSettingHistoryTrustCenterEnvironment>
   /** The local favicon file id, takes precedence over the favicon remote URL */
   faviconLocalFileID?: Maybe<Scalars['String']['output']>
   /** URL of the favicon */
@@ -53659,6 +52766,12 @@ export enum TrustCenterSettingHistoryOrderField {
   updated_at = 'updated_at',
 }
 
+/** TrustCenterSettingHistoryTrustCenterEnvironment is enum for the field environment */
+export enum TrustCenterSettingHistoryTrustCenterEnvironment {
+  LIVE = 'LIVE',
+  PREVIEW = 'PREVIEW',
+}
+
 /** TrustCenterSettingHistoryTrustCenterThemeMode is enum for the field theme_mode */
 export enum TrustCenterSettingHistoryTrustCenterThemeMode {
   ADVANCED = 'ADVANCED',
@@ -53730,6 +52843,13 @@ export interface TrustCenterSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment field predicates */
+  environment?: InputMaybe<TrustCenterSettingHistoryTrustCenterEnvironment>
+  environmentIn?: InputMaybe<Array<TrustCenterSettingHistoryTrustCenterEnvironment>>
+  environmentIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNEQ?: InputMaybe<TrustCenterSettingHistoryTrustCenterEnvironment>
+  environmentNotIn?: InputMaybe<Array<TrustCenterSettingHistoryTrustCenterEnvironment>>
+  environmentNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** favicon_local_file_id field predicates */
   faviconLocalFileID?: InputMaybe<Scalars['String']['input']>
   faviconLocalFileIDContains?: InputMaybe<Scalars['String']['input']>
@@ -54015,6 +53135,12 @@ export enum TrustCenterSettingOrderField {
   updated_at = 'updated_at',
 }
 
+/** TrustCenterSettingTrustCenterEnvironment is enum for the field environment */
+export enum TrustCenterSettingTrustCenterEnvironment {
+  LIVE = 'LIVE',
+  PREVIEW = 'PREVIEW',
+}
+
 /** TrustCenterSettingTrustCenterThemeMode is enum for the field theme_mode */
 export enum TrustCenterSettingTrustCenterThemeMode {
   ADVANCED = 'ADVANCED',
@@ -54093,6 +53219,13 @@ export interface TrustCenterSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment field predicates */
+  environment?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
+  environmentIn?: InputMaybe<Array<TrustCenterSettingTrustCenterEnvironment>>
+  environmentIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNEQ?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
+  environmentNotIn?: InputMaybe<Array<TrustCenterSettingTrustCenterEnvironment>>
+  environmentNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** favicon_local_file_id field predicates */
   faviconLocalFileID?: InputMaybe<Scalars['ID']['input']>
   faviconLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -54166,9 +53299,6 @@ export interface TrustCenterSettingWhereInput {
   /** logo_file edge predicates */
   hasLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   hasLogoFileWith?: InputMaybe<Array<FileWhereInput>>
-  /** trust_center edge predicates */
-  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
-  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -54302,20 +53432,20 @@ export interface TrustCenterSettingWhereInput {
   titleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   titleNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** trust_center_id field predicates */
-  trustCenterID?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterID?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDLT?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
@@ -54768,6 +53898,15 @@ export interface TrustCenterSubprocessorWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** TrustCenterTrustCenterPreviewStatus is enum for the field preview_status */
+export enum TrustCenterTrustCenterPreviewStatus {
+  DEPROVISIONING = 'DEPROVISIONING',
+  FAILED = 'FAILED',
+  NONE = 'NONE',
+  PROVISIONING = 'PROVISIONING',
+  READY = 'READY',
 }
 
 /** Return response for updateTrustCenter mutation */
@@ -55463,6 +54602,12 @@ export interface TrustCenterWhereInput {
   /** posts edge predicates */
   hasPosts?: InputMaybe<Scalars['Boolean']['input']>
   hasPostsWith?: InputMaybe<Array<NoteWhereInput>>
+  /** preview_domain edge predicates */
+  hasPreviewDomain?: InputMaybe<Scalars['Boolean']['input']>
+  hasPreviewDomainWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** preview_setting edge predicates */
+  hasPreviewSetting?: InputMaybe<Scalars['Boolean']['input']>
+  hasPreviewSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
@@ -55542,6 +54687,29 @@ export interface TrustCenterWhereInput {
   pirschIdentificationCodeNEQ?: InputMaybe<Scalars['String']['input']>
   pirschIdentificationCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   pirschIdentificationCodeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** preview_domain_id field predicates */
+  previewDomainID?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDContains?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDGT?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDGTE?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  previewDomainIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  previewDomainIDLT?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDLTE?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  previewDomainIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  previewDomainIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** preview_status field predicates */
+  previewStatus?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
+  previewStatusIn?: InputMaybe<Array<TrustCenterTrustCenterPreviewStatus>>
+  previewStatusIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  previewStatusNEQ?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
+  previewStatusNotIn?: InputMaybe<Array<TrustCenterTrustCenterPreviewStatus>>
+  previewStatusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** slug field predicates */
   slug?: InputMaybe<Scalars['String']['input']>
   slugContains?: InputMaybe<Scalars['String']['input']>
@@ -56714,11 +55882,8 @@ export interface UpdateFileInput {
   addOrganizationSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addUserSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the category type of the file, if any (e.g. evidence, invoice, etc.) */
   categoryType?: InputMaybe<Scalars['String']['input']>
@@ -56747,14 +55912,11 @@ export interface UpdateFileInput {
   clearStorageScheme?: InputMaybe<Scalars['Boolean']['input']>
   clearStorageVolume?: InputMaybe<Scalars['Boolean']['input']>
   clearStoreKey?: InputMaybe<Scalars['Boolean']['input']>
-  clearSubprocessor?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearURI?: InputMaybe<Scalars['Boolean']['input']>
-  clearUser?: InputMaybe<Scalars['Boolean']['input']>
-  clearUserSetting?: InputMaybe<Scalars['Boolean']['input']>
   /** the content type of the HTTP request - may be different than MIME type as multipart-form can transmit multiple files and different types */
   detectedContentType?: InputMaybe<Scalars['String']['input']>
   /** the mime type detected by the system */
@@ -56784,11 +55946,8 @@ export interface UpdateFileInput {
   removeOrganizationSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeUserSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the storage path is the second-level directory of the file path, typically the correlating logical object ID the file is associated with; files can be stand alone objects and not always correlated to a logical one, so this path of the tree may be empty */
   storagePath?: InputMaybe<Scalars['String']['input']>
   /** the storage provider the file is stored in, if applicable */
@@ -57736,6 +56895,7 @@ export interface UpdateOrganizationInput {
   addStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57824,6 +56984,7 @@ export interface UpdateOrganizationInput {
   clearStandardCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearStandards?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
@@ -57909,6 +57070,7 @@ export interface UpdateOrganizationInput {
   removeStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58891,11 +58053,9 @@ export interface UpdateSubcontrolInput {
  * Input was generated by ent.
  */
 export interface UpdateSubprocessorInput {
-  addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
-  clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
@@ -58913,7 +58073,6 @@ export interface UpdateSubprocessorInput {
   /** name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
@@ -59172,6 +58331,9 @@ export interface UpdateTrustCenterInput {
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschIdentificationCode?: InputMaybe<Scalars['Boolean']['input']>
   clearPosts?: InputMaybe<Scalars['Boolean']['input']>
+  clearPreviewDomain?: InputMaybe<Scalars['Boolean']['input']>
+  clearPreviewSetting?: InputMaybe<Scalars['Boolean']['input']>
+  clearPreviewStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
@@ -59187,6 +58349,10 @@ export interface UpdateTrustCenterInput {
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   /** Pirsch ID code */
   pirschIdentificationCode?: InputMaybe<Scalars['String']['input']>
+  previewDomainID?: InputMaybe<Scalars['ID']['input']>
+  previewSettingID?: InputMaybe<Scalars['ID']['input']>
+  /** preview status of the trust center */
+  previewStatus?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
   removePostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59224,7 +58390,7 @@ export interface UpdateTrustCenterSettingInput {
   clearSecondaryForegroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearThemeMode?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
-  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterID?: InputMaybe<Scalars['Boolean']['input']>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the favicon */
   faviconRemoteURL?: InputMaybe<Scalars['String']['input']>
@@ -59248,7 +58414,8 @@ export interface UpdateTrustCenterSettingInput {
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
   title?: InputMaybe<Scalars['String']['input']>
-  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  /** the ID of the trust center the settings belong to */
+  trustCenterID?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -59309,7 +58476,6 @@ export interface UpdateUserInput {
   addAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59335,7 +58501,6 @@ export interface UpdateUserInput {
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
-  clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearImpersonationEvents?: InputMaybe<Scalars['Boolean']['input']>
@@ -59374,7 +58539,6 @@ export interface UpdateUserInput {
   removeAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59409,10 +58573,8 @@ export interface UpdateUserInput {
  * Input was generated by ent.
  */
 export interface UpdateUserSettingInput {
-  addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDefaultOrg?: InputMaybe<Scalars['Boolean']['input']>
-  clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIsTfaEnabled?: InputMaybe<Scalars['Boolean']['input']>
   clearSilencedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearSuspendedAt?: InputMaybe<Scalars['Boolean']['input']>
@@ -59425,7 +58587,6 @@ export interface UpdateUserSettingInput {
   isTfaEnabled?: InputMaybe<Scalars['Boolean']['input']>
   /** user account is locked if unconfirmed or explicitly locked */
   locked?: InputMaybe<Scalars['Boolean']['input']>
-  removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** The time notifications regarding the user were silenced */
   silencedAt?: InputMaybe<Scalars['Time']['input']>
   /** status of the user account */
@@ -59806,7 +58967,6 @@ export interface User extends Node {
   displayName: Scalars['String']['output']
   email: Scalars['String']['output']
   events: EventConnection
-  files: FileConnection
   firstName?: Maybe<Scalars['String']['output']>
   groupMemberships: GroupMembershipConnection
   groups: GroupConnection
@@ -59880,15 +59040,6 @@ export interface UserEventsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EventOrder>>
   where?: InputMaybe<EventWhereInput>
-}
-
-export interface UserFilesArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<FileOrder>>
-  where?: InputMaybe<FileWhereInput>
 }
 
 export interface UserGroupMembershipsArgs {
@@ -60517,7 +59668,6 @@ export interface UserSetting extends Node {
   defaultOrg?: Maybe<Organization>
   /** whether the user has confirmed their email address */
   emailConfirmed: Scalars['Boolean']['output']
-  files: FileConnection
   id: Scalars['ID']['output']
   /** whether the user has two factor authentication enabled */
   isTfaEnabled?: Maybe<Scalars['Boolean']['output']>
@@ -60537,15 +59687,6 @@ export interface UserSetting extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userID?: Maybe<Scalars['ID']['output']>
-}
-
-export interface UserSettingFilesArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<FileOrder>>
-  where?: InputMaybe<FileWhereInput>
 }
 
 /** Return response for createBulkUserSetting mutation */
@@ -60897,9 +60038,6 @@ export interface UserSettingWhereInput {
   /** default_org edge predicates */
   hasDefaultOrg?: InputMaybe<Scalars['Boolean']['input']>
   hasDefaultOrgWith?: InputMaybe<Array<OrganizationWhereInput>>
-  /** files edge predicates */
-  hasFiles?: InputMaybe<Scalars['Boolean']['input']>
-  hasFilesWith?: InputMaybe<Array<FileWhereInput>>
   /** user edge predicates */
   hasUser?: InputMaybe<Scalars['Boolean']['input']>
   hasUserWith?: InputMaybe<Array<UserWhereInput>>
@@ -61157,9 +60295,6 @@ export interface UserWhereInput {
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
-  /** files edge predicates */
-  hasFiles?: InputMaybe<Scalars['Boolean']['input']>
-  hasFilesWith?: InputMaybe<Array<FileWhereInput>>
   /** group_memberships edge predicates */
   hasGroupMemberships?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupMembershipsWith?: InputMaybe<Array<GroupMembershipWhereInput>>
@@ -70006,6 +69141,16 @@ export type CreateBulkCsvSubscriberMutationVariables = Exact<{
 export type CreateBulkCsvSubscriberMutation = {
   __typename?: 'Mutation'
   createBulkCSVSubscriber: { __typename?: 'SubscriberBulkCreatePayload'; subscribers?: Array<{ __typename?: 'Subscriber'; id: string }> | null }
+}
+
+export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetTagsQuery = {
+  __typename?: 'Query'
+  tagDefinitions: {
+    __typename?: 'TagDefinitionConnection'
+    edges?: Array<{ __typename?: 'TagDefinitionEdge'; node?: { __typename?: 'TagDefinition'; id: string; name: string; color?: string | null } | null } | null> | null
+  }
 }
 
 export type TasksWithFilterQueryVariables = Exact<{

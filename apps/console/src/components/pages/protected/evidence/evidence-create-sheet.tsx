@@ -35,6 +35,7 @@ import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './e
 import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import Link from 'next/link'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -74,6 +75,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
+  const { tagOptions } = useGetTags()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const formData = {
@@ -380,6 +382,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                           <FormLabel>Tags</FormLabel>
                           <FormControl>
                             <MultipleSelector
+                              options={tagOptions}
                               placeholder="Add tag..."
                               creatable
                               value={tagValues}

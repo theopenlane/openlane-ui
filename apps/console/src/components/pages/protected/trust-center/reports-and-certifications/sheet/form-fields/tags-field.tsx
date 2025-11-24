@@ -3,6 +3,7 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Badge } from '@repo/ui/badge'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 interface Props {
   isEditing: boolean
@@ -16,6 +17,7 @@ export const TagsField = ({ isEditing }: Props) => {
   } = useFormContext()
 
   const tags = watch('tags') || []
+  const { tagOptions } = useGetTags()
 
   return (
     <div>
@@ -26,7 +28,12 @@ export const TagsField = ({ isEditing }: Props) => {
             control={control}
             name="tags"
             render={({ field }) => (
-              <MultipleSelector creatable value={(field.value ?? []).map((tag: string) => ({ value: tag, label: tag }))} onChange={(selected) => field.onChange(selected.map((s) => s.value))} />
+              <MultipleSelector
+                options={tagOptions}
+                creatable
+                value={(field.value ?? []).map((tag: string) => ({ value: tag, label: tag }))}
+                onChange={(selected) => field.onChange(selected.map((s) => s.value))}
+              />
             )}
           />
           {errors.tags && <p className="text-red-500 text-sm mt-1">{String(errors.tags.message)}</p>}
