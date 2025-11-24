@@ -8,6 +8,7 @@ import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -15,6 +16,7 @@ type TTagsCardProps = {
 
 const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
   const [tagValues, setTagValues] = useState<Option[]>([])
+  const { tagOptions } = useGetTags()
 
   useEffect(() => {
     if (form.getValues('tags')) {
@@ -52,6 +54,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
                         placeholder="Add tag..."
                         creatable
                         value={tagValues}
+                        options={tagOptions}
                         onChange={(selectedOptions) => {
                           const options = selectedOptions.map((option) => option.value)
                           field.onChange(options)

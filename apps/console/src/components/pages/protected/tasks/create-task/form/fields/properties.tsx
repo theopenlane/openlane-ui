@@ -18,6 +18,7 @@ import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -36,9 +37,10 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
   const statusOptions = TaskStatusOptions
   const taskTypeOptions = Object.values(TaskTypes)
+  const { tagOptions } = useGetTags()
 
   const tags = watch('tags')
-  const tagOptions = useMemo(() => {
+  const tagValues = useMemo(() => {
     return (tags ?? [])
       .filter((item): item is string => typeof item === 'string')
       .map((item) => ({
@@ -73,7 +75,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
   const blurTags = () => {
     const current = taskData?.tags || []
-    const next = tagOptions.map((item) => item.value)
+    const next = tagValues.map((item) => item.value)
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdate) {
@@ -290,11 +292,12 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             render={({ field }) => (
               <div className="w-[250px]" ref={triggerRef}>
                 <MultipleSelector
+                  options={tagOptions}
                   hideClearAllButton
                   placeholder="Add tag..."
                   creatable
                   commandProps={{ className: 'w-full' }}
-                  value={tagOptions}
+                  value={tagValues}
                   onChange={(selectedOptions) => {
                     const newTags = selectedOptions.map((opt) => opt.value)
                     field.onChange(newTags)
