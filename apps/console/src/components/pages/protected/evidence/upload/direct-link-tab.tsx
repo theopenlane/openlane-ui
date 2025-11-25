@@ -47,14 +47,6 @@ const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
     <TabsContent value="directLink">
       <FormItem className="w-full">
         <DirectLinkTabSection setLink={setEvidenceDirectLink} handleAddProcedureLink={handleAddLink} ariaLabel={'Create evidence'} />
-        {/* <div className="flex w-full items-center">
-          <div className="w-4/5">
-            <Input variant="medium" className="w-full" placeholder="Paste URL here" value={evidenceDirectLink} onChange={(e) => setEvidenceDirectLink(e.target.value)} disabled={evidenceLinkAdded} />
-          </div>
-          <div className="w-1/5 flex justify-center">
-            <PlusCircle className="w-8 h-8 text-primary cursor-pointer hover:scale-105 transition-transform" onClick={handleAddLink} />
-          </div>
-        </div> */}
         {props.form.formState.errors.url && <p className="text-red-500 text-sm">{props.form.formState.errors.url.message}</p>}
       </FormItem>
     </TabsContent>
