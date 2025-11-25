@@ -8152,7 +8152,7 @@ export interface CreateExportInput {
   /** the specific filters to run against the exported data. This should be a well formatted graphql query */
   filters?: InputMaybe<Scalars['String']['input']>
   /** the format of export, e.g., csv and others */
-  format: ExportExportFormat
+  format?: InputMaybe<ExportExportFormat>
   ownerID?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -8887,7 +8887,9 @@ export interface CreateOrganizationInput {
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterDocCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9758,6 +9760,8 @@ export interface CreateTrustCenterWatermarkConfigInput {
   font?: InputMaybe<TrustCenterWatermarkConfigFont>
   /** font size of the watermark text */
   fontSize?: InputMaybe<Scalars['Float']['input']>
+  /** whether the watermarking is enabled for all trust center documents, default is true */
+  isEnabled?: InputMaybe<Scalars['Boolean']['input']>
   /** opacity of the watermark text */
   opacity?: InputMaybe<Scalars['Float']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -33256,6 +33260,8 @@ export interface Organization extends Node {
   tasks: TaskConnection
   templateCreators: GroupConnection
   templates: TemplateConnection
+  trustCenterDocCreators: GroupConnection
+  trustCenterSubprocessorCreators: GroupConnection
   trustCenterWatermarkConfigs: TrustCenterWatermarkConfigConnection
   trustCenters: TrustCenterConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -33898,6 +33904,24 @@ export interface OrganizationTemplatesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TemplateOrder>>
   where?: InputMaybe<TemplateWhereInput>
+}
+
+export interface OrganizationTrustCenterDocCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationTrustCenterSubprocessorCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationTrustCenterWatermarkConfigsArgs {
@@ -35619,6 +35643,12 @@ export interface OrganizationWhereInput {
   /** templates edge predicates */
   hasTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplatesWith?: InputMaybe<Array<TemplateWhereInput>>
+  /** trust_center_doc_creators edge predicates */
+  hasTrustCenterDocCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterDocCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** trust_center_subprocessor_creators edge predicates */
+  hasTrustCenterSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterSubprocessorCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** trust_center_watermark_configs edge predicates */
   hasTrustCenterWatermarkConfigs?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterWatermarkConfigsWith?: InputMaybe<Array<TrustCenterWatermarkConfigWhereInput>>
@@ -53929,6 +53959,8 @@ export interface TrustCenterWatermarkConfig extends Node {
   /** font size of the watermark text */
   fontSize?: Maybe<Scalars['Float']['output']>
   id: Scalars['ID']['output']
+  /** whether the watermarking is enabled for all trust center documents, default is true */
+  isEnabled?: Maybe<Scalars['Boolean']['output']>
   /** ID of the file containing the document */
   logoID?: Maybe<Scalars['ID']['output']>
   /** opacity of the watermark text */
@@ -54017,6 +54049,8 @@ export interface TrustCenterWatermarkConfigHistory extends Node {
   fontSize?: Maybe<Scalars['Float']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** whether the watermarking is enabled for all trust center documents, default is true */
+  isEnabled?: Maybe<Scalars['Boolean']['output']>
   /** ID of the file containing the document */
   logoID?: Maybe<Scalars['String']['output']>
   /** opacity of the watermark text */
@@ -54181,6 +54215,11 @@ export interface TrustCenterWatermarkConfigHistoryWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** is_enabled field predicates */
+  isEnabled?: InputMaybe<Scalars['Boolean']['input']>
+  isEnabledIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  isEnabledNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  isEnabledNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** logo_id field predicates */
   logoID?: InputMaybe<Scalars['String']['input']>
   logoIDContains?: InputMaybe<Scalars['String']['input']>
@@ -54427,6 +54466,11 @@ export interface TrustCenterWatermarkConfigWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** is_enabled field predicates */
+  isEnabled?: InputMaybe<Scalars['Boolean']['input']>
+  isEnabledIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  isEnabledNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  isEnabledNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** logo_id field predicates */
   logoID?: InputMaybe<Scalars['ID']['input']>
   logoIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -56902,7 +56946,9 @@ export interface UpdateOrganizationInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterDocCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56992,6 +57038,8 @@ export interface UpdateOrganizationInput {
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterDocCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterWatermarkConfigs?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenters?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
@@ -57077,7 +57125,9 @@ export interface UpdateOrganizationInput {
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterDocCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58444,6 +58494,7 @@ export interface UpdateTrustCenterWatermarkConfigInput {
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFont?: InputMaybe<Scalars['Boolean']['input']>
   clearFontSize?: InputMaybe<Scalars['Boolean']['input']>
+  clearIsEnabled?: InputMaybe<Scalars['Boolean']['input']>
   clearOpacity?: InputMaybe<Scalars['Boolean']['input']>
   clearRotation?: InputMaybe<Scalars['Boolean']['input']>
   clearText?: InputMaybe<Scalars['Boolean']['input']>
@@ -58456,6 +58507,8 @@ export interface UpdateTrustCenterWatermarkConfigInput {
   font?: InputMaybe<TrustCenterWatermarkConfigFont>
   /** font size of the watermark text */
   fontSize?: InputMaybe<Scalars['Float']['input']>
+  /** whether the watermarking is enabled for all trust center documents, default is true */
+  isEnabled?: InputMaybe<Scalars['Boolean']['input']>
   /** opacity of the watermark text */
   opacity?: InputMaybe<Scalars['Float']['input']>
   removeTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
