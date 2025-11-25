@@ -14,9 +14,10 @@ interface SearchableSingleSelectProps {
   autoFocus?: boolean
   onClose?: () => void
   className?: string
+  width?: number
 }
 
-export const SearchableSingleSelect = ({ value, placeholder = 'Select an option...', options, onChange, autoFocus, onClose, className }: SearchableSingleSelectProps) => {
+export const SearchableSingleSelect = ({ value, placeholder = 'Select an option...', options, onChange, autoFocus, onClose, className, width = 200 }: SearchableSingleSelectProps) => {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -30,7 +31,7 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
   const selected = options.find((opt) => opt.value === value)
 
   return (
-    <div ref={triggerRef} className={`w-[200px] ${className}`}>
+    <div ref={triggerRef} className={`w-[${width}px] ${className}`}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
@@ -38,7 +39,7 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
-        <PopoverContent ref={popoverRef} className="w-[200px] p-0 !bg-input border" side="bottom">
+        <PopoverContent ref={popoverRef} className={`w-[${width}px] p-0 !bg-input border`} side="bottom">
           <Command shouldFilter autoFocus={autoFocus}>
             <CommandInput placeholder="Search..." />
             <CommandList>

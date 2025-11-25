@@ -25,6 +25,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Label } from '@repo/ui/label'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -56,6 +57,7 @@ const BasicInformation = () => {
 
   const { standardOptions } = useStandardsSelect({})
   const standardOptionsNormalized = standardOptions.map((s) => ({ label: s.label, value: s.value }))
+  const { tagOptions } = useGetTags()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -190,6 +192,7 @@ const BasicInformation = () => {
                     control={form.control}
                     render={({ field }) => (
                       <MultipleSelector
+                        options={tagOptions}
                         placeholder="Add tag..."
                         creatable
                         className="w-full"
