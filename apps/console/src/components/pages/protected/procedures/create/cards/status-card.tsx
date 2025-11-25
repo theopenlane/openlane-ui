@@ -7,12 +7,12 @@ import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, File
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
 import { CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { TMetadata } from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -26,6 +26,13 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
     label: value.charAt(0) + value.slice(1).toLowerCase(),
     value,
   }))
+
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'procedure',
+      field: 'kind',
+    },
+  })
 
   return (
     <Card className="p-4">
@@ -155,8 +162,19 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input variant="medium" {...field} className="w-full" />
+                    <Select value={field.value || ''} onValueChange={(value) => field.onChange(value)} disabled={!isTypesSuccess}>
+                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+
+                      <SelectContent>
+                        {enumOptions?.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
+
                   {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}
                 </FormItem>
               )}

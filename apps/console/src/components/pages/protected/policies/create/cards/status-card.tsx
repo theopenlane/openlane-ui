@@ -7,7 +7,6 @@ import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, File
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -24,7 +23,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
   const statusOptions = InternalPolicyStatusOptions
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {
-      objectType: 'internalPolicy',
+      objectType: 'internal_policy',
       field: 'kind',
     },
   })
@@ -157,8 +156,18 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input variant="medium" {...field} className="w-full" />
+                    <Select value={field.value || ''} onValueChange={(value) => field.onChange(value)} disabled={!isTypesSuccess}>
+                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+                      <SelectContent>
+                        {enumOptions?.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
+
                   {form.formState.errors.internalPolicyKindName && <p className="text-red-500 text-sm">{form.formState.errors.internalPolicyKindName.message}</p>}
                 </FormItem>
               )}

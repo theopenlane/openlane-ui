@@ -11,7 +11,7 @@ export function usePoliciesFilters(): FilterField[] | null {
 
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {
-      objectType: 'internalPolicy',
+      objectType: 'internal_policy',
       field: 'kind',
     },
   })

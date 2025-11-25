@@ -19,7 +19,7 @@ const formSchema = z.object({
       errorMap: () => ({ message: 'Invalid status' }),
     })
     .default(ProcedureFrequency.YEARLY),
-  procedureType: z.string().optional(),
+  procedureKindName: z.string().optional(),
   reviewDue: z.date().optional().nullable(),
   tags: z.array(z.string().optional()),
   programIDs: z.array(z.any()).optional(),
@@ -43,7 +43,7 @@ const useFormSchema = () => {
         status: ProcedureDocumentStatus.DRAFT,
         reviewFrequency: ProcedureFrequency.YEARLY,
         tags: [],
-        procedureType: '',
+        procedureKindName: '',
       },
     }),
   }
