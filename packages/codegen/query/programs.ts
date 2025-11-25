@@ -357,15 +357,15 @@ export const GET_GLOBAL_EVIDENCE_STATS = gql`
       totalCount
     }
 
-    submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY] }] }) {
+    submitted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [READY] }] }) {
       totalCount
     }
 
-    accepted: controls(where: { hasEvidenceWith: [{ statusIn: [APPROVED] }] }) {
+    accepted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [APPROVED] }] }) {
       totalCount
     }
 
-    rejected: controls(where: { hasEvidenceWith: [{ statusIn: [REJECTED] }] }) {
+    rejected: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [REJECTED] }] }) {
       totalCount
     }
   }
