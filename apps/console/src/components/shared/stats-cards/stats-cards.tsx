@@ -129,11 +129,10 @@ const StatsCards: React.FC = () => {
   const params = useParams<{ id?: string }>()
   const searchParams = useSearchParams()
 
-  // Get id from query (?id=...) OR from route params ([id])
   const queryId = searchParams.get('id') ?? undefined
   const routeId = params?.id
 
-  const id = queryId || routeId // final ID
+  const id = queryId || routeId
 
   const programStats = useProgramEvidenceStats(id)
   const globalStats = useGlobalEvidenceStats({ enabled: !pathname.startsWith('/programs') })
