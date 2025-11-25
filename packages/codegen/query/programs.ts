@@ -333,7 +333,7 @@ export const UPDATE_PROGRAM_MEMBERSHIP = gql`
 
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
-    totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {
+    totalControls: controls(where: { systemOwned: false, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
 
@@ -353,7 +353,7 @@ export const GET_EVIDENCE_STATS = gql`
 
 export const GET_GLOBAL_EVIDENCE_STATS = gql`
   query GetGlobalEvidenceStats {
-    totalControls: controls(where: {}) {
+    totalControls: controls(where: { systemOwned: false }) {
       totalCount
     }
 
