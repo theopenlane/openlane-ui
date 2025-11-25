@@ -3,7 +3,7 @@ import { Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
-import { TaskStatusOptions, TaskTypesOptions } from '../enum-mapper/task-enum'
+import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 
 export type BulkEditRisksDialogProps = {
@@ -268,6 +268,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
         label: string
       }[]
     | undefined,
+  taskKindOptions: { value: string; label: string }[],
 ): SelectOptionSelectedObject[] => {
   return [
     {
@@ -295,7 +296,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
       name: 'category',
       inputType: InputType.Select,
       placeholder: 'Select category',
-      options: TaskTypesOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+      options: taskKindOptions,
     },
   ]
 }

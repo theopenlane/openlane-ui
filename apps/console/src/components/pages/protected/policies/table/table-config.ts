@@ -93,7 +93,7 @@ export function usePoliciesFilters(): FilterField[] | null {
   return filters
 }
 
-export const INTERNAL_POLICIES_SORTABLE_FIELDS = [
+export const INTERNAL_POLICIES_SORT_FIELDS = [
   { key: 'REVIEW_FREQUENCY', label: 'Review Frequency' },
   { key: 'STATUS', label: 'Status' },
   { key: 'name', label: 'Name' },

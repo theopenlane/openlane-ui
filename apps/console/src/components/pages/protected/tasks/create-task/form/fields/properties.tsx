@@ -7,7 +7,7 @@ import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 import { formatDate } from '@/utils/date'
 import { TaskQuery, TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useTaskStore } from '../../../hooks/useTaskStore'
@@ -19,6 +19,7 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -38,6 +39,13 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
   const statusOptions = TaskStatusOptions
   const taskTypeOptions = Object.values(TaskTypes)
   const { tagOptions } = useGetTags()
+
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
 
   const tags = watch('tags')
   const tagValues = useMemo(() => {
@@ -235,9 +243,9 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
         <Folder className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Task Type</p>
 
-        {isEditing || internalEditing === 'category' ? (
+        {isEditing || internalEditing === 'taskKindName' ? (
           <Controller
-            name="category"
+            name="taskKindName"
             control={control}
             render={({ field }) => (
               <div className="w-[250px]" ref={triggerRef}>
@@ -251,20 +259,20 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                 >
                   <SelectTrigger className="w-full">{field.value || 'Select'}</SelectTrigger>
                   <SelectContent ref={popoverRef}>
-                    {taskTypeOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
+                    {taskKindOptions.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.value}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {formState.errors.category && <p className="text-red-500 text-sm">{formState.errors.category.message}</p>}
+                {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message}</p>}
               </div>
             )}
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('category')}>{taskData?.category || 'No category'}</p>
+            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>{taskData?.taskKindName || 'No category'}</p>
           </HoverPencilWrapper>
         )}
       </div>

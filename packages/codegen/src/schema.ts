@@ -69931,12 +69931,12 @@ export type TasksWithFilterQuery = {
         tags?: Array<string> | null
         due?: string | null
         displayID: string
-        category?: string | null
         details?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        taskKindName?: string | null
         completed?: string | null
         assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
         assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
@@ -69975,7 +69975,7 @@ export type TaskQuery = {
     __typename?: 'Task'
     tags?: Array<string> | null
     id: string
-    category?: string | null
+    taskKindName?: string | null
     title: string
     status: TaskTaskStatus
     due?: string | null
