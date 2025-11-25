@@ -11,8 +11,18 @@ const enumToOptions = (e: Record<string, string>) =>
     value,
   }))
 
-export const getRisksFilterFields = (programOptions: { value: string; label: string }[], riskKindOptions: { value: string; label: string }[]): FilterField[] => [
-  { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
+export const getRisksFilterFields = (
+  programOptions: { value: string; label: string }[],
+  riskKindOptions: { value: string; label: string }[],
+  riskCategoryOptions: { value: string; label: string }[],
+): FilterField[] => [
+  {
+    key: 'riskCategoryNameIn',
+    label: 'Category',
+    type: 'multiselect',
+    icon: FilterIcons.Category,
+    options: riskCategoryOptions,
+  },
 
   {
     key: 'impactIn',

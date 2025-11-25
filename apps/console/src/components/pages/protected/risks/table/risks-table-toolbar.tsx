@@ -74,14 +74,21 @@ const RisksTableToolbar: React.FC<TProps> = ({
     },
   })
 
-  useEffect(() => {
-    if (filterFields || !isProgramsSuccess || !isTypeSuccess) {
-      return
-    }
+  const { enumOptions: riskCategoryOptions, isSuccess: isCategorySuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'category',
+    },
+  })
 
-    const fields = getRisksFilterFields(programOptions, riskKindOptions)
+  useEffect(() => {
+    if (!isProgramsSuccess || !isTypeSuccess || !isCategorySuccess) return
+    if (filterFields) return
+
+    const fields = getRisksFilterFields(programOptions, riskKindOptions ?? [], riskCategoryOptions ?? [])
+
     setFilterFields(fields)
-  }, [programOptions, filterFields, isProgramsSuccess, isTypeSuccess, riskKindOptions])
+  }, [filterFields, programOptions, riskKindOptions, riskCategoryOptions, isProgramsSuccess, isTypeSuccess, isCategorySuccess])
 
   const handleBulkDelete = async () => {
     if (!selectedRisks) {
