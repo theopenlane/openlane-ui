@@ -32,11 +32,9 @@ const ProgramTypeSelect = () => {
               onValueChange={(value) => {
                 field.onChange(value)
 
-                // keep existing behavior
                 setValue('programKindName', value)
                 trigger('programKindName')
 
-                // specific auto-name behavior stays intact
                 if (value === 'Risk Assessment' || value === 'Gap Analysis') {
                   const selectedLabel = enumOptions?.find((opt) => opt.value === value)?.label
                   if (selectedLabel) {
