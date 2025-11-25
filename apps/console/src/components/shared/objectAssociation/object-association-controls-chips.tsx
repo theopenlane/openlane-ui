@@ -107,10 +107,10 @@ const ObjectAssociationControlsChips = ({
           },
         })
 
-        const exists = (response?.subcontrols?.edges?.length ?? 0) > 0
+        const exists = response?.subcontrols?.edges?.[0]?.node
 
         if (exists) {
-          addEvidenceControl(id, true, refCode, referenceFramework)
+          addEvidenceControl(exists.id, true, refCode, referenceFramework)
         } else {
           setPendingAdd({ id, isSubcontrol, refCode, referenceFramework })
           setSelectedControls([
@@ -135,10 +135,10 @@ const ObjectAssociationControlsChips = ({
         },
       })
 
-      const exists = (response?.controls?.edges?.length ?? 0) > 0
+      const exists = response?.controls.edges?.[0]?.node
 
       if (exists) {
-        addEvidenceControl(id, false, refCode, referenceFramework)
+        addEvidenceControl(exists.id, false, refCode, referenceFramework)
       } else {
         setPendingAdd({ id, isSubcontrol, refCode, referenceFramework })
         setSelectedControls([
