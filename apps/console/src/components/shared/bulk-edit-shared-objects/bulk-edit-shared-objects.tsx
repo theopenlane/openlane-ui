@@ -293,7 +293,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
     },
     {
       selectOptionEnum: SelectOptionBulkEditTasks.TaskCategory,
-      name: 'category',
+      name: 'taskKindName',
       inputType: InputType.Select,
       placeholder: 'Select category',
       options: taskKindOptions,
