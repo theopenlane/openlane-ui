@@ -9,7 +9,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
 
 interface RiskLabelProps {
-  fieldName: keyof EditRisksFormData
+  fieldName?: keyof EditRisksFormData
   score?: number
   impact?: RiskRiskImpact
   likelihood?: RiskRiskLikelihood
