@@ -20,7 +20,7 @@ type TPropertiesCardProps = {
   isCreate?: boolean
 }
 
-type Fields = 'riskType' | 'category' | 'score' | 'impact' | 'likelihood' | 'status'
+type Fields = 'riskKindName' | 'riskCategoryName' | 'score' | 'impact' | 'likelihood' | 'status'
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, isEditing, isEditAllowed = true, handleUpdate }) => {
   const { control, getValues } = form
@@ -123,8 +123,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
     return (
       <div>
         <div className="flex flex-col gap-4">
-          {renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}
-          {renderTextField('category', 'Category', risk?.category ?? undefined)}
+          {renderTextField('riskKindName', 'Type', risk?.riskKindName ?? undefined)}
+          {renderTextField('riskCategoryName', 'Category', risk?.riskCategoryName ?? undefined)}
           {renderRiskLabelField('score', 'Score')}
           {renderRiskLabelField('impact', 'Impact')}
           {renderRiskLabelField('likelihood', 'Likelihood')}
@@ -136,8 +136,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
 
   return (
     <Card className="p-4">
-      <div className="m-1">{renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}</div>
-      <div className="m-1">{renderTextField('category', 'Category', risk?.category ?? undefined)}</div>
+      <div className="m-1">{renderTextField('riskKindName', 'Type', risk?.riskKindName ?? undefined)}</div>
+      <div className="m-1">{renderTextField('riskCategoryName', 'Category', risk?.riskCategoryName ?? undefined)}</div>
       <div className="m-1">{renderRiskLabelField('score', 'Score')}</div>
       <div className="m-1">{renderRiskLabelField('impact', 'Impact')}</div>
       <div className="m-1">{renderRiskLabelField('likelihood', 'Likelihood')}</div>

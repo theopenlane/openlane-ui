@@ -1,4 +1,3 @@
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useFormContext } from 'react-hook-form'
@@ -38,7 +37,7 @@ const ProgramTypeSelect = () => {
                 trigger('programKindName')
 
                 // specific auto-name behavior stays intact
-                if (value === ProgramProgramType.RISK_ASSESSMENT || value === ProgramProgramType.GAP_ANALYSIS) {
+                if (value === 'Risk Assessment' || value === 'Gap Analysis') {
                   const selectedLabel = enumOptions?.find((opt) => opt.value === value)?.label
                   if (selectedLabel) {
                     setValue('name', `${selectedLabel} - ${currentYear}`)

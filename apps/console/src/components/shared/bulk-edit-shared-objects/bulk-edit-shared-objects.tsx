@@ -136,7 +136,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOpti
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskType,
-      name: 'riskType',
+      name: 'riskKindName',
       inputType: InputType.Input,
       placeholder: 'Select a risk type',
     },
@@ -149,7 +149,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOpti
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskCategory,
-      name: 'category',
+      name: 'riskCategoryName',
       inputType: InputType.Input,
       placeholder: 'Select category',
     },

@@ -11,8 +11,9 @@ const enumToOptions = (e: Record<string, string>) =>
     value,
   }))
 
-export const getRisksFilterFields = (programOptions: { value: string; label: string }[]): FilterField[] => [
+export const getRisksFilterFields = (programOptions: { value: string; label: string }[], riskKindOptions: { value: string; label: string }[]): FilterField[] => [
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
+
   {
     key: 'impactIn',
     label: 'Impact',
@@ -20,6 +21,7 @@ export const getRisksFilterFields = (programOptions: { value: string; label: str
     options: enumToOptions(RiskRiskImpact),
     icon: FilterIcons.Impact,
   },
+
   {
     key: 'likelihoodIn',
     label: 'Likelihood',
@@ -27,13 +29,17 @@ export const getRisksFilterFields = (programOptions: { value: string; label: str
     options: enumToOptions(RiskRiskLikelihood),
     icon: FilterIcons.Likelihood,
   },
+
   {
-    key: 'riskTypeContainsFold',
+    key: 'riskKindNameIn',
     label: 'Risk Type',
-    type: 'text',
+    type: 'multiselect',
     icon: FilterIcons.RiskType,
+    options: riskKindOptions,
   },
+
   { key: 'score', label: 'Score', type: 'sliderNumber', icon: FilterIcons.Score },
+
   {
     key: 'statusIn',
     label: 'Status',
@@ -41,6 +47,7 @@ export const getRisksFilterFields = (programOptions: { value: string; label: str
     options: enumToOptions(RiskRiskStatus),
     icon: FilterIcons.Status,
   },
+
   {
     key: 'hasProgramsWith',
     label: 'Program Name',

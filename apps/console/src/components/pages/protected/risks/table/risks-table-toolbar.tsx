@@ -21,6 +21,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -60,20 +61,27 @@ const RisksTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
-  const { programOptions, isSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess: isProgramsSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteRisks } = useBulkDeleteRisks()
 
+  const { enumOptions: riskKindOptions, isSuccess: isTypeSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'kind',
+    },
+  })
+
   useEffect(() => {
-    if (filterFields || !isSuccess) {
+    if (filterFields || !isProgramsSuccess || !isTypeSuccess) {
       return
     }
 
-    const fields = getRisksFilterFields(programOptions)
+    const fields = getRisksFilterFields(programOptions, riskKindOptions)
     setFilterFields(fields)
-  }, [programOptions, filterFields, isSuccess])
+  }, [programOptions, filterFields, isProgramsSuccess, isTypeSuccess, riskKindOptions])
 
   const handleBulkDelete = async () => {
     if (!selectedRisks) {

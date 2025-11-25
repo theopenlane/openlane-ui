@@ -69219,8 +69219,8 @@ export type RiskFieldsFragment = {
   name: string
   details?: string | null
   tags?: Array<string> | null
-  category?: string | null
-  riskType?: string | null
+  riskCategoryName?: string | null
+  riskKindName?: string | null
   score?: number | null
   status?: RiskRiskStatus | null
   businessCosts?: string | null
@@ -69257,8 +69257,8 @@ export type RiskTableFieldsFragment = {
   id: string
   displayID: string
   name: string
-  category?: string | null
-  riskType?: string | null
+  riskCategoryName?: string | null
+  riskKindName?: string | null
   score?: number | null
   status?: RiskRiskStatus | null
   businessCosts?: string | null
@@ -69287,8 +69287,8 @@ export type GetRiskByIdQuery = {
     name: string
     details?: string | null
     tags?: Array<string> | null
-    category?: string | null
-    riskType?: string | null
+    riskCategoryName?: string | null
+    riskKindName?: string | null
     score?: number | null
     status?: RiskRiskStatus | null
     businessCosts?: string | null
@@ -69346,8 +69346,8 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
-        category?: string | null
-        riskType?: string | null
+        riskCategoryName?: string | null
+        riskKindName?: string | null
         score?: number | null
         status?: RiskRiskStatus | null
         businessCosts?: string | null
