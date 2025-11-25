@@ -66783,7 +66783,7 @@ export type ControlDetailsFieldsFragment = {
   assessmentObjectives?: Array<any> | null
   displayID: string
   source?: ControlControlSource | null
-  controlType?: ControlControlType | null
+  controlKindName?: string | null
   auditorReferenceID?: string | null
   referenceID?: string | null
   referenceFramework?: string | null
@@ -66895,7 +66895,7 @@ export type GetControlByIdQuery = {
     assessmentObjectives?: Array<any> | null
     displayID: string
     source?: ControlControlSource | null
-    controlType?: ControlControlType | null
+    controlKindName?: string | null
     auditorReferenceID?: string | null
     referenceID?: string | null
     referenceFramework?: string | null
@@ -67284,6 +67284,21 @@ export type GetExistingControlsForOrganizationQuery = {
     edges?: Array<{
       __typename?: 'ControlEdge'
       node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null; standardID?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
+    } | null> | null
+  }
+}
+
+export type GetCustomTypeEnumsQueryVariables = Exact<{
+  where?: InputMaybe<CustomTypeEnumWhereInput>
+}>
+
+export type GetCustomTypeEnumsQuery = {
+  __typename?: 'Query'
+  customTypeEnums: {
+    __typename?: 'CustomTypeEnumConnection'
+    edges?: Array<{
+      __typename?: 'CustomTypeEnumEdge'
+      node?: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string } | null
     } | null> | null
   }
 }
@@ -68451,12 +68466,12 @@ export type InternalPolicyByIdFragment = {
   tags?: Array<string> | null
   revision?: string | null
   status?: InternalPolicyDocumentStatus | null
-  policyType?: string | null
   displayID: string
   reviewDue?: any | null
   reviewFrequency?: InternalPolicyFrequency | null
   approvalRequired?: boolean | null
   summary?: string | null
+  internalPolicyKindName?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
@@ -68479,12 +68494,12 @@ export type GetInternalPolicyDetailsByIdQuery = {
     tags?: Array<string> | null
     revision?: string | null
     status?: InternalPolicyDocumentStatus | null
-    policyType?: string | null
     displayID: string
     reviewDue?: any | null
     reviewFrequency?: InternalPolicyFrequency | null
     approvalRequired?: boolean | null
     summary?: string | null
+    internalPolicyKindName?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }
@@ -68774,7 +68789,7 @@ export type ProcedureByIdFragment = {
   reviewDue?: any | null
   reviewFrequency?: ProcedureFrequency | null
   approvalRequired?: boolean | null
-  procedureType?: string | null
+  procedureKindName?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
@@ -68845,7 +68860,7 @@ export type GetProcedureDetailsByIdQuery = {
     reviewDue?: any | null
     reviewFrequency?: ProcedureFrequency | null
     approvalRequired?: boolean | null
-    procedureType?: string | null
+    procedureKindName?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }
@@ -69571,7 +69586,7 @@ export type GetSubcontrolByIdQuery = {
     assessmentObjectives?: Array<any> | null
     displayID: string
     source?: SubcontrolControlSource | null
-    controlType?: SubcontrolControlType | null
+    subcontrolKindName?: string | null
     auditorReferenceID?: string | null
     referenceID?: string | null
     referenceFramework?: string | null

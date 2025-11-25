@@ -111,13 +111,13 @@ export const INTERNAL_POLICY_BY_ID = gql`
     tags
     revision
     status
-    policyType
     displayID
     details
     reviewDue
     reviewFrequency
     approvalRequired
     summary
+    internalPolicyKindName
     approver {
       id
       displayName

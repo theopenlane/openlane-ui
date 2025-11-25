@@ -13,6 +13,7 @@ import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -21,7 +22,12 @@ type TStatusCardProps = {
 
 const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
   const statusOptions = InternalPolicyStatusOptions
-
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'internalPolicy',
+      field: 'kind',
+    },
+  })
   const reviewFrequencyOptions = Object.values(InternalPolicyFrequency).map((value) => ({
     label: value.charAt(0) + value.slice(1).toLowerCase(),
     value,
@@ -147,13 +153,13 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
           <div className="w-48">
             <FormField
               control={form.control}
-              name="policyType"
+              name="internalPolicyKindName"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input variant="medium" {...field} className="w-full" />
                   </FormControl>
-                  {form.formState.errors.policyType && <p className="text-red-500 text-sm">{form.formState.errors.policyType.message}</p>}
+                  {form.formState.errors.internalPolicyKindName && <p className="text-red-500 text-sm">{form.formState.errors.internalPolicyKindName.message}</p>}
                 </FormItem>
               )}
             />

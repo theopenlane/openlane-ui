@@ -104,7 +104,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     assessmentObjectives
     displayID
     source
-    controlType
+    controlKindName
     auditorReferenceID
     referenceID
     referenceFramework

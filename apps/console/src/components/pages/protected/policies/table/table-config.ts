@@ -3,15 +3,23 @@ import { FilterField } from '@/types'
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 export function usePoliciesFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
 
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'internalPolicy',
+      field: 'kind',
+    },
+  })
+
   const [filters, setFilters] = useState<FilterField[] | null>(null)
 
   useEffect(() => {
-    if (!isProgramSuccess || !isGroupSuccess || filters) return
+    if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess || filters) return
     const newFilters: FilterField[] = [
       {
         key: 'approverIDIn',
@@ -40,10 +48,11 @@ export function usePoliciesFilters(): FilterField[] | null {
         icon: FilterIcons.Subcontrol,
       },
       {
-        key: 'policyTypeContainsFold',
+        key: 'internalPolicyKindNameIn',
         label: 'Type',
-        type: 'text',
+        type: 'multiselect',
         icon: FilterIcons.Type,
+        options: enumOptions,
       },
       {
         key: 'policyTypeIsNil',
@@ -79,7 +88,7 @@ export function usePoliciesFilters(): FilterField[] | null {
     ]
 
     setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters])
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions])
 
   return filters
 }

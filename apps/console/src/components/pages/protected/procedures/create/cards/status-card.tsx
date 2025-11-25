@@ -151,13 +151,13 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
           <div className="w-48">
             <FormField
               control={form.control}
-              name="procedureType"
+              name="procedureKindName"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input variant="medium" {...field} className="w-full" />
                   </FormControl>
-                  {form.formState.errors.procedureType && <p className="text-red-500 text-sm">{form.formState.errors.procedureType.message}</p>}
+                  {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}
                 </FormItem>
               )}
             />

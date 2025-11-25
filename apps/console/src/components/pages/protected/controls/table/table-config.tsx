@@ -17,7 +17,7 @@ export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
   groups: { value: string; label: string }[],
   programOptions: { value: string; label: string }[],
-  controlControlTypeOptions: { value: string; label: string }[],
+  typeOptions: { value: string; label: string }[],
 ): FilterField[] => [
   { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
@@ -60,10 +60,10 @@ export const getControlsFilterFields = (
     icon: FilterIcons.ProgramName,
   },
   {
-    key: 'controlTypeIn',
+    key: 'controlKindNameIn',
     label: 'Control Type',
     type: 'multiselect',
-    options: controlControlTypeOptions,
+    options: typeOptions,
     icon: FilterIcons.Type,
   },
   {

@@ -85,9 +85,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         name: policy.name,
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
-        policyType: policy.policyType ?? '',
         reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
+        internalPolicyKindName: policy.internalPolicyKindName ?? undefined,
       })
 
       setMetadata({
@@ -143,7 +143,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
           details: '',
           approvalRequired: data.approvalRequired,
           status: data.status,
-          policyType: data.policyType,
+          internalPolicyKindName: data.internalPolicyKindName,
           reviewDue: data.reviewDue,
           reviewFrequency: data.reviewFrequency,
           approverID: data.approverID,
