@@ -69034,7 +69034,7 @@ export type GetProgramBasicInfoQuery = {
     tags?: Array<string> | null
     frameworkName?: string | null
     status: ProgramProgramStatus
-    programType: ProgramProgramType
+    programKindName?: string | null
     programOwnerID?: string | null
   }
 }

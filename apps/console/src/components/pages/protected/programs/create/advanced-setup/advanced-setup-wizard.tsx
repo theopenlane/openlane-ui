@@ -62,7 +62,7 @@ export default function AdvancedSetupWizard() {
     resolver: zodResolver(stepper.current.schema),
     mode: 'onChange',
     defaultValues: {
-      programType: undefined,
+      programKindName: undefined,
       name: '',
       description: '',
       startDate: today,
@@ -158,7 +158,7 @@ export default function AdvancedSetupWizard() {
         description: data.description,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
-        programType: data.programType,
+        programKindName: data.programKindName,
         auditor: data.auditPartnerName,
         auditorEmail: data.auditPartnerEmail || undefined,
         auditFirm: data.auditFirm,

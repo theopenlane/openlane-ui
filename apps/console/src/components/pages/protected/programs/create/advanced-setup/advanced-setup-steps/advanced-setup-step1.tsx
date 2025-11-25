@@ -4,6 +4,7 @@ import { Shield, Search, BarChart3, FileText } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { ProgramProgramType } from '@repo/codegen/src/schema'
 import { useFormContext } from 'react-hook-form'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 interface ProgramType {
   id: string
@@ -47,6 +48,13 @@ const programTypes: ProgramType[] = [
 const AdvancedSetupStep1 = () => {
   const { setValue, watch } = useFormContext<{ programType?: ProgramProgramType }>()
   const selected = watch('programType') // watch form state
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'program',
+      field: 'kind',
+    },
+  })
 
   return (
     <div className="flex flex-col">
