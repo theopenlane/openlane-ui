@@ -166,14 +166,17 @@ const ObjectAssociationControlsChips = ({
     const { id, isSubcontrol, refCode, referenceFramework } = pendingAdd
 
     try {
-      await cloneControls({
+      const resp = await cloneControls({
         input: {
           programID: undefined,
           controlIDs: [id],
         },
       })
 
-      addEvidenceControl(id, isSubcontrol, refCode, referenceFramework)
+      const controlId = resp.createControlsByClone.controls?.[0].id
+      if (controlId) {
+        addEvidenceControl(controlId, isSubcontrol, refCode, referenceFramework)
+      }
 
       queryClient.invalidateQueries({ queryKey: ['controls'] })
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
