@@ -237,9 +237,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     },
     {
       header: 'Control Type',
-      accessorKey: 'controlType',
+      accessorKey: 'controlKindName',
       size: 120,
-      cell: ({ row }) => <div>{row.getValue('controlType') || '-'}</div>,
+      cell: ({ row }) => <div>{row.getValue('controlKindName') || '-'}</div>,
     },
     {
       header: 'Reference Framework',

@@ -6,7 +6,7 @@ export const CREATE_INTERNAL_POLICY = gql`
       internalPolicy {
         id
         name
-        policyType
+        internalPolicyKindName
         details
       }
     }
@@ -19,7 +19,7 @@ export const UPDATE_INTERNAL_POLICY = gql`
       internalPolicy {
         id
         name
-        policyType
+        internalPolicyKindName
         details
       }
     }
@@ -58,7 +58,7 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
             gravatarLogoURL
             logoURL
           }
-          policyType
+          internalPolicyKindName
           reviewDue
           reviewFrequency
           revision
@@ -251,7 +251,7 @@ export const GET_INTERNAL_POLICIES_DASHBOARD = gql`
         node {
           id
           name
-          policyType
+          internalPolicyKindName
           status
           createdAt
           updatedAt

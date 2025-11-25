@@ -21,6 +21,7 @@ import {
   useGetAllSelectOptionsForBulkEditControls,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -60,7 +61,14 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
-  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls((groups?.filter(Boolean) as Group[]) || [])
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'control',
+      field: 'kind',
+    },
+  })
+
+  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls((groups?.filter(Boolean) as Group[]) || [], enumOptions)
 
   const { control, handleSubmit, watch } = form
   const watchedFields = watch('fieldsArray') || []

@@ -66724,7 +66724,7 @@ export type ControlListFieldsFragment = {
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
-  controlType?: ControlControlType | null
+  controlKindName?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
@@ -66846,7 +66846,7 @@ export type GetAllControlsQuery = {
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
-        controlType?: ControlControlType | null
+        controlKindName?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
@@ -68377,7 +68377,10 @@ export type CreateInternalPolicyMutationVariables = Exact<{
 
 export type CreateInternalPolicyMutation = {
   __typename?: 'Mutation'
-  createInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; policyType?: string | null; details?: string | null } }
+  createInternalPolicy: {
+    __typename?: 'InternalPolicyCreatePayload'
+    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null }
+  }
 }
 
 export type UpdateInternalPolicyMutationVariables = Exact<{
@@ -68387,7 +68390,10 @@ export type UpdateInternalPolicyMutationVariables = Exact<{
 
 export type UpdateInternalPolicyMutation = {
   __typename?: 'Mutation'
-  updateInternalPolicy: { __typename?: 'InternalPolicyUpdatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; policyType?: string | null; details?: string | null } }
+  updateInternalPolicy: {
+    __typename?: 'InternalPolicyUpdatePayload'
+    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null }
+  }
 }
 
 export type DeleteInternalPolicyMutationVariables = Exact<{
@@ -68422,7 +68428,7 @@ export type GetInternalPoliciesListQuery = {
         createdBy?: string | null
         summary?: string | null
         approvalRequired?: boolean | null
-        policyType?: string | null
+        internalPolicyKindName?: string | null
         reviewDue?: any | null
         reviewFrequency?: InternalPolicyFrequency | null
         revision?: string | null
@@ -68588,7 +68594,7 @@ export type GetInternalPoliciesDashboardQuery = {
         __typename?: 'InternalPolicy'
         id: string
         name: string
-        policyType?: string | null
+        internalPolicyKindName?: string | null
         status?: InternalPolicyDocumentStatus | null
         createdAt?: any | null
         updatedAt?: any | null
@@ -68661,7 +68667,7 @@ export type UpdateProcedureMutationVariables = Exact<{
 
 export type UpdateProcedureMutation = {
   __typename?: 'Mutation'
-  updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureType?: string | null } }
+  updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureKindName?: string | null } }
 }
 
 export type UpdateBulkProcedureMutationVariables = Exact<{
@@ -68723,7 +68729,7 @@ export type GetProceduresTableListQuery = {
         createdBy?: string | null
         summary?: string | null
         approvalRequired?: boolean | null
-        procedureType?: string | null
+        procedureKindName?: string | null
         reviewDue?: any | null
         reviewFrequency?: ProcedureFrequency | null
         revision?: string | null
