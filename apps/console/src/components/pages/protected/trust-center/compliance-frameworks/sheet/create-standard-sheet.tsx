@@ -20,7 +20,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DescriptionField } from './form-fields/description-field'
 import { TitleField } from './form-fields/title-field'
 import { TagsField } from './form-fields/tags-field'
-import { UploadField } from './form-fields/upload-fileld'
+import { UploadField } from './form-fields/upload-field'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
