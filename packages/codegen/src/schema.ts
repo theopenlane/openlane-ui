@@ -69802,6 +69802,7 @@ export type DeleteTrustCenterComplianceMutationVariables = Exact<{
 }>
 
 export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
+
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
