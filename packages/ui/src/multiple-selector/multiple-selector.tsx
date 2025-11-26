@@ -474,26 +474,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 setOpen(true)
                 inputProps?.onFocus?.(event)
               }}
-              onKeyDown={(e) => {
-                if (creatable && (e.key === 'Enter' || e.key === 'Tab') && inputValue.trim().length > 0) {
-                  e.preventDefault()
-
-                  const alreadyExists = selected.some((option) => option.label.toLowerCase() === inputValue.trim().toLowerCase())
-
-                  if (alreadyExists) return
-
-                  if (selected.length >= maxSelected) {
-                    onMaxSelected?.(selected.length)
-                    return
-                  }
-
-                  const newOption = { value: inputValue.trim(), label: inputValue.trim() }
-                  const newOptions = [...selected, newOption]
-                  setInputValue('')
-                  setSelected(newOptions)
-                  onChange?.(newOptions)
-                }
-              }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
                 'p-0 text-sm flex-1 bg-input outline-hidden placeholder:text-muted-foreground border-none',
