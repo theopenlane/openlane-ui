@@ -27,6 +27,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -47,6 +48,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
   const router = useRouter()
+  const { tagOptions } = useGetTags()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const formData = {
@@ -238,6 +240,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                           <FormLabel>Tags</FormLabel>
                           <FormControl>
                             <MultipleSelector
+                              options={tagOptions}
                               placeholder="Add tag..."
                               creatable
                               value={tagValues}

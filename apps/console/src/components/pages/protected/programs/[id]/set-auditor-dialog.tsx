@@ -16,6 +16,7 @@ import { Info, InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SUPPORT_EMAIL } from '@/constants'
 
 const setAuditorSchema = z.object({
   auditorName: z.string().optional().nullable(),
@@ -101,9 +102,9 @@ export const SetAuditorDialog = () => {
           <div className="text-sm">
             <p className="text-base ">Need help finding an auditor?</p>
             <p>
-              Head over to our{' '}
-              <a href="#" className="text-blue-500 text-sm">
-                partners list
+              Reach out to support{' '}
+              <a href={SUPPORT_EMAIL} className="underline">
+                for our partners list
               </a>
               .
             </p>

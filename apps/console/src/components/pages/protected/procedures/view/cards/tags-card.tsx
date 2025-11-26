@@ -12,6 +12,7 @@ import { CreateProcedureFormData } from '../../create/hooks/use-form-schema'
 import useClickOutside from '@/hooks/useClickOutside'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -23,9 +24,10 @@ type TTagsCardProps = {
 
 const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
   const [internalEditing, setInternalEditing] = useState(false)
+  const { tagOptions } = useGetTags()
 
   const tags = form.watch('tags')
-  const tagOptions = useMemo(() => {
+  const tagValues = useMemo(() => {
     return (tags ?? [])
       .filter((item): item is string => typeof item === 'string')
       .map((item) => ({
@@ -37,7 +39,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
   const wrapperRef = useClickOutside(() => {
     if (!internalEditing || isEditing) return
     const current = procedure.tags || []
-    const next = tagOptions.map((item) => item.value)
+    const next = tagValues.map((item) => item.value)
 
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
@@ -82,11 +84,12 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
                   <>
                     <FormControl>
                       <MultipleSelector
+                        options={tagOptions}
                         hideClearAllButton
                         className="w-full"
                         placeholder="Add tag..."
                         creatable
-                        value={tagOptions}
+                        value={tagValues}
                         onChange={(selectedOptions) => {
                           const newTags = selectedOptions.map((opt) => opt.value)
                           field.onChange(newTags)
