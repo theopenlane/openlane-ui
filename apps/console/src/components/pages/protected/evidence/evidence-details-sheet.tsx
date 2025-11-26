@@ -76,6 +76,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
 import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -112,6 +113,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
+  const { tagOptions } = useGetTags()
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -605,7 +607,16 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     </HoverPencilWrapper>
                   </div>
                 )}
-
+                {!isEditing && ((evidenceControls?.length ?? 0) > 0 || (evidenceSubcontrols?.length ?? 0) > 0) && (
+                  <Card className={wrapper()}>
+                    <CardContent className={content()}>
+                      <div className="flex flex-col gap-4">
+                        <p className="text-sm font-medium leading-5">Controls</p>
+                        <ObjectAssociationControlsChips isEditing={false} evidenceControls={evidenceControls} evidenceSubcontrols={evidenceSubcontrols} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 <div className="mt-6 mb-8">
                   <Card className={wrapper()}>
                     <CardContent className={content()}>
@@ -822,6 +833,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                       commandProps={{ className: 'w-full' }}
                                       value={tagValues}
                                       hideClearAllButton
+                                      options={tagOptions}
                                       onChange={(selectedOptions) => {
                                         const options = selectedOptions.map((option) => option.value)
                                         field.onChange(options)

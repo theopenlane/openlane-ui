@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { ColumnDef } from '@tanstack/react-table'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { PlusCircle } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -11,6 +11,7 @@ import { TUploadedFile } from './types/TUploadedFile'
 import { TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TProps = {
   evidenceFiles: TUploadedFile[]
@@ -19,12 +20,15 @@ type TProps = {
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    page: 1,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.EVIDENCE_EXISTING_FILES, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      page: 1,
+      query: { first: 5 },
+    }),
+  )
+
   const { data, isLoading, paginationMeta } = useGetEvidenceFiles({ pagination })
 
   const [files, setFiles] = useState<TEvidenceFilesColumn[]>([])
@@ -90,7 +94,14 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
   return (
     <TabsContent value="existingFiles">
-      <DataTable columns={columns} data={files} pagination={pagination} onPaginationChange={(pagination: TPagination) => setPagination(pagination)} paginationMeta={paginationMeta} />
+      <DataTable
+        columns={columns}
+        data={files}
+        pagination={pagination}
+        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.EVIDENCE_EXISTING_FILES}
+      />
     </TabsContent>
   )
 }

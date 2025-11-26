@@ -66171,64 +66171,6 @@ export type ControlDetailsFieldsFragment = {
     totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
   }
-  internalPolicies: {
-    __typename?: 'InternalPolicyConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'InternalPolicyEdge'
-      node?: {
-        __typename?: 'InternalPolicy'
-        id: string
-        name: string
-        displayID: string
-        summary?: string | null
-        approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
-      } | null
-    } | null> | null
-  }
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'ProcedureEdge'
-      node?: {
-        __typename?: 'Procedure'
-        id: string
-        name: string
-        displayID: string
-        summary?: string | null
-        approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
-      } | null
-    } | null> | null
-  }
-  tasks: {
-    __typename?: 'TaskConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'TaskEdge'
-      node?: {
-        __typename?: 'Task'
-        id: string
-        title: string
-        displayID: string
-        details?: string | null
-        assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-      } | null
-    } | null> | null
-  }
-  programs: {
-    __typename?: 'ProgramConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'ProgramEdge'
-      node?: { __typename?: 'Program'; id: string; name: string; displayID: string; status: ProgramProgramStatus; description?: string | null } | null
-    } | null> | null
-  }
-  risks: {
-    __typename?: 'RiskConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
-  }
   delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
@@ -66344,6 +66286,19 @@ export type GetControlByIdQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
     }
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  }
+}
+
+export type GetControlAssociationsByIdQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlAssociationsByIdQuery = {
+  __typename?: 'Query'
+  control: {
+    __typename?: 'Control'
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
       totalCount: number
@@ -66402,8 +66357,6 @@ export type GetControlByIdQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
     }
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   }
 }
 
@@ -67737,6 +67690,12 @@ export type UpdateOrganizationSettingMutation = {
   updateOrganizationSetting: { __typename?: 'OrganizationSettingUpdatePayload'; organizationSetting: { __typename?: 'OrganizationSetting'; id: string } }
 }
 
+export type TransferOrganizationOwnershipMutationVariables = Exact<{
+  newOwnerEmail: Scalars['String']['input']
+}>
+
+export type TransferOrganizationOwnershipMutation = { __typename?: 'Mutation'; transferOrganizationOwnership: { __typename?: 'OrganizationTransferOwnershipPayload'; invitationSent: boolean } }
+
 export type GetPasskeysQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetPasskeysQuery = {
@@ -67859,46 +67818,6 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  controls: {
-    __typename?: 'ControlConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  programs: {
-    __typename?: 'ProgramConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  tasks: {
-    __typename?: 'TaskConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
-  controlObjectives: {
-    __typename?: 'ControlObjectiveConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-  }
 }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
@@ -67927,18 +67846,26 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
+  }
+}
+
+export type GetInternalPolicyAssociationsByIdQueryVariables = Exact<{
+  internalPolicyId: Scalars['ID']['input']
+}>
+
+export type GetInternalPolicyAssociationsByIdQuery = {
+  __typename?: 'Query'
+  internalPolicy: {
+    __typename?: 'InternalPolicy'
     procedures: {
       __typename?: 'ProcedureConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controls: {
       __typename?: 'ControlConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
@@ -67947,25 +67874,21 @@ export type GetInternalPolicyDetailsByIdQuery = {
         __typename?: 'SubcontrolEdge'
         node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; controlId: string } | null
       } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
       __typename?: 'ProgramConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     tasks: {
       __typename?: 'TaskConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
   }
 }
@@ -68213,68 +68136,16 @@ export type ProcedureByIdFragment = {
   procedureType?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
-  risks: {
-    __typename?: 'RiskConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
-  }
-  internalPolicies: {
-    __typename?: 'InternalPolicyConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-  }
-  controls: {
-    __typename?: 'ControlConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
-  }
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; control: { __typename?: 'Control'; id: string } } | null
-    } | null> | null
-  }
-  programs: {
-    __typename?: 'ProgramConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-  }
-  tasks: {
-    __typename?: 'TaskConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-  }
 }
 
-export type GetProcedureDetailsByIdQueryVariables = Exact<{
+export type GetProcedureAssociationsByIdQueryVariables = Exact<{
   procedureId: Scalars['ID']['input']
 }>
 
-export type GetProcedureDetailsByIdQuery = {
+export type GetProcedureAssociationsByIdQuery = {
   __typename?: 'Query'
   procedure: {
     __typename?: 'Procedure'
-    id: string
-    name: string
-    details?: string | null
-    createdAt?: any | null
-    createdBy?: string | null
-    updatedAt?: any | null
-    updatedBy?: string | null
-    tags?: Array<string> | null
-    revision?: string | null
-    status?: ProcedureDocumentStatus | null
-    displayID: string
-    reviewDue?: any | null
-    reviewFrequency?: ProcedureFrequency | null
-    approvalRequired?: boolean | null
-    procedureType?: string | null
-    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
     risks: {
       __typename?: 'RiskConnection'
       totalCount: number
@@ -68308,6 +68179,34 @@ export type GetProcedureDetailsByIdQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
     }
+  }
+}
+
+export type GetProcedureDetailsByIdQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureDetailsByIdQuery = {
+  __typename?: 'Query'
+  procedure: {
+    __typename?: 'Procedure'
+    id: string
+    name: string
+    details?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    tags?: Array<string> | null
+    revision?: string | null
+    status?: ProcedureDocumentStatus | null
+    displayID: string
+    reviewDue?: any | null
+    reviewFrequency?: ProcedureFrequency | null
+    approvalRequired?: boolean | null
+    procedureType?: string | null
+    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }
 }
 
@@ -68869,12 +68768,6 @@ export type SearchQuery = {
       edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
-    controlObjectives?: {
-      __typename?: 'ControlObjectiveConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename: 'ControlObjective'; id: string; name: string } | null } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
-    } | null
     controls?: {
       __typename?: 'ControlConnection'
       totalCount: number
@@ -69103,6 +68996,19 @@ export type GetSubcontrolByIdQuery = {
       __typename?: 'EvidenceConnection'
       edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  }
+}
+
+export type GetSubcontrolAssociationsByIdQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolAssociationsByIdQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
       totalCount: number
@@ -69151,8 +69057,6 @@ export type GetSubcontrolByIdQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
     }
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   }
 }
 
@@ -69279,6 +69183,56 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
   }
 }
 
+export type CreateSubprocessorMutationVariables = Exact<{
+  input: CreateSubprocessorInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type CreateSubprocessorMutation = { __typename?: 'Mutation'; createSubprocessor: { __typename?: 'SubprocessorCreatePayload'; subprocessor: { __typename?: 'Subprocessor'; id: string } } }
+
+export type UpdateSubprocessorMutationVariables = Exact<{
+  updateSubprocessorId: Scalars['ID']['input']
+  input: UpdateSubprocessorInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateSubprocessorMutation = { __typename?: 'Mutation'; updateSubprocessor: { __typename?: 'SubprocessorUpdatePayload'; subprocessor: { __typename?: 'Subprocessor'; id: string } } }
+
+export type GetSubprocessorsQueryVariables = Exact<{
+  where?: InputMaybe<SubprocessorWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubprocessorOrder> | SubprocessorOrder>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetSubprocessorsQuery = {
+  __typename?: 'Query'
+  subprocessors: {
+    __typename?: 'SubprocessorConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubprocessorEdge'
+      node?: {
+        __typename?: 'Subprocessor'
+        id: string
+        name: string
+        description?: string | null
+        logoRemoteURL?: string | null
+        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+}
+
+export type DeleteBulkSubprocessorsMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkSubprocessorsMutation = { __typename?: 'Mutation'; deleteBulkSubprocessor: { __typename?: 'SubprocessorBulkDeletePayload'; deletedIDs: Array<string> } }
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
 }>
@@ -69327,6 +69281,16 @@ export type CreateBulkCsvSubscriberMutationVariables = Exact<{
 export type CreateBulkCsvSubscriberMutation = {
   __typename?: 'Mutation'
   createBulkCSVSubscriber: { __typename?: 'SubscriberBulkCreatePayload'; subscribers?: Array<{ __typename?: 'Subscriber'; id: string }> | null }
+}
+
+export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetTagsQuery = {
+  __typename?: 'Query'
+  tagDefinitions: {
+    __typename?: 'TagDefinitionConnection'
+    edges?: Array<{ __typename?: 'TagDefinitionEdge'; node?: { __typename?: 'TagDefinition'; id: string; name: string; color?: string | null } | null } | null> | null
+  }
 }
 
 export type TasksWithFilterQueryVariables = Exact<{
@@ -69838,6 +69802,79 @@ export type DeleteTrustCenterComplianceMutationVariables = Exact<{
 }>
 
 export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
+export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
+  where?: InputMaybe<TrustCenterSubprocessorWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterSubprocessorOrder> | TrustCenterSubprocessorOrder>
+}>
+
+export type GetTrustCenterSubprocessorsQuery = {
+  __typename?: 'Query'
+  trustCenterSubprocessors: {
+    __typename?: 'TrustCenterSubprocessorConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'TrustCenterSubprocessorEdge'
+      cursor: any
+      node?: {
+        __typename?: 'TrustCenterSubprocessor'
+        id: string
+        category: string
+        countries?: Array<string> | null
+        createdAt?: any | null
+        createdBy?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        subprocessor: {
+          __typename?: 'Subprocessor'
+          id: string
+          name: string
+          description?: string | null
+          logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        }
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+  }
+}
+
+export type CreateTrustCenterSubprocessorMutationVariables = Exact<{
+  input: CreateTrustCenterSubprocessorInput
+}>
+
+export type CreateTrustCenterSubprocessorMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorCreatePayload'; trustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessor'; id: string } }
+}
+
+export type UpdateTrustCenterSubprocessorMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  input: UpdateTrustCenterSubprocessorInput
+}>
+
+export type UpdateTrustCenterSubprocessorMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorUpdatePayload'; trustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessor'; id: string } }
+}
+
+export type DeleteBulkTrustCenterSubprocessorsMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterSubprocessorsMutation = {
+  __typename?: 'Mutation'
+  deleteBulkTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorBulkDeletePayload'; deletedIDs: Array<string> }
+}
+
+export type DeleteTrustCenterSubprocessorMutationVariables = Exact<{
+  deleteTrustCenterSubprocessorId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterSubprocessorMutation = { __typename?: 'Mutation'; deleteTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorDeletePayload'; deletedID: string } }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
 

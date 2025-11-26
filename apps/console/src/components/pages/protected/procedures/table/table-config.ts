@@ -1,6 +1,4 @@
 import { FilterField } from '@/types'
-import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts'
-
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
@@ -72,13 +70,8 @@ export const PROCEDURES_SORTABLE_FIELDS = [
   {
     key: 'name',
     label: 'Name',
-    default: {
-      key: ProcedureOrderField.name,
-      direction: OrderDirection.ASC,
-    },
   },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
-  { key: 'updated_by', label: 'Last Updated By' },
   { key: 'updated_at', label: 'Last Updated' },
 ]

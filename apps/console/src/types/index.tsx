@@ -28,7 +28,7 @@ export interface FilterField {
   key: string
   label: string
   icon: LucideIcon
-  type: 'text' | 'select' | 'date' | 'boolean' | 'dateRange' | 'sliderNumber' | 'multiselect'
+  type: 'text' | 'select' | 'date' | 'boolean' | 'dateRange' | 'sliderNumber' | 'multiselect' | 'dropdownSearch'
   options?: { value: string; label: string }[] //for select and multiselect types
   min?: number // for sliderNumber type
   max?: number // for sliderNumber type

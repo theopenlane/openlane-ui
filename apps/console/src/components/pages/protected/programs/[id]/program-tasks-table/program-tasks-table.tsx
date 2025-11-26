@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
@@ -18,6 +18,7 @@ import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type FormattedTask = {
   id: string
@@ -87,19 +88,26 @@ const columns: ColumnDef<FormattedTask>[] = [
 
 const ProgramTasksTable = () => {
   const { id } = useParams<{ id: string | undefined }>()
-  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.PROGRAM, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+    }),
+  )
+
   const where: TaskWhereInput = id
     ? {
         hasProgramsWith: [{ id }],
         statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
       }
     : {}
-  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROGRAM, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(defaultSorting)
 
   const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!id })
 
@@ -146,6 +154,8 @@ const ProgramTasksTable = () => {
         loading={isLoading}
         sortFields={TASK_SORT_FIELDS}
         onSortChange={setOrderBy}
+        defaultSorting={defaultSorting}
+        tableKey={TableKeyEnum.PROGRAM}
       />
     </div>
   )

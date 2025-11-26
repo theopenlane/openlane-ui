@@ -20,6 +20,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -177,7 +178,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
               )}
             />
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.RISK} />
             )}
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.RISK} />}
             {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (

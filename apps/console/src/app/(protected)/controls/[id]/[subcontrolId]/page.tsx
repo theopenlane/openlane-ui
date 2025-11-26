@@ -11,7 +11,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
+import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
@@ -100,16 +100,19 @@ const ControlDetailsPage: React.FC = () => {
 
   const { data: permission } = useAccountRoles(ObjectEnum.SUBCONTROL, subcontrolId)
   const { data: orgPermission } = useOrganizationRoles()
+
+  const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)
+
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
     return {
-      policies: data?.subcontrol.internalPolicies,
-      procedures: data?.subcontrol.procedures,
-      tasks: data?.subcontrol.tasks,
-      risks: data?.subcontrol.risks,
+      policies: associationsData?.subcontrol.internalPolicies,
+      procedures: associationsData?.subcontrol.procedures,
+      tasks: associationsData?.subcontrol.tasks,
+      risks: associationsData?.subcontrol.risks,
       controls: data?.subcontrol.control,
     }
-  }, [data?.subcontrol])
+  }, [associationsData, data])
 
   const memoizedCenterNode = useMemo(() => {
     if (!data?.subcontrol) return null
@@ -305,10 +308,10 @@ const ControlDetailsPage: React.FC = () => {
                   trigger={TaskIconBtn}
                   defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
                   initialData={{
-                    procedureIDs: (subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    internalPolicyIDs: (subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    procedureIDs: (associationsData?.subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    internalPolicyIDs: (associationsData?.subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                     controlObjectiveIDs: (subcontrol.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    riskIDs: (subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    riskIDs: (associationsData?.subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                     subcontrolIDs: [subcontrolId],
                   }}
                 />
@@ -380,7 +383,7 @@ const ControlDetailsPage: React.FC = () => {
             controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [
-            ...((subcontrol?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+            ...((associationsData?.subcontrol?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...((subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...(subcontrol.refCode ? [subcontrol.refCode] : []),
           ],

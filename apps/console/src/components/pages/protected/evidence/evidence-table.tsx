@@ -28,10 +28,6 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
   const evidenceSheetHandler = (controlEvidenceID: string) => {
     if (controlEvidenceID) router.replace({ controlEvidenceId: controlEvidenceID })
   }
-  const controlIds = {
-    controlIdFromControl: control.controlID!,
-    subcontrolIdFromControl: control.subcontrolID || undefined,
-  }
 
   const controlParam: CustomEvidenceControl = {
     id: control.controlID || (control.subcontrolID as string),
@@ -57,7 +53,6 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
                 open={isSheetOpen}
                 onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
                 onOpenChange={setIsSheetOpen}
-                controlIdsFromControl={controlIds}
                 formData={control}
                 controlParam={[controlParam]}
                 excludeObjectTypes={[

@@ -8,6 +8,7 @@ import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
 import usePlateEditor from '../plate/usePlateEditor'
 import { TableRow } from './object-assoiation-config'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type Props = {
   data: TableRow[]
@@ -91,6 +92,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       columns={columns}
       data={data}
       wrapperClass="max-h-96 overflow-auto"
+      tableKey={TableKeyEnum.OBJECT_ASSOCIATION}
     />
   )
 }

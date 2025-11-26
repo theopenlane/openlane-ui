@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useMemo, useContext, useEffect } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
@@ -16,27 +16,33 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useNotification } from '@/hooks/useNotification'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.QUESTIONNAIRE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, [
     {
       field: TemplateOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     id: false,
     updatedBy: false,
     createdBy: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.QUESTIONNAIRE, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -152,6 +158,8 @@ export const QuestionnairesTable = () => {
         onRowClick={handleRowClick}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        defaultSorting={defaultSorting}
+        tableKey={TableKeyEnum.QUESTIONNAIRE}
       />
     </div>
   )

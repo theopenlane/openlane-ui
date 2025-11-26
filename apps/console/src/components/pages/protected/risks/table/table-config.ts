@@ -1,6 +1,6 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { FilterField } from '@/types'
-import { OrderDirection, RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
+import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 
 const enumToOptions = (e: Record<string, string>) =>
   Object.values(e).map((value) => ({
@@ -54,10 +54,6 @@ export const RISKS_SORT_FIELDS = [
   {
     key: RiskOrderField.name,
     label: 'Name',
-    default: {
-      key: RiskOrderField.name,
-      direction: OrderDirection.ASC,
-    },
   },
   {
     key: RiskOrderField.score,

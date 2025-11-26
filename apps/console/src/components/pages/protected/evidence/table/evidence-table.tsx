@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { Evidence, EvidenceOrderField, EvidenceWhereInput, GetEvidenceListQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -16,22 +16,26 @@ import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/ev
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useState('')
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>(defaultSorting)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -49,7 +53,7 @@ export const EvidenceTable = () => {
   }, [orderBy])
 
   const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     id: false,
     collectionProcedure: false,
     source: false,
@@ -60,7 +64,9 @@ export const EvidenceTable = () => {
     createdAt: false,
     updatedAt: false,
     description: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.EVIDENCE, defaultVisibility))
 
   const userIds = useMemo(() => {
     if (!evidences) return []
@@ -125,6 +131,7 @@ export const EvidenceTable = () => {
       <DataTable
         sortFields={EVIDENCE_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
+        defaultSorting={defaultSorting}
         columns={columns}
         data={evidences}
         onRowClick={handleRowClick}
@@ -134,6 +141,7 @@ export const EvidenceTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.EVIDENCE}
       />
     </>
   )

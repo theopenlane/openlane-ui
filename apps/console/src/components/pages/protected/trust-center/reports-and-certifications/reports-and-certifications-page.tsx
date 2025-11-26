@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useState, useMemo } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
 import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -17,11 +17,14 @@ import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import DocumentsTableToolbar from './table/documents-table-toolbar'
 import { getTrustCenterDocColumns } from './table/table-config'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ createdAt: false })
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.DOCUMENTS, { createdAt: false }))
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
   const router = useRouter()
@@ -107,6 +110,7 @@ const ReportsAndCertificationsPage = () => {
             loading={isLoading}
             columnVisibility={columnVisibility}
             onRowClick={(row) => router.push(`/trust-center/reports-and-certifications?id=${row.id}`)}
+            tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
           />
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useDeleteInternalPolicy, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useDeleteInternalPolicy, useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import React, { useEffect, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
@@ -60,17 +60,19 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+  const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
+
   const memoizedSections = useMemo(() => {
-    if (!policy) return {}
+    if (!assocData) return {}
     return {
-      procedures: policy.procedures,
-      controls: policy.controls,
-      subcontrols: policy.subcontrols,
-      controlObjectives: policy.controlObjectives,
-      tasks: policy.tasks,
-      programs: policy.programs,
+      procedures: assocData.internalPolicy.procedures,
+      controls: assocData.internalPolicy.controls,
+      subcontrols: assocData.internalPolicy.subcontrols,
+      controlObjectives: assocData.internalPolicy.controlObjectives,
+      tasks: assocData.internalPolicy.tasks,
+      programs: assocData.internalPolicy.programs,
     }
-  }, [policy])
+  }, [assocData])
 
   const memoizedCenterNode = useMemo(() => {
     if (!policy) return null
@@ -89,21 +91,21 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {
-    if (policy && !dataInitialized) {
+    if (policy && assocData && !dataInitialized) {
       const policyAssociations: TObjectAssociationMap = {
-        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: policy?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        controlIDs: assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        procedureIDs: assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        controlObjectiveIDs: assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
       }
 
       const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
-        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: policy?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        controlIDs: assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
+        procedureIDs: assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        controlObjectiveIDs: assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
       }
 
       form.reset({
@@ -124,7 +126,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
       setDataInitialized(true)
     }
-  }, [policy, form, policyState, dataInitialized])
+  }, [policy, form, policyState, dataInitialized, assocData])
 
   const initialData: TObjectAssociationMap = {
     ...(policyId ? { internalPolicyIDs: [policyId] } : {}),
@@ -253,7 +255,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             initialData={initialData}
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
-            objectAssociationsDisplayIDs={policy?.displayID ? [policy?.displayID] : []}
+            objectAssociationsDisplayIDs={policy?.name ? [policy?.name] : []}
           />
           {!editAllowed && !deleteAllowed ? (
             <></>

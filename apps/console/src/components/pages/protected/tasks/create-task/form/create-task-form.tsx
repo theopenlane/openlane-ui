@@ -26,6 +26,7 @@ import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { Value } from 'platejs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Link from 'next/link'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TProps = {
   onSuccess: () => void
@@ -47,6 +48,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+  const { tagOptions } = useGetTags()
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -192,6 +194,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                             <FormLabel>Tags</FormLabel>
                             <FormControl>
                               <MultipleSelector
+                                options={tagOptions}
                                 placeholder="Add tag..."
                                 creatable
                                 value={tagValues}
@@ -278,7 +281,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                   {props.objectAssociationsDisplayIDs && (
                     <HeadsUpDisplay
                       accordionLabel={'Show programs linked to this task'}
-                      descriptionText={'This requested task you are creating will be automatically linked to the associated program. We have pre-selected the object association below'}
+                      descriptionText={'This requested task you are creating will be automatically linked to the associated task. We have pre-selected the object association below'}
                       displayIDs={props.objectAssociationsDisplayIDs}
                     ></HeadsUpDisplay>
                   )}

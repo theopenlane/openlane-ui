@@ -8,7 +8,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { Button } from '@repo/ui/button'
-import { useCreateInternalPolicy, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -24,6 +24,7 @@ import AuthorityCard from '@/components/pages/protected/policies/view/cards/auth
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { Switch } from '@repo/ui/switch'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -53,24 +54,26 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [isInitialized, setIsInitialized] = useState(false)
-
+  const { data: assocData } = useGetInternalPolicyAssociationsById(policy?.id || null)
   const isPoliciesCreate = path === '/policies/create'
+  const [createMultiple, setCreateMultiple] = useState(false)
+  const [clearData, setClearData] = useState<boolean>(false)
   useEffect(() => {
-    if (policy) {
+    if (policy && assocData) {
       const policyAssociations: TObjectAssociationMap = {
-        controlIDs: (policy?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        procedureIDs: (policy?.procedures?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        programIDs: (policy?.programs?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        controlObjectiveIDs: (policy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        taskIDs: (policy?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        controlIDs: (assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        procedureIDs: (assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        programIDs: (assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        controlObjectiveIDs: (assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        taskIDs: (assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
       }
 
       const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: (policy?.controls?.edges?.map((item) => item?.node?.refCode).filter(Boolean) as string[]) || [],
-        procedureIDs: (policy?.procedures?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        programIDs: (policy?.programs?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        controlObjectiveIDs: (policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        taskIDs: (policy?.tasks?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        controlIDs: (assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.refCode).filter(Boolean) as string[]) || [],
+        procedureIDs: (assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        programIDs: (assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        controlObjectiveIDs: (assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        taskIDs: (assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
       }
 
       form.reset({
@@ -94,7 +97,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
     }
-  }, [isPoliciesCreate, form, policy, policyState])
+  }, [isPoliciesCreate, form, policy, policyState, assocData])
 
   useEffect(() => {
     if (!isInitialized && isPoliciesCreate && Object.keys(policyState.associations).length > 0) {
@@ -130,8 +133,24 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         description: 'Policy has been successfully created',
       })
 
-      form.reset()
-      router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
+      if (createMultiple) {
+        setClearData(true)
+        form.reset({
+          name: '',
+          details: '',
+          approvalRequired: data.approvalRequired,
+          status: data.status,
+          policyType: data.policyType,
+          reviewDue: data.reviewDue,
+          reviewFrequency: data.reviewFrequency,
+          approverID: data.approverID,
+          delegateID: data.delegateID,
+          tags: data.tags ?? [],
+          ...associationsState,
+        })
+      } else {
+        router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -224,7 +243,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
       form.reset()
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy.id] })
       router.push(`/policies`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -300,16 +318,21 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
+                    <PlateEditor onChange={handleDetailsChange} clearData={clearData} onClear={() => setClearData(false)} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}
               />
             </InputRow>
-
-            <Button variant="primary" className="mt-4" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
-            </Button>
+            <div className="flex justify-between items-center">
+              <Button variant="primary" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
+              </Button>
+              <div className="flex items-center gap-2">
+                <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
+                <span>Create multiple</span>
+              </div>
+            </div>
           </div>
 
           <div className="flex-shrink-0 w-[380px] space-y-4">

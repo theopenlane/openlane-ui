@@ -1,0 +1,15 @@
+export enum TableColumnVisibilityKeysEnum {
+  TASK = 'task',
+  CONTROL = 'control',
+  EVIDENCE = 'evidence',
+  POLICY = 'policy',
+  PROCEDURE = 'procedure',
+  QUESTIONNAIRE = 'questionnaire',
+  QUESTIONNAIRE_OVERVIEW = 'questionnaire-overview',
+  RISK = 'risk',
+  RISK_OVERVIEW = 'risk-overview',
+  MEMBER = 'member',
+  GROUP = 'group',
+  DOCUMENTS = 'documents',
+  SUBPROCESSORS = 'subprocessors',
+}

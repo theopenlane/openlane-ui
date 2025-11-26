@@ -42,7 +42,6 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
 
     switch (centerNode.type) {
       case ObjectAssociationNodeEnum.CONTROL:
-        return <SetObjectAssociationDialog />
       case ObjectAssociationNodeEnum.SUBCONTROL:
         return <SetObjectAssociationDialog />
       case ObjectAssociationNodeEnum.POLICY:
@@ -69,11 +68,11 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
             <Tooltip>
               <TooltipTrigger asChild>
                 <div onClick={() => setIsGraphView((prevState) => !prevState)} className="flex items-center h-8 border rounded-md cursor-pointer overflow-hidden">
-                  <div className={cn('pb-1 pt-1 pl-2 pr-2 flex-1 flex items-center justify-center h-full', isGraphView && 'bg-background-secondary')}>
+                  <div className={cn('pb-1 pt-1 pl-2 pr-2 flex-1 flex items-center justify-center h-full', isGraphView && 'bg-secondary')}>
                     <Graph size={15} />
                   </div>
                   <div className="border-r h-full"></div>
-                  <div className={cn('pb-1 pt-1 pl-2 pr-2 flex-1 flex items-center justify-center h-full', !isGraphView && 'bg-background-secondary')}>
+                  <div className={cn('pb-1 pt-1 pl-2 pr-2 flex-1 flex items-center justify-center h-full', !isGraphView && 'bg-secondary')}>
                     <LayoutList size={15} />
                   </div>
                 </div>

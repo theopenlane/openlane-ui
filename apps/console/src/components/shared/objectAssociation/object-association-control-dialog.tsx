@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -17,6 +17,7 @@ import { getControlsAndSubcontrolsColumns } from './object-association-controls-
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -55,14 +56,17 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    }),
+  )
 
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   useEffect(() => {
     setPagination({
@@ -73,13 +77,43 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     })
   }, [selectedObject])
 
+  const controlsWhere = useMemo(() => {
+    const baseWhere = { ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [debouncedSearch])
+
+  const subcontrolsWhere = useMemo(() => {
+    const baseWhere = { ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [debouncedSearch])
+
   const {
     controls,
     paginationMeta: controlsPagination,
     isLoading: controlsLoading,
     isFetching: controlsFetching,
   } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
+    where: controlsWhere,
     orderBy,
     pagination,
   })
@@ -90,7 +124,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     isLoading: subcontrolsLoading,
     isFetching: subcontrolsFetching,
   } = useGetAllSubcontrols({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
+    where: subcontrolsWhere,
     pagination,
   })
 
@@ -128,6 +162,15 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     onClose()
   }
 
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+      query: { first: prev.pageSize },
+    }))
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
@@ -135,7 +178,17 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           <DialogTitle>Select Controls</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 items-center">
-          <Select value={selectedObject} onValueChange={(val: string) => setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)}>
+          <Select
+            value={selectedObject}
+            onValueChange={(val: string) => {
+              setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)
+              setPagination((prev) => ({
+                ...prev,
+                page: 1,
+                query: { first: prev.pageSize },
+              }))
+            }}
+          >
             <SelectTrigger>{selectedObject}</SelectTrigger>
             <SelectContent>
               {(['Control', 'Subcontrol'] as const)
@@ -148,7 +201,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
             </SelectContent>
           </Select>
 
-          <Input placeholder="Search controls" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <Input placeholder="Search controls" value={searchTerm} onChange={(e) => handleSearchChange(e.target.value)} />
         </div>
 
         <DataTable
@@ -159,6 +212,8 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           paginationMeta={paginationMeta}
           onSortChange={setOrderBy}
           loading={isLoading || isFetching}
+          defaultSorting={defaultSorting}
+          tableKey={TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS}
         />
 
         <DialogFooter>

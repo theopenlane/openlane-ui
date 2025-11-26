@@ -33,6 +33,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -53,6 +54,7 @@ const GroupDetailsSheet = () => {
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
   const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
+  const { tagOptions } = useGetTags()
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
@@ -231,7 +233,7 @@ const GroupDetailsSheet = () => {
                     <Tag height={16} width={16} color="#2CCBAB" />
                     <p className="text-sm">Tags:</p>
                     {isEditing ? (
-                      <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable defaultOptions={field.value} onChange={field.onChange} />} />
+                      <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable options={tagOptions} onChange={field.onChange} />} />
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {tags?.map((tag: string, index: number) => (

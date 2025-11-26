@@ -18,12 +18,13 @@ import { GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/s
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type TObjectAssociationControlsChipsProps = {
-  form: UseFormReturn<CreateEvidenceFormData>
-  suggestedControlsMap: { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]
+  form?: UseFormReturn<CreateEvidenceFormData>
+  suggestedControlsMap?: { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]
   evidenceControls: CustomEvidenceControl[] | null
-  setEvidenceControls: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
+  setEvidenceControls?: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   evidenceSubcontrols: CustomEvidenceControl[] | null
-  setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
+  setEvidenceSubcontrols?: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
+  isEditing?: boolean
 }
 
 enum ItemType {
@@ -31,7 +32,15 @@ enum ItemType {
   Subcontrol = 'Subcontrol',
 }
 
-const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }: TObjectAssociationControlsChipsProps) => {
+const ObjectAssociationControlsChips = ({
+  form,
+  suggestedControlsMap,
+  evidenceControls,
+  setEvidenceControls,
+  evidenceSubcontrols,
+  setEvidenceSubcontrols,
+  isEditing = true,
+}: TObjectAssociationControlsChipsProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string; referenceFramework?: string; typeName: ItemType }[]>([])
   const [pendingAdd, setPendingAdd] = useState<{
@@ -48,15 +57,15 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
 
   const handleRemove = (id: string, refCode: string, isSubcontrol = false) => {
     if (isSubcontrol) {
-      setEvidenceSubcontrols((prev) => {
+      setEvidenceSubcontrols?.((prev) => {
         const newSubcontrols = prev?.filter((subcontrol) => subcontrol.refCode !== refCode) ?? null
-        form.setValue('subcontrolIDs', newSubcontrols?.map((c) => c.id) ?? [])
+        form?.setValue('subcontrolIDs', newSubcontrols?.map((c) => c.id) ?? [])
         return newSubcontrols
       })
     } else {
-      setEvidenceControls((prev) => {
+      setEvidenceControls?.((prev) => {
         const newControls = prev?.filter((control) => control.refCode !== refCode) ?? null
-        form.setValue('controlIDs', newControls?.map((c) => c.id) ?? [])
+        form?.setValue('controlIDs', newControls?.map((c) => c.id) ?? [])
         return newControls
       })
     }
@@ -64,19 +73,19 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
 
   const addEvidenceControl = (id: string, isSubcontrol: boolean, refCode: string, referenceFramework: string | null) => {
     if (isSubcontrol) {
-      setEvidenceSubcontrols((prev) => {
+      setEvidenceSubcontrols?.((prev) => {
         const updatedSubcontrols = [...(prev ?? []), { __typename: ItemType.Subcontrol, id, referenceFramework, refCode }]
-        const currentIds = form.getValues('subcontrolIDs') ?? []
+        const currentIds = form?.getValues('subcontrolIDs') ?? []
         const updatedIds = currentIds.includes(id) ? currentIds : [...currentIds, id]
-        form.setValue('subcontrolIDs', updatedIds, { shouldValidate: true, shouldDirty: true })
+        form?.setValue('subcontrolIDs', updatedIds, { shouldValidate: true, shouldDirty: true })
         return updatedSubcontrols
       })
     } else {
-      setEvidenceControls((prev) => {
+      setEvidenceControls?.((prev) => {
         const updatedControls = [...(prev ?? []), { __typename: ItemType.Control, id, referenceFramework, refCode }]
-        const currentIds = form.getValues('controlIDs') ?? []
+        const currentIds = form?.getValues('controlIDs') ?? []
         const updatedIds = currentIds.includes(id) ? currentIds : [...currentIds, id]
-        form.setValue('controlIDs', updatedIds, { shouldValidate: true, shouldDirty: true })
+        form?.setValue('controlIDs', updatedIds, { shouldValidate: true, shouldDirty: true })
         return updatedControls
       })
     }
@@ -181,7 +190,38 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
     }
   }
 
-  return (
+  const viewNode = (
+    <div className="flex flex-wrap gap-2">
+      {evidenceControls &&
+        evidenceControls.map(({ id, refCode, referenceFramework }) => (
+          <ControlChip
+            key={id}
+            clickable={false}
+            control={{
+              id,
+              refCode: refCode,
+              referenceFramework: referenceFramework,
+              __typename: 'Control',
+            }}
+          />
+        ))}
+      {evidenceSubcontrols &&
+        evidenceSubcontrols.map(({ id, refCode, referenceFramework }) => (
+          <ControlChip
+            key={id}
+            clickable={false}
+            control={{
+              id,
+              refCode: refCode,
+              referenceFramework: referenceFramework,
+              __typename: 'Subcontrol',
+            }}
+          />
+        ))}
+    </div>
+  )
+
+  return isEditing ? (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
         {evidenceControls &&
@@ -204,6 +244,7 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
           evidenceSubcontrols.map(({ id, refCode, referenceFramework }) => (
             <ControlChip
               key={id}
+              clickable={false}
               control={{
                 id,
                 refCode: refCode,
@@ -214,14 +255,14 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
               onRemove={() => handleRemove(id, refCode, true)}
             />
           ))}
-        {(form.getValues('controlIDs') || []).length === 0 && (form.getValues('subcontrolIDs') || []).length === 0 && (
+        {((form && form.getValues('controlIDs')) || []).length === 0 && ((form && form.getValues('subcontrolIDs')) || []).length === 0 && (
           <div className="flex gap-2 items-center text-sm leading-5 font-sans font-normal">
             <TriangleAlert height={12} width={12} />
             You haven&apos;t linked any controls to this evidence, ensure at least one control is linked for proper tracking of evidence
           </div>
         )}
       </div>
-      {suggestedControlsMap.length > 0 && (
+      {suggestedControlsMap && suggestedControlsMap.length > 0 && (
         <>
           <div className="w-full my-2 border-t border border-logo-bg " />
           <div className="flex gap-2 items-center">
@@ -269,6 +310,8 @@ const ObjectAssociationControlsChips = ({ form, suggestedControlsMap, evidenceCo
         confirmationTextVariant="destructive"
       />
     </div>
+  ) : (
+    viewNode
   )
 }
 
