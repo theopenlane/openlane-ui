@@ -185,7 +185,7 @@ const BasicInformation = () => {
           {(isEditing || (program?.tags && program.tags.length > 0)) && (
             <div className="flex border-b pb-3 items-center">
               <Label className="block w-32 shrink-0">Tags</Label>
-              <div className="text-sm text-left w-full">
+              <div className="text-sm text-left flex gap-2 w-full">
                 {isEditing ? (
                   <Controller
                     name="tags"

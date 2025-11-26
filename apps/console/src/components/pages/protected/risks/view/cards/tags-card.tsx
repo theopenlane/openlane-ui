@@ -113,11 +113,11 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                   }}
                 >
                   {risk.tags?.length ? (
-                    risk.tags.map((tag, index) => (
-                      <div key={index} className="flex gap-2">
-                        <TagChip tag={tag} />
-                      </div>
-                    ))
+                    <div className="flex gap-2">
+                      {risk.tags.map((tag, index) => (
+                        <TagChip tag={tag} key={index} />
+                      ))}
+                    </div>
                   ) : (
                     <span className="text-muted-foreground text-sm italic">No tags</span>
                   )}

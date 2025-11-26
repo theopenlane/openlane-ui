@@ -8,7 +8,7 @@ const TagChip = ({ tag }: { tag: string }) => {
   const tagNode = tagsData?.tagDefinitions?.edges?.find((t) => t?.node?.name === tag)?.node
 
   return (
-    <Badge variant="outline" className="flex items-center gap-1">
+    <Badge variant="outline" className="flex items-center gap-1 w-fit">
       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tagNode?.color ?? '#6B7280' }} />
       <span>{tag}</span>
     </Badge>
