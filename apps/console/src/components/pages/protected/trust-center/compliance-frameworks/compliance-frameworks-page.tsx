@@ -18,6 +18,8 @@ import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { PencilIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export default function ComplianceFrameworksPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -43,6 +45,8 @@ export default function ComplianceFrameworksPage() {
   const { mutateAsync: createCompliance } = useCreateTrustCenterCompliance()
   const { mutateAsync: deleteCompliance } = useDeleteTrustCenterCompliance()
 
+  const { errorNotification } = useNotification()
+
   const complianceMap = useMemo(() => {
     const map = new Map<string, string>()
     compliances?.forEach((c) => {
@@ -65,11 +69,15 @@ export default function ComplianceFrameworksPage() {
             deleteTrustCenterComplianceId: complianceID,
           })
         }
-      } finally {
-        // setPendingId(null)
+      } catch (err: unknown) {
+        const errorMessage = parseErrorMessage(err)
+        errorNotification({
+          title: 'Error updating compliance',
+          description: errorMessage,
+        })
       }
     },
-    [createCompliance, deleteCompliance, complianceMap],
+    [createCompliance, deleteCompliance, complianceMap, errorNotification],
   )
 
   const handlePaginationChange = (pagination: TPagination) => {

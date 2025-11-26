@@ -30,6 +30,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
+import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
 export const useGetStandards = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
@@ -88,8 +89,24 @@ export const useStandardsSelect = ({ where, enabled = true }: { where?: GetAllSt
 export const useCreateStandard = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<CreateStandardMutation, Error, CreateStandardMutationVariables>({
-    mutationFn: async (variables) => client.request<CreateStandardMutation, CreateStandardMutationVariables>(CREATE_STANDARD, variables),
+  return useMutation<CreateStandardMutation, unknown, CreateStandardMutationVariables>({
+    mutationFn: async (variables) => {
+      const { input, logoFile } = variables as CreateStandardMutationVariables & {
+        logoFile?: File
+      }
+
+      if (logoFile) {
+        return fetchGraphQLWithUpload({
+          query: CREATE_STANDARD,
+          variables: {
+            input,
+            logoFile,
+          },
+        })
+      }
+
+      return client.request<CreateStandardMutation, CreateStandardMutationVariables>(CREATE_STANDARD, variables)
+    },
 
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ['standards'] })
@@ -100,8 +117,23 @@ export const useCreateStandard = () => {
 export const useUpdateStandard = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<UpdateStandardMutation, Error, UpdateStandardMutationVariables>({
-    mutationFn: async (variables) => client.request<UpdateStandardMutation, UpdateStandardMutationVariables>(UPDATE_STANDARD, variables),
+  return useMutation<UpdateStandardMutation, unknown, UpdateStandardMutationVariables>({
+    mutationFn: async (variables) => {
+      const { input, updateStandardId, logoFile } = variables
+
+      if (logoFile) {
+        return fetchGraphQLWithUpload({
+          query: UPDATE_STANDARD,
+          variables: {
+            updateStandardId,
+            input,
+            logoFile,
+          },
+        })
+      }
+
+      return client.request<UpdateStandardMutation, UpdateStandardMutationVariables>(UPDATE_STANDARD, variables)
+    },
 
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ['standards'] })

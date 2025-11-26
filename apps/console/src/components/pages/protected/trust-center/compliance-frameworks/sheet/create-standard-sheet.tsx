@@ -20,11 +20,13 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DescriptionField } from './form-fields/description-field'
 import { TitleField } from './form-fields/title-field'
 import { TagsField } from './form-fields/tags-field'
+import { UploadField } from './form-fields/upload-fileld'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  logoFile: z.instanceof(File).nullable().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -93,6 +95,7 @@ export const CreateStandardSheet = ({ resetPagination }: { resetPagination: () =
             description: data.description,
             tags: data.tags ?? [],
           },
+          logoFile: data.logoFile ?? undefined,
         })
 
         successNotification({
@@ -108,6 +111,7 @@ export const CreateStandardSheet = ({ resetPagination }: { resetPagination: () =
             description: data.description,
             tags: data.tags ?? [],
           },
+          logoFile: data.logoFile ?? undefined,
         })
 
         successNotification({
@@ -165,13 +169,15 @@ export const CreateStandardSheet = ({ resetPagination }: { resetPagination: () =
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent side="right" className="w-[420px] sm:w-[480px] overflow-y-auto">
-        <SheetTitle />
+        <SheetTitle></SheetTitle>
         <SheetDescription />
 
         <SheetHeader>
           <div className="flex justify-between items-center">
-            <PanelRightClose size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-
+            <div className="flex items-center gap-4">
+              <PanelRightClose size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
+              <p className="text-2xl">{isCreate ? 'Create Standard' : `Update ${standardData?.standard.name}`}</p>
+            </div>
             {isEditMode ? (
               <div className="flex gap-3 items-center">
                 {isSubmitting ? (
@@ -227,6 +233,7 @@ export const CreateStandardSheet = ({ resetPagination }: { resetPagination: () =
             <TitleField isEditing={isEditing || isCreate} />
             <DescriptionField isEditing={isEditing || isCreate} />
             <TagsField isEditing={isEditing || isCreate} />
+            <UploadField isEditing={isEditing || isCreate} initialUrl={standardData?.standard?.logoFile?.presignedURL ?? null} />
           </form>
         </FormProvider>
       </SheetContent>

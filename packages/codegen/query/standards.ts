@@ -48,6 +48,9 @@ export const GET_STANDARD_DETAILS = gql`
       controls(where: { ownerIDIsNil: true }) {
         totalCount
       }
+      logoFile {
+        presignedURL
+      }
     }
   }
 `
@@ -99,8 +102,8 @@ export const GET_STANDARDS_PAGINATED = gql`
 `
 
 export const CREATE_STANDARD = gql`
-  mutation CreateStandard($input: CreateStandardInput!) {
-    createStandard(input: $input) {
+  mutation CreateStandard($input: CreateStandardInput!, $logoFile: Upload) {
+    createStandard(input: $input, logoFile: $logoFile) {
       standard {
         id
       }
@@ -109,8 +112,8 @@ export const CREATE_STANDARD = gql`
 `
 
 export const UPDATE_STANDARD = gql`
-  mutation UpdateStandard($updateStandardId: ID!, $input: UpdateStandardInput!) {
-    updateStandard(id: $updateStandardId, input: $input) {
+  mutation UpdateStandard($updateStandardId: ID!, $input: UpdateStandardInput!, $logoFile: Upload) {
+    updateStandard(id: $updateStandardId, input: $input, logoFile: $logoFile) {
       standard {
         id
       }
