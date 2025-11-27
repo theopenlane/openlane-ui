@@ -29,7 +29,7 @@ export const EvidenceTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,

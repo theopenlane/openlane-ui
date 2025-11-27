@@ -74,18 +74,32 @@ type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TSticky
 
 export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
 export const STORAGE_PAGINATION_KEY_PREFIX = 'pagination:'
+export type SortCondition<TField extends string> = {
+  field: TField
+  direction: OrderDirection
+}
 
-export function getInitialSortConditions(tableKey: TableKeyEnum, sortFields?: { field: string; direction: OrderDirection }[]) {
+export function getInitialSortConditions<TField extends string>(
+  tableKey: TableKeyEnum,
+  validSortKeys: Record<string, TField> | TField[],
+  defaultSortFields: SortCondition<TField>[],
+): SortCondition<TField>[] {
+  const validKeysArray = Array.isArray(validSortKeys) ? validSortKeys : Object.values(validSortKeys)
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
     if (stored) {
       try {
-        return JSON.parse(stored)
+        const parsed = JSON.parse(stored) as SortCondition<string>[]
+        const sanitized: SortCondition<TField>[] = parsed.filter((item): item is SortCondition<TField> => validKeysArray.includes(item.field as TField))
+
+        if (sanitized.length > 0) {
+          return sanitized
+        }
       } catch {}
     }
   }
 
-  return sortFields
+  return defaultSortFields
 }
 
 export function DataTable<TData, TValue>({

@@ -65,7 +65,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     }),
   )
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, ControlOrderField, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   useEffect(() => {
@@ -128,7 +128,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
