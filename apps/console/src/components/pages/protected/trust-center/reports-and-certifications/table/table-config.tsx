@@ -1,6 +1,5 @@
 'use client'
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
 import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
 
@@ -76,18 +75,13 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
     {
       accessorKey: 'tags',
       header: 'Tags',
+      size: 140,
       cell: ({ row }) => {
-        const tags = row.original.tags
-        if (!tags || tags.length === 0) return '-'
-        return (
-          <div className="flex flex-wrap gap-1">
-            {tags.map((tag, idx) => (
-              <Badge key={idx} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
+        const tags = row?.original?.tags
+        if (!tags?.length) {
+          return '-'
+        }
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
@@ -131,6 +125,7 @@ import { Eye, Folder } from 'lucide-react'
 import { FilterField } from '@/types'
 import { enumToOptions } from '../../../tasks/table/table-config'
 import { Checkbox } from '@repo/ui/checkbox'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {

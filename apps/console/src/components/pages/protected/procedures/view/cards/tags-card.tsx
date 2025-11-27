@@ -7,12 +7,12 @@ import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { ProcedureByIdFragment, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
-import { Badge } from '@repo/ui/badge'
 import { CreateProcedureFormData } from '../../create/hooks/use-form-schema'
 import useClickOutside from '@/hooks/useClickOutside'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -111,13 +111,11 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
                 }}
               >
                 {procedure.tags?.length ? (
-                  procedure.tags.map((item, index) => (
-                    <Fragment key={index}>
-                      <Badge className="bg-background-secondary mr-1" variant="outline">
-                        {item}
-                      </Badge>
-                    </Fragment>
-                  ))
+                  <div className="flex gap-2 flex-wrap">
+                    {procedure.tags.map((tag) => (
+                      <TagChip key={tag} tag={tag} />
+                    ))}
+                  </div>
                 ) : (
                   <span className="text-muted-foreground text-sm italic">No tags</span>
                 )}

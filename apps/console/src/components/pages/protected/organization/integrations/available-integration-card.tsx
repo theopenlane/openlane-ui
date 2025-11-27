@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Logo } from '@repo/ui/logo'
 import { AvailableIntegrationNode } from './config'
 import { useNotification } from '@/hooks/useNotification'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 const AvailableIntegrationCard = ({ integration }: { integration: AvailableIntegrationNode }) => {
   const { errorNotification } = useNotification()
@@ -56,9 +57,7 @@ const AvailableIntegrationCard = ({ integration }: { integration: AvailableInteg
                 {integration.tags?.length ? (
                   <>
                     {integration.tags.slice(0, 6).map((t, i) => (
-                      <Badge key={i} variant="outline" className="font-normal">
-                        {t}
-                      </Badge>
+                      <TagChip key={i} tag={t} />
                     ))}
                     {integration.tags.length > 6 && <Badge variant="secondary">+{integration.tags.length - 6}</Badge>}
                   </>
