@@ -2,8 +2,8 @@
 import { useFormContext, Controller } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
 import MultipleSelector from '@repo/ui/multiple-selector'
-import { Badge } from '@repo/ui/badge'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 interface Props {
   isEditing: boolean
@@ -39,17 +39,7 @@ export const TagsField = ({ isEditing }: Props) => {
           {errors.tags && <p className="text-red-500 text-sm mt-1">{String(errors.tags.message)}</p>}
         </>
       ) : (
-        <div className="flex flex-wrap gap-1 mt-1">
-          {tags.length ? (
-            tags.map((tag: string) => (
-              <Badge key={tag} variant={'outline'}>
-                {tag}
-              </Badge>
-            ))
-          ) : (
-            <p className="text-base text-muted-foreground">—</p>
-          )}
-        </div>
+        <div className="flex flex-wrap gap-1 mt-1">{tags.length ? tags.map((tag: string, i: number) => <TagChip tag={tag} key={i} />) : <p className="text-base text-muted-foreground">—</p>}</div>
       )}
     </div>
   )

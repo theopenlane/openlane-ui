@@ -10,6 +10,7 @@ import { Logo } from '@repo/ui/logo'
 import { AVAILABLE_INTEGRATIONS, getIntegrationId, IntegrationNode } from './config'
 import { useDisconnectIntegration } from '@/lib/graphql-hooks/integrations'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNode }) => {
   const disconnectMutation = useDisconnectIntegration()
@@ -42,9 +43,7 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
                   {integration.tags?.length ? (
                     <>
                       {integration.tags.slice(0, 6).map((t, i) => (
-                        <Badge key={i} variant="secondary" className="font-normal">
-                          {t}
-                        </Badge>
+                        <TagChip key={i} tag={t} />
                       ))}
                       {integration.tags.length > 6 && <Badge variant="outline">+{integration.tags.length - 6}</Badge>}
                     </>
