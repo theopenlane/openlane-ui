@@ -4,7 +4,6 @@ import { X } from 'lucide-react'
 import * as React from 'react'
 import { forwardRef, useEffect } from 'react'
 import { cn } from '../../lib/utils'
-// import { Command, CommandGroup, CommandItem, CommandList } from '@/ui/command'
 import { Command as CommandPrimitive, useCommandState } from 'cmdk'
 import { CommandItem, Command, CommandGroup, CommandList } from '../command'
 import { Badge } from '../badge/badge'
@@ -426,11 +425,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
               return (
                 <Badge
                   key={option.value}
-                  className={cn(
-                    'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted-foreground data-[disabled]:text-muted-foreground',
-                    'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted-foreground data-[fixed]:text-muted-foreground',
-                    badgeClassName,
-                  )}
+                  className={cn('data-[disabled]:bg-muted-foreground  data-[disabled]:text-muted-foreground', 'data-[fixed]:bg-muted-foreground  data-[fixed]:text-muted-foreground', badgeClassName)}
                   data-fixed={option.fixed}
                   data-disabled={disabled || undefined}
                   variant={'select'}
@@ -473,26 +468,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
               onFocus={(event) => {
                 setOpen(true)
                 inputProps?.onFocus?.(event)
-              }}
-              onKeyDown={(e) => {
-                if (creatable && (e.key === 'Enter' || e.key === 'Tab') && inputValue.trim().length > 0) {
-                  e.preventDefault()
-
-                  const alreadyExists = selected.some((option) => option.label.toLowerCase() === inputValue.trim().toLowerCase())
-
-                  if (alreadyExists) return
-
-                  if (selected.length >= maxSelected) {
-                    onMaxSelected?.(selected.length)
-                    return
-                  }
-
-                  const newOption = { value: inputValue.trim(), label: inputValue.trim() }
-                  const newOptions = [...selected, newOption]
-                  setInputValue('')
-                  setSelected(newOptions)
-                  onChange?.(newOptions)
-                }
               }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
