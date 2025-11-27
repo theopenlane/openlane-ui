@@ -10,7 +10,6 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { formatDate } from '@/utils/date'
 import { TaskQuery, TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
 import { useTaskStore } from '../../../hooks/useTaskStore'
 import { EditTaskFormData } from '../../../hooks/use-form-schema'
 import { TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
@@ -19,6 +18,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -54,18 +54,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
     return (
       <div className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex flex-wrap gap-2`}>
-        {hasTags ? (
-          taskData?.tags?.map(
-            (item, index) =>
-              item && (
-                <Badge key={index} variant="outline">
-                  {item}
-                </Badge>
-              ),
-          )
-        ) : (
-          <span className="text-muted-foreground text-sm italic">No tags</span>
-        )}
+        {hasTags ? taskData?.tags?.map((tag, i) => tag && <TagChip tag={tag} key={i} />) : <span className="text-muted-foreground text-sm italic">No tags</span>}
       </div>
     )
   }
