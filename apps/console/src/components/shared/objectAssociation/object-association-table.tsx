@@ -37,11 +37,37 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
 
   const columns: ColumnDef<TableRow>[] = [
     {
-      accessorKey: 'name',
-      header: 'Name',
-      cell: ({ row }) => {
-        const { id, refCode, name, inputName } = row.original
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageRows = table.getRowModel().rows.map((row) => row.original)
 
+        const validRows = currentPageRows.filter((row): row is TableRow & { id: string; inputName: string } => !!row.id && !!row.inputName)
+
+        const allSelected = validRows.length > 0 && validRows.every((row) => selectedIdsMap[row.inputName]?.includes(row.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(isChecked: boolean) => {
+                setSelectedIdsMap((prev) => {
+                  const updated = { ...prev }
+
+                  validRows.forEach(({ id, inputName }) => {
+                    const current = updated[inputName] ?? []
+
+                    updated[inputName] = isChecked ? (current.includes(id) ? current : [...current, id]) : current.filter((v) => v !== id)
+                  })
+
+                  return updated
+                })
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }) => {
+        const { id, refCode, inputName } = row.original
         if (!id || !inputName) return null
 
         const checked = selectedIdsMap[inputName]?.includes(id) ?? false
@@ -67,16 +93,30 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         }
 
         return (
-          <div className="flex items-center gap-3">
-            <Checkbox id={id} checked={checked} onCheckedChange={toggleChecked} />
-            <span className="whitespace-nowrap">{name}</span>
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={checked} onCheckedChange={toggleChecked} />
           </div>
         )
+      },
+      enableResizing: false,
+      size: 20,
+    },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      meta: {
+        className: 'max-w-[40%] w-[40%]',
+      },
+      cell: ({ row }) => {
+        const { name } = row.original
+        return <span className="block truncate whitespace-nowrap">{name}</span>
       },
     },
     {
       accessorKey: 'description',
       header: 'Description',
+      size: 0,
+      enableResizing: false,
       cell: ({ row }) => {
         const { description, details } = row.original
         return <span className="line-clamp-2 overflow-hidden">{convertToReadOnly(description || details || '')}</span>
