@@ -28,7 +28,6 @@ import {
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Input, InputRow } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
-import { Badge } from '@repo/ui/badge'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
@@ -77,6 +76,7 @@ import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/contro
 import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -453,11 +453,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     if (evidence?.tags?.length === 0) {
       return <span className="text-gray-500">no tags provided</span>
     }
-    return (
-      <div className="flex justify-end flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
-      </div>
-    )
+    return <div className="flex justify-end flex-wrap gap-2">{evidence?.tags?.map((tag?: string) => tag && <TagChip key={tag} tag={tag} />)} </div>
   }
 
   const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {

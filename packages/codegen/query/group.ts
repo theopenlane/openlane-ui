@@ -11,6 +11,7 @@ export const GET_ALL_GROUPS = gql`
           displayName
           gravatarLogoURL
           logoURL
+          tags
           members {
             edges {
               node {

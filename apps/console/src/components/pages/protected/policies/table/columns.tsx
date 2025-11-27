@@ -4,12 +4,12 @@ import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { KeyRound } from 'lucide-react'
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 import DelegateCell from './delegate-cell'
 import ApproverCell from './approver-cell'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type TPoliciesColumnsProps = {
   users?: User[]
@@ -174,17 +174,11 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       header: 'Tags',
       size: 140,
       cell: ({ row }) => {
-        const tags = row.original.tags
-        if (!tags?.length) return '-'
-        return (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, i) => (
-              <Badge key={i} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
+        const tags = row?.original?.tags
+        if (!tags?.length) {
+          return '-'
+        }
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
