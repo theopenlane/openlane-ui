@@ -73,7 +73,8 @@
     "./infinite-scroll": "./src/infinite-scroll/infinite-scroll.tsx",
     "./radio-group": "./src/radio-group/radio-group.tsx",
     "./country-dropdown": "./src/country-dropdown/country-dropdown.tsx",
-    "./country-flag": "./src/country-flag/country-flag.tsx"
+    "./country-flag": "./src/country-flag/country-flag.tsx",
+    "./lib/markdown-joiner-transform": "./lib/markdown-joiner-transform.ts"
   },
   "scripts": {
     "lint": "eslint src/"
@@ -82,6 +83,7 @@
     "react": "latest"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.44",
     "@ai-sdk/openai": "^1.3.23",
     "@ai-sdk/provider": "^1.1.3",
     "@ai-sdk/provider-utils": "^2.2.8",
@@ -148,8 +150,8 @@
     "@tanstack/react-table": "^8.20.6",
     "@types/prismjs": "^1.26.5",
     "@uploadthing/react": "7.3.1",
-    "ai": "^5.0.102",
     "add": "^2.0.6",
+    "ai": "^5.0.102",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

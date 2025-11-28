@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 
-import { BoldIcon, Code2Icon, ItalicIcon, UnderlineIcon } from 'lucide-react'
+import { BoldIcon, Code2Icon, ItalicIcon, UnderlineIcon, WandSparklesIcon } from 'lucide-react'
 import { KEYS } from 'platejs'
 import { useEditorReadOnly } from 'platejs/react'
 
@@ -13,6 +13,7 @@ import { MoreToolbarButton } from './more-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button'
 import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import { AIToolbarButton } from './ai-toolbar-button.tsx'
 
 export function BasicFloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
@@ -23,6 +24,10 @@ export function BasicFloatingToolbarButtons() {
       {!readOnly && (
         <>
           <ToolbarGroup>
+            <AIToolbarButton tooltip="AI commands">
+              <WandSparklesIcon />
+            </AIToolbarButton>
+
             <TurnIntoToolbarButton />
 
             <MarkToolbarButton nodeType={KEYS.bold} tooltip={`Bold (${suffix}+B)`}>
