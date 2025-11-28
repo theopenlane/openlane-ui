@@ -16822,11 +16822,11 @@ export interface EvidenceEdge {
 
 /** EvidenceEvidenceStatus is enum for the field status */
 export enum EvidenceEvidenceStatus {
-  APPROVED = 'APPROVED',
+  AUDITOR_APPROVED = 'AUDITOR_APPROVED',
   IN_REVIEW = 'IN_REVIEW',
   MISSING_ARTIFACT = 'MISSING_ARTIFACT',
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
-  READY = 'READY',
+  READY_FOR_AUDITOR = 'READY_FOR_AUDITOR',
   REJECTED = 'REJECTED',
   SUBMITTED = 'SUBMITTED',
 }
@@ -16889,11 +16889,11 @@ export interface EvidenceHistoryEdge {
 
 /** EvidenceHistoryEvidenceStatus is enum for the field status */
 export enum EvidenceHistoryEvidenceStatus {
-  APPROVED = 'APPROVED',
+  AUDITOR_APPROVED = 'AUDITOR_APPROVED',
   IN_REVIEW = 'IN_REVIEW',
   MISSING_ARTIFACT = 'MISSING_ARTIFACT',
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
-  READY = 'READY',
+  READY_FOR_AUDITOR = 'READY_FOR_AUDITOR',
   REJECTED = 'REJECTED',
   SUBMITTED = 'SUBMITTED',
 }
