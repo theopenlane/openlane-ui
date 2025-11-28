@@ -55,7 +55,7 @@ const Providers = ({ children }: ProvidersProps) => {
   if (isPublicPage) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        {children}
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </ThemeProvider>
     )
   }
