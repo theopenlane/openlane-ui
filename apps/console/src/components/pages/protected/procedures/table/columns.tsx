@@ -4,12 +4,12 @@ import { ApiToken, Group, Procedure, User } from '@repo/codegen/src/schema.ts'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 import ApproverCell from './approver-cell'
 import DelegateCell from './delegate-cell'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -118,6 +118,9 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'approver',
       header: 'Approver',
+      meta: {
+        exportPrefix: 'approver.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
@@ -128,6 +131,9 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      meta: {
+        exportPrefix: 'delegate.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
@@ -170,17 +176,11 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       header: 'Tags',
       size: 140,
       cell: ({ row }) => {
-        const tags = row.original.tags
-        if (!tags?.length) return '-'
-        return (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, i) => (
-              <Badge key={i} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
+        const tags = row?.original?.tags
+        if (!tags?.length) {
+          return '-'
+        }
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {

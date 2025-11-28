@@ -10,7 +10,6 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { formatDate } from '@/utils/date'
 import { TaskQuery, TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
 import { useTaskStore } from '../../../hooks/useTaskStore'
 import { EditTaskFormData } from '../../../hooks/use-form-schema'
 import { TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
@@ -18,6 +17,8 @@ import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -36,9 +37,10 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
   const statusOptions = TaskStatusOptions
   const taskTypeOptions = Object.values(TaskTypes)
+  const { tagOptions } = useGetTags()
 
   const tags = watch('tags')
-  const tagOptions = useMemo(() => {
+  const tagValues = useMemo(() => {
     return (tags ?? [])
       .filter((item): item is string => typeof item === 'string')
       .map((item) => ({
@@ -52,18 +54,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
     return (
       <div className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex flex-wrap gap-2`}>
-        {hasTags ? (
-          taskData?.tags?.map(
-            (item, index) =>
-              item && (
-                <Badge key={index} variant="outline">
-                  {item}
-                </Badge>
-              ),
-          )
-        ) : (
-          <span className="text-muted-foreground text-sm italic">No tags</span>
-        )}
+        {hasTags ? taskData?.tags?.map((tag, i) => tag && <TagChip tag={tag} key={i} />) : <span className="text-muted-foreground text-sm italic">No tags</span>}
       </div>
     )
   }
@@ -73,7 +64,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
   const blurTags = () => {
     const current = taskData?.tags || []
-    const next = tagOptions.map((item) => item.value)
+    const next = tagValues.map((item) => item.value)
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdate) {
@@ -290,11 +281,12 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             render={({ field }) => (
               <div className="w-[250px]" ref={triggerRef}>
                 <MultipleSelector
+                  options={tagOptions}
                   hideClearAllButton
                   placeholder="Add tag..."
                   creatable
                   commandProps={{ className: 'w-full' }}
-                  value={tagOptions}
+                  value={tagValues}
                   onChange={(selectedOptions) => {
                     const newTags = selectedOptions.map((opt) => opt.value)
                     field.onChange(newTags)

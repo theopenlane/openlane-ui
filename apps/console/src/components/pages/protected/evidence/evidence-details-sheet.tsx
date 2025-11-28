@@ -28,7 +28,6 @@ import {
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Input, InputRow } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
-import { Badge } from '@repo/ui/badge'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
@@ -76,6 +75,8 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
 import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -112,6 +113,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
+  const { tagOptions } = useGetTags()
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -451,11 +453,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     if (evidence?.tags?.length === 0) {
       return <span className="text-gray-500">no tags provided</span>
     }
-    return (
-      <div className="flex justify-end flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
-      </div>
-    )
+    return <div className="flex justify-end flex-wrap gap-2">{evidence?.tags?.map((tag?: string) => tag && <TagChip key={tag} tag={tag} />)} </div>
   }
 
   const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
@@ -605,7 +603,16 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     </HoverPencilWrapper>
                   </div>
                 )}
-
+                {!isEditing && ((evidenceControls?.length ?? 0) > 0 || (evidenceSubcontrols?.length ?? 0) > 0) && (
+                  <Card className={wrapper()}>
+                    <CardContent className={content()}>
+                      <div className="flex flex-col gap-4">
+                        <p className="text-sm font-medium leading-5">Controls</p>
+                        <ObjectAssociationControlsChips isEditing={false} evidenceControls={evidenceControls} evidenceSubcontrols={evidenceSubcontrols} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 <div className="mt-6 mb-8">
                   <Card className={wrapper()}>
                     <CardContent className={content()}>
@@ -822,6 +829,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                       commandProps={{ className: 'w-full' }}
                                       value={tagValues}
                                       hideClearAllButton
+                                      options={tagOptions}
                                       onChange={(selectedOptions) => {
                                         const options = selectedOptions.map((option) => option.value)
                                         field.onChange(options)

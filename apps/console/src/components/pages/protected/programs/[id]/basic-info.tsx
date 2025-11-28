@@ -14,7 +14,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
 import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
@@ -25,6 +24,8 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Label } from '@repo/ui/label'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -56,6 +57,7 @@ const BasicInformation = () => {
 
   const { standardOptions } = useStandardsSelect({})
   const standardOptionsNormalized = standardOptions.map((s) => ({ label: s.label, value: s.value }))
+  const { tagOptions } = useGetTags()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -183,13 +185,14 @@ const BasicInformation = () => {
           {(isEditing || (program?.tags && program.tags.length > 0)) && (
             <div className="flex border-b pb-3 items-center">
               <Label className="block w-32 shrink-0">Tags</Label>
-              <div className="text-sm text-left w-full">
+              <div className="text-sm text-left flex gap-2 w-full">
                 {isEditing ? (
                   <Controller
                     name="tags"
                     control={form.control}
                     render={({ field }) => (
                       <MultipleSelector
+                        options={tagOptions}
                         placeholder="Add tag..."
                         creatable
                         className="w-full"
@@ -204,11 +207,7 @@ const BasicInformation = () => {
                     )}
                   />
                 ) : (
-                  program?.tags?.map((tag, i) => (
-                    <Badge key={i} variant={'outline'}>
-                      {tag}
-                    </Badge>
-                  ))
+                  program?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)
                 )}
               </div>
             </div>

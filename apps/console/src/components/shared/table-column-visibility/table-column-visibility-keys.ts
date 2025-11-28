@@ -11,4 +11,5 @@ export enum TableColumnVisibilityKeysEnum {
   MEMBER = 'member',
   GROUP = 'group',
   DOCUMENTS = 'documents',
+  SUBPROCESSORS = 'subprocessors',
 }
