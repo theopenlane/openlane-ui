@@ -36,7 +36,8 @@ export const PersonalAccessTokenTable = () => {
   const path = usePathname()
   const searchParams = useSearchParams()
   const isApiTokenPage = path.includes('/api-tokens')
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PERSONAL_ACCESS_TOKEN, DEFAULT_PAGINATION))
+  const tableKey = isApiTokenPage ? TableKeyEnum.API_TOKEN : TableKeyEnum.PERSONAL_ACCESS_TOKEN
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(tableKey, DEFAULT_PAGINATION))
   const { successNotification, errorNotification } = useNotification()
 
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
@@ -47,7 +48,7 @@ export const PersonalAccessTokenTable = () => {
   }>
 
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, [
+  const defaultSorting = getInitialSortConditions(tableKey, [
     {
       field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,
@@ -235,7 +236,7 @@ export const PersonalAccessTokenTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
-        tableKey={TableKeyEnum.PERSONAL_ACCESS_TOKEN}
+        tableKey={tableKey}
       />
     </>
   )

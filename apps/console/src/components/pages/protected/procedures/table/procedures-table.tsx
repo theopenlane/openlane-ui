@@ -156,7 +156,7 @@ export const ProceduresTable = () => {
     handleExport({
       exportType: ExportExportType.PROCEDURE,
       filters: JSON.stringify(where),
-      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }

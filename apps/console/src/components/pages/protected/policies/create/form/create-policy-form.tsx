@@ -24,6 +24,7 @@ import AuthorityCard from '@/components/pages/protected/policies/view/cards/auth
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { Switch } from '@repo/ui/switch'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -55,6 +56,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const [isInitialized, setIsInitialized] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policy?.id || null)
   const isPoliciesCreate = path === '/policies/create'
+  const [createMultiple, setCreateMultiple] = useState(false)
+  const [clearData, setClearData] = useState<boolean>(false)
   useEffect(() => {
     if (policy && assocData) {
       const policyAssociations: TObjectAssociationMap = {
@@ -130,8 +133,24 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         description: 'Policy has been successfully created',
       })
 
-      form.reset()
-      router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
+      if (createMultiple) {
+        setClearData(true)
+        form.reset({
+          name: '',
+          details: '',
+          approvalRequired: data.approvalRequired,
+          status: data.status,
+          policyType: data.policyType,
+          reviewDue: data.reviewDue,
+          reviewFrequency: data.reviewFrequency,
+          approverID: data.approverID,
+          delegateID: data.delegateID,
+          tags: data.tags ?? [],
+          ...associationsState,
+        })
+      } else {
+        router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -299,16 +318,21 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
+                    <PlateEditor onChange={handleDetailsChange} clearData={clearData} onClear={() => setClearData(false)} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}
               />
             </InputRow>
-
-            <Button variant="primary" className="mt-4" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
-            </Button>
+            <div className="flex justify-between items-center">
+              <Button variant="primary" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
+              </Button>
+              <div className="flex items-center gap-2">
+                <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
+                <span>Create multiple</span>
+              </div>
+            </div>
           </div>
 
           <div className="flex-shrink-0 w-[380px] space-y-4">

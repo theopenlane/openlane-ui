@@ -1,6 +1,6 @@
 'use client'
 
-import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import React, { useEffect, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
@@ -62,17 +62,20 @@ const ViewProcedurePage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+
+  const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
+
   const memoizedSections = useMemo(() => {
-    if (!procedure) return {}
+    if (!assocData) return {}
     return {
-      policies: procedure.internalPolicies,
-      controls: procedure.controls,
-      subcontrols: procedure.subcontrols,
-      risks: procedure.risks,
-      tasks: procedure.tasks,
-      programs: procedure.programs,
+      policies: assocData.procedure.internalPolicies,
+      controls: assocData.procedure.controls,
+      subcontrols: assocData.procedure.subcontrols,
+      risks: assocData.procedure.risks,
+      tasks: assocData.procedure.tasks,
+      programs: assocData.procedure.programs,
     }
-  }, [procedure])
+  }, [assocData])
 
   const memoizedCenterNode = useMemo(() => {
     if (!procedure) return null
@@ -91,21 +94,21 @@ const ViewProcedurePage: React.FC = () => {
   }, [setCrumbs, procedure, isLoading])
 
   useEffect(() => {
-    if (procedure && !dataInitialized) {
+    if (procedure && assocData && !dataInitialized) {
       const procedureAssociations: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       }
 
       const procedureAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
       }
 
       form.reset({
@@ -126,7 +129,7 @@ const ViewProcedurePage: React.FC = () => {
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
       setDataInitialized(true)
     }
-  }, [procedure, form, procedureState, dataInitialized])
+  }, [procedure, form, procedureState, dataInitialized, assocData])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
