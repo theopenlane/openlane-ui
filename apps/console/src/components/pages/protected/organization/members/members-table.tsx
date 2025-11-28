@@ -34,7 +34,7 @@ export const MembersTable = () => {
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.MEMBER, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>(
-    getInitialSortConditions(TableKeyEnum.MEMBER, [
+    getInitialSortConditions(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
       {
         field: OrgMembershipOrderField.created_at,
         direction: OrderDirection.DESC,

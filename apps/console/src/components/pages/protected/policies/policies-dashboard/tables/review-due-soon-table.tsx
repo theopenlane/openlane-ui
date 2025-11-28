@@ -84,7 +84,7 @@ export default function ReviewDueSoonTable() {
     reviewDueLTE: dueSoonLimit.toISOString(),
   }
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, InternalPolicyOrderField, [
     {
       field: InternalPolicyOrderField.review_due,
       direction: OrderDirection.ASC,

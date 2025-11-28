@@ -25,7 +25,7 @@ export const OrganizationInvitesTable = () => {
   const [filters, setFilters] = useState<InviteWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.ORG_INVITE, DEFAULT_PAGINATION))
   const { columns } = InvitesColumns()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.ORG_INVITE, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.ORG_INVITE, InviteOrderField, [
     {
       field: InviteOrderField.created_at,
       direction: OrderDirection.DESC,
