@@ -149,7 +149,7 @@ const StatsCards: React.FC = () => {
       title: 'Evidence Submitted',
       filter: {
         field: 'status',
-        value: EvidenceEvidenceStatus.READY,
+        value: EvidenceEvidenceStatus.READY_FOR_AUDITOR,
       },
       percentage: total ? Math.round(((data?.submitted ?? 0) / total) * 100) : 0,
       count: data?.submitted ?? 0,
@@ -164,7 +164,7 @@ const StatsCards: React.FC = () => {
       title: 'Evidence Accepted',
       filter: {
         field: 'status',
-        value: EvidenceEvidenceStatus.APPROVED,
+        value: EvidenceEvidenceStatus.AUDITOR_APPROVED,
       },
       percentage: total ? Math.round(((data?.accepted ?? 0) / total) * 100) : 0,
       count: data?.accepted ?? 0,
