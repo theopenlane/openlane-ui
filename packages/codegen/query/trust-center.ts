@@ -44,6 +44,17 @@ export const GET_TRUST_CENTER = gql`
             title
             logoRemoteURL
           }
+          watermarkConfig {
+            id
+            file {
+              presignedURL
+            }
+            text
+            fontSize
+            color
+            opacity
+            rotation
+          }
         }
       }
     }
@@ -165,6 +176,16 @@ export const BULK_UPDATE_TRUST_CENTER_DOC = gql`
   mutation BulkUpdateTrustCenterDoc($ids: [ID!]!, $input: UpdateTrustCenterDocInput!) {
     updateBulkTrustCenterDoc(ids: $ids, input: $input) {
       trustCenterDocs {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
+  mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $logoFile: Upload) {
+    updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, logoFile: $logoFile) {
+      trustCenterWatermarkConfig {
         id
       }
     }

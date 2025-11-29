@@ -9,6 +9,7 @@ import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TitleAndOverview from './title-and-overview'
+import WatermarkConfigurationSection from './watermark-configuration-section'
 
 const TrustCenterSettingsPage = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -25,10 +26,10 @@ const TrustCenterSettingsPage = () => {
   if (error) {
     return <div className="p-6 text-red-600">Failed to load trust center settings: {error.message}</div>
   }
+  const trustCenter = data?.trustCenters?.edges?.[0]?.node
+  const setting = trustCenter?.setting
 
-  const setting = data?.trustCenters?.edges?.[0]?.node?.setting
-
-  if (!setting) {
+  if (!setting || !trustCenter) {
     return <div className="p-6">No trust center settings found.</div>
   }
 
@@ -38,6 +39,7 @@ const TrustCenterSettingsPage = () => {
       <ConfigureUrlSection trustCenter={data.trustCenters.edges?.[0] || undefined} />
       <ThemeSection setting={setting} />
       <BrandSection setting={setting} />
+      <WatermarkConfigurationSection watermarkConfig={trustCenter.watermarkConfig} />
     </div>
   )
 }
