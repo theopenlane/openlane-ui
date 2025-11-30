@@ -32,7 +32,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
     name: string | null
   }>({ id: null, name: null })
   const { successNotification, errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE_FILES, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,

@@ -41,7 +41,7 @@ export const PoliciesTable = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICY, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICY, InternalPolicyOrderField, [
     {
       field: InternalPolicyOrderField.name,
       direction: OrderDirection.ASC,

@@ -20,7 +20,7 @@ export const SubscribersTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.SUBSCRIBE, DEFAULT_PAGINATION))
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBE, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBE, SubscriberOrderField, [
     {
       field: SubscriberOrderField.created_at,
       direction: OrderDirection.DESC,
