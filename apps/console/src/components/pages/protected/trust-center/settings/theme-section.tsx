@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
-import { Input } from '@repo/ui/input'
+import React, { useState } from 'react'
 import { Label } from '@repo/ui/label'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -9,6 +8,7 @@ import { Button } from '@repo/ui/button'
 import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
+import { ColorInput } from '@/components/shared/color-input/color-input'
 
 type Props = {
   setting: TrustCenterSetting
@@ -104,25 +104,3 @@ const ThemeSection = ({ setting }: Props) => {
 }
 
 export default ThemeSection
-
-const ColorInput = React.memo(({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => {
-  const [, startTransition] = useTransition()
-
-  const handleChange = (val: string) => {
-    startTransition(() => onChange(val))
-  }
-
-  return (
-    <div className="space-y-1">
-      <Label className="text-sm">{label}</Label>
-      <div className="flex items-center gap-2">
-        <div className="border px-1.5 py-1 rounded">
-          <Input type="color" value={value} onChange={(e) => handleChange(e.target.value)} className="w-6 h-7 p-0 border-none" />
-        </div>
-        <Input type="text" value={value} onChange={(e) => handleChange(e.target.value)} className="w-[100px] px-2" />
-      </div>
-    </div>
-  )
-})
-
-ColorInput.displayName = 'ColorInput'

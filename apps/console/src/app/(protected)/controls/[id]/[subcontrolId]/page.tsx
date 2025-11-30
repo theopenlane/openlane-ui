@@ -369,7 +369,6 @@ const ControlDetailsPage: React.FC = () => {
       <ControlObjectivesSection controlObjectives={subcontrol.controlObjectives} />
       <ControlImplementationsSection controlImplementations={subcontrol.controlImplementations} />
       <ControlEvidenceTable
-        canEdit={canEdit(permission?.roles)}
         control={{
           controlID: subcontrol?.control.id,
           subcontrolID: subcontrol?.id,

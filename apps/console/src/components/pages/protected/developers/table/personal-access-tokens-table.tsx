@@ -48,7 +48,7 @@ export const PersonalAccessTokenTable = () => {
   }>
 
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
-  const defaultSorting = getInitialSortConditions(tableKey, [
+  const defaultSorting = getInitialSortConditions(tableKey, PersonalAccessTokenOrderField, [
     {
       field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,

@@ -37,7 +37,7 @@ const TasksPage: React.FC = () => {
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.TASK, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.TASK, TaskOrderField, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,

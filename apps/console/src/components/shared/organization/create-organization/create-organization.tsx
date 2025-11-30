@@ -135,7 +135,7 @@ export const CreateOrganizationForm = () => {
                   <FormControl>
                     <Input {...field} onChangeCapture={(e) => setValue('displayName', (e.target as HTMLInputElement).value)} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage reserveSpace={false} />
                 </FormItem>
               )}
             />
@@ -158,7 +158,7 @@ export const CreateOrganizationForm = () => {
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage reserveSpace={false} />
                 </FormItem>
               )}
             />

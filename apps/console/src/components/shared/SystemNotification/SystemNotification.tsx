@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Bell, CheckCircle2, XCircle, Loader2, AlertTriangle, CheckCheck, Download } from 'lucide-react'
 import { TJob, useTrackedExports } from '@/components/shared/export/use-tracked-export.ts'
 import { ExportExportStatus } from '@repo/codegen/src/schema'
@@ -99,16 +100,18 @@ const MultiRing = ({ size = 36, width = 4, counts, colors = STATUS_COLORS, anima
   )
 }
 
-function useOutside<T extends HTMLElement>(onOutside: () => void) {
-  const ref = useRef<T | null>(null)
+function useOutside<T extends HTMLElement>(refs: React.RefObject<T | null>[], onOutside: () => void) {
   useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onOutside()
+    const handler = (e: MouseEvent) => {
+      if (refs.some((ref) => ref.current && ref.current.contains(e.target as Node))) {
+        return
+      }
+      onOutside()
     }
-    document.addEventListener('mousedown', h)
-    return () => document.removeEventListener('mousedown', h)
-  }, [onOutside])
-  return ref
+
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [refs, onOutside])
 }
 
 function BellButton({ count, onClick, isOpen }: { count: number; onClick: () => void; isOpen: boolean }) {
@@ -191,6 +194,11 @@ export default function SystemNotificationTracker() {
   const { jobs } = useTrackedExports()
   const [open, setOpen] = useState(false)
 
+  const bellRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useOutside([bellRef, dropdownRef], () => setOpen(false))
+
   const counts = useMemo(() => {
     const mapped = jobs.map((j) => mapStatus(j.status))
     return {
@@ -203,41 +211,40 @@ export default function SystemNotificationTracker() {
     }
   }, [jobs])
 
-  const ref = useOutside<HTMLDivElement>(() => setOpen(false))
-
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="relative" ref={ref}>
+      <div className="relative" ref={bellRef}>
         <BellButton count={counts.total} onClick={() => setOpen((v) => !v)} isOpen={open} />
-        <div
-          className={`absolute right-0 mt-2 w-[380px] max-w-[92vw] origin-top-right rounded-2xl border bg-card shadow-xl z-50
-          transition-all duration-200 ease-out
-          ${open ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 -translate-y-2 invisible'}`}
-        >
-          <div className="max-h-[60vh] overflow-auto p-3">
-            <div className="flex items-center justify-between p-2">
-              <div className="flex items-center gap-2">
-                <div className="text-md font-semibold">Notifications</div>
-                <div className="text-sm bg-panel-bg rounded-md border px-1 font-bold">{counts.total}</div>
-              </div>
 
-              <div className="relative flex items-center gap-1 text-sm font-semibold cursor-pointer text-normal text-primary group">
-                <CheckCheck className="w-4 h-4" />
-                <span>Mark all as read</span>
-                <span className="absolute bottom-0 left-0 h-[1px] w-full scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 origin-left"></span>
-              </div>
-            </div>
+        {open &&
+          createPortal(
+            <div ref={dropdownRef} className="fixed top-14 right-6 w-[380px] max-w-[92vw] rounded-2xl border bg-card shadow-xl z-[10000]">
+              <div className="max-h-[60vh] overflow-auto p-3">
+                <div className="flex items-center justify-between p-2">
+                  <div className="flex items-center gap-2">
+                    <div className="text-md font-semibold">Notifications</div>
+                    <div className="text-sm bg-panel-bg rounded-md border px-1 font-bold">{counts.total}</div>
+                  </div>
 
-            <div className="my-1 h-px w-full bg-border" />
-            <div className="divide-y divide-gray-100">
-              {jobs.map((j) => (
-                <div key={j.id} className="px-2">
-                  <Row job={j} />
+                  <div className="relative flex items-center gap-1 text-sm font-semibold cursor-pointer text-normal text-primary group">
+                    <CheckCheck className="w-4 h-4" />
+                    <span>Mark all as read</span>
+                    <span className="absolute bottom-0 left-0 h-[1px] w-full scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 origin-left"></span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+
+                <div className="my-1 h-px w-full bg-border" />
+                <div className="divide-y divide-gray-100">
+                  {jobs.map((j) => (
+                    <div key={j.id} className="px-2">
+                      <Row job={j} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )}
       </div>
     </div>
   )
