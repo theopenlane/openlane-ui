@@ -271,7 +271,7 @@ function CommentMoreDropdown(props: {
   }, [comment.id, setEditingId])
 
   return (
-    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen} modal={false}>
+    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
         <Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')}>
           <MoreHorizontalIcon className="size-4" />
@@ -442,7 +442,7 @@ export function CommentCreateForm({
   }, [commentValue, commentEditor.tf, discussionId, editor, discussions])
 
   return (
-    <div className={cn('flex w-full', className)}>
+    <div className={cn('flex w-full', className)} onClick={(e) => e.stopPropagation()}>
       <div className="mt-2 mr-1 shrink-0">
         {/* Replace to your own backend or refer to potion */}
         <Avatar className="size-5">
