@@ -30,7 +30,7 @@ type PropertiesProps = {
   isEditAllowed: boolean
 }
 
-const allProperties = ['assigneeID', 'due', 'status', 'category', 'tags']
+const allProperties = ['assigneeID', 'due', 'status', 'taskKindName', 'tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
   const { control, formState, watch, setValue } = useFormContext<EditTaskFormData>()
@@ -99,7 +99,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       if (!internalEditing) {
         return
       }
-      if (['assigneeID', 'due', 'status', 'category'].includes(internalEditing)) {
+      if (['assigneeID', 'due', 'status', 'taskKindName'].includes(internalEditing)) {
         setInternalEditing(null)
       }
       if (internalEditing === 'tags') {
@@ -252,7 +252,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
-                    handleUpdate?.({ category: value })
+                    handleUpdate?.({ taskKindName: value })
                     field.onChange(value)
                     setInternalEditing(null)
                   }}
