@@ -5,9 +5,9 @@ import { EvidenceIconMapper, EvidenceStatusMapper } from '@/components/shared/en
 import { Check, Minus } from 'lucide-react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
 import { formatDate } from '@/utils/date.ts'
-import { Badge } from '@repo/ui/badge'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -140,15 +140,7 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <Badge variant={'outline'} key={i}>
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {

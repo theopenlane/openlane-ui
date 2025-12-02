@@ -7824,6 +7824,8 @@ export interface CreateCustomTypeEnumInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** the field on the object the type applies to, for example kind or category */
   field?: InputMaybe<Scalars['String']['input']>
+  /** The icon of the custom type enum in SVG format */
+  icon?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9407,6 +9409,7 @@ export interface CreateStandardInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** version of the standard */
   version?: InputMaybe<Scalars['String']['input']>
 }
@@ -9645,6 +9648,7 @@ export interface CreateTrustCenterDocInput {
   category: Scalars['String']['input']
   fileID?: InputMaybe<Scalars['ID']['input']>
   originalFileID?: InputMaybe<Scalars['ID']['input']>
+  standardID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** title of the document */
@@ -10651,6 +10655,8 @@ export interface CustomTypeEnum extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** the field on the object the type applies to, for example kind or category */
   field: Scalars['String']['output']
+  /** The icon of the custom type enum in SVG format */
+  icon?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
@@ -10928,6 +10934,22 @@ export interface CustomTypeEnumWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** icon field predicates */
+  icon?: InputMaybe<Scalars['String']['input']>
+  iconContains?: InputMaybe<Scalars['String']['input']>
+  iconContainsFold?: InputMaybe<Scalars['String']['input']>
+  iconEqualFold?: InputMaybe<Scalars['String']['input']>
+  iconGT?: InputMaybe<Scalars['String']['input']>
+  iconGTE?: InputMaybe<Scalars['String']['input']>
+  iconHasPrefix?: InputMaybe<Scalars['String']['input']>
+  iconHasSuffix?: InputMaybe<Scalars['String']['input']>
+  iconIn?: InputMaybe<Array<Scalars['String']['input']>>
+  iconIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  iconLT?: InputMaybe<Scalars['String']['input']>
+  iconLTE?: InputMaybe<Scalars['String']['input']>
+  iconNEQ?: InputMaybe<Scalars['String']['input']>
+  iconNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  iconNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -46043,6 +46065,7 @@ export interface Standard extends Node {
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   trustCenterCompliances: TrustCenterComplianceConnection
+  trustCenterDocs: TrustCenterDocConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** version of the standard */
@@ -46065,6 +46088,15 @@ export interface StandardTrustCenterCompliancesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TrustCenterComplianceOrder>>
   where?: InputMaybe<TrustCenterComplianceWhereInput>
+}
+
+export interface StandardTrustCenterDocsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterDocOrder>>
+  where?: InputMaybe<TrustCenterDocWhereInput>
 }
 
 /** Return response for createBulkStandard mutation */
@@ -46714,6 +46746,9 @@ export interface StandardWhereInput {
   /** trust_center_compliances edge predicates */
   hasTrustCenterCompliances?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterCompliancesWith?: InputMaybe<Array<TrustCenterComplianceWhereInput>>
+  /** trust_center_docs edge predicates */
+  hasTrustCenterDocs?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterDocsWith?: InputMaybe<Array<TrustCenterDocWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -51759,6 +51794,9 @@ export interface TrustCenterDoc extends Node {
   originalFile?: Maybe<File>
   /** ID of the file containing the document, before any watermarking */
   originalFileID?: Maybe<Scalars['ID']['output']>
+  standard?: Maybe<Standard>
+  /** ID of the standard */
+  standardID?: Maybe<Scalars['ID']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** title of the document */
@@ -51847,6 +51885,8 @@ export interface TrustCenterDocHistory extends Node {
   /** ID of the file containing the document, before any watermarking */
   originalFileID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
+  /** ID of the standard */
+  standardID?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** title of the document */
@@ -52043,6 +52083,22 @@ export interface TrustCenterDocHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** standard_id field predicates */
+  standardID?: InputMaybe<Scalars['String']['input']>
+  standardIDContains?: InputMaybe<Scalars['String']['input']>
+  standardIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  standardIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  standardIDGT?: InputMaybe<Scalars['String']['input']>
+  standardIDGTE?: InputMaybe<Scalars['String']['input']>
+  standardIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  standardIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  standardIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  standardIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  standardIDLT?: InputMaybe<Scalars['String']['input']>
+  standardIDLTE?: InputMaybe<Scalars['String']['input']>
+  standardIDNEQ?: InputMaybe<Scalars['String']['input']>
+  standardIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  standardIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -52225,6 +52281,9 @@ export interface TrustCenterDocWhereInput {
   /** original_file edge predicates */
   hasOriginalFile?: InputMaybe<Scalars['Boolean']['input']>
   hasOriginalFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** standard edge predicates */
+  hasStandard?: InputMaybe<Scalars['Boolean']['input']>
+  hasStandardWith?: InputMaybe<Array<StandardWhereInput>>
   /** trust_center edge predicates */
   hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
@@ -52257,6 +52316,22 @@ export interface TrustCenterDocWhereInput {
   originalFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
   originalFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   originalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** standard_id field predicates */
+  standardID?: InputMaybe<Scalars['ID']['input']>
+  standardIDContains?: InputMaybe<Scalars['ID']['input']>
+  standardIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  standardIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  standardIDGT?: InputMaybe<Scalars['ID']['input']>
+  standardIDGTE?: InputMaybe<Scalars['ID']['input']>
+  standardIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  standardIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  standardIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  standardIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  standardIDLT?: InputMaybe<Scalars['ID']['input']>
+  standardIDLTE?: InputMaybe<Scalars['ID']['input']>
+  standardIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  standardIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  standardIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -55472,6 +55547,7 @@ export interface UpdateCustomTypeEnumInput {
   clearColor?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearIcon?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
@@ -55486,10 +55562,10 @@ export interface UpdateCustomTypeEnumInput {
   color?: InputMaybe<Scalars['String']['input']>
   /** The description of the custom type */
   description?: InputMaybe<Scalars['String']['input']>
+  /** The icon of the custom type enum in SVG format */
+  icon?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
-  /** The name of the enum value, for example evidence request */
-  name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57950,6 +58026,7 @@ export interface UpdateStandardInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
@@ -57971,6 +58048,7 @@ export interface UpdateStandardInput {
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterCompliances?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterDocs?: InputMaybe<Scalars['Boolean']['input']>
   clearVersion?: InputMaybe<Scalars['Boolean']['input']>
   /** long description of the standard with details of what is covered */
   description?: InputMaybe<Scalars['String']['input']>
@@ -57996,6 +58074,7 @@ export interface UpdateStandardInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -58232,8 +58311,6 @@ export interface UpdateTagDefinitionInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
-  /** The name of the tag definition */
-  name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
@@ -58389,12 +58466,14 @@ export interface UpdateTrustCenterDocInput {
   category?: InputMaybe<Scalars['String']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearOriginalFile?: InputMaybe<Scalars['Boolean']['input']>
+  clearStandard?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearVisibility?: InputMaybe<Scalars['Boolean']['input']>
   clearWatermarkStatus?: InputMaybe<Scalars['Boolean']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   originalFileID?: InputMaybe<Scalars['ID']['input']>
+  standardID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** title of the document */
@@ -67048,6 +67127,7 @@ export type GetAllGroupsQuery = {
         displayName: string
         gravatarLogoURL?: string | null
         logoURL?: string | null
+        tags?: Array<string> | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
@@ -69914,6 +69994,16 @@ export type GetTrustCenterQuery = {
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
+        watermarkConfig?: {
+          __typename?: 'TrustCenterWatermarkConfig'
+          id: string
+          text?: string | null
+          fontSize?: number | null
+          color?: string | null
+          opacity?: number | null
+          rotation?: number | null
+          file?: { __typename?: 'File'; presignedURL?: string | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -70047,6 +70137,17 @@ export type BulkUpdateTrustCenterDocMutationVariables = Exact<{
 export type BulkUpdateTrustCenterDocMutation = {
   __typename?: 'Mutation'
   updateBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkUpdatePayload'; trustCenterDocs?: Array<{ __typename?: 'TrustCenterDoc'; id: string }> | null }
+}
+
+export type UpdateTrustCenterWatermarkConfigMutationVariables = Exact<{
+  updateTrustCenterWatermarkConfigId: Scalars['ID']['input']
+  input: UpdateTrustCenterWatermarkConfigInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterWatermarkConfigMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigUpdatePayload'; trustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfig'; id: string } }
 }
 
 export type GetUserProfileQueryVariables = Exact<{
