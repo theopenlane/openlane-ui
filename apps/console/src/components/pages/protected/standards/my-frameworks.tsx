@@ -35,15 +35,17 @@ const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFramewor
       <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {standardsData?.map((standard) => {
           const standardItem = standard?.node
+          if (!standardItem) return
           return (
             <Card key={standard?.node?.id}>
               <CardContent>
                 <div className="flex flex-col gap-5">
                   <div className="flex items-center gap-3">
-                    <StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />
+                    <StandardsIconMapper key={standardItem.id} shortName={standardItem.shortName ?? ''} />
                     <p className="text-lg font-medium text-[#505F6F]">{standardItem?.shortName}</p>
                   </div>
-                  <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
+                  {/* <MyFrameworksStats standardId={standardItem.id} isSystemOwned={standardItem.}/> */}
+                  <Link href={`standards/${standardItem.id}`} className="mt-auto">
                     <Button variant="primary" className="py-2 px-4">
                       Details
                     </Button>
