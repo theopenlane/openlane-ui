@@ -17,6 +17,16 @@ interface JWTPayload {
   email: string
 }
 
+const decodeJWT = (token: string): JWTPayload | null => {
+  try {
+    const decoded: JWTPayload = jwtDecode(token)
+    return decoded
+  } catch (error) {
+    console.error('Error decoding JWT:', error)
+    return null
+  }
+}
+
 export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) => {
   const [emailMismatch, setEmailMismatch] = useState(false)
   const { errorNotification } = useNotification()
@@ -29,16 +39,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
 
   const questionnaireData = questionnaireResponse?.data?.jsonconfig ?? null
   const submitQuestionnaire = useSubmitQuestionnaire()
-
-  const decodeJWT = (token: string): JWTPayload | null => {
-    try {
-      const decoded: JWTPayload = jwtDecode(token)
-      return decoded
-    } catch (error) {
-      console.error('Error decoding JWT:', error)
-      return null
-    }
-  }
 
   const survey = useMemo(() => {
     if (!questionnaireData || !token) return null
