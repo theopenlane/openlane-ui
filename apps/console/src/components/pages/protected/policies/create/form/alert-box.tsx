@@ -1,13 +1,19 @@
-/* eslint-disable react/prop-types */
 import { AIAssistButton } from '@/components/shared/ai-suggetions/button'
 import { AISuggestionsPanel } from '@/components/shared/ai-suggetions/panel'
 import { AI_POLICY_PROMPT } from '@/constants/ai'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL, POLICY_HUB_REPO_URL } from '@/constants/docs'
+import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { useNotification } from '@/hooks/useNotification'
 import { useAISuggestions } from '@/hooks/usetGetAISuggetions'
+import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/policy'
 import { Button } from '@repo/ui/button'
-import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, Sparkles, X } from 'lucide-react'
+import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LoaderCircle, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useRouter } from 'next/navigation'
+import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
+import { Input } from '@repo/ui/input'
 
 const AI_SUGGESTIONS_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 
@@ -24,10 +30,18 @@ type THelperProps = {
   onNameChange?: (name: string) => void
 }
 
-const HelperText: React.FC<THelperProps> = ({ name, editorRef, onNameChange }) => {
+const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
+  const router = useRouter()
   const [isHelperOpen, setIsAIHelperOpen] = useState(true)
   const [showNameDialog, setShowNameDialog] = useState(false)
   const [tempPolicyName, setTempPolicyName] = useState('')
+
+  // template browser things
+  const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
+  const [isCreatingFromTemplate, setIsCreatingFromTemplate] = useState(false)
+
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: createUploadPolicy } = useCreateUploadInternalPolicy()
 
   const { suggestions, loading, activeSection, getAISuggestions, clearSuggestions } = useAISuggestions()
 
@@ -80,6 +94,29 @@ const HelperText: React.FC<THelperProps> = ({ name, editorRef, onNameChange }) =
     setShowNameDialog(false)
   }
 
+  const handleTemplateFileSelect = async (file: TUploadedFile) => {
+    setIsCreatingFromTemplate(true)
+    try {
+      const result = await createUploadPolicy({ internalPolicyFile: file.file })
+      const policyId = result.createUploadInternalPolicy.internalPolicy.id
+
+      successNotification({
+        title: 'Policy Created',
+        description: 'Policy has been successfully created from template',
+      })
+
+      router.push(`/policies/${policyId}/view`)
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+
+      setIsCreatingFromTemplate(false)
+    }
+  }
+
   return (
     <>
       <div className="relative overflow-hidden rounded-lg border dark:border-gray-700/50 bg-gradient-to-br dark:from-blue-800/10 dark:via-gray-800/60 dark:to-purple-900/20 from-blue-200/10 via-white-800/20 to-purple-400/10">
@@ -118,11 +155,18 @@ const HelperText: React.FC<THelperProps> = ({ name, editorRef, onNameChange }) =
             <div className="flex items-center gap-3">
               {AI_SUGGESTIONS_ENABLED && <AIAssistButton onGetSuggestions={handleGenerateClick} loading={loading && activeSection === 'policy'} label="Generate with AI" variant="primary" />}
 
-              <a href={`${POLICY_HUB_REPO_URL}`} target="_blank" rel="noreferrer" aria-label="Policy Templates">
-                <Button type="button" variant="secondary" className="h-8 !px-2 !pl-3" icon={<FileTextIcon />} iconPosition="left">
-                  Browse Templates
-                </Button>
-              </a>
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-8 !px-2 !pl-3"
+                icon={<FileTextIcon />}
+                iconPosition="left"
+                onClick={() => setShowTemplateBrowser(true)}
+                disabled={isCreatingFromTemplate}
+              >
+                Browse Templates
+              </Button>
+
               <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation">
                 <Button type="button" variant="secondary" className="h-8 !px-2 !pl-3" icon={<BookOpenIcon />} iconPosition="left">
                   View Docs
@@ -142,35 +186,35 @@ const HelperText: React.FC<THelperProps> = ({ name, editorRef, onNameChange }) =
         showNameDialog &&
         createPortal(
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-2xl max-w-md w-full animate-in fade-in zoom-in duration-200">
+            <div className="bg-secondary rounded-xl shadow-2xl max-w-md w-full animate-in fade-in zoom-in duration-200">
               {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div className="flex items-center justify-between px-6 py-4 border-b">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center">
                     <Sparkles className="h-5 w-5 text-primary-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-100">Name Your Policy</h3>
+                  <h3 className="text-lg font-semibold">Name Your Policy</h3>
                 </div>
-                <button type="button" onClick={() => setShowNameDialog(false)} className="text-gray-400 hover:text-gray-300 transition-colors">
+                <Button variant="icon" type="button" onClick={() => setShowNameDialog(false)} className="transition-colors">
                   <X className="h-5 w-5" />
-                </button>
+                </Button>
               </div>
 
               {/* Content */}
               <form onSubmit={handleSubmitName} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Policy Name</label>
-                  <input
+                  <label className="block text-sm mb-2">Policy Name</label>
+                  <Input
                     type="text"
                     value={tempPolicyName}
                     onChange={(e) => setTempPolicyName(e.target.value)}
                     placeholder="e.g., Access Control Policy"
                     autoFocus
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                   />
                 </div>
 
-                <p className="text-sm text-gray-400">Give your policy a descriptive name. AI will use this to generate relevant content.</p>
+                <p className="text-sm opacity-70">Give your policy a descriptive name. AI will use this to generate relevant content.</p>
 
                 {/* Actions */}
                 <div className="flex gap-3 pt-2">
@@ -187,6 +231,20 @@ const HelperText: React.FC<THelperProps> = ({ name, editorRef, onNameChange }) =
                   </Button>
                 </div>
               </form>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      <PolicyTemplateBrowser isOpen={showTemplateBrowser} onClose={() => setShowTemplateBrowser(false)} onFileSelect={handleTemplateFileSelect} />
+
+      {/* Full-screen loading overlay */}
+      {isCreatingFromTemplate &&
+        createPortal(
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[90]">
+            <div className="bg-secondary rounded-xl border p-8 flex flex-col items-center gap-4">
+              <LoaderCircle className="animate-spin opacity-30" size={32} />
+              <p className="text-lg">Creating policy from template...</p>
             </div>
           </div>,
           document.body,
