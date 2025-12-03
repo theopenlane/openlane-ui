@@ -17,9 +17,9 @@ const tabsStyles = tv({
         ].join(' '),
       },
       solid: {
-        tabsList: 'rounded-md bg-input p-0.5 items-start',
-        tabsTrigger: 'h-7 px-2 rounded-[5px] border border-transparent data-[state=active]:bg-btn-secondary data-[state=active]:text-btn-secondary-text !text-sm',
-        tabsContent: 'mt-[26px] ',
+        tabsList: 'w-full rounded-md bg-background p-0.5 flex justify-between',
+        tabsTrigger: 'flex-1 h-7 px-2 rounded-[5px] border border-transparent data-[state=active]:bg-btn-secondary data-[state=active]:text-btn-secondary-text !text-sm text-center',
+        tabsContent: 'mt-[26px]',
       },
     },
   },

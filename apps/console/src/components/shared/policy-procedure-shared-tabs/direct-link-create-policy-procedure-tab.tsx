@@ -1,7 +1,6 @@
 import { TabsContent } from '@repo/ui/tabs'
-import { Input } from '@repo/ui/input'
-import { PlusCircle } from 'lucide-react'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
+import DirectLinkTab from '../file-upload/direct-link-tab-section'
 
 type TDirectLinkCreatePolicyProcedureTabProps = {
   onAddLink?: (link: string) => void
@@ -29,14 +28,7 @@ const DirectLinkCreatePolicyProcedureTab: React.FC<TDirectLinkCreatePolicyProced
 
   return (
     <TabsContent value={PolicyProcedureTabEnum.DirectLink}>
-      <div className="flex w-full items-center">
-        <div className="w-4/5">
-          <Input variant="medium" className="w-full" placeholder="Paste URL here" value={link} onChange={(e) => setLink(e.target.value)} />
-        </div>
-        <div className="w-1/5 flex justify-center">
-          <PlusCircle className="w-8 h-8 text-primary cursor-pointer hover:scale-105 transition-transform" onClick={handleAddProcedureLink} />
-        </div>
-      </div>
+      <DirectLinkTab link={link} setLink={setLink} handleAddProcedureLink={handleAddProcedureLink} ariaLabel={'Create policy procedure'} />
     </TabsContent>
   )
 }

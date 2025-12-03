@@ -184,11 +184,11 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                     <Input
                       variant="medium"
                       {...field}
-                      onBlur={() => handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)}
+                      onBlur={() => handleUpdateIfChanged('procedureType', field.value!, procedure?.procedureType)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === 'Tab') {
                           e.preventDefault()
-                          handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)
+                          handleUpdateIfChanged('procedureType', field.value!, procedure?.procedureType)
                         }
                       }}
                       autoFocus

@@ -75,7 +75,7 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
         </DialogTrigger>
       )}
 
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Bulk Upload</DialogTitle>
         </DialogHeader>
@@ -100,9 +100,12 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
           multipleFiles={false}
           acceptedFilesClass="flex justify-between text-sm"
         />
-        <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+        <div className="flex flex-col gap-2">
+          <Button variant="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
+          </Button>
+          <Button variant="back" onClick={() => setIsOpen(false)}>
+            Cancel
           </Button>
         </div>
       </DialogContent>

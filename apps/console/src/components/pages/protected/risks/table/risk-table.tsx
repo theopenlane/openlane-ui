@@ -37,7 +37,7 @@ const RiskTable: React.FC = () => {
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.RISK, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.RISK, RiskOrderField, [
     {
       field: RiskOrderField.name,
       direction: OrderDirection.ASC,

@@ -214,7 +214,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                 <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
                   Cancel
                 </Button>
-                <Button iconPosition="left" type="submit" form="inviteForm" disabled={emails.length === 0}>
+                <Button iconPosition="left" type="button" form="inviteForm" onClick={handleSubmit(onSubmit)} disabled={emails.length === 0}>
                   Invite
                 </Button>
               </div>

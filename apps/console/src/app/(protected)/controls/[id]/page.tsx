@@ -374,7 +374,6 @@ const ControlDetailsPage: React.FC = () => {
       <ControlObjectivesSection controlObjectives={control.controlObjectives} />
       <ControlImplementationsSection controlImplementations={control.controlImplementations} />
       <ControlEvidenceTable
-        canEdit={canEdit(permission?.roles)}
         control={{
           displayID: control?.refCode,
           controlID: control.id,

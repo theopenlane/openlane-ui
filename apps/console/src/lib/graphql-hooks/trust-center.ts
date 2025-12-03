@@ -11,6 +11,7 @@ import {
   GET_TRUST_CENTER_DOCS,
   UPDATE_TRUST_CENTER_DOC,
   UPDATE_TRUST_CENTER_SETTING,
+  UPDATE_TRUST_CENTER_WATERMARK_CONFIG,
 } from '@repo/codegen/query/trust-center'
 import {
   BulkDeleteTrustCenterDocMutation,
@@ -32,6 +33,8 @@ import {
   UpdateTrustCenterDocMutationVariables,
   UpdateTrustCenterSettingMutation,
   UpdateTrustCenterSettingMutationVariables,
+  UpdateTrustCenterWatermarkConfigMutation,
+  UpdateTrustCenterWatermarkConfigMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
@@ -47,8 +50,9 @@ export const useGetTrustCenter = () => {
 }
 
 export type TrustCenterEdge = NonNullable<NonNullable<GetTrustCenterQuery['trustCenters']>['edges']>[number]
-export type TrustCenterNode = NonNullable<TrustCenterEdge>['node']
+export type TrustCenterNode = NonNullable<NonNullable<NonNullable<GetTrustCenterQuery['trustCenters']>['edges']>[number]>['node']
 export type TrustCenterSetting = NonNullable<TrustCenterNode>['setting']
+export type TrustCenterWatermarkConfig = NonNullable<TrustCenterNode>['watermarkConfig']
 
 export const useUpdateTrustCenterSetting = () => {
   const { client, queryClient } = useGraphQLClient()
@@ -242,6 +246,38 @@ export const useBulkUpdateTrustCenterDocs = () => {
     mutationFn: async (variables) => client.request(BULK_UPDATE_TRUST_CENTER_DOC, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenter', 'docs'] })
+    },
+  })
+}
+
+export const useUpdateTrustCenterWatermarkConfig = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateTrustCenterWatermarkConfigMutation, unknown, UpdateTrustCenterWatermarkConfigMutationVariables>({
+    mutationFn: async (variables) => {
+      const { updateTrustCenterWatermarkConfigId, input, logoFile } = variables
+
+      if (logoFile) {
+        return fetchGraphQLWithUpload({
+          query: UPDATE_TRUST_CENTER_WATERMARK_CONFIG,
+          variables: {
+            updateTrustCenterWatermarkConfigId,
+            input,
+            logoFile,
+          },
+        })
+      }
+
+      return client.request<UpdateTrustCenterWatermarkConfigMutation, UpdateTrustCenterWatermarkConfigMutationVariables>(UPDATE_TRUST_CENTER_WATERMARK_CONFIG, {
+        updateTrustCenterWatermarkConfigId,
+        input,
+      })
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter'],
+      })
     },
   })
 }

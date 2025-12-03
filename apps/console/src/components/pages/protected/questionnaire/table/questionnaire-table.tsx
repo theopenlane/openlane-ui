@@ -26,7 +26,7 @@ export const QuestionnairesTable = () => {
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, TemplateOrderField, [
     {
       field: AssessmentOrderField.name,
       direction: OrderDirection.ASC,

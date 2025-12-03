@@ -47,7 +47,7 @@ type TParseError = {
 const parseError = (error: unknown): TParseError | undefined => {
   if (Array.isArray(error)) {
     return {
-      code: error[0].extensions.code as string,
+      code: error[0].extensions ? error[0].extensions.code : '',
       message: error[0].message as string,
     }
   }
