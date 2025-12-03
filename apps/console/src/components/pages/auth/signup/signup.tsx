@@ -106,6 +106,7 @@ export const SignupPage = () => {
               const res = await registerUser(payload)
 
               if (res?.ok && token) {
+                window.gtag_report_conversion?.()
                 router.push(`/login`)
               } else if (res?.ok) {
                 router.push('/verify')
