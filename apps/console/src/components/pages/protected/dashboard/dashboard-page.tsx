@@ -15,6 +15,12 @@ import Loading from '@/app/(protected)/dashboard/loading'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { SlidersHorizontal } from 'lucide-react'
+import DashboardActions from '@/components/pages/protected/overview/DashboardActions.tsx'
+import DashboardComplianceOverview from '@/components/pages/protected/overview/DashboardComplianceOverview.tsx'
+import DashboardSuggestedActions from '@/components/pages/protected/overview/DashboardSuggestedActions.tsx'
+import DashboardLatestActivity from '@/components/pages/protected/overview/DashboardLatestActivity.tsx'
+import DashboardViewDocumentation from '../overview/DashboardViewDocumentation'
+import DashboardContactSupport from '@/components/pages/protected/overview/DashboardContactSupport.tsx'
 
 const DashboardPage: React.FC = () => {
   const router = useRouter()
@@ -68,48 +74,22 @@ const DashboardPage: React.FC = () => {
 
   return (
     <>
-      <PageHeading
-        heading={
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-              <h1>Overview</h1>
+      <div className="max-w-[1076px] mx-auto w-full px-4 flex flex-col gap-6">
+        <h1>Welcome, Luke!</h1>
+        <p>Here&#39;s what&#39;s happening in your organization.</p>
+        <DashboardActions />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-8 !px-2 !pl-3" icon={<SlidersHorizontal />} iconPosition="left">
-                    <span className="text-muted-foreground">Filter by:</span>
-                    <span>Program</span>
-                  </Button>
-                </DropdownMenuTrigger>
+        <DashboardComplianceOverview />
 
-                <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
-                  <DropdownMenuRadioGroup value={programId ?? 'All programs'} onValueChange={(val) => handleSelectChange(val)}>
-                    <DropdownMenuRadioItem value="All programs">All programs</DropdownMenuRadioItem>
-                    {data?.programs?.edges?.map((edge) => {
-                      const program = edge?.node
-                      if (!program) return null
-                      return (
-                        <DropdownMenuRadioItem key={program.id} value={program.id}>
-                          {program.name}
-                        </DropdownMenuRadioItem>
-                      )
-                    })}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        }
-      />
-
-      <div className="flex flex-col gap-7">
-        <div className="flex flex-wrap gap-7">
-          <MyTask />
-          <PendingActions />
+        <div className="grid grid-cols-2 gap-6">
+          <DashboardSuggestedActions />
+          <DashboardLatestActivity />
         </div>
-        <StatsCards />
-        <Risks />
-        <Questionnaire />
+
+        <div className="grid grid-cols-2 gap-6">
+          <DashboardViewDocumentation />
+          <DashboardContactSupport />
+        </div>
       </div>
     </>
   )
