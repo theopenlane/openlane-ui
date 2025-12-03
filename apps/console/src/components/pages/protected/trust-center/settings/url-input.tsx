@@ -1,6 +1,7 @@
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import clsx from 'clsx'
+import { BadgeCheck, Hourglass } from 'lucide-react'
 import React from 'react'
 
 type UrlInputProps = {
@@ -16,13 +17,12 @@ function UrlInput({ value, onChange, disabled, className, verifiedStatus }: UrlI
 
   return (
     <div className={clsx('flex items-center border rounded-md w-[490px]', className)}>
-      <div className="px-3 py-2 text-sm select-none">https://</div>
-      <div className="w-[1px] border-l py-2"></div>
-      <Input maxWidth value={value} placeholder="subdomain.domain.com" onChange={(e) => onChange(e.target.value)} className="border-none" disabled={disabled} />
+      <p className="px-3 py-2 text-sm select-none">https://</p>
+      <Input className="rounded-none" maxWidth value={value} placeholder="subdomain.domain.com" onChange={(e) => onChange(e.target.value)} disabled={disabled} />
       {verifiedStatus !== undefined && (
-        <div className="flex items-center justify-end opacity-50 pr-3">
-          <div className={clsx('h-2 w-2 rounded-full mr-1', isVerified ? 'bg-primary' : 'bg-warning')} />
-          <span className="font-normal text-xs">{isVerified ? 'Verified' : 'Pending'}</span>
+        <div className="flex items-center mx-2 pr-3">
+          {isVerified ? <BadgeCheck /> : <Hourglass />}
+          <span className=" font-normal text-sm leading-5 ml-2">{isVerified ? 'Verified' : 'Pending'}</span>
         </div>
       )}
     </div>
