@@ -147,7 +147,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   }
   const handleInitialValue = useCallback(() => {
     if (formData) {
-      console.log('controlParam', controlParam)
       if (controlParam && controlParam.length) {
         const newEvidenceControls: CustomEvidenceControl[] = []
         const newEvidenceSubcontrols: CustomEvidenceControl[] = []
