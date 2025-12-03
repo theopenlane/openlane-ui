@@ -12,3 +12,6 @@ export const GRAPHQL_OBJECT_DOCS = `${DOCS_URL}/docs/api/graph-api/objects`
 export const COMPLIANCE_MANAGEMENT_DOCS_URL = `${PLATFORM_DOCS_URL}/compliance-management`
 // docs within the trust center section
 export const TRUST_CENTER_DOCS_URL = `${PLATFORM_DOCS_URL}/trust-center`
+
+// policy hub repo
+export const POLICY_HUB_REPO_URL = 'https://github.com/theopenlane/policy-hub'
