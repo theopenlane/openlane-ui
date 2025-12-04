@@ -17,6 +17,7 @@ import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-proce
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
 
 type TCreatePolicyUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -36,6 +37,8 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy()
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
 
+  const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
+
   const [defaultTab, setDefaultTab] = useState<PolicyProcedureTabEnum>(PolicyProcedureTabEnum.Upload)
   const [policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
   const [policyMdDocumentLinks, setPolicyMdDocumentLinks] = useState<string[]>([])
@@ -52,6 +55,10 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     }
 
     setIsOpen(false)
+  }
+
+  const handleTemplateFileSelect = (file: TUploadedFile) => {
+    setUploadedFiles((prev) => [...prev, file])
   }
 
   const handleLinkUpload = async () => {
@@ -241,6 +248,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           </Button>
         </div>
       </DialogContent>
+      <PolicyTemplateBrowser isOpen={showTemplateBrowser} onClose={() => setShowTemplateBrowser(false)} onFileSelect={handleTemplateFileSelect} />
     </Dialog>
   )
 }

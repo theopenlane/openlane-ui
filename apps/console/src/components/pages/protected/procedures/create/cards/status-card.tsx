@@ -80,8 +80,8 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               control={form.control}
               render={({ field }) => (
                 <>
-                  <Select value={field.value.toString()} onValueChange={(value) => field.onChange(value === 'true')}>
-                    <SelectTrigger className="w-full">{field.value.toString()}</SelectTrigger>
+                  <Select value={field.value!.toString()} onValueChange={(value) => field.onChange(value === 'true')}>
+                    <SelectTrigger className="w-full">{field.value!.toString()}</SelectTrigger>
                     <SelectContent>
                       <SelectItem value="true">True</SelectItem>
                       <SelectItem value="false">False</SelectItem>
@@ -108,7 +108,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <>
                   <Select
-                    value={field.value.toString()}
+                    value={field.value!.toString()}
                     onValueChange={(value) => {
                       if (value) {
                         field.onChange(value)
