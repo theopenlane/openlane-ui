@@ -57,7 +57,6 @@ export const TemplateList = () => {
 
   const { templates, isLoading, isError } = useTemplates({ where: whereFilter })
 
-  console.log(templates)
 
   const formSchema = z.object({
     templateId: z.string(),
