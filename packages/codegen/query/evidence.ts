@@ -413,3 +413,11 @@ export const GET_EVIDENCE_SUGGESTED_ACTIONS = gql`
     }
   }
 `
+
+export const GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT = gql`
+  query GetItemsMissingEvidenceCount {
+    evidences(where: { status: MISSING_ARTIFACT }) {
+      totalCount
+    }
+  }
+`

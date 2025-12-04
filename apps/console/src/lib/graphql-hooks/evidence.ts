@@ -17,6 +17,7 @@ import {
   GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID,
   GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS,
   GET_EVIDENCE_SUGGESTED_ACTIONS,
+  GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -45,9 +46,12 @@ import {
   GetEvidenceCountsByStatusAllProgramsQuery,
   EvidenceSuggestedActionsQuery,
   FileWhereInput,
+  GetNotImplementedControlCountQuery,
+  GetItemsMissingEvidenceCountQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
+import { GET_CONTROL_NOT_IMPLEMENTED_COUNT } from '@repo/codegen/query/control.ts'
 
 export function useCreateEvidence() {
   const { queryClient } = useGraphQLClient()
@@ -382,4 +386,19 @@ export const useEvidenceSuggestedActions = () => {
     queryFn: async () => client.request(GET_EVIDENCE_SUGGESTED_ACTIONS),
     refetchOnWindowFocus: false,
   })
+}
+
+export const useGetEvidenceMissingArtifactCount = () => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetItemsMissingEvidenceCountQuery, unknown>({
+    queryKey: ['evidences', 'evidenceMissingArtifactCount'],
+    queryFn: async () => client.request(GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT),
+    enabled: true,
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.evidences?.totalCount ?? 0,
+  }
 }

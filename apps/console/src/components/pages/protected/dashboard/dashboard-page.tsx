@@ -1,29 +1,23 @@
 'use client'
 import React, { useState, useMemo, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { PageHeading } from '@repo/ui/page-heading'
-import MyTask from '@/components/pages/protected/overview/my-task'
-import PendingActions from '@/components/pages/protected/overview/pending-actions'
-import Risks from '@/components/pages/protected/overview/risks'
-import Questionnaire from '@/components/pages/protected/overview/questionnaire'
+import { useSearchParams } from 'next/navigation'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
-import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import Loading from '@/app/(protected)/dashboard/loading'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
-import { SlidersHorizontal } from 'lucide-react'
 import DashboardActions from '@/components/pages/protected/overview/DashboardActions.tsx'
 import DashboardComplianceOverview from '@/components/pages/protected/overview/DashboardComplianceOverview.tsx'
 import DashboardSuggestedActions from '@/components/pages/protected/overview/DashboardSuggestedActions.tsx'
-import DashboardLatestActivity from '@/components/pages/protected/overview/DashboardLatestActivity.tsx'
 import DashboardViewDocumentation from '../overview/DashboardViewDocumentation'
 import DashboardContactSupport from '@/components/pages/protected/overview/DashboardContactSupport.tsx'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 
 const DashboardPage: React.FC = () => {
-  const router = useRouter()
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+  const { data: userData } = useGetCurrentUser(userId)
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [, setSelectedProgram] = useState<string>('All programs')
@@ -58,38 +52,25 @@ const DashboardPage: React.FC = () => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
   }, [setCrumbs])
 
-  const handleSelectChange = (val: string) => {
-    if (val === 'All programs') {
-      setSelectedProgram('All programs')
-      router.push('/dashboard')
-    } else {
-      const programName = programMap[val] ?? 'Unknown Program'
-      setSelectedProgram(programName)
-      router.push(`/dashboard?id=${val}`)
-    }
-  }
-
   if (isLoading) return <Loading />
   if (!data?.programs.edges?.length) return <NewUserLanding />
 
   return (
     <>
       <div className="max-w-[1076px] mx-auto w-full px-4 flex flex-col gap-4">
-        <h1>Welcome, Luke!</h1>
-        <p>Here&#39;s what&#39;s happening in your organization.</p>
+        <div>
+          <p className="text-3xl leading-9 font-medium">Welcome, {userData?.user?.displayName}!</p>
+          <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here&#39;s what&#39;s happening in your organization.</p>
+        </div>
+
         <DashboardActions />
         <DashboardComplianceOverview />
 
         <div className="grid grid-cols-2 gap-4 auto-rows-fr">
-          {/* LEFT COLUMN (FULL HEIGHT) */}
           <div className="row-span-2">
             <DashboardSuggestedActions />
           </div>
-
-          {/* RIGHT COLUMN (TOP) */}
           <DashboardViewDocumentation />
-
-          {/* RIGHT COLUMN (BOTTOM) */}
           <DashboardContactSupport />
         </div>
       </div>

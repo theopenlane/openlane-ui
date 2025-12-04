@@ -202,3 +202,11 @@ export const BULK_DELETE_RISK = gql`
     }
   }
 `
+
+export const GET_RISK_OPEN_COUNT = gql`
+  query GetOpenRiskCount {
+    risks(where: { status: OPEN }) {
+      totalCount
+    }
+  }
+`
