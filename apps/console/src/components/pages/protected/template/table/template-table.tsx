@@ -2,14 +2,14 @@
 
 import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { getQuestionnaireColumns } from './columns'
-import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
-import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
-import { OrderDirection, Assessment, AssessmentOrderField, AssessmentWhereInput, FilterAssessmentsQueryVariables } from '@repo/codegen/src/schema.ts'
+import { getTemplateColumns } from './columns'
+import TemplateTableToolbar from '@/components/pages/protected/template/table/template-table-toolbar.tsx'
+import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/template/table/table-config.ts'
+import { OrderDirection, Template, TemplateOrderField, TemplateWhereInput, FilterTemplatesQueryVariables, TemplateDocumentType } from '@repo/codegen/src/schema.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useAssessments } from '@/lib/graphql-hooks/assessments'
+import { useTemplates } from '@/lib/graphql-hooks/templates'
 import { useRouter } from 'next/navigation'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -20,19 +20,19 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
-export const QuestionnairesTable = () => {
+export const TemplatesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
+  const [filters, setFilters] = useState<TemplateWhereInput>({})
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [
     {
-      field: AssessmentOrderField.name,
+      field: TemplateOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FilterAssessmentsQueryVariables['orderBy']>(defaultSorting)
+  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -42,7 +42,7 @@ export const QuestionnairesTable = () => {
     createdBy: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.QUESTIONNAIRE, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.TEMPLATE, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -50,31 +50,32 @@ export const QuestionnairesTable = () => {
   const whereFilter = useMemo(() => {
     return {
       nameContainsFold: debouncedSearch,
+      templateType: TemplateDocumentType.DOCUMENT,
       ...filters,
     }
   }, [filters, debouncedSearch])
 
   const {
-    assessments,
+    templates,
     isError,
     isLoading: fetching,
     paginationMeta,
-  } = useAssessments({
+  } = useTemplates({
     where: whereFilter,
     orderBy: orderByFilter,
     pagination,
-    enabled: !!filters,
+    enabled: true,
   })
 
   const userIds = useMemo(() => {
-    if (!assessments) return []
+    if (!templates) return []
     const ids = new Set<string>()
-    assessments.forEach((assessment) => {
-      if (assessment.createdBy) ids.add(assessment.createdBy)
-      if (assessment.updatedBy) ids.add(assessment.updatedBy)
+    templates.forEach((template) => {
+      if (template.createdBy) ids.add(template.createdBy)
+      if (template.updatedBy) ids.add(template.updatedBy)
     })
     return Array.from(ids)
-  }, [assessments])
+  }, [templates])
 
   const { users, isFetching: fetchingUsers } = useGetOrgUserList({
     where: { hasUserWith: [{ idIn: userIds }] },
@@ -88,35 +89,35 @@ export const QuestionnairesTable = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = getQuestionnaireColumns({ userMap })
+  const { columns, mappedColumns } = getTemplateColumns({ userMap })
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
   const handleExport = () => {
-    if (!assessments || assessments.length === 0) return
+    if (!templates || templates.length === 0) return
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof Assessment
+      const key = col.accessorKey as keyof Template
       const label = col.header
       return {
         label,
-        accessor: (assessment: Assessment) => {
-          const value = assessment[key]
+        accessor: (template: Template) => {
+          const value = template[key]
           return typeof value === 'string' || typeof value === 'number' ? value : ''
         },
       }
     })
-    exportToCSV(assessments, exportableColumns, 'questionnaires_list')
+    exportToCSV(templates, exportableColumns, 'templates_list')
   }
 
-  const handleRowClick = (row: Assessment) => {
-    router.push(`/questionnaires/questionnaire-viewer?id=${row.id}`)
+  const handleRowClick = (row: Template) => {
+    router.push(`/templates/template-viewer?id=${row.id}`)
   }
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Questionnaires', href: '/questionnaires' },
+      { label: 'Templates', href: '/templates' },
     ])
   }, [setCrumbs])
 
@@ -124,14 +125,14 @@ export const QuestionnairesTable = () => {
     if (isError) {
       errorNotification({
         title: 'Error',
-        description: 'Failed to load questionnaires',
+        description: 'Failed to load templates',
       })
     }
   }, [isError, errorNotification])
 
   return (
     <div>
-      <QuestionnaireTableToolbar
+      <TemplateTableToolbar
         handleExport={handleExport}
         creating={fetching}
         searchTerm={searchTerm}
@@ -143,13 +144,13 @@ export const QuestionnairesTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        exportEnabled={assessments && assessments.length > 0}
+        exportEnabled={templates && templates.length > 0}
       />
       <DataTable
-        sortFields={QUESTIONNAIRE_SORT_FIELDS}
+        sortFields={TEMPLATE_SORT_FIELDS}
         onSortChange={setOrderBy}
         columns={columns}
-        data={assessments}
+        data={templates}
         loading={fetching || fetchingUsers}
         pagination={pagination}
         onPaginationChange={setPagination}
@@ -158,7 +159,7 @@ export const QuestionnairesTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         defaultSorting={defaultSorting}
-        tableKey={TableKeyEnum.QUESTIONNAIRE}
+        tableKey={TableKeyEnum.TEMPLATE}
       />
     </div>
   )

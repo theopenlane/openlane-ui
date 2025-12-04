@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { Assessment, User } from '@repo/codegen/src/schema'
+import { Template, User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 
@@ -7,10 +7,10 @@ type Params = {
   userMap?: Record<string, User>
 }
 
-export const getQuestionnaireColumns = (params?: Params) => {
+export const getTemplateColumns = (params?: Params) => {
   const userMap = params?.userMap || {}
 
-  const columns: ColumnDef<Assessment>[] = [
+  const columns: ColumnDef<Template>[] = [
     {
       accessorKey: 'id',
       header: 'ID',

@@ -13,6 +13,7 @@ export enum TableKeyEnum {
   STANDARD_DETAILS_ACCORDION = 'standard-details-accordion',
   QUESTIONNAIRE = 'questionnaire',
   QUESTIONNAIRE_OVERVIEW = 'questionnaire-overview',
+  TEMPLATE = 'template',
   RISK = 'risk',
   OVERVIEW_RISK = 'overview-risk',
   SUBSCRIBE = 'subscribe',

@@ -66508,6 +66508,130 @@ export interface WorkflowObjectRefWhereInput {
   workflowInstanceIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
+export type CreateAssessmentMutationVariables = Exact<{
+  input: CreateAssessmentInput
+}>
+
+export type CreateAssessmentMutation = {
+  __typename?: 'Mutation'
+  createAssessment: {
+    __typename?: 'AssessmentCreatePayload'
+    assessment: {
+      __typename?: 'Assessment'
+      id: string
+      name: string
+      assessmentType: AssessmentAssessmentType
+      jsonconfig?: any | null
+      uischema?: any | null
+      templateID?: string | null
+      responseDueDuration?: number | null
+      tags?: Array<string> | null
+      createdAt?: any | null
+      updatedAt?: any | null
+      createdBy?: string | null
+      updatedBy?: string | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type GetAssessmentQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentQuery = {
+  __typename?: 'Query'
+  assessment: {
+    __typename?: 'Assessment'
+    id: string
+    name: string
+    assessmentType: AssessmentAssessmentType
+    jsonconfig?: any | null
+    uischema?: any | null
+    templateID?: string | null
+    responseDueDuration?: number | null
+    tags?: Array<string> | null
+    createdAt?: any | null
+    updatedAt?: any | null
+  }
+}
+
+export type FilterAssessmentsQueryVariables = Exact<{
+  where?: InputMaybe<AssessmentWhereInput>
+  orderBy?: InputMaybe<Array<AssessmentOrder> | AssessmentOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type FilterAssessmentsQuery = {
+  __typename?: 'Query'
+  assessments: {
+    __typename?: 'AssessmentConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'AssessmentEdge'
+      node?: {
+        __typename?: 'Assessment'
+        id: string
+        name: string
+        assessmentType: AssessmentAssessmentType
+        templateID?: string | null
+        responseDueDuration?: number | null
+        tags?: Array<string> | null
+        createdAt?: any | null
+        updatedAt?: any | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type UpdateAssessmentMutationVariables = Exact<{
+  updateAssessmentId: Scalars['ID']['input']
+  input: UpdateAssessmentInput
+}>
+
+export type UpdateAssessmentMutation = {
+  __typename?: 'Mutation'
+  updateAssessment: {
+    __typename?: 'AssessmentUpdatePayload'
+    assessment: {
+      __typename?: 'Assessment'
+      id: string
+      name: string
+      assessmentType: AssessmentAssessmentType
+      jsonconfig?: any | null
+      uischema?: any | null
+      templateID?: string | null
+      responseDueDuration?: number | null
+      tags?: Array<string> | null
+      createdAt?: any | null
+      updatedAt?: any | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type DeleteAssessmentMutationVariables = Exact<{
+  deleteAssessmentId: Scalars['ID']['input']
+}>
+
+export type DeleteAssessmentMutation = { __typename?: 'Mutation'; deleteAssessment: { __typename?: 'AssessmentDeletePayload'; deletedID: string } }
+
+export type CreateAssessmentResponseMutationVariables = Exact<{
+  input: CreateAssessmentResponseInput
+}>
+
+export type CreateAssessmentResponseMutation = {
+  __typename?: 'Mutation'
+  createAssessmentResponse: {
+    __typename?: 'AssessmentResponseCreatePayload'
+    assessmentResponse: { __typename?: 'AssessmentResponse'; id: string; email: string; dueDate?: any | null; assessmentID: string; createdAt?: any | null; updatedAt?: any | null }
+  }
+}
+
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
   id: string
