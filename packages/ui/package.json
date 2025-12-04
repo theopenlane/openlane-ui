@@ -167,7 +167,7 @@
     "platejs": "^49.1.5",
     "prismjs": "^1.29.0",
     "react": "19.2.1",
-    "react-circle-flags": "^0.0.24",
+    "react-circle-flags": "^0.0.25",
     "react-day-picker": "^9.8.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
