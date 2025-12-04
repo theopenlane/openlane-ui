@@ -3,14 +3,22 @@ import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { FilterIcons, ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const [filters, setFilters] = useState<FilterField[] | null>(null)
 
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'procedure',
+      field: 'kind',
+    },
+  })
+
   useEffect(() => {
-    if (!isProgramSuccess || !isGroupSuccess || filters) return
+    if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess || filters) return
     const newFilters: FilterField[] = [
       {
         key: 'approverIDIn',
@@ -39,10 +47,11 @@ export function useProceduresFilters(): FilterField[] | null {
         icon: FilterIcons.Subcontrol,
       },
       {
-        key: 'procedureTypeContainsFold',
+        key: 'procedureKindNameIn',
         label: 'Type',
-        type: 'text',
+        type: 'multiselect',
         icon: FilterIcons.Type,
+        options: enumOptions,
       },
       {
         key: 'reviewDue',
@@ -60,7 +69,7 @@ export function useProceduresFilters(): FilterField[] | null {
     ]
 
     setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters])
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, enumOptions, isTypesSuccess])
   return filters
 }
 

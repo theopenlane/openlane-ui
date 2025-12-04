@@ -70,8 +70,8 @@ const CreateRiskForm: React.FC = () => {
           score: values.score,
           status: values.status,
           likelihood: values.likelihood,
-          riskType: values.riskType,
-          category: values.category,
+          riskKindName: values.riskKindName,
+          riskCategoryName: values.riskCategoryName,
           ...associationsState,
         })
       } else {

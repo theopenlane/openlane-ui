@@ -36,7 +36,7 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
     const groups: Record<string, { total: number; published: number; names: string[] }> = {}
 
     for (const policy of policies) {
-      const type = policy.policyType || 'Unknown'
+      const type = policy.internalPolicyKindName || 'Unknown'
       if (!groups[type]) {
         groups[type] = { total: 0, published: 0, names: [] }
       }

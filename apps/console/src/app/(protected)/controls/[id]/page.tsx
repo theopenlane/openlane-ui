@@ -13,7 +13,7 @@ import DescriptionField from '../../../../components/pages/protected/controls/fo
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { Control, ControlControlSource, ControlControlStatus, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
@@ -53,11 +53,11 @@ interface FormValues {
   subcategory?: string
   status: ControlControlStatus
   mappedCategories: string[]
-  controlType?: ControlControlType
   source?: ControlControlSource
   referenceID?: string
   auditorReferenceID?: string
   title: string
+  controlKindName?: string
 }
 
 interface SheetData {
@@ -232,11 +232,11 @@ const ControlDetailsPage: React.FC = () => {
         subcategory: data.control.subcategory || '',
         status: data.control.status || ControlControlStatus.NOT_IMPLEMENTED,
         mappedCategories: data.control.mappedCategories || [],
-        controlType: data.control.controlType || undefined,
         source: data.control.source || undefined,
         referenceID: data.control.referenceID || undefined,
         auditorReferenceID: data.control.auditorReferenceID || undefined,
         title: data.control.title ? `${data.control.refCode} ${data.control.title}` : data.control.refCode,
+        controlKindName: data.control?.controlKindName || undefined,
       }
       form.reset(newValues)
       setInitialValues(newValues)

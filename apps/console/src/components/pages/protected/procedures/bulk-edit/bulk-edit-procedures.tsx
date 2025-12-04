@@ -24,6 +24,7 @@ import {
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 import { useBulkEditProcedure } from '@/lib/graphql-hooks/procedures'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditProcedures).optional(),
@@ -64,10 +65,17 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'procedure',
+      field: 'kind',
+    },
+  })
+
   const allOptionSelects = useMemo(() => {
-    if (!groups) return []
-    return getAllSelectOptionsForBulkEditProcedures(groups?.filter(Boolean) as Group[])
-  }, [groups])
+    if (!groups || !isTypesSuccess) return []
+    return getAllSelectOptionsForBulkEditProcedures(groups?.filter(Boolean) as Group[], enumOptions)
+  }, [groups, isTypesSuccess, enumOptions])
 
   const { control, handleSubmit, watch } = form
 
