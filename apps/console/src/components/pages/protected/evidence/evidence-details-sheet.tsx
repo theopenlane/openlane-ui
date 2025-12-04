@@ -77,6 +77,7 @@ import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './e
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import EvidenceCommentSheet from './evidence-comments-sheet'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -908,7 +909,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 </p>
                               </div>
                             </div>
-
+                            {/* Comments */}
+                            <EvidenceCommentSheet />
+                            {/* Comments */}
                             {evidence?.url && (
                               <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-2 text-sm w-[180px]">
