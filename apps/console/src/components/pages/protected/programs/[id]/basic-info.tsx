@@ -14,7 +14,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
-import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/members'
@@ -178,7 +177,7 @@ const BasicInformation = () => {
           {/* Type */}
           <div className="flex border-b pb-3 items-center">
             <Label className="block w-32 shrink-0">Type</Label>
-            {program?.programType && <span>{ProgramTypeLabels[program.programType] || '-'}</span>}
+            <span>{program?.programKindName || '-'}</span>
           </div>
           {/* Framework */}
           <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" /> {/* Tags */}

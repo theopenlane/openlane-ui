@@ -6,7 +6,6 @@ import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
@@ -15,6 +14,7 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -25,9 +25,16 @@ type TPropertiesCardProps = {
 }
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate }) => {
-  const [editingField, setEditingField] = useState<null | 'status' | 'policyType' | 'reviewDue'>(null)
+  const [editingField, setEditingField] = useState<null | 'status' | 'internalPolicyKindName' | 'reviewDue'>(null)
 
-  const handleUpdateIfChanged = (field: 'status' | 'policyType', value: string, current: string | undefined | null) => {
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'internal_policy',
+      field: 'kind',
+    },
+  })
+
+  const handleUpdateIfChanged = (field: 'status' | 'internalPolicyKindName', value: string, current: string | undefined | null) => {
     if (isEditing) {
       return
     }
@@ -181,26 +188,33 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
         </div>
 
         <div className="min-w-[160px] w-full">
-          {isEditing || editingField === 'policyType' ? (
+          {isEditing || editingField === 'internalPolicyKindName' ? (
             <FormField
               control={form.control}
-              name="policyType"
+              name="internalPolicyKindName"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      variant="medium"
-                      {...field}
-                      onBlur={() => handleUpdateIfChanged('policyType', field.value!, policy?.policyType)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === 'Tab') {
-                          e.preventDefault()
-                          handleUpdateIfChanged('policyType', field.value!, policy?.policyType)
-                        }
+                    <Select
+                      value={field.value || ''}
+                      onValueChange={(val) => {
+                        field.onChange(val)
+                        handleUpdateIfChanged('internalPolicyKindName', val, policy?.internalPolicyKindName)
                       }}
-                      autoFocus
-                    />
+                    >
+                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+
+                      <SelectContent ref={popoverRef}>
+                        {enumOptions?.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
+
+                  {form.formState.errors.internalPolicyKindName && <p className="text-red-500 text-sm">{form.formState.errors.internalPolicyKindName.message}</p>}
                 </FormItem>
               )}
             />
@@ -208,10 +222,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}>
               <div
                 onDoubleClick={() => {
-                  if (!isEditing && editAllowed) setEditingField('policyType')
+                  if (!isEditing && editAllowed) setEditingField('internalPolicyKindName')
                 }}
               >
-                <span className="w-full block min-h-6">{policy?.policyType}</span>
+                <span className="w-full block min-h-6">{policy?.internalPolicyKindName}</span>
               </div>
             </HoverPencilWrapper>
           )}

@@ -12,13 +12,12 @@ export const TASKS_WITH_FILTER = gql`
           tags
           due
           displayID
-          category
           details
           updatedAt
           updatedBy
           createdAt
           createdBy
-          category
+          taskKindName
           completed
           assigner {
             displayName
@@ -90,7 +89,7 @@ export const TASK = gql`
         id
       }
       id
-      category
+      taskKindName
       title
       status
       subcontrols {

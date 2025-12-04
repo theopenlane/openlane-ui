@@ -142,7 +142,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       },
     },
     {
-      accessorKey: 'procedureType',
+      accessorKey: 'procedureKindName',
       header: 'Type',
       size: 120,
       cell: ({ cell }) => cell.getValue() || '-',

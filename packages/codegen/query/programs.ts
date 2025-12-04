@@ -197,7 +197,7 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       tags
       frameworkName
       status
-      programType
+      programKindName
       programOwnerID
     }
   }

@@ -18,7 +18,6 @@ import {
 } from 'lucide-react'
 import { TaskTaskStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
-import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { Button } from '@repo/ui/button'
 
 export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
@@ -66,14 +65,6 @@ export const TaskStatusOptions = Object.values(TaskTaskStatus).map((status) => (
     .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
     .join(' '),
   value: status,
-}))
-
-export const TaskTypesOptions = Object.values(TaskTypes).map((value) => ({
-  label: value
-    .split('_')
-    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-    .join(' '),
-  value,
 }))
 
 export const TaskIconBtn = (

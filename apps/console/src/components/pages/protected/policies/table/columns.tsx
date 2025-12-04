@@ -140,7 +140,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       },
     },
     {
-      accessorKey: 'policyType',
+      accessorKey: 'internalPolicyKindName',
       header: 'Type',
       size: 120,
       cell: ({ cell }) => cell.getValue() || '-',
