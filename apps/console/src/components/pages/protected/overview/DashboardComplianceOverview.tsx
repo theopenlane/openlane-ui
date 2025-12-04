@@ -1,12 +1,16 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { ShieldAlert, ClipboardList, SquarePlus, TriangleAlert, Fingerprint, SlidersHorizontal } from 'lucide-react'
+import { SquarePlus, TriangleAlert, Fingerprint, SlidersHorizontal } from 'lucide-react'
+import { useGetControlCountsByStatus, useGetControlNotImplementedCount } from '@/lib/graphql-hooks/controls.ts'
 
 const DashboardComplianceOverview = () => {
+  const { data, isLoading } = useGetControlNotImplementedCount()
+  console.log(data)
+
   return (
-    <Card className="mt-4">
-      <CardTitle className="px-6 pt-6 text-lg font-semibold flex justify-between">
+    <Card>
+      <CardTitle className="px-6 pt-6 pb-0 text-lg font-semibold flex justify-between">
         <span>Compliance Overview</span>
-        <span className="text-sm text-muted-foreground">5 Items Require Attention</span>
+        <span className="text-sm text-muted-foreground leading-5">5 Items Require Attention</span>
       </CardTitle>
 
       <CardContent className="px-6 pb-6 pt-4 grid grid-cols-2 gap-4">

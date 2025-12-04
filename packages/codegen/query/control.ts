@@ -310,6 +310,14 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
   }
 `
 
+export const GET_CONTROL_NOT_IMPLEMENTED_COUNT = gql`
+  query GetNotImplementedControlCount {
+    controls(where: { status: NOT_IMPLEMENTED }) {
+      totalCount
+    }
+  }
+`
+
 export const CREATE_CSV_BULK_CONTROL = gql`
   mutation CreateBulkCSVControl($input: Upload!) {
     createBulkCSVControl(input: $input) {

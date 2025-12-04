@@ -25,6 +25,7 @@ import {
   BULK_DELETE_CONTROL,
   GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
   GET_CONTROL_ASSOCIATIONS_BY_ID,
+  GET_CONTROL_NOT_IMPLEMENTED_COUNT,
 } from '@repo/codegen/query/control'
 
 import {
@@ -528,6 +529,20 @@ export const useGetSuggestedControlsOrSubcontrols = ({ where, enabled = true }: 
         where,
       }),
     enabled,
+  })
+
+  return {
+    ...queryResult,
+  }
+}
+
+export const useGetControlNotImplementedCount = () => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetControlCountsByStatusQuery, unknown>({
+    queryKey: ['controls', 'notImplementedCount'],
+    queryFn: async () => client.request(GET_CONTROL_NOT_IMPLEMENTED_COUNT),
+    enabled: true,
   })
 
   return {

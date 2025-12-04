@@ -1,11 +1,30 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import React from 'react'
 import { BookOpenCheck, ListChecks, SlidersHorizontal, SquarePlus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const DashboardActions = () => {
+  const router = useRouter()
+
+  const handleViewControls = () => {
+    router.push('/controls')
+  }
+
+  const handleViewMyTasks = () => {
+    router.push('/tasks?showMyTasks=true')
+  }
+
+  const handleCreateRisk = () => {
+    router.push('/risks/create')
+  }
+
+  const handleViewPolicies = () => {
+    router.push('/policies')
+  }
+
   return (
     <div className="grid grid-cols-4 gap-4">
-      <Card>
+      <Card onClick={handleViewControls} className="transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
         <CardTitle className="p-[24px] pb-0">
           <div className="p-2 rounded-md bg-success/12 inline-flex items-center justify-center">
             <SlidersHorizontal size={20} className="text-success" />
@@ -14,7 +33,7 @@ const DashboardActions = () => {
         <CardContent className="pt-[12px]">View All Controls</CardContent>
       </Card>
 
-      <Card>
+      <Card onClick={handleCreateRisk} className="transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
         <CardTitle className="p-[24px] pb-0">
           <div className="p-2 rounded-md bg-danger/12 inline-flex items-center justify-center">
             <SquarePlus size={20} className="text-danger" />
@@ -23,7 +42,7 @@ const DashboardActions = () => {
         <CardContent className="pt-[12px]">Create New Risk</CardContent>
       </Card>
 
-      <Card>
+      <Card onClick={handleViewMyTasks} className="transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
         <CardTitle className="p-[24px] pb-0">
           <div className="p-2 rounded-md bg-info/12 inline-flex items-center justify-center">
             <ListChecks size={20} className="text-info" />
@@ -32,7 +51,7 @@ const DashboardActions = () => {
         <CardContent className="pt-[12px]">View My Tasks</CardContent>
       </Card>
 
-      <Card>
+      <Card onClick={handleViewPolicies} className="transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
         <CardTitle className="p-[24px] pb-0">
           <div className="p-2 rounded-md bg-warning/12 inline-flex items-center justify-center">
             <BookOpenCheck size={20} className="text-warning" />

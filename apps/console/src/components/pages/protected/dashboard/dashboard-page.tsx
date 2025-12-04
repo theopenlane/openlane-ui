@@ -74,20 +74,22 @@ const DashboardPage: React.FC = () => {
 
   return (
     <>
-      <div className="max-w-[1076px] mx-auto w-full px-4 flex flex-col gap-6">
+      <div className="max-w-[1076px] mx-auto w-full px-4 flex flex-col gap-4">
         <h1>Welcome, Luke!</h1>
         <p>Here&#39;s what&#39;s happening in your organization.</p>
         <DashboardActions />
-
         <DashboardComplianceOverview />
 
-        <div className="grid grid-cols-2 gap-6">
-          <DashboardSuggestedActions />
-          <DashboardLatestActivity />
-        </div>
+        <div className="grid grid-cols-2 gap-4 auto-rows-fr">
+          {/* LEFT COLUMN (FULL HEIGHT) */}
+          <div className="row-span-2">
+            <DashboardSuggestedActions />
+          </div>
 
-        <div className="grid grid-cols-2 gap-6">
+          {/* RIGHT COLUMN (TOP) */}
           <DashboardViewDocumentation />
+
+          {/* RIGHT COLUMN (BOTTOM) */}
           <DashboardContactSupport />
         </div>
       </div>
