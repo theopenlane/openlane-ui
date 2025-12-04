@@ -59,7 +59,7 @@ const DashboardPage: React.FC = () => {
     <>
       <div className="max-w-[1076px] mx-auto w-full px-4 flex flex-col gap-4">
         <div>
-          <p className="text-3xl leading-9 font-medium">Welcome, {userData?.user?.displayName}!</p>
+          <p className="text-3xl leading-9 font-medium pt-2">Welcome, {userData?.user?.displayName}!</p>
           <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here&#39;s what&#39;s happening in your organization.</p>
         </div>
 

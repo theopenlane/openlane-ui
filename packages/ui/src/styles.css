@@ -243,6 +243,8 @@
   --color-homepage-card: #FFFFFF;
 
   --color-evidence-icon: #06B6D4;
+  --color-homepage-action-icon: #2FD2B1;
+  --color-homepage-docs: #EFF4F580;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -348,6 +350,8 @@
   --color-homepage-card: #233440;
 
   --color-evidence-icon: #06B6D4;
+  --color-homepage-action-icon: #60E8C9;
+  --color-homepage-docs: #162431;
 }
 
 /* ─────────────────────────────────────────────────────────

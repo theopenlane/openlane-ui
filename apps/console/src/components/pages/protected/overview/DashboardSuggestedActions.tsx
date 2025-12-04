@@ -1,7 +1,23 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { Upload, Users, Lock } from 'lucide-react'
+import { Lock, ArrowUpFromLine, UserRoundPlus } from 'lucide-react'
+import CreatePolicyUploadDialog from '@/components/pages/protected/policies/create/form/create-policy-upload-dialog.tsx'
+import React from 'react'
+import { useRouter } from 'next/navigation'
 
 const DashboardSuggestedActions = () => {
+  const router = useRouter()
+
+  const handleViewProfile = () => {
+    router.push('/user-settings/profile')
+  }
+
+  const handleViewMembers = () => {
+    router.push('/user-management/members')
+  }
+
+  const hoverClasses = 'transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:border-primary'
+  const baseClasses = 'bg-homepage-card-item border border-homepage-card-border rounded-lg p-4 flex gap-4 items-start'
+
   return (
     <Card className="bg-homepage-card border-homepage-card-border">
       <CardTitle className="px-6 pt-6 text-lg font-semibold">
@@ -11,19 +27,23 @@ const DashboardSuggestedActions = () => {
 
       <CardContent className="px-6 pb-6 pt-1">
         <div className="space-y-4">
-          <div className="bg-homepage-card-item border border-homepage-card-border rounded-lg p-4 flex gap-4 items-center">
-            <div className="p-2 rounded-md bg-info/10">
-              <Upload className="text-info" size={18} />
-            </div>
-            <div>
-              <p className="font-medium text-sm">Import your policies & procedures</p>
-              <p className="text-xs text-muted-foreground">Already have docs? Upload them here instead of starting from scratch.</p>
-            </div>
-          </div>
+          <CreatePolicyUploadDialog
+            trigger={
+              <div className={`${baseClasses} ${hoverClasses}`}>
+                <div className="p-2 rounded-md border border-homepage-card-border bg-nav">
+                  <ArrowUpFromLine className="text-homepage-action-icon" size={18} />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">Import your policies & procedures</p>
+                  <p className="text-xs text-muted-foreground">Already have docs? Upload them here instead of starting from scratch.</p>
+                </div>
+              </div>
+            }
+          />
 
-          <div className="bg-homepage-card-item border border-homepage-card-border rounded-lg p-4 flex gap-4 items-center">
-            <div className="p-2 rounded-md bg-success/10">
-              <Users className="text-success" size={18} />
+          <div className={`${baseClasses} ${hoverClasses}`} onClick={handleViewMembers}>
+            <div className="p-2 rounded-md border border-homepage-card-border bg-nav">
+              <UserRoundPlus className="text-homepage-action-icon" size={18} />
             </div>
             <div>
               <p className="font-medium text-sm">Invite your team</p>
@@ -31,9 +51,9 @@ const DashboardSuggestedActions = () => {
             </div>
           </div>
 
-          <div className="bg-homepage-card-item border border-homepage-card-border rounded-lg p-4 flex gap-4 items-center">
-            <div className="p-2 rounded-md bg-warning/10">
-              <Lock className="text-warning" size={18} />
+          <div className={`${baseClasses} ${hoverClasses}`} onClick={handleViewProfile}>
+            <div className="p-2 rounded-md border border-homepage-card-border bg-nav">
+              <Lock className="text-homepage-action-icon" size={18} />
             </div>
             <div>
               <p className="font-medium text-sm">Secure your account</p>

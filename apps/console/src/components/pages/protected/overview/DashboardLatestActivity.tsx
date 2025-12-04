@@ -7,7 +7,6 @@ const DashboardLatestActivity = () => {
       <CardTitle className="px-6 pt-6 text-lg font-semibold">Latest Activity</CardTitle>
 
       <CardContent className="px-6 pb-6 pt-4 space-y-4">
-        {/* Item 1 */}
         <div className="flex items-center justify-between bg-muted/10 border border-muted/20 p-4 rounded-lg">
           <div className="flex items-center gap-3">
             <AlertTriangle className="text-danger" size={18} />
@@ -16,7 +15,6 @@ const DashboardLatestActivity = () => {
           <button className="text-xs px-3 py-1 rounded-md bg-muted/20 hover:bg-muted/30">Review</button>
         </div>
 
-        {/* Item 2 */}
         <div className="flex items-center justify-between bg-muted/10 border border-muted/20 p-4 rounded-lg">
           <div className="flex items-center gap-3">
             <Box className="text-info" size={18} />
