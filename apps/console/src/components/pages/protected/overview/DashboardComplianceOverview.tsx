@@ -1,19 +1,66 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { SquarePlus, TriangleAlert, Fingerprint, SlidersHorizontal } from 'lucide-react'
+import { SquarePlus, TriangleAlert, Fingerprint, SlidersHorizontal, ListChecks } from 'lucide-react'
 import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/controls.ts'
 import { useGetEvidenceMissingArtifactCount } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetOverdueTasksCount } from '@/lib/graphql-hooks/tasks.ts'
 import { useGetRiskOpenCount } from '@/lib/graphql-hooks/risks.ts'
+import { saveFilters, saveQuickFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { ControlControlStatus, EvidenceEvidenceStatus, RiskRiskStatus, TaskTaskStatus } from '@repo/codegen/src/schema.ts'
+import { DateFormatStorage, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
+import { format, startOfDay } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 const DashboardComplianceOverview = () => {
+  const router = useRouter()
   const { totalCount: controlNotImplementedCount } = useGetControlNotImplementedCount()
   const { totalCount: evidenceMissingArtifactCount } = useGetEvidenceMissingArtifactCount()
   const { totalCount: taskOverdueCount } = useGetOverdueTasksCount()
   const { totalCount: riskOpenCount } = useGetRiskOpenCount()
   const requiredAttentionCount = controlNotImplementedCount + evidenceMissingArtifactCount + taskOverdueCount + riskOpenCount
 
+  const handleOpenControlDashboard = () => {
+    const filters: TFilterState = {
+      statusIn: [ControlControlStatus.NOT_IMPLEMENTED],
+    }
+
+    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    router.push('/controls')
+  }
+
+  const handleOpenEvidenceDashboard = () => {
+    const filters: TFilterState = {
+      statusIn: [EvidenceEvidenceStatus.MISSING_ARTIFACT],
+    }
+
+    saveFilters(TableFilterKeysEnum.EVIDENCE, filters)
+    router.push('/evidence')
+  }
+
+  const handleOpenTaskDashboard = () => {
+    const filters: TQuickFilter = {
+      label: 'Overdue',
+      key: 'overdue',
+      type: 'custom',
+      getCondition: () => ({ dueLT: format(startOfDay(new Date()), DateFormatStorage) }),
+      isActive: true,
+    }
+
+    saveQuickFilters(TableFilterKeysEnum.TASK, filters)
+    router.push('/tasks')
+  }
+
+  const handleOpenRiskDashboard = () => {
+    const filters: TFilterState = {
+      statusIn: [RiskRiskStatus.OPEN],
+    }
+
+    saveFilters(TableFilterKeysEnum.RISK, filters)
+    router.push('/risks')
+  }
+
   return (
-    <Card>
+    <Card className="bg-homepage-card border-homepage-card-border homepage-card-border">
       <CardTitle className="px-6 pt-6 pb-0 text-lg font-semibold flex justify-between">
         <span>Compliance Overview</span>
         <div className="flex flex-col items-end gap-1">
@@ -32,19 +79,23 @@ const DashboardComplianceOverview = () => {
       </CardTitle>
 
       <CardContent className="px-6 pb-6 pt-4 grid grid-cols-2 gap-4">
-        <div className="rounded-lg bg-btn-secondary p-4 border border-muted/20">
+        <div className="rounded-lg bg-homepage-card-item p-4 border border-homepage-card-border">
           <h3 className="text-sm font-medium flex items-center gap-2">Controls & Evidence</h3>
 
           <div className="grid grid-cols-2 mt-4 relative">
             <div className="pr-4">
               <p className="text-xs pb-2">
-                <span className="pr-1">Controls</span> •<span className="text-muted-foreground pl-1">Not Implemented</span>
+                <span className="pr-1">Controls</span>
+                <span className="text-muted-foreground pl-1">
+                  <span className="pr-1"> • </span>Not Implemented
+                </span>
               </p>
 
               <div
                 className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
              transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
              relative group"
+                onClick={handleOpenControlDashboard}
               >
                 <span
                   className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
@@ -60,46 +111,54 @@ const DashboardComplianceOverview = () => {
 
             <div className="pl-4">
               <p className="text-xs pb-2">
-                <span className="pr-1">Evidence</span> •<span className="text-muted-foreground pl-1">Items Missing</span>
+                <span className="pr-1">Evidence</span>
+                <span className="text-muted-foreground pl-1">
+                  <span className="pr-1"> • </span>Items Missing
+                </span>
               </p>
 
               <div
                 className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
              transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
              relative group"
+                onClick={handleOpenEvidenceDashboard}
               >
                 <span
                   className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
-                   blur-lg bg-danger/20 transition-all duration-500"
+                   blur-lg bg-evidence-icon/20 transition-all duration-500"
                 ></span>
 
-                <Fingerprint size={20} className="text-danger relative z-10" />
+                <Fingerprint size={20} className="text-evidence-icon relative z-10" />
                 <span className="relative z-10">{evidenceMissingArtifactCount}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="rounded-lg bg-btn-secondary p-4 border border-muted/20">
+        <div className="rounded-lg bg-homepage-card-item p-4 border border-homepage-card-border">
           <h3 className="text-sm font-medium flex items-center gap-2">Risks & Tasks</h3>
 
           <div className="grid grid-cols-2 mt-4 relative">
             <div className="pr-4">
               <p className="text-xs pb-2">
-                <span className="pr-1">Tasks</span> •<span className="text-muted-foreground pl-1">Overdue</span>
+                <span className="pr-1">Tasks</span>
+                <span className="text-muted-foreground pl-1">
+                  <span className="pr-1"> • </span>Overdue
+                </span>
               </p>
 
               <div
                 className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
              transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
              relative group"
+                onClick={handleOpenTaskDashboard}
               >
                 <span
                   className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
-                   blur-lg bg-danger/20 transition-all duration-500"
+                   blur-lg bg-info/40 transition-all duration-500"
                 ></span>
 
-                <SquarePlus size={20} className="text-danger relative z-10" />
+                <ListChecks size={20} className="text-info relative z-10" />
                 <span className="relative z-10">{taskOverdueCount}</span>
               </div>
             </div>
@@ -108,13 +167,17 @@ const DashboardComplianceOverview = () => {
 
             <div className="pl-4">
               <p className="text-xs pb-2">
-                <span className="pr-1">Risks</span> •<span className="text-muted-foreground pl-1">Pending Review</span>
+                <span className="pr-1">Risks</span>
+                <span className="text-muted-foreground pl-1">
+                  <span className="pr-1"> • </span>Pending Review
+                </span>
               </p>
 
               <div
                 className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
              transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
              relative group"
+                onClick={handleOpenRiskDashboard}
               >
                 <span
                   className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
