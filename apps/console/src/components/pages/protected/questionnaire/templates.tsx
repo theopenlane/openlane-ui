@@ -116,13 +116,19 @@ export const TemplateList = () => {
               )}
             />
           </Form>
-          {!hasTemplates && (
-            <div className="mt-2 text-sm text-muted-foreground">
-              <Link href="/templates/template-editor" className="text-primary hover:underline">
-                Create a new template
-              </Link>
-            </div>
-          )}
+          <div className="mt-2 text-sm text-muted-foreground flex gap-2">
+            <Link href="/templates" className="text-primary hover:underline">
+              View all templates
+            </Link>
+            {!hasTemplates && (
+              <>
+                <span>•</span>
+                <Link href="/templates/template-editor" className="text-primary hover:underline">
+                  Create a new template
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         <AlertDialogFooter>
