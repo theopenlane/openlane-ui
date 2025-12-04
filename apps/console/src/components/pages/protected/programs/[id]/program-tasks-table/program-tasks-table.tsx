@@ -101,7 +101,7 @@ const ProgramTasksTable = () => {
         statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
       }
     : {}
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROGRAM, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROGRAM, TaskOrderField, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,

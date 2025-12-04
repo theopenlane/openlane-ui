@@ -45,7 +45,7 @@ export const ProceduresTable = () => {
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROCEDURE, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROCEDURE, ProcedureOrderField, [
     {
       field: ProcedureOrderField.name,
       direction: OrderDirection.ASC,

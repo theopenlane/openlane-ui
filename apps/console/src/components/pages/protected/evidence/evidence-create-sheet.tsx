@@ -277,7 +277,13 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         header={
           <SheetHeader className="mb-5">
             <div className="flex items-center justify-between">
-              <span className={`text-2xl leading-8 font-medium`}>{`Submit evidence ${formData?.displayID ? 'for' : ''} ${formData?.displayID || ''}`}</span>
+              <span className="text-2xl leading-8 font-medium">
+                {controlParam && controlParam?.length > 0 ? (
+                  <span className="text-2xl leading-8 font-medium whitespace-nowrap">{`Evidence for ${Array.from(new Set(controlParam.map((c) => c.refCode))).join(', ')}`}</span>
+                ) : (
+                  <span className="text-2xl leading-8 font-medium">{`Evidence ${formData?.displayID ? 'for ' + formData.displayID : ''}`}</span>
+                )}
+              </span>
               <X aria-label="Close sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
             </div>
           </SheetHeader>

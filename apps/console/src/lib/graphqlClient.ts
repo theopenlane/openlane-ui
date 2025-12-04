@@ -62,7 +62,7 @@ export function useGetGraphQLClient() {
       headers.set(csrfHeader, csrfCookieValue)
       headers.set('cookie', `${csrfCookieName}=${csrfCookieValue}`)
     } else {
-      console.error('⚠️ [CSRF] No CSRF token available — requests may fail')
+      console.warn('⚠️ [CSRF] No CSRF token available — requests may fail')
     }
 
     const now = Date.now()

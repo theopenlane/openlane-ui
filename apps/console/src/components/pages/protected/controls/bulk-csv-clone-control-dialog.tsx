@@ -77,7 +77,7 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
         </DialogTrigger>
       )}
 
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Bulk Upload From Standards</DialogTitle>
         </DialogHeader>
@@ -97,12 +97,12 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
           multipleFiles={false}
           acceptedFilesClass="flex justify-between text-sm"
         />
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col gap-2">
+          <Button className="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
+            {isSubmitting ? 'Uploading...' : 'Upload'}
+          </Button>
           <Button variant="back" onClick={() => setIsOpen(false)}>
             Cancel
-          </Button>
-          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
-            {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>
       </DialogContent>
