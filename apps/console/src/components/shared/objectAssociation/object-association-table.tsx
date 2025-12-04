@@ -43,7 +43,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
 
         const validRows = currentPageRows.filter((row): row is TableRow & { id: string; inputName: string } => !!row.id && !!row.inputName)
 
-        const allSelected = validRows.length > 0 && validRows.every((row) => selectedIdsMap[row.inputName]?.includes(row.id))
+        const allSelected = validRows.length > 0 && validRows.every((row) => (selectedIdsMap[row.inputName] ?? []).includes(row.id))
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
@@ -52,13 +52,20 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
               onCheckedChange={(isChecked: boolean) => {
                 setSelectedIdsMap((prev) => {
                   const updated = { ...prev }
-
                   validRows.forEach(({ id, inputName }) => {
                     const current = updated[inputName] ?? []
-
-                    updated[inputName] = isChecked ? (current.includes(id) ? current : [...current, id]) : current.filter((v) => v !== id)
+                    updated[inputName] = isChecked ? [...new Set([...current, id])] : current.filter((v) => v !== id)
                   })
+                  return updated
+                })
 
+                setSelectedRefCodeMap((prev) => {
+                  const updated = { ...prev }
+                  validRows.forEach(({ refCode, inputName }) => {
+                    if (!refCode) return
+                    const current = updated[inputName] ?? []
+                    updated[inputName] = isChecked ? [...new Set([...current, refCode])] : current.filter((v) => v !== refCode)
+                  })
                   return updated
                 })
               }}
@@ -99,7 +106,9 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         )
       },
       enableResizing: false,
-      size: 20,
+      meta: {
+        className: 'max-w-[5%] w-[5%]',
+      },
     },
     {
       accessorKey: 'name',
