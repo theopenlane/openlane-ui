@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Value, TElement, KEYS } from 'platejs'
@@ -19,12 +19,40 @@ export type TPlateEditorProps = {
   placeholder?: string
 }
 
-const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder }) => {
+export interface PlateEditorRef {
+  insertContent: (text: string, clearBeforeInsert?: boolean) => void
+  editor: ReturnType<typeof createPlateEditor>
+}
+
+const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder }, ref) => {
   const editor = usePlateEditor({
     plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
   })
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
+
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    insertContent: (text: string, clearBeforeInsert?: boolean) => {
+      if (!editor) return
+
+      // Clear existing content if requested
+      if (clearBeforeInsert) {
+        editor.tf.reset()
+      }
+
+      // @ts-expect-error fix bad typing from platejs
+      // Deserialize markdown to Slate nodes
+      const nodes = (editor.api.markdown?.deserialize?.(text) ?? []) as Value
+
+      // Insert at current selection
+      editor.tf.insertNodes(nodes, {
+        select: true,
+        mode: 'highest',
+      })
+    },
+    editor,
+  }))
 
   useEffect(() => {
     const instance = createPlateEditor({
@@ -97,6 +125,8 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       </Plate>
     </DndProvider>
   )
-}
+})
+
+PlateEditor.displayName = 'PlateEditor'
 
 export default React.memo(PlateEditor)
