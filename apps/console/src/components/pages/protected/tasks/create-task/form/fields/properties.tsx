@@ -37,7 +37,6 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
   const { orgMembers } = useTaskStore()
 
   const statusOptions = TaskStatusOptions
-  const taskTypeOptions = Object.values(TaskTypes)
   const { tagOptions } = useGetTags()
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
