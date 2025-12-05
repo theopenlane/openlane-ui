@@ -25,6 +25,7 @@ import {
   BULK_DELETE_CONTROL,
   GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
   GET_CONTROL_ASSOCIATIONS_BY_ID,
+  GET_CONTROL_NOT_IMPLEMENTED_COUNT,
 } from '@repo/codegen/query/control'
 
 import {
@@ -73,6 +74,7 @@ import {
   GetSuggestedControlsOrSubcontrolsQuery,
   GetControlAssociationsByIdQuery,
   GetControlAssociationsByIdQueryVariables,
+  GetNotImplementedControlCountQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -532,5 +534,20 @@ export const useGetSuggestedControlsOrSubcontrols = ({ where, enabled = true }: 
 
   return {
     ...queryResult,
+  }
+}
+
+export const useGetControlNotImplementedCount = () => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetNotImplementedControlCountQuery, unknown>({
+    queryKey: ['controls', 'controlNotImplementedCount'],
+    queryFn: async () => client.request(GET_CONTROL_NOT_IMPLEMENTED_COUNT),
+    enabled: true,
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.controls?.totalCount ?? 0,
   }
 }
