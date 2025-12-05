@@ -1,7 +1,17 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { BULK_DELETE_RISK, BULK_EDIT_RISK, CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, GET_RISK_OPEN_COUNT, UPDATE_RISK } from '@repo/codegen/query/risks'
+import {
+  BULK_DELETE_RISK,
+  BULK_EDIT_RISK,
+  CREATE_CSV_BULK_RISK,
+  CREATE_RISK,
+  DELETE_RISK,
+  GET_ALL_RISKS,
+  GET_RISK_BY_ID,
+  GET_RISK_OPEN_AND_IDENTIFIED_COUNT,
+  UPDATE_RISK,
+} from '@repo/codegen/query/risks'
 
 import {
   CreateBulkCsvRiskMutation,
@@ -165,12 +175,12 @@ export const useBulkDeleteRisks = () => {
   })
 }
 
-export const useGetRiskOpenCount = () => {
+export const useGetRiskOpenAndIdentifiedCount = () => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetOpenRiskCountQuery, unknown>({
-    queryKey: ['risks', 'riskOpenCount'],
-    queryFn: async () => client.request(GET_RISK_OPEN_COUNT),
+    queryKey: ['risks', 'riskOpenAndIdentifiedCount'],
+    queryFn: async () => client.request(GET_RISK_OPEN_AND_IDENTIFIED_COUNT),
     enabled: true,
   })
 

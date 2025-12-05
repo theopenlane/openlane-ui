@@ -3,7 +3,7 @@ import { TriangleAlert, Fingerprint, SlidersHorizontal, ListChecks } from 'lucid
 import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/controls.ts'
 import { useGetEvidenceMissingArtifactCount } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetOverdueTasksCount } from '@/lib/graphql-hooks/tasks.ts'
-import { useGetRiskOpenCount } from '@/lib/graphql-hooks/risks.ts'
+import { useGetRiskOpenAndIdentifiedCount } from '@/lib/graphql-hooks/risks.ts'
 import { saveFilters, saveQuickFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { ControlControlStatus, EvidenceEvidenceStatus, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
@@ -16,8 +16,8 @@ const DashboardComplianceOverview = () => {
   const { totalCount: controlNotImplementedCount } = useGetControlNotImplementedCount()
   const { totalCount: evidenceMissingArtifactCount } = useGetEvidenceMissingArtifactCount()
   const { totalCount: taskOverdueCount } = useGetOverdueTasksCount()
-  const { totalCount: riskOpenCount } = useGetRiskOpenCount()
-  const requiredAttentionCount = controlNotImplementedCount + evidenceMissingArtifactCount + taskOverdueCount + riskOpenCount
+  const { totalCount: riskOpenAndIdentifiedCount } = useGetRiskOpenAndIdentifiedCount()
+  const requiredAttentionCount = controlNotImplementedCount + evidenceMissingArtifactCount + taskOverdueCount + riskOpenAndIdentifiedCount
 
   const handleOpenControlDashboard = () => {
     const filters: TFilterState = {
@@ -52,7 +52,7 @@ const DashboardComplianceOverview = () => {
 
   const handleOpenRiskDashboard = () => {
     const filters: TFilterState = {
-      statusIn: [RiskRiskStatus.OPEN],
+      statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED],
     }
 
     saveFilters(TableFilterKeysEnum.RISK, filters)
@@ -185,7 +185,7 @@ const DashboardComplianceOverview = () => {
                 ></span>
 
                 <TriangleAlert size={20} className="text-warning relative z-10" />
-                <span className="relative z-10">{riskOpenCount}</span>
+                <span className="relative z-10">{riskOpenAndIdentifiedCount}</span>
               </div>
             </div>
           </div>

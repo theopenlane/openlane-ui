@@ -7,6 +7,7 @@ import { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
+import { formatEnumLabel } from '@/utils/enumToLabel'
 
 interface RiskLabelProps {
   fieldName?: keyof EditRisksFormData
@@ -103,16 +104,17 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
 
     if (status) {
       return (
-        <Select value={status} onValueChange={(val) => onChange?.(val)}>
+        <Select value={status} onValueChange={(v) => onChange?.(v)}>
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
+
           <SelectContent ref={popoverRef}>
-            <SelectItem value={RiskRiskStatus.OPEN}>Open</SelectItem>
-            <SelectItem value={RiskRiskStatus.MITIGATED}>Mitigated</SelectItem>
-            <SelectItem value={RiskRiskStatus.ONGOING}>Ongoing</SelectItem>
-            <SelectItem value={RiskRiskStatus.IN_PROGRESS}>In-progress</SelectItem>
-            <SelectItem value={RiskRiskStatus.ARCHIVED}>Archived</SelectItem>
+            {Object.values(RiskRiskStatus).map((s) => (
+              <SelectItem key={s} value={s}>
+                {formatEnumLabel(s)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       )
