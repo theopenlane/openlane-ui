@@ -46,12 +46,10 @@ import {
   GetEvidenceCountsByStatusAllProgramsQuery,
   EvidenceSuggestedActionsQuery,
   FileWhereInput,
-  GetNotImplementedControlCountQuery,
   GetItemsMissingEvidenceCountQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_CONTROL_NOT_IMPLEMENTED_COUNT } from '@repo/codegen/query/control.ts'
 
 export function useCreateEvidence() {
   const { queryClient } = useGraphQLClient()

@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation'
 const DashboardSuggestedActions = () => {
   const router = useRouter()
 
-  const handleViewProfile = () => {
-    router.push('/user-settings/profile')
+  const handleSecureOrganization = () => {
+    router.push('/organization-settings/authentication')
   }
 
   const handleViewMembers = () => {
@@ -51,13 +51,13 @@ const DashboardSuggestedActions = () => {
             </div>
           </div>
 
-          <div className={`${baseClasses} ${hoverClasses}`} onClick={handleViewProfile}>
+          <div className={`${baseClasses} ${hoverClasses}`} onClick={handleSecureOrganization}>
             <div className="p-2 rounded-md border border-homepage-card-border bg-nav">
               <Lock className="text-homepage-action-icon" size={18} />
             </div>
             <div>
-              <p className="font-medium text-sm">Secure your account</p>
-              <p className="text-xs text-muted-foreground">Set up SSO, 2FA, and permissions to keep your org safe.</p>
+              <p className="font-medium text-sm">Secure your organization</p>
+              <p className="text-xs text-muted-foreground">Set up SSO, allowed domains, and permissions to keep your org safe.</p>
             </div>
           </div>
         </div>

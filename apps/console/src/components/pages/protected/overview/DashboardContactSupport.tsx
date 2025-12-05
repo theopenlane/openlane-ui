@@ -18,7 +18,7 @@ const DashboardContactSupport = () => {
           </div>
         </div>
 
-        <a href={`${SUPPORT_URL}`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation" className="w-full mt-auto">
+        <a href={`${SUPPORT_URL}`} target="_blank" rel="noreferrer" aria-label="Contact Support Team" className="w-full mt-auto">
           <Button type="button" variant="secondary" className="w-full">
             Contact Us
           </Button>

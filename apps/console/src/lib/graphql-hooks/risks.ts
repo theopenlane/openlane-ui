@@ -14,7 +14,6 @@ import {
   DeleteRiskMutationVariables,
   GetAllRisksQuery,
   GetAllRisksQueryVariables,
-  GetNotImplementedControlCountQuery,
   GetOpenRiskCountQuery,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
@@ -28,7 +27,6 @@ import {
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
-import { GET_CONTROL_NOT_IMPLEMENTED_COUNT } from '@repo/codegen/query/control.ts'
 
 type UseRisksProps = {
   where?: RiskWhereInput

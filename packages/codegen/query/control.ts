@@ -312,7 +312,7 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
 
 export const GET_CONTROL_NOT_IMPLEMENTED_COUNT = gql`
   query GetNotImplementedControlCount {
-    controls(where: { status: NOT_IMPLEMENTED }) {
+    controls(where: { status: NOT_IMPLEMENTED, systemOwned: false }) {
       totalCount
     }
   }

@@ -268,14 +268,9 @@ export const BULK_DELETE_TASK = gql`
 `
 
 export const GET_OVERDUE_TASK_COUNT = gql`
-  query GetOverdueTaskCount {
-      tasks(
-          where: {
-            statusNotIn: [COMPLETED, WONT_DO]
-            dueLT: "${new Date().toISOString()}"
-          }
-      ) {
-          totalCount
-      }
+  query GetOverdueTaskCount($now: DateTime!) {
+    tasks(where: { statusNotIn: [COMPLETED, WONT_DO], dueLT: $now }) {
+      totalCount
+    }
   }
 `
