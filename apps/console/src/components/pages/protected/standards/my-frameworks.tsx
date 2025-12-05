@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import React from 'react'
+import MyFrameworksStats from './my-framework-stats'
 
 type MyFrameworksProps = {
   standardsData?: GetAllStandardsQuery['standards']['edges']
@@ -28,7 +29,7 @@ const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFramewor
     <div className="flex flex-col gap-2">
       <div className="flex justify-between">
         <PageHeading heading="My frameworks" />
-        <Button variant="primary" className="h-8 !px-2 !pl-3" onClick={() => handleClick('standardsCatalog')}>
+        <Button variant="primary" className="h-8 px-2! pl-3" onClick={() => handleClick('standardsCatalog')}>
           Go To Standards Catalog
         </Button>
       </div>
@@ -44,7 +45,7 @@ const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFramewor
                     <StandardsIconMapper key={standardItem.id} shortName={standardItem.shortName ?? ''} />
                     <p className="text-lg font-medium text-[#505F6F]">{standardItem?.shortName}</p>
                   </div>
-                  {/* <MyFrameworksStats standardId={standardItem.id} isSystemOwned={standardItem.}/> */}
+                  <MyFrameworksStats standardId={standardItem.id} isSystemOwned={standardItem.systemOwned} />
                   <Link href={`standards/${standardItem.id}`} className="mt-auto">
                     <Button variant="primary" className="py-2 px-4">
                       Details
