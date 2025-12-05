@@ -24,6 +24,7 @@ import {
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 import { useBulkEditRisk } from '@/lib/graphql-hooks/risks'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditRisks).optional(),
@@ -64,10 +65,24 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
+  const { enumOptions: typeOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'kind',
+    },
+  })
+
+  const { enumOptions: categoryOptions, isSuccess: isCategoriesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'category',
+    },
+  })
+
   const allOptionSelects = useMemo(() => {
-    if (!groups) return []
-    return getAllSelectOptionsForBulkEditRisks(groups?.filter(Boolean) as Group[])
-  }, [groups])
+    if (!groups || !isTypesSuccess || !isCategoriesSuccess) return []
+    return getAllSelectOptionsForBulkEditRisks(groups?.filter(Boolean) as Group[], typeOptions, categoryOptions)
+  }, [groups, typeOptions, categoryOptions, isCategoriesSuccess, isTypesSuccess])
 
   const { control, handleSubmit, watch } = form
 

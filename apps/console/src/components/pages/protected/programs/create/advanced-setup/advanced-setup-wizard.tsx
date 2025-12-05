@@ -45,6 +45,7 @@ export default function AdvancedSetupWizard() {
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
@@ -61,7 +62,7 @@ export default function AdvancedSetupWizard() {
     resolver: zodResolver(stepper.current.schema),
     mode: 'onChange',
     defaultValues: {
-      programType: undefined,
+      programKindName: undefined,
       name: '',
       description: '',
       startDate: today,
@@ -157,7 +158,7 @@ export default function AdvancedSetupWizard() {
         description: data.description,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
-        programType: data.programType,
+        programKindName: data.programKindName,
         auditor: data.auditPartnerName,
         auditorEmail: data.auditPartnerEmail || undefined,
         auditFirm: data.auditFirm,
@@ -204,6 +205,7 @@ export default function AdvancedSetupWizard() {
       { label: 'Advanced Setup', href: '/programs/create/advanced-setup' },
     ])
   }, [setCrumbs])
+
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 py-2">
@@ -217,7 +219,7 @@ export default function AdvancedSetupWizard() {
                 1: () => <AdvancedSetupStep2 />,
                 2: () => <SelectCategoryStep />,
                 3: () => <AdvancedSetupStep3 />,
-                4: () => <AdvancedSetupStep4 />,
+                4: () => <AdvancedSetupStep4 isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />,
                 5: () => <AdvancedSetupStep5 />,
               })}
 
@@ -230,7 +232,16 @@ export default function AdvancedSetupWizard() {
                 </Button>
               </div>
             </div>
-            <AdvancedSetupFormSummary summaryData={summaryData} />
+            <div className="flex flex-col items-center">
+              {stepper.current.id === '4' && (
+                <div className="w-full flex justify-end">
+                  <Button variant="secondary" type="button" onClick={() => setIsMemberSheetOpen(true)} iconPosition="left">
+                    Invite member
+                  </Button>
+                </div>
+              )}
+              <AdvancedSetupFormSummary summaryData={summaryData} />
+            </div>
           </div>
         </FormProvider>
       </div>

@@ -114,7 +114,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         tags: policy.tags ?? [],
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
-        policyType: policy.policyType ?? '',
+        internalPolicyKindName: policy.internalPolicyKindName ?? '',
         reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
         approverID: policy.approver?.id,

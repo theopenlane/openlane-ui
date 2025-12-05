@@ -98,7 +98,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
         name: procedure.name,
         approvalRequired: procedure?.approvalRequired ?? true,
         status: procedure.status ?? ProcedureDocumentStatus.DRAFT,
-        procedureType: procedure.procedureType ?? '',
+        procedureKindName: procedure.procedureKindName ?? '',
         reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
         reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
       })
@@ -169,7 +169,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
           details: '',
           approvalRequired: data.approvalRequired,
           status: data.status,
-          procedureType: data.procedureType,
+          procedureKindName: data?.procedureKindName,
           reviewDue: data.reviewDue,
           reviewFrequency: data.reviewFrequency,
           approverID: data.approverID,

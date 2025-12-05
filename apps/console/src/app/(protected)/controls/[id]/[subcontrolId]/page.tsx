@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { PencilIcon, SaveIcon, XIcon, CirclePlus, PanelRightClose, InfoIcon } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
+import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
@@ -55,10 +55,10 @@ interface FormValues {
   status: SubcontrolControlStatus
   mappedCategories: string[]
   source?: SubcontrolControlSource
-  controlType?: SubcontrolControlType
   referenceID?: string
   auditorReferenceID?: string
   title: string
+  subcontrolKindName?: string
 }
 
 interface SheetData {
@@ -240,7 +240,7 @@ const ControlDetailsPage: React.FC = () => {
         subcategory: data?.subcontrol?.subcategory || '',
         status: data?.subcontrol?.status || SubcontrolControlStatus.NOT_IMPLEMENTED,
         mappedCategories: data?.subcontrol?.mappedCategories || [],
-        controlType: data.subcontrol.controlType || undefined,
+        subcontrolKindName: data.subcontrol.subcontrolKindName || undefined,
         source: data.subcontrol.source || undefined,
         referenceID: data.subcontrol.referenceID || undefined,
         auditorReferenceID: data.subcontrol.auditorReferenceID || undefined,

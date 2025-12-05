@@ -83,8 +83,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     if (risk) {
       form.reset({
         name: risk.name ?? '',
-        riskType: risk.riskType ?? '',
-        category: risk.category ?? '',
+        riskKindName: risk.riskKindName ?? undefined,
+        riskCategoryName: risk.riskCategoryName ?? undefined,
         score: risk.score ?? 0,
         impact: risk.impact ?? RiskRiskImpact.LOW,
         likelihood: risk.likelihood ?? RiskRiskLikelihood.UNLIKELY,

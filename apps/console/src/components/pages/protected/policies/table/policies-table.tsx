@@ -14,7 +14,7 @@ import {
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
-import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
+import { INTERNAL_POLICIES_SORT_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -219,7 +219,7 @@ export const PoliciesTable = () => {
       />
 
       <DataTable
-        sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
+        sortFields={INTERNAL_POLICIES_SORT_FIELDS}
         onSortChange={setOrderBy}
         defaultSorting={defaultSorting}
         columns={columns}

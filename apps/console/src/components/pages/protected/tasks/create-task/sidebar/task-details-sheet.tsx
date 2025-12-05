@@ -7,7 +7,6 @@ import { TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Form } from '@repo/ui/form'
-import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
 import { useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -74,7 +73,7 @@ const TaskDetailsSheet = () => {
         details: taskData.details ?? '',
         due: taskData.due ? new Date(taskData.due as string) : undefined,
         assigneeID: taskData.assignee?.id,
-        category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
+        taskKindName: taskData?.taskKindName ?? undefined,
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
         tags: taskData?.tags ?? [],
       })
@@ -104,7 +103,7 @@ const TaskDetailsSheet = () => {
     handleCloseParams()
   }
 
-  const isCreateButtonVisible = !!((taskData?.controls.edges?.length ?? 0) > 0 || (taskData?.subcontrols.edges?.length ?? 0) > 0 || taskData?.category === ObjectTypeObjects.EVIDENCE)
+  const isCreateButtonVisible = !!((taskData?.controls.edges?.length ?? 0) > 0 || (taskData?.subcontrols.edges?.length ?? 0) > 0 || taskData?.taskKindName === 'Evidence')
 
   const handleCloseParams = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
