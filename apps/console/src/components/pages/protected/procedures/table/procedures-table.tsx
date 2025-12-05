@@ -123,7 +123,7 @@ export const ProceduresTable = () => {
     approvalRequired: false,
     approver: false,
     delegate: false,
-    procedureType: false,
+    procedureKindName: false,
     reviewDue: false,
     reviewFrequency: false,
     revision: false,

@@ -7,8 +7,8 @@ const RISK_FIELDS = gql`
     name
     details
     tags
-    category
-    riskType
+    riskCategoryName
+    riskKindName
     score
     status
     businessCosts
@@ -93,8 +93,8 @@ const RISK_TABLE_FIELDS = gql`
     id
     displayID
     name
-    category
-    riskType
+    riskCategoryName
+    riskKindName
     score
     status
     businessCosts

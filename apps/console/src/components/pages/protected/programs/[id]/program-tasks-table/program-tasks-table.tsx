@@ -23,7 +23,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 type FormattedTask = {
   id: string
   title: string
-  category: string
+  taskKindName: string
   status: TaskTaskStatus
   due?: string
   assignee?: User
@@ -44,8 +44,8 @@ const columns: ColumnDef<FormattedTask>[] = [
   },
   {
     header: 'Type',
-    accessorKey: 'category',
-    cell: ({ row }) => row.original.category || '—',
+    accessorKey: 'taskKindName',
+    cell: ({ row }) => row.original.taskKindName || '—',
   },
 
   {
@@ -115,7 +115,7 @@ const ProgramTasksTable = () => {
     return tasks.map((task) => ({
       id: task.id,
       title: task.title,
-      category: task.category ?? '—',
+      taskKindName: task.taskKindName ?? '—',
       status: task.status,
       due: task.due ?? undefined,
       assignee: task.assignee as User,

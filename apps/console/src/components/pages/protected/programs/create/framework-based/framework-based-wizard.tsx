@@ -94,7 +94,7 @@ export default function FrameworkBasedWizard() {
       program: {
         name: values.name || `Risk Assessment - ${currentYear}`,
         frameworkName: values.framework,
-        programType: values.programType,
+        programKindName: values.programKindName,
         startDate: today,
         endDate: oneYearFromToday,
         viewerIDs: values.viewerIDs,

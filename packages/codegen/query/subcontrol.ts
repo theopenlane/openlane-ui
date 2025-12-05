@@ -42,7 +42,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       assessmentObjectives
       displayID
       source
-      controlType
+      subcontrolKindName
       auditorReferenceID
       referenceID
       referenceFramework

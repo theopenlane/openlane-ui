@@ -117,7 +117,7 @@ const ViewProcedurePage: React.FC = () => {
         tags: procedure.tags ?? [],
         approvalRequired: procedure?.approvalRequired ?? true,
         status: procedure.status ?? ProcedureDocumentStatus.DRAFT,
-        procedureType: procedure.procedureType ?? '',
+        procedureKindName: procedure.procedureKindName ?? '',
         reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
         reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
         approverID: procedure.approver?.id,

@@ -1,14 +1,14 @@
-import { ProgramTypeOptions } from '@/components/shared/enum-mapper/program-enum'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
-import { ProgramProgramType, Standard } from '@repo/codegen/src/schema'
+import { Standard } from '@repo/codegen/src/schema'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { useFormContext, useWatch, useController } from 'react-hook-form'
 import { useMemo } from 'react'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const StandardSelect = () => {
   const { control, setValue, trigger } = useFormContext()
-  const programType = useWatch({ control, name: 'programType' })
+  const programKindName = useWatch({ control, name: 'programKindName' })
   const { field } = useController({ name: 'framework', control })
 
   const { data } = useGetStandards({})
@@ -22,6 +22,13 @@ const StandardSelect = () => {
       })),
     [frameworks],
   )
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'program',
+      field: 'kind',
+    },
+  })
 
   const currentYear = new Date().getFullYear()
 
@@ -40,8 +47,8 @@ const StandardSelect = () => {
               onChange={(value) => {
                 const selected = frameworks.find((f) => f.shortName === value)
                 field.onChange(value)
-                const selectedLabel = ProgramTypeOptions.find((t) => t.value === programType)?.label
-                const autoName = programType === ProgramProgramType.GAP_ANALYSIS ? `${selectedLabel} - ${value} - ${currentYear}` : `${value} - ${currentYear}`
+                const selectedLabel = enumOptions.find((t) => t.value === programKindName)?.label
+                const autoName = programKindName === 'Gap Analysis' ? `${selectedLabel} - ${value} - ${currentYear}` : `${value} - ${currentYear}`
 
                 setValue('name', autoName, { shouldValidate: true })
                 setValue('standardID', selected?.id ?? '')

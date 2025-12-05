@@ -66508,6 +66508,130 @@ export interface WorkflowObjectRefWhereInput {
   workflowInstanceIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
+export type CreateAssessmentMutationVariables = Exact<{
+  input: CreateAssessmentInput
+}>
+
+export type CreateAssessmentMutation = {
+  __typename?: 'Mutation'
+  createAssessment: {
+    __typename?: 'AssessmentCreatePayload'
+    assessment: {
+      __typename?: 'Assessment'
+      id: string
+      name: string
+      assessmentType: AssessmentAssessmentType
+      jsonconfig?: any | null
+      uischema?: any | null
+      templateID?: string | null
+      responseDueDuration?: number | null
+      tags?: Array<string> | null
+      createdAt?: any | null
+      updatedAt?: any | null
+      createdBy?: string | null
+      updatedBy?: string | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type GetAssessmentQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentQuery = {
+  __typename?: 'Query'
+  assessment: {
+    __typename?: 'Assessment'
+    id: string
+    name: string
+    assessmentType: AssessmentAssessmentType
+    jsonconfig?: any | null
+    uischema?: any | null
+    templateID?: string | null
+    responseDueDuration?: number | null
+    tags?: Array<string> | null
+    createdAt?: any | null
+    updatedAt?: any | null
+  }
+}
+
+export type FilterAssessmentsQueryVariables = Exact<{
+  where?: InputMaybe<AssessmentWhereInput>
+  orderBy?: InputMaybe<Array<AssessmentOrder> | AssessmentOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type FilterAssessmentsQuery = {
+  __typename?: 'Query'
+  assessments: {
+    __typename?: 'AssessmentConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'AssessmentEdge'
+      node?: {
+        __typename?: 'Assessment'
+        id: string
+        name: string
+        assessmentType: AssessmentAssessmentType
+        templateID?: string | null
+        responseDueDuration?: number | null
+        tags?: Array<string> | null
+        createdAt?: any | null
+        updatedAt?: any | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type UpdateAssessmentMutationVariables = Exact<{
+  updateAssessmentId: Scalars['ID']['input']
+  input: UpdateAssessmentInput
+}>
+
+export type UpdateAssessmentMutation = {
+  __typename?: 'Mutation'
+  updateAssessment: {
+    __typename?: 'AssessmentUpdatePayload'
+    assessment: {
+      __typename?: 'Assessment'
+      id: string
+      name: string
+      assessmentType: AssessmentAssessmentType
+      jsonconfig?: any | null
+      uischema?: any | null
+      templateID?: string | null
+      responseDueDuration?: number | null
+      tags?: Array<string> | null
+      createdAt?: any | null
+      updatedAt?: any | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type DeleteAssessmentMutationVariables = Exact<{
+  deleteAssessmentId: Scalars['ID']['input']
+}>
+
+export type DeleteAssessmentMutation = { __typename?: 'Mutation'; deleteAssessment: { __typename?: 'AssessmentDeletePayload'; deletedID: string } }
+
+export type CreateAssessmentResponseMutationVariables = Exact<{
+  input: CreateAssessmentResponseInput
+}>
+
+export type CreateAssessmentResponseMutation = {
+  __typename?: 'Mutation'
+  createAssessmentResponse: {
+    __typename?: 'AssessmentResponseCreatePayload'
+    assessmentResponse: { __typename?: 'AssessmentResponse'; id: string; email: string; dueDate?: any | null; assessmentID: string; createdAt?: any | null; updatedAt?: any | null }
+  }
+}
+
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
   id: string
@@ -66724,7 +66848,7 @@ export type ControlListFieldsFragment = {
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
-  controlType?: ControlControlType | null
+  controlKindName?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
@@ -66783,7 +66907,7 @@ export type ControlDetailsFieldsFragment = {
   assessmentObjectives?: Array<any> | null
   displayID: string
   source?: ControlControlSource | null
-  controlType?: ControlControlType | null
+  controlKindName?: string | null
   auditorReferenceID?: string | null
   referenceID?: string | null
   referenceFramework?: string | null
@@ -66846,7 +66970,7 @@ export type GetAllControlsQuery = {
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
-        controlType?: ControlControlType | null
+        controlKindName?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
@@ -66895,7 +67019,7 @@ export type GetControlByIdQuery = {
     assessmentObjectives?: Array<any> | null
     displayID: string
     source?: ControlControlSource | null
-    controlType?: ControlControlType | null
+    controlKindName?: string | null
     auditorReferenceID?: string | null
     referenceID?: string | null
     referenceFramework?: string | null
@@ -67284,6 +67408,21 @@ export type GetExistingControlsForOrganizationQuery = {
     edges?: Array<{
       __typename?: 'ControlEdge'
       node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null; standardID?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
+    } | null> | null
+  }
+}
+
+export type GetCustomTypeEnumsQueryVariables = Exact<{
+  where?: InputMaybe<CustomTypeEnumWhereInput>
+}>
+
+export type GetCustomTypeEnumsQuery = {
+  __typename?: 'Query'
+  customTypeEnums: {
+    __typename?: 'CustomTypeEnumConnection'
+    edges?: Array<{
+      __typename?: 'CustomTypeEnumEdge'
+      node?: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string } | null
     } | null> | null
   }
 }
@@ -68362,7 +68501,10 @@ export type CreateInternalPolicyMutationVariables = Exact<{
 
 export type CreateInternalPolicyMutation = {
   __typename?: 'Mutation'
-  createInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; policyType?: string | null; details?: string | null } }
+  createInternalPolicy: {
+    __typename?: 'InternalPolicyCreatePayload'
+    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null }
+  }
 }
 
 export type UpdateInternalPolicyMutationVariables = Exact<{
@@ -68372,7 +68514,10 @@ export type UpdateInternalPolicyMutationVariables = Exact<{
 
 export type UpdateInternalPolicyMutation = {
   __typename?: 'Mutation'
-  updateInternalPolicy: { __typename?: 'InternalPolicyUpdatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; policyType?: string | null; details?: string | null } }
+  updateInternalPolicy: {
+    __typename?: 'InternalPolicyUpdatePayload'
+    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null }
+  }
 }
 
 export type DeleteInternalPolicyMutationVariables = Exact<{
@@ -68407,7 +68552,7 @@ export type GetInternalPoliciesListQuery = {
         createdBy?: string | null
         summary?: string | null
         approvalRequired?: boolean | null
-        policyType?: string | null
+        internalPolicyKindName?: string | null
         reviewDue?: any | null
         reviewFrequency?: InternalPolicyFrequency | null
         revision?: string | null
@@ -68451,12 +68596,12 @@ export type InternalPolicyByIdFragment = {
   tags?: Array<string> | null
   revision?: string | null
   status?: InternalPolicyDocumentStatus | null
-  policyType?: string | null
   displayID: string
   reviewDue?: any | null
   reviewFrequency?: InternalPolicyFrequency | null
   approvalRequired?: boolean | null
   summary?: string | null
+  internalPolicyKindName?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
@@ -68479,12 +68624,12 @@ export type GetInternalPolicyDetailsByIdQuery = {
     tags?: Array<string> | null
     revision?: string | null
     status?: InternalPolicyDocumentStatus | null
-    policyType?: string | null
     displayID: string
     reviewDue?: any | null
     reviewFrequency?: InternalPolicyFrequency | null
     approvalRequired?: boolean | null
     summary?: string | null
+    internalPolicyKindName?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }
@@ -68573,7 +68718,7 @@ export type GetInternalPoliciesDashboardQuery = {
         __typename?: 'InternalPolicy'
         id: string
         name: string
-        policyType?: string | null
+        internalPolicyKindName?: string | null
         status?: InternalPolicyDocumentStatus | null
         createdAt?: any | null
         updatedAt?: any | null
@@ -68646,7 +68791,7 @@ export type UpdateProcedureMutationVariables = Exact<{
 
 export type UpdateProcedureMutation = {
   __typename?: 'Mutation'
-  updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureType?: string | null } }
+  updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureKindName?: string | null } }
 }
 
 export type UpdateBulkProcedureMutationVariables = Exact<{
@@ -68708,7 +68853,7 @@ export type GetProceduresTableListQuery = {
         createdBy?: string | null
         summary?: string | null
         approvalRequired?: boolean | null
-        procedureType?: string | null
+        procedureKindName?: string | null
         reviewDue?: any | null
         reviewFrequency?: ProcedureFrequency | null
         revision?: string | null
@@ -68774,7 +68919,7 @@ export type ProcedureByIdFragment = {
   reviewDue?: any | null
   reviewFrequency?: ProcedureFrequency | null
   approvalRequired?: boolean | null
-  procedureType?: string | null
+  procedureKindName?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
@@ -68845,7 +68990,7 @@ export type GetProcedureDetailsByIdQuery = {
     reviewDue?: any | null
     reviewFrequency?: ProcedureFrequency | null
     approvalRequired?: boolean | null
-    procedureType?: string | null
+    procedureKindName?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }
@@ -69019,7 +69164,7 @@ export type GetProgramBasicInfoQuery = {
     tags?: Array<string> | null
     frameworkName?: string | null
     status: ProgramProgramStatus
-    programType: ProgramProgramType
+    programKindName?: string | null
     programOwnerID?: string | null
   }
 }
@@ -69204,8 +69349,8 @@ export type RiskFieldsFragment = {
   name: string
   details?: string | null
   tags?: Array<string> | null
-  category?: string | null
-  riskType?: string | null
+  riskCategoryName?: string | null
+  riskKindName?: string | null
   score?: number | null
   status?: RiskRiskStatus | null
   businessCosts?: string | null
@@ -69242,8 +69387,8 @@ export type RiskTableFieldsFragment = {
   id: string
   displayID: string
   name: string
-  category?: string | null
-  riskType?: string | null
+  riskCategoryName?: string | null
+  riskKindName?: string | null
   score?: number | null
   status?: RiskRiskStatus | null
   businessCosts?: string | null
@@ -69272,8 +69417,8 @@ export type GetRiskByIdQuery = {
     name: string
     details?: string | null
     tags?: Array<string> | null
-    category?: string | null
-    riskType?: string | null
+    riskCategoryName?: string | null
+    riskKindName?: string | null
     score?: number | null
     status?: RiskRiskStatus | null
     businessCosts?: string | null
@@ -69331,8 +69476,8 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
-        category?: string | null
-        riskType?: string | null
+        riskCategoryName?: string | null
+        riskKindName?: string | null
         score?: number | null
         status?: RiskRiskStatus | null
         businessCosts?: string | null
@@ -69571,7 +69716,7 @@ export type GetSubcontrolByIdQuery = {
     assessmentObjectives?: Array<any> | null
     displayID: string
     source?: SubcontrolControlSource | null
-    controlType?: SubcontrolControlType | null
+    subcontrolKindName?: string | null
     auditorReferenceID?: string | null
     referenceID?: string | null
     referenceFramework?: string | null
@@ -69916,12 +70061,12 @@ export type TasksWithFilterQuery = {
         tags?: Array<string> | null
         due?: string | null
         displayID: string
-        category?: string | null
         details?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        taskKindName?: string | null
         completed?: string | null
         assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
         assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
@@ -69960,7 +70105,7 @@ export type TaskQuery = {
     __typename?: 'Task'
     tags?: Array<string> | null
     id: string
-    category?: string | null
+    taskKindName?: string | null
     title: string
     status: TaskTaskStatus
     due?: string | null
