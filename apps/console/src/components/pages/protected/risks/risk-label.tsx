@@ -2,7 +2,7 @@ import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp } 
 
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { RiskIconMapper, RiskStatusMapper } from '@/components/shared/enum-mapper/risk-enum'
+import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
 import { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
@@ -258,7 +258,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     return (
       <div className="flex gap-2 items-center text-sm">
         {RiskIconMapper[status]}
-        {RiskStatusMapper[status]}
+        {formatEnumLabel(status)}
       </div>
     )
   }
