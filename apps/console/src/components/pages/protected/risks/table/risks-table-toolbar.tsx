@@ -21,6 +21,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -60,20 +61,34 @@ const RisksTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
-  const { programOptions, isSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess: isProgramsSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteRisks } = useBulkDeleteRisks()
 
-  useEffect(() => {
-    if (filterFields || !isSuccess) {
-      return
-    }
+  const { enumOptions: riskKindOptions, isSuccess: isTypeSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'kind',
+    },
+  })
 
-    const fields = getRisksFilterFields(programOptions)
+  const { enumOptions: riskCategoryOptions, isSuccess: isCategorySuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'category',
+    },
+  })
+
+  useEffect(() => {
+    if (!isProgramsSuccess || !isTypeSuccess || !isCategorySuccess) return
+    if (filterFields) return
+
+    const fields = getRisksFilterFields(programOptions, riskKindOptions ?? [], riskCategoryOptions ?? [])
+
     setFilterFields(fields)
-  }, [programOptions, filterFields, isSuccess])
+  }, [filterFields, programOptions, riskKindOptions, riskCategoryOptions, isProgramsSuccess, isTypeSuccess, isCategorySuccess])
 
   const handleBulkDelete = async () => {
     if (!selectedRisks) {

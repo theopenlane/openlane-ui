@@ -22,12 +22,12 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { TAccessRole, TData } from '@/types/authz'
 import { BulkCSVCreateMappedControlDialog } from '../bulk-csv-create-map-control-dialog'
-import { ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteControls } from '@/lib/graphql-hooks/controls'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -76,14 +76,20 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
   const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
   const { mutateAsync: bulkDeleteControls } = useBulkDeleteControls()
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'control',
+      field: 'kind',
+    },
+  })
 
   useEffect(() => {
-    if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess) {
+    if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess || !isTypesSuccess) {
       return
     }
-    const fields = getControlsFilterFields(standardOptions, groups, programOptions, ControlControlTypeOptions)
+    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions)
     setFilterFields(fields)
-  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess])
+  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess])
 
   const handleBulkDelete = async () => {
     if (!selectedControls) {

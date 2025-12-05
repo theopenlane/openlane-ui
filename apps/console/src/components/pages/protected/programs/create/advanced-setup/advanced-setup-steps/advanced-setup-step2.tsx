@@ -6,7 +6,6 @@ import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { DateSelect } from '../../shared/form-fields/date-select'
 import StandardSelect from '../../shared/form-fields/standard-select'
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 
 const AdvancedSetupStep2 = () => {
   const {
@@ -15,7 +14,7 @@ const AdvancedSetupStep2 = () => {
     control,
   } = useFormContext()
 
-  const programType = useWatch({ control, name: 'programType' })
+  const programKindName = useWatch({ control, name: 'programKindName' })
 
   return (
     <div className="space-y-6">
@@ -40,7 +39,7 @@ const AdvancedSetupStep2 = () => {
       {/* Form */}
       <div className="space-y-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Framework{programType === ProgramProgramType.FRAMEWORK && <span className="text-destructive">*</span>}</label>
+          <label className="text-sm">Framework{programKindName === 'Framework' && <span className="text-destructive">*</span>}</label>
           <StandardSelect />
           {errors.framework && <span className="text-xs text-destructive">{String(errors.framework.message)}</span>}
         </div>

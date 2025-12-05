@@ -340,11 +340,11 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
 
 // Convenience hooks for specific statuses
 export const useSubmittedEvidenceTrend = (programId?: string | null) => {
-  return useEvidenceTrend(programId, EvidenceEvidenceStatus.READY)
+  return useEvidenceTrend(programId, EvidenceEvidenceStatus.READY_FOR_AUDITOR)
 }
 
 export const useAcceptedEvidenceTrend = (programId?: string | null) => {
-  return useEvidenceTrend(programId, EvidenceEvidenceStatus.APPROVED)
+  return useEvidenceTrend(programId, EvidenceEvidenceStatus.AUDITOR_APPROVED)
 }
 
 export const useRejectedEvidenceTrend = (programId?: string | null) => {

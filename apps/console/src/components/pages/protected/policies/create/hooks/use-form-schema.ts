@@ -21,7 +21,7 @@ const formSchema = z.object({
       errorMap: () => ({ message: 'Invalid status' }),
     })
     .default(InternalPolicyFrequency.YEARLY),
-  policyType: z.string(),
+  internalPolicyKindName: z.string(),
   reviewDue: z.date().optional().nullable(),
   tags: z.array(z.string().optional()),
   programIDs: z.array(z.any()).optional(),
@@ -46,7 +46,7 @@ const useFormSchema = () => {
         status: InternalPolicyDocumentStatus.DRAFT,
         reviewFrequency: InternalPolicyFrequency.YEARLY,
         tags: [],
-        policyType: '',
+        internalPolicyKindName: '',
         details: `
             <div class="slate-editor group/editor relative w-full cursor-text overflow-x-hidden break-words whitespace-pre-wrap select-text rounded-md ring-offset-background focus-visible:outline-hidden placeholder:text-muted-foreground/80 [&_strong]:font-bold">
               <h2 class="slate-h2 relative mb-1 mt-[1.4em] pb-px font-heading text-2xl font-semibold tracking-tight">

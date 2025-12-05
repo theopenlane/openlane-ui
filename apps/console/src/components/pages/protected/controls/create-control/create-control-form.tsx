@@ -176,7 +176,7 @@ export default function CreateControlForm() {
       }
 
       if (createMultiple) {
-        resetAllExcept(['controlOwnerID', 'delegateID', 'category', 'subcategory', 'controlType', 'source'])
+        resetAllExcept(['controlOwnerID', 'delegateID', 'category', 'subcategory', 'controlKindName', 'source', 'subcontrolKindName'])
         successNotification({ title: 'Control created successfully' })
       } else if (newId && isCreateSubcontrol) {
         successNotification({ title: 'Control created successfully, redirecting...' })

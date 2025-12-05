@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
 import { FolderIcon, BinocularsIcon, CopyIcon, PlusIcon, ChevronDown, FileBadge2, Settings2, FolderSymlink, ArrowUpFromDot, Shapes, HelpCircle, CircleUser, CircleArrowRight } from 'lucide-react'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, Subcontrol, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { Control, ControlControlSource, ControlControlStatus, Subcontrol, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper16, ControlStatusLabels, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
@@ -24,6 +24,8 @@ import { Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { usePathname } from 'next/navigation'
 
 interface PropertiesCardProps {
   isEditing: boolean
@@ -37,13 +39,6 @@ const sourceLabels: Record<ControlControlSource, string> = {
   IMPORTED: 'Imported',
   TEMPLATE: 'Template',
   USER_DEFINED: 'User defined',
-}
-
-const typeLabels: Record<ControlControlType, string> = {
-  CORRECTIVE: 'Corrective',
-  DETECTIVE: 'Detective',
-  DETERRENT: 'Deterrent',
-  PREVENTATIVE: 'Preventative',
 }
 
 export const controlIconsMap: Record<string, React.ReactNode> = {
@@ -61,10 +56,22 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const isSourceFramework = data?.source === ControlControlSource.FRAMEWORK
   const isEditAllowed = !isSourceFramework && canEdit
   const authorityEditAllowed = canEdit
+  const path = usePathname()
+  const isCreateSubcontrol = path.includes('/create-subcontrol')
 
   const [editingField, setEditingField] = useState<'owner' | 'delegate' | null>(null)
   const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
   const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'control',
+      field: 'kind',
+    },
+  })
+
+  const typeOptions = enumOptions.map((o) => o.value)
+  const typeLabels = Object.fromEntries(enumOptions.map((o) => [o.value, o.label]))
 
   const options: Option[] = groups.map((g) => ({
     label: g?.displayName || g?.name || '',
@@ -119,10 +126,10 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         />
         <EditableSelect
           label="Type"
-          name="controlType"
+          name={data?.__typename === 'Subcontrol' || isCreateSubcontrol ? 'subcontrolKindName' : 'controlKindName'}
           isEditing={isEditing}
           isEditAllowed={isEditAllowed}
-          options={Object.values(ControlControlType)}
+          options={typeOptions}
           labels={typeLabels}
           handleUpdate={handleUpdate}
         />
@@ -240,7 +247,6 @@ const EditableSelect = ({
   )
 
   const isEditable = isEditAllowed && (isEditing || internalEditing)
-
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">

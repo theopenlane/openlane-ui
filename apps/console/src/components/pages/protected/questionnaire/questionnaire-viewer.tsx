@@ -3,13 +3,13 @@
 import { ITheme, Model } from 'survey-core'
 import { Survey } from 'survey-react-ui'
 
-import 'survey-core/defaultV2.min.css'
+import 'survey-core/survey-core.min.css'
 
 import { useEffect, useContext } from 'react'
 import { useTheme } from 'next-themes'
 import { lightTheme } from './theme-light'
 import { darkTheme } from './theme-dark'
-import { useGetTemplate } from '@/lib/graphql-hooks/templates'
+import { useGetAssessment } from '@/lib/graphql-hooks/assessments'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 export default function ViewQuestionnaire(input: { existingId: string }) {
@@ -17,8 +17,8 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
-  const { data: templateResult } = useGetTemplate(input.existingId)
-  const surveyJson = templateResult?.template?.jsonconfig
+  const { data: assessmentResult } = useGetAssessment(input.existingId)
+  const surveyJson = assessmentResult?.assessment?.jsonconfig
   const survey = new Model(surveyJson)
 
   useEffect(() => {

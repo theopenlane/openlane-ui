@@ -1,5 +1,5 @@
 import { CirclePlus, Cog, FilePlus, Folder, FolderCheck, FolderClock, FolderInput, FolderOutput } from 'lucide-react'
-import { ProgramProgramStatus, ProgramProgramType } from '@repo/codegen/src/schema.ts'
+import { ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
@@ -22,13 +22,6 @@ export const ProgramStatusLabels: Record<ProgramProgramStatus, string> = {
   [ProgramProgramStatus.ARCHIVED]: 'Archived',
 }
 
-export const ProgramTypeLabels: Record<ProgramProgramType, string> = {
-  [ProgramProgramType.FRAMEWORK]: 'Framework',
-  [ProgramProgramType.GAP_ANALYSIS]: 'Gap Analysis',
-  [ProgramProgramType.OTHER]: 'Other',
-  [ProgramProgramType.RISK_ASSESSMENT]: 'Risk Assessment',
-}
-
 // Status options for select dropdowns
 export const ProgramStatusOptions = Object.values(ProgramProgramStatus).map((status) => ({
   label: ProgramStatusLabels[status],
@@ -42,11 +35,6 @@ export const ProgramStatusFilterOptions = Object.entries(ProgramProgramStatus).m
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase()),
   value,
-}))
-
-export const ProgramTypeOptions = Object.values(ProgramProgramType).map((type) => ({
-  label: ProgramTypeLabels[type],
-  value: type,
 }))
 
 export const ProgramCreateIconBtn = (

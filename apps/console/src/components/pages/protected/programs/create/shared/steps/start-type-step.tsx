@@ -4,11 +4,10 @@ import { Rocket, SearchCheck } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { useFormContext, Controller } from 'react-hook-form'
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 
 export default function StartTypeStep() {
-  const { control, watch } = useFormContext<{ programType?: ProgramProgramType }>()
-  const selected = watch('programType')
+  const { control, watch } = useFormContext<{ programKindName?: string }>()
+  const selected = watch('programKindName')
 
   return (
     <div className="space-y-6">
@@ -18,15 +17,13 @@ export default function StartTypeStep() {
       </div>
 
       <Controller
-        name="programType"
+        name="programKindName"
         control={control}
         render={({ field }) => (
           <div className="space-y-4">
             <Card
-              className={`flex flex-1 items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer ${
-                selected === ProgramProgramType.FRAMEWORK ? 'border-primary' : 'border-border'
-              }`}
-              onClick={() => field.onChange(ProgramProgramType.FRAMEWORK)}
+              className={`flex flex-1 items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer ${selected === 'Framework' ? 'border-primary' : 'border-border'}`}
+              onClick={() => field.onChange('Framework')}
             >
               <div className="flex gap-2">
                 <div className="flex items-center justify-center w-12 h-12 rounded-md bg-secondary border shrink-0">
@@ -47,10 +44,8 @@ export default function StartTypeStep() {
             </Card>
 
             <Card
-              className={`flex flex-1 items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer ${
-                selected === ProgramProgramType.GAP_ANALYSIS ? 'border-primary' : 'border-border'
-              }`}
-              onClick={() => field.onChange(ProgramProgramType.GAP_ANALYSIS)}
+              className={`flex flex-1 items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer ${selected === 'Gap Analysis' ? 'border-primary' : 'border-border'}`}
+              onClick={() => field.onChange('Gap Analysis')}
             >
               <div className="flex gap-2">
                 <div className="flex items-center justify-center w-12 h-12 rounded-md bg-secondary border shrink-0">
