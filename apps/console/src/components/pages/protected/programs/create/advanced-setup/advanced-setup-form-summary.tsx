@@ -62,7 +62,7 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
             <span className="text-sm text-muted-foreground">
               Type <span className="text-destructive">*</span>
             </span>
-            <span className="text-sm text-inverted-muted-foreground">{summaryData.programType ?? 'Empty'}</span>
+            <span className="text-sm text-inverted-muted-foreground">{summaryData.programKindName ?? 'Empty'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">

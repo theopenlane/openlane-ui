@@ -30,12 +30,13 @@ const publicPages = [
   '/forgot-password',
   '/password-reset',
   '/signup',
+  '/questionnaire',
 ]
 
 const Providers = ({ children }: ProvidersProps) => {
   const { status } = useSession()
   const pathname = usePathname()
-  const isPublicPage = publicPages.includes(pathname)
+  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/')
 
   const queryClient = useMemo(
     () =>
@@ -54,7 +55,7 @@ const Providers = ({ children }: ProvidersProps) => {
   if (isPublicPage) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        {children}
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </ThemeProvider>
     )
   }

@@ -182,7 +182,7 @@ const ControlDetailsSheet = () => {
             <Property label="Category" value={data?.control.category} />
             <Property label="Subcategory" value={data?.control.subcategory} />
             <Property label="Mapped categories" value={data?.control?.mappedCategories?.join(', ')} />
-            <Property label="Type" value={data?.control.controlType?.toLowerCase()} />
+            <Property label="Type" value={data?.control.controlKindName?.toLowerCase()} />
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="mb-1.5 text-xl">Subcontrols</p>

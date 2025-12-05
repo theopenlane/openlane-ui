@@ -17,7 +17,7 @@ export const UPDATE_PROCEDURE = gql`
       procedure {
         id
         name
-        procedureType
+        procedureKindName
       }
     }
   }
@@ -82,7 +82,7 @@ export const GET_TABLE_PROCEDURES = gql`
             gravatarLogoURL
             logoURL
           }
-          procedureType
+          procedureKindName
           reviewDue
           reviewFrequency
           revision
@@ -147,7 +147,7 @@ export const PROCEDURE_BY_ID = gql`
     reviewDue
     reviewFrequency
     approvalRequired
-    procedureType
+    procedureKindName
     approver {
       id
       displayName

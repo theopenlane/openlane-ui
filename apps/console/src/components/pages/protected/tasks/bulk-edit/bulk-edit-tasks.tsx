@@ -25,6 +25,7 @@ import {
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -63,6 +64,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
 
   const { data: session } = useSession()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+
   const membersOptions = useMemo(() => {
     if (!membersData) return []
     return membersData?.organization?.members?.edges?.map((member) => ({
@@ -71,9 +73,16 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
     }))
   }, [membersData])
 
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
+
   const allOptionSelects = useMemo(() => {
-    return getAllSelectOptionsForBulkEditTasks(membersOptions)
-  }, [membersOptions])
+    return getAllSelectOptionsForBulkEditTasks(membersOptions, taskKindOptions)
+  }, [membersOptions, taskKindOptions])
 
   const { control, handleSubmit, watch } = form
 
