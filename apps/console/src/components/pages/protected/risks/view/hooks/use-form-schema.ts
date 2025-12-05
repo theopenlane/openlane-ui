@@ -33,7 +33,7 @@ const useFormSchema = () => {
         score: 0,
         impact: RiskRiskImpact.LOW,
         likelihood: RiskRiskLikelihood.UNLIKELY,
-        status: RiskRiskStatus.OPEN,
+        status: RiskRiskStatus.IDENTIFIED,
         details: '',
         mitigation: '',
         businessCosts: '',
