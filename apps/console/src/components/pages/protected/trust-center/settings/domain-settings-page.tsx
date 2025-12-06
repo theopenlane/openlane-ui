@@ -121,6 +121,7 @@ const DomainSettingsPage = () => {
         title: 'Deleted!',
         description: 'The custom domain was successfully removed.',
       })
+
       setInputValue('')
     } catch (err) {
       errorNotification({
@@ -153,36 +154,34 @@ const DomainSettingsPage = () => {
   const renderContent = () => {
     if (!trustCenter?.customDomain) {
       return (
-        <div className="flex items-stretch gap-2">
-          <UrlInput value={inputValue} onChange={setInputValue} verifiedStatus={trustCenter.customDomain?.dnsVerification?.dnsVerificationStatus || null} />
-          <div className="flex-1">
-            <Button onClick={handleCreateCustomDomain} variant="secondary" className="h-full" icon={<Save size={16} />} iconPosition="left">
-              Set
-            </Button>
-          </div>
+        <div className="flex w-full gap-2">
+          <UrlInput value={inputValue} onChange={setInputValue} className="flex-1 h-10" />
+          <Button onClick={handleCreateCustomDomain} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
+            Set
+          </Button>
         </div>
       )
     }
 
     if (trustCenter.customDomain?.cnameRecord) {
       return (
-        <div className="flex items-stretch gap-2">
-          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={trustCenter.customDomain?.dnsVerification?.dnsVerificationStatus || null} />
+        <div className="flex w-full gap-2">
+          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={trustCenter.customDomain?.dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-10" />
           {editing ? (
             <div className="flex gap-2">
-              <Button onClick={handleUpdateCustomDomain} variant="secondary" className="h-full" icon={<Save size={16} />} iconPosition="left">
+              <Button onClick={handleUpdateCustomDomain} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
                 Save
               </Button>
-              <Button onClick={handleCancel} variant="secondary" className="h-full" icon={<Save size={16} />} iconPosition="left">
+              <Button onClick={handleCancel} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
                 Cancel
               </Button>
             </div>
           ) : (
             <div className="flex gap-2">
-              <Button variant="secondary" className="h-full" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
+              <Button variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
                 Edit
               </Button>
-              <Button onClick={handleDeleteCustomDomain} variant="secondary" className="h-full" icon={<Trash2 size={14} />} iconPosition="center"></Button>
+              <Button onClick={handleDeleteCustomDomain} variant="secondary" className="h-10 flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />
             </div>
           )}
         </div>
@@ -199,25 +198,29 @@ const DomainSettingsPage = () => {
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Configure URL</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">Default domain availability</p>
+                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                  This is the link you&apos;ll send to customers so they can verify your security and compliance in real time
+                </p>
               </div>
               <div>
                 {trustCenter?.slug && (
-                  <div className="flex items-center gap-3 border rounded-md justify-between py-2 px-3">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-sm text-inverted-muted-foreground font-medium leading-6">Default:</Label>
-                      <span className="text-sm">{defaultDomain}</span>
+                  <div className="flex items-center gap-2 justify-between">
+                    <div className="flex items-center gap-3 border rounded-md justify-between py-2 px-3 w-full">
+                      <div className="flex items-center gap-2">
+                        <Label className="text-sm text-inverted-muted-foreground font-medium leading-6">Default:</Label>
+                        <span className="text-sm">{defaultDomain}</span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button onClick={handleCopyDefaultDomain} variant="secondary" className="h-7 px-2 gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
+                      <Button onClick={handleCopyDefaultDomain} variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
                       <a href={defaultDomain} rel={'noreferrer'} target="_blank">
-                        <Button variant="secondary" className="h-7 px-2 gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
+                        <Button variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
                       </a>
                     </div>
                   </div>
                 )}
               </div>
-              <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-5 max-w-[730px]">
+              <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-5">
                 <div className="flex items-start gap-2">
                   <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
                   <div>
@@ -242,9 +245,9 @@ const DomainSettingsPage = () => {
         {trustCenter.customDomain?.cnameRecord && <DnsRecords cnameName={cnameName} dnsVerification={dnsVerification} />}
         <div className="grid gap-10 text-sm text-text-informational mt-6">
           <ul className="list-disc list-inside space-y-1">
-            <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider.</li>
-            <li>You can click Verify to manually trigger a check (this button becomes available every 60 seconds).</li>
-            <li>We&apos;ll continue checking in the background and update the verification status automatically.</li>
+            <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider</li>
+            <li>You can click Verify to manually trigger a check (this button becomes available every 60 seconds)</li>
+            <li>We&apos;ll continue checking in the background and update the verification status automatically</li>
           </ul>
         </div>
       </div>

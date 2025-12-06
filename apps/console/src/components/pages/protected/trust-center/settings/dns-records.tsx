@@ -20,37 +20,40 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
   const handleCopy = async () => {
     await navigator.clipboard.writeText(cnameValue)
   }
+  console.log(dnsVerification)
   return (
     <>
       <Card>
         <CardContent>
-          <p className="text-base font-medium leading-6">Add a CNAME record</p>
+          <div className="flex items-center justify-between">
+            <p className="text-base font-medium leading-6">Add a CNAME record</p>
+            {dnsVerification && dnsVerification.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.pending && (
+              <div className="flex items-center rounded-3xl px-3 border border-[#FF842C3D] bg-[#FF842C14] text-warning">Pending</div>
+            )}
+          </div>
           <div className="grid grid-cols-2 text-sm font-normal leading-5 mt-6">
             <div>
               <ol className="list-decimal list-inside space-y-5">
                 <li>Go to your domain&apos;s DNS records.</li>
-
                 <li>Add a new record, selecting &quot;CNAME&quot; as the type.</li>
-
                 <li>
                   <span>In the &quot;Host&quot; or &quot;Name&quot; field, enter</span>
-
-                  <div className="mt-2 ml-6 bg-secondary flex items-center justify-between px-3 py-2 border rounded-md w-fit min-w-[320px]">
-                    <span className="font-normal text-inverted-muted-foreground text-sm">{cnameName}</span>
-
-                    <Button variant="secondary" onClick={() => navigator.clipboard.writeText(cnameName)} className="rounded-md hover:bg-muted transition" type="button">
+                  <div className="mt-2 flex items-stretch gap-2">
+                    <div className="bg-secondary flex-1 flex items-center px-4 py-3 border rounded-md min-w-[280px] h-9">
+                      <span className="font-normal text-inverted-muted-foreground text-sm">{cnameName}</span>
+                    </div>
+                    <Button variant="secondary" onClick={() => navigator.clipboard.writeText(cnameName)} className="rounded-md hover:bg-muted transition h-9 px-3" type="button">
                       <Copy size={16} />
                     </Button>
                   </div>
                 </li>
-
                 <li>
                   <span>In the &quot;Value&quot; field, enter</span>
-
-                  <div className="mt-2 ml-6 bg-secondary flex items-center justify-between px-3 py-2 border rounded-md w-fit min-w-[320px]">
-                    <span className="font-normal text-inverted-muted-foreground text-sm">{cnameValue}</span>
-
-                    <Button variant="secondary" onClick={handleCopy} className="rounded-md hover:bg-muted transition" type="button">
+                  <div className="mt-2 flex items-stretch gap-2">
+                    <div className="bg-secondary flex-1 flex items-center px-4 py-3 border rounded-md min-w-[280px] h-9">
+                      <span className="font-normal text-inverted-muted-foreground text-sm">{cnameValue}</span>
+                    </div>
+                    <Button variant="secondary" onClick={handleCopy} className="rounded-md hover:bg-muted transition h-9 px-3" type="button">
                       <Copy size={16} />
                     </Button>
                   </div>
@@ -60,6 +63,7 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
           </div>
         </CardContent>
       </Card>
+
       <Card>
         <CardContent>
           <p className="text-base font-medium leading-6">Add a TXT record</p>
@@ -67,27 +71,35 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
             <div>
               <ol className="list-decimal list-inside space-y-5">
                 <li>Go to your domain&apos;s DNS records.</li>
-
                 <li>Add a new record, selecting &quot;TXT&quot; as the type.</li>
-
                 <li>
                   <span>In the &quot;Host&quot; or &quot;Name&quot; field, enter</span>
-
-                  <div className="mt-2 ml-6 bg-secondary flex items-center justify-between px-3 py-2 border rounded-md w-fit min-w-[320px]">
-                    <span className="font-normal text-inverted-muted-foreground text-sm">{dnsVerification?.dnsTxtRecord}</span>
-
-                    <Button variant="secondary" onClick={() => navigator.clipboard.writeText(dnsVerification?.dnsTxtRecord ?? '')} className="rounded-md hover:bg-muted transition" type="button">
+                  <div className="mt-2 flex items-stretch gap-2">
+                    <div className="bg-secondary flex-1 flex items-center px-4 py-3 border rounded-md min-w-[280px] h-9">
+                      <span className="font-normal text-inverted-muted-foreground text-sm">{dnsVerification?.dnsTxtRecord}</span>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      onClick={() => navigator.clipboard.writeText(dnsVerification?.dnsTxtRecord ?? '')}
+                      className="rounded-md hover:bg-muted transition h-9 px-3"
+                      type="button"
+                    >
                       <Copy size={16} />
                     </Button>
                   </div>
                 </li>
-
                 <li>
                   <span>In the &quot;Value&quot; field, enter</span>
-
-                  <div className="mt-2 ml-6 bg-secondary flex items-center justify-between px-3 py-2 border rounded-md w-fit min-w-[320px]">
-                    <span className="font-normal text-inverted-muted-foreground text-sm">{dnsVerification?.dnsTxtRecord}</span>
-                    <Button variant="secondary" onClick={() => navigator.clipboard.writeText(dnsVerification?.dnsTxtRecord ?? '')} className="rounded-md hover:bg-muted transition" type="button">
+                  <div className="mt-2 flex items-stretch gap-2">
+                    <div className="bg-secondary flex-1 flex items-center px-4 py-3 border rounded-md min-w-[280px] h-9">
+                      <span className="font-normal text-inverted-muted-foreground text-sm">{dnsVerification?.dnsTxtRecord}</span>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      onClick={() => navigator.clipboard.writeText(dnsVerification?.dnsTxtRecord ?? '')}
+                      className="rounded-md hover:bg-muted transition h-9 px-3"
+                      type="button"
+                    >
                       <Copy size={16} />
                     </Button>
                   </div>
