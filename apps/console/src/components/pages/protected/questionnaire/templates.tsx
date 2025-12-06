@@ -26,11 +26,12 @@ export const TemplateList = () => {
   const handleFromTemplate = async (templateId: string) => {
     try {
       const selectedTemplate = templates?.find((template) => template?.id === templateId)
-      const templateName = selectedTemplate?.name || 'Untitled Questionnaire'
+
+      const suffix = `-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 
       const response = await createAssessment({
         input: {
-          name: templateName,
+          name: `${selectedTemplate?.name}${suffix}`,
           templateID: templateId,
         },
       })
@@ -56,7 +57,6 @@ export const TemplateList = () => {
   }
 
   const { templates, isLoading, isError } = useTemplates({ where: whereFilter })
-
 
   const formSchema = z.object({
     templateId: z.string(),
