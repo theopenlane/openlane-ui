@@ -1,20 +1,33 @@
-import { Archive, Circle, CircleAlert, CircleDot, CirclePlay, CircleQuestionMark, Folder, Gauge, ShieldCheck, Split, Timer, type LucideIcon } from 'lucide-react'
+import {
+  Archive,
+  Circle,
+  CircleAlert,
+  CircleDot,
+  CirclePlay,
+  CircleQuestionMark,
+  Folder,
+  Gauge,
+  ShieldCheck,
+  Split,
+  Timer,
+  type LucideIcon,
+  Flag,
+  CircleCheck,
+  CircleX,
+  SquareArrowRight,
+} from 'lucide-react'
 import { RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 
 export const RiskIconMapper: Record<RiskRiskStatus, React.ReactNode> = {
-  [RiskRiskStatus.ARCHIVED]: <Archive height={16} width={16} className="text-approved" />,
+  [RiskRiskStatus.ARCHIVED]: <Archive height={16} width={16} className="text-archived" />,
   [RiskRiskStatus.MITIGATED]: <Split height={16} width={16} className="text-mitigated" />,
   [RiskRiskStatus.IN_PROGRESS]: <Timer height={16} width={16} className="text-in-progress" />,
   [RiskRiskStatus.OPEN]: <Circle height={16} width={16} className="text-open" />,
   [RiskRiskStatus.ONGOING]: <CirclePlay height={16} width={16} className="text-ongoing" />,
-}
-
-export const RiskStatusMapper: Record<RiskRiskStatus, string> = {
-  [RiskRiskStatus.ARCHIVED]: 'Archived',
-  [RiskRiskStatus.MITIGATED]: 'Mitigated',
-  [RiskRiskStatus.IN_PROGRESS]: 'In progress',
-  [RiskRiskStatus.OPEN]: 'Open',
-  [RiskRiskStatus.ONGOING]: 'On going',
+  [RiskRiskStatus.IDENTIFIED]: <Flag height={16} width={16} className="text-open" />,
+  [RiskRiskStatus.ACCEPTED]: <CircleCheck height={16} width={16} className="text-ongoing" />,
+  [RiskRiskStatus.TRANSFERRED]: <SquareArrowRight height={16} width={16} className="text-ongoing" />,
+  [RiskRiskStatus.CLOSED]: <CircleX height={16} width={16} className="text-rejected" />,
 }
 
 export enum RisksFilterIconName {

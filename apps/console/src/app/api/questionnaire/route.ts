@@ -1,3 +1,4 @@
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     const token = authHeader.substring(7)
 
-    const response = await fetch(`${process.env.API_REST_URL}/questionnaire`, {
+    const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Missing data field in request body' }, { status: 400 })
     }
 
-    const response = await fetch(`${process.env.API_REST_URL}/questionnaire`, {
+    const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

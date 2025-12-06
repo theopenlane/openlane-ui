@@ -9327,7 +9327,7 @@ export interface CreateRiskInput {
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
-  /** status of the risk - open, mitigated, ongoing, in-progress, and archived. */
+  /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: InputMaybe<RiskRiskStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
@@ -28673,7 +28673,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities via file upload */
+  /** Create multiple new trustcenterEntitys via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -28783,7 +28783,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities */
+  /** Create multiple new trustcenterEntitys */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -43749,7 +43749,7 @@ export interface Risk extends Node {
   stakeholder?: Maybe<Group>
   /** the id of the group responsible for risk oversight */
   stakeholderID?: Maybe<Scalars['ID']['output']>
-  /** status of the risk - open, mitigated, ongoing, in-progress, and archived. */
+  /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: Maybe<RiskRiskStatus>
   subcontrols: SubcontrolConnection
   /** tags associated with the object */
@@ -43991,7 +43991,7 @@ export interface RiskHistory extends Node {
   score?: Maybe<Scalars['Int']['output']>
   /** the id of the group responsible for risk oversight */
   stakeholderID?: Maybe<Scalars['String']['output']>
-  /** status of the risk - open, mitigated, ongoing, in-progress, and archived. */
+  /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: Maybe<RiskHistoryRiskStatus>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -44066,11 +44066,15 @@ export enum RiskHistoryRiskLikelihood {
 
 /** RiskHistoryRiskStatus is enum for the field status */
 export enum RiskHistoryRiskStatus {
+  ACCEPTED = 'ACCEPTED',
   ARCHIVED = 'ARCHIVED',
+  CLOSED = 'CLOSED',
+  IDENTIFIED = 'IDENTIFIED',
   IN_PROGRESS = 'IN_PROGRESS',
   MITIGATED = 'MITIGATED',
   ONGOING = 'ONGOING',
   OPEN = 'OPEN',
+  TRANSFERRED = 'TRANSFERRED',
 }
 
 /**
@@ -44469,11 +44473,15 @@ export enum RiskRiskLikelihood {
 
 /** RiskRiskStatus is enum for the field status */
 export enum RiskRiskStatus {
+  ACCEPTED = 'ACCEPTED',
   ARCHIVED = 'ARCHIVED',
+  CLOSED = 'CLOSED',
+  IDENTIFIED = 'IDENTIFIED',
   IN_PROGRESS = 'IN_PROGRESS',
   MITIGATED = 'MITIGATED',
   ONGOING = 'ONGOING',
   OPEN = 'OPEN',
+  TRANSFERRED = 'TRANSFERRED',
 }
 
 /** Return response for updateRisk mutation */
@@ -55179,7 +55187,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntities */
+  /** Created trustcenterEntitys */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -58612,7 +58620,7 @@ export interface UpdateRiskInput {
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
-  /** status of the risk - open, mitigated, ongoing, in-progress, and archived. */
+  /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: InputMaybe<RiskRiskStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -67275,6 +67283,10 @@ export type GetControlCountsByStatusQuery = {
   approved: { __typename?: 'ControlConnection'; totalCount: number }
 }
 
+export type GetNotImplementedControlCountQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetNotImplementedControlCountQuery = { __typename?: 'Query'; controls: { __typename?: 'ControlConnection'; totalCount: number } }
+
 export type CreateBulkCsvControlMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>
@@ -67893,6 +67905,10 @@ export type EvidenceSuggestedActionsQuery = {
     edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null; updatedAt?: any | null } | null } | null> | null
   }
 }
+
+export type GetItemsMissingEvidenceCountQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetItemsMissingEvidenceCountQuery = { __typename?: 'Query'; evidences: { __typename?: 'EvidenceConnection'; totalCount: number } }
 
 export type CreateExportMutationVariables = Exact<{
   input: CreateExportInput
@@ -69666,6 +69682,10 @@ export type DeleteBulkRiskMutationVariables = Exact<{
 
 export type DeleteBulkRiskMutation = { __typename?: 'Mutation'; deleteBulkRisk: { __typename?: 'RiskBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type GetOpenRiskCountQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetOpenRiskCountQuery = { __typename?: 'Query'; risks: { __typename?: 'RiskConnection'; totalCount: number } }
+
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
 }>
@@ -70368,6 +70388,12 @@ export type DeleteBulkTaskMutationVariables = Exact<{
 }>
 
 export type DeleteBulkTaskMutation = { __typename?: 'Mutation'; deleteBulkTask: { __typename?: 'TaskBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetOverdueTaskCountQueryVariables = Exact<{
+  now: Scalars['DateTime']['input']
+}>
+
+export type GetOverdueTaskCountQuery = { __typename?: 'Query'; tasks: { __typename?: 'TaskConnection'; totalCount: number } }
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
