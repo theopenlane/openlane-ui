@@ -28673,7 +28673,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys via file upload */
+  /** Create multiple new trustcenterEntities via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -28783,7 +28783,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys */
+  /** Create multiple new trustcenterEntities */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -55187,7 +55187,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntitys */
+  /** Created trustcenterEntities */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -67909,6 +67909,28 @@ export type EvidenceSuggestedActionsQuery = {
 export type GetItemsMissingEvidenceCountQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetItemsMissingEvidenceCountQuery = { __typename?: 'Query'; evidences: { __typename?: 'EvidenceConnection'; totalCount: number } }
+
+export type GetEvidenceCommentsQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceCommentsQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    comments: {
+      __typename?: 'NoteConnection'
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; createdAt?: any | null; createdBy?: string | null; text: string } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateEvidenceCommentMutationVariables = Exact<{
+  input: UpdateNoteInput
+  updateEvidenceCommentId: Scalars['ID']['input']
+}>
+
+export type UpdateEvidenceCommentMutation = { __typename?: 'Mutation'; updateEvidenceComment: { __typename?: 'EvidenceUpdatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
 
 export type CreateExportMutationVariables = Exact<{
   input: CreateExportInput

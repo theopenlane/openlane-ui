@@ -77,6 +77,7 @@ import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './e
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import EvidenceCommentsCard from './evidence-comment-card'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -501,13 +502,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       </Button>
                       {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                       {editAllowed && (
-                        <Button type="button" variant="secondary" className="!p-1 h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
+                        <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
                           <Pencil size={16} strokeWidth={2} />
                         </Button>
                       )}
                     </>
                   )}
-                  <Button type="button" variant="secondary" className="!p-1 h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                  <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
                     <Trash2 size={16} strokeWidth={2} />
                   </Button>
                 </div>
@@ -908,7 +909,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 </p>
                               </div>
                             </div>
-
                             {evidence?.url && (
                               <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-2 text-sm w-[180px]">
@@ -932,6 +932,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </div>
                         </CardContent>
                       </Card>
+                      <EvidenceCommentsCard />
                     </div>
                   )}
                 </div>
