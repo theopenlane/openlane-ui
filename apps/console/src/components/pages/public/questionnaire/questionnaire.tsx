@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react'
 import 'survey-core/survey-core.min.css'
 import { jwtDecode } from 'jwt-decode'
 import { useQuestionnaire, useSubmitQuestionnaire } from '@/lib/query-hooks/questionnaire'
+import { CircleCheckBig } from 'lucide-react'
 
 interface QuestionnairePageProps {
   token?: string
@@ -29,6 +30,7 @@ const decodeJWT = (token: string): JWTPayload | null => {
 
 export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) => {
   const [emailMismatch, setEmailMismatch] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const { errorNotification } = useNotification()
   const { data: sessionData } = useSession()
 
@@ -50,6 +52,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
           token,
           data: sender.data,
         })
+        setIsSubmitted(true)
       } catch (error) {
         options.allow = false
         console.error('Error submitting questionnaire:', error)
@@ -128,6 +131,18 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
       <div className="relative z-20 shadow-2xl bg-white rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">
           <p className="text-sm text-muted-foreground">Unable to load questionnaire. Please try again later.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="relative z-20 shadow-2xl bg-white rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
+        <div className="flex flex-col items-center space-y-4">
+          <CircleCheckBig size={37} className="text-brand" strokeWidth={1.5} />
+          <p className="text-sm font-medium text-center">Questionnaire Submitted Successfully</p>
+          <p className="text-sm text-muted-foreground text-center">Thank you for completing the questionnaire. Your response have been submitted successfully.</p>
         </div>
       </div>
     )
