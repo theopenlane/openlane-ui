@@ -135,7 +135,7 @@ export const TemplateList = () => {
             <Button variant="secondary">Cancel</Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button variant="filled" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))}>
+            <Button variant="primary" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))}>
               Create Questionnaire
             </Button>
           </AlertDialogAction>
