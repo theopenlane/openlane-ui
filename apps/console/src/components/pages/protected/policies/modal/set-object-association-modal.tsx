@@ -42,6 +42,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
     : [ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]
 
   const handleSave = () => {
+    policyState.setInitialAssociations(associations.associations)
     policyState.setAssociations(associations.associations)
     policyState.setAssociationRefCodes(associations.refCodes)
     if (policyId) {
