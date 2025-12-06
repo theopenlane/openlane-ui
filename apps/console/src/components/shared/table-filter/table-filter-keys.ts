@@ -15,4 +15,5 @@ export enum TableFilterKeysEnum {
   API_TOKEN = 'api-token',
   TRUST_CENTER_DOCS = 'trust-center-docs',
   SUBPROCESSORS = 'subprocessors',
+  TEMPLATE = 'template',
 }

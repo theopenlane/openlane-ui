@@ -71,7 +71,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       size: 200,
     },
     {
-      accessorKey: 'category',
+      accessorKey: 'taskKindName',
       header: 'Type',
       size: 140,
     },

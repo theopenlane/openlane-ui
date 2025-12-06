@@ -7,19 +7,18 @@ import { editorLocalization } from 'survey-creator-core'
 import { useTheme } from 'next-themes'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
-import 'survey-core/defaultV2.min.css'
+import 'survey-core/survey-core.min.css'
 import 'survey-creator-core/survey-creator-core.min.css'
 
 import { lightTheme } from './theme-light'
 import { darkTheme } from './theme-dark'
-import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { Panel } from '@repo/ui/panel'
 import { useRouter } from 'next/navigation'
 
 import './custom.css'
 import { surveyLicenseKey } from '@repo/dally/auth'
-import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/templates'
+import { useCreateAssessment, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessments'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const enLocale = editorLocalization.getLocale('en')
@@ -87,36 +86,33 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     creator.applyCreatorTheme(lightTheme)
   }
 
-  const { data: templateResult } = useGetTemplate(input.existingId || input.templateId)
+  const { data: assessmentResult } = useGetAssessment(input.existingId)
 
   useEffect(() => {
-    if (templateResult?.template?.jsonconfig) {
-      creator.JSON = templateResult.template.jsonconfig
+    if (assessmentResult?.assessment?.jsonconfig) {
+      creator.JSON = assessmentResult.assessment.jsonconfig
     }
-  }, [templateResult, creator])
+  }, [assessmentResult, creator])
 
-  const { mutateAsync: createTemplateData } = useCreateTemplate()
-  const { mutateAsync: updateTemplateData } = useUpdateTemplate()
+  const { mutateAsync: createAssessmentData } = useCreateAssessment()
+  const { mutateAsync: updateAssessmentData } = useUpdateAssessment()
 
-  const saveTemplate = async (data: { title?: string; description?: string }) => {
-    const variables = {
-      input: {
-        name: data.title || 'Untitled Questionnaire',
-        jsonconfig: data,
-        templateType: TemplateDocumentType.DOCUMENT,
-        description: data.description,
-      },
-    }
-
+  const saveAssessment = async (data: { title?: string; description?: string }) => {
     if (input.existingId) {
       try {
-        updateTemplateData({
-          updateTemplateId: input.existingId,
-          input: { ...variables.input },
+        await updateAssessmentData({
+          updateAssessmentId: input.existingId,
+          input: {
+            name: data.title || 'Untitled Questionnaire',
+            jsonconfig: data,
+          },
         })
+
         successNotification({
-          title: 'Questionnaire saved successfully',
+          title: 'Assessment updated successfully',
         })
+
+        router.push(`/questionnaires`)
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({
@@ -128,11 +124,18 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     }
 
     try {
-      const data = await createTemplateData(variables)
-      successNotification({
-        title: 'Questionnaire saved successfully',
+      await createAssessmentData({
+        input: {
+          name: data.title || 'Untitled Questionnaire',
+          jsonconfig: data,
+        },
       })
-      router.push(`/questionnaires/questionnaire-editor?id=${data?.createTemplate.template.id}`)
+
+      successNotification({
+        title: 'Assessment created successfully',
+      })
+
+      router.push(`/questionnaires`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -143,7 +146,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   }
 
   creator.saveSurveyFunc = () => {
-    saveTemplate(creator.JSON)
+    saveAssessment(creator.JSON)
   }
 
   return (

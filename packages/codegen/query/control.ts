@@ -14,7 +14,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     referenceID
     auditorReferenceID
     source
-    controlType
+    controlKindName
     subcontrols {
       totalCount
     }
@@ -104,7 +104,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     assessmentObjectives
     displayID
     source
-    controlType
+    controlKindName
     auditorReferenceID
     referenceID
     referenceFramework
@@ -305,6 +305,14 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
       totalCount
     }
     approved: controls(where: { status: APPROVED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_CONTROL_NOT_IMPLEMENTED_COUNT = gql`
+  query GetNotImplementedControlCount {
+    controls(where: { status: NOT_IMPLEMENTED, systemOwned: false }) {
       totalCount
     }
   }

@@ -2,24 +2,44 @@ import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp } 
 
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { RiskIconMapper, RiskStatusMapper } from '@/components/shared/enum-mapper/risk-enum'
+import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
 import { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { EditRisksFormData } from './view/hooks/use-form-schema'
+import { formatEnumLabel } from '@/utils/enumToLabel'
 
 interface RiskLabelProps {
+  fieldName?: keyof EditRisksFormData
   score?: number
   impact?: RiskRiskImpact
   likelihood?: RiskRiskLikelihood
   status?: RiskRiskStatus
+  riskCategoryName?: string
+  riskKindName?: string
   isEditing: boolean
   onChange?: (value: string | number) => void
   onMouseUp?: (value: string | number) => void
   onClose?: () => void
 }
 
-export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChange, onMouseUp, onClose }: RiskLabelProps) => {
+export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryName, riskKindName, status, isEditing, onChange, onMouseUp, onClose }: RiskLabelProps) => {
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
+
+  const { enumOptions: riskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'kind',
+    },
+  })
+
+  const { enumOptions: riskCategoryOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'category',
+    },
+  })
 
   useClickOutsideWithPortal(
     () => {
@@ -84,20 +104,61 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
 
     if (status) {
       return (
-        <Select value={status} onValueChange={(val) => onChange?.(val)}>
+        <Select value={status} onValueChange={(v) => onChange?.(v)}>
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
+
           <SelectContent ref={popoverRef}>
-            <SelectItem value={RiskRiskStatus.OPEN}>Open</SelectItem>
-            <SelectItem value={RiskRiskStatus.MITIGATED}>Mitigated</SelectItem>
-            <SelectItem value={RiskRiskStatus.ONGOING}>Ongoing</SelectItem>
-            <SelectItem value={RiskRiskStatus.IN_PROGRESS}>In-progress</SelectItem>
-            <SelectItem value={RiskRiskStatus.ARCHIVED}>Archived</SelectItem>
+            {Object.values(RiskRiskStatus).map((s) => (
+              <SelectItem key={s} value={s}>
+                {formatEnumLabel(s)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       )
     }
+  }
+
+  if (fieldName === 'riskKindName' && isEditing) {
+    return (
+      <div ref={triggerRef}>
+        <Select value={riskKindName} onValueChange={(val) => onChange?.(val)}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Select risk type" />
+          </SelectTrigger>
+
+          <SelectContent ref={popoverRef}>
+            {riskKindOptions?.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    )
+  }
+
+  if (fieldName === 'riskCategoryName' && isEditing) {
+    return (
+      <div ref={triggerRef}>
+        <Select value={riskCategoryName} onValueChange={(val) => onChange?.(val)}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+
+          <SelectContent ref={popoverRef}>
+            {riskCategoryOptions?.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    )
   }
 
   // Non-editing display below
@@ -197,9 +258,17 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
     return (
       <div className="flex gap-2 items-center text-sm">
         {RiskIconMapper[status]}
-        {RiskStatusMapper[status]}
+        {formatEnumLabel(status)}
       </div>
     )
+  }
+
+  if (fieldName === 'riskKindName') {
+    return <div className="text-sm flex items-center">{riskKindName || '-'}</div>
+  }
+
+  if (fieldName === 'riskCategoryName') {
+    return <div className="text-sm flex items-center">{riskCategoryName || '-'}</div>
   }
 
   return null
