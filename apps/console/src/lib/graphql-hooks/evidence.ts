@@ -18,6 +18,8 @@ import {
   GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS,
   GET_EVIDENCE_SUGGESTED_ACTIONS,
   GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT,
+  GET_EVIDENCE_COMMENTS,
+  UPDATE_EVIDENCE_COMMENT,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -47,6 +49,10 @@ import {
   EvidenceSuggestedActionsQuery,
   FileWhereInput,
   GetItemsMissingEvidenceCountQuery,
+  GetEvidenceCommentsQuery,
+  GetEvidenceCommentsQueryVariables,
+  UpdateEvidenceCommentMutation,
+  UpdateEvidenceCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -399,4 +405,26 @@ export const useGetEvidenceMissingArtifactCount = () => {
     ...queryResult,
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,
   }
+}
+
+export const useGetEvidenceComments = (evidenceId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetEvidenceCommentsQuery, unknown>({
+    queryKey: ['evidenceComments', evidenceId],
+    queryFn: async () => client.request<GetEvidenceCommentsQuery, GetEvidenceCommentsQueryVariables>(GET_EVIDENCE_COMMENTS, { evidenceId: evidenceId! }),
+    enabled: !!evidenceId,
+  })
+}
+
+export const useUpdateEvidenceComment = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<UpdateEvidenceCommentMutation, unknown, UpdateEvidenceCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_EVIDENCE_COMMENT, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidenceComments'] })
+    },
+  })
 }
