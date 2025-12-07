@@ -109,9 +109,8 @@ export const getControlsAndSubcontrolsColumns = ({
       accessorKey: 'name',
       header: selectedObject === AccordionEnum.Control ? AccordionEnum.Control : AccordionEnum.Subcontrol,
       meta: {
-        className: 'max-w-[40%] w-[40%]',
+        className: 'max-w-[40%] w-[30%]',
       },
-      enableResizing: false,
       cell: ({ row }) => {
         const { refCode } = row.original
         return <span className="block truncate whitespace-nowrap">{refCode}</span>

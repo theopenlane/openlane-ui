@@ -114,7 +114,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       accessorKey: 'name',
       header: 'Name',
       meta: {
-        className: 'max-w-[40%] w-[40%]',
+        className: 'max-w-[40%] w-[30%]',
       },
       cell: ({ row }) => {
         const { name } = row.original
