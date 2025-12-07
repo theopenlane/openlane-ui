@@ -421,3 +421,30 @@ export const GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT = gql`
     }
   }
 `
+
+export const GET_EVIDENCE_COMMENTS = gql`
+  query GetEvidenceComments($evidenceId: ID!) {
+    evidence(id: $evidenceId) {
+      comments {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_EVIDENCE_COMMENT = gql`
+  mutation UpdateEvidenceComment($input: UpdateNoteInput!, $updateEvidenceCommentId: ID!) {
+    updateEvidenceComment(input: $input, id: $updateEvidenceCommentId) {
+      evidence {
+        id
+      }
+    }
+  }
+`
