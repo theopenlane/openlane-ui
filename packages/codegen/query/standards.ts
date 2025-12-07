@@ -75,22 +75,6 @@ export const GET_ALL_STANDARDS_SELECT = gql`
     }
   }
 `
-// export const GET_STANDARD_CONTROL_STATS = gql`
-//   query GetStandardControlStats($referenceFrameworks: [String!]!, $isStandardSystemOwned: Boolean!) {
-//     totalControlsSystemOwned: controls(where: { referenceFrameworkIn: $referenceFrameworks, systemOwned: true }) @include(if: $isStandardSystemOwned) {
-//       totalCount
-//     }
-//     totalControlsNonSystemOwned: controls(where: { referenceFrameworkIn: $referenceFrameworks }) @skip(if: $isStandardSystemOwned) {
-//       totalCount
-//     }
-//     coveredControls: controls(where: { referenceFrameworkIn: $referenceFrameworks, status: "APPROVED", hasEvidenceWith: [{"status": "AUDITOR_APPROVED"}], systemOwned: false }) {
-//       totalCount
-//     }
-//     automatedControls: controls(where: { referenceFrameworkIn: $referenceFrameworks, systemOwned: false, hasEvidenceWith: [{"isAutomated": true}] }) {
-//       totalCount
-//     }
-//   }
-// `
 
 export const GET_STANDARD_CONTROL_STATS = gql`
   query GetStandardControlStats($standardId: ID!, $isStandardSystemOwned: Boolean!) {
