@@ -1,7 +1,7 @@
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Copy } from 'lucide-react'
+import { Check, Copy } from 'lucide-react'
 import React from 'react'
 
 type TDnsRecordsProps = {
@@ -12,15 +12,15 @@ type TDnsRecordsProps = {
     dnsTxtRecord: string
     dnsTxtValue: string
   } | null
+  onVerify?: () => void
 }
 
-export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification }: TDnsRecordsProps) => {
+export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification, onVerify }: TDnsRecordsProps) => {
   const cnameValue = 'cname.theopenlane-dns.io'
-
   const handleCopy = async () => {
     await navigator.clipboard.writeText(cnameValue)
   }
-  console.log(dnsVerification)
+
   return (
     <>
       <Card>
@@ -28,7 +28,14 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
           <div className="flex items-center justify-between">
             <p className="text-base font-medium leading-6">Add a CNAME record</p>
             {dnsVerification && dnsVerification.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.pending && (
-              <div className="flex items-center rounded-3xl px-3 border border-[#FF842C3D] bg-[#FF842C14] text-warning">Pending</div>
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center rounded-3xl h-6 px-3 border border-[#FF842C3D] bg-[#FF842C14] text-warning">Pending</div>
+                  <Button variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Check size={16} />} onClick={onVerify} iconPosition="left">
+                    Verify
+                  </Button>
+                </div>
+              </>
             )}
           </div>
           <div className="grid grid-cols-2 text-sm font-normal leading-5 mt-6">
@@ -92,11 +99,11 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
                   <span>In the &quot;Value&quot; field, enter</span>
                   <div className="mt-2 flex items-stretch gap-2">
                     <div className="bg-secondary flex-1 flex items-center px-4 py-3 border rounded-md min-w-[280px] h-9">
-                      <span className="font-normal text-inverted-muted-foreground text-sm">{dnsVerification?.dnsTxtRecord}</span>
+                      <span className="font-normal text-inverted-muted-foreground text-sm">{dnsVerification?.dnsTxtValue}</span>
                     </div>
                     <Button
                       variant="secondary"
-                      onClick={() => navigator.clipboard.writeText(dnsVerification?.dnsTxtRecord ?? '')}
+                      onClick={() => navigator.clipboard.writeText(dnsVerification?.dnsTxtValue ?? '')}
                       className="rounded-md hover:bg-muted transition h-9 px-3"
                       type="button"
                     >

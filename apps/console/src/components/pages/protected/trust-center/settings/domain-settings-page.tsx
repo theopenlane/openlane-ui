@@ -14,7 +14,7 @@ import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 
 const DomainSettingsPage = () => {
-  const { data, isLoading, error } = useGetTrustCenter()
+  const { data, isLoading, error, refetch } = useGetTrustCenter()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const [inputValue, setInputValue] = useState('')
@@ -56,6 +56,10 @@ const DomainSettingsPage = () => {
     setInputValue(trustCenter.customDomain?.cnameRecord || '')
   }
 
+  const verify = async () => {
+    await refetch()
+  }
+
   const handleCreateCustomDomain = async () => {
     if (!trustCenter?.id) return
     try {
@@ -65,6 +69,8 @@ const DomainSettingsPage = () => {
           cnameRecord: inputValue,
         },
       })
+
+      await refetch()
 
       successNotification({
         title: 'Custom domain set!',
@@ -100,6 +106,8 @@ const DomainSettingsPage = () => {
         },
       })
 
+      await refetch()
+
       successNotification({
         title: 'Updated!',
         description: 'Your custom domain was successfully updated.',
@@ -117,6 +125,9 @@ const DomainSettingsPage = () => {
   const handleDeleteCustomDomain = async () => {
     try {
       await deleteCustomDomain({ deleteCustomDomainId: trustCenter?.customDomain?.id || '' })
+
+      await refetch()
+
       successNotification({
         title: 'Deleted!',
         description: 'The custom domain was successfully removed.',
@@ -148,8 +159,7 @@ const DomainSettingsPage = () => {
   }
 
   const trustCenterDefaultDomain = trustCenter?.slug ? `https://trust.theopenlane.net/${trustCenter?.slug}` : ''
-  const customDomain = trustCenter?.customDomain?.cnameRecord
-  const defaultDomain = customDomain ? `https://${customDomain}` : trustCenterDefaultDomain
+  const defaultDomain = trustCenterDefaultDomain
 
   const renderContent = () => {
     if (!trustCenter?.customDomain) {
@@ -242,7 +252,7 @@ const DomainSettingsPage = () => {
             </div>
           </CardContent>
         </Card>
-        {trustCenter.customDomain?.cnameRecord && <DnsRecords cnameName={cnameName} dnsVerification={dnsVerification} />}
+        {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} />}
         <div className="grid gap-10 text-sm text-text-informational mt-6">
           <ul className="list-disc list-inside space-y-1">
             <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider</li>
