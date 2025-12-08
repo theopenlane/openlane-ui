@@ -25,7 +25,6 @@ export const getQuestionnaireColumns = (params?: Params) => {
         const selected = params?.selectedQuestionnaires ?? []
         const setSelected = params?.setSelectedQuestionnaires
         const currentPageQuestionnaires = table.getRowModel().rows.map((row) => row.original)
-        console.log(currentPageQuestionnaires)
         const allSelected = currentPageQuestionnaires.every((control) => selected.some((sc) => sc.id === control.id))
         return (
           <div onClick={(e) => e.stopPropagation()}>
