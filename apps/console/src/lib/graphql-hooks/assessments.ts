@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_ASSESSMENT, UPDATE_ASSESSMENT, GET_ALL_ASSESSMENTS, GET_ASSESSMENT, DELETE_ASSESSMENT, CREATE_ASSESSMENT_RESPONSE } from '@repo/codegen/query/assessment'
+import { CREATE_ASSESSMENT, UPDATE_ASSESSMENT, GET_ALL_ASSESSMENTS, GET_ASSESSMENT, DELETE_ASSESSMENT, CREATE_ASSESSMENT_RESPONSE, DELETE_BULK_ASSESSMENT } from '@repo/codegen/query/assessment'
 
 import {
   CreateAssessmentMutation,
@@ -17,6 +17,8 @@ import {
   CreateAssessmentResponseMutation,
   CreateAssessmentResponseMutationVariables,
   Assessment,
+  DeleteBulkAssessmentMutation,
+  DeleteBulkAssessmentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -106,6 +108,18 @@ export const useCreateAssessmentResponse = () => {
 
   return useMutation<CreateAssessmentResponseMutation, unknown, CreateAssessmentResponseMutationVariables>({
     mutationFn: (variables) => client.request(CREATE_ASSESSMENT_RESPONSE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assessments'] })
+    },
+  })
+}
+
+export const useDeleteBulkAssessment = () => {
+  const { client } = useGraphQLClient()
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkAssessmentMutation, unknown, DeleteBulkAssessmentMutationVariables>({
+    mutationFn: (variables) => client.request(DELETE_BULK_ASSESSMENT, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
