@@ -43,11 +43,7 @@ const EvidenceDetailsPage = () => {
   const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Evidence', href: '/evidence' },
-      { label: basicInfoData?.program?.name, isLoading: isLoading },
-    ])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Evidence', href: '/evidence' }, ...(basicInfoData ? [{ label: basicInfoData.program?.name, isLoading }] : [])])
   }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {
@@ -82,14 +78,14 @@ const EvidenceDetailsPage = () => {
                   <h1>Evidence Center</h1>
                 </div>
                 <div className="flex gap-2.5 items-center">
-                  <div className="flex-shrink-0 h-8 flex items-center">
+                  <div className="shrink-0 h-8 flex items-center">
                     <EvidenceSuggestedActions />
                   </div>
-                  <div className="flex-shrink-0 h-8 flex items-center">
+                  <div className="shrink-0 h-8 flex items-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
-                          className={`h-8 !px-2 !pl-3 outline-none ring-0 focus-visible:outline-none focus-visible:ring-0 ${programId ? 'border !border-primary' : ''}`}
+                          className={`h-8 px-2! pl-3! outline-none ring-0 focus-visible:outline-none focus-visible:ring-0 ${programId ? 'border border-primary!' : ''}`}
                           icon={<SlidersHorizontal />}
                           iconPosition="left"
                           variant="outline"
@@ -135,8 +131,8 @@ const EvidenceDetailsPage = () => {
                     </DropdownMenu>
                   </div>
                   {createAllowed && (
-                    <div className="flex-shrink-0 h-8 flex items-center">
-                      <Button variant="primary" className="h-8 !px-2" onClick={handleCreateEvidence}>
+                    <div className="shrink-0 h-8 flex items-center">
+                      <Button variant="primary" className="h-8 px-2!" onClick={handleCreateEvidence}>
                         Submit Evidence
                       </Button>
                       <EvidenceCreateSheet
