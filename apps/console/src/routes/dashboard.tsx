@@ -6,6 +6,7 @@ import {
   File,
   FileBadge2,
   Fingerprint,
+  Globe,
   GlobeLock,
   Handshake,
   History,
@@ -111,6 +112,11 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         title: 'Settings',
         href: '/trust-center/settings',
         icon: Settings,
+      },
+      {
+        title: 'Domain',
+        href: '/trust-center/domain',
+        icon: Globe,
       },
       {
         title: 'Reports & Certifications',
