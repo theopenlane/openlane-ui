@@ -65,7 +65,7 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
       accessorKey: 'name',
       header: 'Program',
       meta: {
-        className: 'max-w-[40%] w-[40%]',
+        className: 'max-w-[40%] w-[30%]',
       },
       enableResizing: false,
       cell: ({ row }) => <span className="block truncate whitespace-nowrap">{row.original.name}</span>,
