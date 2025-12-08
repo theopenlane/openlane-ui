@@ -72,7 +72,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   }
 
   const handleBulkDelete = async () => {
-    if (!selectedQuestionnaires) {
+    if (selectedQuestionnaires.length === 0) {
       errorNotification({
         title: 'Missing questionnaires',
         description: 'Questionnaires not found.',
@@ -120,7 +120,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                   setIsBulkDeleteDialogOpen(true)
                 }}
               >
-                {selectedQuestionnaires && selectedQuestionnaires.length > 0 ? `Bulk Delete (${selectedQuestionnaires.length})` : 'Bulk Delete'}
+                {`Bulk Delete (${selectedQuestionnaires.length})`}
               </Button>
               {canEdit(permission?.roles) && (
                 <>
@@ -129,7 +129,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                     onOpenChange={setIsBulkDeleteDialogOpen}
                     onConfirm={handleBulkDelete}
                     title={`Delete selected questionnaires?`}
-                    description={<>This action cannot be undone. This will permanently delete selected controls.</>}
+                    description={<>This action cannot be undone. This will permanently delete selected questionnaires.</>}
                     confirmationText="Delete"
                     confirmationTextVariant="destructive"
                     showInput={false}

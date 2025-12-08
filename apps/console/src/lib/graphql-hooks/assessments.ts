@@ -115,8 +115,7 @@ export const useCreateAssessmentResponse = () => {
 }
 
 export const useDeleteBulkAssessment = () => {
-  const { client } = useGraphQLClient()
-  const { queryClient } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<DeleteBulkAssessmentMutation, unknown, DeleteBulkAssessmentMutationVariables>({
     mutationFn: (variables) => client.request(DELETE_BULK_ASSESSMENT, variables),

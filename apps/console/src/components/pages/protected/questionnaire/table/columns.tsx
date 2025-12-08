@@ -12,10 +12,10 @@ type Params = {
 
 export const getQuestionnaireColumns = (params?: Params) => {
   const userMap = params?.userMap || {}
-  const toggleSelection = (control: { id: string }) => {
+  const toggleSelection = (questionnaire: { id: string }) => {
     params?.setSelectedQuestionnaires((prev) => {
-      const exists = prev.some((c) => c.id === control.id)
-      return exists ? prev.filter((c) => c.id !== control.id) : [...prev, control]
+      const exists = prev.some((c) => c.id === questionnaire.id)
+      return exists ? prev.filter((c) => c.id !== questionnaire.id) : [...prev, questionnaire]
     })
   }
   const columns: ColumnDef<Assessment>[] = [
@@ -25,7 +25,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
         const selected = params?.selectedQuestionnaires ?? []
         const setSelected = params?.setSelectedQuestionnaires
         const currentPageQuestionnaires = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageQuestionnaires.every((control) => selected.some((sc) => sc.id === control.id))
+        const allSelected = currentPageQuestionnaires.every((questionnaire) => selected.some((sc) => sc.id === questionnaire.id))
         return (
           <div onClick={(e) => e.stopPropagation()}>
             <Checkbox
@@ -34,8 +34,8 @@ export const getQuestionnaireColumns = (params?: Params) => {
                 if (checked === 'indeterminate' || !setSelected) return
 
                 const newSelections = checked
-                  ? [...selected.filter((sc) => !currentPageQuestionnaires.some((c) => c.id === sc.id)), ...currentPageQuestionnaires.map((c) => ({ id: c.id }))]
-                  : selected.filter((sc) => !currentPageQuestionnaires.some((c) => c.id === sc.id))
+                  ? [...selected.filter((sq) => !currentPageQuestionnaires.some((c) => c.id === sq.id)), ...currentPageQuestionnaires.map((q) => ({ id: q.id }))]
+                  : selected.filter((sq) => !currentPageQuestionnaires.some((c) => c.id === sq.id))
 
                 setSelected(newSelections)
               }}
@@ -53,19 +53,23 @@ export const getQuestionnaireColumns = (params?: Params) => {
           </div>
         )
       },
-      size: 50,
+      meta: {
+        className: 'max-w-[10%] w-[4%]',
+      },
     },
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      meta: {
+        className: 'max-w-[10%] w-[4%]',
+      },
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
-      size: 100,
+      size: 150,
       minSize: 100,
       maxSize: 200,
     },
