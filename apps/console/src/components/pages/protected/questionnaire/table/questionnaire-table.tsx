@@ -19,6 +19,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -26,6 +27,8 @@ export const QuestionnairesTable = () => {
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { errorNotification } = useNotification()
+  const [selectedQuestionnaires, setSelectedQuestionnaires] = useState<{ id: string }[]>([])
+
   const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
       field: AssessmentOrderField.name,
@@ -88,7 +91,7 @@ export const QuestionnairesTable = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = getQuestionnaireColumns({ userMap })
+  const { columns, mappedColumns } = getQuestionnaireColumns({ userMap, selectedQuestionnaires, setSelectedQuestionnaires })
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
@@ -129,6 +132,10 @@ export const QuestionnairesTable = () => {
     }
   }, [isError, errorNotification])
 
+  const handleClearSelectedQuestionnaires = () => {
+    setSelectedQuestionnaires([])
+  }
+
   return (
     <div>
       <QuestionnaireTableToolbar
@@ -144,6 +151,10 @@ export const QuestionnairesTable = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={assessments && assessments.length > 0}
+        selectedQuestionnaires={selectedQuestionnaires}
+        setSelectedQuestionnaires={setSelectedQuestionnaires}
+        canEdit={canEdit}
+        handleClearSelectedQuestionnaires={handleClearSelectedQuestionnaires}
       />
       <DataTable
         sortFields={QUESTIONNAIRE_SORT_FIELDS}
