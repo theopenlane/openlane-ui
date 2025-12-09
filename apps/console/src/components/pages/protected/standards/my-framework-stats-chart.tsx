@@ -16,7 +16,7 @@ const MyFrameworksStatsChart: React.FC<TMyFrameworksStatsChartProps> = ({ data }
 
   const chartData = [{ name: 'Total', Coverage: covered, Uncovered: remaining }]
 
-  const colors = ['#4ADE80', '#E5E7EB']
+  const colors = ['var(--color-framework-coverage-covered)', 'var(--color-framework-coverage-uncovered)']
   const keys = ['Coverage', 'Uncovered']
   const percentages = {
     Coverage: ((covered / finaltotal) * 100).toFixed(0),

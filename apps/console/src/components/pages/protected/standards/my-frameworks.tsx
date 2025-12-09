@@ -28,7 +28,7 @@ const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFramewor
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between">
-        <PageHeading heading="My frameworks" />
+        <PageHeading heading="Framework Coverage" />
         <Button variant="primary" className="h-8 px-2! pl-3" onClick={() => handleClick('standardsCatalog')}>
           Go To Standards Catalog
         </Button>
@@ -43,7 +43,7 @@ const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFramewor
                 <div className="flex flex-col gap-5">
                   <div className="flex items-center gap-3">
                     <StandardsIconMapper key={standardItem.id} shortName={standardItem.shortName ?? ''} />
-                    <p className="text-lg font-medium text-[#505F6F]">{standardItem?.shortName}</p>
+                    <p className="text-lg font-medium text-muted-foreground">{standardItem?.shortName}</p>
                   </div>
                   <MyFrameworksStats standardId={standardItem.id} isSystemOwned={standardItem.systemOwned} />
                   <Link href={`standards/${standardItem.id}`} className="mt-auto">
