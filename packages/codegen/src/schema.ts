@@ -1799,6 +1799,13 @@ export enum AssessmentAssessmentType {
   INTERNAL = 'INTERNAL',
 }
 
+/** Return response for deleteBulkAssessment mutation */
+export interface AssessmentBulkDeletePayload {
+  __typename?: 'AssessmentBulkDeletePayload'
+  /** Deleted assessment IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface AssessmentConnection {
   __typename?: 'AssessmentConnection'
@@ -3654,7 +3661,7 @@ export interface Contact extends Node {
   entities: EntityConnection
   files: FileConnection
   /** the full name of the contact */
-  fullName: Scalars['String']['output']
+  fullName?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
@@ -3757,7 +3764,7 @@ export interface ContactHistory extends Node {
   /** the email of the contact */
   email?: Maybe<Scalars['String']['output']>
   /** the full name of the contact */
-  fullName: Scalars['String']['output']
+  fullName?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: ContactHistoryOpType
@@ -3923,10 +3930,12 @@ export interface ContactHistoryWhereInput {
   fullNameHasPrefix?: InputMaybe<Scalars['String']['input']>
   fullNameHasSuffix?: InputMaybe<Scalars['String']['input']>
   fullNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
   fullNameLT?: InputMaybe<Scalars['String']['input']>
   fullNameLTE?: InputMaybe<Scalars['String']['input']>
   fullNameNEQ?: InputMaybe<Scalars['String']['input']>
   fullNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -4178,10 +4187,12 @@ export interface ContactWhereInput {
   fullNameHasPrefix?: InputMaybe<Scalars['String']['input']>
   fullNameHasSuffix?: InputMaybe<Scalars['String']['input']>
   fullNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
   fullNameLT?: InputMaybe<Scalars['String']['input']>
   fullNameLTE?: InputMaybe<Scalars['String']['input']>
   fullNameNEQ?: InputMaybe<Scalars['String']['input']>
   fullNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
@@ -7624,7 +7635,7 @@ export interface CreateContactInput {
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the full name of the contact */
-  fullName: Scalars['String']['input']
+  fullName?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the phone number of the contact */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
@@ -28979,6 +28990,8 @@ export interface Mutation {
   deleteBulkAPIToken: ApiTokenBulkDeletePayload
   /** Delete multiple actionPlans */
   deleteBulkActionPlan: ActionPlanBulkDeletePayload
+  /** Delete multiple assessments */
+  deleteBulkAssessment: AssessmentBulkDeletePayload
   /** Delete multiple assets */
   deleteBulkAsset: AssetBulkDeletePayload
   /** Delete multiple contacts */
@@ -30257,6 +30270,10 @@ export interface MutationDeleteBulkApiTokenArgs {
 }
 
 export interface MutationDeleteBulkActionPlanArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkAssessmentArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -55878,6 +55895,7 @@ export interface UpdateContactInput {
   clearEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFullName?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -66771,6 +66789,12 @@ export type CreateAssessmentResponseMutation = {
     assessmentResponse: { __typename?: 'AssessmentResponse'; id: string; email: string; dueDate?: any | null; assessmentID: string; createdAt?: any | null; updatedAt?: any | null }
   }
 }
+
+export type DeleteBulkAssessmentMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkAssessmentMutation = { __typename?: 'Mutation'; deleteBulkAssessment: { __typename?: 'AssessmentBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
