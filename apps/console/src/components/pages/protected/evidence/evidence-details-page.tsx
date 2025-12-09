@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs.ts'
 import { OrderDirection, ProgramOrderField, ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
@@ -43,8 +43,20 @@ const EvidenceDetailsPage = () => {
   const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Evidence', href: '/evidence' }, ...(basicInfoData ? [{ label: basicInfoData.program?.name, isLoading }] : [])])
-  }, [setCrumbs, basicInfoData, isLoading])
+    const crumbs: Crumb[] = [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Evidence', href: '/evidence' },
+      programId && basicInfoData
+        ? {
+            label: basicInfoData.program?.name || 'Program',
+            href: `/evidence?programId=${programId}`,
+            isLoading,
+          }
+        : undefined,
+    ].filter(Boolean) as Crumb[]
+
+    setCrumbs(crumbs)
+  }, [setCrumbs, basicInfoData, isLoading, programId])
 
   useEffect(() => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
