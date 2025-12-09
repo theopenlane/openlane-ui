@@ -8,6 +8,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
 import { formatEnumLabel } from '@/utils/enumToLabel'
+import { cn } from '@repo/ui/lib/utils'
 
 interface RiskLabelProps {
   fieldName?: keyof EditRisksFormData
@@ -21,9 +22,10 @@ interface RiskLabelProps {
   onChange?: (value: string | number) => void
   onMouseUp?: (value: string | number) => void
   onClose?: () => void
+  selectFieldClassname?: string | undefined
 }
 
-export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryName, riskKindName, status, isEditing, onChange, onMouseUp, onClose }: RiskLabelProps) => {
+export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryName, riskKindName, status, isEditing, onChange, onMouseUp, onClose, selectFieldClassname }: RiskLabelProps) => {
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -73,7 +75,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       return (
         <div ref={triggerRef}>
           <Select value={impact} onValueChange={(val) => onChange?.(val)}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger className={cn('w-[120px]', selectFieldClassname)}>
               <SelectValue placeholder="Select impact" />
             </SelectTrigger>
             <SelectContent ref={popoverRef}>
@@ -90,7 +92,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     if (likelihood) {
       return (
         <Select value={likelihood} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className={cn('w-[140px]', selectFieldClassname)}>
             <SelectValue placeholder="Select likelihood" />
           </SelectTrigger>
           <SelectContent ref={popoverRef}>
@@ -105,7 +107,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     if (status) {
       return (
         <Select value={status} onValueChange={(v) => onChange?.(v)}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className={cn('w-[140px]', selectFieldClassname)}>
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
 
@@ -125,7 +127,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     return (
       <div ref={triggerRef}>
         <Select value={riskKindName} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className={cn('w-40', selectFieldClassname)}>
             <SelectValue placeholder="Select risk type" />
           </SelectTrigger>
 
@@ -145,7 +147,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     return (
       <div ref={triggerRef}>
         <Select value={riskCategoryName} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className={cn('w-40', selectFieldClassname)}>
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
 
