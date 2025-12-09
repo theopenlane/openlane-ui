@@ -7,8 +7,8 @@ import { Value } from 'platejs'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  riskType: z.string().optional(),
-  category: z.string().optional(),
+  riskKindName: z.string().optional(),
+  riskCategoryName: z.string().optional(),
   score: z.coerce.number().min(0).max(100).optional(),
   impact: z.nativeEnum(RiskRiskImpact).optional(),
   likelihood: z.nativeEnum(RiskRiskLikelihood).optional(),
@@ -30,12 +30,10 @@ const useFormSchema = () => {
       resolver: zodResolver(formSchema),
       defaultValues: {
         name: '',
-        riskType: '',
-        category: '',
         score: 0,
         impact: RiskRiskImpact.LOW,
         likelihood: RiskRiskLikelihood.UNLIKELY,
-        status: RiskRiskStatus.OPEN,
+        status: RiskRiskStatus.IDENTIFIED,
         details: '',
         mitigation: '',
         businessCosts: '',

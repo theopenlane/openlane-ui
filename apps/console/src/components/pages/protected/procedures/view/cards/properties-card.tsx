@@ -6,7 +6,6 @@ import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -14,6 +13,7 @@ import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -24,9 +24,16 @@ type TPropertiesCardProps = {
 }
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
-  const [editingField, setEditingField] = useState<null | 'status' | 'procedureType' | 'reviewDue'>(null)
+  const [editingField, setEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue'>(null)
 
-  const handleUpdateIfChanged = (field: 'status' | 'procedureType', value: string, current: string | undefined | null) => {
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'procedure',
+      field: 'kind',
+    },
+  })
+
+  const handleUpdateIfChanged = (field: 'status' | 'procedureKindName', value: string, current: string | undefined | null) => {
     if (isEditing) {
       return
     }
@@ -174,27 +181,33 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
         </div>
 
         <div className="min-w-[160px]">
-          {isEditing || editingField === 'procedureType' ? (
+          {isEditing || editingField === 'procedureKindName' ? (
             <FormField
               control={form.control}
-              name="procedureType"
+              name="procedureKindName"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      variant="medium"
-                      {...field}
-                      onBlur={() => handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === 'Tab') {
-                          e.preventDefault()
-                          handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)
-                        }
+                    <Select
+                      value={field.value || ''}
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        handleUpdateIfChanged('procedureKindName', value, procedure?.procedureKindName)
                       }}
-                      autoFocus
-                    />
+                    >
+                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+
+                      <SelectContent ref={popoverRef}>
+                        {enumOptions?.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
-                  {form.formState.errors.procedureType && <p className="text-red-500 text-sm">{form.formState.errors.procedureType.message}</p>}
+
+                  {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}
                 </FormItem>
               )}
             />
@@ -202,10 +215,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             <div
               className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
               onClick={() => {
-                if (!isEditing && editAllowed) setEditingField('procedureType')
+                if (!isEditing && editAllowed) setEditingField('procedureKindName')
               }}
             >
-              <span className="w-full block min-h-6">{procedure?.procedureType}</span>
+              <span className="w-full block min-h-6">{procedure?.procedureKindName}</span>
             </div>
           )}
         </div>

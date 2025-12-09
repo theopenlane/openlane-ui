@@ -12,13 +12,12 @@ export const TASKS_WITH_FILTER = gql`
           tags
           due
           displayID
-          category
           details
           updatedAt
           updatedBy
           createdAt
           createdBy
-          category
+          taskKindName
           completed
           assigner {
             displayName
@@ -90,7 +89,7 @@ export const TASK = gql`
         id
       }
       id
-      category
+      taskKindName
       title
       status
       subcontrols {
@@ -264,6 +263,14 @@ export const BULK_DELETE_TASK = gql`
   mutation DeleteBulkTask($ids: [ID!]!) {
     deleteBulkTask(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const GET_OVERDUE_TASK_COUNT = gql`
+  query GetOverdueTaskCount($now: DateTime!) {
+    tasks(where: { statusNotIn: [COMPLETED, WONT_DO], dueLT: $now }) {
+      totalCount
     }
   }
 `

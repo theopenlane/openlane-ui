@@ -3,7 +3,7 @@ import { Input, InputRow } from '@repo/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
@@ -23,8 +23,8 @@ import TagsCard from '@/components/pages/protected/policies/create/cards/tags-ca
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Switch } from '@repo/ui/switch'
+import HelperText from './alert-box'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -58,6 +58,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const isPoliciesCreate = path === '/policies/create'
   const [createMultiple, setCreateMultiple] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorRef = useRef<any>(null)
+
   useEffect(() => {
     if (policy && assocData) {
       const policyAssociations: TObjectAssociationMap = {
@@ -82,9 +85,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         name: policy.name,
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
-        policyType: policy.policyType ?? '',
         reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
+        internalPolicyKindName: policy.internalPolicyKindName ?? undefined,
       })
 
       setMetadata({
@@ -140,7 +143,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
           details: '',
           approvalRequired: data.approvalRequired,
           status: data.status,
-          policyType: data.policyType,
+          internalPolicyKindName: data.internalPolicyKindName,
           reviewDue: data.reviewDue,
           reviewFrequency: data.reviewFrequency,
           approverID: data.approverID,
@@ -272,19 +275,13 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                 </AlertDescription>
               </Alert>
             ) : (
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Not sure what to write?</AlertTitle>
-                <AlertDescription>
-                  <p>
-                    For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer">
-                      documentation
-                    </a>
-                    .
-                  </p>
-                </AlertDescription>
-              </Alert>
+              <HelperText
+                name={form.getValues('name')}
+                editorRef={editorRef}
+                onNameChange={(newName) => {
+                  form.setValue('name', newName)
+                }}
+              />
             )}
 
             <InputRow className="w-full">
@@ -318,7 +315,13 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} clearData={clearData} onClear={() => setClearData(false)} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
+                    <PlateEditor
+                      ref={editorRef}
+                      onChange={handleDetailsChange}
+                      clearData={clearData}
+                      onClear={() => setClearData(false)}
+                      initialValue={policy?.details ?? (field.value as string) ?? undefined}
+                    />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}

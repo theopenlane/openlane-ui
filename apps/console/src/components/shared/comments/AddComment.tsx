@@ -6,7 +6,7 @@ import { TComments } from '@/components/shared/comments/types/TComments'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { Value } from 'platejs'
+import { TElement, Value } from 'platejs'
 
 type TProps = {
   onSuccess: (data: TComments) => void
@@ -17,13 +17,13 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
   const [clearData, setClearData] = useState<boolean>(false)
   const userId = session?.user?.userId
   const { data } = useGetCurrentUser(userId)
-  const [comment, setComment] = useState<Value | null>(null)
+  const [comment, setComment] = useState<Value>([])
 
   const handleSaveComment = () => {
-    if (!comment) {
+    if (!comment || comment.length === 0) {
       return
     }
-    setComment(null)
+    setComment([])
     setClearData(true)
     props.onSuccess({
       comment,
@@ -34,6 +34,12 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
     setComment(value)
   }
 
+  const isCommentEmpty = (value?: TElement[]) => {
+    if (!value || value.length === 0) return true
+
+    return value.every((node) => !node.children || node.children.every((child) => typeof child.text !== 'string' || child.text.trim() === ''))
+  }
+
   return (
     <React.Fragment>
       <div className="mt-auto w-full p-2">
@@ -42,7 +48,7 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
           <div className="flex-1 border rounded-lg p-2 w-full flex flex-col space-y-2">
             <PlateEditor onChange={handleDetailsChange} variant="minimal" styleVariant="comment" clearData={clearData} onClear={() => setClearData(false)} placeholder="Add a comment" />
             <div className="flex justify-end items-center">
-              <Button type="button" iconPosition="left" onClick={() => handleSaveComment()}>
+              <Button disabled={isCommentEmpty(comment)} type="button" iconPosition="left" onClick={() => handleSaveComment()}>
                 Send
               </Button>
             </div>
