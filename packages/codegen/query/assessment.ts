@@ -111,3 +111,11 @@ export const CREATE_ASSESSMENT_RESPONSE = gql`
     }
   }
 `
+
+export const DELETE_BULK_ASSESSMENT = gql`
+  mutation DeleteBulkAssessment($ids: [ID!]!) {
+    deleteBulkAssessment(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
