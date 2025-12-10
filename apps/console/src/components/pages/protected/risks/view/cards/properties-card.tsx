@@ -48,8 +48,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 w-[150px] min-w-0">
                 <RiskLabel
+                  selectFieldClassname={'w-full'}
                   fieldName={fieldName}
                   isEditing={isFieldEditing}
                   score={fieldName === 'score' ? (field.value as number) : undefined}
@@ -61,9 +62,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
                   onChange={(val) => {
                     field.onChange(val)
 
-                    if (fieldName === 'score') {
-                      return
-                    }
+                    if (fieldName === 'score') return
 
                     if (!isEditing && handleUpdate) {
                       handleUpdate({ [fieldName]: val } as UpdateRiskInput)
@@ -103,7 +102,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
   }
 
   return (
-    <Card className="p-4">
+    <Card className="flex flex-col gap-1 p-4">
       <div className="m-1">{renderRiskLabelField('riskKindName', 'Type')}</div>
       <div className="m-1">{renderRiskLabelField('riskCategoryName', 'Category')}</div>
       <div className="m-1">{renderRiskLabelField('score', 'Score')}</div>
