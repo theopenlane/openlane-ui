@@ -13,6 +13,7 @@ import {
   GET_POLICY_SUGGESTED_ACTIONS,
   BULK_DELETE_POLICY,
   GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID,
+  UPDATE_POLICY_COMMENT,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -36,6 +37,8 @@ import {
   PolicySuggestedActionsQuery,
   UpdateBulkInternalPolicyMutation,
   UpdateBulkInternalPolicyMutationVariables,
+  UpdateInternalPolicyCommentMutation,
+  UpdateInternalPolicyCommentMutationVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -260,6 +263,16 @@ export const useBulkDeletePolicy = () => {
     mutationFn: async (variables) => client.request(BULK_DELETE_POLICY, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    },
+  })
+}
+
+export const useUpdatePolicyComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<UpdateInternalPolicyCommentMutation, unknown, UpdateInternalPolicyCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(UPDATE_POLICY_COMMENT, variables)
     },
   })
 }

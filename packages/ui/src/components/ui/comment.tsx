@@ -19,6 +19,8 @@ import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-ki
 import { type TDiscussion, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
+import { useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
+import type { UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 
 export interface TComment {
   id: string
@@ -46,46 +48,51 @@ export function Comment(props: {
   const currentUserId = usePluginOption(discussionPlugin, 'currentUserId')
 
   const resolveDiscussion = async (id: string) => {
+    // NOTE: backend does not support resolving discussions; keep this local-only
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id === id) {
         return { ...discussion, isResolved: true }
       }
       return discussion
     })
+
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
   const removeDiscussion = async (id: string) => {
+    // NOTE: backend does not support deleting discussions specifically by ID; keeping this local-only
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').filter((discussion) => discussion.id !== id)
+
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
   const updateComment = async (input: { id: string; contentRich: Value; discussionId: string; isEdited: boolean }) => {
+    // NOTE: backend does not expose "update comment" by ID in UpdateInternalPolicyInput.
+    // So this is local-only for now.
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id === input.discussionId) {
-        const updatedComments = discussion.comments.map((comment) => {
-          if (comment.id === input.id) {
+        const updatedComments = discussion.comments.map((c) => {
+          if (c.id === input.id) {
             return {
-              ...comment,
+              ...c,
               contentRich: input.contentRich,
               isEdited: true,
               updatedAt: new Date(),
             }
           }
-          return comment
+          return c
         })
         return { ...discussion, comments: updatedComments }
       }
       return discussion
     })
+
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
   const { tf } = useEditorPlugin(CommentPlugin)
 
-  // Replace to your own backend or refer to potion
   const isMyComment = currentUserId === comment.userId
-
   const initialValue = comment.contentRich
 
   const commentEditor = useCommentEditor(
@@ -133,10 +140,7 @@ export function Comment(props: {
           <AvatarImage alt={userInfo?.name} src={userInfo?.avatarUrl} />
           <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
         </Avatar>
-        <h4 className="mx-2 text-sm leading-none font-semibold">
-          {/* Replace to your own backend or refer to potion */}
-          {userInfo?.name}
-        </h4>
+        <h4 className="mx-2 text-sm leading-none font-semibold">{userInfo?.name}</h4>
 
         <div className="text-xs leading-none text-muted-foreground/80">
           <span className="mr-1">{formatCommentDate(new Date(comment.createdAt))}</span>
@@ -237,10 +241,10 @@ function CommentMoreDropdown(props: {
 
   const selectedEditCommentRef = React.useRef<boolean>(false)
 
-  const onDeleteComment = React.useCallback(() => {
+  const onDeleteComment = React.useCallback(async () => {
     if (!comment.id) return alert('You are operating too quickly, please try again later.')
 
-    // Find and update the discussion
+    // Local-only delete; backend has no comment IDs in response
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id !== comment.discussionId) {
         return discussion
@@ -257,7 +261,6 @@ function CommentMoreDropdown(props: {
       }
     })
 
-    // Save back to session storage
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
     onRemoveComment?.()
   }, [comment.discussionId, comment.id, editor, onRemoveComment])
@@ -293,7 +296,7 @@ function CommentMoreDropdown(props: {
             <PencilIcon className="size-4" />
             Edit comment
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onDeleteComment}>
+          <DropdownMenuItem onClick={() => void onDeleteComment()}>
             <TrashIcon className="size-4" />
             Delete comment
           </DropdownMenuItem>
@@ -329,6 +332,7 @@ export function CommentCreateForm({
   focusOnMount?: boolean
 }) {
   const discussions = usePluginOption(discussionPlugin, 'discussions')
+  const policyId = usePluginOption(discussionPlugin, 'entityId') as string | undefined
 
   const editor = useEditorRef()
   const commentId = useCommentId()
@@ -338,6 +342,7 @@ export function CommentCreateForm({
   const [commentValue, setCommentValue] = React.useState<Value | undefined>()
   const commentContent = React.useMemo(() => (commentValue ? NodeApi.string({ children: commentValue, type: KEYS.p }) : ''), [commentValue])
   const commentEditor = useCommentEditor()
+  const { mutateAsync: updatePolicyComment } = useUpdatePolicyComment()
 
   React.useEffect(() => {
     if (commentEditor && focusOnMount) {
@@ -348,13 +353,15 @@ export function CommentCreateForm({
   const onAddComment = React.useCallback(async () => {
     if (!commentValue) return
 
+    const text = NodeApi.string({ children: commentValue, type: KEYS.p })
+
     commentEditor.tf.reset()
 
     if (discussionId) {
       // Get existing discussion
       const discussion = discussions.find((d) => d.id === discussionId)
       if (!discussion) {
-        // Mock creating suggestion
+        // Create new discussion locally
         const newDiscussion: TDiscussion = {
           id: discussionId,
           comments: [
@@ -364,35 +371,53 @@ export function CommentCreateForm({
               createdAt: new Date(),
               discussionId,
               isEdited: false,
-              userId: editor.getOption(discussionPlugin, 'currentUserId'),
+              userId: editor.getOption(discussionPlugin, 'currentUserId')!,
             },
           ],
           createdAt: new Date(),
           isResolved: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+          userId: editor.getOption(discussionPlugin, 'currentUserId')!,
         }
 
-        editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion])
+        const updatedDiscussions = [...discussions, newDiscussion]
+        editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
+
+        // 🔁 Sync with backend for NEW discussion only
+        if (policyId) {
+          const input: UpdateInternalPolicyInput = {
+            addDiscussion: {
+              externalID: discussionId,
+              addComment: {
+                text: JSON.stringify(commentValue),
+                noteRef: commentValue[0].id! as string,
+              },
+            },
+          }
+
+          await updatePolicyComment({
+            updateInternalPolicyId: policyId,
+            input,
+          })
+        }
+
         return
       }
 
-      // Create reply comment
+      // Create reply comment locally (backend model for replies is unclear, so we keep this client-side only)
       const comment: TComment = {
         id: nanoid(),
         contentRich: commentValue,
         createdAt: new Date(),
         discussionId,
         isEdited: false,
-        userId: editor.getOption(discussionPlugin, 'currentUserId'),
+        userId: editor.getOption(discussionPlugin, 'currentUserId')!,
       }
 
-      // Add reply to discussion comments
       const updatedDiscussion = {
         ...discussion,
         comments: [...discussion.comments, comment],
       }
 
-      // Filter out old discussion and add updated one
       const updatedDiscussions = discussions.filter((d) => d.id !== discussionId).concat(updatedDiscussion)
 
       editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
@@ -407,7 +432,7 @@ export function CommentCreateForm({
     const documentContent = commentsNodeEntry.map(([node]) => node.text).join('')
 
     const _discussionId = nanoid()
-    // Mock creating new discussion
+    // Create new discussion locally
     const newDiscussion: TDiscussion = {
       id: _discussionId,
       comments: [
@@ -417,16 +442,18 @@ export function CommentCreateForm({
           createdAt: new Date(),
           discussionId: _discussionId,
           isEdited: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+          userId: editor.getOption(discussionPlugin, 'currentUserId')!,
         },
       ],
       createdAt: new Date(),
       documentContent,
       isResolved: false,
-      userId: editor.getOption(discussionPlugin, 'currentUserId'),
+      userId: editor.getOption(discussionPlugin, 'currentUserId')!,
     }
 
-    editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion])
+    const updatedDiscussions = [...discussions, newDiscussion]
+
+    editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
 
     const id = newDiscussion.id
 
@@ -439,12 +466,29 @@ export function CommentCreateForm({
       )
       editor.tf.unsetNodes([getDraftCommentKey()], { at: path })
     })
-  }, [commentValue, commentEditor.tf, discussionId, editor, discussions])
+
+    // 🔁 Sync with backend for NEW discussion only
+    if (policyId) {
+      const input: UpdateInternalPolicyInput = {
+        addDiscussion: {
+          externalID: id,
+          addComment: {
+            text: JSON.stringify(commentValue),
+            noteRef: commentValue[0].id! as string,
+          },
+        },
+      }
+
+      await updatePolicyComment({
+        updateInternalPolicyId: policyId,
+        input,
+      })
+    }
+  }, [commentValue, commentEditor.tf, commentId, discussionId, discussions, editor, policyId, updatePolicyComment])
 
   return (
     <div className={cn('flex w-full', className)} onClick={(e) => e.stopPropagation()}>
       <div className="mt-2 mr-1 shrink-0">
-        {/* Replace to your own backend or refer to potion */}
         <Avatar className="size-5">
           <AvatarImage alt={userInfo?.name} src={userInfo?.avatarUrl} />
           <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
@@ -465,7 +509,7 @@ export function CommentCreateForm({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  onAddComment()
+                  void onAddComment()
                 }
               }}
               placeholder="Reply..."
@@ -480,7 +524,7 @@ export function CommentCreateForm({
               disabled={commentContent.trim().length === 0}
               onClick={(e) => {
                 e.stopPropagation()
-                onAddComment()
+                void onAddComment()
               }}
             >
               <div className="flex size-6 items-center justify-center rounded-full">

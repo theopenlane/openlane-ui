@@ -130,6 +130,31 @@ export const INTERNAL_POLICY_BY_ID = gql`
       gravatarLogoURL
       logoURL
     }
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
   }
 `
 
@@ -323,6 +348,33 @@ export const BULK_DELETE_POLICY = gql`
   mutation DeleteBulkInternalPolicy($ids: [ID!]!) {
     deleteBulkInternalPolicy(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const UPDATE_POLICY_COMMENT = gql`
+  mutation UpdateInternalPolicyComment($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
+    updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
+      internalPolicy {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 `
