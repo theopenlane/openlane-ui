@@ -78,7 +78,7 @@ export enum SelectOptionBulkEditTasks {
   Status = 'Status',
   TaskAssignee = 'Assignee',
   DueDate = 'Due date',
-  TaskCategory = 'Category',
+  TaskCategory = 'Type',
 }
 
 export enum InputType {
