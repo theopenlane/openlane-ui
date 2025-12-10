@@ -4,11 +4,13 @@ import { GetAllStandardsQuery } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import MyFrameworksStats from './my-framework-stats'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 
 type MyFrameworksProps = {
   standardsData?: GetAllStandardsQuery['standards']['edges']
@@ -17,12 +19,30 @@ type MyFrameworksProps = {
 const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFrameworksProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Coverage', href: '/standards?page=coverage' },
+    ])
+  }, [setCrumbs])
+
   const handleClick = (page: string) => {
     const params = new URLSearchParams(searchParams.get('page') ?? '')
-    params.delete('myFrameworks')
+    params.delete('coverage')
     params.set('page', page.toString())
 
     router.push(`?${params.toString()}`)
+  }
+
+  const handleOpenFilteredControls = (id: string) => {
+    const filters: TFilterState = {
+      standardIDIn: [id],
+    }
+
+    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    router.push('/controls')
   }
 
   return (
@@ -46,11 +66,9 @@ const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFramewor
                     <p className="text-lg font-medium text-muted-foreground">{standardItem?.shortName}</p>
                   </div>
                   <MyFrameworksStats standardId={standardItem.id} isSystemOwned={standardItem.systemOwned} />
-                  <Link href={`standards/${standardItem.id}`} className="mt-auto">
-                    <Button variant="primary" className="py-2 px-4">
-                      Details
-                    </Button>
-                  </Link>
+                  <Button onClick={() => handleOpenFilteredControls(standardItem.id)} variant="primary" className="py-2 px-4">
+                    View Controls
+                  </Button>
                 </div>
               </CardContent>
             </Card>

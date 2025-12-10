@@ -1,4 +1,4 @@
 export enum StandardsSwitcherEnum {
-  MY_FRAMEWORKS = 'myFrameworks',
+  MY_FRAMEWORKS = 'coverage',
   STANDARDS_CATALOG = 'standardsCatalog',
 }

@@ -9,7 +9,7 @@ type TMyFrameworksStatsProps = {
 }
 
 const MyFrameworksStats: React.FC<TMyFrameworksStatsProps> = ({ standardId, isSystemOwned }: TMyFrameworksStatsProps) => {
-  const { data } = useGetStandardControlStats(standardId, isSystemOwned!)
+  const { data } = useGetStandardControlStats(standardId, isSystemOwned ?? false)
   if (!data) return null
   const covered = Number(data.standard.coveredControls.totalCount)
   const automated = Number(data.standard.automatedControls.totalCount)
