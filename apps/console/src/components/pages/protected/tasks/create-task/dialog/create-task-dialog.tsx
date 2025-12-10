@@ -31,7 +31,7 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button className={className ?? 'h-8 !px-2'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
+          <Button className={className ?? 'h-8 px-2!'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
             Create
           </Button>
         </DialogTrigger>
@@ -42,7 +42,7 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
         </DialogHeader>
         <CreateTaskForm
           defaultSelectedObject={defaultSelectedObject}
-          excludeObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
+          excludeObjectTypes={[ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
           initialData={initialData}
           objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
           onSuccess={handleSuccess}

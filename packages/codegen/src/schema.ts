@@ -9622,6 +9622,7 @@ export interface CreateTaskInput {
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  parentID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9632,6 +9633,7 @@ export interface CreateTaskInput {
   systemGenerated?: InputMaybe<Scalars['Boolean']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   taskKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the task */
   taskKindName?: InputMaybe<Scalars['String']['input']>
@@ -49925,6 +49927,9 @@ export interface Task extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  parent?: Maybe<Task>
+  /** the parent task this task belongs to */
+  parentTaskID?: Maybe<Scalars['ID']['output']>
   procedures: ProcedureConnection
   programs: ProgramConnection
   risks: RiskConnection
@@ -49940,6 +49945,7 @@ export interface Task extends Node {
   taskKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the task */
   taskKindName?: Maybe<Scalars['String']['output']>
+  tasks?: Maybe<Array<Task>>
   /** the title of the task */
   title: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -50151,6 +50157,8 @@ export interface TaskHistory extends Node {
   operation: TaskHistoryOpType
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** the parent task this task belongs to */
+  parentTaskID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the status of the task */
   status: TaskHistoryTaskStatus
@@ -50416,6 +50424,22 @@ export interface TaskHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** parent_task_id field predicates */
+  parentTaskID?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDContains?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDGT?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDGTE?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  parentTaskIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  parentTaskIDLT?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDLTE?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDNEQ?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  parentTaskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -50716,6 +50740,9 @@ export interface TaskWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** parent edge predicates */
+  hasParent?: InputMaybe<Scalars['Boolean']['input']>
+  hasParentWith?: InputMaybe<Array<TaskWhereInput>>
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -50731,6 +50758,9 @@ export interface TaskWhereInput {
   /** task_kind edge predicates */
   hasTaskKind?: InputMaybe<Scalars['Boolean']['input']>
   hasTaskKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** tasks edge predicates */
+  hasTasks?: InputMaybe<Scalars['Boolean']['input']>
+  hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
@@ -50779,6 +50809,22 @@ export interface TaskWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** parent_task_id field predicates */
+  parentTaskID?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDContains?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDGT?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDGTE?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  parentTaskIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  parentTaskIDLT?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDLTE?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  parentTaskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<TaskTaskStatus>
   statusIn?: InputMaybe<Array<TaskTaskStatus>>
@@ -59038,6 +59084,7 @@ export interface UpdateTaskInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendExternalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -59060,6 +59107,7 @@ export interface UpdateTaskInput {
   clearExternalReferenceURL?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  clearParent?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -59067,6 +59115,7 @@ export interface UpdateTaskInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTaskKind?: InputMaybe<Scalars['Boolean']['input']>
   clearTaskKindName?: InputMaybe<Scalars['Boolean']['input']>
+  clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['DateTime']['input']>
@@ -59077,6 +59126,7 @@ export interface UpdateTaskInput {
   due?: InputMaybe<Scalars['DateTime']['input']>
   /** an optional external reference URL for the task */
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
+  parentID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59089,6 +59139,7 @@ export interface UpdateTaskInput {
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
@@ -70311,6 +70362,7 @@ export type TaskQuery = {
     details?: string | null
     assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; id: string } | null
     assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; displayName: string; id: string } | null
+    tasks?: Array<{ __typename?: 'Task'; id: string; title: string; displayID: string; details?: string | null }> | null
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       edges?: Array<{
