@@ -8,7 +8,6 @@ import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TitleAndOverview from './title-and-overview'
-import WatermarkConfigurationSection from './watermark-configuration-section'
 
 const TrustCenterSettingsPage = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -37,7 +36,6 @@ const TrustCenterSettingsPage = () => {
       <TitleAndOverview />
       <ThemeSection setting={setting} />
       <BrandSection setting={setting} />
-      <WatermarkConfigurationSection watermarkConfig={trustCenter.watermarkConfig} />
     </div>
   )
 }
