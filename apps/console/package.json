@@ -23,7 +23,7 @@
     "@repo/codegen": "workspace:*",
     "@repo/dally": "workspace:*",
     "@repo/ui": "workspace:*",
-    "@simplewebauthn/browser": "^11.0.0",
+    "@simplewebauthn/browser": "^13.0.0",
     "@simplewebauthn/server": "^11.0.0",
     "@simplewebauthn/types": "^12.0.0",
     "@stepperize/react": "^5.0.0",
