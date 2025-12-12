@@ -46,6 +46,7 @@ export const EditorKit = [
   ...CopilotKit,
   ...AIKit,*/
   // Elements
+  ...AIKit,
   ...BasicBlocksKit,
   ...CodeBlockKit,
   ...TableKit,

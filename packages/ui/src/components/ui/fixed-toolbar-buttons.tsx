@@ -41,11 +41,11 @@ export function FixedToolbarButtons() {
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          {/*<ToolbarGroup>
+          <ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
-          </ToolbarGroup>*/}
+          </ToolbarGroup>
 
           <ToolbarGroup>
             <ExportToolbarButton>

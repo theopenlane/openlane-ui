@@ -6,6 +6,8 @@ import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 
 type TDetailsFieldProps = {
   isEditing: boolean
@@ -15,6 +17,9 @@ type TDetailsFieldProps = {
 
 const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy }) => {
   const plateEditorHelper = usePlateEditor()
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
 
   return isEditing ? (
     <div className="w-full">
@@ -24,7 +29,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={policy?.details as string} onChange={field.onChange} placeholder="Write your policy description" />}
+        render={({ field }) => <PlateEditor userData={userData} policy={policy} initialValue={policy?.details as string} onChange={field.onChange} placeholder="Write your policy description" />}
       />
     </div>
   ) : (

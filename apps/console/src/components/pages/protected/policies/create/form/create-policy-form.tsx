@@ -25,6 +25,8 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
 import HelperText from './alert-box'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { useSession } from 'next-auth/react'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -60,6 +62,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const [clearData, setClearData] = useState<boolean>(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null)
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
 
   useEffect(() => {
     if (policy && assocData) {
@@ -318,6 +323,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                     <PlateEditor
                       ref={editorRef}
                       onChange={handleDetailsChange}
+                      userData={userData}
+                      policy={policy}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
                       initialValue={policy?.details ?? (field.value as string) ?? undefined}

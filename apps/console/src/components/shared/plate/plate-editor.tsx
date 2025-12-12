@@ -8,6 +8,9 @@ import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/edit
 import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
+import { discussionPlugin, TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { GetUserProfileQuery, InternalPolicyByIdFragment, User } from '@repo/codegen/src/schema.ts'
+import { TComment } from '@repo/ui/components/ui/comment.jsx'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
@@ -17,6 +20,8 @@ export type TPlateEditorProps = {
   clearData?: boolean
   onClear?: () => void
   placeholder?: string
+  policy?: InternalPolicyByIdFragment
+  userData?: GetUserProfileQuery
 }
 
 export interface PlateEditorRef {
@@ -24,12 +29,74 @@ export interface PlateEditorRef {
   editor: ReturnType<typeof createPlateEditor>
 }
 
-const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder }, ref) => {
+const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, policy, userData }, ref) => {
   const editor = usePlateEditor({
     plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
   })
+
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
+
+  function mapPolicyDiscussions(policy: InternalPolicyByIdFragment): TDiscussion[] {
+    return (
+      policy.discussions?.edges
+        ?.map((edge) => {
+          const d = edge?.node
+          if (!d || !d.externalID) return null
+
+          const comments: TComment[] =
+            d.comments?.edges
+              ?.map((cEdge) => {
+                const c = cEdge?.node
+                console.log(c)
+                if (!c) return null
+
+                return {
+                  id: c.id,
+                  contentRich: [
+                    {
+                      type: 'p',
+                      children: [{ text: c.text, comment: true, [`comment_${d.externalID}`]: true }],
+                      id: c.noteRef,
+                    },
+                  ],
+                  createdAt: new Date(c.createdAt ?? Date.now()),
+                  discussionId: d.externalID,
+                  isEdited: c.isEdited,
+                  userId: c.createdBy ?? 'unknown',
+                } as TComment
+              })
+              .filter((c): c is TComment => c !== null) ?? []
+
+          return {
+            id: d.externalID,
+            createdAt: new Date(d.createdAt ?? Date.now()),
+            isResolved: false,
+            userId: comments[0]?.userId ?? 'unknown',
+            comments,
+          } as TDiscussion
+        })
+        .filter((d): d is TDiscussion => d !== null) ?? []
+    )
+  }
+
+  useEffect(() => {
+    if (!editor || !policy || !userData?.user) return
+
+    editor.setOption(discussionPlugin, 'entityType', 'policy')
+    editor.setOption(discussionPlugin, 'entityId', policy.id)
+    editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
+
+    editor.setOption(discussionPlugin, 'users', {
+      [userData.user.id]: {
+        id: userData.user.id,
+        name: userData.user.displayName,
+        avatarUrl: userData.user.avatarRemoteURL ?? '',
+      },
+    })
+
+    editor.setOption(discussionPlugin, 'discussions', mapPolicyDiscussions(policy))
+  }, [editor, policy, userData])
 
   // Expose methods via ref
   useImperativeHandle(ref, () => ({
@@ -93,7 +160,19 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
           { select: true, nextBlock: false, at: [0], removeEmpty: true },
         )
       } else {
-        editor.children = slateNodes
+        console.log(slateNodes)
+        const editedNodes = slateNodes.map((item) => {
+          item.children.map((childrenItem) => {
+            if (childrenItem?.comment === true) {
+              childrenItem[`comment_AxVb-go2dh5lspX8NvIpY`] = true
+            }
+          })
+
+          return item
+        })
+
+        console.log(editedNodes)
+        editor.children = editedNodes
       }
     }
   }, [editor, initialValue, plateEditor, initialValueSet])
