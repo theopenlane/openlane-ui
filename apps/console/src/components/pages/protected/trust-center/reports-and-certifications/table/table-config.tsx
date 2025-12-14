@@ -11,6 +11,7 @@ export type TTrustCenterDoc = {
   tags?: string[] | null
   createdAt: string
   updatedAt: string
+  watermarkingEnabled?: boolean
 }
 
 type Params = {
@@ -70,7 +71,26 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
     {
       accessorKey: 'visibility',
       header: 'Visibility',
-      cell: ({ row }) => <span className="capitalize">{row.original.visibility.split('_').join(' ').toLowerCase()}</span>,
+      cell: ({ row }) => {
+        return (
+          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
+            {row.original.visibility.split('_').join(' ').toLowerCase()}
+          </div>
+        )
+      },
+      size: 100,
+    },
+    {
+      accessorKey: 'watermarkingEnabled',
+      header: 'Watermarking',
+      cell: ({ row }) => {
+        return (
+          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
+            {row.original.watermarkingEnabled ? 'enabled' : 'disabled'}
+          </div>
+        )
+      },
+      size: 100,
     },
     {
       accessorKey: 'tags',
@@ -93,6 +113,11 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       accessorKey: 'updatedAt',
       header: 'Updated At',
       cell: ({ row }) => <span>{formatDate(row.original.updatedAt)}</span>,
+    },
+    {
+      accessorKey: 'id',
+      header: '',
+      cell: ({ row }) => <DocumentActions watermarkEnabled={row.original.watermarkingEnabled ?? false} documentId={row.original.id as string} />,
     },
   ]
 
@@ -126,6 +151,7 @@ import { FilterField } from '@/types'
 import { enumToOptions } from '../../../tasks/table/table-config'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import DocumentActions from '../../actions/documents-actions'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {

@@ -53,10 +53,11 @@ const ReportsAndCertificationsPage = () => {
         tags: doc?.tags ?? [],
         createdAt: doc?.createdAt ?? '',
         updatedAt: doc?.updatedAt ?? '',
+        watermarkingEnabled: doc?.watermarkingEnabled ?? false,
       })) ?? [],
     [docs],
   )
-
+  console.log(docs)
   const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs }), [selectedDocs])
 
   useEffect(() => {
@@ -87,7 +88,7 @@ const ReportsAndCertificationsPage = () => {
       ) : (
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Reports & Certifications</h2>
+            <h2 className="text-xl font-semibold">Documents</h2>
           </div>
 
           <DocumentsTableToolbar

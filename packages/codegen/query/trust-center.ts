@@ -103,6 +103,7 @@ export const GET_TRUST_CENTER_DOCS = gql`
                 tags
                 createdAt
                 updatedAt
+                watermarkingEnabled
               }
             }
             pageInfo {
