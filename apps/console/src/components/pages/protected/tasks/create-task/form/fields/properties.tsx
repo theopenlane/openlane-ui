@@ -313,7 +313,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       {/* Related Objects */}
       {!isEditing && (
         <div className="flex items-center gap-4">
-          <BookText className="text-primary w-[16px] h-[16px] shrink-0" />
+          <BookText className="text-primary w-4 h-4 shrink-0" />
           <p className="text-sm w-[120px]">Related Objects</p>
           <RelatedObjects taskData={taskData} />
         </div>

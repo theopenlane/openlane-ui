@@ -92,6 +92,12 @@ export const TASK = gql`
       taskKindName
       title
       status
+      tasks {
+        id
+        title
+        displayID
+        details
+      }
       subcontrols {
         edges {
           node {

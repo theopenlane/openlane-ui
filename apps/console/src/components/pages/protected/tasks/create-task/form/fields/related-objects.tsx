@@ -120,6 +120,17 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         },
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
+
+      ...taskData?.tasks?.reduce(
+        (acc, item) => {
+          const key = item?.title || item?.displayID
+          const id = item?.id
+          const details = item?.details
+          if (key && id) acc[key] = { id, value: 'Task', details: details, kind: 'tasks' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
+      ),
     }
 
     const handleNavigate = (href: string) => {
@@ -157,7 +168,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
                         <Info size={12} />
                         <span className="font-medium">Type</span>
                       </div>
-                      <span className="cursor-pointer break-words">{value}</span>
+                      <span className="cursor-pointer wrap-break-word">{value}</span>
                     </div>
                     <div className="flex flex-col pt-2">
                       <div className="flex items-center gap-1">
