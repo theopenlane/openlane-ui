@@ -4,8 +4,9 @@ import React, { useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Edit, Send, Trash2 } from 'lucide-react'
-import { useDeleteAssessment, useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessments'
+import { Edit, Send, Trash2, Save } from 'lucide-react'
+import { useDeleteAssessment, useCreateAssessmentResponse, useGetAssessment } from '@/lib/graphql-hooks/assessments'
+import { useCreateTemplate } from '@/lib/graphql-hooks/templates'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
@@ -17,6 +18,7 @@ import { Input } from '@repo/ui/input'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { TemplateDocumentType } from '@repo/codegen/src/schema'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -33,9 +35,16 @@ const QuestionnaireViewerPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { mutateAsync: createAssessmentResponse } = useCreateAssessmentResponse()
+  const { mutateAsync: createTemplate } = useCreateTemplate()
+  const { data: assessmentData } = useGetAssessment(existingId)
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isSaveAsTemplateDialogOpen, setIsSaveAsTemplateDialogOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const questionnaire = assessmentData?.assessment
+  const hasTemplate = !!questionnaire?.templateID
 
   const formSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -84,12 +93,57 @@ const QuestionnaireViewerPage: React.FC = () => {
     }
   }
 
+  const handleSaveAsTemplate = async () => {
+    if (!questionnaire?.jsonconfig) {
+      errorNotification({
+        title: 'Error',
+        description: 'No questionnaire data to save as template',
+      })
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const suffix = `-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+      const response = await createTemplate({
+        input: {
+          name: `${questionnaire.name} - Template${suffix}`,
+          jsonconfig: questionnaire.jsonconfig,
+          templateType: TemplateDocumentType.DOCUMENT,
+        },
+      })
+
+      const templateId = response.createTemplate?.template?.id
+      if (templateId) {
+        successNotification({
+          title: 'Template created successfully',
+        })
+        setIsSaveAsTemplateDialogOpen(false)
+        router.push(`/templates/template-viewer?id=${templateId}`)
+      }
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <>
       <div className="flex justify-between items-center mb-4">
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
+            {editAllowed && !hasTemplate && (
+              <Button type="button" className="h-8 px-3" icon={<Save />} iconPosition="left" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving}>
+                Save as Template
+              </Button>
+            )}
+
             <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
               Send
             </Button>
@@ -156,6 +210,27 @@ const QuestionnaireViewerPage: React.FC = () => {
             <AlertDialogAction asChild>
               <Button variant="destructive" onClick={handleDelete}>
                 Delete Questionnaire
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isSaveAsTemplateDialogOpen} onOpenChange={setIsSaveAsTemplateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Save as Template?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will create a new template from the questionnaire &quot;{questionnaire?.name}&quot;. The template can be used to create new questionnaires.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="secondary">Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button onClick={handleSaveAsTemplate} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save as Template'}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
