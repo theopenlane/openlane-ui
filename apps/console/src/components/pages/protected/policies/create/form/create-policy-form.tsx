@@ -8,7 +8,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { Button } from '@repo/ui/button'
-import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -57,6 +57,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [isInitialized, setIsInitialized] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policy?.id || null)
+  const { data: discussionData } = useGetPolicyDiscussionById(policy?.id || null)
   const isPoliciesCreate = path === '/policies/create'
   const [createMultiple, setCreateMultiple] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
@@ -314,7 +315,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       ref={editorRef}
                       onChange={handleDetailsChange}
                       userData={userData}
-                      policy={policy}
+                      entity={discussionData?.internalPolicy}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
                       initialValue={policy?.details ?? (field.value as string) ?? undefined}

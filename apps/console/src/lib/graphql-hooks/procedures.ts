@@ -13,6 +13,7 @@ import {
   BULK_DELETE_PROCEDURE,
   GET_PROCEDURE_ASSOCIATIONS_BY_ID,
   UPDATE_PROCEDURE_COMMENT,
+  GET_PROCEDURE_DISCUSSION_BY_ID,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -40,6 +41,7 @@ import {
   GetProcedureAssociationsByIdQueryVariables,
   UpdateProcedureCommentMutation,
   UpdateProcedureCommentMutationVariables,
+  GetProcedureDiscussionByIdQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -191,6 +193,16 @@ export const useBulkDeleteProcedures = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
     },
+  })
+}
+
+export const useGetProcedureDiscussionById = (procedureId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProcedureDiscussionByIdQuery, unknown>({
+    queryKey: ['procedureDiscussion', procedureId],
+    queryFn: async () => client.request(GET_PROCEDURE_DISCUSSION_BY_ID, { procedureId }),
+    enabled: !!procedureId,
   })
 }
 

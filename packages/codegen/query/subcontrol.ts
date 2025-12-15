@@ -311,6 +311,47 @@ export const GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION = gql`
   }
 `
 
+export const SUBCONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment SubcontrolDiscussionFields on Subcontrol {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_SUBCONTROL_DISCUSSION_BY_ID = gql`
+  ${SUBCONTROL_DISCUSSION_FIELDS_FRAGMENT}
+  query GetSubcontrolDiscussionById($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
+      ...SubcontrolDiscussionFields
+    }
+  }
+`
+
 export const UPDATE_SUBCONTROL_PLATE_COMMENT = gql`
   mutation UpdateSubcontrolPlateComment($updateSubcontrolId: ID!, $input: UpdateSubcontrolInput!) {
     updateSubcontrol(id: $updateSubcontrolId, input: $input) {

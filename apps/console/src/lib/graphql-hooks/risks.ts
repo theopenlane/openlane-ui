@@ -9,6 +9,7 @@ import {
   DELETE_RISK,
   GET_ALL_RISKS,
   GET_RISK_BY_ID,
+  GET_RISK_DISCUSSION_BY_ID,
   GET_RISK_OPEN_AND_IDENTIFIED_COUNT,
   UPDATE_RISK,
   UPDATE_RISK_COMMENT,
@@ -28,6 +29,7 @@ import {
   GetOpenRiskCountQuery,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
+  GetRiskDiscussionByIdQuery,
   Risk,
   RiskFieldsFragment,
   RiskWhereInput,
@@ -191,6 +193,16 @@ export const useGetRiskOpenAndIdentifiedCount = () => {
     ...queryResult,
     totalCount: queryResult.data?.risks?.totalCount ?? 0,
   }
+}
+
+export const useGetRiskDiscussionById = (riskId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetRiskDiscussionByIdQuery, unknown>({
+    queryKey: ['risksDiscussion', riskId],
+    queryFn: async () => client.request(GET_RISK_DISCUSSION_BY_ID, { riskId }),
+    enabled: !!riskId,
+  })
 }
 
 export const useUpdateRiskComment = () => {

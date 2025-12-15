@@ -14,6 +14,7 @@ import {
   BULK_DELETE_POLICY,
   GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID,
   UPDATE_POLICY_COMMENT,
+  GET_POLICY_DISCUSSION_BY_ID,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -33,6 +34,7 @@ import {
   GetInternalPolicyAssociationsByIdQueryVariables,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
+  GetPolicyDiscussionByIdQuery,
   InternalPolicy,
   PolicySuggestedActionsQuery,
   UpdateBulkInternalPolicyMutation,
@@ -264,6 +266,16 @@ export const useBulkDeletePolicy = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
     },
+  })
+}
+
+export const useGetPolicyDiscussionById = (policyId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetPolicyDiscussionByIdQuery, unknown>({
+    queryKey: ['policyDiscussion', policyId],
+    queryFn: async () => client.request(GET_POLICY_DISCUSSION_BY_ID, { policyId }),
+    enabled: !!policyId,
   })
 }
 

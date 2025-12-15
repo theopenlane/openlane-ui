@@ -27,6 +27,7 @@ import {
   GET_CONTROL_ASSOCIATIONS_BY_ID,
   GET_CONTROL_NOT_IMPLEMENTED_COUNT,
   UPDATE_CONTROL_PLATE_COMMENT,
+  GET_CONTROL_DISCUSSION_BY_ID,
 } from '@repo/codegen/query/control'
 
 import {
@@ -78,6 +79,7 @@ import {
   GetNotImplementedControlCountQuery,
   UpdateControlPlateCommentMutation,
   UpdateControlPlateCommentMutationVariables,
+  GetControlDiscussionByIdQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -553,6 +555,16 @@ export const useGetControlNotImplementedCount = () => {
     ...queryResult,
     totalCount: queryResult.data?.controls?.totalCount ?? 0,
   }
+}
+
+export const useGetControlDiscussionById = (controlId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlDiscussionByIdQuery, unknown>({
+    queryKey: ['controlsDiscussion', controlId],
+    queryFn: async () => client.request(GET_CONTROL_DISCUSSION_BY_ID, { controlId }),
+    enabled: !!controlId,
+  })
 }
 
 export const useUpdateControlPlateComment = () => {

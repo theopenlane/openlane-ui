@@ -211,6 +211,47 @@ export const GET_RISK_OPEN_AND_IDENTIFIED_COUNT = gql`
   }
 `
 
+export const RISK_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment RiskDiscussionFields on Risk {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_RISK_DISCUSSION_BY_ID = gql`
+  ${RISK_DISCUSSION_FIELDS_FRAGMENT}
+  query GetRiskDiscussionById($riskId: ID!) {
+    risk(id: $riskId) {
+      ...RiskDiscussionFields
+    }
+  }
+`
+
 export const UPDATE_RISK_COMMENT = gql`
   mutation UpdateRiskComment($updateRiskId: ID!, $input: UpdateRiskInput!) {
     updateRisk(id: $updateRiskId, input: $input) {

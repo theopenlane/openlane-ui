@@ -9,18 +9,25 @@ import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/comp
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
 import { discussionPlugin, TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
-import { GetUserProfileQuery, InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
+import {
+  ControlDiscussionFieldsFragment,
+  GetUserProfileQuery,
+  PolicyDiscussionFieldsFragment,
+  ProcedureDiscussionFieldsFragment,
+  RiskDiscussionFieldsFragment,
+  SubcontrolDiscussionFieldsFragment,
+} from '@repo/codegen/src/schema.ts'
 import { TComment } from '@repo/ui/components/ui/comment.jsx'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
-  initialValue?: string
+  initialValue?: string | Value
   variant?: TPlateEditorVariants
   styleVariant?: TPlateEditorStyleVariant
   clearData?: boolean
   onClear?: () => void
   placeholder?: string
-  policy?: InternalPolicyByIdFragment
+  entity?: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment
   userData?: GetUserProfileQuery
 }
 
@@ -29,7 +36,7 @@ export interface PlateEditorRef {
   editor: ReturnType<typeof createPlateEditor>
 }
 
-const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, policy, userData }, ref) => {
+const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData }, ref) => {
   const editor = usePlateEditor({
     plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
   })
@@ -37,9 +44,11 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
 
-  function mapPolicyDiscussions(policy: InternalPolicyByIdFragment): TDiscussion[] {
+  function mapEntityDiscussions(
+    entity: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment,
+  ): TDiscussion[] {
     return (
-      policy.discussions?.edges
+      entity.discussions?.edges
         ?.map((edge) => {
           const d = edge?.node
           if (!d || !d.externalID) return null
@@ -80,10 +89,12 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
   }
 
   useEffect(() => {
-    if (!editor || !policy || !userData?.user) return
+    console.log(entity)
 
-    editor.setOption(discussionPlugin, 'entityType', 'policy')
-    editor.setOption(discussionPlugin, 'entityId', policy.id)
+    if (!editor || !entity || !userData?.user) return
+
+    editor.setOption(discussionPlugin, 'entityType', entity.__typename)
+    editor.setOption(discussionPlugin, 'entityId', entity.id)
     editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
 
     editor.setOption(discussionPlugin, 'users', {
@@ -94,8 +105,8 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
       },
     })
 
-    editor.setOption(discussionPlugin, 'discussions', mapPolicyDiscussions(policy))
-  }, [editor, policy, userData])
+    editor.setOption(discussionPlugin, 'discussions', mapEntityDiscussions(entity))
+  }, [editor, entity, userData])
 
   // Expose methods via ref
   useImperativeHandle(ref, () => ({

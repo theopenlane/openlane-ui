@@ -13,7 +13,7 @@ export interface TDiscussion {
   documentContent?: string
 }
 
-export type CommentEntityType = 'policy' | 'risk' | 'task' | 'procedure'
+export type CommentEntityType = 'Control' | 'InternalPolicy' | 'Procedure' | 'Risk' | 'Subcontrol'
 
 /**
  * discussionPlugin

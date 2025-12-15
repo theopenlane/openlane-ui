@@ -289,6 +289,47 @@ export const BULK_DELETE_PROCEDURE = gql`
   }
 `
 
+export const PROCEDURE_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment ProcedureDiscussionFields on Procedure {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_PROCEDURE_DISCUSSION_BY_ID = gql`
+  ${PROCEDURE_DISCUSSION_FIELDS_FRAGMENT}
+  query GetProcedureDiscussionById($procedureId: ID!) {
+    procedure(id: $procedureId) {
+      ...ProcedureDiscussionFields
+    }
+  }
+`
+
 export const UPDATE_PROCEDURE_COMMENT = gql`
   mutation UpdateProcedureComment($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
     updateProcedure(id: $updateProcedureId, input: $input) {

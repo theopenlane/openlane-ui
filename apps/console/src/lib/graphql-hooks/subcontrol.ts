@@ -9,6 +9,7 @@ import {
   GET_SUBCONTROL_BY_ID,
   GET_SUBCONTROL_BY_ID_MINIFIED,
   GET_SUBCONTROL_COMMENTS,
+  GET_SUBCONTROL_DISCUSSION_BY_ID,
   GET_SUBCONTROL_SELECT_OPTIONS,
   GET_SUBCONTROLS_BY_REFCODE,
   GET_SUBCONTROLS_PAGINATED,
@@ -28,6 +29,7 @@ import {
   GetSubcontrolByIdMinifiedQuery,
   GetSubcontrolByIdMinifiedQueryVariables,
   GetSubcontrolByIdQuery,
+  GetSubcontrolDiscussionByIdQuery,
   GetSubcontrolsByRefCodeQuery,
   GetSubcontrolSelectOptionsQuery,
   GetSubcontrolSelectOptionsQueryVariables,
@@ -260,6 +262,16 @@ export const useUpdateSubcontrolComment = () => {
         queryKey: ['subcontrolComments', data.updateSubcontrolComment.subcontrol.id],
       })
     },
+  })
+}
+
+export const useGetSubcontrolDiscussionById = (subcontrolId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetSubcontrolDiscussionByIdQuery, unknown>({
+    queryKey: ['subcontrolsDiscussion', subcontrolId],
+    queryFn: async () => client.request(GET_SUBCONTROL_DISCUSSION_BY_ID, { subcontrolId }),
+    enabled: !!subcontrolId,
   })
 }
 

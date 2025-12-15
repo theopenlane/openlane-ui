@@ -1,6 +1,5 @@
-import { useDeleteInternalPolicy, useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useDeleteInternalPolicy, useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import React, { useEffect, useMemo, useState } from 'react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
@@ -13,7 +12,6 @@ import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPo
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
@@ -41,7 +39,6 @@ type TViewPolicyPage = {
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !isDeleting)
-  const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const policyState = usePolicy()
   const policy = data?.internalPolicy
@@ -61,6 +58,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
+  const { data: discussionData } = useGetPolicyDiscussionById(policyId)
 
   const memoizedSections = useMemo(() => {
     if (!assocData) return {}
@@ -159,7 +157,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }
 
   const onSubmitHandler = async (data: EditPolicyMetadataFormData) => {
-    console.log('hi')
     if (!policy?.id) {
       return
     }
@@ -189,6 +186,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      queryClient.invalidateQueries({ queryKey: ['policyDiscussion', policyId] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -207,7 +205,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }
 
   const handleUpdateField = async (input: UpdateInternalPolicyInput) => {
-    console.log('yo')
     if (!policy?.id) {
       return
     }
@@ -302,7 +299,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} policy={policy} />
+      <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
     </div>
   )
 

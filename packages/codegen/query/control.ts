@@ -614,6 +614,47 @@ export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
   }
 `
 
+export const CONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment ControlDiscussionFields on Control {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_DISCUSSION_BY_ID = gql`
+  ${CONTROL_DISCUSSION_FIELDS_FRAGMENT}
+  query GetControlDiscussionById($controlId: ID!) {
+    control(id: $controlId) {
+      ...ControlDiscussionFields
+    }
+  }
+`
+
 export const UPDATE_CONTROL_PLATE_COMMENT = gql`
   mutation UpdateControlPlateComment($updateControlId: ID!, $input: UpdateControlInput!) {
     updateControl(id: $updateControlId, input: $input) {
