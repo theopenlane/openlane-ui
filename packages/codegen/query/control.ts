@@ -613,3 +613,30 @@ export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
     }
   }
 `
+
+export const UPDATE_CONTROL_PLATE_COMMENT = gql`
+  mutation UpdateControlPlateComment($updateControlId: ID!, $input: UpdateControlInput!) {
+    updateControl(id: $updateControlId, input: $input) {
+      control {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

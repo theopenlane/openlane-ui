@@ -21,6 +21,7 @@ export interface Scalars {
    * It contains `Line1`, `Line2`, `City`, `State`, `PostalCode`, and `Country`
    */
   Address: { input: any; output: any }
+  Any: { input: any; output: any }
   /** The `AssessmentMethod` scalar type represents methods that can be used during the audit to assess the control implementation */
   AssessmentMethod: { input: any; output: any }
   /** The `AssessmentObjective` scalar type represents objectives that are validated during the audit to ensure the control is implemented */
@@ -402,6 +403,8 @@ export interface ActionPlan extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** details of the action_plan */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the action_plan in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** control suggestions dismissed by the user for the action_plan */
   dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** improvement suggestions dismissed by the user for the action_plan */
@@ -652,6 +655,8 @@ export interface ActionPlanHistory extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** details of the action_plan */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the action_plan in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** control suggestions dismissed by the user for the action_plan */
   dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** improvement suggestions dismissed by the user for the action_plan */
@@ -1797,6 +1802,13 @@ export interface AssessmentViewersArgs {
 export enum AssessmentAssessmentType {
   EXTERNAL = 'EXTERNAL',
   INTERNAL = 'INTERNAL',
+}
+
+/** Return response for deleteBulkAssessment mutation */
+export interface AssessmentBulkDeletePayload {
+  __typename?: 'AssessmentBulkDeletePayload'
+  /** Deleted assessment IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -3654,7 +3666,7 @@ export interface Contact extends Node {
   entities: EntityConnection
   files: FileConnection
   /** the full name of the contact */
-  fullName: Scalars['String']['output']
+  fullName?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
@@ -3757,7 +3769,7 @@ export interface ContactHistory extends Node {
   /** the email of the contact */
   email?: Maybe<Scalars['String']['output']>
   /** the full name of the contact */
-  fullName: Scalars['String']['output']
+  fullName?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: ContactHistoryOpType
@@ -3923,10 +3935,12 @@ export interface ContactHistoryWhereInput {
   fullNameHasPrefix?: InputMaybe<Scalars['String']['input']>
   fullNameHasSuffix?: InputMaybe<Scalars['String']['input']>
   fullNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
   fullNameLT?: InputMaybe<Scalars['String']['input']>
   fullNameLTE?: InputMaybe<Scalars['String']['input']>
   fullNameNEQ?: InputMaybe<Scalars['String']['input']>
   fullNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -4178,10 +4192,12 @@ export interface ContactWhereInput {
   fullNameHasPrefix?: InputMaybe<Scalars['String']['input']>
   fullNameHasSuffix?: InputMaybe<Scalars['String']['input']>
   fullNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
   fullNameLT?: InputMaybe<Scalars['String']['input']>
   fullNameLTE?: InputMaybe<Scalars['String']['input']>
   fullNameNEQ?: InputMaybe<Scalars['String']['input']>
   fullNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
@@ -4331,6 +4347,8 @@ export interface Control extends Node {
   delegateID?: Maybe<Scalars['ID']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: Maybe<Array<Scalars['Any']['output']>>
   discussions: DiscussionConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
@@ -4755,6 +4773,8 @@ export interface ControlHistory extends Node {
   delegateID?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** examples of evidence for the control */
@@ -5335,6 +5355,8 @@ export interface ControlImplementation extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** details of the control implementation */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the control implementation in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   editors: GroupConnection
   id: Scalars['ID']['output']
   /** date the control was implemented */
@@ -5480,6 +5502,8 @@ export interface ControlImplementationHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** details of the control implementation */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the control implementation in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** date the control was implemented */
@@ -6005,6 +6029,8 @@ export interface ControlObjective extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: Maybe<Scalars['String']['output']>
+  /** structured details of the control objective in JSON format */
+  desiredOutcomeJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
@@ -6217,6 +6243,8 @@ export interface ControlObjectiveHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: Maybe<Scalars['String']['output']>
+  /** structured details of the control objective in JSON format */
+  desiredOutcomeJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
@@ -7498,6 +7526,8 @@ export interface CreateActionPlanInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** details of the action_plan */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the action_plan in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** control suggestions dismissed by the user for the action_plan */
   dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** improvement suggestions dismissed by the user for the action_plan */
@@ -7637,7 +7667,7 @@ export interface CreateContactInput {
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the full name of the contact */
-  fullName: Scalars['String']['input']
+  fullName?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the phone number of the contact */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
@@ -7658,6 +7688,8 @@ export interface CreateControlImplementationInput {
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** details of the control implementation */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control implementation in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** date the control was implemented */
   implementationDate?: InputMaybe<Scalars['Time']['input']>
@@ -7713,6 +7745,8 @@ export interface CreateControlInput {
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** description of what the control is supposed to accomplish */
   description?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -7775,6 +7809,8 @@ export interface CreateControlObjectiveInput {
   controlObjectiveType?: InputMaybe<Scalars['String']['input']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control objective in JSON format */
+  desiredOutcomeJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -8530,6 +8566,8 @@ export interface CreateInternalPolicyInput {
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the policy */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the policy in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** control suggestions dismissed by the user for the policy */
   dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -8808,6 +8846,8 @@ export interface CreateNoteInput {
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text: Scalars['String']['input']
+  /** structured details of the note in JSON format */
+  textJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -9066,6 +9106,8 @@ export interface CreateProcedureInput {
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the procedure */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the procedure in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** control suggestions dismissed by the user for the procedure */
   dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -9336,6 +9378,8 @@ export interface CreateRiskInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** business costs associated with the risk */
   businessCosts?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the business costs in JSON format */
+  businessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** category of the risk, e.g. human resources, operations, IT, etc. */
   category?: InputMaybe<Scalars['String']['input']>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9343,6 +9387,8 @@ export interface CreateRiskInput {
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the risk */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the risk in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9353,6 +9399,8 @@ export interface CreateRiskInput {
   likelihood?: InputMaybe<RiskRiskLikelihood>
   /** mitigation for the risk */
   mitigation?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the mitigation in JSON format */
+  mitigationJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the name of the risk */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -9518,6 +9566,8 @@ export interface CreateSubcontrolInput {
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** description of what the control is supposed to accomplish */
   description?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** examples of evidence for the control */
@@ -9647,6 +9697,8 @@ export interface CreateTaskInput {
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the details of the task */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the task in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the due date of the task */
   due?: InputMaybe<Scalars['DateTime']['input']>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9655,6 +9707,7 @@ export interface CreateTaskInput {
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  parentID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9665,6 +9718,7 @@ export interface CreateTaskInput {
   systemGenerated?: InputMaybe<Scalars['Boolean']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   taskKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the task */
   taskKindName?: InputMaybe<Scalars['String']['input']>
@@ -9775,6 +9829,36 @@ export interface CreateTrustCenterInput {
 
 export interface CreateTrustCenterNdaInput {
   /** trust center id */
+  trustCenterID: Scalars['ID']['input']
+}
+
+/** Input for createTrustCenterPreviewSetting mutation */
+export interface CreateTrustCenterPreviewSettingInput {
+  /** accent color for the trust center */
+  accentColor?: InputMaybe<Scalars['String']['input']>
+  /** background color for the trust center */
+  backgroundColor?: InputMaybe<Scalars['String']['input']>
+  /** favicon local file ID */
+  faviconFileID?: InputMaybe<Scalars['ID']['input']>
+  /** favicon remote URL */
+  faviconRemoteURL?: InputMaybe<Scalars['String']['input']>
+  /** font for the trust center */
+  font?: InputMaybe<Scalars['String']['input']>
+  /** foreground color for the trust center */
+  foregroundColor?: InputMaybe<Scalars['String']['input']>
+  /** logo local file ID */
+  logoFileID?: InputMaybe<Scalars['ID']['input']>
+  /** logo remote URL */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
+  /** overview of the trust center */
+  overview?: InputMaybe<Scalars['String']['input']>
+  /** primary color for the trust center */
+  primaryColor?: InputMaybe<Scalars['String']['input']>
+  /** theme mode for the trust center */
+  themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
+  /** title of the trust center */
+  title?: InputMaybe<Scalars['String']['input']>
+  /** trust center ID */
   trustCenterID: Scalars['ID']['input']
 }
 
@@ -24862,6 +24946,8 @@ export interface InternalPolicy extends Node {
   delegateID?: Maybe<Scalars['ID']['output']>
   /** details of the policy */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the policy in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   discussions: DiscussionConnection
   /** control suggestions dismissed by the user for the policy */
   dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -25139,6 +25225,8 @@ export interface InternalPolicyHistory extends Node {
   delegateID?: Maybe<Scalars['String']['output']>
   /** details of the policy */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the policy in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** control suggestions dismissed by the user for the policy */
   dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** improvement suggestions dismissed by the user for the policy */
@@ -29418,6 +29506,8 @@ export interface Mutation {
   createTrustCenterDomain: TrustCenterDomainCreatePayload
   /** Create a Trust Center NDA Template */
   createTrustCenterNDA: TrustCenterNdaCreatePayload
+  /** Create or replace preview environment trust center settings */
+  createTrustCenterPreviewSetting: TrustCenterPreviewSettingCreatePayload
   /** Create a new trustCenterSetting */
   createTrustCenterSetting: TrustCenterSettingCreatePayload
   /** Create a new trustCenterSubprocessor */
@@ -29462,6 +29552,8 @@ export interface Mutation {
   deleteBulkAPIToken: ApiTokenBulkDeletePayload
   /** Delete multiple actionPlans */
   deleteBulkActionPlan: ActionPlanBulkDeletePayload
+  /** Delete multiple assessments */
+  deleteBulkAssessment: AssessmentBulkDeletePayload
   /** Delete multiple assets */
   deleteBulkAsset: AssetBulkDeletePayload
   /** Delete multiple contacts */
@@ -30664,6 +30756,12 @@ export interface MutationCreateTrustCenterNdaArgs {
   templateFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
+export interface MutationCreateTrustCenterPreviewSettingArgs {
+  faviconFile?: InputMaybe<Scalars['Upload']['input']>
+  input: CreateTrustCenterPreviewSettingInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}
+
 export interface MutationCreateTrustCenterSettingArgs {
   faviconFile?: InputMaybe<Scalars['Upload']['input']>
   input: CreateTrustCenterSettingInput
@@ -30756,6 +30854,10 @@ export interface MutationDeleteBulkApiTokenArgs {
 }
 
 export interface MutationDeleteBulkActionPlanArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkAssessmentArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -32421,6 +32523,8 @@ export interface Note extends Node {
   task?: Maybe<Task>
   /** the text of the note */
   text: Scalars['String']['output']
+  /** structured details of the note in JSON format */
+  textJSON?: Maybe<Array<Scalars['Any']['output']>>
   trustCenter?: Maybe<TrustCenter>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
@@ -32482,6 +32586,8 @@ export interface NoteHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the text of the note */
   text: Scalars['String']['output']
+  /** structured details of the note in JSON format */
+  textJSON?: Maybe<Array<Scalars['Any']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -36869,6 +36975,8 @@ export interface Procedure extends Node {
   delegateID?: Maybe<Scalars['ID']['output']>
   /** details of the procedure */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the procedure in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   discussions: DiscussionConnection
   /** control suggestions dismissed by the user for the procedure */
   dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -37118,6 +37226,8 @@ export interface ProcedureHistory extends Node {
   delegateID?: Maybe<Scalars['String']['output']>
   /** details of the procedure */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the procedure in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** control suggestions dismissed by the user for the procedure */
   dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** improvement suggestions dismissed by the user for the procedure */
@@ -44335,6 +44445,8 @@ export interface Risk extends Node {
   blockedGroups: GroupConnection
   /** business costs associated with the risk */
   businessCosts?: Maybe<Scalars['String']['output']>
+  /** structured details of the business costs in JSON format */
+  businessCostsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /**
    * category of the risk, e.g. human resources, operations, IT, etc.
    * @deprecated Use `risk_category_name` instead.
@@ -44350,6 +44462,8 @@ export interface Risk extends Node {
   delegateID?: Maybe<Scalars['ID']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the risk in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   discussions: DiscussionConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
@@ -44363,6 +44477,8 @@ export interface Risk extends Node {
   likelihood?: Maybe<RiskRiskLikelihood>
   /** mitigation for the risk */
   mitigation?: Maybe<Scalars['String']['output']>
+  /** structured details of the mitigation in JSON format */
+  mitigationJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** the name of the risk */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
@@ -44599,6 +44715,8 @@ export interface RiskHistory extends Node {
   __typename?: 'RiskHistory'
   /** business costs associated with the risk */
   businessCosts?: Maybe<Scalars['String']['output']>
+  /** structured details of the business costs in JSON format */
+  businessCostsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /**
    * category of the risk, e.g. human resources, operations, IT, etc.
    * @deprecated Use `risk_category_name` instead.
@@ -44610,6 +44728,8 @@ export interface RiskHistory extends Node {
   delegateID?: Maybe<Scalars['String']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the risk in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
@@ -44620,6 +44740,8 @@ export interface RiskHistory extends Node {
   likelihood?: Maybe<RiskHistoryRiskLikelihood>
   /** mitigation for the risk */
   mitigation?: Maybe<Scalars['String']['output']>
+  /** structured details of the mitigation in JSON format */
+  mitigationJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** the name of the risk */
   name: Scalars['String']['output']
   operation: RiskHistoryOpType
@@ -47875,6 +47997,8 @@ export interface Subcontrol extends Node {
   delegateID?: Maybe<Scalars['ID']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: Maybe<Array<Scalars['Any']['output']>>
   discussions: DiscussionConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
@@ -48148,6 +48272,8 @@ export interface SubcontrolHistory extends Node {
   delegateID?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** examples of evidence for the control */
@@ -50561,6 +50687,8 @@ export interface Task extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the task in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** the due date of the task */
@@ -50576,6 +50704,9 @@ export interface Task extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  parent?: Maybe<Task>
+  /** the parent task this task belongs to */
+  parentTaskID?: Maybe<Scalars['ID']['output']>
   procedures: ProcedureConnection
   programs: ProgramConnection
   risks: RiskConnection
@@ -50591,6 +50722,7 @@ export interface Task extends Node {
   taskKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the task */
   taskKindName?: Maybe<Scalars['String']['output']>
+  tasks?: Maybe<Array<Task>>
   /** the title of the task */
   title: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -50789,6 +50921,8 @@ export interface TaskHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
+  /** structured details of the task in JSON format */
+  detailsJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** the due date of the task */
@@ -50802,6 +50936,8 @@ export interface TaskHistory extends Node {
   operation: TaskHistoryOpType
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** the parent task this task belongs to */
+  parentTaskID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the status of the task */
   status: TaskHistoryTaskStatus
@@ -51067,6 +51203,22 @@ export interface TaskHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** parent_task_id field predicates */
+  parentTaskID?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDContains?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDGT?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDGTE?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  parentTaskIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  parentTaskIDLT?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDLTE?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDNEQ?: InputMaybe<Scalars['String']['input']>
+  parentTaskIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  parentTaskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -51367,6 +51519,9 @@ export interface TaskWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** parent edge predicates */
+  hasParent?: InputMaybe<Scalars['Boolean']['input']>
+  hasParentWith?: InputMaybe<Array<TaskWhereInput>>
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -51382,6 +51537,9 @@ export interface TaskWhereInput {
   /** task_kind edge predicates */
   hasTaskKind?: InputMaybe<Scalars['Boolean']['input']>
   hasTaskKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** tasks edge predicates */
+  hasTasks?: InputMaybe<Scalars['Boolean']['input']>
+  hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
@@ -51430,6 +51588,22 @@ export interface TaskWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** parent_task_id field predicates */
+  parentTaskID?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDContains?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDGT?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDGTE?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  parentTaskIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  parentTaskIDLT?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDLTE?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  parentTaskIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  parentTaskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<TaskTaskStatus>
   statusIn?: InputMaybe<Array<TaskTaskStatus>>
@@ -53633,6 +53807,13 @@ export interface TrustCenterOrder {
 export enum TrustCenterOrderField {
   created_at = 'created_at',
   updated_at = 'updated_at',
+}
+
+/** Return response for createTrustCenterPreviewSetting mutation */
+export interface TrustCenterPreviewSettingCreatePayload {
+  __typename?: 'TrustCenterPreviewSettingCreatePayload'
+  /** Created preview trust center setting */
+  trustCenterSetting: TrustCenterSetting
 }
 
 export interface TrustCenterSetting extends Node {
@@ -56320,6 +56501,7 @@ export interface UpdateActionPlanInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendDismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -56345,6 +56527,7 @@ export interface UpdateActionPlanInput {
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
@@ -56382,6 +56565,8 @@ export interface UpdateActionPlanInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** details of the action_plan */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the action_plan in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** control suggestions dismissed by the user for the action_plan */
   dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** improvement suggestions dismissed by the user for the action_plan */
@@ -56546,6 +56731,7 @@ export interface UpdateContactInput {
   clearEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFullName?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -56580,10 +56766,12 @@ export interface UpdateControlImplementationInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationDate?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -56597,6 +56785,8 @@ export interface UpdateControlImplementationInput {
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** details of the control implementation */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control implementation in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** date the control was implemented */
   implementationDate?: InputMaybe<Scalars['Time']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -56652,6 +56842,7 @@ export interface UpdateControlInput {
   appendAssessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   appendAssessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
   appendControlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDescriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendExampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   appendImplementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
   appendMappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
@@ -56686,6 +56877,7 @@ export interface UpdateControlInput {
   clearControlType?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDescriptionJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
@@ -56728,6 +56920,8 @@ export interface UpdateControlInput {
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
   /** description of what the control is supposed to accomplish */
   description?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** implementation guidance for the control */
@@ -56798,6 +56992,7 @@ export interface UpdateControlObjectiveInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendDesiredOutcomeJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** category of the control */
   category?: InputMaybe<Scalars['String']['input']>
@@ -56806,6 +57001,7 @@ export interface UpdateControlObjectiveInput {
   clearControlObjectiveType?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDesiredOutcome?: InputMaybe<Scalars['Boolean']['input']>
+  clearDesiredOutcomeJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -56827,6 +57023,8 @@ export interface UpdateControlObjectiveInput {
   controlObjectiveType?: InputMaybe<Scalars['String']['input']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control objective in JSON format */
+  desiredOutcomeJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the name of the control objective */
@@ -57970,6 +58168,7 @@ export interface UpdateInternalPolicyInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendDismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -57989,6 +58188,7 @@ export interface UpdateInternalPolicyInput {
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
@@ -58023,6 +58223,8 @@ export interface UpdateInternalPolicyInput {
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
   /** details of the policy */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the policy in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** control suggestions dismissed by the user for the policy */
   dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** improvement suggestions dismissed by the user for the policy */
@@ -58349,6 +58551,7 @@ export interface UpdateNarrativeInput {
  */
 export interface UpdateNoteInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTextJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   clearControl?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussionID?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
@@ -58359,6 +58562,7 @@ export interface UpdateNoteInput {
   clearRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   clearTask?: InputMaybe<Scalars['Boolean']['input']>
+  clearTextJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
   /** the external discussion id this note is associated with */
@@ -58376,6 +58580,8 @@ export interface UpdateNoteInput {
   taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the note in JSON format */
+  textJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -58799,6 +59005,7 @@ export interface UpdateProcedureInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendDismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -58816,6 +59023,7 @@ export interface UpdateProcedureInput {
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
@@ -58849,6 +59057,8 @@ export interface UpdateProcedureInput {
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
   /** details of the procedure */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the procedure in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** control suggestions dismissed by the user for the procedure */
   dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** improvement suggestions dismissed by the user for the procedure */
@@ -59272,20 +59482,27 @@ export interface UpdateRiskInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendBusinessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  appendMitigationJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** business costs associated with the risk */
   businessCosts?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the business costs in JSON format */
+  businessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** category of the risk, e.g. human resources, operations, IT, etc. */
   category?: InputMaybe<Scalars['String']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBusinessCosts?: InputMaybe<Scalars['Boolean']['input']>
+  clearBusinessCostsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
@@ -59293,6 +59510,7 @@ export interface UpdateRiskInput {
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLikelihood?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigation?: InputMaybe<Scalars['Boolean']['input']>
+  clearMitigationJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskCategory?: InputMaybe<Scalars['Boolean']['input']>
@@ -59313,12 +59531,16 @@ export interface UpdateRiskInput {
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
   /** details of the risk */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the risk in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: InputMaybe<RiskRiskLikelihood>
   /** mitigation for the risk */
   mitigation?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the mitigation in JSON format */
+  mitigationJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the name of the risk */
   name?: InputMaybe<Scalars['String']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59529,6 +59751,7 @@ export interface UpdateSubcontrolInput {
   appendAssessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   appendAssessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
   appendControlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDescriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendExampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   appendImplementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
   appendMappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
@@ -59559,6 +59782,7 @@ export interface UpdateSubcontrolInput {
   clearControlType?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDescriptionJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
@@ -59594,6 +59818,8 @@ export interface UpdateSubcontrolInput {
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
   /** description of what the control is supposed to accomplish */
   description?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the control in JSON format */
+  descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** implementation guidance for the control */
@@ -59752,7 +59978,9 @@ export interface UpdateTaskInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendExternalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   assigneeID?: InputMaybe<Scalars['ID']['input']>
@@ -59769,11 +59997,13 @@ export interface UpdateTaskInput {
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDue?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalReferenceURL?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  clearParent?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -59781,16 +60011,20 @@ export interface UpdateTaskInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTaskKind?: InputMaybe<Scalars['Boolean']['input']>
   clearTaskKindName?: InputMaybe<Scalars['Boolean']['input']>
+  clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['DateTime']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** the details of the task */
   details?: InputMaybe<Scalars['String']['input']>
+  /** structured details of the task in JSON format */
+  detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the due date of the task */
   due?: InputMaybe<Scalars['DateTime']['input']>
   /** an optional external reference URL for the task */
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
+  parentID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59803,6 +60037,7 @@ export interface UpdateTaskInput {
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
@@ -68288,6 +68523,34 @@ export type GetExistingControlsForOrganizationQuery = {
   }
 }
 
+export type UpdateControlPlateCommentMutationVariables = Exact<{
+  updateControlId: Scalars['ID']['input']
+  input: UpdateControlInput
+}>
+
+export type UpdateControlPlateCommentMutation = {
+  __typename?: 'Mutation'
+  updateControl: {
+    __typename?: 'ControlUpdatePayload'
+    control: {
+      __typename?: 'Control'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID: string
+            isResolved: boolean
+            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
 export type GetCustomTypeEnumsQueryVariables = Exact<{
   where?: InputMaybe<CustomTypeEnumWhereInput>
 }>
@@ -69540,6 +69803,7 @@ export type InternalPolicyByIdFragment = {
   reviewFrequency?: InternalPolicyFrequency | null
   approvalRequired?: boolean | null
   summary?: string | null
+  detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
@@ -69599,6 +69863,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     reviewFrequency?: InternalPolicyFrequency | null
     approvalRequired?: boolean | null
     summary?: string | null
+    detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
@@ -70054,6 +70319,34 @@ export type DeleteBulkProcedureMutationVariables = Exact<{
 }>
 
 export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkProcedure: { __typename?: 'ProcedureBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateProcedureCommentMutationVariables = Exact<{
+  updateProcedureId: Scalars['ID']['input']
+  input: UpdateProcedureInput
+}>
+
+export type UpdateProcedureCommentMutation = {
+  __typename?: 'Mutation'
+  updateProcedure: {
+    __typename?: 'ProcedureUpdatePayload'
+    procedure: {
+      __typename?: 'Procedure'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID: string
+            isResolved: boolean
+            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
   input: CreateProgramWithMembersInput
@@ -70567,6 +70860,34 @@ export type GetOpenRiskCountQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetOpenRiskCountQuery = { __typename?: 'Query'; risks: { __typename?: 'RiskConnection'; totalCount: number } }
 
+export type UpdateRiskCommentMutationVariables = Exact<{
+  updateRiskId: Scalars['ID']['input']
+  input: UpdateRiskInput
+}>
+
+export type UpdateRiskCommentMutation = {
+  __typename?: 'Mutation'
+  updateRisk: {
+    __typename?: 'RiskUpdatePayload'
+    risk: {
+      __typename?: 'Risk'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID: string
+            isResolved: boolean
+            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
 }>
@@ -70957,6 +71278,34 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
       __typename?: 'SubcontrolEdge'
       node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
     } | null> | null
+  }
+}
+
+export type UpdateSubcontrolPlateCommentMutationVariables = Exact<{
+  updateSubcontrolId: Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type UpdateSubcontrolPlateCommentMutation = {
+  __typename?: 'Mutation'
+  updateSubcontrol: {
+    __typename?: 'SubcontrolUpdatePayload'
+    subcontrol: {
+      __typename?: 'Subcontrol'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID: string
+            isResolved: boolean
+            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+          } | null
+        } | null> | null
+      }
+    }
   }
 }
 

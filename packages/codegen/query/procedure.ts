@@ -288,3 +288,30 @@ export const BULK_DELETE_PROCEDURE = gql`
     }
   }
 `
+
+export const UPDATE_PROCEDURE_COMMENT = gql`
+  mutation UpdateProcedureComment($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
+    updateProcedure(id: $updateProcedureId, input: $input) {
+      procedure {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

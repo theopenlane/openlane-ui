@@ -12,6 +12,7 @@ import {
   CREATE_UPLOAD_PROCEDURE,
   BULK_DELETE_PROCEDURE,
   GET_PROCEDURE_ASSOCIATIONS_BY_ID,
+  UPDATE_PROCEDURE_COMMENT,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -37,6 +38,8 @@ import {
   DeleteBulkProcedureMutationVariables,
   GetProcedureAssociationsByIdQuery,
   GetProcedureAssociationsByIdQueryVariables,
+  UpdateProcedureCommentMutation,
+  UpdateProcedureCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -187,6 +190,16 @@ export const useBulkDeleteProcedures = () => {
     mutationFn: async (variables) => client.request(BULK_DELETE_PROCEDURE, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
+    },
+  })
+}
+
+export const useUpdateProcedureComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<UpdateProcedureCommentMutation, unknown, UpdateProcedureCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(UPDATE_PROCEDURE_COMMENT, variables)
     },
   })
 }

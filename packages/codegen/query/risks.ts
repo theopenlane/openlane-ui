@@ -210,3 +210,30 @@ export const GET_RISK_OPEN_AND_IDENTIFIED_COUNT = gql`
     }
   }
 `
+
+export const UPDATE_RISK_COMMENT = gql`
+  mutation UpdateRiskComment($updateRiskId: ID!, $input: UpdateRiskInput!) {
+    updateRisk(id: $updateRiskId, input: $input) {
+      risk {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

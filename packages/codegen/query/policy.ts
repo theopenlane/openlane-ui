@@ -117,6 +117,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
     reviewFrequency
     approvalRequired
     summary
+    detailsJSON
     internalPolicyKindName
     approver {
       id

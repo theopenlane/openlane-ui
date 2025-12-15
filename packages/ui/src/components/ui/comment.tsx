@@ -333,6 +333,7 @@ export function CommentCreateForm({
 }) {
   const discussions = usePluginOption(discussionPlugin, 'discussions')
   const policyId = usePluginOption(discussionPlugin, 'entityId') as string | undefined
+  const entityType = usePluginOption(discussionPlugin, 'entityType') as string | undefined
 
   const editor = useEditorRef()
   const commentId = useCommentId()
@@ -388,7 +389,7 @@ export function CommentCreateForm({
             addDiscussion: {
               externalID: discussionId,
               addComment: {
-                text: JSON.stringify(commentValue),
+                text: text,
                 noteRef: commentValue[0].id! as string,
               },
             },
@@ -403,7 +404,6 @@ export function CommentCreateForm({
         return
       }
 
-      // Create reply comment locally (backend model for replies is unclear, so we keep this client-side only)
       const comment: TComment = {
         id: nanoid(),
         contentRich: commentValue,
@@ -419,6 +419,23 @@ export function CommentCreateForm({
       }
 
       const updatedDiscussions = discussions.filter((d) => d.id !== discussionId).concat(updatedDiscussion)
+
+      if (policyId) {
+        const input: UpdateInternalPolicyInput = {
+          addDiscussion: {
+            externalID: discussionId,
+            addComment: {
+              text: text,
+              noteRef: commentValue[0].id! as string,
+            },
+          },
+        }
+
+        await updatePolicyComment({
+          updateInternalPolicyId: policyId,
+          input,
+        })
+      }
 
       editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
 
@@ -473,7 +490,7 @@ export function CommentCreateForm({
         addDiscussion: {
           externalID: id,
           addComment: {
-            text: JSON.stringify(commentValue),
+            text: text,
             noteRef: commentValue[0].id! as string,
           },
         },

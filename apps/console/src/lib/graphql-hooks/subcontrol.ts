@@ -14,6 +14,7 @@ import {
   GET_SUBCONTROLS_PAGINATED,
   UPDATE_SUBCONTROL,
   UPDATE_SUBCONTROL_COMMENT,
+  UPDATE_SUBCONTROL_PLATE_COMMENT,
 } from '@repo/codegen/query/subcontrol'
 import {
   CreateSubcontrolMutation,
@@ -36,6 +37,8 @@ import {
   SubcontrolWhereInput,
   UpdateSubcontrolMutation,
   UpdateSubcontrolMutationVariables,
+  UpdateSubcontrolPlateCommentMutation,
+  UpdateSubcontrolPlateCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -256,6 +259,16 @@ export const useUpdateSubcontrolComment = () => {
       queryClient.invalidateQueries({
         queryKey: ['subcontrolComments', data.updateSubcontrolComment.subcontrol.id],
       })
+    },
+  })
+}
+
+export const useUpdateSubcontrolPlateComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<UpdateSubcontrolPlateCommentMutation, unknown, UpdateSubcontrolPlateCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(UPDATE_SUBCONTROL_PLATE_COMMENT, variables)
     },
   })
 }

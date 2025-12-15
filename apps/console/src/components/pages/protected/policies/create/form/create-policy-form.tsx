@@ -118,17 +118,12 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   }, [isPoliciesCreate, policyState, isInitialized])
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
+    const { details, ...rest } = data
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: { input: CreateInternalPolicyInput } = {
         input: {
-          ...data,
-          details: detailsField,
+          ...rest,
+          detailsJSON: rest.detailsJSON,
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -197,12 +192,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
+      const { details, ...rest } = data
       const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
 
       const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
@@ -235,8 +225,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       } = {
         updateInternalPolicyId: policy.id,
         input: {
-          ...data,
-          details: detailsField,
+          ...rest,
+          detailsJSON: data?.detailsJSON,
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationInputs,
         },

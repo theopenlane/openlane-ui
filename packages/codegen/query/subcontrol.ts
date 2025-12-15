@@ -310,3 +310,30 @@ export const GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION = gql`
     }
   }
 `
+
+export const UPDATE_SUBCONTROL_PLATE_COMMENT = gql`
+  mutation UpdateSubcontrolPlateComment($updateSubcontrolId: ID!, $input: UpdateSubcontrolInput!) {
+    updateSubcontrol(id: $updateSubcontrolId, input: $input) {
+      subcontrol {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

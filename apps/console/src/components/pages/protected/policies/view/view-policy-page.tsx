@@ -159,15 +159,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }
 
   const onSubmitHandler = async (data: EditPolicyMetadataFormData) => {
+    console.log('hi')
     if (!policy?.id) {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
+      const { details, ...rest } = data
 
       const formData: {
         updateInternalPolicyId: string
@@ -175,8 +172,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       } = {
         updateInternalPolicyId: policy?.id,
         input: {
-          ...data,
-          details: detailsField,
+          ...rest,
+          detailsJSON: data.detailsJSON,
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
@@ -210,6 +207,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }
 
   const handleUpdateField = async (input: UpdateInternalPolicyInput) => {
+    console.log('yo')
     if (!policy?.id) {
       return
     }

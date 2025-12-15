@@ -28,12 +28,14 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
       </label>
       <Controller
         control={form.control}
-        name="details"
-        render={({ field }) => <PlateEditor userData={userData} policy={policy} initialValue={policy?.details as string} onChange={field.onChange} placeholder="Write your policy description" />}
+        name={`${policy?.detailsJSON ? 'detailsJSON' : 'details'}`}
+        render={({ field }) => (
+          <PlateEditor userData={userData} policy={policy} initialValue={policy?.detailsJSON ?? policy?.details} onChange={field.onChange} placeholder="Write your policy description" />
+        )}
       />
     </div>
   ) : (
-    <div className="!mt-4 min-h-[20px]">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}</div>
+    <div className="!mt-4 min-h-[20px]">{(policy?.details || policy?.detailsJSON) && plateEditorHelper.convertToReadOnly(policy.detailsJSON ?? policy.details)}</div>
   )
 }
 

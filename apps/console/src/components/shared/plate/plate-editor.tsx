@@ -9,7 +9,7 @@ import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/comp
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
 import { discussionPlugin, TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
-import { GetUserProfileQuery, InternalPolicyByIdFragment, User } from '@repo/codegen/src/schema.ts'
+import { GetUserProfileQuery, InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
 import { TComment } from '@repo/ui/components/ui/comment.jsx'
 
 export type TPlateEditorProps = {
@@ -48,7 +48,6 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
             d.comments?.edges
               ?.map((cEdge) => {
                 const c = cEdge?.node
-                console.log(c)
                 if (!c) return null
 
                 return {
@@ -160,19 +159,7 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
           { select: true, nextBlock: false, at: [0], removeEmpty: true },
         )
       } else {
-        console.log(slateNodes)
-        const editedNodes = slateNodes.map((item) => {
-          item.children.map((childrenItem) => {
-            if (childrenItem?.comment === true) {
-              childrenItem[`comment_AxVb-go2dh5lspX8NvIpY`] = true
-            }
-          })
-
-          return item
-        })
-
-        console.log(editedNodes)
-        editor.children = editedNodes
+        editor.children = slateNodes
       }
     }
   }, [editor, initialValue, plateEditor, initialValueSet])

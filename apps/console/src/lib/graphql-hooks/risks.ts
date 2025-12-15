@@ -11,6 +11,7 @@ import {
   GET_RISK_BY_ID,
   GET_RISK_OPEN_AND_IDENTIFIED_COUNT,
   UPDATE_RISK,
+  UPDATE_RISK_COMMENT,
 } from '@repo/codegen/query/risks'
 
 import {
@@ -32,6 +33,8 @@ import {
   RiskWhereInput,
   UpdateBulkRiskMutation,
   UpdateBulkRiskMutationVariables,
+  UpdateRiskCommentMutation,
+  UpdateRiskCommentMutationVariables,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -188,4 +191,14 @@ export const useGetRiskOpenAndIdentifiedCount = () => {
     ...queryResult,
     totalCount: queryResult.data?.risks?.totalCount ?? 0,
   }
+}
+
+export const useUpdateRiskComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<UpdateRiskCommentMutation, unknown, UpdateRiskCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(UPDATE_RISK_COMMENT, variables)
+    },
+  })
 }
