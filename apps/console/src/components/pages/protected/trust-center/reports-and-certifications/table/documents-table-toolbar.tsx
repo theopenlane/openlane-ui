@@ -84,14 +84,14 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
       />
 
       <div className="flex flex-wrap items-center justify-between gap-2 my-3 w-full">
-        <div className="flex items-center gap-2 flex-grow sm:flex-grow-0">
+        <div className="flex items-center gap-2 grow sm:grow-0">
           <Input
             icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search documents..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.currentTarget.value)}
             variant="searchTable"
-            className="w-[240px]"
+            className="w-60"
           />
         </div>
         {selectedDocs.length === 0 ? (

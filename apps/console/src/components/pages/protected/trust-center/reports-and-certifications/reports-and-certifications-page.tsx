@@ -57,7 +57,7 @@ const ReportsAndCertificationsPage = () => {
       })) ?? [],
     [docs],
   )
-  console.log(docs)
+
   const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs }), [selectedDocs])
 
   useEffect(() => {
