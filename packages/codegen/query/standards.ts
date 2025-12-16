@@ -19,6 +19,7 @@ export const GET_ALL_STANDARDS = gql`
           standardType
           updatedAt
           tags
+          systemOwned
           description
           domains
           controls(where: { ownerIDIsNil: true }) {
@@ -70,6 +71,25 @@ export const GET_ALL_STANDARDS_SELECT = gql`
           id
           shortName
         }
+      }
+    }
+  }
+`
+
+export const GET_STANDARD_CONTROL_STATS = gql`
+  query GetStandardControlStats($standardId: ID!, $isStandardSystemOwned: Boolean!) {
+    standard(id: $standardId) {
+      totalControlsSystemOwned: controls(where: { systemOwned: true }) @include(if: $isStandardSystemOwned) {
+        totalCount
+      }
+      totalControlsNonSystemOwned: controls @skip(if: $isStandardSystemOwned) {
+        totalCount
+      }
+      coveredControls: controls(where: { status: APPROVED, hasEvidenceWith: [{ status: AUDITOR_APPROVED }], systemOwned: false }) {
+        totalCount
+      }
+      automatedControls: controls(where: { systemOwned: false, hasEvidenceWith: [{ isAutomated: true }] }) {
+        totalCount
       }
     }
   }

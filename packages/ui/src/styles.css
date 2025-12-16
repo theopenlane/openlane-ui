@@ -247,6 +247,9 @@
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #2fd2b1;
   --color-homepage-docs: #eff4f580;
+
+  --color-framework-coverage-covered: #4ade80;
+  --color-framework-coverage-uncovered: #e5e7eb;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -354,6 +357,9 @@
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #60e8c9;
   --color-homepage-docs: #162431;
+
+  --color-framework-coverage-covered: #4ade80;
+  --color-framework-coverage-uncovered: #d1d5db;
 }
 
 /* ─────────────────────────────────────────────────────────

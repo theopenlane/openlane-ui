@@ -71080,6 +71080,7 @@ export type GetAllStandardsQuery = {
         standardType?: string | null
         updatedAt?: any | null
         tags?: Array<string> | null
+        systemOwned?: boolean | null
         description?: string | null
         domains?: Array<string> | null
         controls: { __typename?: 'ControlConnection'; totalCount: number }
@@ -71129,6 +71130,22 @@ export type GetAllStandardsSelectQueryVariables = Exact<{
 export type GetAllStandardsSelectQuery = {
   __typename?: 'Query'
   standards: { __typename?: 'StandardConnection'; edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null } | null> | null }
+}
+
+export type GetStandardControlStatsQueryVariables = Exact<{
+  standardId: Scalars['ID']['input']
+  isStandardSystemOwned: Scalars['Boolean']['input']
+}>
+
+export type GetStandardControlStatsQuery = {
+  __typename?: 'Query'
+  standard: {
+    __typename?: 'Standard'
+    totalControlsSystemOwned?: { __typename?: 'ControlConnection'; totalCount: number }
+    totalControlsNonSystemOwned?: { __typename?: 'ControlConnection'; totalCount: number }
+    coveredControls: { __typename?: 'ControlConnection'; totalCount: number }
+    automatedControls: { __typename?: 'ControlConnection'; totalCount: number }
+  }
 }
 
 export type GetAllSubcontrolsQueryVariables = Exact<{

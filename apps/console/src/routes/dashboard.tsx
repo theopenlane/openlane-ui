@@ -85,7 +85,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       },
       {
         title: 'Standards Catalog',
-        href: '/standards',
+        href: '/standards?page=coverage',
         icon: FileBadge2,
       },
       {

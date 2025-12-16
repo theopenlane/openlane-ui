@@ -30,7 +30,7 @@ const StandardsPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Standards', href: '/standards' },
+      { label: 'Standards', href: '/standards?page=standardsCatalog' },
     ])
   }, [setCrumbs])
 
@@ -107,7 +107,7 @@ const StandardsPage = () => {
         <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href={INFO_EMAIL}>
-            <Button variant="secondary" className="!text-brand">
+            <Button variant="secondary" className="text-brand!">
               info@theopenlane.io
             </Button>
           </a>
