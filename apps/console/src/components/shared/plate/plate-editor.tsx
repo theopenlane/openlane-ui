@@ -29,6 +29,7 @@ export type TPlateEditorProps = {
   placeholder?: string
   entity?: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment
   userData?: GetUserProfileQuery
+  readonly?: boolean
 }
 
 export interface PlateEditorRef {
@@ -36,7 +37,7 @@ export interface PlateEditorRef {
   editor: ReturnType<typeof createPlateEditor>
 }
 
-const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData }, ref) => {
+const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly }, ref) => {
   const editor = usePlateEditor({
     plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
   })
@@ -89,8 +90,6 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
   }
 
   useEffect(() => {
-    console.log(entity)
-
     if (!editor || !entity || !userData?.user) return
 
     editor.setOption(discussionPlugin, 'entityType', entity.__typename)
@@ -185,13 +184,14 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
   return (
     <DndProvider backend={HTML5Backend}>
       <Plate
+        readOnly={readonly}
         editor={editor}
         onChange={(data) => {
           onChange?.(data.value)
         }}
       >
         <EditorContainer
-          variant={styleVariant}
+          variant={readonly ? 'readonly' : styleVariant}
           onClick={() => {
             // @ts-expect-error fix bad typing from platejs
             editor?.focus()

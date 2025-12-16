@@ -10,7 +10,6 @@ import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { Button } from '@repo/ui/button'
 import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
@@ -46,7 +45,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const isSubmitting = isCreating || isSaving
-  const plateEditorHelper = usePlateEditor()
   const { successNotification, errorNotification } = useNotification()
   const associationsState = usePolicy((state) => state.associations)
   const policyState = usePolicy()
@@ -253,7 +251,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   }
 
   const handleDetailsChange = (value: Value) => {
-    form.setValue('details', value)
+    form.setValue('detailsJSON', value)
   }
 
   return (
@@ -303,8 +301,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
             <InputRow className="w-full">
               <FormField
                 control={form.control}
-                name="details"
-                render={({ field }) => (
+                name="detailsJSON"
+                render={() => (
                   <FormItem className="w-full min-w-0">
                     <FormLabel>Policy</FormLabel>
                     <SystemTooltip
@@ -318,7 +316,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       entity={discussionData?.internalPolicy}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
-                      initialValue={policy?.details ?? (field.value as string) ?? undefined}
+                      initialValue={policy?.details ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>

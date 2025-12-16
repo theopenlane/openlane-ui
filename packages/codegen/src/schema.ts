@@ -70310,6 +70310,7 @@ export type ProcedureByIdFragment = {
   reviewFrequency?: ProcedureFrequency | null
   approvalRequired?: boolean | null
   procedureKindName?: string | null
+  detailsJSON?: Array<any> | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
@@ -70381,6 +70382,7 @@ export type GetProcedureDetailsByIdQuery = {
     reviewFrequency?: ProcedureFrequency | null
     approvalRequired?: boolean | null
     procedureKindName?: string | null
+    detailsJSON?: Array<any> | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }

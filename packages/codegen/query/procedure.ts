@@ -148,6 +148,7 @@ export const PROCEDURE_BY_ID = gql`
     reviewFrequency
     approvalRequired
     procedureKindName
+    detailsJSON
     approver {
       id
       displayName

@@ -3,7 +3,6 @@
 import React from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { InternalPolicyByIdFragment, PolicyDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
 import { useSession } from 'next-auth/react'
@@ -18,7 +17,6 @@ type TDetailsFieldProps = {
 }
 
 const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, discussionData }) => {
-  const plateEditorHelper = usePlateEditor()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -30,7 +28,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
       </label>
       <Controller
         control={form.control}
-        name={`${policy?.detailsJSON ? 'detailsJSON' : 'details'}`}
+        name="detailsJSON"
         render={({ field }) => (
           <PlateEditor
             userData={userData}
@@ -44,7 +42,13 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
     </div>
   ) : (
     <div className="!mt-4 min-h-[20px]">
-      {(policy?.details || policy?.detailsJSON) && plateEditorHelper.convertToReadOnly(policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details as string))}
+      <PlateEditor
+        userData={userData}
+        initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
+        entity={discussionData}
+        readonly={true}
+        variant="readonly"
+      />
     </div>
   )
 }

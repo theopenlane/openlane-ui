@@ -2,7 +2,6 @@
 
 import { useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import React, { useEffect, useMemo, useState } from 'react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/procedures/view/fields/details-field.tsx'
@@ -14,7 +13,6 @@ import PropertiesCard from '@/components/pages/protected/procedures/view/cards/p
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
@@ -44,7 +42,6 @@ const ViewProcedurePage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
-  const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedureState = useProcedure()
   const procedure = data?.procedure
@@ -162,11 +159,7 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
+      const { details, ...rest } = data
 
       const formData: {
         updateProcedureId: string
@@ -174,8 +167,8 @@ const ViewProcedurePage: React.FC = () => {
       } = {
         updateProcedureId: procedure?.id,
         input: {
-          ...data,
-          details: detailsField,
+          ...rest,
+          detailsJSON: data?.detailsJSON,
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
