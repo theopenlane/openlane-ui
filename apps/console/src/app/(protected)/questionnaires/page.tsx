@@ -1,5 +1,4 @@
-import { PageHeading } from '@repo/ui/page-heading'
-import { QuestionnairesTable } from '@/components/pages/protected/questionnaire/table/questionnaire-table.tsx'
+import { QuestionnairesPageWrapper } from '@/components/pages/protected/questionnaire/questionnaires-page-wrapper'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -7,12 +6,7 @@ export const metadata: Metadata = {
 }
 
 const Page: React.FC = () => {
-  return (
-    <>
-      <PageHeading heading="Questionnaires" />
-      <QuestionnairesTable />
-    </>
-  )
+  return <QuestionnairesPageWrapper />
 }
 
 export default Page
