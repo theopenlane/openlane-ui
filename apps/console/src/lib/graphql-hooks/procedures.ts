@@ -12,7 +12,7 @@ import {
   CREATE_UPLOAD_PROCEDURE,
   BULK_DELETE_PROCEDURE,
   GET_PROCEDURE_ASSOCIATIONS_BY_ID,
-  UPDATE_PROCEDURE_COMMENT,
+  INSERT_PROCEDURE_COMMENT,
   GET_PROCEDURE_DISCUSSION_BY_ID,
 } from '@repo/codegen/query/procedure'
 
@@ -39,8 +39,8 @@ import {
   DeleteBulkProcedureMutationVariables,
   GetProcedureAssociationsByIdQuery,
   GetProcedureAssociationsByIdQueryVariables,
-  UpdateProcedureCommentMutation,
-  UpdateProcedureCommentMutationVariables,
+  InsertProcedureCommentMutation,
+  InsertProcedureCommentMutationVariables,
   GetProcedureDiscussionByIdQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -206,12 +206,12 @@ export const useGetProcedureDiscussionById = (procedureId?: string | null) => {
   })
 }
 
-export const useUpdateProcedureComment = () => {
+export const useInsertProcedureComment = () => {
   const { client } = useGraphQLClient()
 
-  return useMutation<UpdateProcedureCommentMutation, unknown, UpdateProcedureCommentMutationVariables>({
+  return useMutation<InsertProcedureCommentMutation, unknown, InsertProcedureCommentMutationVariables>({
     mutationFn: async (variables) => {
-      return client.request(UPDATE_PROCEDURE_COMMENT, variables)
+      return client.request(INSERT_PROCEDURE_COMMENT, variables)
     },
   })
 }

@@ -48,6 +48,7 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
   function mapEntityDiscussions(
     entity: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment,
   ): TDiscussion[] {
+    console.log(entity?.discussions)
     return (
       entity.discussions?.edges
         ?.map((edge) => {
@@ -79,6 +80,7 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
 
           return {
             id: d.externalID,
+            systemId: d.id,
             createdAt: new Date(d.createdAt ?? Date.now()),
             isResolved: false,
             userId: comments[0]?.userId ?? 'unknown',

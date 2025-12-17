@@ -331,8 +331,8 @@ export const GET_PROCEDURE_DISCUSSION_BY_ID = gql`
   }
 `
 
-export const UPDATE_PROCEDURE_COMMENT = gql`
-  mutation UpdateProcedureComment($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
+export const INSERT_PROCEDURE_COMMENT = gql`
+  mutation InsertProcedureComment($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
     updateProcedure(id: $updateProcedureId, input: $input) {
       procedure {
         discussions {

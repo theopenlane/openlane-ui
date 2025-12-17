@@ -6,6 +6,7 @@ import { BlockDiscussion } from '@repo/ui/components/ui/block-discussion.tsx'
 
 export interface TDiscussion {
   id: string
+  systemId?: string
   comments: TComment[]
   createdAt: Date
   isResolved: boolean

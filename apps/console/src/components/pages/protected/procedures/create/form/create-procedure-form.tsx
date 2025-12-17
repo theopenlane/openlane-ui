@@ -150,7 +150,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       const formData: { input: CreateProcedureInput } = {
         input: {
           ...rest,
-          detailsJSON: data?.detailsJSON,
+          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -351,7 +351,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                       entity={discussionData?.procedure}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
-                      initialValue={procedure?.details ?? undefined}
+                      initialValue={procedure?.detailsJSON ?? procedure?.details ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>

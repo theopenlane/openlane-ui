@@ -252,8 +252,8 @@ export const GET_RISK_DISCUSSION_BY_ID = gql`
   }
 `
 
-export const UPDATE_RISK_COMMENT = gql`
-  mutation UpdateRiskComment($updateRiskId: ID!, $input: UpdateRiskInput!) {
+export const INSERT_RISK_COMMENT = gql`
+  mutation InsertRiskComment($updateRiskId: ID!, $input: UpdateRiskInput!) {
     updateRisk(id: $updateRiskId, input: $input) {
       risk {
         discussions {

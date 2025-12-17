@@ -13,7 +13,7 @@ import {
   GET_POLICY_SUGGESTED_ACTIONS,
   BULK_DELETE_POLICY,
   GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID,
-  UPDATE_POLICY_COMMENT,
+  INSERT_POLICY_COMMENT,
   GET_POLICY_DISCUSSION_BY_ID,
 } from '@repo/codegen/query/policy'
 import {
@@ -39,8 +39,8 @@ import {
   PolicySuggestedActionsQuery,
   UpdateBulkInternalPolicyMutation,
   UpdateBulkInternalPolicyMutationVariables,
-  UpdateInternalPolicyCommentMutation,
-  UpdateInternalPolicyCommentMutationVariables,
+  InsertInternalPolicyCommentMutation,
+  InsertInternalPolicyCommentMutationVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -279,12 +279,12 @@ export const useGetPolicyDiscussionById = (policyId?: string | null) => {
   })
 }
 
-export const useUpdatePolicyComment = () => {
+export const useInsertPolicyComment = () => {
   const { client } = useGraphQLClient()
 
-  return useMutation<UpdateInternalPolicyCommentMutation, unknown, UpdateInternalPolicyCommentMutationVariables>({
+  return useMutation<InsertInternalPolicyCommentMutation, unknown, InsertInternalPolicyCommentMutationVariables>({
     mutationFn: async (variables) => {
-      return client.request(UPDATE_POLICY_COMMENT, variables)
+      return client.request(INSERT_POLICY_COMMENT, variables)
     },
   })
 }

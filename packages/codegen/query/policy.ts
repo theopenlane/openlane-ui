@@ -369,8 +369,8 @@ export const GET_POLICY_DISCUSSION_BY_ID = gql`
   }
 `
 
-export const UPDATE_POLICY_COMMENT = gql`
-  mutation UpdateInternalPolicyComment($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
+export const INSERT_POLICY_COMMENT = gql`
+  mutation InsertInternalPolicyComment($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
     updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
       internalPolicy {
         discussions {

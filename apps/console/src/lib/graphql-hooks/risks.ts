@@ -12,7 +12,7 @@ import {
   GET_RISK_DISCUSSION_BY_ID,
   GET_RISK_OPEN_AND_IDENTIFIED_COUNT,
   UPDATE_RISK,
-  UPDATE_RISK_COMMENT,
+  INSERT_RISK_COMMENT,
 } from '@repo/codegen/query/risks'
 
 import {
@@ -35,8 +35,8 @@ import {
   RiskWhereInput,
   UpdateBulkRiskMutation,
   UpdateBulkRiskMutationVariables,
-  UpdateRiskCommentMutation,
-  UpdateRiskCommentMutationVariables,
+  InsertRiskCommentMutation,
+  InsertRiskCommentMutationVariables,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -205,12 +205,12 @@ export const useGetRiskDiscussionById = (riskId?: string | null) => {
   })
 }
 
-export const useUpdateRiskComment = () => {
+export const useInsertRiskComment = () => {
   const { client } = useGraphQLClient()
 
-  return useMutation<UpdateRiskCommentMutation, unknown, UpdateRiskCommentMutationVariables>({
+  return useMutation<InsertRiskCommentMutation, unknown, InsertRiskCommentMutationVariables>({
     mutationFn: async (variables) => {
-      return client.request(UPDATE_RISK_COMMENT, variables)
+      return client.request(INSERT_RISK_COMMENT, variables)
     },
   })
 }

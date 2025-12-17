@@ -26,7 +26,7 @@ import {
   GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
   GET_CONTROL_ASSOCIATIONS_BY_ID,
   GET_CONTROL_NOT_IMPLEMENTED_COUNT,
-  UPDATE_CONTROL_PLATE_COMMENT,
+  INSERT_CONTROL_PLATE_COMMENT,
   GET_CONTROL_DISCUSSION_BY_ID,
 } from '@repo/codegen/query/control'
 
@@ -77,8 +77,8 @@ import {
   GetControlAssociationsByIdQuery,
   GetControlAssociationsByIdQueryVariables,
   GetNotImplementedControlCountQuery,
-  UpdateControlPlateCommentMutation,
-  UpdateControlPlateCommentMutationVariables,
+  InsertControlPlateCommentMutation,
+  InsertControlPlateCommentMutationVariables,
   GetControlDiscussionByIdQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -567,12 +567,12 @@ export const useGetControlDiscussionById = (controlId?: string | null) => {
   })
 }
 
-export const useUpdateControlPlateComment = () => {
+export const useInsertControlPlateComment = () => {
   const { client } = useGraphQLClient()
 
-  return useMutation<UpdateControlPlateCommentMutation, unknown, UpdateControlPlateCommentMutationVariables>({
+  return useMutation<InsertControlPlateCommentMutation, unknown, InsertControlPlateCommentMutationVariables>({
     mutationFn: async (variables) => {
-      return client.request(UPDATE_CONTROL_PLATE_COMMENT, variables)
+      return client.request(INSERT_CONTROL_PLATE_COMMENT, variables)
     },
   })
 }

@@ -655,8 +655,8 @@ export const GET_CONTROL_DISCUSSION_BY_ID = gql`
   }
 `
 
-export const UPDATE_CONTROL_PLATE_COMMENT = gql`
-  mutation UpdateControlPlateComment($updateControlId: ID!, $input: UpdateControlInput!) {
+export const INSERT_CONTROL_PLATE_COMMENT = gql`
+  mutation InsertControlPlateComment($updateControlId: ID!, $input: UpdateControlInput!) {
     updateControl(id: $updateControlId, input: $input) {
       control {
         discussions {

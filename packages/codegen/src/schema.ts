@@ -42,6 +42,8 @@ export interface Scalars {
   Cursor: { input: any; output: any }
   /** DateTime allows clients to use multiple time/date formats ( 2006-01-10 or 2025-04-28T04:00:00Z ) */
   DateTime: { input: string; output: string }
+  /** The EvidenceRequests scalar type that represents documents or artifacts that can be collected to demonstrate compliance with a control */
+  EvidenceRequests: { input: any; output: any }
   /** The `ExampleEvidence` scalar type represents example evidence that can be used to satisfy the control */
   ExampleEvidence: { input: any; output: any }
   /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
@@ -63,6 +65,8 @@ export interface Scalars {
    * This scalar is used to track SSO verification times for organizations in the context of token authorization.
    */
   SSOAuthorizationMap: { input: any; output: any }
+  /** The TestingProcedures scalar type that represents steps to take to test a control; they can come directly from the control source or pulled from external sources */
+  TestingProcedures: { input: any; output: any }
   /** The builtin Time type */
   Time: { input: any; output: any }
   /**
@@ -4354,6 +4358,8 @@ export interface Control extends Node {
   displayID: Scalars['String']['output']
   editors: GroupConnection
   evidence: EvidenceConnection
+  /** list of common evidence requests for the control */
+  evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
   findings: FindingConnection
@@ -4371,6 +4377,12 @@ export interface Control extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   procedures: ProcedureConnection
   programs: ProgramConnection
+  /** when changes were proposed */
+  proposedAt?: Maybe<Scalars['Time']['output']>
+  /** user who proposed the changes */
+  proposedByUserID?: Maybe<Scalars['String']['output']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
@@ -4405,6 +4417,8 @@ export interface Control extends Node {
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
+  /** reference steps to take to test the control */
+  testingProcedures?: Maybe<Array<Scalars['TestingProcedures']['output']>>
   /** human readable title of the control for quick identification */
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -4777,6 +4791,8 @@ export interface ControlHistory extends Node {
   descriptionJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** list of common evidence requests for the control */
+  evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
   historyTime: Scalars['Time']['output']
@@ -4790,6 +4806,12 @@ export interface ControlHistory extends Node {
   operation: ControlHistoryOpType
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** when changes were proposed */
+  proposedAt?: Maybe<Scalars['Time']['output']>
+  /** user who proposed the changes */
+  proposedByUserID?: Maybe<Scalars['String']['output']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
@@ -4817,6 +4839,8 @@ export interface ControlHistory extends Node {
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  /** reference steps to take to test the control */
+  testingProcedures?: Maybe<Array<Scalars['TestingProcedures']['output']>>
   /** human readable title of the control for quick identification */
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -5141,6 +5165,33 @@ export interface ControlHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_at field predicates */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedAtLT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_by_user_id field predicates */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContains?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedByUserIDLT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   /** ref_code field predicates */
@@ -7283,6 +7334,33 @@ export interface ControlWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_at field predicates */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedAtLT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_by_user_id field predicates */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContains?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedByUserIDLT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref_code field predicates */
   refCode?: InputMaybe<Scalars['String']['input']>
   refCodeContains?: InputMaybe<Scalars['String']['input']>
@@ -7750,6 +7828,8 @@ export interface CreateControlInput {
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** list of common evidence requests for the control */
+  evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -7764,6 +7844,12 @@ export interface CreateControlInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** when changes were proposed */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  /** user who proposed the changes */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: InputMaybe<Scalars['Map']['input']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
   /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
@@ -7791,6 +7877,8 @@ export interface CreateControlInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** reference steps to take to test the control */
+  testingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** human readable title of the control for quick identification */
   title?: InputMaybe<Scalars['String']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8198,6 +8286,12 @@ export interface CreateEvidenceInput {
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** when changes were proposed */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  /** user who proposed the changes */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: InputMaybe<Scalars['Map']['input']>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['Time']['input']>
   /** the source of the evidence, e.g. system the evidence was retrieved from (splunk, github, etc) */
@@ -8592,6 +8686,12 @@ export interface CreateInternalPolicyInput {
   policyType?: InputMaybe<Scalars['String']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** when changes were proposed */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  /** user who proposed the changes */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: InputMaybe<Scalars['Map']['input']>
   /** the date the policy should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
   /** the frequency at which the policy should be reviewed, used to calculate the review_due date */
@@ -9570,6 +9670,8 @@ export interface CreateSubcontrolInput {
   descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** list of common evidence requests for the control */
+  evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** implementation guidance for the control */
@@ -9609,6 +9711,8 @@ export interface CreateSubcontrolInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** reference steps to take to test the control */
+  testingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** human readable title of the control for quick identification */
   title?: InputMaybe<Scalars['String']['input']>
 }
@@ -10235,8 +10339,11 @@ export interface CreateWorkflowEventInput {
 export interface CreateWorkflowInstanceInput {
   /** Optional context for the workflow instance */
   context?: InputMaybe<Scalars['WorkflowInstanceContext']['input']>
+  controlID?: InputMaybe<Scalars['ID']['input']>
   /** Copy of definition JSON used for this instance */
   definitionSnapshot?: InputMaybe<Scalars['WorkflowDefinitionDocument']['input']>
+  evidenceID?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   /** Timestamp when the workflow was last evaluated */
   lastEvaluatedAt?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -10258,6 +10365,7 @@ export interface CreateWorkflowObjectRefInput {
   controlID?: InputMaybe<Scalars['ID']['input']>
   directoryAccountID?: InputMaybe<Scalars['ID']['input']>
   directoryGroupID?: InputMaybe<Scalars['ID']['input']>
+  evidenceID?: InputMaybe<Scalars['ID']['input']>
   findingID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -17295,6 +17403,12 @@ export interface Evidence extends Node {
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   programs: ProgramConnection
+  /** when changes were proposed */
+  proposedAt?: Maybe<Scalars['Time']['output']>
+  /** user who proposed the changes */
+  proposedByUserID?: Maybe<Scalars['String']['output']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: Maybe<Scalars['Time']['output']>
   /** the source of the evidence, e.g. system the evidence was retrieved from (splunk, github, etc) */
@@ -17456,6 +17570,12 @@ export interface EvidenceHistory extends Node {
   operation: EvidenceHistoryOpType
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** when changes were proposed */
+  proposedAt?: Maybe<Scalars['Time']['output']>
+  /** user who proposed the changes */
+  proposedByUserID?: Maybe<Scalars['String']['output']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: Maybe<Scalars['Time']['output']>
@@ -17678,6 +17798,33 @@ export interface EvidenceHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_at field predicates */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedAtLT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_by_user_id field predicates */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContains?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedByUserIDLT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -17961,6 +18108,33 @@ export interface EvidenceWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_at field predicates */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedAtLT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_by_user_id field predicates */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContains?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedByUserIDLT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** renewal_date field predicates */
   renewalDate?: InputMaybe<Scalars['Time']['input']>
   renewalDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -24984,6 +25158,12 @@ export interface InternalPolicy extends Node {
   policyType?: Maybe<Scalars['String']['output']>
   procedures: ProcedureConnection
   programs: ProgramConnection
+  /** when changes were proposed */
+  proposedAt?: Maybe<Scalars['Time']['output']>
+  /** user who proposed the changes */
+  proposedByUserID?: Maybe<Scalars['String']['output']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
   /** the date the policy should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: Maybe<Scalars['Time']['output']>
   /** the frequency at which the policy should be reviewed, used to calculate the review_due date */
@@ -25257,6 +25437,12 @@ export interface InternalPolicyHistory extends Node {
    * @deprecated Use `policy_kind_name` instead.
    */
   policyType?: Maybe<Scalars['String']['output']>
+  /** when changes were proposed */
+  proposedAt?: Maybe<Scalars['Time']['output']>
+  /** user who proposed the changes */
+  proposedByUserID?: Maybe<Scalars['String']['output']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the date the policy should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: Maybe<Scalars['Time']['output']>
@@ -25582,6 +25768,33 @@ export interface InternalPolicyHistoryWhereInput {
   policyTypeNEQ?: InputMaybe<Scalars['String']['input']>
   policyTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   policyTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_at field predicates */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedAtLT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_by_user_id field predicates */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContains?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedByUserIDLT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -26011,6 +26224,33 @@ export interface InternalPolicyWhereInput {
   policyTypeNEQ?: InputMaybe<Scalars['String']['input']>
   policyTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   policyTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_at field predicates */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedAtLT?: InputMaybe<Scalars['Time']['input']>
+  proposedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  proposedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  proposedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed_by_user_id field predicates */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContains?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  proposedByUserIDLT?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  proposedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  proposedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** review_due field predicates */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
   reviewDueGT?: InputMaybe<Scalars['Time']['input']>
@@ -29970,8 +30210,6 @@ export interface Mutation {
   updateWorkflowEvent: WorkflowEventUpdatePayload
   /** Update an existing workflowInstance */
   updateWorkflowInstance: WorkflowInstanceUpdatePayload
-  /** Update an existing workflowObjectRef */
-  updateWorkflowObjectRef: WorkflowObjectRefUpdatePayload
 }
 
 export interface MutationCloneBulkCsvControlArgs {
@@ -31810,11 +32048,6 @@ export interface MutationUpdateWorkflowEventArgs {
 export interface MutationUpdateWorkflowInstanceArgs {
   id: Scalars['ID']['input']
   input: UpdateWorkflowInstanceInput
-}
-
-export interface MutationUpdateWorkflowObjectRefArgs {
-  id: Scalars['ID']['input']
-  input: UpdateWorkflowObjectRefInput
 }
 
 export interface Narrative extends Node {
@@ -48003,6 +48236,8 @@ export interface Subcontrol extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   evidence: EvidenceConnection
+  /** list of common evidence requests for the control */
+  evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
   id: Scalars['ID']['output']
@@ -48052,6 +48287,8 @@ export interface Subcontrol extends Node {
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
+  /** reference steps to take to test the control */
+  testingProcedures?: Maybe<Array<Scalars['TestingProcedures']['output']>>
   /** human readable title of the control for quick identification */
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -48276,6 +48513,8 @@ export interface SubcontrolHistory extends Node {
   descriptionJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** list of common evidence requests for the control */
+  evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
   historyTime: Scalars['Time']['output']
@@ -48318,6 +48557,8 @@ export interface SubcontrolHistory extends Node {
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  /** reference steps to take to test the control */
+  testingProcedures?: Maybe<Array<Scalars['TestingProcedures']['output']>>
   /** human readable title of the control for quick identification */
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -56843,11 +57084,13 @@ export interface UpdateControlInput {
   appendAssessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
   appendControlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDescriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  appendEvidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   appendExampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   appendImplementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
   appendMappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   appendReferences?: InputMaybe<Array<Scalars['Reference']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  appendTestingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** methods used to verify the control implementation during an audit */
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
@@ -56881,6 +57124,7 @@ export interface UpdateControlInput {
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
@@ -56890,6 +57134,9 @@ export interface UpdateControlInput {
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedByUserID?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedChanges?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceFrameworkRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
@@ -56905,6 +57152,7 @@ export interface UpdateControlInput {
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  clearTestingProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   controlKindID?: InputMaybe<Scalars['ID']['input']>
@@ -56922,6 +57170,8 @@ export interface UpdateControlInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** structured details of the control in JSON format */
   descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  /** list of common evidence requests for the control */
+  evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** implementation guidance for the control */
@@ -56930,6 +57180,12 @@ export interface UpdateControlInput {
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** mapped categories of the control to other standards */
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
+  /** when changes were proposed */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  /** user who proposed the changes */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: InputMaybe<Scalars['Map']['input']>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
   /** the reference framework revision for the control if it came from a standard, empty if not associated with a standard, allows for pulling in updates when the standard is updated */
@@ -56970,8 +57226,11 @@ export interface UpdateControlInput {
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference steps to take to test the control */
+  testingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** human readable title of the control for quick identification */
   title?: InputMaybe<Scalars['String']['input']>
+  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
 }
 
 /**
@@ -57369,6 +57628,13 @@ export interface UpdateDiscussionInput {
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
 }
 
+/** Update discussions related to an object */
+export interface UpdateDiscussionsInput {
+  /** id of the discussion to update */
+  id: Scalars['ID']['input']
+  input: UpdateDiscussionInput
+}
+
 /**
  * UpdateDocumentDataInput is used for update DocumentData object.
  * Input was generated by ent.
@@ -57551,6 +57817,9 @@ export interface UpdateEvidenceInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIsAutomated?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedByUserID?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedChanges?: InputMaybe<Scalars['Boolean']['input']>
   clearRenewalDate?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
@@ -57569,6 +57838,12 @@ export interface UpdateEvidenceInput {
   isAutomated?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the evidence */
   name?: InputMaybe<Scalars['String']['input']>
+  /** when changes were proposed */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  /** user who proposed the changes */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: InputMaybe<Scalars['Map']['input']>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58204,6 +58479,9 @@ export interface UpdateInternalPolicyInput {
   clearPolicyType?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedByUserID?: InputMaybe<Scalars['Boolean']['input']>
+  clearProposedChanges?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewDue?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
@@ -58244,6 +58522,12 @@ export interface UpdateInternalPolicyInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** type of the policy, e.g. compliance, operational, health and safety, etc. */
   policyType?: InputMaybe<Scalars['String']['input']>
+  /** when changes were proposed */
+  proposedAt?: InputMaybe<Scalars['Time']['input']>
+  /** user who proposed the changes */
+  proposedByUserID?: InputMaybe<Scalars['String']['input']>
+  /** pending changes awaiting workflow approval */
+  proposedChanges?: InputMaybe<Scalars['Map']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58272,6 +58556,7 @@ export interface UpdateInternalPolicyInput {
   tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
   /** This will contain the url used to create or update the policy */
   url?: InputMaybe<Scalars['String']['input']>
 }
@@ -59103,6 +59388,7 @@ export interface UpdateProcedureInput {
   tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
   /** This will contain the url used to create or update the procedure */
   url?: InputMaybe<Scalars['String']['input']>
 }
@@ -59573,6 +59859,7 @@ export interface UpdateRiskInput {
   status?: InputMaybe<RiskRiskStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
 }
 
 /**
@@ -59752,11 +60039,13 @@ export interface UpdateSubcontrolInput {
   appendAssessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
   appendControlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendDescriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  appendEvidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   appendExampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   appendImplementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
   appendMappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   appendReferences?: InputMaybe<Array<Scalars['Reference']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  appendTestingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** methods used to verify the control implementation during an audit */
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
@@ -59785,6 +60074,7 @@ export interface UpdateSubcontrolInput {
   clearDescriptionJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -59806,6 +60096,7 @@ export interface UpdateSubcontrolInput {
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  clearTestingProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
   controlOwnerID?: InputMaybe<Scalars['ID']['input']>
@@ -59820,6 +60111,8 @@ export interface UpdateSubcontrolInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** structured details of the control in JSON format */
   descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  /** list of common evidence requests for the control */
+  evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** implementation guidance for the control */
@@ -59862,8 +60155,11 @@ export interface UpdateSubcontrolInput {
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference steps to take to test the control */
+  testingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** human readable title of the control for quick identification */
   title?: InputMaybe<Scalars['String']['input']>
+  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
 }
 
 /**
@@ -60616,7 +60912,6 @@ export interface UpdateWorkflowAssignmentInput {
   clearLabel?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearUser?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowAssignmentTargets?: InputMaybe<Scalars['Boolean']['input']>
@@ -60629,7 +60924,6 @@ export interface UpdateWorkflowAssignmentInput {
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** Optional notes about the assignment */
   notes?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeWorkflowAssignmentTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** Whether this assignment is required for workflow progression */
   required?: InputMaybe<Scalars['Boolean']['input']>
@@ -60650,12 +60944,10 @@ export interface UpdateWorkflowAssignmentInput {
 export interface UpdateWorkflowAssignmentTargetInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearGroup?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearResolverKey?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearUser?: InputMaybe<Scalars['Boolean']['input']>
   groupID?: InputMaybe<Scalars['ID']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Resolver key when target_type is RESOLVER */
   resolverKey?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -60683,7 +60975,6 @@ export interface UpdateWorkflowDefinitionInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPublishedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
@@ -60705,7 +60996,6 @@ export interface UpdateWorkflowDefinitionInput {
   isDefault?: InputMaybe<Scalars['Boolean']['input']>
   /** Name of the workflow definition */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** When this definition was published */
   publishedAt?: InputMaybe<Scalars['Time']['input']>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60734,12 +61024,10 @@ export interface UpdateWorkflowDefinitionInput {
  */
 export interface UpdateWorkflowEventInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPayload?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** Type of event, typically the action kind */
   eventType?: InputMaybe<WorkflowEventWorkflowEventType>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Payload for the event; stored raw */
   payload?: InputMaybe<Scalars['WorkflowEventPayload']['input']>
   /** tags associated with the object */
@@ -60757,20 +61045,24 @@ export interface UpdateWorkflowInstanceInput {
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearContext?: InputMaybe<Scalars['Boolean']['input']>
+  clearControl?: InputMaybe<Scalars['Boolean']['input']>
   clearDefinitionSnapshot?: InputMaybe<Scalars['Boolean']['input']>
+  clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   clearLastEvaluatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowAssignments?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** Optional context for the workflow instance */
   context?: InputMaybe<Scalars['WorkflowInstanceContext']['input']>
+  controlID?: InputMaybe<Scalars['ID']['input']>
   /** Copy of definition JSON used for this instance */
   definitionSnapshot?: InputMaybe<Scalars['WorkflowDefinitionDocument']['input']>
+  evidenceID?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   /** Timestamp when the workflow was last evaluated */
   lastEvaluatedAt?: InputMaybe<Scalars['Time']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeWorkflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60779,15 +61071,6 @@ export interface UpdateWorkflowInstanceInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   workflowDefinitionID?: InputMaybe<Scalars['ID']['input']>
-}
-
-/**
- * UpdateWorkflowObjectRefInput is used for update WorkflowObjectRef object.
- * Input was generated by ent.
- */
-export interface UpdateWorkflowObjectRefInput {
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
 }
 
 export interface User extends Node {
@@ -63948,7 +64231,7 @@ export interface WorkflowAssignment extends Node {
   /** Optional notes about the assignment */
   notes?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** Whether this assignment is required for workflow progression */
   required: Scalars['Boolean']['output']
@@ -64042,7 +64325,7 @@ export interface WorkflowAssignmentHistory extends Node {
   /** Optional notes about the assignment */
   notes?: Maybe<Scalars['String']['output']>
   operation: WorkflowAssignmentHistoryOpType
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** Whether this assignment is required for workflow progression */
@@ -64392,7 +64675,7 @@ export interface WorkflowAssignmentTarget extends Node {
   group?: Maybe<Group>
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** Resolver key when target_type is RESOLVER */
   resolverKey?: Maybe<Scalars['String']['output']>
@@ -64464,7 +64747,7 @@ export interface WorkflowAssignmentTargetHistory extends Node {
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: WorkflowAssignmentTargetHistoryOpType
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** Resolver key when target_type is RESOLVER */
@@ -65232,7 +65515,7 @@ export interface WorkflowDefinition extends Node {
   /** Name of the workflow definition */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** When this definition was published */
   publishedAt?: Maybe<Scalars['Time']['output']>
@@ -65343,7 +65626,7 @@ export interface WorkflowDefinitionHistory extends Node {
   /** Name of the workflow definition */
   name: Scalars['String']['output']
   operation: WorkflowDefinitionHistoryOpType
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
   /** When this definition was published */
   publishedAt?: Maybe<Scalars['Time']['output']>
@@ -65954,7 +66237,7 @@ export interface WorkflowEvent extends Node {
   eventType: WorkflowEventWorkflowEventType
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** Payload for the event; stored raw */
   payload?: Maybe<Scalars['WorkflowEventPayload']['output']>
@@ -66019,7 +66302,7 @@ export interface WorkflowEventHistory extends Node {
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: WorkflowEventHistoryOpType
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
   /** Payload for the event; stored raw */
   payload?: Maybe<Scalars['WorkflowEventPayload']['output']>
@@ -66397,17 +66680,29 @@ export interface WorkflowInstance extends Node {
   __typename?: 'WorkflowInstance'
   /** Optional context for the workflow instance */
   context?: Maybe<Scalars['WorkflowInstanceContext']['output']>
+  /** Control this workflow instance is associated with */
+  control?: Maybe<Control>
+  /** ID of the control this workflow instance is associated with */
+  controlID?: Maybe<Scalars['ID']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** Copy of definition JSON used for this instance */
   definitionSnapshot?: Maybe<Scalars['WorkflowDefinitionDocument']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** Evidence this workflow instance is associated with */
+  evidence?: Maybe<Evidence>
+  /** ID of the evidence this workflow instance is associated with */
+  evidenceID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
+  /** Internal policy this workflow instance is associated with */
+  internalPolicy?: Maybe<InternalPolicy>
+  /** ID of the internal policy this workflow instance is associated with */
+  internalPolicyID?: Maybe<Scalars['ID']['output']>
   /** Timestamp when the workflow was last evaluated */
   lastEvaluatedAt?: Maybe<Scalars['Time']['output']>
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** Current state of the workflow instance */
   state: WorkflowInstanceWorkflowInstanceState
@@ -66496,18 +66791,24 @@ export interface WorkflowInstanceHistory extends Node {
   __typename?: 'WorkflowInstanceHistory'
   /** Optional context for the workflow instance */
   context?: Maybe<Scalars['WorkflowInstanceContext']['output']>
+  /** ID of the control this workflow instance is associated with */
+  controlID?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** Copy of definition JSON used for this instance */
   definitionSnapshot?: Maybe<Scalars['WorkflowDefinitionDocument']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** ID of the evidence this workflow instance is associated with */
+  evidenceID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** ID of the internal policy this workflow instance is associated with */
+  internalPolicyID?: Maybe<Scalars['String']['output']>
   /** Timestamp when the workflow was last evaluated */
   lastEvaluatedAt?: Maybe<Scalars['Time']['output']>
   operation: WorkflowInstanceHistoryOpType
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** Current state of the workflow instance */
@@ -66568,6 +66869,22 @@ export enum WorkflowInstanceHistoryOrderField {
  */
 export interface WorkflowInstanceHistoryWhereInput {
   and?: InputMaybe<Array<WorkflowInstanceHistoryWhereInput>>
+  /** control_id field predicates */
+  controlID?: InputMaybe<Scalars['String']['input']>
+  controlIDContains?: InputMaybe<Scalars['String']['input']>
+  controlIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  controlIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  controlIDGT?: InputMaybe<Scalars['String']['input']>
+  controlIDGTE?: InputMaybe<Scalars['String']['input']>
+  controlIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  controlIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  controlIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  controlIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  controlIDLT?: InputMaybe<Scalars['String']['input']>
+  controlIDLTE?: InputMaybe<Scalars['String']['input']>
+  controlIDNEQ?: InputMaybe<Scalars['String']['input']>
+  controlIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  controlIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -66609,6 +66926,22 @@ export interface WorkflowInstanceHistoryWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** evidence_id field predicates */
+  evidenceID?: InputMaybe<Scalars['String']['input']>
+  evidenceIDContains?: InputMaybe<Scalars['String']['input']>
+  evidenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  evidenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  evidenceIDGT?: InputMaybe<Scalars['String']['input']>
+  evidenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  evidenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  evidenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  evidenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  evidenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  evidenceIDLT?: InputMaybe<Scalars['String']['input']>
+  evidenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  evidenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  evidenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  evidenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -66629,6 +66962,22 @@ export interface WorkflowInstanceHistoryWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_policy_id field predicates */
+  internalPolicyID?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDContains?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDGT?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDGTE?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalPolicyIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalPolicyIDLT?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDLTE?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalPolicyIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** last_evaluated_at field predicates */
   lastEvaluatedAt?: InputMaybe<Scalars['Time']['input']>
   lastEvaluatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -66762,6 +67111,22 @@ export interface WorkflowInstanceUpdatePayload {
  */
 export interface WorkflowInstanceWhereInput {
   and?: InputMaybe<Array<WorkflowInstanceWhereInput>>
+  /** control_id field predicates */
+  controlID?: InputMaybe<Scalars['ID']['input']>
+  controlIDContains?: InputMaybe<Scalars['ID']['input']>
+  controlIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  controlIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  controlIDGT?: InputMaybe<Scalars['ID']['input']>
+  controlIDGTE?: InputMaybe<Scalars['ID']['input']>
+  controlIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  controlIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  controlIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  controlIDLT?: InputMaybe<Scalars['ID']['input']>
+  controlIDLTE?: InputMaybe<Scalars['ID']['input']>
+  controlIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  controlIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -66803,6 +67168,31 @@ export interface WorkflowInstanceWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** evidence_id field predicates */
+  evidenceID?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDContains?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDGT?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDGTE?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  evidenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  evidenceIDLT?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDLTE?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  evidenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** control edge predicates */
+  hasControl?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlWith?: InputMaybe<Array<ControlWhereInput>>
+  /** evidence edge predicates */
+  hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
+  /** internal_policy edge predicates */
+  hasInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPolicyWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -66829,6 +67219,22 @@ export interface WorkflowInstanceWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_policy_id field predicates */
+  internalPolicyID?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalPolicyIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalPolicyIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalPolicyIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** last_evaluated_at field predicates */
   lastEvaluatedAt?: InputMaybe<Scalars['Time']['input']>
   lastEvaluatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -66936,6 +67342,10 @@ export interface WorkflowObjectRef extends Node {
   directoryMembershipID?: Maybe<Scalars['ID']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** Evidence referenced by this workflow instance */
+  evidence?: Maybe<Evidence>
+  /** Evidence referenced by this workflow instance */
+  evidenceID?: Maybe<Scalars['ID']['output']>
   /** Finding referenced by this workflow instance */
   finding?: Maybe<Finding>
   /** Finding referenced by this workflow instance */
@@ -66946,7 +67356,7 @@ export interface WorkflowObjectRef extends Node {
   /** Policy referenced by this workflow instance */
   internalPolicyID?: Maybe<Scalars['ID']['output']>
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** Task referenced by this workflow instance */
   task?: Maybe<Task>
@@ -67015,6 +67425,8 @@ export interface WorkflowObjectRefHistory extends Node {
   directoryMembershipID?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** Evidence referenced by this workflow instance */
+  evidenceID?: Maybe<Scalars['String']['output']>
   /** Finding referenced by this workflow instance */
   findingID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -67022,7 +67434,7 @@ export interface WorkflowObjectRefHistory extends Node {
   /** Policy referenced by this workflow instance */
   internalPolicyID?: Maybe<Scalars['String']['output']>
   operation: WorkflowObjectRefHistoryOpType
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** Task referenced by this workflow instance */
@@ -67186,6 +67598,22 @@ export interface WorkflowObjectRefHistoryWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** evidence_id field predicates */
+  evidenceID?: InputMaybe<Scalars['String']['input']>
+  evidenceIDContains?: InputMaybe<Scalars['String']['input']>
+  evidenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  evidenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  evidenceIDGT?: InputMaybe<Scalars['String']['input']>
+  evidenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  evidenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  evidenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  evidenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  evidenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  evidenceIDLT?: InputMaybe<Scalars['String']['input']>
+  evidenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  evidenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  evidenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  evidenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** finding_id field predicates */
   findingID?: InputMaybe<Scalars['String']['input']>
   findingIDContains?: InputMaybe<Scalars['String']['input']>
@@ -67350,13 +67778,6 @@ export enum WorkflowObjectRefOrderField {
   updated_at = 'updated_at',
 }
 
-/** Return response for updateWorkflowObjectRef mutation */
-export interface WorkflowObjectRefUpdatePayload {
-  __typename?: 'WorkflowObjectRefUpdatePayload'
-  /** Updated workflowObjectRef */
-  workflowObjectRef: WorkflowObjectRef
-}
-
 /**
  * WorkflowObjectRefWhereInput is used for filtering WorkflowObjectRef objects.
  * Input was generated by ent.
@@ -67468,6 +67889,22 @@ export interface WorkflowObjectRefWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** evidence_id field predicates */
+  evidenceID?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDContains?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDGT?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDGTE?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  evidenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  evidenceIDLT?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDLTE?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  evidenceIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  evidenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** finding_id field predicates */
   findingID?: InputMaybe<Scalars['ID']['input']>
   findingIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -67496,6 +67933,9 @@ export interface WorkflowObjectRefWhereInput {
   /** directory_membership edge predicates */
   hasDirectoryMembership?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryMembershipWith?: InputMaybe<Array<DirectoryMembershipWhereInput>>
+  /** evidence edge predicates */
+  hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
   /** finding edge predicates */
   hasFinding?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingWith?: InputMaybe<Array<FindingWhereInput>>
@@ -68602,12 +69042,12 @@ export type GetControlDiscussionByIdQuery = {
   }
 }
 
-export type UpdateControlPlateCommentMutationVariables = Exact<{
+export type InsertControlPlateCommentMutationVariables = Exact<{
   updateControlId: Scalars['ID']['input']
   input: UpdateControlInput
 }>
 
-export type UpdateControlPlateCommentMutation = {
+export type InsertControlPlateCommentMutation = {
   __typename?: 'Mutation'
   updateControl: {
     __typename?: 'ControlUpdatePayload'
@@ -70140,12 +70580,12 @@ export type GetPolicyDiscussionByIdQuery = {
   }
 }
 
-export type UpdateInternalPolicyCommentMutationVariables = Exact<{
+export type InsertInternalPolicyCommentMutationVariables = Exact<{
   updateInternalPolicyId: Scalars['ID']['input']
   input: UpdateInternalPolicyInput
 }>
 
-export type UpdateInternalPolicyCommentMutation = {
+export type InsertInternalPolicyCommentMutation = {
   __typename?: 'Mutation'
   updateInternalPolicy: {
     __typename?: 'InternalPolicyUpdatePayload'
@@ -70497,12 +70937,12 @@ export type GetProcedureDiscussionByIdQuery = {
   }
 }
 
-export type UpdateProcedureCommentMutationVariables = Exact<{
+export type InsertProcedureCommentMutationVariables = Exact<{
   updateProcedureId: Scalars['ID']['input']
   input: UpdateProcedureInput
 }>
 
-export type UpdateProcedureCommentMutation = {
+export type InsertProcedureCommentMutation = {
   __typename?: 'Mutation'
   updateProcedure: {
     __typename?: 'ProcedureUpdatePayload'
@@ -71116,12 +71556,12 @@ export type GetRiskDiscussionByIdQuery = {
   }
 }
 
-export type UpdateRiskCommentMutationVariables = Exact<{
+export type InsertRiskCommentMutationVariables = Exact<{
   updateRiskId: Scalars['ID']['input']
   input: UpdateRiskInput
 }>
 
-export type UpdateRiskCommentMutation = {
+export type InsertRiskCommentMutation = {
   __typename?: 'Mutation'
   updateRisk: {
     __typename?: 'RiskUpdatePayload'
@@ -71616,12 +72056,12 @@ export type GetSubcontrolDiscussionByIdQuery = {
   }
 }
 
-export type UpdateSubcontrolPlateCommentMutationVariables = Exact<{
+export type InsertSubcontrolPlateCommentMutationVariables = Exact<{
   updateSubcontrolId: Scalars['ID']['input']
   input: UpdateSubcontrolInput
 }>
 
-export type UpdateSubcontrolPlateCommentMutation = {
+export type InsertSubcontrolPlateCommentMutation = {
   __typename?: 'Mutation'
   updateSubcontrol: {
     __typename?: 'SubcontrolUpdatePayload'

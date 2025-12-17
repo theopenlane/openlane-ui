@@ -19,12 +19,12 @@ import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-ki
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
-import { useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
+import { useInsertPolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
-import { useUpdateControlPlateComment } from 'console/src/lib/graphql-hooks/controls.ts'
-import { useUpdateSubcontrolPlateComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
-import { useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
+import { useInsertProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
+import { useInsertControlPlateComment } from 'console/src/lib/graphql-hooks/controls.ts'
+import { useInsertSubcontrolPlateComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
+import { useInsertRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
 
 export interface TComment {
   id: string
@@ -347,11 +347,11 @@ export function CommentCreateForm({
   const [commentValue, setCommentValue] = React.useState<Value | undefined>()
   const commentContent = React.useMemo(() => (commentValue ? NodeApi.string({ children: commentValue, type: KEYS.p }) : ''), [commentValue])
   const commentEditor = useCommentEditor()
-  const { mutateAsync: updatePolicyComment } = useUpdatePolicyComment()
-  const { mutateAsync: updateProcedureComment } = useUpdateProcedureComment()
-  const { mutateAsync: updateControlComment } = useUpdateControlPlateComment()
-  const { mutateAsync: updateSubcontrolComment } = useUpdateSubcontrolPlateComment()
-  const { mutateAsync: updateRiskComment } = useUpdateRiskComment()
+  const { mutateAsync: insertPolicyComment } = useInsertPolicyComment()
+  const { mutateAsync: insertProcedureComment } = useInsertProcedureComment()
+  const { mutateAsync: insertControlComment } = useInsertControlPlateComment()
+  const { mutateAsync: insertSubcontrolComment } = useInsertSubcontrolPlateComment()
+  const { mutateAsync: insertRiskComment } = useInsertRiskComment()
   type EntityInputMap = {
     Control: UpdateControlInput
     Subcontrol: UpdateSubcontrolInput
@@ -379,11 +379,11 @@ export function CommentCreateForm({
   ) => Promise<unknown>
 
   const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
-    Control: updateControlComment,
-    Subcontrol: updateSubcontrolComment,
-    Procedure: updateProcedureComment,
-    InternalPolicy: updatePolicyComment,
-    Risk: updateRiskComment,
+    Control: insertControlComment,
+    Subcontrol: insertSubcontrolComment,
+    Procedure: insertProcedureComment,
+    InternalPolicy: insertPolicyComment,
+    Risk: insertRiskComment,
   }
 
   function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
@@ -481,13 +481,17 @@ export function CommentCreateForm({
 
       if (entityId) {
         const input: EntityInput<typeof entityType> = {
-          addDiscussion: {
-            externalID: discussionId,
-            addComment: {
-              text,
-              noteRef: commentValue[0].id! as string,
+          updateDiscussions: [
+            {
+              id: updatedDiscussion.systemId!,
+              input: {
+                addComment: {
+                  text,
+                  noteRef: commentValue[0].id! as string,
+                },
+              },
             },
-          },
+          ],
         }
 
         await entityUpdate({
@@ -568,7 +572,7 @@ export function CommentCreateForm({
         input: EntityInput<typeof entityType>
       })
     }
-  }, [commentValue, commentEditor.tf, commentId, discussionId, discussions, editor, entityId, updatePolicyComment])
+  }, [commentValue, commentEditor.tf, commentId, discussionId, discussions, editor, entityId])
 
   return (
     <div className={cn('flex w-full', className)} onClick={(e) => e.stopPropagation()}>

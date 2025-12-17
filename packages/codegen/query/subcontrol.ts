@@ -352,8 +352,8 @@ export const GET_SUBCONTROL_DISCUSSION_BY_ID = gql`
   }
 `
 
-export const UPDATE_SUBCONTROL_PLATE_COMMENT = gql`
-  mutation UpdateSubcontrolPlateComment($updateSubcontrolId: ID!, $input: UpdateSubcontrolInput!) {
+export const INSERT_SUBCONTROL_PLATE_COMMENT = gql`
+  mutation InsertSubcontrolPlateComment($updateSubcontrolId: ID!, $input: UpdateSubcontrolInput!) {
     updateSubcontrol(id: $updateSubcontrolId, input: $input) {
       subcontrol {
         discussions {

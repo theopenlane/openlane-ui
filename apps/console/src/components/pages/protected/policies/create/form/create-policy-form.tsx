@@ -118,11 +118,12 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     const { details, ...rest } = data
+
     try {
       const formData: { input: CreateInternalPolicyInput } = {
         input: {
           ...rest,
-          detailsJSON: rest.detailsJSON,
+          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -316,7 +317,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       entity={discussionData?.internalPolicy}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
-                      initialValue={policy?.details ?? (form.getValues('details') as string) ?? undefined}
+                      initialValue={policy?.detailsJSON ?? policy?.details ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
