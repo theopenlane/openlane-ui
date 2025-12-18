@@ -316,6 +316,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       userData={userData}
                       entity={discussionData?.internalPolicy}
                       clearData={clearData}
+                      isCreate={!policy?.id}
                       onClear={() => setClearData(false)}
                       initialValue={policy?.detailsJSON ?? policy?.details ?? (form.getValues('details') as string) ?? undefined}
                     />

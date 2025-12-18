@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import { BoldIcon, Code2Icon, ItalicIcon, UnderlineIcon, WandSparklesIcon } from 'lucide-react'
 import { KEYS } from 'platejs'
-import { useEditorReadOnly } from 'platejs/react'
+import { useEditorReadOnly, usePluginOption } from 'platejs/react'
 
 import { InlineEquationToolbarButton } from './equation-toolbar-button'
 import { LinkToolbarButton } from './link-toolbar-button'
@@ -15,10 +15,13 @@ import { TurnIntoToolbarButton } from './turn-into-toolbar-button'
 import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { CommentToolbarButton } from './comment-toolbar-button.tsx'
 import { AIToolbarButton } from './ai-toolbar-button.tsx'
+import { discussionPlugin } from '../editor/plugins/discussion-kit.tsx'
 
 export function BasicFloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
   const { suffix } = useShortcutSuffix()
+  const isCreate = usePluginOption(discussionPlugin, 'isCreate') as boolean
+  console.log(isCreate)
 
   return (
     <>
@@ -50,7 +53,7 @@ export function BasicFloatingToolbarButtons() {
             <InlineEquationToolbarButton />
 
             <LinkToolbarButton />
-            <CommentToolbarButton />
+            {!isCreate && <CommentToolbarButton />}
           </ToolbarGroup>
         </>
       )}

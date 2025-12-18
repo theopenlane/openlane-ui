@@ -68447,6 +68447,7 @@ export type ControlDetailsFieldsFragment = {
   status?: ControlControlStatus | null
   tags?: Array<string> | null
   description?: string | null
+  descriptionJSON?: Array<any> | null
   implementationGuidance?: Array<any> | null
   exampleEvidence?: Array<any> | null
   controlQuestions?: Array<string> | null
@@ -68559,6 +68560,7 @@ export type GetControlByIdQuery = {
     status?: ControlControlStatus | null
     tags?: Array<string> | null
     description?: string | null
+    descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
     controlQuestions?: Array<string> | null
@@ -71287,6 +71289,7 @@ export type RiskFieldsFragment = {
   displayID: string
   name: string
   details?: string | null
+  detailsJSON?: Array<any> | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
@@ -71355,6 +71358,7 @@ export type GetRiskByIdQuery = {
     displayID: string
     name: string
     details?: string | null
+    detailsJSON?: Array<any> | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
@@ -71759,6 +71763,7 @@ export type GetSubcontrolByIdQuery = {
     status?: SubcontrolControlStatus | null
     tags?: Array<string> | null
     description?: string | null
+    descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
     controlQuestions?: Array<string> | null

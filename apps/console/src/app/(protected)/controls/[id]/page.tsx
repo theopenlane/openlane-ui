@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
@@ -12,7 +12,6 @@ import TitleField from '../../../../components/pages/protected/controls/form-fie
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Control, ControlControlSource, ControlControlStatus, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
@@ -47,6 +46,7 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 interface FormValues {
   refCode: string
   description: Value | string
+  descriptionJSON?: Value
   delegateID: string
   controlOwnerID: string
   category?: string
@@ -68,6 +68,7 @@ interface SheetData {
 const initialDataObj = {
   refCode: '',
   description: '',
+  descriptionJSON: undefined,
   delegateID: '',
   controlOwnerID: '',
   category: '',
@@ -93,7 +94,7 @@ const ControlDetailsPage: React.FC = () => {
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
-  const plateEditorHelper = usePlateEditor()
+  const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { data: associationsData } = useGetControlAssociationsById(id)
@@ -128,8 +129,6 @@ const ControlDetailsPage: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const description = await plateEditorHelper.convertToHtml(values.description as Value)
-
       const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
         const initialValue = initialValues[key as keyof FormValues]
         if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
@@ -138,14 +137,15 @@ const ControlDetailsPage: React.FC = () => {
         return acc
       }, {})
 
-      if (changedFields.description) {
-        changedFields.description = description
+      if (changedFields.descriptionJSON) {
+        changedFields.descriptionJSON = values?.descriptionJSON
       }
 
       if (isSourceFramework) {
         //remove readonly fields
         delete changedFields.title
         delete changedFields.refCode
+        delete changedFields.descriptionJSON
         delete changedFields.description
       }
 
@@ -226,6 +226,7 @@ const ControlDetailsPage: React.FC = () => {
       const newValues: FormValues = {
         refCode: data.control.refCode || '',
         description: data.control.description || '',
+        descriptionJSON: data.control?.descriptionJSON ? (data.control.descriptionJSON as Value) : undefined,
         delegateID: data.control.delegate?.id || '',
         controlOwnerID: data.control.controlOwner?.id || '',
         category: data.control.category || '',
@@ -370,7 +371,12 @@ const ControlDetailsPage: React.FC = () => {
           </div>
         )}
       </div>
-      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
+      <DescriptionField
+        isEditing={isEditing}
+        initialValue={initialValues.descriptionJSON ?? initialValues.description}
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        discussionData={discussionData?.control}
+      />
       <ControlObjectivesSection controlObjectives={control.controlObjectives} />
       <ControlImplementationsSection controlImplementations={control.controlImplementations} />
       <ControlEvidenceTable

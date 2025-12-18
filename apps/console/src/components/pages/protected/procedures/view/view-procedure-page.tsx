@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import React, { useEffect, useMemo, useState } from 'react'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
@@ -59,6 +59,7 @@ const ViewProcedurePage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+  const { data: discussionData } = useGetProcedureDiscussionById(procedureId)
 
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
@@ -184,6 +185,7 @@ const ViewProcedurePage: React.FC = () => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      queryClient.invalidateQueries({ queryKey: ['procedureDiscussion', procedureId] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -282,7 +284,7 @@ const ViewProcedurePage: React.FC = () => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
+      <DetailsField isEditing={isEditing} form={form} procedure={procedure} discussionData={discussionData?.procedure} />
     </div>
   )
 

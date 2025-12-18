@@ -38,6 +38,7 @@ export const discussionPlugin = createPlatePlugin({
     entityType: undefined as CommentEntityType | undefined,
     entityId: undefined as string | undefined,
     currentUserId: undefined as string | undefined,
+    isCreate: false,
     users: {} as Record<
       string,
       {

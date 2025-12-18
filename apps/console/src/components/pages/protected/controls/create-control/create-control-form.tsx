@@ -21,7 +21,7 @@ import {
   MappedControlMappingType,
 } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useControlSelect, useCreateControl, useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useControlSelect, useCreateControl, useGetControlById, useGetControlDiscussionById } from '@/lib/graphql-hooks/controls'
 import { useNotification } from '@/hooks/useNotification'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Popover, PopoverContent } from '@repo/ui/popover'
@@ -45,6 +45,8 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -72,6 +74,10 @@ export default function CreateControlForm() {
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
   const { mutateAsync: createMappedControl } = useCreateMappedControl()
+  const { data: discussionData } = useGetControlDiscussionById(id ?? null)
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
   const dropdownRef = useClickOutside(() => setOpen(false))
   const searchRef = useRef(null)
 
@@ -115,15 +121,13 @@ export default function CreateControlForm() {
   }
 
   const onSubmit = async (formData: ControlFormData) => {
-    const { desiredOutcome, details, ...data } = formData
+    const { desiredOutcome, details, description, ...data } = formData
     try {
-      const description = await convertToHtml(data.description)
-
       let newId: string | undefined
 
       const commonInput = {
         ...data,
-        description,
+        ...(data.descriptionJSON != null ? { descriptionJSON: data.descriptionJSON } : { description: description as string }),
         referenceID: data.referenceID || undefined,
         auditorReferenceID: data.auditorReferenceID || undefined,
         ...associations,
@@ -334,9 +338,19 @@ export default function CreateControlForm() {
             <div className="mt-4">
               <Label>Description</Label>
               <Controller
-                name="description"
+                name="descriptionJSON"
                 control={control}
-                render={({ field }) => <PlateEditor initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} />}
+                render={({ field }) => (
+                  <PlateEditor
+                    initialValue={controlData?.control?.descriptionJSON ?? controlData?.control?.description ?? (form.getValues('description') as string) ?? undefined}
+                    clearData={clearData}
+                    entity={discussionData?.control}
+                    userData={userData}
+                    onClear={() => setClearData(false)}
+                    onChange={field.onChange}
+                    isCreate={!id}
+                  />
+                )}
               />
             </div>
 

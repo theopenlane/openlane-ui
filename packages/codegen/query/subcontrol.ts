@@ -35,6 +35,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       status
       tags
       description
+      descriptionJSON
       implementationGuidance
       exampleEvidence
       controlQuestions

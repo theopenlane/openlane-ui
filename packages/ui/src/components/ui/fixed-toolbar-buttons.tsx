@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import { ArrowUpToLineIcon, BaselineIcon, BoldIcon, Code2Icon, HighlighterIcon, ItalicIcon, PaintBucketIcon, StrikethroughIcon, UnderlineIcon, WandSparklesIcon } from 'lucide-react'
 import { KEYS } from 'platejs'
-import { useEditorReadOnly } from 'platejs/react'
+import { useEditorReadOnly, usePluginOption } from 'platejs/react'
 
 import { AIToolbarButton } from './ai-toolbar-button'
 import { AlignToolbarButton } from './align-toolbar-button'
@@ -28,9 +28,12 @@ import { TableToolbarButton } from './table-toolbar-button'
 import { ToggleToolbarButton } from './toggle-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button'
+import { discussionPlugin } from '../editor/plugins/discussion-kit.tsx'
 
 export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly()
+  const isCreate = usePluginOption(discussionPlugin, 'isCreate') as boolean
+  console.log(isCreate)
 
   return (
     <div className="flex w-full">
@@ -131,7 +134,7 @@ export function FixedToolbarButtons() {
         <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
           <HighlighterIcon />
         </MarkToolbarButton>
-        <CommentToolbarButton />
+        {!isCreate && <CommentToolbarButton />}
       </ToolbarGroup>
 
       <ToolbarGroup>

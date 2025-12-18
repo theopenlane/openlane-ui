@@ -97,6 +97,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     status
     tags
     description
+    descriptionJSON
     implementationGuidance
     exampleEvidence
     controlQuestions

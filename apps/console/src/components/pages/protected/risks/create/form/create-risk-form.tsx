@@ -92,7 +92,7 @@ const CreateRiskForm: React.FC = () => {
         <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
           <div className="space-y-6 w-full max-w-full overflow-hidden">
             <TitleField isEditing={true} form={form} />
-            <DetailsField isEditing={true} form={form} clearData={clearData} onCleared={() => setClearData(false)} />
+            <DetailsField isEditing={true} form={form} clearData={clearData} onCleared={() => setClearData(false)} isCreate={true} />
             <BusinessCostField isEditing={true} form={form} />
             <div className="flex justify-between items-center">
               <Button variant="primary" type="submit" disabled={isPending}>

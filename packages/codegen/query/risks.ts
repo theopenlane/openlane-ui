@@ -6,6 +6,7 @@ const RISK_FIELDS = gql`
     displayID
     name
     details
+    detailsJSON
     tags
     riskCategoryName
     riskKindName

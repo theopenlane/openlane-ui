@@ -351,6 +351,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                       entity={discussionData?.procedure}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
+                      isCreate={!procedure?.id}
                       initialValue={procedure?.detailsJSON ?? procedure?.details ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
