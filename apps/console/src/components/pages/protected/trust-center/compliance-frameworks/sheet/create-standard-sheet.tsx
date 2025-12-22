@@ -176,7 +176,7 @@ export const CreateStandardSheet = ({ resetPagination }: { resetPagination: () =
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <PanelRightClose size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-              <p className="text-2xl">{isCreate ? 'Create Standard' : `Update ${standardData?.standard.name}`}</p>
+              <p className="text-2xl">{isCreate ? 'Create Standard' : `Update ${standardData?.standard?.name}`}</p>
             </div>
             {isEditMode ? (
               <div className="flex gap-3 items-center">

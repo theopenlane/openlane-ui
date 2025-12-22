@@ -88,6 +88,9 @@ export const GET_STANDARDS_PAGINATED = gql`
           description
           systemOwned
           governingBodyLogoURL
+          logoFile {
+            presignedURL
+          }
         }
       }
       pageInfo {

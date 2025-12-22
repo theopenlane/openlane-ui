@@ -20,6 +20,7 @@ import { PencilIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Image from 'next/image'
 
 export default function ComplianceFrameworksPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -130,14 +131,18 @@ export default function ComplianceFrameworksPage() {
               <Card key={standard.id} className="transition p-6">
                 <CardHeader className="flex flex-row justify-between items-center p-0 space-y-2">
                   <div className="flex gap-3 items-center">
-                    <StandardsIconMapper height={28} width={28} key={standard?.id} shortName={standard?.shortName ?? ''} />
+                    {standard.systemOwned ? (
+                      <StandardsIconMapper height={28} width={28} key={standard?.id} shortName={standard?.shortName ?? ''} />
+                    ) : (
+                      <>{standard.logoFile?.presignedURL && <Image src={standard.logoFile?.presignedURL} alt="logo" width={28} height={28}></Image>}</>
+                    )}
                     <p>{standard.shortName}</p>
                   </div>
                   <div className="flex gap-2 items-center">
                     {standard.systemOwned ? <Badge className="bg-primary">Provided</Badge> : <Badge variant="outline">Custom</Badge>}
                     {!standard.systemOwned && (
                       <Link href={`/trust-center/compliance-frameworks?id=${standard.id}`} className="w-fit">
-                        <Button className="!p-2 h-8" variant="secondary">
+                        <Button className="p-2 h-8" variant="secondary">
                           <PencilIcon />
                         </Button>
                       </Link>

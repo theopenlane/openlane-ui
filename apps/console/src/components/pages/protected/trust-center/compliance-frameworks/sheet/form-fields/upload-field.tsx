@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -11,6 +11,8 @@ export const UploadField = ({ isEditing, initialUrl }: { isEditing: boolean; ini
   const { setValue } = useFormContext()
 
   const [preview, setPreview] = useState<string | null>(null)
+
+  const blobUrlRef = useRef<string | null>(null)
 
   const normalizeUrl = (url?: string | null) => {
     if (!url) return null
@@ -28,16 +30,34 @@ export const UploadField = ({ isEditing, initialUrl }: { isEditing: boolean; ini
 
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded?.file) return
+
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current)
+      blobUrlRef.current = null
+    }
+
+    const blobUrl = URL.createObjectURL(uploaded.file)
+    blobUrlRef.current = blobUrl
+
     setValue('logoFile', uploaded.file)
-    setPreview(URL.createObjectURL(uploaded.file))
+    setPreview(blobUrl)
   }
+
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current)
+      }
+    }
+  }, [])
 
   return (
     <div>
       <Label className="mb-2 block text-sm">Logo</Label>
+
       <div className="flex gap-4">
         {/* Preview */}
-        <div className="flex h-[150px] w-[150px] items-center justify-center rounded-md border mb-3">
+        <div className="mb-3 flex h-[150px] w-[150px] items-center justify-center rounded-md border">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img alt="Preview" src={preview} className="max-h-28 object-contain" />

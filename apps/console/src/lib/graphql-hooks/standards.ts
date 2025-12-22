@@ -91,10 +91,7 @@ export const useCreateStandard = () => {
 
   return useMutation<CreateStandardMutation, unknown, CreateStandardMutationVariables>({
     mutationFn: async (variables) => {
-      const { input, logoFile } = variables as CreateStandardMutationVariables & {
-        logoFile?: File
-      }
-
+      const { input, logoFile } = variables
       if (logoFile) {
         return fetchGraphQLWithUpload({
           query: CREATE_STANDARD,
