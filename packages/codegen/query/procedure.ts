@@ -347,6 +347,8 @@ export const INSERT_PROCEDURE_COMMENT = gql`
                   node {
                     text
                     isEdited
+                    id
+                    noteRef
                   }
                 }
               }

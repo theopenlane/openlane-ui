@@ -29480,7 +29480,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys via file upload */
+  /** Create multiple new trustcenterEntities via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -29592,7 +29592,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys */
+  /** Create multiple new trustcenterEntities */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -56277,7 +56277,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntitys */
+  /** Created trustcenterEntities */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -69064,7 +69064,10 @@ export type InsertControlPlateCommentMutation = {
             id: string
             externalID: string
             isResolved: boolean
-            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
           } | null
         } | null> | null
       }
@@ -70602,7 +70605,10 @@ export type InsertInternalPolicyCommentMutation = {
             id: string
             externalID: string
             isResolved: boolean
-            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
           } | null
         } | null> | null
       }
@@ -70959,7 +70965,10 @@ export type InsertProcedureCommentMutation = {
             id: string
             externalID: string
             isResolved: boolean
-            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
           } | null
         } | null> | null
       }
@@ -71440,7 +71449,7 @@ export type GetAllRisksQuery = {
 }
 
 export type UpdateRiskMutationVariables = Exact<{
-  id: Scalars['ID']['input']
+  updateRiskId: Scalars['ID']['input']
   input: UpdateRiskInput
 }>
 
@@ -71580,7 +71589,10 @@ export type InsertRiskCommentMutation = {
             id: string
             externalID: string
             isResolved: boolean
-            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
           } | null
         } | null> | null
       }
@@ -72081,7 +72093,10 @@ export type InsertSubcontrolPlateCommentMutation = {
             id: string
             externalID: string
             isResolved: boolean
-            comments: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean } | null } | null> | null }
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
           } | null
         } | null> | null
       }

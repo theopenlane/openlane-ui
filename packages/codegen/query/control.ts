@@ -672,6 +672,8 @@ export const INSERT_CONTROL_PLATE_COMMENT = gql`
                   node {
                     text
                     isEdited
+                    id
+                    noteRef
                   }
                 }
               }

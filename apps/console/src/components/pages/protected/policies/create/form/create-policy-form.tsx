@@ -226,7 +226,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         updateInternalPolicyId: policy.id,
         input: {
           ...rest,
-          detailsJSON: data?.detailsJSON,
+          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationInputs,
         },

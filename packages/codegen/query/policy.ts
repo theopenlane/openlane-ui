@@ -385,6 +385,8 @@ export const INSERT_POLICY_COMMENT = gql`
                   node {
                     text
                     isEdited
+                    id
+                    noteRef
                   }
                 }
               }

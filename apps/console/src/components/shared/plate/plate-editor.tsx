@@ -99,11 +99,12 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
         editor.setOption(discussionPlugin, 'isCreate', false)
       }
 
+      console.log('hi')
+
       if (!editor || !entity || !userData?.user) return
 
       editor.setOption(discussionPlugin, 'entityType', entity.__typename)
       editor.setOption(discussionPlugin, 'entityId', entity.id)
-      editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
       editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
 
       editor.setOption(discussionPlugin, 'users', {
@@ -115,7 +116,7 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
       })
 
       editor.setOption(discussionPlugin, 'discussions', mapEntityDiscussions(entity))
-    }, [editor, entity, userData])
+    }, [editor, entity, isCreate, userData])
 
     // Expose methods via ref
     useImperativeHandle(ref, () => ({

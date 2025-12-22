@@ -147,10 +147,10 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
     try {
       await updateRisk({
-        id: risk.id,
+        updateRiskId: risk.id,
         input: {
           ...rest,
-          detailsJSON: rest?.detailsJSON,
+          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
           businessCosts: businessCostsField,
           mitigation: mitigationField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
@@ -177,7 +177,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const handleUpdateField = async (input: UpdateRiskInput) => {
     if (!risk.id) return
     try {
-      await updateRisk({ id: risk.id, input })
+      await updateRisk({ updateRiskId: risk.id, input })
       successNotification({
         title: 'Risk updated',
         description: 'The risk was successfully updated.',

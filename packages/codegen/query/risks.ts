@@ -152,8 +152,8 @@ export const GET_ALL_RISKS = gql`
 `
 
 export const UPDATE_RISK = gql`
-  mutation UpdateRisk($id: ID!, $input: UpdateRiskInput!) {
-    updateRisk(id: $id, input: $input) {
+  mutation UpdateRisk($updateRiskId: ID!, $input: UpdateRiskInput!) {
+    updateRisk(id: $updateRiskId, input: $input) {
       risk {
         id
       }
@@ -269,6 +269,8 @@ export const INSERT_RISK_COMMENT = gql`
                   node {
                     text
                     isEdited
+                    id
+                    noteRef
                   }
                 }
               }

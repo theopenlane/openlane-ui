@@ -19,12 +19,13 @@ import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-ki
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
-import { useInsertPolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
+import { useInsertPolicyComment, useUpdateInternalPolicy } from 'console/src/lib/graphql-hooks/policy.ts'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { useInsertProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
-import { useInsertControlPlateComment } from 'console/src/lib/graphql-hooks/controls.ts'
-import { useInsertSubcontrolPlateComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
-import { useInsertRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
+import { useInsertProcedureComment, useUpdateProcedure } from 'console/src/lib/graphql-hooks/procedures.ts'
+import { useInsertControlPlateComment, useUpdateControl } from 'console/src/lib/graphql-hooks/controls.ts'
+import { useInsertSubcontrolPlateComment, useUpdateSubcontrol } from 'console/src/lib/graphql-hooks/subcontrol.ts'
+import { useInsertRiskComment, useUpdateRisk } from 'console/src/lib/graphql-hooks/risks.ts'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface TComment {
   id: string
@@ -240,6 +241,53 @@ function CommentMoreDropdown(props: {
   onRemoveComment?: () => void
 }) {
   const { comment, dropdownOpen, setDropdownOpen, setEditingId, onCloseAutoFocus, onRemoveComment } = props
+  const { mutateAsync: updateInternalPolicy } = useUpdateInternalPolicy()
+  const { mutateAsync: updateProcedure } = useUpdateProcedure()
+  const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
+  const { mutateAsync: updateRisk } = useUpdateRisk()
+  const entityId = usePluginOption(discussionPlugin, 'entityId') as string
+  const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
+
+  type EntityInputMap = {
+    Control: UpdateControlInput
+    Subcontrol: UpdateSubcontrolInput
+    Procedure: UpdateProcedureInput
+    InternalPolicy: UpdateInternalPolicyInput
+    Risk: UpdateRiskInput
+  }
+
+  type EntityIdKeyMap = {
+    Control: 'updateControlId'
+    Subcontrol: 'updateSubcontrolId'
+    Procedure: 'updateProcedureId'
+    InternalPolicy: 'updateInternalPolicyId'
+    Risk: 'updateRiskId'
+  }
+
+  type EntityType = keyof EntityInputMap
+  type EntityInput<T extends EntityType> = EntityInputMap[T]
+  type EntityIdKey<T extends EntityType> = EntityIdKeyMap[T]
+
+  type EntityUpdateFn<T extends EntityType> = (
+    args: { [K in EntityIdKey<T>]: string } & {
+      input: EntityInput<T>
+    },
+  ) => Promise<unknown>
+
+  const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
+    Control: updateControl,
+    Subcontrol: updateSubcontrol,
+    Procedure: updateProcedure,
+    InternalPolicy: updateInternalPolicy,
+    Risk: updateRisk,
+  }
+
+  function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
+    return entityUpdateMap[type]
+  }
+
+  const entityUpdate = getEntityUpdater(entityType)
 
   const editor = useEditorRef()
 
@@ -247,6 +295,33 @@ function CommentMoreDropdown(props: {
 
   const onDeleteComment = React.useCallback(async () => {
     if (!comment.id) return alert('You are operating too quickly, please try again later.')
+
+    //const input = {
+    //       deleteComment: comment.id,
+    //     }
+    //
+    //     await updateInternalPolicy({ updateInternalPolicyId: entityId, input: input })
+
+    const entityIdKeyMap: EntityIdKeyMap = {
+      Control: 'updateControlId',
+      Subcontrol: 'updateSubcontrolId',
+      Procedure: 'updateProcedureId',
+      InternalPolicy: 'updateInternalPolicyId',
+      Risk: 'updateRiskId',
+    }
+
+    const input: EntityInput<typeof entityType> = {
+      deleteComment: comment.id,
+    }
+
+    await entityUpdate({
+      [entityIdKeyMap[entityType]]: entityId,
+      input,
+    } as {
+      [K in EntityIdKey<typeof entityType>]: string
+    } & {
+      input: EntityInput<typeof entityType>
+    })
 
     // Local-only delete; backend has no comment IDs in response
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
@@ -435,9 +510,6 @@ export function CommentCreateForm({
           userId: editor.getOption(discussionPlugin, 'currentUserId')!,
         }
 
-        const updatedDiscussions = [...discussions, newDiscussion]
-        editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
-
         // 🔁 Sync with backend for NEW discussion only
         if (entityId) {
           const input: EntityInput<typeof entityType> = {
@@ -458,6 +530,9 @@ export function CommentCreateForm({
           } & {
             input: EntityInput<typeof entityType>
           })
+
+          const updatedDiscussions = [...discussions, newDiscussion]
+          editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
         }
 
         return
@@ -477,8 +552,6 @@ export function CommentCreateForm({
         comments: [...discussion.comments, comment],
       }
 
-      const updatedDiscussions = discussions.filter((d) => d.id !== discussionId).concat(updatedDiscussion)
-
       if (entityId) {
         const input: EntityInput<typeof entityType> = {
           updateDiscussions: [
@@ -494,16 +567,28 @@ export function CommentCreateForm({
           ],
         }
 
-        await entityUpdate({
+        const entityData = (await entityUpdate({
           [entityIdKeyMap[entityType]]: entityId,
           input,
         } as {
           [K in EntityIdKey<typeof entityType>]: string
         } & {
           input: EntityInput<typeof entityType>
-        })
+        })) as Record<string, unknown>
+
+        const mutationResult = Object.values(entityData)[0]
+        const entityPayload = mutationResult && Object.values(mutationResult)[0]
+        const discussion = entityPayload?.discussions?.edges[0].node
+
+        const lastUpdatedComment = updatedDiscussion.comments[updatedDiscussion.comments.length - 1]
+        const lastReturnedComment = discussion.comments.edges[discussion.comments.edges.length - 1]
+
+        if (lastUpdatedComment && lastReturnedComment) {
+          lastUpdatedComment.id = lastReturnedComment.node.id
+        }
       }
 
+      const updatedDiscussions = discussions.filter((d) => d.id !== discussionId).concat(updatedDiscussion)
       editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
 
       return
