@@ -112,7 +112,8 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
-      cell: ({ row }) => <span>{formatDate(row.original.updatedAt)}</span>,
+      cell: ({ row }) => <span className="whitespace-nowrap">{formatDate(row.original.updatedAt)}</span>,
+      size: 140,
     },
     {
       accessorKey: 'id',

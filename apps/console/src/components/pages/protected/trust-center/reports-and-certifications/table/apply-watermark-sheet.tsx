@@ -1,8 +1,15 @@
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { useNotification } from '@/hooks/useNotification'
+import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
+import { Input } from '@repo/ui/input'
+import { Label } from '@repo/ui/label'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Droplet, PanelRightClose, X } from 'lucide-react'
+import { Droplet, InfoIcon, PanelRightClose, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import FileUpload from '@/components/shared/file-upload/file-upload'
 
 type WatermarkConfigUI = {
   id?: string
@@ -41,6 +48,8 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const [sheetOpen, setSheetOpen] = useState<boolean>(false)
   const [selected, setSelected] = useState<WatermarkTypeEnum>(WatermarkTypeEnum.TEXT)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
+  const { mutateAsync: updateWatermark, isPending: updating } = useUpdateTrustCenterWatermarkConfig()
+  const { successNotification, errorNotification } = useNotification()
   useEffect(() => {
     if (!watermarkConfig) {
       setPreview(null)
@@ -63,6 +72,49 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
 
   const handleSheetClose = () => {
     setIsDiscardDialogOpen(true)
+  }
+
+  const handleUpload = (uploaded: TUploadedFile) => {
+    if (!uploaded.file) return
+    setUploadedFile(uploaded.file)
+    setPreview(URL.createObjectURL(uploaded.file))
+  }
+
+  const handleApplyWatermark = async () => {
+    console.log({
+      updateTrustCenterWatermarkConfigId: id!,
+      input: {
+        text: wmText,
+        fontSize: wmFontSize,
+        color: wmColor,
+      },
+      ...(uploadedFile && { logoFile: uploadedFile }),
+    })
+
+    try {
+      await updateWatermark({
+        updateTrustCenterWatermarkConfigId: id!,
+        input: {
+          text: wmText,
+          fontSize: wmFontSize,
+          // color: wmColor,
+        },
+        ...(uploadedFile && { logoFile: uploadedFile }),
+      })
+
+      successNotification({
+        title: 'Watermark updated',
+        description: 'Watermark settings have been successfully saved.',
+      })
+    } catch (err) {
+      const message = parseErrorMessage(err)
+      errorNotification({
+        title: 'Failed to save watermark',
+        description: message,
+      })
+    } finally {
+      setSheetOpen(false)
+    }
   }
 
   return (
@@ -95,8 +147,8 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
               <Button type="button" iconPosition="left" variant="back" onClick={handleSheetClose}>
                 Cancel
               </Button>
-              <Button iconPosition="left" type="button">
-                Apply Watermark
+              <Button iconPosition="left" type="button" onClick={handleApplyWatermark}>
+                {updating ? 'Applying...' : 'Apply watermark'}
               </Button>
             </div>
             <div className="flex flex-col max-w gap-4">
@@ -145,8 +197,37 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   <div className="text-gray-500 text-sm">Upload a logo or image as watermark</div>
                 </div>
               </label>
-              {selected === WatermarkTypeEnum.FILE && <p>Text</p>}
-              {selected === WatermarkTypeEnum.TEXT && <p>Upload</p>}
+              {selected === WatermarkTypeEnum.FILE && (
+                <div className="flex gap-7 w-full">
+                  <div className="w-full">
+                    <FileUpload
+                      acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
+                      onFileUpload={handleUpload}
+                      acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
+                      maxFileSizeInMb={5}
+                      multipleFiles={false}
+                    />
+                  </div>
+                </div>
+              )}
+              {selected === WatermarkTypeEnum.TEXT && (
+                <div className="flex gap-7">
+                  <div className="flex flex-col gap-3 w-full">
+                    <Label className="text-sm">Text watermark</Label>
+                    <Input value={wmText} onChange={(e) => setWmText(e.target.value)} placeholder="Enter watermark text…" />
+                  </div>
+                </div>
+              )}
+
+              <div className="w-full flex items-start gap-2 border rounded-lg p-2.5 bg-card">
+                <InfoIcon size={14} className="mt-1 shrink-0" />
+                <div className="flex flex-col gap-1">
+                  <p className="font-medium text-sm leading-5 text-foreground">Applies to new documents only.</p>
+                  <p className="font-normal text-xs leading-4">
+                    This watermark setting will be used for all newly generated documents. Existing documents are not changed and can be overridden individually.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 

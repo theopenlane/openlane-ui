@@ -4,9 +4,10 @@ import { useDeleteTrustCenterDoc, useUpdateTrustCenterDoc } from '@/lib/graphql-
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Droplet, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Droplet, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { Button } from '@repo/ui/button'
 
 type DocumentActionsProps = {
   documentId: string
@@ -55,7 +56,10 @@ const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps)
   }
 
   return (
-    <>
+    <div className="flex items-center gap-2">
+      <Button onClick={(e) => e.stopPropagation()} variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
+        Preview
+      </Button>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <div
@@ -63,7 +67,7 @@ const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps)
             onClick={(e) => e.stopPropagation()}
             className="flex items-center justify-center bg-homepage-card-item border border-switch-bg-inactive rounded-md w-8 h-8 cursor-pointer"
           >
-            <MoreHorizontal />
+            <MoreHorizontal size={16} />
           </div>
         </DropdownMenuTrigger>
 
@@ -111,7 +115,7 @@ const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps)
           description={<>Are you sure you want to delete this document? This action cannot be undone. Deleting this document will remove it from all associated records.</>}
         />
       </div>
-    </>
+    </div>
   )
 }
 
