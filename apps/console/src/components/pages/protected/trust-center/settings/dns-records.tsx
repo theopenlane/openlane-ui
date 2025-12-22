@@ -16,7 +16,7 @@ type TDnsRecordsProps = {
 }
 
 export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification, onVerify }: TDnsRecordsProps) => {
-  const cnameValue = 'cname.theopenlane-dns.io'
+  const cnameValue = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME || ''
   const handleCopy = async () => {
     await navigator.clipboard.writeText(cnameValue)
   }

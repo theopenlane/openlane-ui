@@ -50,10 +50,13 @@ export const GET_ALL_ASSESSMENTS = gql`
           name
           assessmentType
           templateID
+          jsonconfig
           responseDueDuration
           tags
           createdAt
           updatedAt
+          createdBy
+          updatedBy
         }
       }
       pageInfo {

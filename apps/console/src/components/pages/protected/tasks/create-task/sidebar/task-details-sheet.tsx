@@ -62,6 +62,7 @@ const TaskDetailsSheet = () => {
       subcontrolIDs: (taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
       controlIDs: (taskData?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
       riskIDs: (taskData?.risks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      taskIDs: (taskData?.tasks?.map((item) => item?.id).filter(Boolean) as string[]) ?? [],
     }),
     [taskData],
   )
@@ -234,7 +235,7 @@ const TaskDetailsSheet = () => {
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP]}
+                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP]}
                     />
                   </Panel>
                 )}
