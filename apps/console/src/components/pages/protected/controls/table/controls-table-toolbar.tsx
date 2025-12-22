@@ -28,6 +28,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteControls } from '@/lib/graphql-hooks/controls'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -71,7 +72,22 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({})
+  const { currentOrgId } = useOrganization()
+
+  const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
+    where: {
+      hasControlsWith: [
+        {
+          hasOwnerWith: [
+            {
+              id: currentOrgId,
+            },
+          ],
+        },
+      ],
+    },
+  })
+
   const { successNotification, errorNotification } = useNotification()
   const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
   const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
