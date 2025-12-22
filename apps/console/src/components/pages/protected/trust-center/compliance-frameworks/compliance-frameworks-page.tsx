@@ -87,8 +87,9 @@ export default function ComplianceFrameworksPage() {
 
   useEffect(() => {
     if (cardPagination.page === 1) return
+    if (!paginationMeta.pageInfo?.hasNextPage) return
     fetchNextPage()
-  }, [cardPagination, fetchNextPage])
+  }, [cardPagination.page, fetchNextPage, paginationMeta.pageInfo?.hasNextPage])
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Compliance Frameworks', href: '/trust-center/compliance-frameworks' }])

@@ -153,14 +153,24 @@ export const useDeleteStandard = () => {
 export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pagination: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useInfiniteQuery<GetStandardsPaginatedQuery, Error, InfiniteData<GetStandardsPaginatedQuery>>({
-    queryKey: ['standards', 'infinite'],
-    initialPageParam: 1,
-    queryFn: () =>
+  const queryKey = useMemo(() => ['standards', 'infinite', pagination.query] as const, [pagination.query])
+
+  const queryResult = useInfiniteQuery<GetStandardsPaginatedQuery, Error, InfiniteData<GetStandardsPaginatedQuery>, typeof queryKey, string | null>({
+    queryKey,
+    initialPageParam: null,
+    queryFn: ({ pageParam }) =>
       client.request<GetStandardsPaginatedQuery, GetStandardsPaginatedQueryVariables>(GET_STANDARDS_PAGINATED, {
         ...pagination.query,
+        first: pagination.query.first,
+        after: pageParam ?? undefined,
       }),
-    getNextPageParam: (lastPage, allPages) => (lastPage.standards?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined),
+
+    getNextPageParam: (lastPage) => {
+      const pageInfo = lastPage.standards?.pageInfo
+      if (!pageInfo?.hasNextPage) return undefined
+      return pageInfo.endCursor ?? undefined
+    },
+
     staleTime: Infinity,
     enabled,
   })
