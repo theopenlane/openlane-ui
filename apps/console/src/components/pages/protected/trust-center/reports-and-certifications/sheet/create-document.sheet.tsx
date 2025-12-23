@@ -82,10 +82,13 @@ export const CreateDocumentSheet: React.FC = () => {
     router.push(`?${current.toString()}`)
   }
 
-  const handleFileUpload = (uploaded: TUploadedFile) => {
-    if (uploaded.file) {
+  const handleFileUpload = (uploaded: TUploadedFile | null) => {
+    if (uploaded?.file) {
       setUploadedFile(uploaded.file)
       formMethods.setValue('file', uploaded.file, { shouldValidate: true })
+    } else {
+      setUploadedFile(null)
+      formMethods.setValue('file', undefined, { shouldValidate: true })
     }
   }
 
@@ -245,7 +248,7 @@ export const CreateDocumentSheet: React.FC = () => {
                           iconPosition="left"
                           type="button"
                           variant="secondary"
-                          className="!p-2 h-8"
+                          className="p-2! h-8"
                           aria-label="Edit document"
                           onClick={() => setIsEditing(true)}
                         >
@@ -258,7 +261,7 @@ export const CreateDocumentSheet: React.FC = () => {
                         icon={<Trash2 size={16} strokeWidth={2} />}
                         iconPosition="left"
                         variant="secondary"
-                        className="!p-2 h-8"
+                        className="p-2! h-8"
                         onClick={() => setIsDeleteDialogOpen(true)}
                         aria-label="Delete document"
                       >
@@ -298,7 +301,7 @@ export const CreateDocumentSheet: React.FC = () => {
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
             <TagsField isEditing={isEditing || isCreateMode} />
-            {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditing} /> : <FileField isEditing={isEditing} onFileUpload={handleFileUpload} />}
+            {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditing} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
           </form>
         </FormProvider>
       </SheetContent>

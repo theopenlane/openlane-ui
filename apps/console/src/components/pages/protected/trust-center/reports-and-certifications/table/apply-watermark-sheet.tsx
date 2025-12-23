@@ -6,10 +6,12 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Droplet, InfoIcon, PanelRightClose, X } from 'lucide-react'
+import { ChevronDown, Droplet, InfoIcon, PanelRightClose, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import { ColorInput } from '@/components/shared/color-input/color-input'
 
 type WatermarkConfigUI = {
   id?: string
@@ -33,18 +35,18 @@ type ApplyWatermarkSheetProps = {
 }
 
 const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
-  const { id, file, text, fontSize, color, opacity, rotation } = watermarkConfig ?? {}
+  const { id, text, fontSize, color, opacity, rotation } = watermarkConfig ?? {}
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(file?.presignedURL ?? null)
 
   const [wmText, setWmText] = useState(text ?? '')
   const [wmFontSize, setWmFontSize] = useState(fontSize ?? 24)
+  const [wmFontFamily, setWmFontFamily] = useState('')
   const [wmColor, setWmColor] = useState(color ?? '#000000')
 
   const [wmOpacity, setWmOpacity] = useState(opacity ?? 0.2)
   const [wmRotation, setWmRotation] = useState(rotation ?? -45)
-  console.log({ uploadedFile, preview, wmText, wmFontSize, wmColor, wmOpacity, wmRotation, id })
+  console.log({ uploadedFile, wmText, wmFontSize, wmColor, wmOpacity, wmRotation, id })
   const [sheetOpen, setSheetOpen] = useState<boolean>(false)
   const [selected, setSelected] = useState<WatermarkTypeEnum>(WatermarkTypeEnum.TEXT)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -52,17 +54,16 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const { successNotification, errorNotification } = useNotification()
   useEffect(() => {
     if (!watermarkConfig) {
-      setPreview(null)
       setUploadedFile(null)
       setWmText('')
       setWmFontSize(24)
+      setWmFontFamily('')
       setWmColor('#000000')
       setWmOpacity(0.2)
       setWmRotation(-45)
       return
     }
-    const { file, text, fontSize, color, opacity, rotation } = watermarkConfig
-    setPreview(file?.presignedURL ?? null)
+    const { text, fontSize, color, opacity, rotation } = watermarkConfig
     setWmText(text ?? '')
     setWmFontSize(fontSize ?? 24)
     setWmColor(color ?? '#000000')
@@ -77,27 +78,16 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
     setUploadedFile(uploaded.file)
-    setPreview(URL.createObjectURL(uploaded.file))
   }
 
   const handleApplyWatermark = async () => {
-    console.log({
-      updateTrustCenterWatermarkConfigId: id!,
-      input: {
-        text: wmText,
-        fontSize: wmFontSize,
-        color: wmColor,
-      },
-      ...(uploadedFile && { logoFile: uploadedFile }),
-    })
-
     try {
       await updateWatermark({
         updateTrustCenterWatermarkConfigId: id!,
         input: {
-          text: wmText,
-          fontSize: wmFontSize,
-          // color: wmColor,
+          ...(wmText ? { text: wmText } : { clearText: true }),
+          ...(wmFontSize ? { fontSize: wmFontSize } : { clearFontSize: true }),
+          ...(wmColor ? { color: wmColor } : { clearColor: true }),
         },
         ...(uploadedFile && { logoFile: uploadedFile }),
       })
@@ -228,6 +218,41 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   </p>
                 </div>
               </div>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="TITLE">
+                  <AccordionTrigger asChild>
+                    <button className="group flex w-full items-center justify-between text-sm font-medium bg-unset">
+                      <span>Advanced Settings</span>
+
+                      <ChevronDown size={22} className="text-brand transition-transform duration-200 rotate-0 group-data-[state=open]:rotate-180" />
+                    </button>
+                  </AccordionTrigger>
+
+                  <AccordionContent className="mt-4 grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-sm">Font size</Label>
+                      <Input type="number" value={wmFontSize} onChange={(e) => setWmFontSize(Number(e.target.value))} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-sm">Font family</Label>
+                      <Input type="text" value={wmFontFamily} onChange={(e) => setWmFontSize(Number(e.target.value))} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <ColorInput label="Color" value={wmColor} onChange={setWmColor} />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-sm">Opacity</Label>
+                      <Input type="number" step="0.05" min={0} max={1} value={wmOpacity} onChange={(e) => setWmOpacity(Number(e.target.value))} />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-sm">Rotation (°)</Label>
+                      <Input type="number" value={wmRotation} onChange={(e) => setWmRotation(Number(e.target.value))} />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
 

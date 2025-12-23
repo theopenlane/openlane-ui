@@ -4,10 +4,10 @@ import { useDeleteTrustCenterDoc, useUpdateTrustCenterDoc } from '@/lib/graphql-
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Droplet, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Droplet, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Button } from '@repo/ui/button'
+import PreviewWatermarkSheet from '../reports-and-certifications/table/preview-watermark-sheet'
 
 type DocumentActionsProps = {
   documentId: string
@@ -39,7 +39,7 @@ const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps)
     }
   }
 
-  const handleSetWatermark = async (enabled: boolean) => {
+  const handleToggleWatermarkEnabled = async (enabled: boolean) => {
     try {
       await updateDocument({ updateTrustCenterDocId: documentId, input: { watermarkingEnabled: enabled } })
       successNotification({
@@ -57,9 +57,7 @@ const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps)
 
   return (
     <div className="flex items-center gap-2">
-      <Button onClick={(e) => e.stopPropagation()} variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
-        Preview
-      </Button>
+      <PreviewWatermarkSheet />
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <div
@@ -99,7 +97,7 @@ const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps)
                 checked={isWatermarkEnabled}
                 onCheckedChange={(checked) => {
                   setWatermarkEnabled(checked)
-                  handleSetWatermark(checked)
+                  handleToggleWatermarkEnabled(checked)
                 }}
               />
             </div>

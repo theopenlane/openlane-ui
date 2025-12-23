@@ -51,7 +51,6 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       cell: ({ row }: { row: Row<TTrustCenterDoc> }) => {
         const { id } = row.original
         const isChecked = selectedDocs.some((d) => d.id === id)
-
         return (
           <div onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
