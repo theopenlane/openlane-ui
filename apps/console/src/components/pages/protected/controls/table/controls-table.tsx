@@ -34,6 +34,7 @@ import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-swi
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -76,7 +77,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CONTROL, defaultVisibility))
 
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.CONTROLS)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
