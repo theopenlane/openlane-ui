@@ -124,10 +124,11 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: File,
       },
       {
-        title: 'Subprocessors',
-        href: '/trust-center/subprocessors',
-        icon: Server,
+        title: 'Compliance Frameworks',
+        href: '/trust-center/compliance-frameworks',
+        icon: File,
       },
+      { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
     ],
   },
 ]
