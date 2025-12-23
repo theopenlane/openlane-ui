@@ -46,7 +46,6 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
 
   const [wmOpacity, setWmOpacity] = useState(opacity ?? 0.2)
   const [wmRotation, setWmRotation] = useState(rotation ?? -45)
-  console.log({ uploadedFile, wmText, wmFontSize, wmColor, wmOpacity, wmRotation, id })
   const [sheetOpen, setSheetOpen] = useState<boolean>(false)
   const [selected, setSelected] = useState<WatermarkTypeEnum>(WatermarkTypeEnum.TEXT)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -88,6 +87,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
           ...(wmText ? { text: wmText } : { clearText: true }),
           ...(wmFontSize ? { fontSize: wmFontSize } : { clearFontSize: true }),
           ...(wmColor ? { color: wmColor } : { clearColor: true }),
+          ...(wmRotation ? { rotation: wmRotation } : { clearRotation: true }),
         },
         ...(uploadedFile && { logoFile: uploadedFile }),
       })
@@ -104,6 +104,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
       })
     } finally {
       setSheetOpen(false)
+      setUploadedFile(null)
     }
   }
 
@@ -235,7 +236,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label className="text-sm">Font family</Label>
-                      <Input type="text" value={wmFontFamily} onChange={(e) => setWmFontSize(Number(e.target.value))} />
+                      <Input type="text" value={wmFontFamily} onChange={(e) => setWmFontFamily(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-1">
                       <ColorInput label="Color" value={wmColor} onChange={setWmColor} />
@@ -260,6 +261,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
             isOpen={isDiscardDialogOpen}
             onConfirm={() => {
               setIsDiscardDialogOpen(false)
+              setUploadedFile(null)
               setSheetOpen(false)
             }}
             onCancel={() => setIsDiscardDialogOpen(false)}

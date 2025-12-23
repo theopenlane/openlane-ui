@@ -9,7 +9,6 @@ const Page: React.FC = () => {
   return (
     <>
       <ReportsAndCertificationsPage />
-      {/* <WatermarkPage /> */}
     </>
   )
 }
