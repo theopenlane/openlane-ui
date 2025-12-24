@@ -27,6 +27,7 @@ import {
   UserRoundPlus,
   Users,
   Workflow,
+  File as FileIcon,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -128,6 +129,17 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         href: '/trust-center/watermark',
         icon: FileText,
       },
+      {
+        title: 'Reports & Certifications',
+        href: '/trust-center/reports-and-certifications',
+        icon: FileIcon,
+      },
+      {
+        title: 'Compliance Frameworks',
+        href: '/trust-center/compliance-frameworks',
+        icon: FileIcon,
+      },
+      { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
     ],
   },
 ]

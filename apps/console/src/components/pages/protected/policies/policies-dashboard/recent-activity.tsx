@@ -7,7 +7,7 @@ import { formatDate } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 
 const RecentActivity = () => {
   const { policies } = useInternalPoliciesDashboard({
@@ -17,20 +17,20 @@ const RecentActivity = () => {
   const recentPolicies = useMemo(() => policies.slice(0, 5), [policies])
 
   const userIds = useMemo(() => {
+    if (!recentPolicies) return []
+
     const ids = new Set<string>()
-    recentPolicies?.forEach((p) => {
-      if (p.createdBy) ids.add(p.createdBy)
-      if (p.updatedBy) ids.add(p.updatedBy)
+    recentPolicies.forEach((policy) => {
+      if (policy.createdBy) ids.add(policy.createdBy)
+      if (policy.updatedBy) ids.add(policy.updatedBy)
     })
+
     return Array.from(ids)
   }, [recentPolicies])
 
-  const { data: userData } = useGetOrgMemberships({
-    where: { hasUserWith: userIds.map((id) => ({ id })) },
-    enabled: userIds.length > 0,
+  const { users } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
   })
-
-  const users = userData?.orgMemberships?.edges?.map((edge) => edge?.node?.user) ?? []
 
   if (!recentPolicies?.length) {
     return <p className="text-sm text-muted-foreground">No recent activity</p>
