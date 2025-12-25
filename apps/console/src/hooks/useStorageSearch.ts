@@ -2,6 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 
 export enum SearchKeyEnum {
   CONTROLS = 'controls',
+  TASKS = 'tasks',
+  POLICIES = 'policies',
+  PROCEDURES = 'procedures',
+  RISKS = 'risks',
+  EVIDENCE = 'evidence',
+  SUBPROCESSORS = 'subprocessors',
+  DOCUMENTS = 'documents',
 }
 
 export const STORAGE_SEARCH_KEY_PREFIX = 'table-search:'

@@ -19,9 +19,10 @@ import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-co
 import { CreateTrustCenterSubprocessorSheet } from './sheet/create-trust-center-subprocessor-sheet'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 const SubprocessorsPage = () => {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     id: false,
     createdBy: false,
