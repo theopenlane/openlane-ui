@@ -1,6 +1,6 @@
 'use client'
 
-import Loading from '@/app/(protected)/trust-center/watermark/loading'
+import Loading from '@/app/(protected)/trust-center/documents/loading'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useContext, useEffect } from 'react'

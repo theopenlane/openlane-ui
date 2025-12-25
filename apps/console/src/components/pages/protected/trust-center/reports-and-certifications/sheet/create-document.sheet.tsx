@@ -78,6 +78,7 @@ export const CreateDocumentSheet: React.FC = () => {
     if (!isOpen) {
       current.delete('create')
       current.delete('id')
+      handleFileUpload(null)
     }
     router.push(`?${current.toString()}`)
   }
@@ -116,7 +117,7 @@ export const CreateDocumentSheet: React.FC = () => {
         setIsEditing(false)
       } else {
         if (!data.file) throw new Error('Please upload a PDF file.')
-
+        console.log(data)
         await createDoc({
           input: {
             title: data.title,
@@ -140,6 +141,8 @@ export const CreateDocumentSheet: React.FC = () => {
         title: isEditMode ? 'Error Updating Document' : 'Error Uploading Document',
         description: message,
       })
+    } finally {
+      handleFileUpload(null)
     }
   }
 

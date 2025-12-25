@@ -126,13 +126,8 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       },
       {
         title: 'Documents',
-        href: '/trust-center/watermark',
+        href: '/trust-center/documents',
         icon: FileText,
-      },
-      {
-        title: 'Reports & Certifications',
-        href: '/trust-center/reports-and-certifications',
-        icon: FileIcon,
       },
       {
         title: 'Compliance Frameworks',
