@@ -49203,6 +49203,7 @@ export type GetTrustCenterDocsQuery = {
               tags?: Array<string> | null
               createdAt?: any | null
               updatedAt?: any | null
+              watermarkingEnabled: boolean
             } | null
           } | null> | null
           pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }

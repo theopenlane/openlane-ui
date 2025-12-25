@@ -10,13 +10,11 @@ export const ColorInput = memo(({ label, value, onChange }: { label: string; val
   }
 
   return (
-    <div className="space-y-1">
+    <div className="flex flex-col gap-1 w-full">
       <Label className="text-sm">{label}</Label>
-      <div className="flex items-center gap-2">
-        <div className="border px-1.5 py-1 rounded">
-          <Input type="color" value={value} onChange={(e) => handleChange(e.target.value)} className="w-6 h-7 p-0 border-none" />
-        </div>
-        <Input type="text" value={value} onChange={(e) => handleChange(e.target.value)} className="w-[100px] px-2" />
+      <div className="flex items-center gap-2 w-full border rounded-md px-2 bg-input">
+        <Input type="color" value={value} onChange={(e) => handleChange(e.target.value)} className="w-6 h-6 p-0 border-none cursor-pointer rounded-full" />
+        <Input type="text" value={value} onChange={(e) => handleChange(e.target.value)} className="flex-1 border-none p-0 bg-transparent" />
       </div>
     </div>
   )

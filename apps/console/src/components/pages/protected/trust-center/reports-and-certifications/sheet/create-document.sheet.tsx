@@ -78,14 +78,18 @@ export const CreateDocumentSheet: React.FC = () => {
     if (!isOpen) {
       current.delete('create')
       current.delete('id')
+      handleFileUpload(null)
     }
     router.push(`?${current.toString()}`)
   }
 
-  const handleFileUpload = (uploaded: TUploadedFile) => {
-    if (uploaded.file) {
+  const handleFileUpload = (uploaded: TUploadedFile | null) => {
+    if (uploaded?.file) {
       setUploadedFile(uploaded.file)
       formMethods.setValue('file', uploaded.file, { shouldValidate: true })
+    } else {
+      setUploadedFile(null)
+      formMethods.setValue('file', undefined, { shouldValidate: true })
     }
   }
 
@@ -113,7 +117,7 @@ export const CreateDocumentSheet: React.FC = () => {
         setIsEditing(false)
       } else {
         if (!data.file) throw new Error('Please upload a PDF file.')
-
+        console.log(data)
         await createDoc({
           input: {
             title: data.title,
@@ -137,6 +141,8 @@ export const CreateDocumentSheet: React.FC = () => {
         title: isEditMode ? 'Error Updating Document' : 'Error Uploading Document',
         description: message,
       })
+    } finally {
+      handleFileUpload(null)
     }
   }
 
@@ -245,7 +251,7 @@ export const CreateDocumentSheet: React.FC = () => {
                           iconPosition="left"
                           type="button"
                           variant="secondary"
-                          className="!p-2 h-8"
+                          className="p-2! h-8"
                           aria-label="Edit document"
                           onClick={() => setIsEditing(true)}
                         >
@@ -258,7 +264,7 @@ export const CreateDocumentSheet: React.FC = () => {
                         icon={<Trash2 size={16} strokeWidth={2} />}
                         iconPosition="left"
                         variant="secondary"
-                        className="!p-2 h-8"
+                        className="p-2! h-8"
                         onClick={() => setIsDeleteDialogOpen(true)}
                         aria-label="Delete document"
                       >
@@ -298,7 +304,7 @@ export const CreateDocumentSheet: React.FC = () => {
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
             <TagsField isEditing={isEditing || isCreateMode} />
-            {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditing} /> : <FileField isEditing={isEditing} onFileUpload={handleFileUpload} />}
+            {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditing} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
           </form>
         </FormProvider>
       </SheetContent>

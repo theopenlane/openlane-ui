@@ -23,7 +23,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.DOCUMENTS, { createdAt: false }))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.DOCUMENTS, { createdAt: false, updatedAt: false }))
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
@@ -53,6 +53,7 @@ const ReportsAndCertificationsPage = () => {
         tags: doc?.tags ?? [],
         createdAt: doc?.createdAt ?? '',
         updatedAt: doc?.updatedAt ?? '',
+        watermarkingEnabled: doc?.watermarkingEnabled ?? false,
       })) ?? [],
     [docs],
   )
@@ -87,7 +88,7 @@ const ReportsAndCertificationsPage = () => {
       ) : (
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Reports & Certifications</h2>
+            <h2 className="text-xl font-semibold">Documents</h2>
           </div>
 
           <DocumentsTableToolbar
