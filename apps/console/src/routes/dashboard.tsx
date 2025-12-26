@@ -22,6 +22,7 @@ import {
   Settings2,
   SettingsIcon,
   ShieldCheck,
+  Tag,
   UserCog,
   UserRoundPen,
   UserRoundPlus,
@@ -150,6 +151,11 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
         title: 'Authentication',
         href: '/organization-settings/authentication',
         icon: GlobeLock,
+      },
+      {
+        title: 'Custom Data',
+        href: '/organization-settings/custom-data',
+        icon: Tag,
       },
       {
         title: 'Subscribers',

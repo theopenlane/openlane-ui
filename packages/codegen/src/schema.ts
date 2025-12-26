@@ -12190,6 +12190,7 @@ export interface ExportWhereInput {
 
 export interface File extends Node {
   __typename?: 'File'
+  base64?: Maybe<Scalars['String']['output']>
   /** the category type of the file, if any (e.g. evidence, invoice, etc.) */
   categoryType?: Maybe<Scalars['String']['output']>
   contact?: Maybe<Array<Contact>>
@@ -24714,21 +24715,6 @@ export interface PageInfo {
   startCursor?: Maybe<Scalars['Cursor']['output']>
 }
 
-/**
- * Pagination parameters used for list requests to be able to pull more than
- * max results
- */
-export interface Params {
-  /** after is the cursor position to start at when paginating through results */
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  /** before is the cursor to start at when paginating in reverse through results */
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  /** first is the number of records to pull when going forward through pagination */
-  first?: InputMaybe<Scalars['Int']['input']>
-  /** last is the number of of records to pull when going backwards through pagination */
-  last?: InputMaybe<Scalars['Int']['input']>
-}
-
 /** Permission is enum for the permissions types */
 export enum Permission {
   BLOCKED = 'BLOCKED',
@@ -33142,8 +33128,8 @@ export interface SubscriberWhereInput {
 
 export interface Subscription {
   __typename?: 'Subscription'
-  /** Subscribe to task creation events for the authenticated user */
-  taskCreated: Task
+  /** Subscribe to notification creation events for the authenticated user */
+  notificationCreated: Notification
 }
 
 export interface TfaSetting extends Node {
@@ -48499,6 +48485,56 @@ export type GetTagsQuery = {
     __typename?: 'TagDefinitionConnection'
     edges?: Array<{ __typename?: 'TagDefinitionEdge'; node?: { __typename?: 'TagDefinition'; id: string; name: string; color?: string | null } | null } | null> | null
   }
+}
+
+export type GetAllTagDefinitionsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<TagDefinitionWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetAllTagDefinitionsPaginatedQuery = {
+  __typename?: 'Query'
+  tagDefinitions: {
+    __typename?: 'TagDefinitionConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'TagDefinitionEdge'
+      cursor: any
+      node?: { __typename?: 'TagDefinition'; id: string; name: string; aliases?: Array<string> | null; systemOwned?: boolean | null; description?: string | null; color?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+  }
+}
+
+export type CreateTagDefinitionMutationVariables = Exact<{
+  input: CreateTagDefinitionInput
+}>
+
+export type CreateTagDefinitionMutation = { __typename?: 'Mutation'; createTagDefinition: { __typename?: 'TagDefinitionCreatePayload'; tagDefinition: { __typename?: 'TagDefinition'; id: string } } }
+
+export type UpdateTagDefinitionMutationVariables = Exact<{
+  updateTagDefinitionId: Scalars['ID']['input']
+  input: UpdateTagDefinitionInput
+}>
+
+export type UpdateTagDefinitionMutation = { __typename?: 'Mutation'; updateTagDefinition: { __typename?: 'TagDefinitionUpdatePayload'; tagDefinition: { __typename?: 'TagDefinition'; id: string } } }
+
+export type DeleteTagDefinitionMutationVariables = Exact<{
+  deleteTagDefinitionId: Scalars['ID']['input']
+}>
+
+export type DeleteTagDefinitionMutation = { __typename?: 'Mutation'; deleteTagDefinition: { __typename?: 'TagDefinitionDeletePayload'; deletedID: string } }
+
+export type GetTagDefinitionDetailsQueryVariables = Exact<{
+  tagDefinitionId: Scalars['ID']['input']
+}>
+
+export type GetTagDefinitionDetailsQuery = {
+  __typename?: 'Query'
+  tagDefinition: { __typename?: 'TagDefinition'; id: string; name: string; aliases?: Array<string> | null; color?: string | null; description?: string | null }
 }
 
 export type TasksWithFilterQueryVariables = Exact<{
