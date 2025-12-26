@@ -29480,7 +29480,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities via file upload */
+  /** Create multiple new trustcenterEntitys via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -29592,7 +29592,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities */
+  /** Create multiple new trustcenterEntitys */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -56277,7 +56277,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntities */
+  /** Created trustcenterEntitys */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -70614,6 +70614,16 @@ export type InsertInternalPolicyCommentMutation = {
       }
     }
   }
+}
+
+export type UpdatePolicyCommentMutationVariables = Exact<{
+  updateInternalPolicyCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdatePolicyCommentMutation = {
+  __typename?: 'Mutation'
+  updateInternalPolicyComment: { __typename?: 'InternalPolicyUpdatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string } }
 }
 
 export type CreateProcedureMutationVariables = Exact<{

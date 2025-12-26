@@ -397,3 +397,13 @@ export const INSERT_POLICY_COMMENT = gql`
     }
   }
 `
+
+export const UPDATE_POLICY_COMMENT = gql`
+  mutation UpdatePolicyComment($updateInternalPolicyCommentId: ID!, $input: UpdateNoteInput!) {
+    updateInternalPolicyComment(id: $updateInternalPolicyCommentId, input: $input) {
+      internalPolicy {
+        id
+      }
+    }
+  }
+`

@@ -19,13 +19,12 @@ import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-ki
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
-import { useInsertPolicyComment, useUpdateInternalPolicy } from 'console/src/lib/graphql-hooks/policy.ts'
+import { useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useInsertProcedureComment, useUpdateProcedure } from 'console/src/lib/graphql-hooks/procedures.ts'
-import { useInsertControlPlateComment, useUpdateControl } from 'console/src/lib/graphql-hooks/controls.ts'
+import { useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/controls.ts'
 import { useInsertSubcontrolPlateComment, useUpdateSubcontrol } from 'console/src/lib/graphql-hooks/subcontrol.ts'
 import { useInsertRiskComment, useUpdateRisk } from 'console/src/lib/graphql-hooks/risks.ts'
-import { useQueryClient } from '@tanstack/react-query'
 
 export interface TComment {
   id: string
@@ -51,6 +50,9 @@ export function Comment(props: {
   const editor = useEditorRef()
   const userInfo = usePluginOption(discussionPlugin, 'user', comment.userId)
   const currentUserId = usePluginOption(discussionPlugin, 'currentUserId')
+  const { mutateAsync: updateControlComment } = useUpdateControlComment()
+  const entityId = usePluginOption(discussionPlugin, 'entityId') as string
+  const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
   const resolveDiscussion = async (id: string) => {
     // NOTE: backend does not support resolving discussions; keep this local-only
@@ -72,8 +74,12 @@ export function Comment(props: {
   }
 
   const updateComment = async (input: { id: string; contentRich: Value; discussionId: string; isEdited: boolean }) => {
-    // NOTE: backend does not expose "update comment" by ID in UpdateInternalPolicyInput.
-    // So this is local-only for now.
+    const text = NodeApi.string({ children: input.contentRich, type: KEYS.p })
+    await updateControlComment({
+      updateControlCommentId: '01KD3HB0KCFDP2B78NYK7SVZQ5',
+      input: { text: text, discussionID: '01KCQ7E6HQKQYBRQXPH6SQAPWH' },
+    })
+
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id === input.discussionId) {
         const updatedComments = discussion.comments.map((c) => {
@@ -296,12 +302,6 @@ function CommentMoreDropdown(props: {
   const onDeleteComment = React.useCallback(async () => {
     if (!comment.id) return alert('You are operating too quickly, please try again later.')
 
-    //const input = {
-    //       deleteComment: comment.id,
-    //     }
-    //
-    //     await updateInternalPolicy({ updateInternalPolicyId: entityId, input: input })
-
     const entityIdKeyMap: EntityIdKeyMap = {
       Control: 'updateControlId',
       Subcontrol: 'updateSubcontrolId',
@@ -371,11 +371,11 @@ function CommentMoreDropdown(props: {
         }}
       >
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={onEditComment}>
+          <DropdownMenuItem className="cursor-pointer" onClick={onEditComment}>
             <PencilIcon className="size-4" />
             Edit comment
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => void onDeleteComment()}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => void onDeleteComment()}>
             <TrashIcon className="size-4" />
             Delete comment
           </DropdownMenuItem>

@@ -15,6 +15,7 @@ import {
   GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID,
   INSERT_POLICY_COMMENT,
   GET_POLICY_DISCUSSION_BY_ID,
+  UPDATE_POLICY_COMMENT,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -43,6 +44,8 @@ import {
   InsertInternalPolicyCommentMutationVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
+  UpdatePolicyCommentMutation,
+  UpdatePolicyCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -285,6 +288,17 @@ export const useInsertPolicyComment = () => {
   return useMutation<InsertInternalPolicyCommentMutation, unknown, InsertInternalPolicyCommentMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(INSERT_POLICY_COMMENT, variables)
+    },
+  })
+}
+
+export const useUpdatePolicyComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdatePolicyCommentMutation, unknown, UpdatePolicyCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_POLICY_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['policyComments', data.updateInternalPolicyComment.internalPolicy.id] })
     },
   })
 }
