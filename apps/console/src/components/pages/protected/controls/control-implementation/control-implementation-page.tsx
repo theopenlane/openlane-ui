@@ -168,14 +168,14 @@ const ControlImplementationPage = () => {
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Implementations" />
         <div className="flex gap-2.5 items-center">
-          <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
+          <Button type="button" className="h-8 px-2!" variant="secondary" onClick={toggleAll}>
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
             </div>
           </Button>
           {createAllowed && (
-            <Button variant="secondary" className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+            <Button variant="secondary" className="h-8 px-2!" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
               Create
             </Button>
           )}

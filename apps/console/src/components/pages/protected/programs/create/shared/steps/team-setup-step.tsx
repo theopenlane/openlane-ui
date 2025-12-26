@@ -9,7 +9,7 @@ import { useFormContext } from 'react-hook-form'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { useSession } from 'next-auth/react'
-import MembersInviteSheet from '@/components/pages/protected/organization/members/sidebar/members-invite-sheet'
+import MembersInviteSheet from '@/components/pages/protected/organization-settings/members/sidebar/members-invite-sheet'
 
 export default function TeamSetupStep() {
   const [showInviteForm, setShowInviteForm] = useState(false)

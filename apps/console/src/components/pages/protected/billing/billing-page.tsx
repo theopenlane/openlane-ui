@@ -1,7 +1,7 @@
 'use client'
 import React, { Suspense, useContext, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import PricingPlan from '@/components/pages/protected/organization/billing/pricing-plan'
+import PricingPlan from '@/components/pages/protected/organization-settings/billing/pricing-plan'
 import { useOrganization } from '@/hooks/useOrganization'
 import { LoaderCircle } from 'lucide-react'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
