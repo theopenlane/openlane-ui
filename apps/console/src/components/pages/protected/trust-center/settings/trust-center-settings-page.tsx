@@ -35,7 +35,6 @@ const TrustCenterSettingsPage = () => {
   return (
     <div className="space-y-8 p-6">
       <TitleAndOverview />
-      {/* <ConfigureUrlSection trustCenter={data.trustCenters.edges?.[0] || undefined} /> */}
       <ThemeSection setting={setting} />
       <BrandSection setting={setting} />
       <WatermarkConfigurationSection watermarkConfig={trustCenter.watermarkConfig} />

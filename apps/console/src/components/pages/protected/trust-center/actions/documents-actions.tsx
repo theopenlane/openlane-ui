@@ -72,7 +72,6 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
       >
         Preview
       </Button>
-      {/* <PreviewWatermarkSheet /> */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <div

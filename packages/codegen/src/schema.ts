@@ -49437,6 +49437,7 @@ export type GetTruestCenterDocByIdQuery = {
     watermarkingEnabled?: boolean | null
     watermarkStatus?: TrustCenterDocWatermarkStatus | null
     file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string; providedFileSize?: number | null } | null
+    originalFile?: { __typename?: 'File'; presignedURL?: string | null; providedFileSize?: number | null; providedFileName: string } | null
   }
 }
 
