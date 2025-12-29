@@ -47,7 +47,7 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
       await updateWatermark({
         updateTrustCenterWatermarkConfigId: id!,
         input: { clearText: true, clearFont: true, clearColor: true },
-        logoFile: uploadedFile,
+        watermarkFile: uploadedFile,
       })
 
       successNotification({

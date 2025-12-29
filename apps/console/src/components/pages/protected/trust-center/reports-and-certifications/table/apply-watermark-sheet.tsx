@@ -1,6 +1,5 @@
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useNotification } from '@/hooks/useNotification'
-import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -12,6 +11,7 @@ import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ColorInput } from '@/components/shared/color-input/color-input'
+import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
 
 type WatermarkConfigUI = {
   id?: string
@@ -89,7 +89,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
           ...(wmColor ? { color: wmColor } : { clearColor: true }),
           ...(wmRotation ? { rotation: wmRotation } : { clearRotation: true }),
         },
-        ...(uploadedFile && { logoFile: uploadedFile }),
+        ...(uploadedFile && { watermarkFile: uploadedFile }),
       })
 
       successNotification({

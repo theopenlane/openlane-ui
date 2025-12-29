@@ -59,12 +59,19 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
   return (
     <div className="flex items-center gap-2">
       <Button
-        onClick={(e) => {
+        onClick={async (e) => {
           e.stopPropagation()
-          const url = filePresignedURL
-          if (!url) return
 
-          window.open(url, '_blank', 'noopener,noreferrer')
+          if (!filePresignedURL) return
+
+          const encodedUrl = encodeURI(filePresignedURL)
+
+          const response = await fetch(encodedUrl)
+          const blob = await response.blob()
+
+          const blobUrl = URL.createObjectURL(blob)
+
+          window.open(blobUrl, '_blank')
         }}
         variant="secondary"
         icon={<Eye size={16} strokeWidth={2} />}

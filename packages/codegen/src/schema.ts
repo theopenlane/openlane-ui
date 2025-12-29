@@ -20567,7 +20567,7 @@ export interface MutationCreateTrustCenterSubprocessorArgs {
 
 export interface MutationCreateTrustCenterWatermarkConfigArgs {
   input: CreateTrustCenterWatermarkConfigInput
-  logoFile?: InputMaybe<Scalars['Upload']['input']>
+  watermarkFile?: InputMaybe<Scalars['Upload']['input']>
 }
 
 export interface MutationCreateTrustcenterEntityArgs {
@@ -21555,7 +21555,7 @@ export interface MutationUpdateTrustCenterSubprocessorArgs {
 export interface MutationUpdateTrustCenterWatermarkConfigArgs {
   id: Scalars['ID']['input']
   input: UpdateTrustCenterWatermarkConfigInput
-  logoFile?: InputMaybe<Scalars['Upload']['input']>
+  watermarkFile?: InputMaybe<Scalars['Upload']['input']>
 }
 
 export interface MutationUpdateTrustcenterEntityArgs {
@@ -49466,7 +49466,7 @@ export type BulkUpdateTrustCenterDocMutation = {
 export type UpdateTrustCenterWatermarkConfigMutationVariables = Exact<{
   updateTrustCenterWatermarkConfigId: Scalars['ID']['input']
   input: UpdateTrustCenterWatermarkConfigInput
-  logoFile?: InputMaybe<Scalars['Upload']['input']>
+  watermarkFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type UpdateTrustCenterWatermarkConfigMutation = {

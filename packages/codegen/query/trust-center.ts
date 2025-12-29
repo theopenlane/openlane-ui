@@ -195,8 +195,8 @@ export const BULK_UPDATE_TRUST_CENTER_DOC = gql`
 `
 
 export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
-  mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $logoFile: Upload) {
-    updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, logoFile: $logoFile) {
+  mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $watermarkFile: Upload) {
+    updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, watermarkFile: $watermarkFile) {
       trustCenterWatermarkConfig {
         id
       }
