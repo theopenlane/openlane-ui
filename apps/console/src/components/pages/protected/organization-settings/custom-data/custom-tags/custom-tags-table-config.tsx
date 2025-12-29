@@ -8,7 +8,8 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import TagColorCell from './tag-color-cell'
+import ColorCell from '../shared/color-cell'
+import { useUpdateTag } from '@/lib/graphql-hooks/tags'
 
 export type TagNodeLike = {
   id: string
@@ -83,10 +84,10 @@ type ColumnsParams = {
   onDelete?: (id: string) => void
 }
 
-export const getCustomTagColumns = ({ rows, selected, setSelected, onEdit, onDelete }: ColumnsParams): ColumnDef<CustomTagRow>[] => {
+export const useGetCustomTagColumns = ({ rows, selected, setSelected, onEdit, onDelete }: ColumnsParams): ColumnDef<CustomTagRow>[] => {
   const allVisibleSelected = rows.length > 0 && rows.every((r) => selected[r.id])
   const someVisibleSelected = rows.some((r) => selected[r.id]) && !allVisibleSelected
-
+  const { mutateAsync: updateTag } = useUpdateTag()
   return [
     {
       id: 'select',
@@ -104,7 +105,7 @@ export const getCustomTagColumns = ({ rows, selected, setSelected, onEdit, onDel
         />
       ),
       cell: ({ row }) => <Checkbox checked={Boolean(selected[row.original.id])} onCheckedChange={(checked) => setSelected((prev) => ({ ...prev, [row.original.id]: Boolean(checked) }))} />,
-      size: 44,
+      size: 30,
     },
     {
       accessorKey: 'name',
@@ -129,7 +130,19 @@ export const getCustomTagColumns = ({ rows, selected, setSelected, onEdit, onDel
     {
       id: 'color',
       header: 'Color',
-      cell: ({ row }) => <TagColorCell tagId={row.original.id} initialColor={row.original.colorHex} disabled={row.original.type === 'system'} />,
+      cell: ({ row }) => (
+        <ColorCell
+          id={row.original.id}
+          initialColor={row.original.colorHex}
+          disabled={row.original.type === 'system'}
+          onSave={async (id, color) => {
+            await updateTag({
+              updateTagDefinitionId: id,
+              input: { color },
+            })
+          }}
+        />
+      ),
       size: 140,
     },
     {
@@ -138,7 +151,7 @@ export const getCustomTagColumns = ({ rows, selected, setSelected, onEdit, onDel
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" className="h-8 w-8 p-0">
+            <Button variant="secondary">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

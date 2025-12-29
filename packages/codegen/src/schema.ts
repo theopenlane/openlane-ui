@@ -45782,6 +45782,17 @@ export type GetExistingControlsForOrganizationQuery = {
   }
 }
 
+export type CustomTypeEnumFieldsFragment = {
+  __typename?: 'CustomTypeEnum'
+  id: string
+  name: string
+  color?: string | null
+  objectType: string
+  description?: string | null
+  field: string
+  systemOwned?: boolean | null
+}
+
 export type GetCustomTypeEnumsQueryVariables = Exact<{
   where?: InputMaybe<CustomTypeEnumWhereInput>
 }>
@@ -45792,10 +45803,72 @@ export type GetCustomTypeEnumsQuery = {
     __typename?: 'CustomTypeEnumConnection'
     edges?: Array<{
       __typename?: 'CustomTypeEnumEdge'
-      node?: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string } | null
+      node?: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null } | null
     } | null> | null
   }
 }
+
+export type GetCustomTypeEnumsPaginatedQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<CustomTypeEnumWhereInput>
+}>
+
+export type GetCustomTypeEnumsPaginatedQuery = {
+  __typename?: 'Query'
+  customTypeEnums: {
+    __typename?: 'CustomTypeEnumConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'CustomTypeEnumEdge'
+      cursor: any
+      node?: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null; endCursor?: any | null }
+  }
+}
+
+export type GetCustomTypeEnumByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type GetCustomTypeEnumByIdQuery = {
+  __typename?: 'Query'
+  customTypeEnum: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null }
+}
+
+export type CreateCustomTypeEnumMutationVariables = Exact<{
+  input: CreateCustomTypeEnumInput
+}>
+
+export type CreateCustomTypeEnumMutation = {
+  __typename?: 'Mutation'
+  createCustomTypeEnum: {
+    __typename?: 'CustomTypeEnumCreatePayload'
+    customTypeEnum: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null }
+  }
+}
+
+export type UpdateCustomTypeEnumMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  input: UpdateCustomTypeEnumInput
+}>
+
+export type UpdateCustomTypeEnumMutation = {
+  __typename?: 'Mutation'
+  updateCustomTypeEnum: {
+    __typename?: 'CustomTypeEnumUpdatePayload'
+    customTypeEnum: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null }
+  }
+}
+
+export type DeleteCustomTypeEnumMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteCustomTypeEnumMutation = { __typename?: 'Mutation'; deleteCustomTypeEnum: { __typename?: 'CustomTypeEnumDeletePayload'; deletedID: string } }
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput

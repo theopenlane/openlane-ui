@@ -13,7 +13,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useTagsPaginated, useDeleteTag } from '@/lib/graphql-hooks/tags'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { getCustomTagColumns, mapTagsToRows, TagNodeLike } from './custom-tags-table-config'
+import { useGetCustomTagColumns, mapTagsToRows, TagNodeLike } from './custom-tags-table-config'
 import { CreateTagSheet } from './create-tag-sheet'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
@@ -73,20 +73,16 @@ const CustomTagsTab: FC = () => {
     }
   }
 
-  const columns = useMemo(
-    () =>
-      getCustomTagColumns({
-        rows,
-        selected,
-        setSelected,
-        onEdit: handleEditOpen,
-        onDelete: (id) => {
-          const tag = rows.find((r) => r.id === id)
-          setTagToDelete(tag ? { id: tag.id, name: tag.name } : null)
-        },
-      }),
-    [rows, selected, setSelected, handleEditOpen],
-  )
+  const columns = useGetCustomTagColumns({
+    rows,
+    selected,
+    setSelected,
+    onEdit: handleEditOpen,
+    onDelete: (id) => {
+      const tag = rows.find((r) => r.id === id)
+      setTagToDelete(tag ? { id: tag.id, name: tag.name } : null)
+    },
+  })
 
   return (
     <>

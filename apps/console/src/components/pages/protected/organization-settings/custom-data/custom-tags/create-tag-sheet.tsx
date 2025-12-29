@@ -1,20 +1,23 @@
 'use client'
 
-import React, { useEffect, useState, useCallback } from 'react'
-import { Button } from '@repo/ui/button'
-import { PanelRightClose, Pencil, Trash2, LinkIcon, Check } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm, useController } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@repo/ui/sheet'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { z } from 'zod'
+import { PanelRightClose, Trash2, LinkIcon, Check, LoaderCircle } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 
-import { useNotification } from '@/hooks/useNotification'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@repo/ui/sheet'
+import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
+import { Label } from '@repo/ui/label'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ColorInput } from '@/components/shared/color-input/color-input'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+
 import { useCreateTag, useUpdateTag, useDeleteTag, useGetTagDetails } from '@/lib/graphql-hooks/tags'
 
 const schema = z.object({
@@ -27,22 +30,21 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => void }) => {
-  const router = useRouter()
   const params = useSearchParams()
+  const { replace } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
 
   const isCreate = params.get('create') === 'true'
   const id = params.get('id')
   const isEditMode = !!id
 
-  const [isEditing, setIsEditing] = useState(isCreate)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [open, setOpen] = useState(false)
 
-  const { mutateAsync: createTag } = useCreateTag()
-  const { mutateAsync: updateTag } = useUpdateTag()
-  const { mutateAsync: deleteTag } = useDeleteTag()
-  const { data: tagData } = useGetTagDetails(id)
+  const { data: tagData, isLoading: isLoadingDetails } = useGetTagDetails(id)
+  const { mutateAsync: createTag, isPending: isCreating } = useCreateTag()
+  const { mutateAsync: updateTag, isPending: isUpdating } = useUpdateTag()
+  const { mutateAsync: deleteTag, isPending: isDeleting } = useDeleteTag()
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -54,99 +56,74 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     },
   })
 
-  const { handleSubmit, reset, formState, control } = formMethods
-  const { isSubmitting } = formState
+  const { control, handleSubmit, reset, setValue } = formMethods
+  const { field: colorField } = useController({ name: 'color', control })
 
-  const { field: colorField } = useController({
-    name: 'color',
-    control,
-  })
-
-  const handleOpenChange = (value: boolean) => {
-    setOpen(value)
-    if (!value) {
-      const current = new URLSearchParams(window.location.search)
-      current.delete('create')
-      current.delete('id')
-      router.push(`?${current.toString()}`)
-      reset()
+  useEffect(() => {
+    if (tagData?.tagDefinition) {
+      const t = tagData.tagDefinition
+      setValue('name', t.name ?? '')
+      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : t.aliases ?? '')
+      setValue('description', t.description ?? '')
+      setValue('color', t.color?.startsWith('#') ? t.color : `#${t.color || '6366f1'}`)
     }
-  }
-
-  const handleCopyLink = () => {
-    const baseUrl = `${window.location.origin}${window.location.pathname}`
-    let url = baseUrl
-
-    if (isEditMode && id) {
-      url += `?id=${id}`
-    } else if (isCreate) {
-      url += `?create=true`
-    }
-
-    navigator.clipboard
-      .writeText(url)
-      .then(() => successNotification({ title: 'Link copied to clipboard' }))
-      .catch(() => errorNotification({ title: 'Failed to copy link' }))
-  }
-
-  const prefillForm = useCallback(() => {
-    if (!tagData?.tagDefinition) return
-    const t = tagData.tagDefinition
-    reset({
-      name: t.name ?? '',
-      aliases: Array.isArray(t.aliases) ? t.aliases.join(', ') : t.aliases ?? '',
-      description: t.description ?? '',
-      color: t.color?.startsWith('#') ? t.color : `#${t.color || '6366f1'}`,
-    })
-  }, [tagData, reset])
+  }, [tagData, setValue])
 
   useEffect(() => {
     if (id || isCreate) {
       setOpen(true)
-      setIsEditing(isCreate)
     } else {
       setOpen(false)
     }
   }, [id, isCreate])
 
-  useEffect(() => {
-    if (isEditMode && tagData?.tagDefinition) prefillForm()
-  }, [isEditMode, tagData, prefillForm])
+  const handleOpenChange = (val: boolean) => {
+    if (!val) {
+      replace({ id: null, create: null })
+      setTimeout(() => {
+        reset({ name: '', aliases: '', description: '', color: '#6366f1' })
+      }, 300)
+    }
+  }
+
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}${window.location.pathname}?id=${id || 'create'}`
+    navigator.clipboard.writeText(url)
+    successNotification({ title: 'Link copied' })
+  }
 
   const onSubmit = async (data: FormData) => {
     try {
-      if (isEditMode) {
+      const formattedAliases = data.aliases
+        ?.split(',')
+        .map((a) => a.trim())
+        .filter(Boolean)
+
+      if (isEditMode && id) {
         await updateTag({
-          updateTagDefinitionId: id!,
+          updateTagDefinitionId: id,
           input: {
             description: data.description,
             color: data.color,
-            aliases: data.aliases
-              ?.split(',')
-              .map((a) => a.trim())
-              .filter(Boolean),
+            aliases: formattedAliases,
           },
         })
         successNotification({ title: 'Tag updated' })
-        setIsEditing(false)
       } else {
         await createTag({
           input: {
             name: data.name,
             description: data.description,
             color: data.color,
-            aliases: data.aliases
-              ?.split(',')
-              .map((a) => a.trim())
-              .filter(Boolean),
+            aliases: formattedAliases,
           },
         })
         successNotification({ title: 'Tag created' })
-        handleOpenChange(false)
       }
+      handleOpenChange(false)
       resetPagination()
     } catch (err) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(err) })
+      errorNotification({ title: 'Error saving', description: parseErrorMessage(err) })
     }
   }
 
@@ -154,7 +131,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     if (!id) return
     try {
       await deleteTag({ deleteTagDefinitionId: id })
-      successNotification({ title: 'Tag Deleted' })
+      successNotification({ title: 'Tag deleted' })
       setDeleteDialogOpen(false)
       handleOpenChange(false)
       resetPagination()
@@ -163,84 +140,72 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     }
   }
 
+  const isPending = isCreating || isUpdating
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent side="right" className="w-[420px] sm:w-[480px] p-0">
         <SheetHeader className="p-6 space-y-0 border-b">
           <div className="flex items-center justify-between">
-            <PanelRightClose size={18} className="cursor-pointer transition-colors" onClick={() => handleOpenChange(false)} />
+            <PanelRightClose size={18} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
+
             <div className="flex items-center gap-2">
               <Button icon={<LinkIcon size={14} />} variant="secondary" onClick={handleCopyLink}>
                 Copy link
               </Button>
 
-              {isEditMode && !isEditing ? (
-                <>
-                  <Button variant="secondary" onClick={() => setIsEditing(true)} icon={<Pencil size={14} />}>
-                    Edit
-                  </Button>
-                  <Button variant="secondary" onClick={() => setDeleteDialogOpen(true)} icon={<Trash2 size={14} />}>
-                    Delete
-                  </Button>
-                </>
-              ) : (
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      if (isEditMode) {
-                        setIsEditing(false)
-                        prefillForm()
-                      } else {
-                        handleOpenChange(false)
-                      }
-                    }}
-                  >
-                    Cancel
-                  </Button>
-
-                  <Button variant="primary" onClick={handleSubmit(onSubmit)} disabled={isSubmitting} icon={isEditMode || isSubmitting ? <Check size={14} /> : undefined}>
-                    {isSubmitting ? 'Saving...' : isCreate ? 'Create Tag' : 'Save'}
-                  </Button>
-                </div>
+              {isEditMode && (
+                <Button variant="secondary" onClick={() => setDeleteDialogOpen(true)} icon={<Trash2 size={14} />} disabled={isPending}>
+                  Delete
+                </Button>
               )}
+
+              <Button variant="primary" onClick={handleSubmit(onSubmit)} icon={isPending ? <LoaderCircle className="animate-spin" size={14} /> : <Check size={14} />} disabled={isPending}>
+                {isPending ? 'Saving...' : 'Save'}
+              </Button>
             </div>
           </div>
+
           <div className="mt-4">
-            <SheetTitle className="text-xl font-semibold">{isCreate ? 'Create Custom Tag' : tagData?.tagDefinition?.name}</SheetTitle>
+            <SheetTitle>{isCreate ? 'Create Custom Tag' : tagData?.tagDefinition?.name}</SheetTitle>
             <SheetDescription className="sr-only">Tag management form</SheetDescription>
           </div>
         </SheetHeader>
 
-        <FormProvider {...formMethods}>
-          <form id="tag-form" className="p-6 space-y-6">
-            {isCreate && (
+        {isLoadingDetails ? (
+          <div className="flex items-center justify-center h-64">
+            <LoaderCircle className="animate-spin text-muted-foreground" size={32} />
+          </div>
+        ) : (
+          <FormProvider {...formMethods}>
+            <form className="p-6 space-y-6">
               <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-wider">Name</label>
-                <Input {...formMethods.register('name')} disabled={!isEditing || isEditMode} placeholder="e.g. High Priority" />
+                <Label>Name</Label>
+                <Input {...formMethods.register('name')} disabled={isPending || isEditMode} placeholder="e.g. High Priority" />
+                {isEditMode && <p className="text-[11px] text-muted-foreground italic">Name cannot be changed after creation.</p>}
               </div>
-            )}
 
-            <div className="space-y-2">
-              <label className="text-xs font-medium uppercase tracking-wider">Aliases</label>
-              <Input {...formMethods.register('aliases')} disabled={!isEditing} placeholder="e.g. Critical, Urgent" />
-            </div>
+              <div className="space-y-2">
+                <Label>Aliases</Label>
+                <Input {...formMethods.register('aliases')} disabled={isPending} placeholder="e.g. Critical, Urgent" />
+              </div>
 
-            <ColorInput label="Select Color" value={colorField.value} onChange={colorField.onChange} disabled={!isEditing} />
+              <ColorInput label="Select Color" value={colorField.value} onChange={colorField.onChange} disabled={isPending} />
 
-            <div className="space-y-2">
-              <label className="text-xs font-medium uppercase tracking-wider">Description</label>
-              <Textarea {...formMethods.register('description')} disabled={!isEditing} placeholder="1-2 lines max" className="min-h-[100px]" />
-            </div>
-          </form>
-        </FormProvider>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea {...formMethods.register('description')} disabled={isPending} placeholder="Description..." />
+              </div>
+            </form>
+          </FormProvider>
+        )}
 
         <ConfirmationDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
           title="Delete Tag"
           description={`Are you sure you want to delete "${tagData?.tagDefinition?.name}"? This action cannot be undone.`}
-          confirmationText="Delete"
+          confirmationText={isDeleting ? 'Deleting...' : 'Delete'}
           onConfirm={handleDelete}
         />
       </SheetContent>
