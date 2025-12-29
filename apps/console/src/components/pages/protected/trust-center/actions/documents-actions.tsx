@@ -8,7 +8,10 @@ import { Droplet, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@repo/ui/button'
+import { Document, Page } from 'react-pdf'
+import { pdfjs } from 'react-pdf'
 
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
 type DocumentActionsProps = {
   documentId: string
   watermarkEnabled: boolean
@@ -22,7 +25,9 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isWatermarkEnabled, setWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const queryClient = useQueryClient()
-  console.log('presignedURL', filePresignedURL)
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null)
+  const [numPages, setNumPages] = useState<number>()
+
   const handleDeleteDocument = async () => {
     try {
       await deleteDocument({ deleteTrustCenterDocId: documentId })
@@ -56,9 +61,24 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
     }
   }
 
+  const openPreview = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!filePresignedURL) return
+
+    const encodedUrl = encodeURI(filePresignedURL)
+
+    const res = await fetch(encodedUrl)
+    const buffer = await res.arrayBuffer()
+
+    // Force PDF type (macOS-safe)
+    const pdfBlob = new Blob([buffer], { type: 'application/pdf' })
+
+    setPreviewBlob(pdfBlob)
+  }
+
   return (
     <div className="flex items-center gap-2">
-      <Button
+      {/* <Button
         onClick={async (e) => {
           e.stopPropagation()
 
@@ -78,7 +98,17 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
         iconPosition="left"
       >
         Preview
+      </Button> */}
+      <Button onClick={openPreview} variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
+        Preview
       </Button>
+      {previewBlob && numPages && (
+        <Document file={previewBlob} onLoadSuccess={({ numPages }) => setNumPages(numPages)} loading="Loading PDF...">
+          {Array.from({ length: numPages }, (_, i) => (
+            <Page key={i} pageNumber={i + 1} width={900} />
+          ))}
+        </Document>
+      )}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <div
