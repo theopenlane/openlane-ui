@@ -13,4 +13,5 @@ export enum TableColumnVisibilityKeysEnum {
   DOCUMENTS = 'documents',
   SUBPROCESSORS = 'subprocessors',
   TEMPLATE = 'template',
+  CUSTOM_ENUMS = 'custom-enums',
 }

@@ -20,12 +20,20 @@ import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum } from '@/lib/grap
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TPagination } from '@repo/ui/pagination-types'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { VisibilityState } from '@tanstack/react-table'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
 
 type SelectedEnum = { id: string; name: string }
+const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
+  objectType: false,
+  field: false,
+}
 
 const CustomEnumsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CUSTOM_ENUMS, DEFAULT_ENUM_COLUMN_VISIBILITY))
 
   const [view, setView] = useState<string>(ENUM_GROUPS[0])
   const [searchValue, setSearchValue] = useState('')
@@ -93,6 +101,15 @@ const CustomEnumsTab: FC = () => {
     },
   })
 
+  const mappedColumns = useMemo(() => {
+    return columns
+      .filter((col): col is { accessorKey: string; header: string } => 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string')
+      .map((col) => ({
+        accessorKey: col.accessorKey,
+        header: col.header,
+      }))
+  }, [columns])
+
   return (
     <>
       <div className="flex flex-col gap-4 mb-4 w-full">
@@ -129,6 +146,9 @@ const CustomEnumsTab: FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {mappedColumns && columnVisibility && setColumnVisibility && (
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.CONTROL} />
+            )}
             <Input
               icon={isLoading ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
               placeholder="Search enums..."
@@ -145,7 +165,17 @@ const CustomEnumsTab: FC = () => {
       </div>
 
       <div className="rounded-xl border bg-card overflow-hidden">
-        <DataTable columns={columns} data={rows} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} tableKey={TableKeyEnum.CUSTOM_ENUMS} />
+        <DataTable
+          columns={columns}
+          data={rows}
+          loading={isLoading}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={paginationMeta}
+          tableKey={TableKeyEnum.CUSTOM_ENUMS}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+        />
       </div>
 
       <CreateEnumSheet resetPagination={resetPagination} />

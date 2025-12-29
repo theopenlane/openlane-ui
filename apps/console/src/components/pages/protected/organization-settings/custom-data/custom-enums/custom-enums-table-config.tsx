@@ -109,10 +109,22 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
             WebkitBoxOrient: 'vertical',
           }}
         >
-          {row.original.description || '—'}
+          {row.original.description || '-'}
         </div>
       ),
       size: 300,
+    },
+    {
+      accessorKey: 'objectType',
+      header: 'Object Type',
+      cell: ({ getValue }) => (getValue() as string) || '-',
+      size: 100,
+    },
+    {
+      accessorKey: 'field',
+      header: 'Field',
+      cell: ({ getValue }) => (getValue() as string) || '-',
+      size: 100,
     },
     {
       id: 'color',
