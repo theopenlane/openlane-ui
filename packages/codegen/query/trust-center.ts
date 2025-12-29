@@ -104,6 +104,7 @@ export const GET_TRUST_CENTER_DOCS = gql`
                 createdAt
                 updatedAt
                 watermarkingEnabled
+                watermarkStatus
                 file {
                   presignedURL
                 }

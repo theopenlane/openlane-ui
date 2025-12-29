@@ -1,7 +1,7 @@
 'use client'
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
-import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
+import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 type GqlFile = {
   presignedURL?: string | null
@@ -17,6 +17,7 @@ export type TTrustCenterDoc = {
   watermarkingEnabled?: boolean
   file?: GqlFile | null
   originalFile?: GqlFile | null
+  watermarkStatus: TrustCenterDocWatermarkStatus
 }
 
 type Params = {
@@ -88,11 +89,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       accessorKey: 'watermarkingEnabled',
       header: 'Watermarking',
       cell: ({ row }) => {
-        return (
-          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
-            {row.original.watermarkingEnabled ? 'enabled' : 'disabled'}
-          </div>
-        )
+        return <DocumentsWatermarkStatusChip status={row.original.watermarkStatus} />
       },
       size: 100,
     },
@@ -160,6 +157,7 @@ import { enumToOptions } from '../../../tasks/table/table-config'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import DocumentActions from '../../actions/documents-actions'
+import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {

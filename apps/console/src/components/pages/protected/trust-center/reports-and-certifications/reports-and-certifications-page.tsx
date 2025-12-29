@@ -8,7 +8,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
-import { TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
+import { TrustCenterDocWatermarkStatus, TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { File } from 'lucide-react'
@@ -56,6 +56,7 @@ const ReportsAndCertificationsPage = () => {
         watermarkingEnabled: doc?.watermarkingEnabled ?? false,
         file: doc?.file ? { presignedURL: doc.file.presignedURL } : null,
         originalFile: doc?.originalFile ? { presignedURL: doc.originalFile.presignedURL } : null,
+        watermarkStatus: doc?.watermarkStatus ?? TrustCenterDocWatermarkStatus.DISABLED,
       })) ?? [],
     [docs],
   )
@@ -63,7 +64,7 @@ const ReportsAndCertificationsPage = () => {
   const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs }), [selectedDocs])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Reports & Certifications', href: '/trust-center/reports-and-certifications' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Documents', href: '/trust-center/reports-and-certifications' }])
   }, [setCrumbs])
 
   if (isLoading) return <Loading />

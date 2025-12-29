@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
+import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 import { useCreateTrustCenterDoc, useDeleteTrustCenterDoc, useGetTrustCenter, useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -20,6 +20,8 @@ import { VisibilityField } from './form-fields/visibility-field'
 import { TagsField } from './form-fields/tags-field'
 import { FileField } from './form-fields/file-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
+import { Label } from '@repo/ui/label'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -29,6 +31,9 @@ const schema = z.object({
   }),
   tags: z.array(z.string()).optional(),
   file: z.instanceof(File).optional(),
+  status: z.nativeEnum(TrustCenterDocWatermarkStatus, {
+    required_error: 'Status is required',
+  }),
 })
 
 type FormData = z.infer<typeof schema>
@@ -117,7 +122,6 @@ export const CreateDocumentSheet: React.FC = () => {
         setIsEditing(false)
       } else {
         if (!data.file) throw new Error('Please upload a PDF file.')
-        console.log(data)
         await createDoc({
           input: {
             title: data.title,
@@ -154,6 +158,7 @@ export const CreateDocumentSheet: React.FC = () => {
       visibility: doc?.visibility ?? TrustCenterDocTrustCenterDocumentVisibility.NOT_VISIBLE,
       tags: doc?.tags ?? [],
       file: undefined,
+      status: doc?.watermarkStatus ?? undefined,
     })
   }, [documentData, reset])
 
@@ -304,6 +309,10 @@ export const CreateDocumentSheet: React.FC = () => {
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
             <TagsField isEditing={isEditing || isCreateMode} />
+            <div className="flex flex-col gap-1">
+              <Label>Watermark status</Label>
+              <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
+            </div>
             {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditing} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
           </form>
         </FormProvider>

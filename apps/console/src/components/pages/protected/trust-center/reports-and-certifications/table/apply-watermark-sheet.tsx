@@ -12,6 +12,8 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
+import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 
 type WatermarkConfigUI = {
   id?: string
@@ -41,7 +43,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
 
   const [wmText, setWmText] = useState(text ?? '')
   const [wmFontSize, setWmFontSize] = useState(fontSize ?? 24)
-  const [wmFontFamily, setWmFontFamily] = useState('')
+
   const [wmColor, setWmColor] = useState(color ?? '#000000')
 
   const [wmOpacity, setWmOpacity] = useState(opacity ?? 0.2)
@@ -51,12 +53,12 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const { mutateAsync: updateWatermark, isPending: updating } = useUpdateTrustCenterWatermarkConfig()
   const { successNotification, errorNotification } = useNotification()
+  const [selectedFont, setSelectedFont] = useState<TrustCenterWatermarkConfigFont>(TrustCenterWatermarkConfigFont.COURIER)
   useEffect(() => {
     if (!watermarkConfig) {
       setUploadedFile(null)
       setWmText('')
       setWmFontSize(24)
-      setWmFontFamily('')
       setWmColor('#000000')
       setWmOpacity(0.2)
       setWmRotation(-45)
@@ -88,6 +90,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
           ...(wmFontSize ? { fontSize: wmFontSize } : { clearFontSize: true }),
           ...(wmColor ? { color: wmColor } : { clearColor: true }),
           ...(wmRotation ? { rotation: wmRotation } : { clearRotation: true }),
+          ...(selectedFont ? { font: selectedFont } : { clearFont: true }),
         },
         ...(uploadedFile && { watermarkFile: uploadedFile }),
       })
@@ -125,22 +128,31 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   <X aria-label="Close sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
                 </div>
               </div>
-              <div className="flex items-center justify-start my-5">
+              <div className="flex items-center justify-between my-5">
                 <SheetTitle>
                   <p className="text-2xl leading-8 font-medium">Watermark Document</p>
                 </SheetTitle>
+                <div className="flex items-center gap-2">
+                  <Button type="button" iconPosition="left" variant="back" onClick={handleSheetClose}>
+                    Cancel
+                  </Button>
+                  <Button iconPosition="left" type="button" onClick={handleApplyWatermark}>
+                    {updating ? 'Applying...' : 'Apply watermark'}
+                  </Button>
+                </div>
               </div>
             </SheetHeader>
           }
         >
           <div className="flex flex-col justify-baseline gap-5">
-            <div className="flex items-center gap-2">
-              <Button type="button" iconPosition="left" variant="back" onClick={handleSheetClose}>
-                Cancel
-              </Button>
-              <Button iconPosition="left" type="button" onClick={handleApplyWatermark}>
-                {updating ? 'Applying...' : 'Apply watermark'}
-              </Button>
+            <div className="w-full flex items-start gap-2 border rounded-lg p-2.5 bg-card">
+              <InfoIcon size={14} className="mt-1 shrink-0" />
+              <div className="flex flex-col gap-1">
+                <p className="font-medium text-sm leading-5 text-foreground">Applies to new documents only.</p>
+                <p className="font-normal text-xs leading-4">
+                  This watermark setting will be used for all newly generated documents. Existing documents are not changed and can be overridden individually.
+                </p>
+              </div>
             </div>
             <div className="flex flex-col max-w gap-4">
               <label className="flex items-center p-4 border border-border rounded-lg cursor-pointer">
@@ -210,15 +222,6 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                 </div>
               )}
 
-              <div className="w-full flex items-start gap-2 border rounded-lg p-2.5 bg-card">
-                <InfoIcon size={14} className="mt-1 shrink-0" />
-                <div className="flex flex-col gap-1">
-                  <p className="font-medium text-sm leading-5 text-foreground">Applies to new documents only.</p>
-                  <p className="font-normal text-xs leading-4">
-                    This watermark setting will be used for all newly generated documents. Existing documents are not changed and can be overridden individually.
-                  </p>
-                </div>
-              </div>
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="TITLE">
                   <AccordionTrigger asChild>
@@ -236,7 +239,18 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label className="text-sm">Font family</Label>
-                      <Input type="text" value={wmFontFamily} onChange={(e) => setWmFontFamily(e.target.value)} />
+                      <Select value={selectedFont} onValueChange={(value) => setSelectedFont(value as TrustCenterWatermarkConfigFont)}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select font" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.values(TrustCenterWatermarkConfigFont).map((font) => (
+                            <SelectItem key={font} value={font}>
+                              {font}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="flex flex-col gap-1">
                       <ColorInput label="Color" value={wmColor} onChange={setWmColor} />

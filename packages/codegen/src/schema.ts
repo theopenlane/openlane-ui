@@ -5013,8 +5013,8 @@ export interface CreateDiscussionInput {
   addComment?: InputMaybe<CreateNoteInput>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlID?: InputMaybe<Scalars['ID']['input']>
-  /** the unique discussion identifier from external system, e.g. plate discussion id */
-  externalID: Scalars['String']['input']
+  /** the unique discussion identifier from external system, e.g. plate discussion id, only required if synced from external system */
+  externalID?: InputMaybe<Scalars['String']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   /** whether the discussion is resolved */
   isResolved?: InputMaybe<Scalars['Boolean']['input']>
@@ -5773,8 +5773,7 @@ export interface CreateNarrativeInput {
  */
 export interface CreateNoteInput {
   controlID?: InputMaybe<Scalars['ID']['input']>
-  /** the external discussion id this note is associated with */
-  discussionID?: InputMaybe<Scalars['String']['input']>
+  discussionID?: InputMaybe<Scalars['ID']['input']>
   evidenceID?: InputMaybe<Scalars['ID']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
@@ -9941,14 +9940,14 @@ export interface Discussion extends Node {
   control?: Maybe<Control>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  /** the unique discussion identifier from external system, e.g. plate discussion id */
-  externalID: Scalars['String']['output']
+  /** the unique discussion identifier from external system, e.g. plate discussion id, only required if synced from external system */
+  externalID?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   internalPolicy?: Maybe<InternalPolicy>
   /** whether the discussion is resolved */
   isResolved: Scalars['Boolean']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   procedure?: Maybe<Procedure>
   risk?: Maybe<Risk>
@@ -10071,10 +10070,12 @@ export interface DiscussionWhereInput {
   externalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   externalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   externalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   externalIDLT?: InputMaybe<Scalars['String']['input']>
   externalIDLTE?: InputMaybe<Scalars['String']['input']>
   externalIDNEQ?: InputMaybe<Scalars['String']['input']>
   externalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
@@ -21999,8 +22000,9 @@ export interface Note extends Node {
   control?: Maybe<Control>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  discussion?: Maybe<Discussion>
   /** the external discussion id this note is associated with */
-  discussionID?: Maybe<Scalars['String']['output']>
+  discussionID?: Maybe<Scalars['ID']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   evidence?: Maybe<Evidence>
@@ -22111,20 +22113,20 @@ export interface NoteWhereInput {
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** discussion_id field predicates */
-  discussionID?: InputMaybe<Scalars['String']['input']>
-  discussionIDContains?: InputMaybe<Scalars['String']['input']>
-  discussionIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  discussionIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  discussionIDGT?: InputMaybe<Scalars['String']['input']>
-  discussionIDGTE?: InputMaybe<Scalars['String']['input']>
-  discussionIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  discussionIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  discussionIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  discussionID?: InputMaybe<Scalars['ID']['input']>
+  discussionIDContains?: InputMaybe<Scalars['ID']['input']>
+  discussionIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  discussionIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  discussionIDGT?: InputMaybe<Scalars['ID']['input']>
+  discussionIDGTE?: InputMaybe<Scalars['ID']['input']>
+  discussionIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  discussionIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  discussionIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
   discussionIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  discussionIDLT?: InputMaybe<Scalars['String']['input']>
-  discussionIDLTE?: InputMaybe<Scalars['String']['input']>
-  discussionIDNEQ?: InputMaybe<Scalars['String']['input']>
-  discussionIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  discussionIDLT?: InputMaybe<Scalars['ID']['input']>
+  discussionIDLTE?: InputMaybe<Scalars['ID']['input']>
+  discussionIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  discussionIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   discussionIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
@@ -22143,6 +22145,9 @@ export interface NoteWhereInput {
   /** control edge predicates */
   hasControl?: InputMaybe<Scalars['Boolean']['input']>
   hasControlWith?: InputMaybe<Array<ControlWhereInput>>
+  /** discussion edge predicates */
+  hasDiscussion?: InputMaybe<Scalars['Boolean']['input']>
+  hasDiscussionWith?: InputMaybe<Array<DiscussionWhereInput>>
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
@@ -37217,7 +37222,7 @@ export interface UpdateControlInput {
   testingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** human readable title of the control for quick identification */
   title?: InputMaybe<Scalars['String']['input']>
-  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
+  updateDiscussion?: InputMaybe<UpdateDiscussionsInput>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -37598,19 +37603,18 @@ export interface UpdateDiscussionInput {
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControl?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedure?: InputMaybe<Scalars['Boolean']['input']>
   clearRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
-  /** the unique discussion identifier from external system, e.g. plate discussion id */
+  /** the unique discussion identifier from external system, e.g. plate discussion id, only required if synced from external system */
   externalID?: InputMaybe<Scalars['String']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   /** whether the discussion is resolved */
   isResolved?: InputMaybe<Scalars['Boolean']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureID?: InputMaybe<Scalars['ID']['input']>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskID?: InputMaybe<Scalars['ID']['input']>
@@ -38534,7 +38538,7 @@ export interface UpdateInternalPolicyInput {
   tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
+  updateDiscussion?: InputMaybe<UpdateDiscussionsInput>
   /** This will contain the url used to create or update the policy */
   url?: InputMaybe<Scalars['String']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -38818,7 +38822,7 @@ export interface UpdateNoteInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTextJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   clearControl?: InputMaybe<Scalars['Boolean']['input']>
-  clearDiscussionID?: InputMaybe<Scalars['Boolean']['input']>
+  clearDiscussion?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
@@ -38830,8 +38834,7 @@ export interface UpdateNoteInput {
   clearTextJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
-  /** the external discussion id this note is associated with */
-  discussionID?: InputMaybe<Scalars['String']['input']>
+  discussionID?: InputMaybe<Scalars['ID']['input']>
   evidenceID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   /** whether the note has been edited */
@@ -39372,7 +39375,7 @@ export interface UpdateProcedureInput {
   tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
+  updateDiscussion?: InputMaybe<UpdateDiscussionsInput>
   /** This will contain the url used to create or update the procedure */
   url?: InputMaybe<Scalars['String']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -39845,7 +39848,7 @@ export interface UpdateRiskInput {
   status?: InputMaybe<RiskRiskStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
+  updateDiscussion?: InputMaybe<UpdateDiscussionsInput>
 }
 
 /**
@@ -40149,7 +40152,7 @@ export interface UpdateSubcontrolInput {
   testingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** human readable title of the control for quick identification */
   title?: InputMaybe<Scalars['String']['input']>
-  updateDiscussions?: InputMaybe<Array<UpdateDiscussionsInput>>
+  updateDiscussion?: InputMaybe<UpdateDiscussionsInput>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -49389,6 +49392,7 @@ export type GetTrustCenterDocsQuery = {
               createdAt?: any | null
               updatedAt?: any | null
               watermarkingEnabled?: boolean | null
+              watermarkStatus?: TrustCenterDocWatermarkStatus | null
               file?: { __typename?: 'File'; presignedURL?: string | null } | null
               originalFile?: { __typename?: 'File'; presignedURL?: string | null } | null
             } | null
