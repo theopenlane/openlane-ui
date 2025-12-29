@@ -68,14 +68,6 @@ function TypeBadge({ type }: { type: TagType }) {
   )
 }
 
-function TagPill({ name }: { name: string }) {
-  return (
-    <Badge variant="secondary" className="rounded-full px-2.5 py-0.5 font-medium">
-      {name}
-    </Badge>
-  )
-}
-
 type ColumnsParams = {
   rows: CustomTagRow[]
   selected: Record<string, boolean>
@@ -110,7 +102,12 @@ export const useGetCustomTagColumns = ({ rows, selected, setSelected, onEdit, on
     {
       accessorKey: 'name',
       header: 'Tag',
-      cell: ({ row }) => <TagPill name={row.original.name} />,
+      cell: ({ row }) => (
+        <Badge variant="outline" className="flex items-center gap-1 w-fit">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: row.original.colorHex }} />
+          <span>{row.original.name}</span>
+        </Badge>
+      ),
     },
     {
       accessorKey: 'aliases',
@@ -125,7 +122,19 @@ export const useGetCustomTagColumns = ({ rows, selected, setSelected, onEdit, on
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => <div className="text-sm text-muted-foreground line-clamp-1 max-w-[520px]">{row.original.description || '-'}</div>,
+      cell: ({ row }) => (
+        <div
+          className="text-sm text-muted-foreground line-clamp-4 overflow-hidden"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: 'vertical',
+          }}
+        >
+          {row.original.description || '—'}
+        </div>
+      ),
+      size: 300,
     },
     {
       id: 'color',
@@ -143,7 +152,7 @@ export const useGetCustomTagColumns = ({ rows, selected, setSelected, onEdit, on
           }}
         />
       ),
-      size: 140,
+      size: 10,
     },
     {
       id: 'actions',
@@ -167,7 +176,7 @@ export const useGetCustomTagColumns = ({ rows, selected, setSelected, onEdit, on
           </DropdownMenuContent>
         </DropdownMenu>
       ),
-      size: 80,
+      size: 30,
     },
   ]
 }
