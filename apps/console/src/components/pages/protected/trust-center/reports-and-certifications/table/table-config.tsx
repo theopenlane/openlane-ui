@@ -3,6 +3,9 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
 import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
 
+type GqlFile = {
+  presignedURL?: string | null
+}
 export type TTrustCenterDoc = {
   id: string
   title: string
@@ -12,6 +15,8 @@ export type TTrustCenterDoc = {
   createdAt: string
   updatedAt: string
   watermarkingEnabled?: boolean
+  file?: GqlFile | null
+  originalFile?: GqlFile | null
 }
 
 type Params = {
@@ -51,6 +56,8 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       cell: ({ row }: { row: Row<TTrustCenterDoc> }) => {
         const { id } = row.original
         const isChecked = selectedDocs.some((d) => d.id === id)
+        const file = row.original
+        console.log('file', file)
         return (
           <div onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
@@ -117,7 +124,10 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ row }) => <DocumentActions watermarkEnabled={row.original.watermarkingEnabled ?? false} documentId={row.original.id as string} />,
+      cell: ({ row }) => {
+        const presignedURL = row.original.file?.presignedURL || row.original.originalFile?.presignedURL || ''
+        return <DocumentActions filePresignedURL={presignedURL} watermarkEnabled={row.original.watermarkingEnabled ?? false} documentId={row.original.id as string} />
+      },
     },
   ]
 

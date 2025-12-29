@@ -4,24 +4,25 @@ import { useDeleteTrustCenterDoc, useUpdateTrustCenterDoc } from '@/lib/graphql-
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Droplet, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Droplet, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import PreviewWatermarkSheet from '../reports-and-certifications/table/preview-watermark-sheet'
+import { Button } from '@repo/ui/button'
 
 type DocumentActionsProps = {
   documentId: string
   watermarkEnabled: boolean
+  filePresignedURL?: string
 }
 
-const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps) => {
+const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: DocumentActionsProps) => {
   const { mutateAsync: deleteDocument } = useDeleteTrustCenterDoc()
   const { mutateAsync: updateDocument } = useUpdateTrustCenterDoc()
   const { successNotification, errorNotification } = useNotification()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isWatermarkEnabled, setWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const queryClient = useQueryClient()
-
+  console.log('presignedURL', filePresignedURL)
   const handleDeleteDocument = async () => {
     try {
       await deleteDocument({ deleteTrustCenterDocId: documentId })
@@ -57,7 +58,21 @@ const DocumentActions = ({ documentId, watermarkEnabled }: DocumentActionsProps)
 
   return (
     <div className="flex items-center gap-2">
-      <PreviewWatermarkSheet />
+      <Button
+        onClick={(e) => {
+          e.stopPropagation()
+          const url = filePresignedURL
+          if (!url) return
+
+          window.open(url, '_blank', 'noopener,noreferrer')
+        }}
+        variant="secondary"
+        icon={<Eye size={16} strokeWidth={2} />}
+        iconPosition="left"
+      >
+        Preview
+      </Button>
+      {/* <PreviewWatermarkSheet /> */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <div

@@ -54,6 +54,8 @@ const ReportsAndCertificationsPage = () => {
         createdAt: doc?.createdAt ?? '',
         updatedAt: doc?.updatedAt ?? '',
         watermarkingEnabled: doc?.watermarkingEnabled ?? false,
+        file: doc?.file ? { presignedURL: doc.file.presignedURL } : null,
+        originalFile: doc?.originalFile ? { presignedURL: doc.originalFile.presignedURL } : null,
       })) ?? [],
     [docs],
   )
