@@ -14,6 +14,7 @@ import {
   GET_PROCEDURE_ASSOCIATIONS_BY_ID,
   INSERT_PROCEDURE_COMMENT,
   GET_PROCEDURE_DISCUSSION_BY_ID,
+  UPDATE_PROCEDURE_COMMENT,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -42,6 +43,8 @@ import {
   InsertProcedureCommentMutation,
   InsertProcedureCommentMutationVariables,
   GetProcedureDiscussionByIdQuery,
+  UpdateProcedureCommentMutation,
+  UpdateProcedureCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -212,6 +215,17 @@ export const useInsertProcedureComment = () => {
   return useMutation<InsertProcedureCommentMutation, unknown, InsertProcedureCommentMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(INSERT_PROCEDURE_COMMENT, variables)
+    },
+  })
+}
+
+export const useUpdateProcedureComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateProcedureCommentMutation, unknown, UpdateProcedureCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_PROCEDURE_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['procedureComments', data.updateProcedureComment.procedure.id] })
     },
   })
 }

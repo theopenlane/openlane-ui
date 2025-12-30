@@ -20,11 +20,11 @@ import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/
 
 import { Editor, EditorContainer } from './editor'
 import { useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
-import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { useInsertProcedureComment, useUpdateProcedure } from 'console/src/lib/graphql-hooks/procedures.ts'
+import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
+import { useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
 import { useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/controls.ts'
-import { useInsertSubcontrolPlateComment, useUpdateSubcontrol } from 'console/src/lib/graphql-hooks/subcontrol.ts'
-import { useInsertRiskComment, useUpdateRisk } from 'console/src/lib/graphql-hooks/risks.ts'
+import { useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
+import { useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
 
 export interface TComment {
   id: string
@@ -51,8 +51,53 @@ export function Comment(props: {
   const userInfo = usePluginOption(discussionPlugin, 'user', comment.userId)
   const currentUserId = usePluginOption(discussionPlugin, 'currentUserId')
   const { mutateAsync: updateControlComment } = useUpdateControlComment()
+  const { mutateAsync: updateSubcontrolComment } = useUpdateSubcontrolComment()
+  const { mutateAsync: updatePolicyComment } = useUpdatePolicyComment()
+  const { mutateAsync: updateProcedureComment } = useUpdateProcedureComment()
+  const { mutateAsync: updateRiskComment } = useUpdateRiskComment()
+
   const entityId = usePluginOption(discussionPlugin, 'entityId') as string
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
+
+  type EntityInputMap = {
+    Control: UpdateNoteInput
+    Subcontrol: UpdateNoteInput
+    Procedure: UpdateNoteInput
+    InternalPolicy: UpdateNoteInput
+    Risk: UpdateNoteInput
+  }
+
+  type EntityIdKeyMap = {
+    Control: 'updateControlCommentId'
+    Subcontrol: 'updateSubcontrolCommentId'
+    Procedure: 'updateProcedureCommentId'
+    InternalPolicy: 'updateInternalPolicyCommentId'
+    Risk: 'updateRiskCommentId'
+  }
+
+  type EntityType = keyof EntityInputMap
+  type EntityInput<T extends EntityType> = EntityInputMap[T]
+  type EntityIdKey<T extends EntityType> = EntityIdKeyMap[T]
+
+  type EntityUpdateFn<T extends EntityType> = (
+    args: { [K in EntityIdKey<T>]: string } & {
+      input: EntityInput<T>
+    },
+  ) => Promise<unknown>
+
+  const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
+    Control: updateControlComment,
+    Subcontrol: updateSubcontrolComment,
+    Procedure: updateProcedureComment,
+    InternalPolicy: updatePolicyComment,
+    Risk: updateRiskComment,
+  }
+
+  function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
+    return entityUpdateMap[type]
+  }
+
+  const entityUpdate = getEntityUpdater(entityType)
 
   const resolveDiscussion = async (id: string) => {
     // NOTE: backend does not support resolving discussions; keep this local-only
@@ -75,9 +120,30 @@ export function Comment(props: {
 
   const updateComment = async (input: { id: string; contentRich: Value; discussionId: string; isEdited: boolean }) => {
     const text = NodeApi.string({ children: input.contentRich, type: KEYS.p })
-    await updateControlComment({
-      updateControlCommentId: '01KD3HB0KCFDP2B78NYK7SVZQ5',
-      input: { text: text, discussionID: '01KCQ7E6HQKQYBRQXPH6SQAPWH' },
+    /* await updateControlComment({
+      updateControlCommentId: input.id,
+      input: { text: text },
+    })*/
+
+    const commentIdKeyMap = {
+      Control: 'updateControlCommentId',
+      Subcontrol: 'updateSubcontrolCommentId',
+      Procedure: 'updateProcedureCommentId',
+      InternalPolicy: 'updateInternalPolicyCommentId',
+      Risk: 'updateRiskCommentId',
+    } as const
+
+    const noteInput: UpdateNoteInput = {
+      text,
+    }
+
+    await entityUpdate({
+      [commentIdKeyMap[entityType]]: comment.id,
+      input: noteInput,
+    } as {
+      [K in (typeof commentIdKeyMap)[typeof entityType]]: string
+    } & {
+      input: UpdateNoteInput
     })
 
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
@@ -554,17 +620,15 @@ export function CommentCreateForm({
 
       if (entityId) {
         const input: EntityInput<typeof entityType> = {
-          updateDiscussions: [
-            {
-              id: updatedDiscussion.systemId!,
-              input: {
-                addComment: {
-                  text,
-                  noteRef: commentValue[0].id! as string,
-                },
+          updateDiscussion: {
+            id: updatedDiscussion.systemId!,
+            input: {
+              addComment: {
+                text,
+                noteRef: commentValue[0].id! as string,
               },
             },
-          ],
+          },
         }
 
         const entityData = (await entityUpdate({

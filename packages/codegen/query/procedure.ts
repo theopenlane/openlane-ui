@@ -359,3 +359,13 @@ export const INSERT_PROCEDURE_COMMENT = gql`
     }
   }
 `
+
+export const UPDATE_PROCEDURE_COMMENT = gql`
+  mutation UpdateProcedureComment($updateProcedureCommentId: ID!, $input: UpdateNoteInput!) {
+    updateProcedureComment(id: $updateProcedureCommentId, input: $input) {
+      procedure {
+        id
+      }
+    }
+  }
+`

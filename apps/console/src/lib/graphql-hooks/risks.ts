@@ -13,6 +13,7 @@ import {
   GET_RISK_OPEN_AND_IDENTIFIED_COUNT,
   UPDATE_RISK,
   INSERT_RISK_COMMENT,
+  UPDATE_RISK_COMMENT,
 } from '@repo/codegen/query/risks'
 
 import {
@@ -39,6 +40,8 @@ import {
   InsertRiskCommentMutationVariables,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
+  UpdateRiskCommentMutation,
+  UpdateRiskCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -211,6 +214,17 @@ export const useInsertRiskComment = () => {
   return useMutation<InsertRiskCommentMutation, unknown, InsertRiskCommentMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(INSERT_RISK_COMMENT, variables)
+    },
+  })
+}
+
+export const useUpdateRiskComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateRiskCommentMutation, unknown, UpdateRiskCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_RISK_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['riskComments', data.updateRiskComment.risk.id] })
     },
   })
 }

@@ -281,3 +281,12 @@ export const INSERT_RISK_COMMENT = gql`
     }
   }
 `
+export const UPDATE_RISK_COMMENT = gql`
+  mutation UpdateRiskComment($updateRiskCommentId: ID!, $input: UpdateNoteInput!) {
+    updateRiskComment(id: $updateRiskCommentId, input: $input) {
+      risk {
+        id
+      }
+    }
+  }
+`
