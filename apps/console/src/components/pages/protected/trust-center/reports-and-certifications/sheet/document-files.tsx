@@ -58,7 +58,16 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId }) => {
           id: documentData.trustCenterDoc.id,
           providedFileName: documentData.trustCenterDoc.file.providedFileName,
           providedFileSize: documentData.trustCenterDoc.file.providedFileSize,
-          presignedURL: documentData.trustCenterDoc.file.presignedURL || '',
+          presignedURL: documentData.trustCenterDoc.file.presignedURL ?? '',
+        },
+      ]
+    : documentData?.trustCenterDoc?.originalFile
+    ? [
+        {
+          id: documentData.trustCenterDoc.id,
+          providedFileName: documentData.trustCenterDoc.originalFile.providedFileName,
+          providedFileSize: documentData.trustCenterDoc.originalFile.providedFileSize,
+          presignedURL: documentData.trustCenterDoc.originalFile.presignedURL ?? '',
         },
       ]
     : []

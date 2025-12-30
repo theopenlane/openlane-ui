@@ -49545,6 +49545,10 @@ export type GetTrustCenterDocsQuery = {
               tags?: Array<string> | null
               createdAt?: any | null
               updatedAt?: any | null
+              watermarkingEnabled?: boolean | null
+              watermarkStatus?: TrustCenterDocWatermarkStatus | null
+              file?: { __typename?: 'File'; presignedURL?: string | null } | null
+              originalFile?: { __typename?: 'File'; presignedURL?: string | null } | null
             } | null
           } | null> | null
           pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
@@ -49591,6 +49595,7 @@ export type GetTruestCenterDocByIdQuery = {
     watermarkingEnabled?: boolean | null
     watermarkStatus?: TrustCenterDocWatermarkStatus | null
     file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string; providedFileSize?: number | null } | null
+    originalFile?: { __typename?: 'File'; presignedURL?: string | null; providedFileSize?: number | null; providedFileName: string } | null
   }
 }
 

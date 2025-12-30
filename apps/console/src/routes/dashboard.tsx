@@ -3,8 +3,8 @@ import {
   Bot,
   Building2,
   DollarSign,
-  File,
   FileBadge2,
+  FileText,
   Fingerprint,
   Globe,
   GlobeLock,
@@ -28,6 +28,7 @@ import {
   UserRoundPlus,
   Users,
   Workflow,
+  File as FileIcon,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -120,14 +121,14 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: Globe,
       },
       {
-        title: 'Reports & Certifications',
-        href: '/trust-center/reports-and-certifications',
-        icon: File,
+        title: 'Documents',
+        href: '/trust-center/documents',
+        icon: FileText,
       },
       {
         title: 'Compliance Frameworks',
         href: '/trust-center/compliance-frameworks',
-        icon: File,
+        icon: FileIcon,
       },
       { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
     ],

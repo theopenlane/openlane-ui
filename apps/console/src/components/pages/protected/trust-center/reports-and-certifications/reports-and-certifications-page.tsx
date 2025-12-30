@@ -8,7 +8,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
-import { TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
+import { TrustCenterDocWatermarkStatus, TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { File } from 'lucide-react'
@@ -24,7 +24,7 @@ import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.DOCUMENTS)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.DOCUMENTS, { createdAt: false }))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.DOCUMENTS, { createdAt: false, updatedAt: false }))
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
@@ -41,7 +41,10 @@ const ReportsAndCertificationsPage = () => {
 
   const handleFilterChange = useCallback((newFilters: TrustCenterDocWhereInput) => {
     setFilters(newFilters)
-    setPagination(DEFAULT_PAGINATION)
+    setPagination((prev) => ({
+      ...prev,
+      pageIndex: 0,
+    }))
   }, [])
 
   const tableData = useMemo(
@@ -54,6 +57,10 @@ const ReportsAndCertificationsPage = () => {
         tags: doc?.tags ?? [],
         createdAt: doc?.createdAt ?? '',
         updatedAt: doc?.updatedAt ?? '',
+        watermarkingEnabled: doc?.watermarkingEnabled ?? false,
+        file: doc?.file ? { presignedURL: doc.file.presignedURL } : null,
+        originalFile: doc?.originalFile ? { presignedURL: doc.originalFile.presignedURL } : null,
+        watermarkStatus: doc?.watermarkStatus ?? TrustCenterDocWatermarkStatus.DISABLED,
       })) ?? [],
     [docs],
   )
@@ -61,7 +68,7 @@ const ReportsAndCertificationsPage = () => {
   const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs }), [selectedDocs])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Reports & Certifications', href: '/trust-center/reports-and-certifications' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Documents', href: '/trust-center/reports-and-certifications' }])
   }, [setCrumbs])
 
   if (isLoading) return <Loading />
@@ -88,7 +95,7 @@ const ReportsAndCertificationsPage = () => {
       ) : (
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Reports & Certifications</h2>
+            <h2 className="text-xl font-semibold">Documents</h2>
           </div>
 
           <DocumentsTableToolbar
@@ -110,7 +117,9 @@ const ReportsAndCertificationsPage = () => {
             paginationMeta={paginationMeta}
             loading={isLoading}
             columnVisibility={columnVisibility}
-            onRowClick={(row) => router.push(`/trust-center/reports-and-certifications?id=${row.id}`)}
+            onRowClick={(row) => {
+              router.push(`/trust-center/reports-and-certifications?id=${row.id}`)
+            }}
             tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
           />
         </div>

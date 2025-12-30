@@ -103,6 +103,14 @@ export const GET_TRUST_CENTER_DOCS = gql`
                 tags
                 createdAt
                 updatedAt
+                watermarkingEnabled
+                watermarkStatus
+                file {
+                  presignedURL
+                }
+                originalFile {
+                  presignedURL
+                }
               }
             }
             pageInfo {
@@ -150,6 +158,11 @@ export const GET_TRUST_CENTER_DOC_BY_ID = gql`
         presignedURL
         providedFileName
         providedFileSize
+      }
+      originalFile {
+        presignedURL
+        providedFileSize
+        providedFileName
       }
       watermarkingEnabled
       watermarkStatus
