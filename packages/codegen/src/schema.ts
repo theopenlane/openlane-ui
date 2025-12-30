@@ -49468,6 +49468,7 @@ export type GetTrustCenterQuery = {
           accentColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
         watermarkConfig?: {
@@ -49489,6 +49490,7 @@ export type UpdateTrustCenterSettingMutationVariables = Exact<{
   updateTrustCenterSettingId: Scalars['ID']['input']
   input: UpdateTrustCenterSettingInput
   faviconFile?: InputMaybe<Scalars['Upload']['input']>
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type UpdateTrustCenterSettingMutation = {
@@ -49617,6 +49619,7 @@ export type BulkUpdateTrustCenterDocMutation = {
 export type UpdateTrustCenterWatermarkConfigMutationVariables = Exact<{
   updateTrustCenterWatermarkConfigId: Scalars['ID']['input']
   input: UpdateTrustCenterWatermarkConfigInput
+  watermarkFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type UpdateTrustCenterWatermarkConfigMutation = {
