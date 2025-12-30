@@ -83,23 +83,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const { field: colorField } = useController({ name: 'color', control })
   const { field: typeField } = useController({ name: 'objectType', control })
   const { field: fieldField } = useController({ name: 'field', control })
-  useEffect(() => {
-    if (enumData?.customTypeEnum && isEditMode) {
-      const { name, description, color, objectType, field } = enumData.customTypeEnum
-      reset({
-        name: name ?? '',
-        description: description ?? '',
-        color: color ?? '#6366f1',
-        objectType: objectType ?? '',
-        field: field ?? '',
-      })
-    }
-  }, [enumData, isEditMode, reset])
-
-  useEffect(() => {
-    if (id || isCreate) setOpen(true)
-    else setOpen(false)
-  }, [id, isCreate])
 
   const handleOpenChange = (val: boolean) => {
     if (!val) {
@@ -138,6 +121,37 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
       errorNotification({ title: 'Error deleting', description: parseErrorMessage(err) })
     }
   }
+
+  useEffect(() => {
+    if (!id && !isCreate) {
+      setOpen(false)
+      return
+    }
+
+    setOpen(true)
+
+    if (isEditMode && enumData?.customTypeEnum) {
+      const { name, description, color, objectType, field } = enumData.customTypeEnum
+      reset({
+        name: name ?? '',
+        description: description ?? '',
+        color: color ?? '#6366f1',
+        objectType: objectType ?? '',
+        field: field ?? '',
+      })
+    } else if (isCreate) {
+      const activeConfig = ENUM_GROUP_MAP[filter]
+      const defaultField = activeConfig?.field || (filter.includes('Kinds') ? 'kind' : filter.includes('Categories') ? 'category' : '')
+
+      reset({
+        name: '',
+        description: '',
+        color: '#6366f1',
+        objectType: activeConfig?.objectType || '',
+        field: defaultField,
+      })
+    }
+  }, [id, isCreate, isEditMode, enumData, filter, reset])
 
   const isPending = isCreating || isUpdating
 
@@ -186,7 +200,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                       onValueChange={(val) => {
                         if (val) typeField.onChange(val)
                       }}
-                      value={typeField.value || ENUM_GROUP_MAP[filter]?.objectType || ''}
+                      value={typeField.value}
                     >
                       <SelectTrigger className={'capitalize '}>
                         <SelectValue placeholder="Select type" />
@@ -207,9 +221,10 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                     <Select
                       disabled={isPending || isEditMode}
                       onValueChange={(val) => {
-                        if (val) typeField.onChange(val)
+                        console.log('onValueChange', val)
+                        if (val) fieldField.onChange(val)
                       }}
-                      value={fieldField.value || filter.includes('Kinds') ? 'kind' : filter.includes('Categories') ? 'category' : ''}
+                      value={fieldField.value}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select field" />
