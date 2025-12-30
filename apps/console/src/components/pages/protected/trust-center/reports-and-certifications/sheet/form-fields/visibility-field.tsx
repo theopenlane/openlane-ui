@@ -22,7 +22,7 @@ export const VisibilityField = ({ isEditing }: Props) => {
   const visibilityValue: string = watch('visibility')
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <div className="flex items-center">
         <Label>Visibility</Label>
         <TooltipProvider>

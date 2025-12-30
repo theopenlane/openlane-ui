@@ -41,7 +41,10 @@ const ReportsAndCertificationsPage = () => {
 
   const handleFilterChange = useCallback((newFilters: TrustCenterDocWhereInput) => {
     setFilters(newFilters)
-    setPagination(DEFAULT_PAGINATION)
+    setPagination((prev) => ({
+      ...prev,
+      pageIndex: 0,
+    }))
   }, [])
 
   const tableData = useMemo(

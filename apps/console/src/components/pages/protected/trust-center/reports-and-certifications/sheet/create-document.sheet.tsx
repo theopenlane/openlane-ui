@@ -309,7 +309,7 @@ export const CreateDocumentSheet: React.FC = () => {
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
             <TagsField isEditing={isEditing || isCreateMode} />
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <Label>Watermark status</Label>
               <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
             </div>
