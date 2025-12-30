@@ -26,6 +26,10 @@ export const GET_ALL_TAG_DEFINITIONS_PAGINATED = gql`
           systemOwned
           description
           color
+          updatedBy
+          updatedAt
+          createdAt
+          createdBy
         }
         cursor
       }

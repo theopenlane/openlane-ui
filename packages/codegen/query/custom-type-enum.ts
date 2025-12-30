@@ -26,11 +26,15 @@ export const GET_CUSTOM_TYPE_ENUMS = gql`
 `
 
 export const GET_CUSTOM_TYPE_ENUMS_PAGINATED = gql`
-  query GetCustomTypeEnumsPaginated($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: CustomTypeEnumWhereInput) {
-    customTypeEnums(after: $after, first: $first, before: $before, last: $last, where: $where) {
+  query GetCustomTypeEnumsPaginated($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: CustomTypeEnumWhereInput, $orderBy: [CustomTypeEnumOrder!]) {
+    customTypeEnums(after: $after, first: $first, before: $before, last: $last, where: $where, orderBy: $orderBy) {
       edges {
         node {
           ...CustomTypeEnumFields
+          updatedBy
+          updatedAt
+          createdAt
+          createdBy
         }
         cursor
       }

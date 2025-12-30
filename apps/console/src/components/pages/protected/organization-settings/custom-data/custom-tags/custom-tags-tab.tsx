@@ -13,13 +13,26 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useTagsPaginated, useDeleteTag } from '@/lib/graphql-hooks/tags'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetCustomTagColumns, mapTagsToRows, TagNodeLike } from './custom-tags-table-config'
+import { useGetCustomTagColumns } from './custom-tags-table-config'
 import { CreateTagSheet } from './create-tag-sheet'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
+import { VisibilityState } from '@tanstack/react-table'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+
+const DEFAULT_TAGS_COLUMN_VISIBILITY: VisibilityState = {
+  type: false,
+  createdBy: false,
+  createdAt: false,
+  updatedBy: false,
+  updatedAt: false,
+}
 
 const CustomTagsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CUSTOM_TAGS, DEFAULT_TAGS_COLUMN_VISIBILITY))
 
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 300)
@@ -42,7 +55,27 @@ const CustomTagsTab: FC = () => {
 
   const { mutateAsync: deleteTag, isPending: isDeleting } = useDeleteTag()
 
-  const rows = useMemo(() => mapTagsToRows((tags ?? []) as unknown as TagNodeLike[], debouncedSearch), [tags, debouncedSearch])
+  const userIds = useMemo(() => {
+    if (!tags.length) return []
+    const ids = new Set<string>()
+    tags.forEach((tag) => {
+      if (tag.createdBy) ids.add(tag.createdBy)
+      if (tag.updatedBy) ids.add(tag.updatedBy)
+    })
+    return Array.from(ids)
+  }, [tags])
+
+  const { users } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[number]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
 
   const resetPagination = useCallback(() => {
     setPagination((prev) => ({
@@ -73,20 +106,23 @@ const CustomTagsTab: FC = () => {
     }
   }
 
-  const columns = useGetCustomTagColumns({
-    rows,
+  const { columns, mappedColumns } = useGetCustomTagColumns({
+    tags: tags,
     selected,
     setSelected,
     onEdit: handleEditOpen,
     onDelete: (id) => {
-      const tag = rows.find((r) => r.id === id)
+      const tag = tags.find((t) => t?.id === id)
       setTagToDelete(tag ? { id: tag.id, name: tag.name } : null)
     },
+    userMap,
   })
 
   return (
     <>
-      <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex items-center justify-end gap-3 mb-4">
+        <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.CUSTOM_TAGS} />
+
         <Input
           icon={isLoading ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
           placeholder="Search tags..."
@@ -98,8 +134,7 @@ const CustomTagsTab: FC = () => {
           variant="searchTable"
         />
 
-        <Button className="h-8 px-3 gap-2" onClick={handleCreateOpen}>
-          <SquarePlus className="h-4 w-4" />
+        <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
           Create Tag
         </Button>
       </div>
@@ -107,12 +142,14 @@ const CustomTagsTab: FC = () => {
       <div className="rounded-xl border bg-card">
         <DataTable
           columns={columns}
-          data={rows}
+          data={tags}
           loading={isLoading}
           pagination={pagination}
           onPaginationChange={(p: TPagination) => setPagination(p)}
           paginationMeta={paginationMeta}
           tableKey={TableKeyEnum.CUSTOM_TAGS}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
         />
       </div>
 

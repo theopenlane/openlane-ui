@@ -10,11 +10,11 @@ import {
   UpdateCustomTypeEnumInput,
   GetCustomTypeEnumsQuery,
   GetCustomTypeEnumsPaginatedQuery,
-  CustomTypeEnum,
   GetCustomTypeEnumByIdQuery,
   CreateCustomTypeEnumMutation,
   UpdateCustomTypeEnumMutation,
   DeleteCustomTypeEnumMutation,
+  GetCustomTypeEnumsPaginatedQueryVariables,
 } from '@repo/codegen/src/schema'
 
 import {
@@ -50,27 +50,40 @@ export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereIn
   return { ...query, enumOptions }
 }
 
-export const useCustomTypeEnumsPaginated = ({ pagination, where, enabled = true }: { pagination: TPagination; where?: CustomTypeEnumWhereInput; enabled?: boolean }) => {
+export type CustomTypeEnumNode = NonNullable<NonNullable<NonNullable<GetCustomTypeEnumsPaginatedQuery['customTypeEnums']>['edges']>[number]>['node']
+
+export type CustomTypeEnumNodeNonNull = NonNullable<CustomTypeEnumNode>
+
+export const useCustomTypeEnumsPaginated = ({
+  pagination,
+  where,
+  orderBy,
+  enabled = true,
+}: {
+  pagination: TPagination
+  where?: CustomTypeEnumWhereInput
+  orderBy?: GetCustomTypeEnumsPaginatedQueryVariables['orderBy']
+  enabled?: boolean
+}) => {
   const { client } = useGraphQLClient()
 
   const query = useQuery<GetCustomTypeEnumsPaginatedQuery>({
-    queryKey: ['customTypeEnums', 'paginated', pagination, where],
+    queryKey: ['customTypeEnums', 'paginated', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () =>
-      client.request<GetCustomTypeEnumsPaginatedQuery>(GET_CUSTOM_TYPE_ENUMS_PAGINATED, {
+      client.request<GetCustomTypeEnumsPaginatedQuery, GetCustomTypeEnumsPaginatedQueryVariables>(GET_CUSTOM_TYPE_ENUMS_PAGINATED, {
         ...pagination?.query,
         where,
+        orderBy,
       }),
     enabled,
   })
 
-  const edges = query.data?.customTypeEnums?.edges || []
+  const edges = query.data?.customTypeEnums?.edges ?? []
 
-  const nodes = edges.reduce<CustomTypeEnum[]>((acc, edge) => {
-    if (edge?.node) {
-      acc.push(edge.node as CustomTypeEnum)
-    }
-    return acc
-  }, [])
+  const enums: CustomTypeEnumNodeNonNull[] = edges
+    .filter((edge): edge is NonNullable<(typeof edges)[number]> => edge != null)
+    .map((edge) => edge.node)
+    .filter((node): node is CustomTypeEnumNodeNonNull => node != null)
 
   const paginationMeta = {
     totalCount: query.data?.customTypeEnums?.totalCount ?? 0,
@@ -79,9 +92,10 @@ export const useCustomTypeEnumsPaginated = ({ pagination, where, enabled = true 
   }
 
   return {
-    enums: nodes,
+    enums,
     paginationMeta,
     ...query,
+    isLoading: query.isFetching,
   }
 }
 

@@ -32,7 +32,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export const CreateEnumSheet = ({ resetPagination }: { resetPagination: () => void }) => {
+export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: () => void; filter: string }) => {
   const params = useSearchParams()
   const { replace } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
@@ -83,7 +83,6 @@ export const CreateEnumSheet = ({ resetPagination }: { resetPagination: () => vo
   const { field: colorField } = useController({ name: 'color', control })
   const { field: typeField } = useController({ name: 'objectType', control })
   const { field: fieldField } = useController({ name: 'field', control })
-
   useEffect(() => {
     if (enumData?.customTypeEnum && isEditMode) {
       const { name, description, color, objectType, field } = enumData.customTypeEnum
@@ -182,7 +181,13 @@ export const CreateEnumSheet = ({ resetPagination }: { resetPagination: () => vo
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Object Type</Label>
-                    <Select disabled={isPending || isEditMode} onValueChange={typeField.onChange} value={typeField.value || ''}>
+                    <Select
+                      disabled={isPending || isEditMode}
+                      onValueChange={(val) => {
+                        if (val) typeField.onChange(val)
+                      }}
+                      value={typeField.value || ENUM_GROUP_MAP[filter]?.objectType || ''}
+                    >
                       <SelectTrigger className={'capitalize '}>
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
@@ -199,7 +204,13 @@ export const CreateEnumSheet = ({ resetPagination }: { resetPagination: () => vo
 
                   <div className="space-y-2">
                     <Label>Field</Label>
-                    <Select disabled={isPending || isEditMode} onValueChange={fieldField.onChange} value={fieldField.value || ''}>
+                    <Select
+                      disabled={isPending || isEditMode}
+                      onValueChange={(val) => {
+                        if (val) typeField.onChange(val)
+                      }}
+                      value={fieldField.value || filter.includes('Kinds') ? 'kind' : filter.includes('Categories') ? 'category' : ''}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select field" />
                       </SelectTrigger>

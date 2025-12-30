@@ -39,6 +39,10 @@ export const useGetTags = () => {
   }
 }
 
+type TagDefinitionEdge = NonNullable<NonNullable<GetAllTagDefinitionsPaginatedQuery['tagDefinitions']>['edges']>[number]
+export type TagDefinitionNode = NonNullable<TagDefinitionEdge>['node']
+export type TagDefinitionNodeNonNull = NonNullable<TagDefinitionNode>
+
 type UseTagsPaginatedArgs = {
   where?: GetAllTagDefinitionsPaginatedQueryVariables['where']
   pagination?: TPagination
@@ -58,7 +62,12 @@ export const useTagsPaginated = ({ where, pagination, enabled = true }: UseTagsP
     enabled,
   })
 
-  const tags = (queryResult.data?.tagDefinitions?.edges ?? []).map((e) => e?.node).filter(Boolean)
+  const edges = queryResult.data?.tagDefinitions?.edges ?? []
+
+  const tags: TagDefinitionNodeNonNull[] = edges
+    .filter((edge): edge is NonNullable<(typeof edges)[number]> => edge != null)
+    .map((edge) => edge.node)
+    .filter((node): node is TagDefinitionNodeNonNull => node != null)
 
   const paginationMeta = {
     totalCount: queryResult.data?.tagDefinitions?.totalCount ?? 0,
