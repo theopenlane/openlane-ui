@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
@@ -322,6 +322,14 @@ const ControlDetailsPage: React.FC = () => {
                     <button className="flex items-center space-x-2 px-1 bg-transparent">
                       <CirclePlus size={16} strokeWidth={2} />
                       <span>Map Control</span>
+                    </button>
+                  </Link>
+                )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControl) && (
+                  <Link href={`/controls/${id}/clone-control?mapControlId=${id}`}>
+                    <button className="flex items-center space-x-2 px-1 bg-transparent">
+                      <CopyPlus size={16} strokeWidth={2} />
+                      <span>Clone Cotnrol</span>
                     </button>
                   </Link>
                 )}
