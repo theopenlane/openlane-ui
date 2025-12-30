@@ -7676,6 +7676,9 @@ export interface CustomTypeEnumOrder {
 /** Properties by which CustomTypeEnum connections can be ordered. */
 export enum CustomTypeEnumOrderField {
   created_at = 'created_at',
+  field = 'field',
+  name = 'name',
+  object_type = 'object_type',
   updated_at = 'updated_at',
 }
 
@@ -33391,6 +33394,8 @@ export interface TagDefinitionOrder {
 /** Properties by which TagDefinition connections can be ordered. */
 export enum TagDefinitionOrderField {
   created_at = 'created_at',
+  name = 'name',
+  slug = 'slug',
   updated_at = 'updated_at',
 }
 
