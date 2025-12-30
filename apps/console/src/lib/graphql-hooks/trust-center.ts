@@ -255,15 +255,15 @@ export const useUpdateTrustCenterWatermarkConfig = () => {
 
   return useMutation<UpdateTrustCenterWatermarkConfigMutation, unknown, UpdateTrustCenterWatermarkConfigMutationVariables>({
     mutationFn: async (variables) => {
-      const { updateTrustCenterWatermarkConfigId, input, logoFile } = variables
+      const { updateTrustCenterWatermarkConfigId, input, watermarkFile } = variables
 
-      if (logoFile) {
+      if (watermarkFile) {
         return fetchGraphQLWithUpload({
           query: UPDATE_TRUST_CENTER_WATERMARK_CONFIG,
           variables: {
             updateTrustCenterWatermarkConfigId,
             input,
-            logoFile,
+            watermarkFile,
           },
         })
       }
