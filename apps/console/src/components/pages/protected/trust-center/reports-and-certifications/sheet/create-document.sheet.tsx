@@ -31,9 +31,7 @@ const schema = z.object({
   }),
   tags: z.array(z.string()).optional(),
   file: z.instanceof(File).optional(),
-  status: z.nativeEnum(TrustCenterDocWatermarkStatus, {
-    required_error: 'Status is required',
-  }),
+  status: z.nativeEnum(TrustCenterDocWatermarkStatus).optional(),
 })
 
 type FormData = z.infer<typeof schema>

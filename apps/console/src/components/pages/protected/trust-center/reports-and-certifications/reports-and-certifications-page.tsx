@@ -117,7 +117,9 @@ const ReportsAndCertificationsPage = () => {
             paginationMeta={paginationMeta}
             loading={isLoading}
             columnVisibility={columnVisibility}
-            onRowClick={(row) => router.push(`/trust-center/reports-and-certifications?id=${row.id}`)}
+            onRowClick={(row) => {
+              router.push(`/trust-center/reports-and-certifications?id=${row.id}`)
+            }}
             tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
           />
         </div>
