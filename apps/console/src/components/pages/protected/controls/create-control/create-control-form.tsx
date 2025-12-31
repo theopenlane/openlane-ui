@@ -251,6 +251,9 @@ export default function CreateControlForm() {
         category: controlData?.control.category ?? undefined,
         subcategory: controlData?.control.subcategory ?? undefined,
         source: ControlControlSource.USER_DEFINED,
+        controlOwnerID: controlData?.control.controlOwner?.id ?? undefined,
+        delegateID: controlData?.control.delegate?.id ?? undefined,
+        controlKindName: controlData?.control.controlKindName ?? undefined,
       })
       return setDataInitialized(true)
     }
