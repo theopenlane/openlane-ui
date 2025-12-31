@@ -45989,6 +45989,17 @@ export type GetExistingControlsForOrganizationQuery = {
   }
 }
 
+export type CustomTypeEnumFieldsFragment = {
+  __typename?: 'CustomTypeEnum'
+  id: string
+  name: string
+  color?: string | null
+  objectType: string
+  description?: string | null
+  field: string
+  systemOwned?: boolean | null
+}
+
 export type GetCustomTypeEnumsQueryVariables = Exact<{
   where?: InputMaybe<CustomTypeEnumWhereInput>
 }>
@@ -45999,10 +46010,86 @@ export type GetCustomTypeEnumsQuery = {
     __typename?: 'CustomTypeEnumConnection'
     edges?: Array<{
       __typename?: 'CustomTypeEnumEdge'
-      node?: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string } | null
+      node?: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null } | null
     } | null> | null
   }
 }
+
+export type GetCustomTypeEnumsPaginatedQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<CustomTypeEnumWhereInput>
+  orderBy?: InputMaybe<Array<CustomTypeEnumOrder> | CustomTypeEnumOrder>
+}>
+
+export type GetCustomTypeEnumsPaginatedQuery = {
+  __typename?: 'Query'
+  customTypeEnums: {
+    __typename?: 'CustomTypeEnumConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'CustomTypeEnumEdge'
+      cursor: any
+      node?: {
+        __typename?: 'CustomTypeEnum'
+        updatedBy?: string | null
+        updatedAt?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        id: string
+        name: string
+        color?: string | null
+        objectType: string
+        description?: string | null
+        field: string
+        systemOwned?: boolean | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null; endCursor?: any | null }
+  }
+}
+
+export type GetCustomTypeEnumByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type GetCustomTypeEnumByIdQuery = {
+  __typename?: 'Query'
+  customTypeEnum: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null }
+}
+
+export type CreateCustomTypeEnumMutationVariables = Exact<{
+  input: CreateCustomTypeEnumInput
+}>
+
+export type CreateCustomTypeEnumMutation = {
+  __typename?: 'Mutation'
+  createCustomTypeEnum: {
+    __typename?: 'CustomTypeEnumCreatePayload'
+    customTypeEnum: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null }
+  }
+}
+
+export type UpdateCustomTypeEnumMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  input: UpdateCustomTypeEnumInput
+}>
+
+export type UpdateCustomTypeEnumMutation = {
+  __typename?: 'Mutation'
+  updateCustomTypeEnum: {
+    __typename?: 'CustomTypeEnumUpdatePayload'
+    customTypeEnum: { __typename?: 'CustomTypeEnum'; id: string; name: string; color?: string | null; objectType: string; description?: string | null; field: string; systemOwned?: boolean | null }
+  }
+}
+
+export type DeleteCustomTypeEnumMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteCustomTypeEnumMutation = { __typename?: 'Mutation'; deleteCustomTypeEnum: { __typename?: 'CustomTypeEnumDeletePayload'; deletedID: string } }
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
@@ -48692,6 +48779,68 @@ export type GetTagsQuery = {
     __typename?: 'TagDefinitionConnection'
     edges?: Array<{ __typename?: 'TagDefinitionEdge'; node?: { __typename?: 'TagDefinition'; id: string; name: string; color?: string | null } | null } | null> | null
   }
+}
+
+export type GetAllTagDefinitionsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<TagDefinitionWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetAllTagDefinitionsPaginatedQuery = {
+  __typename?: 'Query'
+  tagDefinitions: {
+    __typename?: 'TagDefinitionConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'TagDefinitionEdge'
+      cursor: any
+      node?: {
+        __typename?: 'TagDefinition'
+        id: string
+        name: string
+        aliases?: Array<string> | null
+        systemOwned?: boolean | null
+        description?: string | null
+        color?: string | null
+        updatedBy?: string | null
+        updatedAt?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+  }
+}
+
+export type CreateTagDefinitionMutationVariables = Exact<{
+  input: CreateTagDefinitionInput
+}>
+
+export type CreateTagDefinitionMutation = { __typename?: 'Mutation'; createTagDefinition: { __typename?: 'TagDefinitionCreatePayload'; tagDefinition: { __typename?: 'TagDefinition'; id: string } } }
+
+export type UpdateTagDefinitionMutationVariables = Exact<{
+  updateTagDefinitionId: Scalars['ID']['input']
+  input: UpdateTagDefinitionInput
+}>
+
+export type UpdateTagDefinitionMutation = { __typename?: 'Mutation'; updateTagDefinition: { __typename?: 'TagDefinitionUpdatePayload'; tagDefinition: { __typename?: 'TagDefinition'; id: string } } }
+
+export type DeleteTagDefinitionMutationVariables = Exact<{
+  deleteTagDefinitionId: Scalars['ID']['input']
+}>
+
+export type DeleteTagDefinitionMutation = { __typename?: 'Mutation'; deleteTagDefinition: { __typename?: 'TagDefinitionDeletePayload'; deletedID: string } }
+
+export type GetTagDefinitionDetailsQueryVariables = Exact<{
+  tagDefinitionId: Scalars['ID']['input']
+}>
+
+export type GetTagDefinitionDetailsQuery = {
+  __typename?: 'Query'
+  tagDefinition: { __typename?: 'TagDefinition'; id: string; name: string; aliases?: Array<string> | null; color?: string | null; description?: string | null }
 }
 
 export type TasksWithFilterQueryVariables = Exact<{
