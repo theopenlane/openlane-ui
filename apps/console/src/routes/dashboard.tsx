@@ -18,7 +18,6 @@ import {
   ScrollText,
   Server,
   ServerCog,
-  Settings,
   Settings2,
   SettingsIcon,
   ShieldCheck,
@@ -28,6 +27,7 @@ import {
   Users,
   Workflow,
   File as FileIcon,
+  Paintbrush,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -110,10 +110,15 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
     hidden: session?.user?.isOnboarding,
     children: [
       {
-        title: 'Settings',
-        href: '/trust-center/settings',
-        icon: Settings,
+        title: 'Branding',
+        href: '/trust-center/branding',
+        icon: Paintbrush,
       },
+      // {
+      //   title: 'Settings',
+      //   href: '/trust-center/settings',
+      //   icon: Settings,
+      // },
       {
         title: 'Domain',
         href: '/trust-center/domain',
