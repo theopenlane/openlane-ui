@@ -329,7 +329,7 @@ const ControlDetailsPage: React.FC = () => {
                   <Link href={`/controls/${id}/clone-control?mapControlId=${id}`}>
                     <button className="flex items-center space-x-2 px-1 bg-transparent">
                       <CopyPlus size={16} strokeWidth={2} />
-                      <span>Clone Cotnrol</span>
+                      <span>Clone Control</span>
                     </button>
                   </Link>
                 )}
