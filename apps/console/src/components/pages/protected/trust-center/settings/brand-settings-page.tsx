@@ -17,6 +17,8 @@ import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import UrlInput from './url-input'
+import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontptions } from '@/components/shared/enum-mapper/trust-center-enum'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const BrandSettingsPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -36,6 +38,8 @@ const BrandSettingsPage: React.FC = () => {
   const [logoPreview, setLogoPreview] = useState<string | null>(setting?.logoFile?.presignedURL || setting?.logoRemoteURL || null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoLink, setLogoLink] = useState(setting?.logoRemoteURL ?? '')
+  const [inputValue, setInputValue] = useState('')
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
 
   const [faviconPreview, setFaviconPreview] = useState<string | null>(setting?.faviconFile?.presignedURL || setting?.faviconRemoteURL || null)
   const [faviconFile, setFaviconFile] = useState<File | null>(null)
@@ -52,6 +56,7 @@ const BrandSettingsPage: React.FC = () => {
   }
   const [showLogoLinkInputType, setShowLogoLinkInputType] = useState<LogoLinkInputTypeEnum>(LogoLinkInputTypeEnum.FILE)
   const [showFavIconInputType, setShowFavIconInputType] = useState<FavIconInputTypeEnum>(FavIconInputTypeEnum.FILE)
+
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Branding', href: '/trust-center/branding' }])
   }, [setCrumbs])
@@ -60,6 +65,14 @@ const BrandSettingsPage: React.FC = () => {
     if (setting) {
       setTitle(setting.title || '')
       setOverview(setting.overview || '')
+      setBackground(setting.backgroundColor || '#f0f0e0')
+      setSecondaryBackground(setting.secondaryBackgroundColor || '#f0f0e0')
+      setSecondaryForeground(setting.secondaryForegroundColor || '#f0f0e0')
+      setForeground(setting.foregroundColor || '#f0f0e0')
+      setAccent(setting.accentColor || '#f0f0e0')
+      setSecondaryBackground(setting.secondaryBackgroundColor || '#f0f0e0')
+      setFont(setting.font || 'outfit')
+      setEasyColor(setting.primaryColor || '#f0f0e0')
     }
   }, [setting])
 
@@ -128,15 +141,26 @@ const BrandSettingsPage: React.FC = () => {
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-[1200px] grid gap-6">
         <PageHeading heading="Branding" />
-        <Button variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={handleSave}>
-          Publish
-        </Button>
+        <div className="flex items-center gap-5 w-full">
+          <Button className="h-10" type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
+            Preview
+          </Button>
+
+          <div className="flex items-center gap-10 flex-1">
+            <UrlInput hasCopyButton value={inputValue} onChange={setInputValue} className="h-10" />
+            <Button className="h-10 ml-auto" variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setIsConfirmationDialogOpen(true)}>
+              Publish
+            </Button>
+          </div>
+        </div>
         <Card>
           <CardContent>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Title and Overview</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">This is the description text for this section.</p>
+                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                  This information appears prominently at the top of your Trust Center and is also used for SEO metadata, including the page title and description.
+                </p>
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-base font-medium leading-6">Title</p>
@@ -171,7 +195,10 @@ const BrandSettingsPage: React.FC = () => {
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Theme</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">This is the description text for this section.</p>
+                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                  Control the visual appearance of your Trust Center. Choose Easy Mode to apply your brand color automatically, or use Advanced Mode to customize fonts, colors, and other design
+                  settings.
+                </p>
               </div>
               <div className="flex gap-6">
                 <label className="flex items-center gap-1 cursor-pointer">
@@ -228,9 +255,9 @@ const BrandSettingsPage: React.FC = () => {
                         <SelectValue placeholder="Select font" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.values(TrustCenterWatermarkConfigFont).map((font) => (
-                          <SelectItem key={font} value={font}>
-                            {font}
+                        {TrustCenterWatermarkConfigFontptions.map((font) => (
+                          <SelectItem key={font.value} value={font.value}>
+                            {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -251,7 +278,9 @@ const BrandSettingsPage: React.FC = () => {
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Brand</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">This is the description text for this section.</p>
+                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                  Upload your logo and favicon to brand your Trust Center. These assets appear in the header, browser tab, and when sharing your Trust Center externally.
+                </p>
               </div>
               <div className="flex flex-col">
                 <p className="mb-2 font-medium">Logo</p>
@@ -425,6 +454,13 @@ const BrandSettingsPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      <ConfirmationDialog
+        open={isConfirmationDialogOpen}
+        onOpenChange={setIsConfirmationDialogOpen}
+        onConfirm={handleSave}
+        title={`Publish`}
+        description={<>Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate</>}
+      />
     </div>
   )
 }
