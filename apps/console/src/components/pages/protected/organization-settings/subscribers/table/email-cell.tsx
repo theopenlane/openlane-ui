@@ -1,5 +1,5 @@
 import { Copy } from 'lucide-react'
-import { pageStyles } from '@/components/pages/protected/organization/subscribers/page.styles.tsx'
+import { pageStyles } from '@/components/pages/protected/organization-settings/subscribers/page.styles.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 
 type TEmailCellProps = {
