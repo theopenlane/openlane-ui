@@ -44,6 +44,28 @@ export const GET_TRUST_CENTER = gql`
             title
             logoRemoteURL
           }
+          previewSetting {
+            id
+            title
+            overview
+            primaryColor
+            themeMode
+            foregroundColor
+            secondaryForegroundColor
+            font
+            backgroundColor
+            secondaryBackgroundColor
+            logoFile {
+              id
+              presignedURL
+            }
+            faviconRemoteURL
+            faviconFile {
+              id
+              presignedURL
+            }
+            logoRemoteURL
+          }
           watermarkConfig {
             id
             file {

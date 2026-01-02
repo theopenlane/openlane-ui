@@ -392,6 +392,7 @@ export interface ActionPlan extends Node {
   approverID?: Maybe<Scalars['ID']['output']>
   /** true when the action plan is currently blocked */
   blocked: Scalars['Boolean']['output']
+  blockedGroups: GroupConnection
   /** context on why the action plan is blocked */
   blockerReason?: Maybe<Scalars['String']['output']>
   /** timestamp when the action plan was completed */
@@ -419,6 +420,7 @@ export interface ActionPlan extends Node {
   dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** due date of the action plan */
   dueDate?: Maybe<Scalars['Time']['output']>
+  editors: GroupConnection
   file?: Maybe<File>
   /** This will contain the most recent file id if this action_plan was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
@@ -436,7 +438,7 @@ export interface ActionPlan extends Node {
   /** the name of the action_plan */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** priority of the action plan */
   priority?: Maybe<ActionPlanPriority>
@@ -474,10 +476,20 @@ export interface ActionPlan extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** This will contain the url used to create or update the action_plan */
   url?: Maybe<Scalars['String']['output']>
+  viewers: GroupConnection
   vulnerabilities: VulnerabilityConnection
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+}
+
+export interface ActionPlanBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ActionPlanControlsArgs {
@@ -487,6 +499,15 @@ export interface ActionPlanControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ActionPlanEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ActionPlanFindingsArgs {
@@ -550,6 +571,15 @@ export interface ActionPlanTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface ActionPlanViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ActionPlanVulnerabilitiesArgs {
@@ -895,12 +925,18 @@ export interface ActionPlanWhereInput {
   /** approver edge predicates */
   hasApprover?: InputMaybe<Scalars['Boolean']['input']>
   hasApproverWith?: InputMaybe<Array<GroupWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
   /** delegate edge predicates */
   hasDelegate?: InputMaybe<Scalars['Boolean']['input']>
   hasDelegateWith?: InputMaybe<Array<GroupWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** file edge predicates */
   hasFile?: InputMaybe<Scalars['Boolean']['input']>
   hasFileWith?: InputMaybe<Array<FileWhereInput>>
@@ -928,6 +964,9 @@ export interface ActionPlanWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** vulnerabilities edge predicates */
   hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
@@ -1743,7 +1782,7 @@ export interface Asset extends Node {
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   scans: ScanConnection
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -4443,6 +4482,7 @@ export interface CreateActionPlanInput {
   approverID?: InputMaybe<Scalars['ID']['input']>
   /** true when the action plan is currently blocked */
   blocked?: InputMaybe<Scalars['Boolean']['input']>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** context on why the action plan is blocked */
   blockerReason?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the action plan was completed */
@@ -4465,6 +4505,7 @@ export interface CreateActionPlanInput {
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** due date of the action plan */
   dueDate?: InputMaybe<Scalars['Time']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileID?: InputMaybe<Scalars['ID']['input']>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** suggested improvements for the action_plan */
@@ -4508,6 +4549,7 @@ export interface CreateActionPlanInput {
   title: Scalars['String']['input']
   /** This will contain the url used to create or update the action_plan */
   url?: InputMaybe<Scalars['String']['input']>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
@@ -5374,6 +5416,9 @@ export interface CreateFullProgramInput {
  * Input was generated by ent.
  */
 export interface CreateGroupInput {
+  actionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  actionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  actionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5853,10 +5898,12 @@ export interface CreateOrgMembershipInput {
  * Input was generated by ent.
  */
 export interface CreateOrganizationInput {
+  actionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   apiTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
@@ -5892,6 +5939,7 @@ export interface CreateOrganizationInput {
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   exportIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5947,6 +5995,7 @@ export interface CreateOrganizationInput {
   trustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowAssignmentTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10414,7 +10463,7 @@ export interface Entity extends Node {
   name?: Maybe<Scalars['String']['output']>
   notes: NoteConnection
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   scans: ScanConnection
   /** status of the entity */
@@ -13924,6 +13973,9 @@ export interface FindingWhereInput {
 
 export interface Group extends Node {
   __typename?: 'Group'
+  actionPlanBlockedGroups: ActionPlanConnection
+  actionPlanEditors: ActionPlanConnection
+  actionPlanViewers: ActionPlanConnection
   controlBlockedGroups: ControlConnection
   controlEditors: ControlConnection
   controlImplementationBlockedGroups: ControlImplementationConnection
@@ -13994,6 +14046,33 @@ export interface Group extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
+}
+
+export interface GroupActionPlanBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ActionPlanOrder>>
+  where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface GroupActionPlanEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ActionPlanOrder>>
+  where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface GroupActionPlanViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ActionPlanOrder>>
+  where?: InputMaybe<ActionPlanWhereInput>
 }
 
 export interface GroupControlBlockedGroupsArgs {
@@ -14965,6 +15044,15 @@ export interface GroupWhereInput {
   displayNameLTE?: InputMaybe<Scalars['String']['input']>
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** action_plan_blocked_groups edge predicates */
+  hasActionPlanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasActionPlanBlockedGroupsWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** action_plan_editors edge predicates */
+  hasActionPlanEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasActionPlanEditorsWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** action_plan_viewers edge predicates */
+  hasActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasActionPlanViewersWith?: InputMaybe<Array<ActionPlanWhereInput>>
   /** control_blocked_groups edge predicates */
   hasControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasControlBlockedGroupsWith?: InputMaybe<Array<ControlWhereInput>>
@@ -22834,10 +22922,12 @@ export interface OrgSubscriptionWhereInput {
 
 export interface Organization extends Node {
   __typename?: 'Organization'
+  actionPlanCreators: GroupConnection
   actionPlans: ActionPlanConnection
   apiTokens: ApiTokenConnection
   assessmentResponses: AssessmentResponseConnection
   assessments: AssessmentConnection
+  assetCreators: GroupConnection
   assets: AssetConnection
   avatarFile?: Maybe<File>
   /** The organizations's local avatar file id, takes precedence over the avatar remote URL */
@@ -22878,6 +22968,7 @@ export interface Organization extends Node {
   evidenceCreators: GroupConnection
   exports: ExportConnection
   files: FileConnection
+  findingCreators: GroupConnection
   findings: FindingConnection
   groupCreators: GroupConnection
   groups: GroupConnection
@@ -22940,12 +23031,22 @@ export interface Organization extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
   vulnerabilities: VulnerabilityConnection
+  vulnerabilityCreators: GroupConnection
   workflowAssignmentTargets: WorkflowAssignmentTargetConnection
   workflowAssignments: WorkflowAssignmentConnection
   workflowDefinitions: WorkflowDefinitionConnection
   workflowEvents: WorkflowEventConnection
   workflowInstances: WorkflowInstanceConnection
   workflowObjectRefs: WorkflowObjectRefConnection
+}
+
+export interface OrganizationActionPlanCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationActionPlansArgs {
@@ -22982,6 +23083,15 @@ export interface OrganizationAssessmentsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<AssessmentOrder>>
   where?: InputMaybe<AssessmentWhereInput>
+}
+
+export interface OrganizationAssetCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationAssetsArgs {
@@ -23207,6 +23317,15 @@ export interface OrganizationFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface OrganizationFindingCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationFindingsArgs {
@@ -23639,6 +23758,15 @@ export interface OrganizationVulnerabilitiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<VulnerabilityOrder>>
   where?: InputMaybe<VulnerabilityWhereInput>
+}
+
+export interface OrganizationVulnerabilityCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationWorkflowAssignmentTargetsArgs {
@@ -24359,6 +24487,9 @@ export interface OrganizationWhereInput {
   /** api_tokens edge predicates */
   hasAPITokens?: InputMaybe<Scalars['Boolean']['input']>
   hasAPITokensWith?: InputMaybe<Array<ApiTokenWhereInput>>
+  /** action_plan_creators edge predicates */
+  hasActionPlanCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasActionPlanCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -24368,6 +24499,9 @@ export interface OrganizationWhereInput {
   /** assessments edge predicates */
   hasAssessments?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentsWith?: InputMaybe<Array<AssessmentWhereInput>>
+  /** asset_creators edge predicates */
+  hasAssetCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
@@ -24446,6 +24580,9 @@ export interface OrganizationWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** finding_creators edge predicates */
+  hasFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** findings edge predicates */
   hasFindings?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
@@ -24599,6 +24736,9 @@ export interface OrganizationWhereInput {
   /** vulnerabilities edge predicates */
   hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
+  /** vulnerability_creators edge predicates */
+  hasVulnerabilityCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilityCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** workflow_assignment_targets edge predicates */
   hasWorkflowAssignmentTargets?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowAssignmentTargetsWith?: InputMaybe<Array<WorkflowAssignmentTargetWhereInput>>
@@ -36731,7 +36871,9 @@ export interface UpdateActionPlanInput {
   actionPlanKindName?: InputMaybe<Scalars['String']['input']>
   /** type of the action_plan, e.g. compliance, operational, health and safety, etc. */
   actionPlanType?: InputMaybe<Scalars['String']['input']>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -36739,6 +36881,7 @@ export interface UpdateActionPlanInput {
   addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -36761,6 +36904,7 @@ export interface UpdateActionPlanInput {
   clearActionPlanType?: InputMaybe<Scalars['Boolean']['input']>
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockerReason?: InputMaybe<Scalars['Boolean']['input']>
   clearCompletedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
@@ -36773,13 +36917,13 @@ export interface UpdateActionPlanInput {
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPriority?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRawPayload?: InputMaybe<Scalars['Boolean']['input']>
@@ -36796,6 +36940,7 @@ export interface UpdateActionPlanInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
@@ -36827,12 +36972,13 @@ export interface UpdateActionPlanInput {
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** the name of the action_plan */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** priority of the action plan */
   priority?: InputMaybe<ActionPlanPriority>
   /** raw payload received from the integration for auditing and troubleshooting */
   rawPayload?: InputMaybe<Scalars['Map']['input']>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -36840,6 +36986,7 @@ export interface UpdateActionPlanInput {
   removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** indicates if the action plan requires explicit approval before closure */
@@ -36932,7 +37079,6 @@ export interface UpdateAssetInput {
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentifier?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -36947,7 +37093,6 @@ export interface UpdateAssetInput {
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37683,7 +37828,6 @@ export interface UpdateEntityInput {
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearName?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -37701,7 +37845,6 @@ export interface UpdateEntityInput {
   /** the name of the entity */
   name?: InputMaybe<Scalars['String']['input']>
   note?: InputMaybe<CreateNoteInput>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38203,6 +38346,9 @@ export interface UpdateFindingInput {
  * Input was generated by ent.
  */
 export interface UpdateGroupInput {
+  addActionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addActionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addActionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38238,6 +38384,9 @@ export interface UpdateGroupInput {
   addScanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearActionPlanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearActionPlanEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -38294,6 +38443,9 @@ export interface UpdateGroupInput {
   /** the name of the group - must be unique within the organization */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeActionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeActionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeActionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38875,9 +39027,11 @@ export interface UpdateOrgMembershipInput {
  */
 export interface UpdateOrganizationInput {
   addAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addActionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38901,6 +39055,7 @@ export interface UpdateOrganizationInput {
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addExportIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38949,6 +39104,7 @@ export interface UpdateOrganizationInput {
   addTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowAssignmentTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38963,9 +39119,11 @@ export interface UpdateOrganizationInput {
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
   clearAPITokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearActionPlanCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessments?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssetCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
@@ -38993,6 +39151,7 @@ export interface UpdateOrganizationInput {
   clearEvidenceCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearExports?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -39043,6 +39202,7 @@ export interface UpdateOrganizationInput {
   clearTrustCenterWatermarkConfigs?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenters?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilityCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowAssignmentTargets?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowAssignments?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowDefinitions?: InputMaybe<Scalars['Boolean']['input']>
@@ -39056,9 +39216,11 @@ export interface UpdateOrganizationInput {
   /** the name of the organization */
   name?: InputMaybe<Scalars['String']['input']>
   removeAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeActionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39082,6 +39244,7 @@ export interface UpdateOrganizationInput {
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeExportIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39130,6 +39293,7 @@ export interface UpdateOrganizationInput {
   removeTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowAssignmentTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -49466,6 +49630,23 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          faviconRemoteURL?: string | null
+          logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        } | null
+        previewSetting?: {
+          __typename?: 'TrustCenterSetting'
+          id: string
+          title?: string | null
+          overview?: string | null
+          primaryColor?: string | null
+          themeMode?: TrustCenterSettingTrustCenterThemeMode | null
+          foregroundColor?: string | null
+          secondaryForegroundColor?: string | null
+          font?: string | null
+          backgroundColor?: string | null
+          secondaryBackgroundColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
