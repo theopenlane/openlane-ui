@@ -191,7 +191,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls }), [convertToReadOnly, userMap, selectedControls])
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+    .filter((column): column is { accessorKey: string; header: string } => typeof column.header === 'string')
     .map((column) => ({
       accessorKey: column.accessorKey,
       header: column.header,

@@ -11,7 +11,33 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import OwnerCell from './owner-cell'
 import DelegateCell from './delegate-cell'
-import { FileQuestion } from 'lucide-react'
+import { FileQuestion, LinkIcon } from 'lucide-react'
+import Link from 'next/link'
+import { LinkedPoliciesCell } from './linked-policies-cell'
+import { LinkedProceduresCell } from './linked-procedures-cell'
+
+const ASSOCIATION_BADGES = [
+  {
+    key: 'procedures',
+    label: 'Procedures',
+  },
+  {
+    key: 'internalPolicies',
+    label: 'Policies',
+  },
+  {
+    key: 'programs',
+    label: 'Programs',
+  },
+  {
+    key: 'risks',
+    label: 'Risks',
+  },
+  {
+    key: 'tasks',
+    label: 'Tasks',
+  },
+] as const
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -69,8 +95,22 @@ export const getControlsFilterFields = (
   {
     key: 'hasInternalPolicies',
     label: 'Linked Policies',
-    type: 'boolean',
+    type: 'radio',
     icon: FilterIcons.LinkedPolicies,
+    radioOptions: [
+      { value: true, label: 'Has linked policies' },
+      { value: false, label: 'No linked policies' },
+    ],
+  },
+  {
+    key: 'hasComments',
+    label: 'Has Comments',
+    type: 'radio',
+    icon: FilterIcons.Comments,
+    radioOptions: [
+      { value: true, label: 'Has comments' },
+      { value: false, label: 'No comments' },
+    ],
   },
 ]
 
@@ -165,10 +205,10 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
-      size: 400, // Set a reasonable pixel width
+      size: 400,
       minSize: 300,
       meta: {
-        className: 'w-[50%] min-w-[300px]', // CSS class for responsive width
+        className: 'w-[50%] min-w-[300px]',
       },
     },
     {
@@ -273,7 +313,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -295,7 +335,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -338,6 +378,61 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
+    },
+
+    {
+      header: 'Associated Objects',
+      id: 'associatedObjects',
+      cell: ({ row }) => {
+        const control = row.original
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {ASSOCIATION_BADGES.map(({ key, label }) => {
+              const count = control[key]?.totalCount ?? 0
+              if (count === 0) return null
+              return (
+                <Badge key={key}>
+                  {label}: {count}
+                </Badge>
+              )
+            })}
+          </div>
+        )
+      },
+      minSize: 180,
+    },
+    {
+      header: 'Comments',
+      accessorKey: 'comments',
+      cell: ({ row }) => {
+        return (
+          <Link onClick={(e) => e.stopPropagation()} href={`/controls/${row.original.id}?showComments=true`} className="flex items-center gap-2">
+            <Badge>
+              {row.original.comments?.totalCount ?? 0} Comments <LinkIcon size={12} className="ml-1 inline-block" />
+            </Badge>
+          </Link>
+        )
+      },
+      minSize: 120,
+    },
+    {
+      header: 'Linked Policies',
+      id: 'linkedPolicies',
+      meta: {
+        exportPrefix: 'internalPolicies.name',
+      },
+      size: 220,
+      cell: LinkedPoliciesCell,
+    },
+    {
+      header: 'Linked Procedures',
+      id: 'linkedProcedures',
+      meta: {
+        exportPrefix: 'procedures.name',
+      },
+      size: 220,
+      cell: LinkedProceduresCell,
     },
   ]
 }

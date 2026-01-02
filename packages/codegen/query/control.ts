@@ -37,13 +37,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       logoURL
       gravatarLogoURL
     }
-    controlObjectives {
-      edges {
-        node {
-          desiredOutcome
-        }
-      }
-    }
+
     controlImplementations {
       edges {
         node {
@@ -51,10 +45,48 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    comments {
+      totalCount
+    }
     updatedAt
     updatedBy
     createdAt
     createdBy
+    controlObjectives {
+      edges {
+        node {
+          desiredOutcome
+        }
+      }
+    }
+    tasks {
+      totalCount
+    }
+    internalPolicies {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    procedures {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+
+    programs {
+      totalCount
+    }
+    risks {
+      totalCount
+    }
   }
 `
 
