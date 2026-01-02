@@ -27,6 +27,7 @@ const BrandSettingsPage: React.FC = () => {
   const [overview, setOverview] = useState('')
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const setting = trustCenter?.setting
+  const previewSetting = trustCenter?.previewSetting
   const [easyColor, setEasyColor] = useState(setting?.primaryColor ?? '#f0f0e0')
   const [foreground, setForeground] = useState(setting?.foregroundColor ?? '#f0f0e0')
   const [background, setBackground] = useState(setting?.backgroundColor ?? '#f0f0e0')
@@ -108,12 +109,17 @@ const BrandSettingsPage: React.FC = () => {
     return `https://${url}`
   }
 
-  const handleSave = async () => {
+  const handleSave = async (savePreview: boolean) => {
     if (!setting?.id) {
       return
     }
+
+    if (savePreview && !previewSetting?.id) {
+      return
+    }
+
     await updateTrustCenterSetting({
-      id: setting?.id,
+      id: savePreview ? previewSetting?.id : setting?.id,
       input: {
         primaryColor: easyColor,
         foregroundColor: foreground,
@@ -142,7 +148,7 @@ const BrandSettingsPage: React.FC = () => {
       <div className="w-full max-w-[1200px] grid gap-6">
         <PageHeading heading="Branding" />
         <div className="flex items-center gap-5 w-full">
-          <Button className="h-10" type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
+          <Button onClick={() => handleSave(true)} className="h-10" type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
             Preview
           </Button>
 
@@ -457,7 +463,8 @@ const BrandSettingsPage: React.FC = () => {
       <ConfirmationDialog
         open={isConfirmationDialogOpen}
         onOpenChange={setIsConfirmationDialogOpen}
-        onConfirm={handleSave}
+        onConfirm={() => handleSave(false)}
+        confirmationText={'Publish'}
         title={`Publish`}
         description={<>Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate</>}
       />
