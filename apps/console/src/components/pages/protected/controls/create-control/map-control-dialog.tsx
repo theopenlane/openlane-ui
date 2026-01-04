@@ -8,6 +8,7 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { DataTable } from '@repo/ui/data-table'
+import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { ColumnDef } from '@tanstack/react-table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -17,6 +18,8 @@ import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { Control, ControlWhereInput, Subcontrol, SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { useDebounce } from '@uidotdev/usehooks'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 interface MapControlDialogProps {
   onSave: (selection: { controlIDs: string[]; subcontrolIDs: string[] }) => void
@@ -27,16 +30,17 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
   const { convertToReadOnly } = usePlateEditor()
   const { currentOrgId } = useOrganization()
 
-  const [enableSubcontrols, setEnableSubcontrols] = useState(false)
+  const [mode, setMode] = useState<'controls' | 'subcontrols'>('controls')
   const [referenceFramework, setReferenceFramework] = useState<string>('')
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 500)
   const searching = searchValue !== debouncedSearch
-
   const [mapping, setMapping] = useState<{ controlIDs: string[]; subcontrolIDs: string[] }>(mappedControls)
+  const defaultPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
+  const [pagination, setPagination] = useState<TPagination>(defaultPagination)
 
   const { where, subcontrolWhere, hasFilters } = useMemo(() => {
-    const baseWhere: ControlWhereInput = {}
+    const baseWhere: ControlWhereInput | SubcontrolWhereInput = {}
 
     if (referenceFramework && referenceFramework !== 'all') {
       if (referenceFramework === 'CUSTOM') {
@@ -59,20 +63,31 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
     }
   }, [debouncedSearch, referenceFramework])
 
-  const { controls = [], isLoading: controlsLoading } = useGetAllControls({
+  const {
+    controls = [],
+    isLoading: controlsLoading,
+    paginationMeta: controlsPaginationMeta,
+  } = useGetAllControls({
     where: {
       ownerIDNEQ: '',
       ...where,
     },
-    enabled: hasFilters,
+    enabled: hasFilters && mode === 'controls',
+    pagination,
   })
 
-  const { subcontrols = [], isLoading: subcontrolsLoading } = useGetAllSubcontrols({
+  const {
+    subcontrols = [],
+    isLoading: subcontrolsLoading,
+    paginationMeta: subcontrolsPaginationMeta,
+  } = useGetAllSubcontrols({
     where: {
       ownerIDNEQ: '',
       ...subcontrolWhere,
     },
-    enabled: hasFilters && enableSubcontrols,
+    pagination,
+
+    enabled: hasFilters && mode === 'subcontrols',
   })
 
   const isLoading = controlsLoading || subcontrolsLoading
@@ -85,9 +100,9 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
   })
 
   const tableData = useMemo(() => {
-    const combined = [...(controls || []), ...(enableSubcontrols ? subcontrols || [] : [])]
-    return combined as (Control | Subcontrol)[]
-  }, [controls, subcontrols, enableSubcontrols])
+    if (mode === 'controls') return controls as Control[]
+    return subcontrols as Subcontrol[]
+  }, [controls, subcontrols, mode])
 
   const toggleRow = useCallback((row: Control | Subcontrol) => {
     const isControl = row.__typename === 'Control'
@@ -181,13 +196,13 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
         <Button>Map Control</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl flex flex-col max-h-[90vh]">
+      <DialogContent className="max-w-3xl flex flex-col">
         <DialogHeader>
           <DialogTitle>Map Controls</DialogTitle>
           <DialogDescription>Search and select controls from different frameworks to create an association.</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4 flex-1 overflow-hidden flex flex-col">
+        <div className="space-y-6 py-4 flex-1  flex flex-col">
           <div className="grid grid-cols-2 gap-6 items-end">
             <div className="space-y-2">
               <Label>Framework</Label>
@@ -219,18 +234,43 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
           </div>
 
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="subcontrols" checked={enableSubcontrols} onCheckedChange={(val) => setEnableSubcontrols(!!val)} />
-              <Label htmlFor="subcontrols" className="cursor-pointer text-sm font-medium">
-                Enable Subcontrols
-              </Label>
-            </div>
+            <RadioGroup
+              defaultValue="controls"
+              value={mode}
+              onValueChange={(val) => {
+                setMode(val as 'controls' | 'subcontrols')
+                setPagination(defaultPagination)
+              }}
+              className="flex items-center space-x-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="controls" id="r1" />
+                <Label htmlFor="r1" className="cursor-pointer font-medium">
+                  Controls
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="subcontrols" id="r2" />
+                <Label htmlFor="r2" className="cursor-pointer font-medium">
+                  Subcontrols
+                </Label>
+              </div>
+            </RadioGroup>
+
             <Button variant="outline" onClick={() => setMapping({ controlIDs: [], subcontrolIDs: [] })}>
               Clear Mapping
             </Button>
           </div>
 
-          <DataTable columns={columns} data={tableData} tableKey={undefined} loading={isLoading} wrapperClass="flex-1 border rounded-md overflow-auto min-h-[300px]" />
+          <DataTable
+            columns={columns}
+            data={tableData}
+            tableKey={undefined}
+            loading={isLoading}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            paginationMeta={mode === 'controls' ? controlsPaginationMeta : subcontrolsPaginationMeta}
+          />
         </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t mt-auto">
