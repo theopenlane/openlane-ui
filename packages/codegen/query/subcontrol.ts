@@ -5,6 +5,7 @@ export const GET_ALL_SUBCONTROLS = gql`
     subcontrols(where: $where, after: $after, first: $first) {
       edges {
         node {
+          __typename
           id
           displayID
           description

@@ -175,6 +175,7 @@ export const GET_ALL_CONTROLS = gql`
     controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
+          __typename
           ...ControlListFields
         }
         cursor

@@ -46,6 +46,7 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import MapControlDialog from './map-control-dialog'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -66,7 +67,11 @@ export default function CreateControlForm() {
   const [clearData, setClearData] = useState<boolean>(false)
   const [createObjective, setCreateObjective] = useState(false)
   const [createImplementation, setCreateImplementation] = useState(false)
-
+  const [mappedControls, setMappedControls] = useState<{ controlIDs: string[]; subcontrolIDs: string[] }>({
+    controlIDs: mapControlId ? [mapControlId] : [],
+    subcontrolIDs: mapSubcontrolId ? [mapSubcontrolId] : [],
+  })
+  console.log('mappedControls', mappedControls)
   const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
   const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
 
@@ -139,15 +144,15 @@ export default function CreateControlForm() {
         newId = response?.createControl?.control?.id
       }
 
-      if (mapControlId || mapSubcontrolId) {
+      if (newId && (mappedControls.controlIDs.length > 0 || mappedControls.subcontrolIDs.length > 0)) {
         const input: CreateMappedControlInput = {
           mappingType: MappedControlMappingType.PARTIAL,
           source: MappedControlMappingSource.MANUAL,
           confidence: 100,
           fromControlIDs: isCreateSubcontrol ? [] : [newId],
-          toControlIDs: mapControlId ? [mapControlId] : [],
           fromSubcontrolIDs: isCreateSubcontrol ? [newId] : [],
-          toSubcontrolIDs: mapSubcontrolId ? [mapSubcontrolId] : [],
+          toControlIDs: mappedControls.controlIDs,
+          toSubcontrolIDs: mappedControls.subcontrolIDs,
           relation: 'Mapping auto-created based on creation of control from framework',
         }
 
@@ -441,6 +446,7 @@ export default function CreateControlForm() {
                 excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
               />
             </Card>
+            <MapControlDialog onSave={setMappedControls} mappedControls={mappedControls} />
           </div>
         </div>
       </form>
