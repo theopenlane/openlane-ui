@@ -45597,14 +45597,28 @@ export type ControlListFieldsFragment = {
   }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-  controlObjectives: {
-    __typename?: 'ControlObjectiveConnection'
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
-  }
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
   }
+  comments: { __typename?: 'NoteConnection'; totalCount: number }
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+  }
+  tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+  }
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
+  }
+  programs: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+  risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
 }
 
 export type ControlListStandardFieldsFragment = {
@@ -45719,14 +45733,32 @@ export type GetAllControlsQuery = {
         }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-        controlObjectives: {
-          __typename?: 'ControlObjectiveConnection'
-          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
-        }
         controlImplementations: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
         }
+        comments: { __typename?: 'NoteConnection'; totalCount: number }
+        controlObjectives: {
+          __typename?: 'ControlObjectiveConnection'
+          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
+        }
+        tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+        internalPolicies: {
+          __typename?: 'InternalPolicyConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+        }
+        procedures: {
+          __typename?: 'ProcedureConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
+        }
+        programs: {
+          __typename?: 'ProgramConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
+        }
+        risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

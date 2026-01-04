@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
-import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
 import { ColumnDef } from '@tanstack/react-table'
 
 type ControlSelection = { id: string; refCode: string }
@@ -11,11 +11,11 @@ type GetColumnsProps = {
   selectedControls: ControlSelection[]
   toggleSelection: (control: ControlSelection) => void
   setSelectedControls: React.Dispatch<React.SetStateAction<ControlSelection[]>>
-  controls: ControlListFieldsFragment[]
+  controls: ControlListStandardFieldsFragment[]
   convertToReadOnly: (value: string, depth: number) => React.ReactNode
 }
 
-export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls, convertToReadOnly }: GetColumnsProps): ColumnDef<ControlListFieldsFragment>[] => {
+export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls, convertToReadOnly }: GetColumnsProps): ColumnDef<ControlListStandardFieldsFragment>[] => {
   return [
     {
       id: 'select',
