@@ -76,14 +76,42 @@ export function usePoliciesFilters(): FilterField[] | null {
       {
         key: 'hasControls',
         label: 'Linked Controls',
-        type: 'boolean',
         icon: FilterIcons.LinkedControls,
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked controls' },
+          { value: false, label: 'No linked controls' },
+        ],
       },
       {
         key: 'hasSubcontrols',
         label: 'Linked Subcontrols',
-        type: 'boolean',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked subcontrols' },
+          { value: false, label: 'No linked subcontrols' },
+        ],
         icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasProcedures',
+        label: 'Linked Procedures',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked procedures' },
+          { value: false, label: 'No linked procedures' },
+        ],
+        icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasComments',
+        label: 'Has Comments',
+        type: 'radio',
+        icon: FilterIcons.Comments,
+        radioOptions: [
+          { value: true, label: 'Has comments' },
+          { value: false, label: 'No comments' },
+        ],
       },
     ]
 

@@ -66,6 +66,36 @@ export function useProceduresFilters(): FilterField[] | null {
         options: ProcedureStatusFilterOptions,
         icon: FilterIcons.Status,
       },
+      {
+        key: 'hasControls',
+        label: 'Linked Controls',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked controls' },
+          { value: false, label: 'No linked controls' },
+        ],
+        icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasPolicies',
+        label: 'Linked Policies',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked policies' },
+          { value: false, label: 'No linked policies' },
+        ],
+        icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasComments',
+        label: 'Has Comments',
+        type: 'radio',
+        icon: FilterIcons.Comments,
+        radioOptions: [
+          { value: true, label: 'Has comments' },
+          { value: false, label: 'No comments' },
+        ],
+      },
     ]
 
     setFilters(newFilters)

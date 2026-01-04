@@ -84,7 +84,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="secondary" onClick={() => setToggleAll((prevState) => !prevState)}>
+                  <Button type="button" className="h-8 px-2!" variant="secondary" onClick={() => setToggleAll((prevState) => !prevState)}>
                     <div className="flex">
                       <List size={16} />
                       {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
@@ -111,11 +111,11 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           menu={
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" className="h-8 !px-2" variant="secondary" onFocus={(e) => e.preventDefault()}>
+                <Button type="button" className="h-8 px-2!" variant="secondary" onFocus={(e) => e.preventDefault()}>
                   <StretchVertical size={16} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="border shadow-md p-2 z-[99999]" align="start">
+              <DropdownMenuContent className="border shadow-md p-2 z-99999" align="start">
                 {Object.keys(sectionList).map((sectionKey) => (
                   <div key={sectionKey} className="flex items-center gap-x-2 p-1">
                     <Checkbox className="h-4 w-4" stroke={2} checked={!sectionList[sectionKey]?.hidden} onCheckedChange={(checked) => handleToggleSection(sectionKey, !checked)} />
@@ -135,7 +135,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
-                      <Button type="button" className="h-8 !px-2" variant="secondary" onFocus={(e) => e.preventDefault()}>
+                      <Button type="button" className="h-8 px-2!" variant="secondary" onFocus={(e) => e.preventDefault()}>
                         <StretchVertical size={16} />
                       </Button>
                     </DropdownMenuTrigger>
@@ -157,7 +157,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button type="button" className="h-8 !px-2" variant="secondary" onClick={() => setIsFullscreen((prevState) => !prevState)}>
+                  <Button type="button" className="h-8 px-2!" variant="secondary" onClick={() => setIsFullscreen((prevState) => !prevState)}>
                     <div className="flex">{<Expand size={16} />}</div>
                   </Button>
                 </TooltipTrigger>

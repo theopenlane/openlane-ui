@@ -136,6 +136,10 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
           })
         }
         break
+
+      case 'radio':
+        andConditions.push({ [key]: val as boolean } as Condition)
+        break
     }
   }
 
