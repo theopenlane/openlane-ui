@@ -15,29 +15,7 @@ import { FileQuestion, LinkIcon } from 'lucide-react'
 import Link from 'next/link'
 import { LinkedPoliciesCell } from './linked-policies-cell'
 import { LinkedProceduresCell } from './linked-procedures-cell'
-
-const ASSOCIATION_BADGES = [
-  {
-    key: 'procedures',
-    label: 'Procedures',
-  },
-  {
-    key: 'internalPolicies',
-    label: 'Policies',
-  },
-  {
-    key: 'programs',
-    label: 'Programs',
-  },
-  {
-    key: 'risks',
-    label: 'Risks',
-  },
-  {
-    key: 'tasks',
-    label: 'Tasks',
-  },
-] as const
+import AssociatedObjectsCell from './associated-objects-cell'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -379,27 +357,10 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
         )
       },
     },
-
     {
       header: 'Associated Objects',
-      id: 'associatedObjects',
-      cell: ({ row }) => {
-        const control = row.original
-
-        return (
-          <div className="flex flex-wrap gap-1">
-            {ASSOCIATION_BADGES.map(({ key, label }) => {
-              const count = control[key]?.totalCount ?? 0
-              if (count === 0) return null
-              return (
-                <Badge key={key}>
-                  {label}: {count}
-                </Badge>
-              )
-            })}
-          </div>
-        )
-      },
+      accessorKey: 'associatedObjects',
+      cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
       minSize: 180,
     },
     {
@@ -418,7 +379,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     },
     {
       header: 'Linked Policies',
-      id: 'linkedPolicies',
+      accessorKey: 'linkedPolicies',
       meta: {
         exportPrefix: 'internalPolicies.name',
       },
@@ -427,7 +388,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     },
     {
       header: 'Linked Procedures',
-      id: 'linkedProcedures',
+      accessorKey: 'linkedProcedures',
       meta: {
         exportPrefix: 'procedures.name',
       },

@@ -60,31 +60,49 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       }
     }
     tasks {
+      edges {
+        node {
+          id
+          title
+        }
+      }
       totalCount
     }
     internalPolicies {
-      totalCount
       edges {
         node {
           id
           name
         }
       }
+      totalCount
     }
     procedures {
-      totalCount
       edges {
         node {
           id
           name
         }
       }
+      totalCount
     }
 
     programs {
       totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
     }
     risks {
+      edges {
+        node {
+          id
+          name
+        }
+      }
       totalCount
     }
   }
