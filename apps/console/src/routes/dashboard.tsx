@@ -126,7 +126,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: FileText,
       },
       {
-        title: 'Compliance Frameworks',
+        title: 'Frameworks',
         href: '/trust-center/compliance-frameworks',
         icon: FileIcon,
       },
