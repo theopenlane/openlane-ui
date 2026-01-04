@@ -71,7 +71,6 @@ export default function CreateControlForm() {
     controlIDs: mapControlId ? [mapControlId] : [],
     subcontrolIDs: mapSubcontrolId ? [mapSubcontrolId] : [],
   })
-  console.log('mappedControls', mappedControls)
   const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
   const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
 
