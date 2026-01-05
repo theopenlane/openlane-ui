@@ -49667,6 +49667,7 @@ export type GetTrustCenterQuery = {
           dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
           mappableDomain: { __typename?: 'MappableDomain'; name: string }
         } | null
+        previewDomain?: { __typename?: 'CustomDomain'; cnameRecord: string } | null
         setting?: {
           __typename?: 'TrustCenterSetting'
           id: string
@@ -49680,6 +49681,23 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          faviconRemoteURL?: string | null
+          logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        } | null
+        previewSetting?: {
+          __typename?: 'TrustCenterSetting'
+          id: string
+          title?: string | null
+          overview?: string | null
+          primaryColor?: string | null
+          themeMode?: TrustCenterSettingTrustCenterThemeMode | null
+          foregroundColor?: string | null
+          secondaryForegroundColor?: string | null
+          font?: string | null
+          backgroundColor?: string | null
+          secondaryBackgroundColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
