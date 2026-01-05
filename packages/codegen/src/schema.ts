@@ -49864,6 +49864,36 @@ export type UpdateTrustCenterWatermarkConfigMutation = {
   updateTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigUpdatePayload'; trustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfig'; id: string } }
 }
 
+export type GetTrustCenterPostsQueryVariables = Exact<{
+  trustCenterId: Scalars['ID']['input']
+}>
+
+export type GetTrustCenterPostsQuery = {
+  __typename?: 'Query'
+  trustCenter: {
+    __typename?: 'TrustCenter'
+    posts: {
+      __typename?: 'NoteConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; text: string; updatedAt?: any | null } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateTrustCenterMutationVariables = Exact<{
+  updateTrustCenterId: Scalars['ID']['input']
+  input: UpdateTrustCenterInput
+}>
+
+export type UpdateTrustCenterMutation = { __typename?: 'Mutation'; updateTrustCenter: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
+
+export type UpdateTrustCenterPostMutationVariables = Exact<{
+  updateTrustCenterPostId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTrustCenterPostMutation = { __typename?: 'Mutation'; updateTrustCenterPost: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>

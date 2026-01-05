@@ -26,4 +26,5 @@ export enum ObjectEnum {
   TEMPLATE = 'template',
   TRUST_CENTER = 'trust_center',
   TRUST_CENTER_SETTING = 'trust_center_setting',
+  TRUST_CENTER_DOCUMENT = 'trust_center_doc',
 }

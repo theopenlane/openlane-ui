@@ -28,6 +28,7 @@ import {
   Users,
   Workflow,
   File as FileIcon,
+  Megaphone,
   Paintbrush,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
@@ -126,11 +127,12 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: FileText,
       },
       {
-        title: 'Compliance Frameworks',
+        title: 'Frameworks',
         href: '/trust-center/compliance-frameworks',
         icon: FileIcon,
       },
       { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
+      { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
     ],
   },
 ]
