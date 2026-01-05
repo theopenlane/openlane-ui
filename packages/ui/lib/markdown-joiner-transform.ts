@@ -62,7 +62,7 @@ const NEST_BLOCK_DELAY_IN_MS = 100
 
 const BOLD_PATTERN = /\*\*.*?\*\*/
 const CODE_LINE_PATTERN = /```[^\s]+/
-const LINK_PATTERN = /^\[.*?\]\(.*?\)$/
+const LINK_PATTERN = /^\[[^\]]*\]\([^)]*\)$/
 const UNORDERED_LIST_PATTERN = /^[*-]\s+.+/
 const TODO_LIST_PATTERN = /^[*-]\s+\[[ xX]\]\s+.+/
 const ORDERED_LIST_PATTERN = /^\d+\.\s+.+/
