@@ -140,6 +140,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
 
   const handleChange = useCallback(
     (key: string, value: TFilterValue) => {
+      console.log('handleChange', { key, value })
       resetQuickFilters(false)
       setValues((prev) => ({ ...prev, [key]: value }))
     },
@@ -280,6 +281,19 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
         }
         case 'dropdownSearch':
           return <DropdownSearchField field={field} value={values[field.key] as string | undefined} onChange={(val) => handleChange(field.key, val)} />
+
+        case 'radio':
+          console.log(field)
+          return (
+            <div className="flex flex-col gap-1">
+              {field.radioOptions?.map((opt) => (
+                <label key={String(opt.value)} className={cn('flex items-center gap-2 rounded-md cursor-pointer text-sm transition-colors')} onClick={() => handleChange(field.key, opt.value)}>
+                  <div className="relative flex h-4 w-4 items-center justify-center rounded-full border border-primary">{val === opt.value && <div className="h-2 w-2 rounded-full bg-primary" />}</div>
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          )
         default:
           return null
       }
@@ -324,7 +338,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                       <field.icon size={16} className="text-muted-foreground shrink-0" />
                       <span className="text-sm">{field.label}</span>
                     </div>
-                    <ChevronDown size={14} className="ml-auto transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
+                    <ChevronDown size={14} className="ml-auto transform -rotate-90 transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
                   </button>
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 ml-5">{renderField(field)}</AccordionContent>
