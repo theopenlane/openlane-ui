@@ -13,6 +13,8 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { useGetTrustCenter, useGetTrustCenterPosts, useUpdateTrustCenter, useUpdateTrustCenterPost } from '@/lib/graphql-hooks/trust-center'
 import { Label } from '@repo/ui/label'
 import { formatDate } from '@/utils/date'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useNotification } from '@/hooks/useNotification'
 
 const formSchema = z.object({
   text: z.string().min(1, 'Update text is required').max(280),
@@ -22,7 +24,7 @@ type UpdateFormValues = z.infer<typeof formSchema>
 
 export default function UpdatesSection() {
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
-
+  const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
@@ -55,23 +57,43 @@ export default function UpdatesSection() {
           addPost: { text: values.text },
         },
       })
+
+      successNotification({
+        title: 'Update published',
+        description: 'Your trust center update has been successfully posted.',
+      })
+
       createForm.reset()
     } catch (error) {
-      console.error('Error creating post:', error)
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
-
   const handleUpdateSubmit = async (values: UpdateFormValues) => {
     if (!editingPostId) return
+
     try {
       await updatePost({
         updateTrustCenterPostId: editingPostId,
         input: { text: values.text },
       })
+
+      successNotification({
+        title: 'Update saved',
+        description: 'The changes to your post have been saved.',
+      })
+
       setEditingPostId(null)
       editForm.reset()
     } catch (error) {
-      console.error('Error updating post:', error)
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
