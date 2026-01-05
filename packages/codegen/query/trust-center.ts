@@ -19,6 +19,9 @@ export const GET_TRUST_CENTER = gql`
               name
             }
           }
+          previewDomain {
+            cnameRecord
+          }
           setting {
             id
             title

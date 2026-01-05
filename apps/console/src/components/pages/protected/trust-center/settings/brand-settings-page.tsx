@@ -26,7 +26,7 @@ const BrandSettingsPage: React.FC = () => {
   const [title, setTitle] = useState('')
   const [overview, setOverview] = useState('')
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
-  const cnameRecord = trustCenter?.customDomain?.cnameRecord
+  const cnameRecord = trustCenter?.previewDomain?.cnameRecord
   const setting = trustCenter?.setting
   const previewSetting = trustCenter?.previewSetting
   const [easyColor, setEasyColor] = useState(setting?.primaryColor ?? '#f0f0e0')
@@ -153,7 +153,7 @@ const BrandSettingsPage: React.FC = () => {
           </Button>
 
           <div className="flex items-center gap-10 flex-1">
-            <UrlInput disabled={!cnameRecord} hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={cnameRecord ?? ''} className="h-10" />
+            <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={cnameRecord ?? ''} className="h-10" />
             <Button className="h-10 ml-auto" variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setIsConfirmationDialogOpen(true)}>
               Publish
             </Button>
