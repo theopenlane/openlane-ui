@@ -17,7 +17,7 @@ import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import UrlInput from './url-input'
-import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontptions } from '@/components/shared/enum-mapper/trust-center-enum'
+import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const BrandSettingsPage: React.FC = () => {
@@ -26,6 +26,7 @@ const BrandSettingsPage: React.FC = () => {
   const [title, setTitle] = useState('')
   const [overview, setOverview] = useState('')
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
+  const cnameRecord = trustCenter?.customDomain?.cnameRecord
   const setting = trustCenter?.setting
   const previewSetting = trustCenter?.previewSetting
   const [easyColor, setEasyColor] = useState(setting?.primaryColor ?? '#f0f0e0')
@@ -39,7 +40,6 @@ const BrandSettingsPage: React.FC = () => {
   const [logoPreview, setLogoPreview] = useState<string | null>(setting?.logoFile?.presignedURL || setting?.logoRemoteURL || null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoLink, setLogoLink] = useState(setting?.logoRemoteURL ?? '')
-  const [inputValue, setInputValue] = useState('')
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
 
   const [faviconPreview, setFaviconPreview] = useState<string | null>(setting?.faviconFile?.presignedURL || setting?.faviconRemoteURL || null)
@@ -153,7 +153,7 @@ const BrandSettingsPage: React.FC = () => {
           </Button>
 
           <div className="flex items-center gap-10 flex-1">
-            <UrlInput hasCopyButton value={inputValue} onChange={setInputValue} className="h-10" />
+            <UrlInput disabled={!cnameRecord} hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={cnameRecord ?? ''} className="h-10" />
             <Button className="h-10 ml-auto" variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setIsConfirmationDialogOpen(true)}>
               Publish
             </Button>
@@ -261,7 +261,7 @@ const BrandSettingsPage: React.FC = () => {
                         <SelectValue placeholder="Select font" />
                       </SelectTrigger>
                       <SelectContent>
-                        {TrustCenterWatermarkConfigFontptions.map((font) => (
+                        {TrustCenterWatermarkConfigFontOptions.map((font) => (
                           <SelectItem key={font.value} value={font.value}>
                             {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
                           </SelectItem>

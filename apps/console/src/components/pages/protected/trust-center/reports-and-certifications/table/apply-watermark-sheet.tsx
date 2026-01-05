@@ -14,7 +14,7 @@ import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
 import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontptions } from '@/components/shared/enum-mapper/trust-center-enum'
+import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 
 type WatermarkConfigUI = {
   id?: string
@@ -245,7 +245,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                           <SelectValue placeholder="Select font" />
                         </SelectTrigger>
                         <SelectContent>
-                          {TrustCenterWatermarkConfigFontptions.map((font) => (
+                          {TrustCenterWatermarkConfigFontOptions.map((font) => (
                             <SelectItem key={font.value} value={font.value}>
                               {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
                             </SelectItem>

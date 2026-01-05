@@ -16,7 +16,7 @@ export const TrustCenterWatermarkConfigFontMapper: Record<TrustCenterWatermarkCo
   [TrustCenterWatermarkConfigFont.TIMES_ROMAN]: 'Times New Roman',
 }
 
-export const TrustCenterWatermarkConfigFontptions = Object.values(TrustCenterWatermarkConfigFont).map((status) => ({
+export const TrustCenterWatermarkConfigFontOptions = Object.values(TrustCenterWatermarkConfigFont).map((status) => ({
   label: status
     .split('_')
     .map((word) => word.charAt(0) + word.slice(1).toLowerCase())

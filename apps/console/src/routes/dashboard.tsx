@@ -115,11 +115,6 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         href: '/trust-center/branding',
         icon: Paintbrush,
       },
-      // {
-      //   title: 'Settings',
-      //   href: '/trust-center/settings',
-      //   icon: Settings,
-      // },
       {
         title: 'Domain',
         href: '/trust-center/domain',
