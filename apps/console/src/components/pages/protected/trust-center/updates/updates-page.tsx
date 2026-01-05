@@ -4,10 +4,9 @@ import React, { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { Keyboard, Megaphone, Pencil, Loader2 } from 'lucide-react'
-
-import { Button } from '@repo/ui/button'
+import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Button } from '@repo/ui/button'
 import { Textarea } from '@repo/ui/textarea'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { useGetTrustCenter, useGetTrustCenterPosts, useUpdateTrustCenter, useUpdateTrustCenterPost } from '@/lib/graphql-hooks/trust-center'
@@ -15,6 +14,7 @@ import { Label } from '@repo/ui/label'
 import { formatDate } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const formSchema = z.object({
   text: z.string().min(1, 'Update text is required').max(280),
@@ -24,13 +24,16 @@ type UpdateFormValues = z.infer<typeof formSchema>
 
 export default function UpdatesSection() {
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [postToDelete, setPostToDelete] = useState<string | null>(null) // New state for deletion
+
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
   const posts = postsData?.trustCenter?.posts?.edges ?? []
 
-  const { mutateAsync: createPost, isPending: isCreating } = useUpdateTrustCenter()
+  const { mutateAsync: updateTrustCenter, isPending: isCreating } = useUpdateTrustCenter()
   const { mutateAsync: updatePost, isPending: isUpdating } = useUpdateTrustCenterPost()
 
   const createForm = useForm<UpdateFormValues>({
@@ -49,51 +52,44 @@ export default function UpdatesSection() {
   const createCharsRemaining = 280 - (createTextValue?.length || 0)
   const editCharsRemaining = 280 - (editTextValue?.length || 0)
 
+  // --- Handlers ---
+
   const handleCreateSubmit = async (values: UpdateFormValues) => {
     try {
-      await createPost({
+      await updateTrustCenter({
         updateTrustCenterId: trustCenterID,
-        input: {
-          addPost: { text: values.text },
-        },
+        input: { addPost: { text: values.text } },
       })
-
-      successNotification({
-        title: 'Update published',
-        description: 'Your trust center update has been successfully posted.',
-      })
-
+      successNotification({ title: 'Update published', description: 'Your trust center update has been successfully posted.' })
       createForm.reset()
     } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     }
   }
+
   const handleUpdateSubmit = async (values: UpdateFormValues) => {
     if (!editingPostId) return
-
     try {
       await updatePost({
         updateTrustCenterPostId: editingPostId,
         input: { text: values.text },
       })
-
-      successNotification({
-        title: 'Update saved',
-        description: 'The changes to your post have been saved.',
-      })
-
+      successNotification({ title: 'Update saved', description: 'The changes to your post have been saved.' })
       setEditingPostId(null)
       editForm.reset()
     } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!postToDelete) return
+    try {
+      await updateTrustCenter({ updateTrustCenterId: trustCenterID, input: { removePostIDs: [postToDelete] } })
+      successNotification({ title: 'Update deleted', description: 'The post has been removed.' })
+      setPostToDelete(null)
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     }
   }
 
@@ -116,6 +112,7 @@ export default function UpdatesSection() {
           <CardContent className="pt-6">
             <div className="mb-6">
               <h2 className="text-lg font-semibold">Share Update</h2>
+
               <p className="text-sm text-muted-foreground">Share brief updates about changes in your security practices.</p>
             </div>
 
@@ -127,6 +124,7 @@ export default function UpdatesSection() {
                   render={({ field }) => (
                     <FormItem className="mt-6">
                       <FormLabel>Description</FormLabel>
+
                       <FormControl>
                         <Textarea placeholder="Write an update..." className="min-h-[120px] bg-background" {...field} />
                       </FormControl>
@@ -137,8 +135,10 @@ export default function UpdatesSection() {
                 <div className="flex items-center justify-between pt-4">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Keyboard size={16} />
+
                     <span className={createCharsRemaining < 0 ? 'text-destructive font-medium' : ''}>{createCharsRemaining} characters remaining</span>
                   </div>
+
                   <Button type="submit" disabled={isCreating || !!editingPostId} icon={isCreating ? <Loader2 className="animate-spin" /> : <Megaphone />} iconPosition="left">
                     Publish Update
                   </Button>
@@ -186,12 +186,17 @@ export default function UpdatesSection() {
                         </div>
                       ) : (
                         <div className="flex flex-col">
-                          <p className="text-sm  leading-relaxed flex-1">{post.text}</p>
+                          <p className="text-sm leading-relaxed flex-1">{post.text}</p>
                           <div className="flex justify-between mt-1">
                             <p className="text-muted-foreground text-sm">{formatDate(post.updatedAt)}</p>
-                            <button className="self-end text-muted-foreground" onClick={() => startEditing(post.id, post.text)} disabled={!!editingPostId}>
-                              <Pencil size={16} />
-                            </button>
+                            <div className="flex gap-3">
+                              <button className="text-muted-foreground" onClick={() => startEditing(post.id, post.text)} disabled={!!editingPostId}>
+                                <Pencil size={16} />
+                              </button>
+                              <button className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -203,6 +208,14 @@ export default function UpdatesSection() {
           )}
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={!!postToDelete}
+        onOpenChange={(open) => !open && setPostToDelete(null)}
+        onConfirm={handleDelete}
+        title="Delete Update"
+        description="Are you sure you want to delete this update? This action cannot be undone."
+      />
     </div>
   )
 }
