@@ -53,6 +53,7 @@ export function AIMenu() {
       }
     }
 
+    // @ts-ignore – PlateJS typing is incorrect here
     const fallback = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1) ?? editor.api.blocks().at(-1)
 
     if (!fallback) return
