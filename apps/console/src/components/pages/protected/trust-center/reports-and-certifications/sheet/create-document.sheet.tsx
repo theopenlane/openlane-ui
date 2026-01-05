@@ -22,6 +22,9 @@ import { FileField } from './form-fields/file-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { Label } from '@repo/ui/label'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canDelete, canEdit } from '@/lib/authz/utils'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -42,6 +45,11 @@ export const CreateDocumentSheet: React.FC = () => {
   const isCreateMode = searchParams.get('create') === 'true'
   const documentId = searchParams.get('id')
   const isEditMode = !!documentId
+
+  const { data: permission } = useAccountRoles(ObjectEnum.TRUST_CENTER_DOCUMENT, documentId)
+
+  const isEditAllowed = canEdit(permission?.roles)
+  const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -249,30 +257,36 @@ export const CreateDocumentSheet: React.FC = () => {
                           </Button>
                         </>
                       ) : (
-                        <Button
-                          icon={<Pencil size={16} strokeWidth={2} />}
-                          iconPosition="left"
-                          type="button"
-                          variant="secondary"
-                          className="p-2! h-8"
-                          aria-label="Edit document"
-                          onClick={() => setIsEditing(true)}
-                        >
-                          Edit
-                        </Button>
+                        <>
+                          {isEditAllowed && (
+                            <Button
+                              icon={<Pencil size={16} strokeWidth={2} />}
+                              iconPosition="left"
+                              type="button"
+                              variant="secondary"
+                              className="p-2! h-8"
+                              aria-label="Edit document"
+                              onClick={() => setIsEditing(true)}
+                            >
+                              Edit
+                            </Button>
+                          )}
+                        </>
                       )}
 
-                      <Button
-                        type="button"
-                        icon={<Trash2 size={16} strokeWidth={2} />}
-                        iconPosition="left"
-                        variant="secondary"
-                        className="p-2! h-8"
-                        onClick={() => setIsDeleteDialogOpen(true)}
-                        aria-label="Delete document"
-                      >
-                        Delete
-                      </Button>
+                      {isDeleteAllowed && (
+                        <Button
+                          type="button"
+                          icon={<Trash2 size={16} strokeWidth={2} />}
+                          iconPosition="left"
+                          variant="secondary"
+                          className="p-2! h-8"
+                          onClick={() => setIsDeleteDialogOpen(true)}
+                          aria-label="Delete document"
+                        >
+                          Delete
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>
@@ -311,7 +325,7 @@ export const CreateDocumentSheet: React.FC = () => {
               <Label>Watermark status</Label>
               <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
             </div>
-            {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditing} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
+            {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditAllowed} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
           </form>
         </FormProvider>
       </SheetContent>
