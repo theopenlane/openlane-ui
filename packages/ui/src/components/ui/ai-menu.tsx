@@ -53,7 +53,6 @@ export function AIMenu() {
       }
     }
 
-    // @ts-expect-error fix bad typing from platejs
     const fallback = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1) ?? editor.api.blocks().at(-1)
 
     if (!fallback) return
@@ -79,7 +78,7 @@ export function AIMenu() {
 
   useEditorChat({
     onOpenBlockSelection: (blocks: NodeEntry[]) => {
-      // @ts-expect-error fix bad typing from platejs
+      // @ts-ignore – PlateJS typing is incorrect here
       show(editor.api.toDOMNode(blocks.at(-1)![0])!)
     },
     onOpenChange: (open) => {
@@ -98,7 +97,7 @@ export function AIMenu() {
       show(editor.api.toDOMNode(ancestor)!)
     },
     onOpenSelection: () => {
-      // @ts-expect-error fix bad typing from platejs
+      // @ts-ignore – PlateJS typing is incorrect here
       show(editor.api.toDOMNode(editor.api.blocks().at(-1)![0])!)
     },
   })
@@ -118,7 +117,7 @@ export function AIMenu() {
       })
 
       if (!anchorNode) {
-        // @ts-expect-error fix bad typing from platejs
+        // @ts-ignore – PlateJS typing is incorrect here
         anchorNode = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1)
       }
 
