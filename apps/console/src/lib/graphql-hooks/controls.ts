@@ -557,11 +557,13 @@ export const useGetControlNotImplementedCount = () => {
   }
 }
 
+export const CONTROL_DISCUSSION_QUERY_KEY = 'controlsDiscussion'
+
 export const useGetControlDiscussionById = (controlId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetControlDiscussionByIdQuery, unknown>({
-    queryKey: ['controlsDiscussion', controlId],
+    queryKey: [CONTROL_DISCUSSION_QUERY_KEY, controlId],
     queryFn: async () => client.request(GET_CONTROL_DISCUSSION_BY_ID, { controlId }),
     enabled: !!controlId,
   })

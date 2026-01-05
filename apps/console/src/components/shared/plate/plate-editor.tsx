@@ -99,8 +99,6 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
         editor.setOption(discussionPlugin, 'isCreate', false)
       }
 
-      console.log('hi')
-
       if (!editor || !entity || !userData?.user) return
 
       editor.setOption(discussionPlugin, 'entityType', entity.__typename)

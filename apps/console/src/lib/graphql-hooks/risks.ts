@@ -198,11 +198,13 @@ export const useGetRiskOpenAndIdentifiedCount = () => {
   }
 }
 
+export const RISK_DISCUSSION_QUERY_KEY = 'risksDiscussion'
+
 export const useGetRiskDiscussionById = (riskId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetRiskDiscussionByIdQuery, unknown>({
-    queryKey: ['risksDiscussion', riskId],
+    queryKey: [RISK_DISCUSSION_QUERY_KEY, riskId],
     queryFn: async () => client.request(GET_RISK_DISCUSSION_BY_ID, { riskId }),
     enabled: !!riskId,
   })

@@ -199,11 +199,13 @@ export const useBulkDeleteProcedures = () => {
   })
 }
 
+export const PROCEDURE_DISCUSSION_QUERY_KEY = 'procedureDiscussion'
+
 export const useGetProcedureDiscussionById = (procedureId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProcedureDiscussionByIdQuery, unknown>({
-    queryKey: ['procedureDiscussion', procedureId],
+    queryKey: [PROCEDURE_DISCUSSION_QUERY_KEY, procedureId],
     queryFn: async () => client.request(GET_PROCEDURE_DISCUSSION_BY_ID, { procedureId }),
     enabled: !!procedureId,
   })

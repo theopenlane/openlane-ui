@@ -272,11 +272,13 @@ export const useBulkDeletePolicy = () => {
   })
 }
 
+export const POLICY_DISCUSSION_QUERY_KEY = 'policyDiscussion'
+
 export const useGetPolicyDiscussionById = (policyId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetPolicyDiscussionByIdQuery, unknown>({
-    queryKey: ['policyDiscussion', policyId],
+    queryKey: [POLICY_DISCUSSION_QUERY_KEY, policyId],
     queryFn: async () => client.request(GET_POLICY_DISCUSSION_BY_ID, { policyId }),
     enabled: !!policyId,
   })

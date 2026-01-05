@@ -19,12 +19,13 @@ import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-ki
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
-import { useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
+import { POLICY_DISCUSSION_QUERY_KEY, useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
-import { useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/controls.ts'
-import { useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
-import { useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
+import { PROCEDURE_DISCUSSION_QUERY_KEY, useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
+import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/controls.ts'
+import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
+import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface TComment {
   id: string
@@ -120,10 +121,6 @@ export function Comment(props: {
 
   const updateComment = async (input: { id: string; contentRich: Value; discussionId: string; isEdited: boolean }) => {
     const text = NodeApi.string({ children: input.contentRich, type: KEYS.p })
-    /* await updateControlComment({
-      updateControlCommentId: input.id,
-      input: { text: text },
-    })*/
 
     const commentIdKeyMap = {
       Control: 'updateControlCommentId',
@@ -493,6 +490,13 @@ export function CommentCreateForm({
   const { mutateAsync: insertControlComment } = useInsertControlPlateComment()
   const { mutateAsync: insertSubcontrolComment } = useInsertSubcontrolPlateComment()
   const { mutateAsync: insertRiskComment } = useInsertRiskComment()
+  const { mutateAsync: updateInternalPolicy } = useUpdateInternalPolicy()
+  const { mutateAsync: updateProcedure } = useUpdateProcedure()
+  const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
+  const { mutateAsync: updateRisk } = useUpdateRisk()
+  const queryClient = useQueryClient()
+
   type EntityInputMap = {
     Control: UpdateControlInput
     Subcontrol: UpdateSubcontrolInput
@@ -527,11 +531,79 @@ export function CommentCreateForm({
     Risk: insertRiskComment,
   }
 
+  const entityDescriptionUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
+    Control: updateControl,
+    Subcontrol: updateSubcontrol,
+    Procedure: updateProcedure,
+    InternalPolicy: updateInternalPolicy,
+    Risk: updateRisk,
+  }
+
+  const entityUpdate = getEntityUpdater(entityType)
+  const entityDescriptionUpdate = getEntityDescriptionUpdater(entityType)
+
   function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
     return entityUpdateMap[type]
   }
 
-  const entityUpdate = getEntityUpdater(entityType)
+  function getEntityDescriptionUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
+    return entityDescriptionUpdateMap[type]
+  }
+
+  const updateDescription = async () => {
+    const entityIdKeyMap: EntityIdKeyMap = {
+      Control: 'updateControlId',
+      Subcontrol: 'updateSubcontrolId',
+      Procedure: 'updateProcedureId',
+      InternalPolicy: 'updateInternalPolicyId',
+      Risk: 'updateRiskId',
+    }
+
+    const input = entityType === 'Control' || entityType === 'Subcontrol' ? { descriptionJSON: editor.children } : { detailsJSON: editor.children }
+
+    await entityDescriptionUpdate({
+      [entityIdKeyMap[entityType]]: entityId,
+      input,
+    } as {
+      [K in EntityIdKey<typeof entityType>]: string
+    } & {
+      input: EntityInput<typeof entityType>
+    })
+
+    let entityUpdateKey
+    let entityDiscussionKey
+
+    switch (entityType) {
+      case 'Control':
+        entityUpdateKey = CONTROL_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'controls'
+        break
+      case 'Risk':
+        entityUpdateKey = RISK_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'risks'
+        break
+      case 'InternalPolicy':
+        entityUpdateKey = POLICY_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'internalPolicies'
+        break
+      case 'Subcontrol':
+        entityUpdateKey = SUBCONTROL_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'subcontrols'
+        break
+      case 'Procedure':
+        entityUpdateKey = PROCEDURE_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'procedures'
+        break
+      default:
+        entityUpdateKey = undefined
+        entityDiscussionKey = undefined
+    }
+
+    if (entityUpdateKey && entityDiscussionKey) {
+      queryClient.invalidateQueries({ queryKey: [entityUpdateKey, entityId] })
+      queryClient.invalidateQueries({ queryKey: [entityDiscussionKey, entityId] })
+    }
+  }
 
   React.useEffect(() => {
     if (commentEditor && focusOnMount) {
@@ -720,6 +792,8 @@ export function CommentCreateForm({
       } & {
         input: EntityInput<typeof entityType>
       })
+
+      updateDescription()
     }
   }, [commentValue, commentEditor.tf, commentId, discussionId, discussions, editor, entityId])
 

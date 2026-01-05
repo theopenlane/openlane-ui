@@ -265,11 +265,13 @@ export const useUpdateSubcontrolComment = () => {
   })
 }
 
+export const SUBCONTROL_DISCUSSION_QUERY_KEY = 'subcontrolsDiscussion'
+
 export const useGetSubcontrolDiscussionById = (subcontrolId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetSubcontrolDiscussionByIdQuery, unknown>({
-    queryKey: ['subcontrolsDiscussion', subcontrolId],
+    queryKey: [SUBCONTROL_DISCUSSION_QUERY_KEY, subcontrolId],
     queryFn: async () => client.request(GET_SUBCONTROL_DISCUSSION_BY_ID, { subcontrolId }),
     enabled: !!subcontrolId,
   })
