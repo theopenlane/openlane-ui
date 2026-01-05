@@ -53,7 +53,7 @@ export const useChat = (): Chat => {
       }
 
       if (data.type === 'data-comment' && data.data) {
-        // @ts-expect-error fix bad typing from platejs
+        // @ts-ignore – PlateJS typing is incorrect here
         const { comment, status } = data.data
 
         if (status === 'finished') {
@@ -90,7 +90,7 @@ export const useChat = (): Chat => {
           userId: editor.getOption(discussionPlugin, 'currentUserId'),
         }
 
-        // @ts-expect-error fix bad typing from platejs
+        // @ts-ignore – PlateJS typing is incorrect here
         editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion])
 
         editor.tf.withMerging(() => {
