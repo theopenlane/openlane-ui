@@ -22116,6 +22116,8 @@ export interface Note extends Node {
   /** structured details of the note in JSON format */
   textJSON?: Maybe<Array<Scalars['Any']['output']>>
   trustCenter?: Maybe<TrustCenter>
+  /** the trust center this note belongs to, if applicable */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -22328,6 +22330,22 @@ export interface NoteWhereInput {
   textLTE?: InputMaybe<Scalars['String']['input']>
   textNEQ?: InputMaybe<Scalars['String']['input']>
   textNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -49827,6 +49845,36 @@ export type UpdateTrustCenterWatermarkConfigMutation = {
   __typename?: 'Mutation'
   updateTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigUpdatePayload'; trustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfig'; id: string } }
 }
+
+export type GetTrustCenterPostsQueryVariables = Exact<{
+  trustCenterId: Scalars['ID']['input']
+}>
+
+export type GetTrustCenterPostsQuery = {
+  __typename?: 'Query'
+  trustCenter: {
+    __typename?: 'TrustCenter'
+    posts: {
+      __typename?: 'NoteConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; text: string; updatedAt?: any | null } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateTrustCenterMutationVariables = Exact<{
+  updateTrustCenterId: Scalars['ID']['input']
+  input: UpdateTrustCenterInput
+}>
+
+export type UpdateTrustCenterMutation = { __typename?: 'Mutation'; updateTrustCenter: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
+
+export type UpdateTrustCenterPostMutationVariables = Exact<{
+  updateTrustCenterPostId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTrustCenterPostMutation = { __typename?: 'Mutation'; updateTrustCenterPost: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
