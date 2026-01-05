@@ -19127,7 +19127,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities via file upload */
+  /** Create multiple new trustcenterEntitys via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -19239,7 +19239,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities */
+  /** Create multiple new trustcenterEntitys */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -22116,6 +22116,8 @@ export interface Note extends Node {
   /** structured details of the note in JSON format */
   textJSON?: Maybe<Array<Scalars['Any']['output']>>
   trustCenter?: Maybe<TrustCenter>
+  /** the trust center this note belongs to, if applicable */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -22328,6 +22330,22 @@ export interface NoteWhereInput {
   textLTE?: InputMaybe<Scalars['String']['input']>
   textNEQ?: InputMaybe<Scalars['String']['input']>
   textNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -36632,7 +36650,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntities */
+  /** Created trustcenterEntitys */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -45651,6 +45669,7 @@ export type ControlDetailsFieldsFragment = {
   status?: ControlControlStatus | null
   tags?: Array<string> | null
   description?: string | null
+  descriptionJSON?: Array<any> | null
   implementationGuidance?: Array<any> | null
   exampleEvidence?: Array<any> | null
   controlQuestions?: Array<string> | null
@@ -45781,6 +45800,7 @@ export type GetControlByIdQuery = {
     status?: ControlControlStatus | null
     tags?: Array<string> | null
     description?: string | null
+    descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
     controlQuestions?: Array<string> | null
@@ -46185,6 +46205,116 @@ export type GetExistingControlsForOrganizationQuery = {
   }
 }
 
+export type ControlDiscussionFieldsFragment = {
+  __typename: 'Control'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetControlDiscussionByIdQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlDiscussionByIdQuery = {
+  __typename?: 'Query'
+  control: {
+    __typename: 'Control'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertControlPlateCommentMutationVariables = Exact<{
+  updateControlId: Scalars['ID']['input']
+  input: UpdateControlInput
+}>
+
+export type InsertControlPlateCommentMutation = {
+  __typename?: 'Mutation'
+  updateControl: {
+    __typename?: 'ControlUpdatePayload'
+    control: {
+      __typename?: 'Control'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
 export type CustomTypeEnumFieldsFragment = {
   __typename?: 'CustomTypeEnum'
   id: string
@@ -46286,6 +46416,43 @@ export type DeleteCustomTypeEnumMutationVariables = Exact<{
 }>
 
 export type DeleteCustomTypeEnumMutation = { __typename?: 'Mutation'; deleteCustomTypeEnum: { __typename?: 'CustomTypeEnumDeletePayload'; deletedID: string } }
+
+export type CreateDiscussionMutationVariables = Exact<{
+  input: CreateDiscussionInput
+}>
+
+export type CreateDiscussionMutation = {
+  __typename?: 'Mutation'
+  createDiscussion: { __typename?: 'DiscussionCreatePayload'; discussion: { __typename?: 'Discussion'; id: string; createdAt?: any | null; createdBy?: string | null } }
+}
+
+export type UpdateDiscussionMutationVariables = Exact<{
+  updateDiscussionId: Scalars['ID']['input']
+  input: UpdateDiscussionInput
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type UpdateDiscussionMutation = {
+  __typename?: 'Mutation'
+  updateDiscussion: {
+    __typename?: 'DiscussionUpdatePayload'
+    discussion: {
+      __typename?: 'Discussion'
+      updatedBy?: string | null
+      updatedAt?: any | null
+      isResolved: boolean
+      id: string
+      externalID?: string | null
+      comments: {
+        __typename?: 'NoteConnection'
+        edges?: Array<{
+          __typename?: 'NoteEdge'
+          node?: { __typename?: 'Note'; createdAt?: any | null; createdBy?: string | null; displayID: string; id: string; isEdited: boolean; noteRef?: string | null; text: string } | null
+        } | null> | null
+      }
+    }
+  }
+}
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
@@ -47487,6 +47654,7 @@ export type InternalPolicyByIdFragment = {
   reviewFrequency?: InternalPolicyFrequency | null
   approvalRequired?: boolean | null
   summary?: string | null
+  detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
@@ -47515,6 +47683,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     reviewFrequency?: InternalPolicyFrequency | null
     approvalRequired?: boolean | null
     summary?: string | null
+    detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
@@ -47664,6 +47833,126 @@ export type DeleteBulkInternalPolicyMutationVariables = Exact<{
 
 export type DeleteBulkInternalPolicyMutation = { __typename?: 'Mutation'; deleteBulkInternalPolicy: { __typename?: 'InternalPolicyBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type PolicyDiscussionFieldsFragment = {
+  __typename: 'InternalPolicy'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetPolicyDiscussionByIdQueryVariables = Exact<{
+  policyId: Scalars['ID']['input']
+}>
+
+export type GetPolicyDiscussionByIdQuery = {
+  __typename?: 'Query'
+  internalPolicy: {
+    __typename: 'InternalPolicy'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertInternalPolicyCommentMutationVariables = Exact<{
+  updateInternalPolicyId: Scalars['ID']['input']
+  input: UpdateInternalPolicyInput
+}>
+
+export type InsertInternalPolicyCommentMutation = {
+  __typename?: 'Mutation'
+  updateInternalPolicy: {
+    __typename?: 'InternalPolicyUpdatePayload'
+    internalPolicy: {
+      __typename?: 'InternalPolicy'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
+export type UpdatePolicyCommentMutationVariables = Exact<{
+  updateInternalPolicyCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdatePolicyCommentMutation = {
+  __typename?: 'Mutation'
+  updateInternalPolicyComment: { __typename?: 'InternalPolicyUpdatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string } }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
@@ -47806,6 +48095,7 @@ export type ProcedureByIdFragment = {
   reviewFrequency?: ProcedureFrequency | null
   approvalRequired?: boolean | null
   procedureKindName?: string | null
+  detailsJSON?: Array<any> | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
@@ -47877,6 +48167,7 @@ export type GetProcedureDetailsByIdQuery = {
     reviewFrequency?: ProcedureFrequency | null
     approvalRequired?: boolean | null
     procedureKindName?: string | null
+    detailsJSON?: Array<any> | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }
@@ -47911,6 +48202,123 @@ export type DeleteBulkProcedureMutationVariables = Exact<{
 }>
 
 export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkProcedure: { __typename?: 'ProcedureBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type ProcedureDiscussionFieldsFragment = {
+  __typename: 'Procedure'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProcedureDiscussionByIdQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureDiscussionByIdQuery = {
+  __typename?: 'Query'
+  procedure: {
+    __typename: 'Procedure'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertProcedureCommentMutationVariables = Exact<{
+  updateProcedureId: Scalars['ID']['input']
+  input: UpdateProcedureInput
+}>
+
+export type InsertProcedureCommentMutation = {
+  __typename?: 'Mutation'
+  updateProcedure: {
+    __typename?: 'ProcedureUpdatePayload'
+    procedure: {
+      __typename?: 'Procedure'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
+export type UpdateProcedureCommentMutationVariables = Exact<{
+  updateProcedureCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateProcedureCommentMutation = { __typename?: 'Mutation'; updateProcedureComment: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string } } }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
   input: CreateProgramWithMembersInput
@@ -48234,6 +48642,7 @@ export type RiskFieldsFragment = {
   displayID: string
   name: string
   details?: string | null
+  detailsJSON?: Array<any> | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
@@ -48302,6 +48711,7 @@ export type GetRiskByIdQuery = {
     displayID: string
     name: string
     details?: string | null
+    detailsJSON?: Array<any> | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
@@ -48383,7 +48793,7 @@ export type GetAllRisksQuery = {
 }
 
 export type UpdateRiskMutationVariables = Exact<{
-  id: Scalars['ID']['input']
+  updateRiskId: Scalars['ID']['input']
   input: UpdateRiskInput
 }>
 
@@ -48423,6 +48833,123 @@ export type DeleteBulkRiskMutation = { __typename?: 'Mutation'; deleteBulkRisk: 
 export type GetOpenRiskCountQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetOpenRiskCountQuery = { __typename?: 'Query'; risks: { __typename?: 'RiskConnection'; totalCount: number } }
+
+export type RiskDiscussionFieldsFragment = {
+  __typename: 'Risk'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetRiskDiscussionByIdQueryVariables = Exact<{
+  riskId: Scalars['ID']['input']
+}>
+
+export type GetRiskDiscussionByIdQuery = {
+  __typename?: 'Query'
+  risk: {
+    __typename: 'Risk'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertRiskCommentMutationVariables = Exact<{
+  updateRiskId: Scalars['ID']['input']
+  input: UpdateRiskInput
+}>
+
+export type InsertRiskCommentMutation = {
+  __typename?: 'Mutation'
+  updateRisk: {
+    __typename?: 'RiskUpdatePayload'
+    risk: {
+      __typename?: 'Risk'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
+export type UpdateRiskCommentMutationVariables = Exact<{
+  updateRiskCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateRiskCommentMutation = { __typename?: 'Mutation'; updateRiskComment: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
@@ -48649,6 +49176,7 @@ export type GetSubcontrolByIdQuery = {
     status?: SubcontrolControlStatus | null
     tags?: Array<string> | null
     description?: string | null
+    descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
     controlQuestions?: Array<string> | null
@@ -48864,6 +49392,116 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
       __typename?: 'SubcontrolEdge'
       node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
     } | null> | null
+  }
+}
+
+export type SubcontrolDiscussionFieldsFragment = {
+  __typename: 'Subcontrol'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetSubcontrolDiscussionByIdQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolDiscussionByIdQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename: 'Subcontrol'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertSubcontrolPlateCommentMutationVariables = Exact<{
+  updateSubcontrolId: Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type InsertSubcontrolPlateCommentMutation = {
+  __typename?: 'Mutation'
+  updateSubcontrol: {
+    __typename?: 'SubcontrolUpdatePayload'
+    subcontrol: {
+      __typename?: 'Subcontrol'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
   }
 }
 
