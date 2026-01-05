@@ -9,6 +9,7 @@ import {
   FolderTree,
   Key,
   Link,
+  MessageCircle,
   RefreshCw,
   RouteOff,
   ScanEye,
@@ -98,6 +99,7 @@ export enum ControlsFilterIconName {
   ProgramName = 'ProgramName',
   Type = 'Type',
   LinkedPolicies = 'LinkedPolicies',
+  Comments = 'Comments',
 }
 
 export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
@@ -111,6 +113,7 @@ export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
   [ControlsFilterIconName.ProgramName]: ShieldCheck,
   [ControlsFilterIconName.Type]: Tag,
   [ControlsFilterIconName.LinkedPolicies]: Link,
+  [ControlsFilterIconName.Comments]: MessageCircle,
 }
 
 // Status options for select dropdowns

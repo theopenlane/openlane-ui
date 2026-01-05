@@ -50,10 +50,13 @@ export const GET_ALL_ASSESSMENTS = gql`
           name
           assessmentType
           templateID
+          jsonconfig
           responseDueDuration
           tags
           createdAt
           updatedAt
+          createdBy
+          updatedBy
         }
       }
       pageInfo {
@@ -108,6 +111,14 @@ export const CREATE_ASSESSMENT_RESPONSE = gql`
         createdAt
         updatedAt
       }
+    }
+  }
+`
+
+export const DELETE_BULK_ASSESSMENT = gql`
+  mutation DeleteBulkAssessment($ids: [ID!]!) {
+    deleteBulkAssessment(ids: $ids) {
+      deletedIDs
     }
   }
 `

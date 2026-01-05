@@ -11,6 +11,7 @@ import PropertiesCard from '@/components/pages/protected/controls/properties-car
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
 import {
+  ControlControlSource,
   ControlControlStatus,
   CreateControlImplementationInput,
   CreateControlInput,
@@ -56,6 +57,7 @@ export default function CreateControlForm() {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const path = usePathname()
   const isCreateSubcontrol = path.includes('/create-subcontrol')
+  const isCloning = path.includes('/clone-control')
   const [createMultiple, setCreateMultiple] = useState(false)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
@@ -232,12 +234,34 @@ export default function CreateControlForm() {
     if (id) {
       crumbs.push({ label: controlData?.control?.refCode, isLoading, href: `/controls/${controlData?.control.id}` })
     }
-    const lastCrumb = isCreateSubcontrol ? { label: 'Create Subcontrol' } : { label: 'Create Control' }
-    crumbs.push(lastCrumb)
+    let lastCrumbLabel = 'Create Control'
+
+    if (isCloning) {
+      lastCrumbLabel = 'Clone Control'
+    } else if (isCreateSubcontrol) {
+      lastCrumbLabel = 'Create Subcontrol'
+    }
+
+    crumbs.push({ label: lastCrumbLabel })
+
     setCrumbs(crumbs)
-  }, [setCrumbs, controlData, isLoading, isCreateSubcontrol, id])
+  }, [setCrumbs, controlData, isLoading, isCreateSubcontrol, id, isCloning])
 
   useEffect(() => {
+    if (isCloning && controlData?.control && !dataInitialized) {
+      form.reset({
+        refCode: `CC-${controlData?.control.refCode}`,
+        description: controlData?.control.description ?? undefined,
+        category: controlData?.control.category ?? undefined,
+        subcategory: controlData?.control.subcategory ?? undefined,
+        source: ControlControlSource.USER_DEFINED,
+        controlOwnerID: controlData?.control.controlOwner?.id ?? undefined,
+        delegateID: controlData?.control.delegate?.id ?? undefined,
+        controlKindName: controlData?.control.controlKindName ?? undefined,
+      })
+      return setDataInitialized(true)
+    }
+
     if (controlData?.control && !dataInitialized) {
       const label = `${controlData.control.refCode} ${controlData.control?.referenceFramework ? `(${controlData.control?.referenceFramework.trim()})` : '(CUSTOM)'}`
       fillCategoryAndSubcategory(form, controlData.control)
@@ -246,7 +270,7 @@ export default function CreateControlForm() {
       form.setValue('controlID', controlData?.control.id)
       setDataInitialized(true)
     }
-  }, [controlData, form, fillCategoryAndSubcategory, selectedParentControlLabel, dataInitialized])
+  }, [controlData, form, fillCategoryAndSubcategory, selectedParentControlLabel, dataInitialized, isCloning])
 
   const onCancel = () => {
     setClearData(true)

@@ -45,7 +45,7 @@ export const InvitesColumns = () => {
   const columns: ColumnDef<InviteNode>[] = [
     {
       accessorKey: 'recipient',
-      header: 'Invited user',
+      header: () => <span className="whitespace-nowrap">Invited user</span>,
       cell: ({ row }) => {
         return (
           <div className={nameRow()}>
@@ -91,7 +91,7 @@ export const InvitesColumns = () => {
 
     {
       accessorKey: 'sendAttempts',
-      header: 'Resend Attempts',
+      header: () => <span className="whitespace-nowrap">Resend Attempts</span>,
       cell: ({ cell }) => `${cell.getValue() || 0}/5`,
     },
     {

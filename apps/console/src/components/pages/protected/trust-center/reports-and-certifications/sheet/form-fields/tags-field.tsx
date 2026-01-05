@@ -20,7 +20,7 @@ export const TagsField = ({ isEditing }: Props) => {
   const { tagOptions } = useGetTags()
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <Label>Tags</Label>
       {isEditing ? (
         <>

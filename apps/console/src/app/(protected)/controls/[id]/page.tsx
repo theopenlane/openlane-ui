@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
@@ -255,10 +255,10 @@ const ControlDetailsPage: React.FC = () => {
     <div className="space-y-4">
       {isEditing && (
         <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+          <Button variant="secondary" className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
             Cancel
           </Button>
-          <Button variant="secondary" type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
+          <Button variant="secondary" type="submit" iconPosition="left" className="h-8 px-2!" icon={<SaveIcon />}>
             Save
           </Button>
         </div>
@@ -326,13 +326,21 @@ const ControlDetailsPage: React.FC = () => {
                     </button>
                   </Link>
                 )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControl) && (
+                  <Link href={`/controls/${id}/clone-control?mapControlId=${id}`}>
+                    <button className="flex items-center space-x-2 px-1 bg-transparent">
+                      <CopyPlus size={16} strokeWidth={2} />
+                      <span>Clone Control</span>
+                    </button>
+                  </Link>
+                )}
               </>
             }
           />
           {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
             <div className="flex gap-2">
               {canEdit(permission?.roles) && (
-                <Button type="button" variant="secondary" className="!p-1 h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
+                <Button type="button" variant="secondary" className="p-1! h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
                   <PencilIcon size={16} strokeWidth={2} />
                 </Button>
               )}

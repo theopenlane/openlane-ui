@@ -262,8 +262,10 @@ const EditableSelect = ({
               <Select
                 value={field.value}
                 onValueChange={(val) => {
-                  handleChange(val)
-                  field.onChange(val)
+                  if (val) {
+                    handleChange(val)
+                    field.onChange(val)
+                  }
                 }}
               >
                 <SelectTrigger>
