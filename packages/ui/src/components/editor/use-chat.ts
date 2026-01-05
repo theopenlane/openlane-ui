@@ -35,134 +35,68 @@ export type Chat = UseChatHelpers<ChatMessage>
 
 export type ChatMessage = UIMessage<{}, MessageDataPart>
 
-export const useChat = () => {
+export const useChat = (): Chat => {
   const editor = useEditorRef()
   const options = usePluginOption(aiChatPlugin, 'chatOptions')
 
-  // remove when you implement the route /api/ai/command
-  const abortControllerRef = React.useRef<AbortController | null>(null)
-  const _abortFakeStream = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-      abortControllerRef.current = null
-    }
-  }
-
-  const baseChat = useBaseChat<ChatMessage>({
+  const chat = useBaseChat<ChatMessage>({
     id: 'editor',
+
     transport: new DefaultChatTransport({
       api: options.api || '/api/ai/command',
-      // Mock the API response. Remove it when you implement the route /api/ai/command
-      fetch: (async (input, init) => {
-        const bodyOptions = editor.getOptions(aiChatPlugin).chatOptions?.body
-
-        const initBody = JSON.parse(init?.body as string)
-
-        const body = {
-          ...initBody,
-          ...bodyOptions,
-        }
-
-        const res = await fetch(input, {
-          ...init,
-          body: JSON.stringify(body),
-        })
-
-        if (!res.ok) {
-          let sample: 'comment' | 'markdown' | 'mdx' | null = null
-
-          try {
-            const content = JSON.parse(init?.body as string)
-              .messages.at(-1)
-              .parts.find((p: any) => p.type === 'text')?.text
-
-            if (content.includes('Generate a markdown sample')) {
-              sample = 'markdown'
-            } else if (content.includes('Generate a mdx sample')) {
-              sample = 'mdx'
-            } else if (content.includes('comment')) {
-              sample = 'comment'
-            }
-          } catch {
-            sample = null
-          }
-
-          abortControllerRef.current = new AbortController()
-
-          await new Promise((resolve) => setTimeout(resolve, 400))
-
-          const stream = fakeStreamText({
-            editor,
-            sample,
-            signal: abortControllerRef.current.signal,
-          })
-
-          const response = new Response(stream, {
-            headers: {
-              Connection: 'keep-alive',
-              'Content-Type': 'text/plain',
-            },
-          })
-
-          return response
-        }
-
-        return res
-      }) as typeof fetch,
     }),
+
     onData(data) {
       if (data.type === 'data-toolName') {
-        editor.setOption(AIChatPlugin, 'toolName', data.data)
+        editor.setOption(AIChatPlugin, 'toolName', data.data as ToolName)
+        return
       }
 
       if (data.type === 'data-comment' && data.data) {
-        if (data.data.status === 'finished') {
-          editor.getApi(BlockSelectionPlugin).blockSelection.deselect()
+        // @ts-expect-error fix bad typing from platejs
+        const { comment, status } = data.data
 
+        if (status === 'finished') {
+          editor.getApi(BlockSelectionPlugin).blockSelection.deselect()
           return
         }
 
-        const aiComment = data.data.comment!
-        const range = aiCommentToRange(editor, aiComment)
+        if (!comment) return
 
-        if (!range) return console.warn('No range found for AI comment')
+        const range = aiCommentToRange(editor, comment)
+        if (!range) return
 
         const discussions = editor.getOption(discussionPlugin, 'discussions') || []
 
-        // Generate a new discussion ID
         const discussionId = nanoid()
 
-        // Create a new comment
         const newComment = {
           id: nanoid(),
-          contentRich: [{ children: [{ text: aiComment.comment }], type: 'p' }],
+          contentRich: [{ children: [{ text: comment.comment }], type: 'p' }],
           createdAt: new Date(),
           discussionId,
           isEdited: false,
           userId: editor.getOption(discussionPlugin, 'currentUserId'),
         }
 
-        // Create a new discussion
         const newDiscussion = {
           id: discussionId,
           comments: [newComment],
           createdAt: new Date(),
-          documentContent: deserializeMd(editor, aiComment.content)
+          documentContent: deserializeMd(editor, comment.content)
             .map((node: TNode) => NodeApi.string(node))
             .join('\n'),
           isResolved: false,
           userId: editor.getOption(discussionPlugin, 'currentUserId'),
         }
 
-        // Update discussions
-        const updatedDiscussions = [...discussions, newDiscussion]
-        editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
+        // @ts-expect-error fix bad typing from platejs
+        editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion])
 
-        // Apply comment marks to the editor
         editor.tf.withMerging(() => {
           editor.tf.setNodes(
             {
-              [getCommentKey(newDiscussion.id)]: true,
+              [getCommentKey(discussionId)]: true,
               [getTransientCommentKey()]: true,
               [KEYS.comment]: true,
             },
@@ -179,14 +113,8 @@ export const useChat = () => {
     ...options,
   })
 
-  const chat = {
-    ...baseChat,
-    _abortFakeStream,
-  }
-
   React.useEffect(() => {
     editor.setOption(AIChatPlugin, 'chat', chat as any)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.status, chat.messages, chat.error])
 
   return chat
