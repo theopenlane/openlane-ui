@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Build Gemini model
-  const buildModel = (name: string) => google(name, { apiKey: GOOGLE_GENERATIVE_AI_API_KEY })
+  const buildModel = (name: string) => google(name)
 
   const selectedModel = buildModel(model || DEFAULT_MODEL)
   const isSelecting = editor.api.isExpanded()

@@ -41,14 +41,27 @@ export function AIMenu() {
   const content = useLastAssistantMessage()?.parts.find((part) => part.type === 'text')?.text
 
   React.useEffect(() => {
-    if (streaming) {
-      const anchor = api.aiChat.node({ anchor: true })
-      setTimeout(() => {
-        const anchorDom = editor.api.toDOMNode(anchor![0])!
-        setAnchorElement(anchorDom)
-      }, 0)
+    if (!streaming) return
+
+    const anchorEntry = api.aiChat.node({ anchor: true })
+
+    if (anchorEntry) {
+      const dom = editor.api.toDOMNode(anchorEntry[0])
+      if (dom) {
+        setAnchorElement(dom)
+        return
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // @ts-expect-error fix bad typing from platejs
+    const fallback = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1) ?? editor.api.blocks().at(-1)
+
+    if (!fallback) return
+
+    const dom = editor.api.toDOMNode(fallback[0])
+    if (dom) {
+      setAnchorElement(dom)
+    }
   }, [streaming])
 
   const setOpen = (open: boolean) => {
@@ -66,6 +79,7 @@ export function AIMenu() {
 
   useEditorChat({
     onOpenBlockSelection: (blocks: NodeEntry[]) => {
+      // @ts-expect-error fix bad typing from platejs
       show(editor.api.toDOMNode(blocks.at(-1)![0])!)
     },
     onOpenChange: (open) => {
@@ -84,6 +98,7 @@ export function AIMenu() {
       show(editor.api.toDOMNode(ancestor)!)
     },
     onOpenSelection: () => {
+      // @ts-expect-error fix bad typing from platejs
       show(editor.api.toDOMNode(editor.api.blocks().at(-1)![0])!)
     },
   })
@@ -103,6 +118,7 @@ export function AIMenu() {
       })
 
       if (!anchorNode) {
+        // @ts-expect-error fix bad typing from platejs
         anchorNode = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1)
       }
 
@@ -121,7 +137,7 @@ export function AIMenu() {
   if (toolName === 'edit' && mode === 'chat' && isLoading) return null
 
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={false}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverAnchor virtualRef={{ current: anchorElement! }} />
 
       <PopoverContent

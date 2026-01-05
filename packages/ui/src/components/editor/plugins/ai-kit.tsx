@@ -37,6 +37,7 @@ export const aiChatPlugin = AIChatPlugin.extend({
             editor.tf.insertNodes(
               {
                 children: [{ text: '' }],
+                anchor: true,
                 type: getPluginType(editor, KEYS.aiChat),
               },
               {

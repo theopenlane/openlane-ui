@@ -21,7 +21,6 @@ export function BasicFloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
   const { suffix } = useShortcutSuffix()
   const isCreate = usePluginOption(discussionPlugin, 'isCreate') as boolean
-  console.log(isCreate)
 
   return (
     <>
