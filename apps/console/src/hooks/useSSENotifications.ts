@@ -20,6 +20,7 @@ export function useSSENotifications() {
       eventSource.onmessage = (event) => {
         try {
           const payload = JSON.parse(event.data)
+          console.log('payload', payload)
           const newNotification = payload?.data?.notificationCreated
 
           if (newNotification) {

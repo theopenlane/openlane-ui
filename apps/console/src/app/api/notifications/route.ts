@@ -25,18 +25,22 @@ export async function GET(req: NextRequest) {
   const session = await auth()
   const accessToken = session?.user?.accessToken
 
-  console.log('Auth check:', {
-    hasToken: !!accessToken,
-    hasSession: !!session,
-    sessionName: sessionCookieName,
-  })
+  console.log('[SSE Proxy] 🟢 New connection request received')
 
   if (!accessToken) {
+    console.warn('[SSE Proxy] ⚠️ Unauthorized: No access token found')
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
   }
 
+  let isStreamActive = true
+  const requestId = Math.random().toString(36).substring(7)
+  const decoder = new TextDecoder()
+
   const stream = new ReadableStream({
     async start(controller) {
+      console.log(`[SSE Proxy][${requestId}] Stream start: Connecting to backend...`)
+      let reader: ReadableStreamDefaultReader<Uint8Array> | null = null
+
       try {
         const response = await secureFetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
           method: 'POST',
@@ -44,6 +48,8 @@ export async function GET(req: NextRequest) {
             Accept: 'text/event-stream',
             Authorization: `Bearer ${accessToken}`,
             Cookie: `${sessionCookieName}=${sessionString}`,
+            'Cache-Control': 'no-cache',
+            Connection: 'keep-alive',
           },
           body: JSON.stringify({
             query: getNotifications,
@@ -52,22 +58,61 @@ export async function GET(req: NextRequest) {
         })
 
         if (!response.ok || !response.body) {
-          controller.close()
+          console.error(`[SSE Proxy][${requestId}] ❌ Backend error:`, { status: response.status })
+          if (isStreamActive) {
+            controller.close()
+            isStreamActive = false
+          }
           return
         }
 
-        const reader = response.body.getReader()
+        console.log(`[SSE Proxy][${requestId}] ✅ Backend connection established`)
+        reader = response.body.getReader()
 
-        while (true) {
+        while (isStreamActive) {
           const { done, value } = await reader.read()
-          if (done) break
-          controller.enqueue(value)
+          if (done || !isStreamActive) break
+
+          // --- DATA INTERCEPTOR LOG ---
+          const rawChunk = decoder.decode(value, { stream: true })
+
+          if (rawChunk.includes('ping')) {
+            console.log(`[SSE Proxy][${requestId}] 💓 Received Heartbeat (ping)`)
+          } else {
+            console.log(`[SSE Proxy][${requestId}] 📥 Incoming Raw Data:\n${rawChunk}`)
+
+            // Try to extract the notification object specifically
+            if (rawChunk.includes('notificationCreated')) {
+              console.log(`[SSE Proxy][${requestId}] 🔔 NOTIFICATION DETECTED!`)
+            }
+          }
+          // ----------------------------
+
+          try {
+            controller.enqueue(value)
+          } catch (e) {
+            isStreamActive = false
+            break
+          }
         }
       } catch (error) {
-        console.error('[SSE Proxy] Stream error:', error)
+        if (isStreamActive) console.error(`[SSE Proxy][${requestId}] 🔥 Stream Error:`, error)
       } finally {
-        controller.close()
+        isStreamActive = false
+        console.log(`[SSE Proxy][${requestId}] 🔒 Cleaning up resources...`)
+        try {
+          controller.close()
+        } catch (e) {}
+        if (reader) {
+          try {
+            await reader.cancel()
+            reader.releaseLock()
+          } catch (e) {}
+        }
       }
+    },
+    cancel() {
+      isStreamActive = false
     },
   })
 
@@ -76,6 +121,7 @@ export async function GET(req: NextRequest) {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   })
 }
