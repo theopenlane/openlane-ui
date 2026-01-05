@@ -57,7 +57,6 @@ export function Comment(props: {
   const { mutateAsync: updateProcedureComment } = useUpdateProcedureComment()
   const { mutateAsync: updateRiskComment } = useUpdateRiskComment()
 
-  const entityId = usePluginOption(discussionPlugin, 'entityId') as string
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
   type EntityInputMap = {

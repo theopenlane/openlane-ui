@@ -20,7 +20,6 @@ import { discussionPlugin } from '../editor/plugins/discussion-kit.tsx'
 export function FloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
   const isCreate = usePluginOption(discussionPlugin, 'isCreate') as boolean
-  console.log(isCreate)
 
   return (
     <>

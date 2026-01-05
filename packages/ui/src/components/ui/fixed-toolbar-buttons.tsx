@@ -33,7 +33,6 @@ import { discussionPlugin } from '../editor/plugins/discussion-kit.tsx'
 export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly()
   const isCreate = usePluginOption(discussionPlugin, 'isCreate') as boolean
-  console.log(isCreate)
 
   return (
     <div className="flex w-full">
