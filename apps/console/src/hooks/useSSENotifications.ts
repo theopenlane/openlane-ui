@@ -7,35 +7,45 @@ export function useSSENotifications() {
   const { data: initialNotifications, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
-      // Ovdje ubaci svoj postojeći gqlRequest za dohvat nepročitanih notifikacija
       return []
     },
   })
 
   useEffect(() => {
-    const eventSource = new EventSource('/api/notifications')
+    let eventSource: EventSource | null = null
 
-    eventSource.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data)
-        const newNotification = payload?.data?.notificationCreated
+    const timeoutId = setTimeout(() => {
+      eventSource = new EventSource('/api/notifications')
 
-        if (newNotification) {
-          queryClient.setQueryData(['notifications'], (old: any[] = []) => {
-            if (old.some((n) => n.id === newNotification.id)) return old
-            return [newNotification, ...old]
-          })
+      eventSource.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data)
+          const newNotification = payload?.data?.notificationCreated
+
+          if (newNotification) {
+            queryClient.setQueryData(['notifications'], (old: any[] = []) => {
+              if (old.some((n) => n.id === newNotification.id)) return old
+              return [newNotification, ...old]
+            })
+          }
+        } catch (err) {
+          // Ignored
         }
-      } catch (err) {
-        // Ignored
+      }
+
+      eventSource.onerror = () => {
+        if (eventSource) {
+          eventSource.close()
+        }
+      }
+    }, 5000)
+
+    return () => {
+      clearTimeout(timeoutId)
+      if (eventSource) {
+        eventSource.close()
       }
     }
-
-    eventSource.onerror = () => {
-      eventSource.close()
-    }
-
-    return () => eventSource.close()
   }, [queryClient])
 
   return {
