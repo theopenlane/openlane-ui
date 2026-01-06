@@ -55,7 +55,14 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk, isE
         Details
       </label>
       <div className="!mt-4 bg-none max-h-[55vh] overflow-auto">
-        <PlateEditor userData={userData} initialValue={risk?.detailsJSON ? (risk?.detailsJSON as Value) : (risk?.details ?? undefined)} entity={discussionData} readonly={true} variant="readonly" />
+        <PlateEditor
+          key={JSON.stringify(risk?.detailsJSON ?? risk?.details)}
+          userData={userData}
+          initialValue={risk?.detailsJSON ? (risk?.detailsJSON as Value) : (risk?.details ?? undefined)}
+          entity={discussionData}
+          readonly={true}
+          variant="readonly"
+        />
       </div>
     </Card>
   )

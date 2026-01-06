@@ -43,6 +43,7 @@ import ControlImplementationsSection from '@/components/pages/protected/controls
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 interface FormValues {
   refCode: string
@@ -97,6 +98,7 @@ const ControlDetailsPage: React.FC = () => {
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const plateEditorHelper = usePlateEditor()
 
   const { data: permission } = useAccountRoles(ObjectEnum.SUBCONTROL, subcontrolId)
   const { data: discussionData } = useGetSubcontrolDiscussionById(id)
@@ -145,6 +147,7 @@ const ControlDetailsPage: React.FC = () => {
 
       if (changedFields.descriptionJSON) {
         changedFields.descriptionJSON = values?.descriptionJSON
+        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
       }
 
       if (isSourceFramework) {

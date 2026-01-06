@@ -42,6 +42,7 @@ import ControlImplementationsSection from '@/components/pages/protected/controls
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 interface FormValues {
   refCode: string
@@ -94,6 +95,7 @@ const ControlDetailsPage: React.FC = () => {
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
+  const plateEditorHelper = usePlateEditor()
   const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
@@ -139,6 +141,7 @@ const ControlDetailsPage: React.FC = () => {
 
       if (changedFields.descriptionJSON) {
         changedFields.descriptionJSON = values?.descriptionJSON
+        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
       }
 
       if (isSourceFramework) {

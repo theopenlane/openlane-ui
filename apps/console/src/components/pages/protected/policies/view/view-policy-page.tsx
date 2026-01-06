@@ -31,6 +31,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 type TViewPolicyPage = {
   policyId: string
@@ -59,6 +61,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
+  const plateEditorHelper = usePlateEditor()
 
   const memoizedSections = useMemo(() => {
     if (!assocData) return {}
@@ -160,17 +163,17 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     if (!policy?.id) {
       return
     }
-    try {
-      const { details, ...rest } = data
 
+    try {
       const formData: {
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
       } = {
         updateInternalPolicyId: policy?.id,
         input: {
-          ...rest,
-          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
+          ...data,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,

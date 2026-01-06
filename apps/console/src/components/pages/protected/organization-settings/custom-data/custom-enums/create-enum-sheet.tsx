@@ -221,7 +221,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                     <Select
                       disabled={isPending || isEditMode}
                       onValueChange={(val) => {
-                        console.log('onValueChange', val)
                         if (val) fieldField.onChange(val)
                       }}
                       value={fieldField.value}

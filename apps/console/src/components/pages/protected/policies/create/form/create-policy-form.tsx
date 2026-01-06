@@ -26,6 +26,7 @@ import { Switch } from '@repo/ui/switch'
 import HelperText from './alert-box'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { useSession } from 'next-auth/react'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -64,6 +65,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
+  const plateEditorHelper = usePlateEditor()
 
   useEffect(() => {
     if (policy && assocData) {
@@ -117,13 +119,12 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   }, [isPoliciesCreate, policyState, isInitialized])
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
-    const { details, ...rest } = data
-
     try {
       const formData: { input: CreateInternalPolicyInput } = {
         input: {
-          ...rest,
-          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
+          ...data,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -192,7 +193,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       return
     }
     try {
-      const { details, ...rest } = data
       const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
 
       const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
@@ -225,8 +225,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       } = {
         updateInternalPolicyId: policy.id,
         input: {
-          ...rest,
-          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
+          ...data,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationInputs,
         },

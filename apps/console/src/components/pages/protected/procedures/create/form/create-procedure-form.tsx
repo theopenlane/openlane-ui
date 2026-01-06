@@ -28,6 +28,7 @@ import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Switch } from '@repo/ui/switch'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -68,6 +69,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
+  const plateEditorHelper = usePlateEditor()
 
   const isProcedureCreate = path === '/procedures/create'
 
@@ -145,12 +147,11 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {
-      const { details, ...rest } = data
-
       const formData: { input: CreateProcedureInput } = {
         input: {
-          ...rest,
-          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
+          ...data,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -215,7 +216,6 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
   const onSaveHandler = async (data: CreateProcedureFormData) => {
     try {
-      const { details, ...rest } = data
       const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
 
       const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
@@ -252,8 +252,9 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       } = {
         updateProcedureId: procedure.id,
         input: {
-          ...rest,
-          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
+          ...data,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationInputs,
         },
@@ -280,7 +281,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   }
 
   const handleDetailsChange = (value: Value) => {
-    form.setValue('details', value)
+    form.setValue('detailsJSON', value)
   }
 
   return (
@@ -337,7 +338,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             <InputRow className="w-full">
               <FormField
                 control={form.control}
-                name="details"
+                name="detailsJSON"
                 render={() => (
                   <FormItem className="w-full min-w-0">
                     <FormLabel>Procedure</FormLabel>

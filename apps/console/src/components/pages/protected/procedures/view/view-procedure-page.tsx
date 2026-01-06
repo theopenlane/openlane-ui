@@ -35,6 +35,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -60,6 +62,7 @@ const ViewProcedurePage: React.FC = () => {
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: discussionData } = useGetProcedureDiscussionById(procedureId)
+  const plateEditorHelper = usePlateEditor()
 
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
@@ -160,16 +163,15 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      const { details, ...rest } = data
-
       const formData: {
         updateProcedureId: string
         input: UpdateProcedureInput
       } = {
         updateProcedureId: procedure?.id,
         input: {
-          ...rest,
-          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
+          ...data,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,

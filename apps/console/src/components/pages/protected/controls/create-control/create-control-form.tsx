@@ -48,6 +48,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { Value } from 'platejs'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -123,13 +124,14 @@ export default function CreateControlForm() {
   }
 
   const onSubmit = async (formData: ControlFormData) => {
-    const { desiredOutcome, details, description, ...data } = formData
+    const { desiredOutcome, details, ...data } = formData
     try {
       let newId: string | undefined
 
       const commonInput = {
         ...data,
-        ...(data.descriptionJSON != null ? { descriptionJSON: data.descriptionJSON } : { description: description as string }),
+        description: await convertToHtml(data.descriptionJSON as Value),
+        descriptionJSON: data.descriptionJSON,
         referenceID: data.referenceID || undefined,
         auditorReferenceID: data.auditorReferenceID || undefined,
         ...associations,

@@ -43,6 +43,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
   ) : (
     <div className={`!mt-4 min-h-[20px]`}>
       <PlateEditor
+        key={JSON.stringify(procedure.detailsJSON ?? procedure.details)}
         userData={userData}
         initialValue={procedure?.detailsJSON ? (procedure?.detailsJSON as Value) : (procedure?.details ?? undefined)}
         entity={discussionData}

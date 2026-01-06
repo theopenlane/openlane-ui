@@ -31,6 +31,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
         name="detailsJSON"
         render={({ field }) => (
           <PlateEditor
+            key={`${policy.id}-${isEditing ? 'edit' : 'view'}`}
             userData={userData}
             initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
             entity={discussionData}
@@ -43,6 +44,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
   ) : (
     <div className="!mt-4 min-h-[20px]">
       <PlateEditor
+        key={JSON.stringify(policy.detailsJSON ?? policy.details)}
         userData={userData}
         initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
         entity={discussionData}

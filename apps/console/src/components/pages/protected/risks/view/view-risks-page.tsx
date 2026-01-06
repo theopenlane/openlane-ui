@@ -131,8 +131,6 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       return
     }
 
-    const { details, ...rest } = values
-
     let businessCostsField = values?.businessCosts
 
     if (businessCostsField) {
@@ -149,8 +147,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       await updateRisk({
         updateRiskId: risk.id,
         input: {
-          ...rest,
-          ...(rest.detailsJSON != null ? { detailsJSON: rest.detailsJSON } : { details: details as string }),
+          ...values,
+          detailsJSON: values.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
           businessCosts: businessCostsField,
           mitigation: mitigationField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
