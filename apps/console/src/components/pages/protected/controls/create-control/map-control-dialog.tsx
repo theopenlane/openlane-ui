@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -22,8 +22,8 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 interface MapControlDialogProps {
-  onSave: (selection: { controlIDs: string[]; subcontrolIDs: string[] }) => void
-  mappedControls: { controlIDs: string[]; subcontrolIDs: string[] }
+  onSave: (arg: { controls: Control[]; subcontrols: Subcontrol[] }) => void
+  mappedControls: { controls: Control[]; subcontrols: Subcontrol[] }
 }
 
 const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedControls }) => {
@@ -35,12 +35,13 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 500)
   const searching = searchValue !== debouncedSearch
-  const [mapping, setMapping] = useState<{ controlIDs: string[]; subcontrolIDs: string[] }>(mappedControls)
+  const [mapping, setMapping] = useState<{ controls: Control[]; subcontrols: Subcontrol[] }>(mappedControls)
+
   const defaultPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
   const [pagination, setPagination] = useState<TPagination>(defaultPagination)
 
   const { where, subcontrolWhere, hasFilters } = useMemo(() => {
-    const baseWhere: ControlWhereInput | SubcontrolWhereInput = {}
+    const baseWhere: ControlWhereInput = {}
 
     if (referenceFramework && referenceFramework !== 'all') {
       if (referenceFramework === 'CUSTOM') {
@@ -54,12 +55,10 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
       baseWhere.or = [{ refCodeContainsFold: debouncedSearch }, { categoryContainsFold: debouncedSearch }, { subcategoryContainsFold: debouncedSearch }]
     }
 
-    const filtersActive = !!(debouncedSearch || (referenceFramework && referenceFramework !== 'all'))
-
     return {
       where: baseWhere as ControlWhereInput,
       subcontrolWhere: baseWhere as SubcontrolWhereInput,
-      hasFilters: filtersActive,
+      hasFilters: !!(debouncedSearch || (referenceFramework && referenceFramework !== 'all')),
     }
   }, [debouncedSearch, referenceFramework])
 
@@ -86,7 +85,6 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
       ...subcontrolWhere,
     },
     pagination,
-
     enabled: hasFilters && mode === 'subcontrols',
   })
 
@@ -104,22 +102,29 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
     return subcontrols as Subcontrol[]
   }, [controls, subcontrols, mode])
 
+  const isSelected = useCallback(
+    (id: string) => {
+      return mapping.controls.some((c) => c.id === id) || mapping.subcontrols.some((s) => s.id === id)
+    },
+    [mapping],
+  )
+
   const toggleRow = useCallback((row: Control | Subcontrol) => {
     const isControl = row.__typename === 'Control'
     const id = row.id
 
     setMapping((prev) => {
       if (isControl) {
-        const exists = prev.controlIDs.includes(id)
+        const exists = prev.controls.some((c) => c.id === id)
         return {
           ...prev,
-          controlIDs: exists ? prev.controlIDs.filter((i) => i !== id) : [...prev.controlIDs, id],
+          controls: exists ? prev.controls.filter((c) => c.id !== id) : [...prev.controls, row as Control],
         }
       } else {
-        const exists = prev.subcontrolIDs.includes(id)
+        const exists = prev.subcontrols.some((s) => s.id === id)
         return {
           ...prev,
-          subcontrolIDs: exists ? prev.subcontrolIDs.filter((i) => i !== id) : [...prev.subcontrolIDs, id],
+          subcontrols: exists ? prev.subcontrols.filter((s) => s.id !== id) : [...prev.subcontrols, row as Subcontrol],
         }
       }
     })
@@ -127,37 +132,43 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
 
   const toggleAll = useCallback(() => {
     const allIdsOnPage = tableData.map((r) => r.id)
-    const isAllSelected = allIdsOnPage.length > 0 && allIdsOnPage.every((id) => mapping.controlIDs.includes(id) || mapping.subcontrolIDs.includes(id))
+    const isAllSelected = allIdsOnPage.length > 0 && allIdsOnPage.every((id) => isSelected(id))
 
     setMapping((prev) => {
       if (isAllSelected) {
         return {
-          controlIDs: prev.controlIDs.filter((id) => !allIdsOnPage.includes(id)),
-          subcontrolIDs: prev.subcontrolIDs.filter((id) => !allIdsOnPage.includes(id)),
+          controls: prev.controls.filter((c) => !allIdsOnPage.includes(c.id)),
+          subcontrols: prev.subcontrols.filter((s) => !allIdsOnPage.includes(s.id)),
         }
       } else {
-        const newControls = [...prev.controlIDs]
-        const newSubcontrols = [...prev.subcontrolIDs]
+        const newControls = [...prev.controls]
+        const newSubcontrols = [...prev.subcontrols]
 
         tableData.forEach((row) => {
-          if (row.__typename === 'Control' && !newControls.includes(row.id)) {
-            newControls.push(row.id)
-          } else if (row.__typename === 'Subcontrol' && !newSubcontrols.includes(row.id)) {
-            newSubcontrols.push(row.id)
+          if (!isSelected(row.id)) {
+            if (row.__typename === 'Control') {
+              newControls.push(row as Control)
+            } else {
+              newSubcontrols.push(row as Subcontrol)
+            }
           }
         })
 
-        return { controlIDs: newControls, subcontrolIDs: newSubcontrols }
+        return { controls: newControls, subcontrols: newSubcontrols }
       }
     })
-  }, [tableData, mapping])
+  }, [tableData, isSelected])
+
+  useEffect(() => {
+    setMapping(mappedControls)
+  }, [mappedControls])
 
   const columns = useMemo<ColumnDef<Control | Subcontrol>[]>(
     () => [
       {
         id: 'select',
-        header: () => <Checkbox checked={tableData.length > 0 && tableData.every((r) => mapping.controlIDs.includes(r.id) || mapping.subcontrolIDs.includes(r.id))} onCheckedChange={toggleAll} />,
-        cell: ({ row }) => <Checkbox checked={mapping.controlIDs.includes(row.original.id) || mapping.subcontrolIDs.includes(row.original.id)} onCheckedChange={() => toggleRow(row.original)} />,
+        header: () => <Checkbox checked={tableData.length > 0 && tableData.every((r) => isSelected(r.id))} onCheckedChange={toggleAll} />,
+        cell: ({ row }) => <Checkbox checked={isSelected(row.original.id)} onCheckedChange={() => toggleRow(row.original)} />,
         size: 30,
       },
       {
@@ -176,19 +187,22 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
         header: 'Description',
         cell: ({ row }) => {
           const content = row.original.description || '-'
-          return <div className="line-clamp-2 text-sm">{convertToReadOnly(content || '-')}</div>
+          return <div className="line-clamp-2 text-sm">{convertToReadOnly(content)}</div>
         },
         size: 400,
       },
     ],
-    [tableData, mapping, convertToReadOnly, toggleAll, toggleRow],
+    [tableData, isSelected, convertToReadOnly, toggleAll, toggleRow],
   )
 
   const handleSave = () => {
-    onSave(mapping)
+    onSave({
+      controls: mapping.controls,
+      subcontrols: mapping.subcontrols,
+    })
   }
 
-  const totalSelected = mapping.controlIDs.length + mapping.subcontrolIDs.length
+  const totalSelected = mapping.controls.length + mapping.subcontrols.length
 
   return (
     <Dialog>
@@ -202,7 +216,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
           <DialogDescription>Search and select controls from different frameworks to create an association.</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4 flex-1  flex flex-col">
+        <div className="space-y-6 py-4 flex-1 flex flex-col">
           <div className="grid grid-cols-2 gap-6 items-end">
             <div className="space-y-2">
               <Label>Framework</Label>
@@ -257,7 +271,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
               </div>
             </RadioGroup>
 
-            <Button variant="outline" onClick={() => setMapping({ controlIDs: [], subcontrolIDs: [] })}>
+            <Button variant="outline" onClick={() => setMapping({ controls: [], subcontrols: [] })}>
               Clear Mapping
             </Button>
           </div>
