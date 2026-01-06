@@ -49574,6 +49574,47 @@ export type DeleteTrustCenterComplianceMutationVariables = Exact<{
 
 export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
 
+export type GetTrustCenterEntitiesQueryVariables = Exact<{
+  where?: InputMaybe<TrustcenterEntityWhereInput>
+}>
+
+export type GetTrustCenterEntitiesQuery = {
+  __typename?: 'Query'
+  trustcenterEntities: {
+    __typename?: 'TrustcenterEntityConnection'
+    edges?: Array<{
+      __typename?: 'TrustcenterEntityEdge'
+      node?: { __typename?: 'TrustcenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustcenterEntityMutationVariables = Exact<{
+  input: CreateTrustcenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type CreateTrustcenterEntityMutation = {
+  __typename?: 'Mutation'
+  createTrustcenterEntity: { __typename?: 'TrustcenterEntityCreatePayload'; trustcenterEntity: { __typename?: 'TrustcenterEntity'; id: string } }
+}
+
+export type DeleteTrustcenterEntityMutationVariables = Exact<{
+  deleteTrustcenterEntityId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustcenterEntityMutation = { __typename?: 'Mutation'; deleteTrustcenterEntity: { __typename?: 'TrustcenterEntityDeletePayload'; deletedID: string } }
+
+export type UpdateTrustcenterEntityMutationVariables = Exact<{
+  updateTrustcenterEntityId: Scalars['ID']['input']
+  input: UpdateTrustcenterEntityInput
+}>
+
+export type UpdateTrustcenterEntityMutation = {
+  __typename?: 'Mutation'
+  updateTrustcenterEntity: { __typename?: 'TrustcenterEntityUpdatePayload'; trustcenterEntity: { __typename?: 'TrustcenterEntity'; id: string } }
+}
+
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
