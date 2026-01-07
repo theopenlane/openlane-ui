@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -9,8 +9,11 @@ import { Pencil, Trash2, X, Save } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { EyeNoneIcon } from '@radix-ui/react-icons'
+import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import FileUpload from '@/components/shared/file-upload/file-upload'
+import { Label } from '@repo/ui/label'
 
 const formSchema = z.object({
   url: z.string().optional(),
@@ -23,10 +26,8 @@ type CustomerLogoCardProps = {
   name: string
   url?: string | null
   logoUrl?: string | null
-
-  onUpdate: (args: { id: string; url?: string }) => Promise<void> | void
+  onUpdate: (args: { id: string; url?: string; logoFile?: File }) => Promise<void> | void
   onDelete: (id: string) => void
-
   isUpdating?: boolean
   isDeleting?: boolean
 }
@@ -41,23 +42,37 @@ function normalizeUrl(value?: string | null) {
 
 export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onDelete, isUpdating, isDeleting }: CustomerLogoCardProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
 
   const form = useForm<TFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { url: url ?? '' },
   })
 
-  const displayUrl = useMemo(() => normalizeUrl(url ?? ''), [url])
+  const handleUpload = (uploaded: TUploadedFile) => {
+    if (!uploaded.file) return
+    setSelectedFile(uploaded.file)
+    setPreview(URL.createObjectURL(uploaded.file))
+  }
 
   const resetEdit = () => {
     setIsEditing(false)
+    setSelectedFile(null)
+    setPreview(null)
     form.reset({ url: url ?? '' })
   }
 
   const onSubmit = async (values: TFormValues) => {
     const nextUrl = values.url?.trim() ? values.url.trim() : undefined
-    await onUpdate({ id, url: nextUrl })
+    await onUpdate({
+      id,
+      url: nextUrl,
+      logoFile: selectedFile || undefined,
+    })
     setIsEditing(false)
+    setSelectedFile(null)
+    setPreview(null)
   }
 
   return (
@@ -78,7 +93,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
 
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm mb-1">{name}</div>
-              {displayUrl ? <div className="truncate text-xs text-muted-foreground">{displayUrl}</div> : <div className="truncate text-xs text-muted-foreground">No URL</div>}
+              {url ? <div className="truncate text-xs text-muted-foreground">{url}</div> : <div className="truncate text-xs text-muted-foreground">No URL</div>}
             </div>
 
             <div className="flex items-center gap-3 text-muted-foreground ">
@@ -115,10 +130,38 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
                     <FormControl>
                       <Input placeholder="https://example.com" className="bg-background" {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
+              <div className="flex gap-4 pt-2">
+                {preview ? (
+                  <div>
+                    <Label className="mb-2 block text-sm">New Preview</Label>
+                    <div className="flex h-20 w-20 items-center justify-center rounded-md border bg-background overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={preview} alt="New preview" className="h-full w-full object-contain p-1" />
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Label className="mb-2 block text-sm">Preview</Label>
+                    <div className="flex h-20 w-20 items-center justify-center rounded-md border bg-background overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={normalizeUrl(logoUrl)} alt={name} className="h-full w-full object-contain p-1" />
+                    </div>
+                  </div>
+                )}
+                <div className="flex-1">
+                  <Label className="mb-2 block text-sm">Update Logo</Label>
+                  <FileUpload
+                    acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
+                    onFileUpload={handleUpload}
+                    acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
+                    maxFileSizeInMb={5}
+                    multipleFiles={false}
+                  />
+                </div>
+              </div>
 
               <div className="flex justify-end gap-2 pt-1">
                 <Button type="button" variant="outline" onClick={resetEdit} disabled={isUpdating}>

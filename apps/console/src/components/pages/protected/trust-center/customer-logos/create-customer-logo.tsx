@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { Plus, Eye, Loader2 } from 'lucide-react'
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -96,7 +96,7 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
                   <FormControl>
                     <Input placeholder="Enter company name..." className="bg-background" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
                 </FormItem>
               )}
             />
@@ -110,7 +110,6 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
                   <FormControl>
                     <Input placeholder="https://example.com" className="bg-background" {...field} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />

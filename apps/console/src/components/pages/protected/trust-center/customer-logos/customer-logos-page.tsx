@@ -38,11 +38,12 @@ export default function CustomerLogosPage() {
     }
   }
 
-  const onUpdate = async ({ id, url }: { id: string; url?: string }) => {
+  const onUpdate = async ({ id, url, logoFile }: { id: string; url?: string; logoFile?: File }) => {
     try {
       await updateEntity({
         input: { url },
         updateTrustcenterEntityId: id,
+        logoFile: logoFile,
       })
       successNotification({ title: 'Customer updated' })
     } catch (error) {
@@ -71,7 +72,15 @@ export default function CustomerLogosPage() {
           ) : (
             <div className="flex flex-col gap-6">
               {entities.map((entity) => (
-                <CustomerLogoCard onUpdate={onUpdate} key={entity.id} id={entity.id} name={entity.name} logoUrl={entity.logoFile?.presignedURL ?? null} onDelete={(id) => setEntityToDelete(id)} />
+                <CustomerLogoCard
+                  onUpdate={onUpdate}
+                  key={entity.id}
+                  id={entity.id}
+                  name={entity.name}
+                  logoUrl={entity.logoFile?.presignedURL ?? null}
+                  onDelete={(id) => setEntityToDelete(id)}
+                  url={entity.url}
+                />
               ))}
             </div>
           )}
