@@ -51,13 +51,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
     return Array.from(new Set(types))
   }, [])
 
-  const fieldOptions = useMemo(() => {
-    const fields = Object.values(ENUM_GROUP_MAP)
-      .map((c) => c.field)
-      .filter((f): f is string => !!f)
-    return Array.from(new Set(fields))
-  }, [])
-
   const { data: enumData, isLoading: isLoadingDetails } = useCustomTypeEnum(id)
   const { mutateAsync: createEnum, isPending: isCreating } = useCreateCustomTypeEnum()
   const { mutateAsync: updateEnum, isPending: isUpdating } = useUpdateCustomTypeEnum()
@@ -83,6 +76,25 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const { field: colorField } = useController({ name: 'color', control })
   const { field: typeField } = useController({ name: 'objectType', control })
   const { field: fieldField } = useController({ name: 'field', control })
+
+  const selectedObjectType = formMethods.watch('objectType')
+
+  const fieldOptions = useMemo(() => {
+    if (!selectedObjectType) return []
+
+    const fields = Object.values(ENUM_GROUP_MAP)
+      .filter((config) => config.objectType === selectedObjectType)
+      .map((config) => config.field)
+      .filter((f): f is string => !!f)
+
+    return Array.from(new Set(fields))
+  }, [selectedObjectType])
+
+  useEffect(() => {
+    if (fieldField.value && fieldOptions.length > 0 && !fieldOptions.includes(fieldField.value)) {
+      fieldField.onChange(fieldOptions[0])
+    }
+  }, [selectedObjectType, fieldOptions, fieldField])
 
   const handleOpenChange = (val: boolean) => {
     if (!val) {
@@ -219,14 +231,14 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                   <div className="space-y-2">
                     <Label>Field</Label>
                     <Select
-                      disabled={isPending || isEditMode}
+                      disabled={isPending || isEditMode || !selectedObjectType}
                       onValueChange={(val) => {
                         if (val) fieldField.onChange(val)
                       }}
                       value={fieldField.value}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select field" />
+                        <SelectValue placeholder={selectedObjectType ? 'Select field' : 'Select type first'} />
                       </SelectTrigger>
                       <SelectContent>
                         {fieldOptions.map((opt) => (

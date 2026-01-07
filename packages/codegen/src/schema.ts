@@ -19127,7 +19127,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys via file upload */
+  /** Create multiple new trustcenterEntities via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -19239,7 +19239,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys */
+  /** Create multiple new trustcenterEntities */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -36650,7 +36650,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntitys */
+  /** Created trustcenterEntities */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -45727,7 +45727,7 @@ export type GetAllControlsQuery = {
       __typename?: 'ControlEdge'
       cursor: any
       node?: {
-        __typename?: 'Control'
+        __typename: 'Control'
         id: string
         refCode: string
         description?: string | null
@@ -49154,7 +49154,7 @@ export type GetAllSubcontrolsQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string; referenceFramework?: string | null } | null
+      node?: { __typename: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string; referenceFramework?: string | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
@@ -50287,6 +50287,7 @@ export type GetTrustCenterQuery = {
           dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
           mappableDomain: { __typename?: 'MappableDomain'; name: string }
         } | null
+        previewDomain?: { __typename?: 'CustomDomain'; cnameRecord: string } | null
         setting?: {
           __typename?: 'TrustCenterSetting'
           id: string
@@ -50300,6 +50301,23 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          faviconRemoteURL?: string | null
+          logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        } | null
+        previewSetting?: {
+          __typename?: 'TrustCenterSetting'
+          id: string
+          title?: string | null
+          overview?: string | null
+          primaryColor?: string | null
+          themeMode?: TrustCenterSettingTrustCenterThemeMode | null
+          foregroundColor?: string | null
+          secondaryForegroundColor?: string | null
+          font?: string | null
+          backgroundColor?: string | null
+          secondaryBackgroundColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
@@ -50465,6 +50483,36 @@ export type UpdateTrustCenterWatermarkConfigMutation = {
   __typename?: 'Mutation'
   updateTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigUpdatePayload'; trustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfig'; id: string } }
 }
+
+export type GetTrustCenterPostsQueryVariables = Exact<{
+  trustCenterId: Scalars['ID']['input']
+}>
+
+export type GetTrustCenterPostsQuery = {
+  __typename?: 'Query'
+  trustCenter: {
+    __typename?: 'TrustCenter'
+    posts: {
+      __typename?: 'NoteConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; text: string; updatedAt?: any | null } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateTrustCenterMutationVariables = Exact<{
+  updateTrustCenterId: Scalars['ID']['input']
+  input: UpdateTrustCenterInput
+}>
+
+export type UpdateTrustCenterMutation = { __typename?: 'Mutation'; updateTrustCenter: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
+
+export type UpdateTrustCenterPostMutationVariables = Exact<{
+  updateTrustCenterPostId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTrustCenterPostMutation = { __typename?: 'Mutation'; updateTrustCenterPost: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']

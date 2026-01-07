@@ -19,6 +19,9 @@ export const GET_TRUST_CENTER = gql`
               name
             }
           }
+          previewDomain {
+            cnameRecord
+          }
           setting {
             id
             title
@@ -42,6 +45,28 @@ export const GET_TRUST_CENTER = gql`
             }
             overview
             title
+            logoRemoteURL
+          }
+          previewSetting {
+            id
+            title
+            overview
+            primaryColor
+            themeMode
+            foregroundColor
+            secondaryForegroundColor
+            font
+            backgroundColor
+            secondaryBackgroundColor
+            logoFile {
+              id
+              presignedURL
+            }
+            faviconRemoteURL
+            faviconFile {
+              id
+              presignedURL
+            }
             logoRemoteURL
           }
           watermarkConfig {
@@ -199,6 +224,42 @@ export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
   mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $watermarkFile: Upload) {
     updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, watermarkFile: $watermarkFile) {
       trustCenterWatermarkConfig {
+        id
+      }
+    }
+  }
+`
+
+export const GET_TRUST_CENTER_POSTS = gql`
+  query GetTrustCenterPosts($trustCenterId: ID!) {
+    trustCenter(id: $trustCenterId) {
+      posts {
+        edges {
+          node {
+            id
+            text
+            updatedAt
+          }
+        }
+        totalCount
+      }
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER = gql`
+  mutation UpdateTrustCenter($updateTrustCenterId: ID!, $input: UpdateTrustCenterInput!) {
+    updateTrustCenter(id: $updateTrustCenterId, input: $input) {
+      trustCenter {
+        id
+      }
+    }
+  }
+`
+export const UPDATE_TRUST_CENTER_POST = gql`
+  mutation UpdateTrustCenterPost($updateTrustCenterPostId: ID!, $input: UpdateNoteInput!) {
+    updateTrustCenterPost(id: $updateTrustCenterPostId, input: $input) {
+      trustCenter {
         id
       }
     }

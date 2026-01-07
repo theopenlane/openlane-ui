@@ -66,7 +66,7 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
   })
 
   const edges = queryResult.data?.subcontrols?.edges ?? []
-  const subcontrol = edges.map((edge) => edge?.node) as Subcontrol[]
+  const subcontrols = edges.map((edge) => edge?.node) as Subcontrol[]
 
   const paginationMeta = {
     totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
@@ -76,7 +76,7 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
 
   return {
     ...queryResult,
-    subcontrol,
+    subcontrols,
     paginationMeta,
   }
 }

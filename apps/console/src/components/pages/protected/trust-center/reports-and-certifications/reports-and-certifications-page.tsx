@@ -21,6 +21,9 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { canCreate } from '@/lib/authz/utils'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.DOCUMENTS)
@@ -30,6 +33,9 @@ const ReportsAndCertificationsPage = () => {
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
   const router = useRouter()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { data: orgPermission } = useOrganizationRoles()
+
+  const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
 
   const { docs, paginationMeta, isLoading } = useGetTrustCenterDocs({
     where: {
@@ -84,13 +90,19 @@ const ReportsAndCertificationsPage = () => {
         <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
           <PanelHeader
             heading="Documents"
-            subheading="You haven't added any Trust Center documents yet. Upload reports, certifications, or other materials you'd like customers to see when visiting your Trust Center."
+            subheading={
+              canCreateAllowed
+                ? "You haven't added any Trust Center documents yet. Upload reports, certifications, or other materials you'd like customers to see when visiting your Trust Center."
+                : "Unfortunately, you don't have permission to upload documents."
+            }
           />
-          <Link href="/trust-center/reports-and-certifications?create=true">
-            <Button variant="primary" icon={<File size={16} strokeWidth={2} />} iconPosition="left">
-              Upload Document
-            </Button>
-          </Link>
+          {canCreateAllowed && (
+            <Link href="/trust-center/reports-and-certifications?create=true">
+              <Button variant="primary" icon={<File size={16} strokeWidth={2} />} iconPosition="left">
+                Upload Document
+              </Button>
+            </Link>
+          )}
         </Panel>
       ) : (
         <div className="p-4">
