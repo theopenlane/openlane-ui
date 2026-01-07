@@ -45726,7 +45726,7 @@ export type GetAllControlsQuery = {
       __typename?: 'ControlEdge'
       cursor: any
       node?: {
-        __typename?: 'Control'
+        __typename: 'Control'
         id: string
         refCode: string
         description?: string | null
@@ -48645,7 +48645,7 @@ export type GetAllSubcontrolsQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string; referenceFramework?: string | null } | null
+      node?: { __typename: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string; referenceFramework?: string | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
