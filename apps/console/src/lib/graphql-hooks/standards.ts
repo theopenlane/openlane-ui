@@ -150,6 +150,11 @@ export const useDeleteStandard = () => {
   })
 }
 
+type StandardEdge = NonNullable<NonNullable<GetStandardsPaginatedQuery['standards']>['edges']>[number]
+
+// Zatim izvucimo sam "node" (Standard object) i osigurajmo da nije null
+export type StandardNode = NonNullable<NonNullable<StandardEdge>['node']>
+
 export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pagination: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
@@ -175,7 +180,7 @@ export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pag
     enabled,
   })
 
-  const standards = queryResult.data?.pages.flatMap((page) => page.standards?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node) ?? []) ?? []
+  const standards: StandardNode[] = queryResult.data?.pages.flatMap((page) => page.standards?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node) ?? []) ?? []
 
   const lastPage = queryResult.data?.pages.at(-1)
 

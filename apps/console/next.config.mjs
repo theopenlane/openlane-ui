@@ -6,12 +6,12 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      // {
-      //   protocol: 'http',
-      //   hostname: 'localhost',
-      //   port: '17608',
-      //   pathname: '/v1/files/**',
-      // }, uncomment for local testing with local dev server
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '17608',
+        pathname: '/v1/files/**',
+      },
       {
         protocol: 'https',
         hostname: '*.r2.cloudflarestorage.com',

@@ -3,28 +3,17 @@ import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 
-interface Props {
-  isEditing: boolean
-}
-
-export const TitleField = ({ isEditing }: Props) => {
+export const TitleField = () => {
   const {
     register,
     formState: { errors },
-    watch,
   } = useFormContext()
 
   return (
     <div>
       <Label>Title</Label>
-      {isEditing ? (
-        <>
-          <Input placeholder="Document title" {...register('title')} />
-          {errors.title && <p className="text-red-500 text-sm mt-1">{String(errors.title.message)}</p>}
-        </>
-      ) : (
-        <p className="text-base text-muted-foreground mt-1">{watch('title') || '—'}</p>
-      )}
+      <Input placeholder="Document title" {...register('title')} />
+      {errors.title && <p className="text-red-500 text-sm mt-1">{String(errors.title.message)}</p>}
     </div>
   )
 }
