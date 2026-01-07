@@ -22,7 +22,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Image from 'next/image'
 
-export default function ComplianceFrameworksPage() {
+export default function FrameworksPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const router = useRouter()
 
@@ -92,7 +92,7 @@ export default function ComplianceFrameworksPage() {
   }, [cardPagination.page, fetchNextPage, paginationMeta.pageInfo?.hasNextPage])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Compliance Frameworks', href: '/trust-center/compliance-frameworks' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Frameworks', href: '/trust-center/frameworks' }])
   }, [setCrumbs])
 
   const resetPagination = () => {
@@ -113,11 +113,14 @@ export default function ComplianceFrameworksPage() {
     <div className="p-4">
       {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Compliance Frameworks</h2>
+        <h2 className="text-2xl font-semibold">Frameworks</h2>
 
-        <Button variant="secondary" onClick={() => router.push('/trust-center/compliance-frameworks?create=true')}>
+        <Button variant="secondary" onClick={() => router.push('/trust-center/frameworks?create=true')}>
           Create Custom Framework
         </Button>
+        <p className="text-sm text-muted-foreground mt-1">
+          Only enable frameworks your organization has completed through an audit or certification. Enabled frameworks are displayed publicly in your Trust Center.
+        </p>
       </div>
 
       <InfiniteScroll pageSize={10} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">
@@ -133,16 +136,16 @@ export default function ComplianceFrameworksPage() {
                 <CardHeader className="flex flex-row justify-between items-center p-0 space-y-2">
                   <div className="flex gap-3 items-center">
                     {standard.systemOwned ? (
-                      <StandardsIconMapper height={28} width={28} key={standard?.id} shortName={standard?.shortName ?? ''} />
+                      <StandardsIconMapper height={32} width={32} key={standard?.id} shortName={standard?.shortName ?? ''} />
                     ) : (
-                      <>{standard.logoFile?.presignedURL && <Image src={standard.logoFile?.presignedURL} alt="logo" width={28} height={28}></Image>}</>
+                      <>{standard.logoFile?.presignedURL && <Image src={standard.logoFile?.presignedURL} alt="logo" width={32} height={32}></Image>}</>
                     )}
                     <p>{standard.shortName}</p>
                   </div>
                   <div className="flex gap-2 items-center">
-                    {standard.systemOwned ? <Badge className="bg-primary">Provided</Badge> : <Badge variant="outline">Custom</Badge>}
+                    {!!standard.systemOwned && <Badge variant={'green'}>Recommended</Badge>}
                     {!standard.systemOwned && (
-                      <Link href={`/trust-center/compliance-frameworks?id=${standard.id}`} className="w-fit">
+                      <Link href={`/trust-center/frameworks?id=${standard.id}`} className="w-fit">
                         <Button className="p-2 h-8" variant="secondary">
                           <PencilIcon />
                         </Button>

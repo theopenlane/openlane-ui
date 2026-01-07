@@ -129,7 +129,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       },
       {
         title: 'Frameworks',
-        href: '/trust-center/compliance-frameworks',
+        href: '/trust-center/frameworks',
         icon: FileIcon,
       },
       { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
