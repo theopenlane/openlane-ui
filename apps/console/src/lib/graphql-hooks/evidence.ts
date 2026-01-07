@@ -20,6 +20,8 @@ import {
   GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT,
   GET_EVIDENCE_COMMENTS,
   UPDATE_EVIDENCE_COMMENT,
+  CREATE_CSV_BULK_EVIDENCE,
+  BULK_DELETE_EVIDENCE,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -53,6 +55,10 @@ import {
   GetEvidenceCommentsQueryVariables,
   UpdateEvidenceCommentMutation,
   UpdateEvidenceCommentMutationVariables,
+  CreateBulkCsvEvidenceMutation,
+  CreateBulkCsvEvidenceMutationVariables,
+  DeleteBulkEvidenceMutation,
+  DeleteBulkEvidenceMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -425,6 +431,28 @@ export const useUpdateEvidenceComment = () => {
     mutationFn: async (variables) => client.request(UPDATE_EVIDENCE_COMMENT, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evidenceComments'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVEvidence = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvEvidenceMutation, unknown, CreateBulkCsvEvidenceMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_EVIDENCE, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+    },
+  })
+}
+
+export const useBulkDeleteEvidence = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkEvidenceMutation, unknown, DeleteBulkEvidenceMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_EVIDENCE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
     },
   })
 }

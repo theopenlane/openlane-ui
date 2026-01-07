@@ -448,3 +448,21 @@ export const UPDATE_EVIDENCE_COMMENT = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_EVIDENCE = gql`
+  mutation CreateBulkCSVEvidence($input: Upload!) {
+    createBulkCSVEvidence(input: $input) {
+      evidences {
+        id
+      }
+    }
+  }
+`
+
+export const BULK_DELETE_EVIDENCE = gql`
+  mutation DeleteBulkEvidence($ids: [ID!]!) {
+    deleteBulkEvidence(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
