@@ -41,7 +41,7 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
                 <div className="flex items-center space-x-2 p-1">
                   <ListChecks height={16} width={16} />
                   <p className="text-sm font-bold">
-                    {task.title} - {task.category}
+                    {task.title} - {task.taskKindName}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2 p-1">

@@ -23,8 +23,7 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
   function handleTypeClick(type: string) {
     const newState = {
       approverIDIn: saved.approverIDIn || undefined,
-      policyTypeIsNil: type === 'Unknown' ? true : undefined,
-      policyType: type !== 'Unknown' ? [type] : undefined,
+      internalPolicyKindNameIn: type !== 'Unknown' ? [type] : undefined,
     }
 
     saveFilters(TableFilterKeysEnum.POLICY, newState)
