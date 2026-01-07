@@ -73,9 +73,9 @@ export const DnsRecordsSheet = ({ open, onOpenChange, trustCenter }: Props) => {
       header: 'Status',
       accessorKey: 'status',
       cell: ({ row }) => {
-        const status = row.original.status === DnsVerificationDnsVerificationStatus.active ? 'Verified' : 'Pending'
+        const status = row.original.status === DnsVerificationDnsVerificationStatus.ACTIVE ? 'Verified' : 'Pending'
         let dotColor = 'bg-gray-400'
-        if (row.original.status === DnsVerificationDnsVerificationStatus.active) {
+        if (row.original.status === DnsVerificationDnsVerificationStatus.ACTIVE) {
           dotColor = 'bg-green-500'
         } else {
           dotColor = 'bg-yellow-500'

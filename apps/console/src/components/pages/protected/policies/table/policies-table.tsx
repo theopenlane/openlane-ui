@@ -51,6 +51,7 @@ export const PoliciesTable = () => {
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(defaultSorting)
   const debouncedSearch = useDebounce(searchTerm, 300)
 
+  console.log('filters', filters)
   const where = useMemo(() => {
     const base: InternalPolicyWhereInput = {
       nameContainsFold: debouncedSearch,
@@ -133,7 +134,7 @@ export const PoliciesTable = () => {
     approvalRequired: false,
     approver: false,
     delegate: false,
-    policyType: false,
+    internalPolicyKindName: false,
     reviewDue: false,
     reviewFrequency: false,
     revision: false,
