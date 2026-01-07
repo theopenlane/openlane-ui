@@ -80,8 +80,4 @@ export const RISKS_SORT_FIELDS = [
     key: RiskOrderField.STATUS,
     label: 'Status',
   },
-  {
-    key: RiskOrderField.category,
-    label: 'Category',
-  },
 ]
