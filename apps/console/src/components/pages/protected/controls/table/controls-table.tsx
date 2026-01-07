@@ -64,7 +64,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     category: false,
     subcategory: false,
     source: false,
-    controlType: false,
     referenceFramework: false,
     delegate: false,
     createdBy: false,
