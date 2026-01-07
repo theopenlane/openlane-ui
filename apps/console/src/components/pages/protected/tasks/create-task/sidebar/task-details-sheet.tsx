@@ -49,10 +49,10 @@ const TaskDetailsSheet = () => {
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
   const { form } = useFormSchema()
-  const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData), [taskData])
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: associationsData } = useTaskAssociations()
+  const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData, associationsData), [taskData, associationsData])
 
   const initialAssociations = useMemo(
     () => ({
