@@ -7,22 +7,26 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetTrustCenterCompliances, useCreateTrustCenterCompliance, useDeleteTrustCenterCompliance } from '@/lib/graphql-hooks/trust-center-compliance'
 import { Badge } from '@repo/ui/badge'
 
-import { CreateStandardSheet } from './sheet/create-standard-sheet'
-import { useGetAllStandardsInfinite } from '@/lib/graphql-hooks/standards'
+import { useDeleteStandard, useGetAllStandardsInfinite } from '@/lib/graphql-hooks/standards'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
-import { PencilIcon, SquarePlus } from 'lucide-react'
+import { PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Image from 'next/image'
 import { StandardDialog } from './create-framework-dialog/create-framework-dialog'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 export default function FrameworksPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const { mutateAsync: deleteStandard } = useDeleteStandard()
+  const { successNotification, errorNotification } = useNotification()
+  const [standardToDelete, setStandardToDelete] = useState<string | null>(null)
 
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
 
@@ -43,8 +47,6 @@ export default function FrameworksPage() {
 
   const { mutateAsync: createCompliance } = useCreateTrustCenterCompliance()
   const { mutateAsync: deleteCompliance } = useDeleteTrustCenterCompliance()
-
-  const { errorNotification } = useNotification()
 
   const complianceMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -95,6 +97,19 @@ export default function FrameworksPage() {
 
   const resetPagination = () => {
     setCardPagination({ ...CARD_DEFAULT_PAGINATION })
+  }
+
+  const handleDelete = async () => {
+    if (!standardToDelete) return
+    try {
+      resetPagination()
+      await deleteStandard({ deleteStandardId: standardToDelete })
+
+      successNotification({ title: 'Standard Deleted', description: 'The standard has been removed.' })
+      setDeleteDialogOpen(false)
+    } catch (err) {
+      errorNotification({ title: 'Error deleting standard', description: parseErrorMessage(err) })
+    }
   }
 
   if (loading && !isFetched) return <Loading />
@@ -164,6 +179,14 @@ export default function FrameworksPage() {
                             }
                             standard={standard}
                           />
+                          <button
+                            onClick={() => {
+                              setStandardToDelete(standard.id)
+                              setDeleteDialogOpen(true)
+                            }}
+                          >
+                            <Trash2 size={16} className="text-muted-foreground" />
+                          </button>
                         </>
                       )}
                     </div>
@@ -184,7 +207,15 @@ export default function FrameworksPage() {
           })}
         </div>
       </InfiniteScroll>
-      <CreateStandardSheet resetPagination={resetPagination} />
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Standard"
+        description="This action cannot be undone."
+        confirmationText="Delete"
+        confirmationTextVariant="destructive"
+        onConfirm={handleDelete}
+      />
     </div>
   )
 }

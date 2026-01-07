@@ -12,12 +12,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { StandardNode, useCreateStandard, useUpdateStandard } from '@/lib/graphql-hooks/standards'
-import { useDeleteStandard } from '@/lib/graphql-hooks/standards'
 
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { TitleField } from '../sheet/form-fields/title-field'
-import { DescriptionField } from '../sheet/form-fields/description-field'
-import { UploadField } from '../sheet/form-fields/upload-field'
+import { TitleField } from './form-fields/title-field'
+import { DescriptionField } from './form-fields/description-field'
+import { UploadField } from './form-fields/upload-field'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -36,13 +34,11 @@ interface StandardDialogProps {
 export const StandardDialog = ({ trigger, standard, resetPagination }: StandardDialogProps) => {
   const [open, setOpen] = useState(false)
   const isEditMode = !!standard
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: createStandard } = useCreateStandard()
   const { mutateAsync: updateStandard } = useUpdateStandard()
-  const { mutateAsync: deleteStandard } = useDeleteStandard()
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -97,20 +93,6 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
     }
   }
 
-  const handleDelete = async () => {
-    if (!standard?.id) return
-    try {
-      resetPagination()
-      await deleteStandard({ deleteStandardId: standard?.id })
-
-      successNotification({ title: 'Standard Deleted', description: 'The standard has been removed.' })
-      setDeleteDialogOpen(false)
-      setOpen(false)
-    } catch (err) {
-      errorNotification({ title: 'Error deleting standard', description: parseErrorMessage(err) })
-    }
-  }
-
   useEffect(() => {
     if (open) {
       if (isEditMode && standard) {
@@ -149,16 +131,6 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
             {isSubmitting ? 'Creating...' : 'Save Framework'}
           </Button>
         </div>
-
-        <ConfirmationDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          title="Delete Standard"
-          description="This action cannot be undone."
-          confirmationText="Delete"
-          confirmationTextVariant="destructive"
-          onConfirm={handleDelete}
-        />
       </DialogContent>
     </Dialog>
   )
