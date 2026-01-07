@@ -11,6 +11,7 @@ import {
   UPDATE_TASK_COMMENT,
   BULK_DELETE_TASK,
   GET_OVERDUE_TASK_COUNT,
+  GET_TASK_ASSOCIATIONS,
 } from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
@@ -33,6 +34,8 @@ import {
   DeleteBulkTaskMutation,
   DeleteBulkTaskMutationVariables,
   GetOverdueTaskCountQuery,
+  GetTaskAssociationsQuery,
+  GetTaskAssociationsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -211,4 +214,17 @@ export const useGetOverdueTasksCount = () => {
     ...queryResult,
     totalCount: queryResult.data?.tasks?.totalCount ?? 0,
   }
+}
+
+export const useTaskAssociations = (taskId?: GetTaskAssociationsQueryVariables['taskId']) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetTaskAssociationsQuery, unknown>({
+    queryKey: ['tasks', taskId, 'associations'],
+    enabled: !!taskId,
+    queryFn: async (): Promise<GetTaskAssociationsQuery> => {
+      const result = await client.request(GET_TASK_ASSOCIATIONS, { taskId })
+      return result as GetTaskAssociationsQuery
+    },
+  })
 }
