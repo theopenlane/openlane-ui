@@ -109,7 +109,7 @@ const AssignPermissionsDialog = () => {
     )
   }, [objectDataList, selectedPermissions, togglePermission, objectName])
 
-  const columns = useMemo(() => generateColumns(selectedObject), [selectedObject])
+  const columns = useMemo(() => generateColumns(selectedObject, tableData), [selectedObject, tableData])
 
   const handleNext = () => setStep(2)
   const handleBack = () => setStep(1)

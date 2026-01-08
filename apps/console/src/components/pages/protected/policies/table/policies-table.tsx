@@ -133,7 +133,7 @@ export const PoliciesTable = () => {
     approvalRequired: false,
     approver: false,
     delegate: false,
-    policyType: false,
+    internalPolicyKindName: false,
     reviewDue: false,
     reviewFrequency: false,
     revision: false,
