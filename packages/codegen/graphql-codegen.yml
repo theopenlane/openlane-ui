@@ -23,7 +23,6 @@ config:
   schema: yup
 overwrite: true
 schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql
-# schema: https://raw.githubusercontent.com/theopenlane/core/cfcecb2090d215105e0d44276f710ff5d798697a/internal/graphapi/clientschema/schema.graphql
 documents: './query/**/*.ts'
 generates:
   ./src/introspectionschema.json:
