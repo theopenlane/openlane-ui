@@ -5,14 +5,10 @@ import { Button } from '@repo/ui/button'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from '@repo/ui/dialog'
-
+import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTrigger, DialogClose } from '@repo/ui/dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-
 import { StandardNode, useCreateStandard, useUpdateStandard } from '@/lib/graphql-hooks/standards'
-
 import { TitleField } from './form-fields/title-field'
 import { DescriptionField } from './form-fields/description-field'
 import { UploadField } from './form-fields/upload-field'
@@ -34,9 +30,7 @@ interface StandardDialogProps {
 export const StandardDialog = ({ trigger, standard, resetPagination }: StandardDialogProps) => {
   const [open, setOpen] = useState(false)
   const isEditMode = !!standard
-
   const { successNotification, errorNotification } = useNotification()
-
   const { mutateAsync: createStandard } = useCreateStandard()
   const { mutateAsync: updateStandard } = useUpdateStandard()
 
@@ -107,17 +101,17 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      <DialogContent className="max-w-[520px] overflow-hidden">
-        <DialogHeader className="pt-6 flex flex-row items-center justify-between space-y-0">
+      <DialogContent className="overflow-hidden max-w-xl">
+        <DialogHeader className=" flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center gap-4">
-            <DialogTitle className="text-xl font-semibold">{isEditMode ? `Edit Standard ${standard?.shortName}` : 'Create Standard'}</DialogTitle>
+            <p className="text-xl font-semibold">{isEditMode ? `Edit Standard ${standard?.shortName}` : 'Add Custom Framework'}</p>
           </div>
         </DialogHeader>
 
         <DialogDescription className="sr-only">Standard management form</DialogDescription>
 
         <FormProvider {...formMethods}>
-          <form id="standard-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6">
+          <form id="standard-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <TitleField />
             <DescriptionField />
             <UploadField initialUrl={standard?.logoFile?.presignedURL ?? null} />

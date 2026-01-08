@@ -27,6 +27,7 @@ import {
   DeleteStandardMutationVariables,
   GetStandardsPaginatedQuery,
   GetStandardsPaginatedQueryVariables,
+  StandardWhereInput,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -152,13 +153,12 @@ export const useDeleteStandard = () => {
 
 type StandardEdge = NonNullable<NonNullable<GetStandardsPaginatedQuery['standards']>['edges']>[number]
 
-// Zatim izvucimo sam "node" (Standard object) i osigurajmo da nije null
 export type StandardNode = NonNullable<NonNullable<StandardEdge>['node']>
 
-export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pagination: TPagination; enabled?: boolean }) => {
+export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = true }: { where?: StandardWhereInput; pagination: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const queryKey = useMemo(() => ['standards', 'infinite', pagination.query] as const, [pagination.query])
+  const queryKey = useMemo(() => ['standards', 'infinite', where, pagination.query] as const, [pagination.query, where])
 
   const queryResult = useInfiniteQuery<GetStandardsPaginatedQuery, Error, InfiniteData<GetStandardsPaginatedQuery>, typeof queryKey, string | null>({
     queryKey,
@@ -168,6 +168,7 @@ export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pag
         ...pagination.query,
         first: pagination.query.first,
         after: pageParam ?? undefined,
+        where,
       }),
 
     getNextPageParam: (lastPage) => {

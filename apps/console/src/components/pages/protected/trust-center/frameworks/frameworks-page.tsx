@@ -20,6 +20,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Image from 'next/image'
 import { StandardDialog } from './create-framework-dialog/create-framework-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Label } from '@repo/ui/label'
+import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 
 export default function FrameworksPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -27,8 +29,12 @@ export default function FrameworksPage() {
   const { mutateAsync: deleteStandard } = useDeleteStandard()
   const { successNotification, errorNotification } = useNotification()
   const [standardToDelete, setStandardToDelete] = useState<string | null>(null)
-
+  const [isChecked, setIsChecked] = useState(false)
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
+
+  const { data: trustCenterData } = useGetTrustCenter()
+
+  const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
 
   const {
     standards,
@@ -36,6 +42,8 @@ export default function FrameworksPage() {
     paginationMeta,
     fetchNextPage,
   } = useGetAllStandardsInfinite({
+    //TODO: this where condition should not pass trustCenterID, and useGetTrustCenter should be deleted
+    where: { hasTrustCenterCompliances: isChecked, hasTrustCenterCompliancesWith: [{ trustCenterID }] },
     pagination: cardPagination,
     enabled: true,
   })
@@ -124,21 +132,29 @@ export default function FrameworksPage() {
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center flex-wrap gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Frameworks</h2>
-        <div className="flex">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col mr-6">
+          <h2 className="text-2xl font-semibold">Frameworks</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            Only enable frameworks your organization has completed through an audit or certification. Enabled frameworks are displayed publicly in your Trust Center.
+          </p>
+        </div>
+        <div className="flex items-center shrink-0 gap-6 ">
+          <div className="gap-2 flex items-center">
+            <Switch id="hide-unselected" checked={isChecked} onCheckedChange={setIsChecked} />
+            <Label className="text-sm" htmlFor="hide-unselected">
+              Hide unselected
+            </Label>
+          </div>
           <StandardDialog
             resetPagination={resetPagination}
             trigger={
               <Button icon={<SquarePlus />} iconPosition="left">
-                Create Custom Framework
+                Add Custom Framework
               </Button>
             }
           />
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          Only enable frameworks your organization has completed through an audit or certification. Enabled frameworks are displayed publicly in your Trust Center.
-        </p>
       </div>
 
       <InfiniteScroll pageSize={10} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">

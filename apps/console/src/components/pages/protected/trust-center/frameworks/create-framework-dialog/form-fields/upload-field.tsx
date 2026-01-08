@@ -65,7 +65,7 @@ export const UploadField = ({ initialUrl }: { initialUrl?: string | null }) => {
           )}
         </div>
 
-        <div className="w-[290px]">
+        <div className="w-[300px]">
           <FileUpload
             acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
             acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
