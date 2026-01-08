@@ -22,27 +22,25 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { StandardWhereInput } from '@repo/codegen/src/schema'
+import { useNavigationGuard } from 'next-navigation-guard'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
 export default function FrameworksPage() {
+  const { successNotification, errorNotification } = useNotification()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
+  const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [standardToDelete, setStandardToDelete] = useState<string | null>(null)
+  const [draftData, setDraftData] = useState<{ standardID: string; value: boolean }[]>([])
+  const [isChecked, setIsChecked] = useState(false)
 
   const { mutateAsync: deleteStandard } = useDeleteStandard()
-  const { successNotification, errorNotification } = useNotification()
-
-  const [isChecked, setIsChecked] = useState(false)
-  const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
-
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
 
   const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
-  const where: StandardWhereInput = isChecked
-    ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } // this one leaves 2 unchecked on my screen. compliances query do not return those standards. it should match
-    : // { hasTrustCenterCompliances: true } this one does not work at all
-      {}
+  const where: StandardWhereInput = isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}
 
   const {
     standards,
@@ -54,23 +52,11 @@ export default function FrameworksPage() {
     pagination: cardPagination,
   })
 
-  console.log(
-    'COMPLIANCE IDs',
-    compliances.map((c) => c?.id),
-  )
-
-  console.log(
-    'standards IDs',
-    standards.map((s) => s?.id),
-  )
-
   const loading = compliancesLoading || paginationMeta.isLoading
   const hasError = standardsError || compliancesError
 
   const { mutateAsync: createBulkCompliance, isPending: isCreatingBulk } = useCreateBulkTrustCenterCompliance()
   const { mutateAsync: deleteBulkCompliance, isPending: isDeletingBulk } = useDeleteBulkTrustCenterCompliance()
-
-  const [draftData, setDraftData] = useState<{ standardID: string; value: boolean }[]>([])
 
   const isDirty = useMemo(() => !!draftData.length, [draftData])
 
@@ -108,11 +94,8 @@ export default function FrameworksPage() {
         deleteIDs.push(data.standardID)
       })
 
-      console.log('createIDs', createIDs)
-      console.log('deleteIDs', deleteIDs)
-
       if (createIDs.length) {
-        await createBulkCompliance({ input: createIDs.map((id) => ({ standardID: id })) })
+        await createBulkCompliance({ input: createIDs.map((id) => ({ standardID: id, trustCenterID: trustCenterID })) })
       }
       if (deleteIDs.length) {
         await deleteBulkCompliance({ ids: deleteIDs })
@@ -122,13 +105,14 @@ export default function FrameworksPage() {
         title: 'Published',
         description: 'Framework selections have been published.',
       })
+      setDraftData([])
     } catch (err) {
       errorNotification({
         title: 'Error publishing',
         description: parseErrorMessage(err),
       })
     }
-  }, [createBulkCompliance, deleteBulkCompliance, errorNotification, successNotification, draftData])
+  }, [createBulkCompliance, deleteBulkCompliance, errorNotification, successNotification, draftData, trustCenterID])
 
   const handlePaginationChange = (pagination: TPagination) => {
     setCardPagination(pagination)
@@ -159,6 +143,8 @@ export default function FrameworksPage() {
       errorNotification({ title: 'Error deleting standard', description: parseErrorMessage(err) })
     }
   }
+
+  const navGuard = useNavigationGuard({ enabled: isDirty })
 
   if (loading && !isFetched) return <Loading />
 
@@ -281,6 +267,7 @@ export default function FrameworksPage() {
         confirmationTextVariant="destructive"
         onConfirm={handleDelete}
       />
+      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
     </div>
   )
 }

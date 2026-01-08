@@ -5,6 +5,7 @@ import {
   DeleteBulkTrustCenterComplianceMutation,
   CreateBulkTrustCenterComplianceMutation,
   CreateBulkTrustCenterComplianceMutationVariables,
+  DeleteBulkTrustCenterComplianceMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
@@ -37,15 +38,11 @@ export const useCreateBulkTrustCenterCompliance = () => {
   })
 }
 
-type DeleteBulkTrustCenterComplianceVars = {
-  ids: string[]
-}
-
 export const useDeleteBulkTrustCenterCompliance = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<DeleteBulkTrustCenterComplianceMutation, Error, DeleteBulkTrustCenterComplianceVars>({
-    mutationFn: async (variables) => client.request<DeleteBulkTrustCenterComplianceMutation, DeleteBulkTrustCenterComplianceVars>(DELETE_BULK_TRUST_CENTER_COMPLIANCE, variables),
+  return useMutation<DeleteBulkTrustCenterComplianceMutation, Error, DeleteBulkTrustCenterComplianceMutationVariables>({
+    mutationFn: async (variables) => client.request<DeleteBulkTrustCenterComplianceMutation, DeleteBulkTrustCenterComplianceMutationVariables>(DELETE_BULK_TRUST_CENTER_COMPLIANCE, variables),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenter', 'compliances'] })
