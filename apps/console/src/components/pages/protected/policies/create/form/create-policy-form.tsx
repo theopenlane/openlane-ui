@@ -8,9 +8,8 @@ import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { Button } from '@repo/ui/button'
-import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
@@ -25,6 +24,9 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
 import HelperText from './alert-box'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { useSession } from 'next-auth/react'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -44,7 +46,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const isSubmitting = isCreating || isSaving
-  const plateEditorHelper = usePlateEditor()
   const { successNotification, errorNotification } = useNotification()
   const associationsState = usePolicy((state) => state.associations)
   const policyState = usePolicy()
@@ -55,11 +56,16 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [isInitialized, setIsInitialized] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policy?.id || null)
+  const { data: discussionData } = useGetPolicyDiscussionById(policy?.id || null)
   const isPoliciesCreate = path === '/policies/create'
   const [createMultiple, setCreateMultiple] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null)
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
+  const plateEditorHelper = usePlateEditor()
 
   useEffect(() => {
     if (policy && assocData) {
@@ -114,16 +120,11 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: { input: CreateInternalPolicyInput } = {
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -192,12 +193,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
 
       const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
@@ -231,7 +226,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         updateInternalPolicyId: policy.id,
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationInputs,
         },
@@ -257,7 +253,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   }
 
   const handleDetailsChange = (value: Value) => {
-    form.setValue('details', value)
+    form.setValue('detailsJSON', value)
   }
 
   return (
@@ -307,8 +303,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
             <InputRow className="w-full">
               <FormField
                 control={form.control}
-                name="details"
-                render={({ field }) => (
+                name="detailsJSON"
+                render={() => (
                   <FormItem className="w-full min-w-0">
                     <FormLabel>Policy</FormLabel>
                     <SystemTooltip
@@ -318,9 +314,12 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                     <PlateEditor
                       ref={editorRef}
                       onChange={handleDetailsChange}
+                      userData={userData}
+                      entity={discussionData?.internalPolicy}
                       clearData={clearData}
+                      isCreate={!policy?.id}
                       onClear={() => setClearData(false)}
-                      initialValue={policy?.details ?? (field.value as string) ?? undefined}
+                      initialValue={policy?.detailsJSON ?? policy?.details ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>

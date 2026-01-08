@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useDeleteRisk, useGetRiskById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
+import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -51,6 +51,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const { data: discussionData } = useGetRiskDiscussionById(riskId)
   const memoizedSections = useMemo(() => {
     if (!risk) return {}
     return {
@@ -90,6 +91,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         likelihood: risk.likelihood ?? RiskRiskLikelihood.UNLIKELY,
         status: risk.status ?? RiskRiskStatus.OPEN,
         details: risk.details ?? '',
+        detailsJSON: risk.detailsJSON ?? undefined,
         mitigation: risk.mitigation ?? '',
         businessCosts: risk.businessCosts ?? '',
         tags: risk.tags || [],
@@ -129,11 +131,6 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       return
     }
 
-    let detailsField = values?.details
-
-    if (detailsField) {
-      detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-    }
     let businessCostsField = values?.businessCosts
 
     if (businessCostsField) {
@@ -148,10 +145,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
     try {
       await updateRisk({
-        id: risk.id,
+        updateRiskId: risk.id,
         input: {
           ...values,
-          details: detailsField,
+          detailsJSON: values.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
           businessCosts: businessCostsField,
           mitigation: mitigationField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
@@ -178,7 +176,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const handleUpdateField = async (input: UpdateRiskInput) => {
     if (!risk.id) return
     try {
-      await updateRisk({ id: risk.id, input })
+      await updateRisk({ updateRiskId: risk.id, input })
       successNotification({
         title: 'Risk updated',
         description: 'The risk was successfully updated.',
@@ -267,7 +265,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const mainContent = (
     <div className="space-y-6 p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
-      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} discussionData={discussionData?.risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
       <MitigationField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
     </div>

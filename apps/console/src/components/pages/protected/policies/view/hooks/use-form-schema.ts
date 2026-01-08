@@ -8,6 +8,7 @@ import { InternalPolicyDocumentStatus, InternalPolicyFrequency } from '@repo/cod
 const formSchema = z.object({
   name: z.string(),
   details: z.custom<Value | string>().optional(),
+  detailsJSON: z.custom<Value>().optional(),
   status: z
     .nativeEnum(InternalPolicyDocumentStatus, {
       errorMap: () => ({ message: 'Invalid status' }),
