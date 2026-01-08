@@ -34,10 +34,7 @@ export default function FrameworksPage() {
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
 
   const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
-  console.log(
-    'compliances',
-    compliances.map((c) => c.id),
-  )
+
   const {
     standards,
     isError: standardsError,
@@ -48,11 +45,6 @@ export default function FrameworksPage() {
     pagination: cardPagination,
     enabled: true,
   })
-
-  console.log(
-    'standards',
-    standards.map((s) => s.id),
-  )
 
   const loading = compliancesLoading || paginationMeta.isLoading
   const hasError = standardsError || compliancesError
@@ -86,8 +78,6 @@ export default function FrameworksPage() {
     },
     [draftData],
   )
-
-  console.log('draftData', draftData)
 
   const handlePublish = useCallback(async () => {
     const createIDs: string[] = []
