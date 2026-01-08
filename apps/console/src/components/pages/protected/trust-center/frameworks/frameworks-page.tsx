@@ -6,7 +6,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCreateBulkTrustCenterCompliance, useDeleteBulkTrustCenterCompliance, useGetTrustCenterCompliances } from '@/lib/graphql-hooks/trust-center-compliance'
 import { Badge } from '@repo/ui/badge'
-import { useDeleteStandard, useGetAllStandardsInfinite } from '@/lib/graphql-hooks/standards'
+import { useDeleteStandard, useGetAllStandardsInfinite, useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
@@ -24,10 +24,12 @@ import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { useOrganization } from '@/hooks/useOrganization'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { currentOrgId } = useOrganization()
 
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -57,6 +59,22 @@ export default function FrameworksPage() {
 
   const { mutateAsync: createBulkCompliance, isPending: isCreatingBulk } = useCreateBulkTrustCenterCompliance()
   const { mutateAsync: deleteBulkCompliance, isPending: isDeletingBulk } = useDeleteBulkTrustCenterCompliance()
+
+  const { data: recommendedStandardsData } = useStandardsSelect({
+    where: {
+      hasControlsWith: [
+        {
+          hasOwnerWith: [
+            {
+              id: currentOrgId,
+            },
+          ],
+        },
+      ],
+    },
+  })
+
+  const recommendedStandardsIDs = useMemo(() => recommendedStandardsData?.standards?.edges?.map((e) => e?.node?.id), [recommendedStandardsData])
 
   const isDirty = useMemo(() => !!draftData.length, [draftData])
 
@@ -229,7 +247,7 @@ export default function FrameworksPage() {
                     <p className="text-base">{standard.shortName}</p>
 
                     <div className="flex gap-2 items-center">
-                      {!!standard.systemOwned && <Badge variant="green">Recommended</Badge>}
+                      {recommendedStandardsIDs?.includes(standard.id) && <Badge variant="green">Recommended</Badge>}
 
                       {!standard.systemOwned && (
                         <>
