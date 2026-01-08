@@ -39,7 +39,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
           <PlateEditor
             userData={userData}
             entity={discussionData}
-            initialValue={field.value}
+            initialValue={initialValue}
             onChange={(val) => {
               field.onChange(val)
             }}
