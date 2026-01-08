@@ -77,7 +77,7 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
 
       <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
-          <DialogTitle>Bulk Upload Custom Controls</DialogTitle>
+          <DialogTitle>Bulk Update Controls</DialogTitle>
         </DialogHeader>
         <Callout title="CSV Format">
           You can upload a csv containing controls, ensure you include the `ID` column. Please refer to our{' '}
