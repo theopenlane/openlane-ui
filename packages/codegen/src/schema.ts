@@ -6758,6 +6758,8 @@ export interface CreateTrustCenterInput {
   /** preview status of the trust center */
   previewStatus?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
   settingID?: InputMaybe<Scalars['ID']['input']>
+  /** External URL for the trust center subprocessors */
+  subprocessorURL?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -34575,6 +34577,8 @@ export interface TrustCenter extends Node {
   setting?: Maybe<TrustCenterSetting>
   /** Slug for the trust center */
   slug?: Maybe<Scalars['String']['output']>
+  /** External URL for the trust center subprocessors */
+  subprocessorURL?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   templates: TemplateConnection
@@ -36429,6 +36433,22 @@ export interface TrustCenterWhereInput {
   slugNEQ?: InputMaybe<Scalars['String']['input']>
   slugNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   slugNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** subprocessor_url field predicates */
+  subprocessorURL?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLContains?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLGT?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLGTE?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  subprocessorURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  subprocessorURLLT?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLLTE?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLNEQ?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  subprocessorURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -40449,6 +40469,7 @@ export interface UpdateTrustCenterInput {
   clearPreviewSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearPreviewStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubprocessorURL?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterCompliances?: InputMaybe<Scalars['Boolean']['input']>
@@ -40475,6 +40496,8 @@ export interface UpdateTrustCenterInput {
   removeTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustcenterEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
+  /** External URL for the trust center subprocessors */
+  subprocessorURL?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   updateTrustCenterSetting?: InputMaybe<UpdateTrustCenterSettingInput>
@@ -49391,6 +49414,48 @@ export type DeleteTrustCenterComplianceMutationVariables = Exact<{
 }>
 
 export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
+
+export type GetTrustCenterEntitiesQueryVariables = Exact<{
+  where?: InputMaybe<TrustcenterEntityWhereInput>
+}>
+
+export type GetTrustCenterEntitiesQuery = {
+  __typename?: 'Query'
+  trustcenterEntities: {
+    __typename?: 'TrustcenterEntityConnection'
+    edges?: Array<{
+      __typename?: 'TrustcenterEntityEdge'
+      node?: { __typename?: 'TrustcenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustcenterEntityMutationVariables = Exact<{
+  input: CreateTrustcenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type CreateTrustcenterEntityMutation = {
+  __typename?: 'Mutation'
+  createTrustcenterEntity: { __typename?: 'TrustcenterEntityCreatePayload'; trustcenterEntity: { __typename?: 'TrustcenterEntity'; id: string } }
+}
+
+export type DeleteTrustcenterEntityMutationVariables = Exact<{
+  deleteTrustcenterEntityId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustcenterEntityMutation = { __typename?: 'Mutation'; deleteTrustcenterEntity: { __typename?: 'TrustcenterEntityDeletePayload'; deletedID: string } }
+
+export type UpdateTrustcenterEntityMutationVariables = Exact<{
+  updateTrustcenterEntityId: Scalars['ID']['input']
+  input: UpdateTrustcenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustcenterEntityMutation = {
+  __typename?: 'Mutation'
+  updateTrustcenterEntity: { __typename?: 'TrustcenterEntityUpdatePayload'; trustcenterEntity: { __typename?: 'TrustcenterEntity'; id: string } }
+}
 
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>

@@ -30,6 +30,7 @@ import {
   File as FileIcon,
   Megaphone,
   Paintbrush,
+  Component,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -133,6 +134,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       },
       { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
       { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
+      { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
     ],
   },
 ]
