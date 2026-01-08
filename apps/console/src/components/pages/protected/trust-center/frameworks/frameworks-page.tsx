@@ -20,6 +20,8 @@ import Image from 'next/image'
 import { StandardDialog } from './create-framework-dialog/create-framework-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
+import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { StandardWhereInput } from '@repo/codegen/src/schema'
 
 export default function FrameworksPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -33,7 +35,14 @@ export default function FrameworksPage() {
   const [isChecked, setIsChecked] = useState(false)
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
 
+  const { data: trustCenterData } = useGetTrustCenter()
+  const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+
   const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
+  const where: StandardWhereInput = isChecked
+    ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } // this one leaves 2 unchecked on my screen. compliances query do not return those standards. it should match
+    : // { hasTrustCenterCompliances: true } this one does not work at all
+      {}
 
   const {
     standards,
@@ -41,10 +50,19 @@ export default function FrameworksPage() {
     paginationMeta,
     fetchNextPage,
   } = useGetAllStandardsInfinite({
-    where: { hasTrustCenterCompliances: isChecked || undefined },
+    where,
     pagination: cardPagination,
-    enabled: true,
   })
+
+  console.log(
+    'COMPLIANCE IDs',
+    compliances.map((c) => c?.id),
+  )
+
+  console.log(
+    'standards IDs',
+    standards.map((s) => s?.id),
+  )
 
   const loading = compliancesLoading || paginationMeta.isLoading
   const hasError = standardsError || compliancesError
@@ -89,6 +107,9 @@ export default function FrameworksPage() {
         }
         deleteIDs.push(data.standardID)
       })
+
+      console.log('createIDs', createIDs)
+      console.log('deleteIDs', deleteIDs)
 
       if (createIDs.length) {
         await createBulkCompliance({ input: createIDs.map((id) => ({ standardID: id })) })
