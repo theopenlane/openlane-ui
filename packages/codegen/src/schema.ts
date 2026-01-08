@@ -46511,6 +46511,13 @@ export type DeleteBulkEvidenceMutationVariables = Exact<{
 
 export type DeleteBulkEvidenceMutation = { __typename?: 'Mutation'; deleteBulkEvidence: { __typename?: 'EvidenceBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type UpdateBulkEvidenceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateEvidenceInput
+}>
+
+export type UpdateBulkEvidenceMutation = { __typename?: 'Mutation'; updateBulkEvidence: { __typename?: 'EvidenceBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type CreateExportMutationVariables = Exact<{
   input: CreateExportInput
 }>

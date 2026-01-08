@@ -16,6 +16,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { BulkEditEvidenceDialog } from '../bulk-edit/bulk-edit-evidence'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -92,6 +93,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedEvidence.length > 0 ? (
             <>
+              {canEdit(permission?.roles) && <BulkEditEvidenceDialog selectedEvidence={selectedEvidence} setSelectedEvidence={setSelectedEvidence}></BulkEditEvidenceDialog>}
               <Button
                 type="button"
                 variant="secondary"
