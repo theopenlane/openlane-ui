@@ -5,7 +5,7 @@ import { Button } from '@repo/ui/button'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTrigger, DialogClose } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTrigger, DialogClose, DialogTitle } from '@repo/ui/dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { StandardNode, useCreateStandard, useUpdateStandard } from '@/lib/graphql-hooks/standards'
@@ -100,6 +100,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogTitle />
 
       <DialogContent className="overflow-hidden max-w-xl">
         <DialogHeader className=" flex flex-row items-center justify-between space-y-0">
@@ -118,7 +119,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
           </form>
         </FormProvider>
         <div className="flex gap-2 justify-end">
-          <DialogClose>
+          <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>
           </DialogClose>
           <Button form="standard-form" type="submit" disabled={isSubmitting} variant="primary">
