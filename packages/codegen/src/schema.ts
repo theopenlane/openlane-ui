@@ -19623,6 +19623,8 @@ export interface Mutation {
   updateAsset: AssetUpdatePayload
   /** Update multiple existing actionPlans */
   updateBulkActionPlan: ActionPlanBulkUpdatePayload
+  /** Update multiple existing controls with a CSV upload, must include the ID or refCode and referenceFramework */
+  updateBulkCSVControl: ControlBulkUpdatePayload
   /** Update multiple existing contacts */
   updateBulkContact: ContactBulkUpdatePayload
   /** Update multiple existing controls */
@@ -21183,6 +21185,10 @@ export interface MutationUpdateAssetArgs {
 export interface MutationUpdateBulkActionPlanArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateActionPlanInput
+}
+
+export interface MutationUpdateBulkCsvControlArgs {
+  input: Scalars['Upload']['input']
 }
 
 export interface MutationUpdateBulkContactArgs {
@@ -45773,6 +45779,15 @@ export type CreateBulkCsvControlMutationVariables = Exact<{
 export type CreateBulkCsvControlMutation = {
   __typename?: 'Mutation'
   createBulkCSVControl: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
+}
+
+export type UpdateBulkCsvControlMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type UpdateBulkCsvControlMutation = {
+  __typename?: 'Mutation'
+  updateBulkCSVControl: { __typename?: 'ControlBulkUpdatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
 export type CreateBulkCsvMappedControlMutationVariables = Exact<{

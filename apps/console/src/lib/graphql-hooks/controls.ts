@@ -28,6 +28,7 @@ import {
   GET_CONTROL_NOT_IMPLEMENTED_COUNT,
   INSERT_CONTROL_PLATE_COMMENT,
   GET_CONTROL_DISCUSSION_BY_ID,
+  UPDATE_CSV_BULK_CONTROL,
 } from '@repo/codegen/query/control'
 
 import {
@@ -51,6 +52,8 @@ import {
   GetControlsPaginatedQuery,
   GetControlsPaginatedQueryVariables,
   GetControlSubcategoriesQuery,
+  UpdateBulkCsvControlMutation,
+  UpdateBulkCsvControlMutationVariables,
   UpdateControlMutation,
   UpdateControlMutationVariables,
   GetControlsPaginatedWithListFieldsQuery,
@@ -181,6 +184,17 @@ export const useCreateBulkCSVControl = () => {
 
   return useMutation<CreateBulkCsvControlMutation, unknown, CreateBulkCsvControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTROL, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
+  })
+}
+
+export const useUpdateBulkCSVControl = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkCsvControlMutation, unknown, UpdateBulkCsvControlMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
     },

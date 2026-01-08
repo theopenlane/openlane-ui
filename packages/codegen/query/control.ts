@@ -380,6 +380,16 @@ export const CREATE_CSV_BULK_CONTROL = gql`
   }
 `
 
+export const UPDATE_CSV_BULK_CONTROL = gql`
+  mutation UpdateBulkCSVControl($input: Upload!) {
+    updateBulkCSVControl(input: $input) {
+      controls {
+        id
+      }
+    }
+  }
+`
+
 export const CREATE_CSV_BULK_MAPPED_CONTROL = gql`
   mutation CreateBulkCSVMappedControl($input: Upload!) {
     createBulkCSVMappedControl(input: $input) {
