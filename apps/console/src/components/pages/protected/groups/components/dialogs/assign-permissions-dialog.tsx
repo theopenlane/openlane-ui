@@ -283,7 +283,7 @@ const AssignPermissionsDialog = () => {
               {selectedObject && (
                 <div className="flex gap-2 flex-col">
                   <Label>Search</Label>
-                  <Input onChange={handleSearchChange} value={searchValue} placeholder="Type program name ..." className="h-10 w-[200px]" />
+                  <Input onChange={handleSearchChange} value={searchValue} placeholder={`Type ${selectedObject} name ...`} className="h-10 w-[200px]" />
                 </div>
               )}
             </div>
