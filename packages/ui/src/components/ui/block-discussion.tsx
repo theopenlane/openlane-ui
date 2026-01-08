@@ -57,6 +57,7 @@ const BlockCommentContent = ({
   const editor = useEditorRef()
 
   const resolvedSuggestions = useResolveSuggestion(suggestionNodes, blockPath)
+
   const resolvedDiscussions = useResolvedDiscussion(commentNodes, blockPath)
 
   const suggestionsCount = resolvedSuggestions.length

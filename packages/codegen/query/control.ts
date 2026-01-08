@@ -147,6 +147,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     status
     tags
     description
+    descriptionJSON
     implementationGuidance
     exampleEvidence
     controlQuestions
@@ -659,6 +660,76 @@ export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
           standardID
           ownerID
           systemOwned
+        }
+      }
+    }
+  }
+`
+
+export const CONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment ControlDiscussionFields on Control {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_DISCUSSION_BY_ID = gql`
+  ${CONTROL_DISCUSSION_FIELDS_FRAGMENT}
+  query GetControlDiscussionById($controlId: ID!) {
+    control(id: $controlId) {
+      ...ControlDiscussionFields
+    }
+  }
+`
+
+export const INSERT_CONTROL_PLATE_COMMENT = gql`
+  mutation InsertControlPlateComment($updateControlId: ID!, $input: UpdateControlInput!) {
+    updateControl(id: $updateControlId, input: $input) {
+      control {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

@@ -89,13 +89,19 @@ const usePlateEditor = () => {
       }
     },
     // Converts html data into deserializable PlateJs value, and rendering read only static view
-    convertToReadOnly: (data: string, padding: number = 0, style?: React.CSSProperties) => {
+    convertToReadOnly: (data: string | Value, padding: number = 0, style?: React.CSSProperties) => {
       const editor = createSlateEditor({
         plugins: [...BaseEditorKit],
       })
+      const finalStyle = style ? style! : { padding }
 
       const fmt = detectFormat(data)
       let nodes = []
+
+      if (Array.isArray(data)) {
+        editor.children = data
+        return <PlateStatic editor={editor} style={finalStyle} className="plate-static" />
+      }
 
       switch (fmt) {
         case 'markdown':
@@ -106,8 +112,6 @@ const usePlateEditor = () => {
       }
 
       editor.children = nodes as Value
-
-      const finalStyle = style ? style! : { padding }
 
       return <PlateStatic editor={editor} style={finalStyle} className="plate-static" />
     },

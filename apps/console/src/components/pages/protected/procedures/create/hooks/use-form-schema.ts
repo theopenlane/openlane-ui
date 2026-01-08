@@ -8,6 +8,7 @@ import { ProcedureDocumentStatus, ProcedureFrequency } from '@repo/codegen/src/s
 const formSchema = z.object({
   name: z.string(),
   details: z.custom<Value | string>().optional(),
+  detailsJSON: z.custom<Value>().optional(),
   status: z
     .nativeEnum(ProcedureDocumentStatus, {
       errorMap: () => ({ message: 'Invalid status' }),

@@ -140,7 +140,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
 
   const handleChange = useCallback(
     (key: string, value: TFilterValue) => {
-      console.log('handleChange', { key, value })
       resetQuickFilters(false)
       setValues((prev) => ({ ...prev, [key]: value }))
     },
@@ -225,10 +224,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
                     : range?.from
-                    ? `From: ${format(range.from, 'PPP')}`
-                    : range?.to
-                    ? `To: ${format(range.to, 'PPP')}`
-                    : 'Pick date range'}
+                      ? `From: ${format(range.from, 'PPP')}`
+                      : range?.to
+                        ? `To: ${format(range.to, 'PPP')}`
+                        : 'Pick date range'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-4 space-y-4 w-auto">
@@ -283,7 +282,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
           return <DropdownSearchField field={field} value={values[field.key] as string | undefined} onChange={(val) => handleChange(field.key, val)} />
 
         case 'radio':
-          console.log(field)
           return (
             <div className="flex flex-col gap-1">
               {field.radioOptions?.map((opt) => (
