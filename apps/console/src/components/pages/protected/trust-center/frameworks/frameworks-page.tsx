@@ -4,9 +4,8 @@ import React, { useState, useMemo, useEffect, useContext, useCallback } from 're
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useGetTrustCenterCompliances, useCreateTrustCenterCompliance, useDeleteTrustCenterCompliance } from '@/lib/graphql-hooks/trust-center-compliance'
+import { useCreateBulkTrustCenterCompliance, useDeleteBulkTrustCenterCompliance, useGetTrustCenterCompliances } from '@/lib/graphql-hooks/trust-center-compliance'
 import { Badge } from '@repo/ui/badge'
-
 import { useDeleteStandard, useGetAllStandardsInfinite } from '@/lib/graphql-hooks/standards'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Switch } from '@repo/ui/switch'
@@ -14,27 +13,27 @@ import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
-import { PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
+import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Image from 'next/image'
 import { StandardDialog } from './create-framework-dialog/create-framework-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
-import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 
 export default function FrameworksPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [standardToDelete, setStandardToDelete] = useState<string | null>(null)
+
   const { mutateAsync: deleteStandard } = useDeleteStandard()
   const { successNotification, errorNotification } = useNotification()
-  const [standardToDelete, setStandardToDelete] = useState<string | null>(null)
+
   const [isChecked, setIsChecked] = useState(false)
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
 
-  const { data: trustCenterData } = useGetTrustCenter()
-
-  const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
+  const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
 
   const {
     standards,
@@ -42,19 +41,22 @@ export default function FrameworksPage() {
     paginationMeta,
     fetchNextPage,
   } = useGetAllStandardsInfinite({
-    //TODO: this where condition should not pass trustCenterID, and useGetTrustCenter should be deleted
-    where: { hasTrustCenterCompliances: isChecked, hasTrustCenterCompliancesWith: [{ trustCenterID }] },
+    where: { hasTrustCenterCompliances: isChecked || undefined },
     pagination: cardPagination,
     enabled: true,
   })
 
-  const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
-
   const loading = compliancesLoading || paginationMeta.isLoading
   const hasError = standardsError || compliancesError
 
-  const { mutateAsync: createCompliance } = useCreateTrustCenterCompliance()
-  const { mutateAsync: deleteCompliance } = useDeleteTrustCenterCompliance()
+  const { mutateAsync: createBulkCompliance, isPending: isCreatingBulk } = useCreateBulkTrustCenterCompliance()
+  const { mutateAsync: deleteBulkCompliance, isPending: isDeletingBulk } = useDeleteBulkTrustCenterCompliance()
+
+  const [draftData, setDraftData] = useState<{ standardID: string; value: boolean }[]>([])
+
+  const isDirty = useMemo(() => !!draftData.length, [draftData])
+
+  const publishDisabled = !isDirty || isCreatingBulk || isDeletingBulk
 
   const complianceMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -67,27 +69,47 @@ export default function FrameworksPage() {
   }, [compliances])
 
   const handleToggle = useCallback(
-    async (standardID: string, checked: boolean) => {
-      const complianceID = complianceMap.get(standardID)
-
-      try {
-        if (checked) {
-          await createCompliance({ input: { standardID } })
-        } else if (complianceID) {
-          await deleteCompliance({
-            deleteTrustCenterComplianceId: complianceID,
-          })
-        }
-      } catch (err: unknown) {
-        const errorMessage = parseErrorMessage(err)
-        errorNotification({
-          title: 'Error updating compliance',
-          description: errorMessage,
-        })
+    (standardID: string, checked: boolean) => {
+      const isAlreadyAdded = draftData.find((data) => data.standardID === standardID)
+      if (isAlreadyAdded) {
+        return setDraftData((prev) => prev.filter((d) => d.standardID !== standardID))
       }
+      setDraftData((prev) => [...prev, { standardID, value: checked }])
     },
-    [createCompliance, deleteCompliance, complianceMap, errorNotification],
+    [draftData],
   )
+
+  console.log(draftData)
+
+  const handlePublish = useCallback(async () => {
+    const createIDs: string[] = []
+    const deleteIDs: string[] = []
+    try {
+      draftData.forEach((data) => {
+        if (data.value) {
+          return createIDs.push(data.standardID)
+        }
+        deleteIDs.push(data.standardID)
+      })
+
+      if (createIDs.length) {
+        await createBulkCompliance({ input: { standardIDs: createIDs } })
+      }
+      if (deleteIDs.length) {
+        await deleteBulkCompliance({ ids: deleteIDs })
+      }
+
+      successNotification({
+        title: 'Published',
+        description: 'Framework selections have been published.',
+      })
+    } catch (err) {
+      errorNotification({
+        title: 'Error publishing',
+        description: parseErrorMessage(err),
+      })
+    }
+  }, [createBulkCompliance, deleteBulkCompliance, errorNotification, successNotification, draftData])
 
   const handlePaginationChange = (pagination: TPagination) => {
     setCardPagination(pagination)
@@ -112,7 +134,6 @@ export default function FrameworksPage() {
     try {
       resetPagination()
       await deleteStandard({ deleteStandardId: standardToDelete })
-
       successNotification({ title: 'Standard Deleted', description: 'The standard has been removed.' })
       setDeleteDialogOpen(false)
     } catch (err) {
@@ -139,6 +160,7 @@ export default function FrameworksPage() {
             Only enable frameworks your organization has completed through an audit or certification. Enabled frameworks are displayed publicly in your Trust Center.
           </p>
         </div>
+
         <div className="flex items-center shrink-0 gap-6 ">
           <div className="gap-2 flex items-center">
             <Switch id="hide-unselected" checked={isChecked} onCheckedChange={setIsChecked} />
@@ -146,14 +168,21 @@ export default function FrameworksPage() {
               Hide unselected
             </Label>
           </div>
-          <StandardDialog
-            resetPagination={resetPagination}
-            trigger={
-              <Button icon={<SquarePlus />} iconPosition="left">
-                Add Custom Framework
-              </Button>
-            }
-          />
+
+          <div className="flex gap-2">
+            <Button icon={<BookUp2 />} iconPosition="left" variant="secondary" disabled={publishDisabled} onClick={handlePublish}>
+              Publish
+            </Button>
+
+            <StandardDialog
+              resetPagination={resetPagination}
+              trigger={
+                <Button icon={<SquarePlus />} iconPosition="left">
+                  Add Custom Framework
+                </Button>
+              }
+            />
+          </div>
         </div>
       </div>
 
@@ -163,7 +192,8 @@ export default function FrameworksPage() {
             if (!standard) return null
 
             const complianceID = complianceMap.get(standard.id)
-            const isAssociated = !!complianceID
+            const defaultIsAssociated = !!complianceID
+            const isAssociated = draftData.find((data) => data.standardID === standard.id)?.value ?? defaultIsAssociated
 
             return (
               <Card key={standard.id} className="transition p-6">
@@ -171,18 +201,17 @@ export default function FrameworksPage() {
                   <div className="flex gap-3 items-center">
                     {standard.systemOwned ? (
                       <StandardsIconMapper height={32} width={32} key={standard?.id} shortName={standard?.shortName ?? ''} />
+                    ) : standard.logoFile?.presignedURL ? (
+                      <Image src={standard.logoFile.presignedURL} alt="logo" width={32} height={32} />
                     ) : (
-                      <>
-                        {standard.logoFile?.presignedURL ? (
-                          <Image src={standard.logoFile?.presignedURL} alt="logo" width={32} height={32}></Image>
-                        ) : (
-                          <div className="h-8 w-8 rounded-full bg-white/20"></div>
-                        )}
-                      </>
+                      <div className="h-8 w-8 rounded-full bg-white/20" />
                     )}
+
                     <p className="text-base">{standard.shortName}</p>
+
                     <div className="flex gap-2 items-center">
-                      {!!standard.systemOwned && <Badge variant={'green'}>Recommended</Badge>}
+                      {!!standard.systemOwned && <Badge variant="green">Recommended</Badge>}
+
                       {!standard.systemOwned && (
                         <>
                           <Badge variant="blue">Custom</Badge>
@@ -209,7 +238,7 @@ export default function FrameworksPage() {
                   </div>
                 </div>
 
-                <CardContent className="flex p-0  gap-6 justify-between h-16">
+                <CardContent className="flex p-0 gap-6 justify-between h-16">
                   <p className="text-sm text-muted-foreground line-clamp-3">{standard.description || 'No description provided'}</p>
 
                   <div className="flex" onClick={(e) => e.stopPropagation()}>
@@ -223,6 +252,7 @@ export default function FrameworksPage() {
           })}
         </div>
       </InfiniteScroll>
+
       <ConfirmationDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}

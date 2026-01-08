@@ -49380,14 +49380,20 @@ export type GetTrustCenterCompliancesQuery = {
   }
 }
 
-export type CreateTrustCenterComplianceMutationVariables = Exact<{
-  input: CreateTrustCenterComplianceInput
+export type CreateBulkTrustCenterComplianceMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateTrustCenterComplianceInput> | CreateTrustCenterComplianceInput>
 }>
 
-export type CreateTrustCenterComplianceMutation = {
+export type CreateBulkTrustCenterComplianceMutation = {
   __typename?: 'Mutation'
-  createTrustCenterCompliance: { __typename?: 'TrustCenterComplianceCreatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
+  createBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkCreatePayload'; trustCenterCompliances?: Array<{ __typename?: 'TrustCenterCompliance'; id: string }> | null }
 }
+
+export type DeleteBulkTrustCenterComplianceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type UpdateTrustCenterComplianceMutationVariables = Exact<{
   updateTrustCenterComplianceId: Scalars['ID']['input']
@@ -49398,12 +49404,6 @@ export type UpdateTrustCenterComplianceMutation = {
   __typename?: 'Mutation'
   updateTrustCenterCompliance: { __typename?: 'TrustCenterComplianceUpdatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
 }
-
-export type DeleteTrustCenterComplianceMutationVariables = Exact<{
-  deleteTrustCenterComplianceId: Scalars['ID']['input']
-}>
-
-export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
 
 export type GetTrustCenterEntitiesQueryVariables = Exact<{
   where?: InputMaybe<TrustcenterEntityWhereInput>
