@@ -69,7 +69,7 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button variant="transparent" icon={<Upload />} className="h-8 px-2t!" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+          <Button variant="transparent" icon={<Upload />} className="h-8 px-2!" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Bulk Upload
           </Button>
         </DialogTrigger>
@@ -81,7 +81,7 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
         </DialogHeader>
         <Callout title="CSV Format">
           <p className="text-sm">
-            You can upload a csv containing ecidence. Please refer to our{' '}
+            You can upload a csv containing evidence. Please refer to our{' '}
             <a href={`${GRAPHQL_OBJECT_DOCS}#evidence`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
               documentation
             </a>{' '}

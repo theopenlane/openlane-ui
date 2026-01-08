@@ -51,20 +51,14 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
   const [tagValues, setTagValues] = useState<Option[]>([])
   const { tagOptions } = useGetTags()
 
-  const bulkEditTasksSchema = z.object({
+  const bulkEditEvidenceSchema = z.object({
     fieldsArray: z.array(fieldItemSchema),
   })
   const form = useForm<BulkEditDialogFormValues>({
-    resolver: zodResolver(bulkEditTasksSchema),
+    resolver: zodResolver(bulkEditEvidenceSchema),
     defaultValues: defaultObject,
   })
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = form
-  console.log('Errors', errors)
+  const { control, handleSubmit, watch } = form
   const watchedFields = watch('fieldsArray') || []
   const hasFieldsToUpdate = watchedFields.some((field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input)
   const { fields, append, update, replace, remove } = useFieldArray({

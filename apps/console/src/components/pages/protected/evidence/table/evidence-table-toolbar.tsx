@@ -55,7 +55,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
 
   const handleBulkDelete = async () => {
-    if (!selectedEvidence) {
+    if (selectedEvidence.length === 0) {
       errorNotification({
         title: 'Missing evidence',
         description: 'Evidence not found.',
@@ -115,7 +115,13 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button type="button" variant="secondary">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setSelectedEvidence([])
+                    }}
+                    variant="secondary"
+                  >
                     Cancel
                   </Button>
                 </>
