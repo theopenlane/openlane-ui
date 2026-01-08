@@ -206,7 +206,7 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
               editor?.focus()
             }}
           >
-            <Editor placeholder={placeholder ?? 'Type a paragraph'} />
+            <Editor placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
           </EditorContainer>
         </Plate>
       </DndProvider>
