@@ -84,35 +84,49 @@ export default function FrameworksPage() {
   )
 
   const handlePublish = useCallback(async () => {
-    const createIDs: string[] = []
-    const deleteIDs: string[] = []
+    const createStandardIDs: string[] = []
+    const deleteComplianceIDs: string[] = []
+
     try {
-      draftData.forEach((data) => {
-        if (data.value) {
-          return createIDs.push(data.standardID)
+      draftData.forEach(({ standardID, value }) => {
+        if (value) {
+          createStandardIDs.push(standardID)
+          return
         }
-        deleteIDs.push(data.standardID)
+
+        const complianceID = complianceMap.get(standardID)
+        if (complianceID) {
+          deleteComplianceIDs.push(complianceID)
+        }
       })
 
-      if (createIDs.length) {
-        await createBulkCompliance({ input: createIDs.map((id) => ({ standardID: id, trustCenterID: trustCenterID })) })
+      if (createStandardIDs.length) {
+        await createBulkCompliance({
+          input: createStandardIDs.map((standardID) => ({
+            standardID,
+            trustCenterID,
+          })),
+        })
       }
-      if (deleteIDs.length) {
-        await deleteBulkCompliance({ ids: deleteIDs })
+
+      if (deleteComplianceIDs.length) {
+        await deleteBulkCompliance({ ids: deleteComplianceIDs })
       }
 
       successNotification({
         title: 'Published',
         description: 'Framework selections have been published.',
       })
-      setDraftData([])
+      setTimeout(() => {
+        setDraftData([])
+      }, 100)
     } catch (err) {
       errorNotification({
         title: 'Error publishing',
         description: parseErrorMessage(err),
       })
     }
-  }, [createBulkCompliance, deleteBulkCompliance, errorNotification, successNotification, draftData, trustCenterID])
+  }, [draftData, complianceMap, createBulkCompliance, deleteBulkCompliance, trustCenterID, successNotification, errorNotification])
 
   const handlePaginationChange = (pagination: TPagination) => {
     setCardPagination(pagination)
