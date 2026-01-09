@@ -28,7 +28,9 @@ import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
-
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from 'platejs'
 type TProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
@@ -49,8 +51,13 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const queryClient = useQueryClient()
   const router = useRouter()
   const { tagOptions } = useGetTags()
+  const { convertToHtml } = usePlateEditor()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
+    if (data.collectionProcedure) {
+      data.collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
+    }
+
     const formData = {
       input: {
         name: data.name,
@@ -202,7 +209,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
-                            <Textarea id="collectionProcedure" {...field} className="w-full" />
+                            <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
                           </FormControl>
                           {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                         </FormItem>
