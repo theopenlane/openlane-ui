@@ -25,6 +25,7 @@ import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
@@ -261,14 +262,27 @@ export default function FrameworksPage() {
                             }
                             standard={standard}
                           />
-                          <button
-                            onClick={() => {
-                              setStandardToDelete(standard.id)
-                              setDeleteDialogOpen(true)
-                            }}
-                          >
-                            <Trash2 size={16} className="text-muted-foreground" />
-                          </button>
+                          <TooltipProvider>
+                            <Tooltip delayDuration={0}>
+                              <TooltipTrigger asChild>
+                                <button
+                                  disabled={defaultIsAssociated}
+                                  className="disabled:opacity-50 disabled:cursor-not-allowed"
+                                  onClick={() => {
+                                    setStandardToDelete(standard.id)
+                                    setDeleteDialogOpen(true)
+                                  }}
+                                >
+                                  <Trash2 size={16} className="text-muted-foreground" />
+                                </button>
+                              </TooltipTrigger>
+                              {defaultIsAssociated && (
+                                <TooltipContent side="top">
+                                  <p className="max-w-[250px] text-xs">You must remove this and publish the trust center before you can delete the custom framework.</p>
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          </TooltipProvider>
                         </>
                       )}
                     </div>
@@ -293,11 +307,11 @@ export default function FrameworksPage() {
       <ConfirmationDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
         title="Delete Standard"
         description="This action cannot be undone."
         confirmationText="Delete"
         confirmationTextVariant="destructive"
-        onConfirm={handleDelete}
       />
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
     </div>
