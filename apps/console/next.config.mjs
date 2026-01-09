@@ -11,7 +11,8 @@ const nextConfig = {
       //   hostname: 'localhost',
       //   port: '17608',
       //   pathname: '/v1/files/**',
-      // }, uncomment for local testing with local dev server
+      // },
+      // uncomment for local testing with local dev server
       {
         protocol: 'https',
         hostname: '*.r2.cloudflarestorage.com',

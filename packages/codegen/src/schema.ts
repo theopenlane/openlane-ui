@@ -19066,7 +19066,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys via file upload */
+  /** Create multiple new trustcenterEntities via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -19180,7 +19180,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntitys */
+  /** Create multiple new trustcenterEntities */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -36509,7 +36509,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntitys */
+  /** Created trustcenterEntities */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -48960,6 +48960,7 @@ export type GetAllStandardsSelectQuery = {
 }
 
 export type GetStandardsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<StandardWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
@@ -50047,14 +50048,20 @@ export type GetTrustCenterCompliancesQuery = {
   }
 }
 
-export type CreateTrustCenterComplianceMutationVariables = Exact<{
-  input: CreateTrustCenterComplianceInput
+export type CreateBulkTrustCenterComplianceMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateTrustCenterComplianceInput> | CreateTrustCenterComplianceInput>
 }>
 
-export type CreateTrustCenterComplianceMutation = {
+export type CreateBulkTrustCenterComplianceMutation = {
   __typename?: 'Mutation'
-  createTrustCenterCompliance: { __typename?: 'TrustCenterComplianceCreatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
+  createBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkCreatePayload'; trustCenterCompliances?: Array<{ __typename?: 'TrustCenterCompliance'; id: string }> | null }
 }
+
+export type DeleteBulkTrustCenterComplianceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type UpdateTrustCenterComplianceMutationVariables = Exact<{
   updateTrustCenterComplianceId: Scalars['ID']['input']
@@ -50065,12 +50072,6 @@ export type UpdateTrustCenterComplianceMutation = {
   __typename?: 'Mutation'
   updateTrustCenterCompliance: { __typename?: 'TrustCenterComplianceUpdatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
 }
-
-export type DeleteTrustCenterComplianceMutationVariables = Exact<{
-  deleteTrustCenterComplianceId: Scalars['ID']['input']
-}>
-
-export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
 
 export type GetTrustCenterEntitiesQueryVariables = Exact<{
   where?: InputMaybe<TrustcenterEntityWhereInput>
