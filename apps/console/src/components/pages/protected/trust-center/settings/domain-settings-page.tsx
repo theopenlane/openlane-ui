@@ -158,6 +158,21 @@ const DomainSettingsPage = () => {
       })
   }
 
+  const handleCopyDefaultCname = () => {
+    navigator.clipboard
+      .writeText(trustCenter.customDomain?.cnameRecord || '')
+      .then(() => {
+        successNotification({
+          title: 'Copied!',
+        })
+      })
+      .catch(() => {
+        errorNotification({
+          title: 'Copy failed',
+        })
+      })
+  }
+
   const trustCenterDefaultDomain = trustCenter?.slug ? `https://trust.theopenlane.net/${trustCenter?.slug}` : ''
   const defaultDomain = trustCenterDefaultDomain
 
@@ -192,6 +207,14 @@ const DomainSettingsPage = () => {
                 Edit
               </Button>
               <Button onClick={handleDeleteCustomDomain} variant="secondary" className="h-10 flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />
+              {trustCenter.customDomain?.dnsVerification?.dnsVerificationStatus && (
+                <>
+                  <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
+                  <a href={trustCenter.customDomain?.cnameRecord} rel={'noreferrer'} target="_blank">
+                    <Button variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
+                  </a>
+                </>
+              )}
             </div>
           )}
         </div>

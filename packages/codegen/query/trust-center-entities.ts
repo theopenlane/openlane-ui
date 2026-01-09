@@ -37,8 +37,8 @@ export const DELETE_TRUST_CENTER_ENTITY = gql`
 `
 
 export const UPDATE_TRUST_CENTER_ENTITY = gql`
-  mutation UpdateTrustcenterEntity($updateTrustcenterEntityId: ID!, $input: UpdateTrustcenterEntityInput!) {
-    updateTrustcenterEntity(id: $updateTrustcenterEntityId, input: $input) {
+  mutation UpdateTrustcenterEntity($updateTrustcenterEntityId: ID!, $input: UpdateTrustcenterEntityInput!, $logoFile: Upload) {
+    updateTrustcenterEntity(id: $updateTrustcenterEntityId, input: $input, logoFile: $logoFile) {
       trustcenterEntity {
         id
       }

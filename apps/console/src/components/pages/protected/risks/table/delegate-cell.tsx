@@ -17,7 +17,7 @@ const DelegateCell: React.FC<TDelegateCellProps> = ({ delegate, riskId }) => {
   const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
     try {
       await updateRisk({
-        id: riskId,
+        updateRiskId: riskId,
         input: {
           delegateID: data.id,
           clearDelegate: !data.id,
