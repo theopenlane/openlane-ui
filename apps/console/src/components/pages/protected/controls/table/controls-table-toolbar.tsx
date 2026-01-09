@@ -213,6 +213,14 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                         </Button>
                       }
                     />
+                    {/* <BulkCSVUpdateControlDialog
+                      trigger={
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Update Existing Controls</span>
+                        </Button>
+                      }
+                    /> */}
                     <Button
                       size="sm"
                       variant="transparent"
