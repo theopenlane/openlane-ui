@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import { Evidence, User } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import { EvidenceIconMapper, EvidenceStatusMapper } from '@/components/shared/enum-mapper/evidence-enum'
@@ -8,13 +8,55 @@ import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
+  selectedEvidence: { id: string }[]
+  setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
+export const getEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEvidence }: TGetEvidenceColumnsProps) => {
+  const toggleSelection = (evidence: { id: string }) => {
+    setSelectedEvidence((prev) => {
+      const exists = prev.some((c) => c.id === evidence.id)
+      return exists ? prev.filter((c) => c.id !== evidence.id) : [...prev, evidence]
+    })
+  }
   const columns: ColumnDef<Evidence>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageEvidence = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPageEvidence.every((evidence) => selectedEvidence.some((sc) => sc.id === evidence.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked: boolean) => {
+                const newSelections = checked
+                  ? [...selectedEvidence.filter((sc) => !currentPageEvidence.some((c) => c.id === sc.id)), ...currentPageEvidence.map((c) => ({ id: c.id }))]
+                  : selectedEvidence.filter((sc) => !currentPageEvidence.some((c) => c.id === sc.id))
+
+                setSelectedEvidence(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }: { row: Row<Evidence> }) => {
+        const { id } = row.original
+        const isChecked = selectedEvidence.some((c) => c.id === id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+          </div>
+        )
+      },
+      size: 50,
+    },
     {
       accessorKey: 'id',
       header: 'ID',
@@ -140,7 +182,13 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return (
+          <div className="flex gap-2">
+            {row?.original?.tags?.map((tag, i) => (
+              <TagChip key={i} tag={tag} />
+            ))}
+          </div>
+        )
       },
     },
     {
@@ -150,7 +198,7 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
         const user = userMap?.[row.original.createdBy ?? '']
         return user ? (
           <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -172,7 +220,7 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
         const user = userMap?.[row.original.updatedBy ?? '']
         return user ? (
           <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (

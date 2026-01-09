@@ -19066,7 +19066,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities via file upload */
+  /** Create multiple new trustcenterEntitys via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -19180,7 +19180,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities */
+  /** Create multiple new trustcenterEntitys */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -19623,6 +19623,8 @@ export interface Mutation {
   updateAsset: AssetUpdatePayload
   /** Update multiple existing actionPlans */
   updateBulkActionPlan: ActionPlanBulkUpdatePayload
+  /** Update multiple existing controls with a CSV upload, must include the ID or refCode and referenceFramework */
+  updateBulkCSVControl: ControlBulkUpdatePayload
   /** Update multiple existing contacts */
   updateBulkContact: ContactBulkUpdatePayload
   /** Update multiple existing controls */
@@ -21183,6 +21185,10 @@ export interface MutationUpdateAssetArgs {
 export interface MutationUpdateBulkActionPlanArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateActionPlanInput
+}
+
+export interface MutationUpdateBulkCsvControlArgs {
+  input: Scalars['Upload']['input']
 }
 
 export interface MutationUpdateBulkContactArgs {
@@ -36503,7 +36509,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntities */
+  /** Created trustcenterEntitys */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -45775,6 +45781,15 @@ export type CreateBulkCsvControlMutation = {
   createBulkCSVControl: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
+export type UpdateBulkCsvControlMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type UpdateBulkCsvControlMutation = {
+  __typename?: 'Mutation'
+  updateBulkCSVControl: { __typename?: 'ControlBulkUpdatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
+}
+
 export type CreateBulkCsvMappedControlMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>
@@ -46644,6 +46659,28 @@ export type UpdateEvidenceCommentMutationVariables = Exact<{
 }>
 
 export type UpdateEvidenceCommentMutation = { __typename?: 'Mutation'; updateEvidenceComment: { __typename?: 'EvidenceUpdatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
+
+export type CreateBulkCsvEvidenceMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvEvidenceMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVEvidence: { __typename?: 'EvidenceBulkCreatePayload'; evidences?: Array<{ __typename?: 'Evidence'; id: string }> | null }
+}
+
+export type DeleteBulkEvidenceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkEvidenceMutation = { __typename?: 'Mutation'; deleteBulkEvidence: { __typename?: 'EvidenceBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkEvidenceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateEvidenceInput
+}>
+
+export type UpdateBulkEvidenceMutation = { __typename?: 'Mutation'; updateBulkEvidence: { __typename?: 'EvidenceBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type CreateExportMutationVariables = Exact<{
   input: CreateExportInput
