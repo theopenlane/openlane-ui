@@ -5,13 +5,13 @@ import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useState } from 'react'
+import { signOut } from 'next-auth/react'
 
 type DeleteUserSectionProps = {
   userId?: string
-  displayName?: string | undefined
 }
 
-const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId, displayName }: DeleteUserSectionProps) => {
+const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId }: DeleteUserSectionProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteUser } = useDeleteUser()
@@ -29,6 +29,8 @@ const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId, displayNa
       successNotification({
         title: 'User successfully deleted',
       })
+      setIsDialogOpen(true)
+      await signOut()
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -42,7 +44,7 @@ const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId, displayNa
     <Panel>
       <PanelHeader heading="Delete User" noBorder></PanelHeader>
       <Panel align="start" destructive>
-        <p className="text-red-600">Deleting user is irreversible.</p>
+        <p className="text-red-600">This action is permanent. Your account and all associated organizational access will be permanently removed and cannot be recovered.</p>
         <Button variant="redOutline" type="button" onClick={() => setIsDialogOpen(true)}>
           Delete user
         </Button>
@@ -52,12 +54,8 @@ const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId, displayNa
           onOpenChange={setIsDialogOpen}
           onConfirm={handleUserDelete}
           confirmationText="Delete"
-          title={`Delete User ${displayName}`}
-          description={
-            <>
-              This action is irreversible and will permanently delete the user <b>{displayName}</b> and all associated data.
-            </>
-          }
+          title={`Delete Account`}
+          description={<>This action is permanent and cannot be undone. You will immediately lose access to all organizations and associated data.</>}
           showInput={true}
         />
       </Panel>

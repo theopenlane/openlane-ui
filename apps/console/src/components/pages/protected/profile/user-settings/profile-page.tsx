@@ -249,7 +249,7 @@ const ProfilePage = () => {
       )}
 
       <PasskeySection userData={userData} />
-      <DeleteUserSection userId={userId} displayName={userData?.user?.displayName} />
+      <DeleteUserSection userId={userId} />
     </>
   )
 }
