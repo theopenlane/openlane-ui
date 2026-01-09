@@ -46,9 +46,9 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                {options.map((option) => (
+                {options.map((option, i) => (
                   <CommandItem
-                    key={option.value}
+                    key={`option ${option.value}, ${i}`}
                     value={option.label}
                     onSelect={() => {
                       onChange?.(option.value)

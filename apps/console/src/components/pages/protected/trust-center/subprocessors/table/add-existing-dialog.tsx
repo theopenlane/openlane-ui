@@ -87,6 +87,10 @@ export const AddExistingDialog = () => {
     }
   }
 
+  if (!subprocessors.length) {
+    return null
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>

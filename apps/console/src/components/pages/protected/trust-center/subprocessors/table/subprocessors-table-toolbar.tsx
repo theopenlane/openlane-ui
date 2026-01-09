@@ -14,6 +14,7 @@ import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-
 import { subprocessorsFilterFields } from './table-config'
 import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
+import { AddExistingDialog } from './add-existing-dialog'
 
 type TProps = {
   searching?: boolean
@@ -105,7 +106,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             )}
 
             <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.SUBPROCESSORS} />
-
+            <AddExistingDialog />
             <CreateSubprocessorSheet />
           </div>
         ) : (
