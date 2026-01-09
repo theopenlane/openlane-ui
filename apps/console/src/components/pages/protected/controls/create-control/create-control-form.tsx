@@ -260,6 +260,7 @@ export default function CreateControlForm() {
       form.reset({
         refCode: `CC-${controlData?.control.refCode}`,
         description: controlData?.control.description ?? undefined,
+        descriptionJSON: controlData?.control.descriptionJSON ?? undefined,
         category: controlData?.control.category ?? undefined,
         subcategory: controlData?.control.subcategory ?? undefined,
         source: ControlControlSource.USER_DEFINED,
