@@ -8,6 +8,7 @@ import { CountryFlag } from '@repo/ui/country-flag'
 import { formatDate } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
+import { DeleteTrustCenterSubprocessorCell } from './delete-trust-center-subcontrol-cell'
 
 export type SubprocessorTableItem = {
   id: string
@@ -77,31 +78,13 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     },
 
     {
-      accessorKey: 'logo',
-      header: 'Logo',
-      cell: ({ row }) => {
-        const logo = row.original.logo
-        if (!logo) return <div className="text-muted-foreground">—</div>
-        //  eslint-disable-next-line @next/next/no-img-element
-        return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
-      },
-    },
-
-    {
       accessorKey: 'name',
       header: 'Name',
     },
-
     {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => row.original.description || '—',
-    },
-
-    {
-      accessorKey: 'category',
-      header: 'Category',
-      cell: ({ row }) => row.original.category || '—',
     },
 
     {
@@ -121,6 +104,22 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
         )
       },
       minSize: 60,
+    },
+    {
+      accessorKey: 'logo',
+      header: 'Logo',
+      cell: ({ row }) => {
+        const logo = row.original.logo
+        if (!logo) return <div className="text-muted-foreground">—</div>
+        //  eslint-disable-next-line @next/next/no-img-element
+        return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
+      },
+    },
+
+    {
+      accessorKey: 'category',
+      header: 'Category',
+      cell: ({ row }) => row.original.category || '—',
     },
 
     {
@@ -168,6 +167,11 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
           <span className="text-muted-foreground italic">Deleted user</span>
         )
       },
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />,
     },
   ]
 

@@ -57,14 +57,18 @@ export type SubprocessorEdge = NonNullable<NonNullable<GetSubprocessorsQuery['su
 export type SubprocessorNode = NonNullable<SubprocessorEdge>['node']
 
 export const useCreateSubprocessor = () => {
-  const { queryClient } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<CreateSubprocessorMutation, unknown, CreateSubprocessorMutationVariables>({
-    mutationFn: async (variables) =>
-      fetchGraphQLWithUpload({
-        query: CREATE_SUBPROCESSOR,
-        variables,
-      }),
+    mutationFn: async (variables) => {
+      if (variables.logoFile) {
+        return fetchGraphQLWithUpload({
+          query: CREATE_SUBPROCESSOR,
+          variables,
+        })
+      }
+      return client.request<CreateSubprocessorMutation, CreateSubprocessorMutationVariables>(CREATE_SUBPROCESSOR, variables)
+    },
 
     onSuccess: () => {
       queryClient.invalidateQueries({
