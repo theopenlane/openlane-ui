@@ -50478,3 +50478,9 @@ export type UpdateUserSettingMutationVariables = Exact<{
 }>
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
+
+export type DeleteUserMutationVariables = Exact<{
+  deleteUserId: Scalars['ID']['input']
+}>
+
+export type DeleteUserMutation = { __typename?: 'Mutation'; deleteUser: { __typename?: 'UserDeletePayload'; deletedID: string } }
