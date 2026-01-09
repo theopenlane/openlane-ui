@@ -29,7 +29,6 @@ import { useBulkDeleteControls } from '@/lib/graphql-hooks/controls'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { useOrganization } from '@/hooks/useOrganization'
-import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -214,14 +213,14 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                         </Button>
                       }
                     />
-                    <BulkCSVUpdateControlDialog
+                    {/* <BulkCSVUpdateControlDialog
                       trigger={
                         <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Update Existing Controls</span>
                         </Button>
                       }
-                    />
+                    /> */}
                     <Button
                       size="sm"
                       variant="transparent"
