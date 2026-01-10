@@ -79,6 +79,7 @@ export const GET_TRUST_CENTER = gql`
             color
             opacity
             rotation
+            isEnabled
           }
         }
       }
