@@ -9,14 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
-import {
-  useCreateTrustCenterDoc,
-  useDeleteTrustCenterDoc,
-  useGetTrustCenter,
-  useGetTrustCenterDocById,
-  useUpdateTrustCenterDoc,
-  useUpdateTrustCenterWatermarkConfig,
-} from '@/lib/graphql-hooks/trust-center'
+import { useCreateTrustCenterDoc, useDeleteTrustCenterDoc, useGetTrustCenter, useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -33,7 +26,6 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
-import { useQueryClient } from '@tanstack/react-query'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -69,8 +61,6 @@ export const CreateDocumentSheet: React.FC = () => {
   const { mutateAsync: createDoc } = useCreateTrustCenterDoc()
   const { mutateAsync: updateDoc } = useUpdateTrustCenterDoc()
   const { mutateAsync: deleteDoc } = useDeleteTrustCenterDoc()
-  const { mutateAsync: updateWatermark } = useUpdateTrustCenterWatermarkConfig()
-  const queryClient = useQueryClient()
 
   const { data: trustCenterData } = useGetTrustCenter()
   const { data: documentData } = useGetTrustCenterDocById({
@@ -79,8 +69,6 @@ export const CreateDocumentSheet: React.FC = () => {
   })
 
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
-  const watermarkConfigId = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.id ?? null
-  console.log(trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig)
   const watermarkEnabled = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.isEnabled ?? null
   const [isWatermarkEnabled, setWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const formMethods = useForm<FormData>({
@@ -149,6 +137,7 @@ export const CreateDocumentSheet: React.FC = () => {
             visibility: data.visibility,
             tags: data.tags ?? [],
             trustCenterID,
+            watermarkingEnabled: isWatermarkEnabled,
           },
           trustCenterDocFile: data.file,
         })
@@ -167,35 +156,6 @@ export const CreateDocumentSheet: React.FC = () => {
       })
     } finally {
       handleFileUpload(null)
-    }
-  }
-
-  const handleToggleWatermarkEnabled = async (enabled: boolean) => {
-    if (!watermarkConfigId) {
-      errorNotification({
-        title: 'Watermark config ID missing',
-        description: 'Watermark config ID missing',
-      })
-      return
-    }
-
-    try {
-      await updateWatermark({
-        updateTrustCenterWatermarkConfigId: watermarkConfigId,
-        input: {
-          isEnabled: enabled,
-        },
-      })
-      successNotification({
-        title: 'Watermark config updated successfully',
-      })
-      queryClient.invalidateQueries({ queryKey: ['trustCenter'] })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
     }
   }
 
@@ -371,7 +331,6 @@ export const CreateDocumentSheet: React.FC = () => {
                   checked={isWatermarkEnabled}
                   onCheckedChange={(checked) => {
                     setWatermarkEnabled(checked)
-                    handleToggleWatermarkEnabled(checked)
                   }}
                 />
               </div>
