@@ -33,6 +33,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
+import { useQueryClient } from '@tanstack/react-query'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -69,6 +70,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const { mutateAsync: updateDoc } = useUpdateTrustCenterDoc()
   const { mutateAsync: deleteDoc } = useDeleteTrustCenterDoc()
   const { mutateAsync: updateWatermark } = useUpdateTrustCenterWatermarkConfig()
+  const queryClient = useQueryClient()
 
   const { data: trustCenterData } = useGetTrustCenter()
   const { data: documentData } = useGetTrustCenterDocById({
@@ -78,6 +80,7 @@ export const CreateDocumentSheet: React.FC = () => {
 
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
   const watermarkConfigId = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.id ?? null
+  console.log(trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig)
   const watermarkEnabled = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.isEnabled ?? null
   const [isWatermarkEnabled, setWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const formMethods = useForm<FormData>({
@@ -167,6 +170,35 @@ export const CreateDocumentSheet: React.FC = () => {
     }
   }
 
+  const handleToggleWatermarkEnabled = async (enabled: boolean) => {
+    if (!watermarkConfigId) {
+      errorNotification({
+        title: 'Watermark config ID missing',
+        description: 'Watermark config ID missing',
+      })
+      return
+    }
+
+    try {
+      await updateWatermark({
+        updateTrustCenterWatermarkConfigId: watermarkConfigId,
+        input: {
+          isEnabled: enabled,
+        },
+      })
+      successNotification({
+        title: 'Watermark config updated successfully',
+      })
+      queryClient.invalidateQueries({ queryKey: ['trustCenter'] })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
+
   const prefillForm = useCallback(() => {
     const doc = documentData?.trustCenterDoc
     reset({
@@ -215,34 +247,6 @@ export const CreateDocumentSheet: React.FC = () => {
   useEffect(() => {
     if (documentId || isCreateMode) setOpen(true)
   }, [documentId, isCreateMode])
-
-  const handleToggleWatermarkEnabled = async (enabled: boolean) => {
-    if (!watermarkConfigId) {
-      errorNotification({
-        title: 'Watermark config ID missing',
-        description: 'Watermark config ID missing',
-      })
-      return
-    }
-
-    try {
-      await updateWatermark({
-        updateTrustCenterWatermarkConfigId: watermarkConfigId,
-        input: {
-          isEnabled: enabled,
-        },
-      })
-      successNotification({
-        title: 'Watermark config updated successfully',
-      })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
