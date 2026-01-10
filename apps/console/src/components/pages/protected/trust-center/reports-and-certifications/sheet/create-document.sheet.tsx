@@ -9,7 +9,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
-import { useCreateTrustCenterDoc, useDeleteTrustCenterDoc, useGetTrustCenter, useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
+import {
+  useCreateTrustCenterDoc,
+  useDeleteTrustCenterDoc,
+  useGetTrustCenter,
+  useGetTrustCenterDocById,
+  useUpdateTrustCenterDoc,
+  useUpdateTrustCenterWatermarkConfig,
+} from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -20,11 +27,12 @@ import { VisibilityField } from './form-fields/visibility-field'
 import { TagsField } from './form-fields/tags-field'
 import { FileField } from './form-fields/file-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { Label } from '@repo/ui/label'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
+import { Switch } from '@repo/ui/switch'
+import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -60,6 +68,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const { mutateAsync: createDoc } = useCreateTrustCenterDoc()
   const { mutateAsync: updateDoc } = useUpdateTrustCenterDoc()
   const { mutateAsync: deleteDoc } = useDeleteTrustCenterDoc()
+  const { mutateAsync: updateWatermark } = useUpdateTrustCenterWatermarkConfig()
 
   const { data: trustCenterData } = useGetTrustCenter()
   const { data: documentData } = useGetTrustCenterDocById({
@@ -68,7 +77,9 @@ export const CreateDocumentSheet: React.FC = () => {
   })
 
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
-
+  const watermarkConfigId = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.id ?? null
+  const watermarkEnabled = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.isEnabled ?? null
+  const [isWatermarkEnabled, setWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -205,6 +216,34 @@ export const CreateDocumentSheet: React.FC = () => {
     if (documentId || isCreateMode) setOpen(true)
   }, [documentId, isCreateMode])
 
+  const handleToggleWatermarkEnabled = async (enabled: boolean) => {
+    if (!watermarkConfigId) {
+      errorNotification({
+        title: 'Watermark config ID missing',
+        description: 'Watermark config ID missing',
+      })
+      return
+    }
+
+    try {
+      await updateWatermark({
+        updateTrustCenterWatermarkConfigId: watermarkConfigId,
+        input: {
+          isEnabled: enabled,
+        },
+      })
+      successNotification({
+        title: 'Watermark config updated successfully',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent side="right" className="w-[420px] sm:w-[480px] overflow-y-auto">
@@ -321,10 +360,24 @@ export const CreateDocumentSheet: React.FC = () => {
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
             <TagsField isEditing={isEditing || isCreateMode} />
-            <div className="flex flex-col gap-2">
-              <Label>Watermark status</Label>
-              <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
-            </div>
+            {isCreateMode && (
+              <div className="flex flex-col gap-2">
+                <Label>Watermark enabled</Label>
+                <Switch
+                  checked={isWatermarkEnabled}
+                  onCheckedChange={(checked) => {
+                    setWatermarkEnabled(checked)
+                    handleToggleWatermarkEnabled(checked)
+                  }}
+                />
+              </div>
+            )}
+            {isEditMode && (
+              <div className="flex flex-col gap-2">
+                <Label>Watermark status</Label>
+                <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
+              </div>
+            )}
             {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditAllowed} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
           </form>
         </FormProvider>
