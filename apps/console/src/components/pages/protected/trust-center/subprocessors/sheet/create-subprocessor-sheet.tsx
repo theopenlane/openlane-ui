@@ -47,7 +47,7 @@ const schema = z
 
 type FormData = z.infer<typeof schema>
 
-export const CreateSubprocessorSheet = () => {
+export const CreateSubprocessorSheet = ({ onCreateSuccess }: { onCreateSuccess: () => void }) => {
   const [open, setOpen] = useState(false)
 
   const { successNotification, errorNotification } = useNotification()
@@ -105,6 +105,7 @@ export const CreateSubprocessorSheet = () => {
       })
 
       setOpen(false)
+      onCreateSuccess()
       reset()
     } catch (error) {
       errorNotification({

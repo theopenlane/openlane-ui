@@ -42,6 +42,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) return
@@ -106,8 +107,8 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             )}
 
             <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.SUBPROCESSORS} />
-            <AddExistingDialog />
-            <CreateSubprocessorSheet />
+            <AddExistingDialog isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
+            <CreateSubprocessorSheet onCreateSuccess={() => setIsModalOpen(true)} />
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">
