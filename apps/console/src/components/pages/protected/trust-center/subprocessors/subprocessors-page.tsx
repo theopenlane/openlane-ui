@@ -8,13 +8,13 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
-import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { EditTrustCenterSubprocessorSheet } from './sheet/eidt-trust-center-subprocessor-sheet'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
@@ -29,7 +29,6 @@ const SubprocessorsPage = () => {
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
 
-  const router = useRouter()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
@@ -94,6 +93,7 @@ const SubprocessorsPage = () => {
 
   return (
     <>
+      <EditTrustCenterSubprocessorSheet />
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Subprocessors</h2>
@@ -118,7 +118,6 @@ const SubprocessorsPage = () => {
           paginationMeta={paginationMeta}
           loading={isLoading}
           columnVisibility={columnVisibility}
-          onRowClick={(row) => router.push(`/trust-center/subprocessors?id=${row.id}`)}
           tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
         />
       </div>

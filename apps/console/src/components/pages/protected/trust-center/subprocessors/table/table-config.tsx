@@ -9,6 +9,9 @@ import { formatDate } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 import { DeleteTrustCenterSubprocessorCell } from './delete-trust-center-subcontrol-cell'
+import { Button } from '@repo/ui/button'
+import { Pencil } from 'lucide-react'
+import Link from 'next/link'
 
 export type SubprocessorTableItem = {
   id: string
@@ -171,7 +174,16 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       id: 'actions',
       header: '',
-      cell: ({ row }) => <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />,
+      cell: ({ row }) => (
+        <div className="flex gap-1">
+          <Link href={`/trust-center/subprocessors?id=${row.original.id}`}>
+            <Button variant="secondary">
+              <Pencil />
+            </Button>
+          </Link>
+          <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />
+        </div>
+      ),
     },
   ]
 
