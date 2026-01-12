@@ -1,8 +1,8 @@
 'use client'
 
 import { useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
+import { Textarea } from '@repo/ui/textarea'
 
 interface Props {
   isEditing: boolean
@@ -21,7 +21,7 @@ export const DescriptionField = ({ isEditing }: Props) => {
 
       {isEditing ? (
         <>
-          <Input placeholder="Short description" {...register('description')} />
+          <Textarea placeholder="Short description" {...register('description')} />
           {errors.description && <p className="text-red-500 text-sm mt-1">{String(errors.description.message)}</p>}
         </>
       ) : (

@@ -74,6 +74,7 @@ const BrandSettingsPage: React.FC = () => {
       setSecondaryBackground(setting.secondaryBackgroundColor || '#f0f0e0')
       setFont(setting.font || 'outfit')
       setEasyColor(setting.primaryColor || '#f0f0e0')
+      setSelectedThemeType(setting.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY)
     }
   }, [setting])
 

@@ -27,7 +27,6 @@ import {
   UserRoundPlus,
   Users,
   Workflow,
-  File as FileIcon,
   Megaphone,
   Paintbrush,
   Component,
@@ -129,8 +128,8 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       },
       {
         title: 'Frameworks',
-        href: '/trust-center/compliance-frameworks',
-        icon: FileIcon,
+        href: '/trust-center/frameworks',
+        icon: ShieldCheck,
       },
       { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
       { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },

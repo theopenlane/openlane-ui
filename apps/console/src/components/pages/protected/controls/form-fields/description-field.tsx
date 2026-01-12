@@ -52,7 +52,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
     <div className="w-full">
       {label}
       <div className={'min-h-[20px]'}>
-        <PlateEditor key={JSON.stringify(initialValue)} userData={userData} initialValue={initialValue} entity={discussionData} readonly={true} variant="readonly" />
+        <PlateEditor placeholder="No description set" key={JSON.stringify(initialValue)} userData={userData} initialValue={initialValue} entity={discussionData} readonly={true} variant="readonly" />
       </div>
     </div>
   )

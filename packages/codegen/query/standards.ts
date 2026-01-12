@@ -79,8 +79,8 @@ export const GET_ALL_STANDARDS_SELECT = gql`
 `
 
 export const GET_STANDARDS_PAGINATED = gql`
-  query GetStandardsPaginated($first: Int, $after: Cursor, $last: Int, $before: Cursor) {
-    standards(first: $first, after: $after, last: $last, before: $before) {
+  query GetStandardsPaginated($where: StandardWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    standards(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
