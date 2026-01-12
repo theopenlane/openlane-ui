@@ -90,6 +90,9 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'countries',
       header: 'Countries',
+      meta: {
+        exportPrefix: 'subprocessor.countries',
+      },
       cell: ({ row }) => {
         const codes = row.original.countries ?? []
 
@@ -108,6 +111,9 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'logo',
       header: 'Logo',
+      meta: {
+        exportPrefix: 'subprocessor.logo.base64',
+      },
       cell: ({ row }) => {
         const logo = row.original.logo
         if (!logo) return <div className="text-muted-foreground">—</div>
