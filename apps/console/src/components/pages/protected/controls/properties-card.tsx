@@ -438,7 +438,7 @@ export const EditableSelectFromQuery = ({
   const [open, setOpen] = useState(false)
 
   const rawOptions = useMemo(() => {
-    return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
+    return isCategory ? (categoriesData?.controlCategories ?? []) : (subcategoriesData?.controlSubcategories ?? [])
   }, [isCategory, categoriesData, subcategoriesData])
   const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
   const triggerRef = useRef<HTMLDivElement>(null)
