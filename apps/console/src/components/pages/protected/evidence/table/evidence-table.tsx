@@ -10,7 +10,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
-import { getEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
+import { useGetEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
@@ -96,7 +96,7 @@ export const EvidenceTable = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = useMemo(() => getEvidenceColumns({ userMap, selectedEvidence, setSelectedEvidence }), [userMap, selectedEvidence])
+  const { columns, mappedColumns } = useGetEvidenceColumns({ userMap, selectedEvidence, setSelectedEvidence })
 
   useEffect(() => {
     setCrumbs([

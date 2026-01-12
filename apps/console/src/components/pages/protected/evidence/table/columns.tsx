@@ -9,6 +9,7 @@ import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { Checkbox } from '@repo/ui/checkbox'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -16,7 +17,8 @@ type TGetEvidenceColumnsProps = {
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEvidence }: TGetEvidenceColumnsProps) => {
+export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEvidence }: TGetEvidenceColumnsProps) => {
+  const { convertToReadOnly } = usePlateEditor()
   const toggleSelection = (evidence: { id: string }) => {
     setSelectedEvidence((prev) => {
       const exists = prev.some((c) => c.id === evidence.id)
@@ -145,7 +147,7 @@ export const getEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEvide
       accessorKey: 'collectionProcedure',
       header: 'Collection Procedure',
       cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() as string}</div>
+        return <div className="font-bold">{cell.getValue() ? convertToReadOnly(cell.getValue() as string) : '-'}</div>
       },
       minSize: 100,
       size: 180,
@@ -182,13 +184,7 @@ export const getEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEvide
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
