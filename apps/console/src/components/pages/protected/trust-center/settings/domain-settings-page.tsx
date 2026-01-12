@@ -272,7 +272,7 @@ const DomainSettingsPage = () => {
                   <div className="flex items-start gap-2">
                     <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
                     <div>
-                      <p className="text-sm">Custom hostname does not CNAME to this zone</p>
+                      <p className="text-sm">{dnsVerification.dnsVerificationStatusReason}</p>
                     </div>
                   </div>
                 </div>
