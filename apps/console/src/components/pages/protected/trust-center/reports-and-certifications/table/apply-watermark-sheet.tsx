@@ -31,6 +31,7 @@ type WatermarkConfigUI = {
 enum WatermarkTypeEnum {
   TEXT = 'text',
   FILE = 'file',
+  DISABLE_WATERMARK_CONFIG = 'disable_watermark_config',
 }
 
 type ApplyWatermarkSheetProps = {
@@ -55,6 +56,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const { mutateAsync: updateWatermark, isPending: updating } = useUpdateTrustCenterWatermarkConfig()
   const { successNotification, errorNotification } = useNotification()
   const [selectedFont, setSelectedFont] = useState<TrustCenterWatermarkConfigFont>(TrustCenterWatermarkConfigFont.COURIER)
+  const [disableWatermarkConfig, setDisableWatermarkConfig] = useState<boolean>(false)
   useEffect(() => {
     if (!watermarkConfig) {
       setUploadedFile(null)
@@ -73,6 +75,10 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
     setWmRotation(rotation ?? -45)
   }, [watermarkConfig])
 
+  useEffect(() => {
+    setDisableWatermarkConfig(selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG)
+  }, [selected])
+
   const handleSheetClose = () => {
     setIsDiscardDialogOpen(true)
   }
@@ -86,14 +92,19 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
     try {
       await updateWatermark({
         updateTrustCenterWatermarkConfigId: id!,
-        input: {
-          ...(wmText ? { text: wmText } : { clearText: true }),
-          ...(wmFontSize ? { fontSize: wmFontSize } : { clearFontSize: true }),
-          ...(wmColor ? { color: wmColor } : { clearColor: true }),
-          ...(wmRotation ? { rotation: wmRotation } : { clearRotation: true }),
-          ...(selectedFont ? { font: selectedFont } : { clearFont: true }),
-        },
-        ...(uploadedFile && { watermarkFile: uploadedFile }),
+        input: disableWatermarkConfig
+          ? {
+              isEnabled: false,
+            }
+          : {
+              ...(wmText ? { text: wmText } : { clearText: true }),
+              ...(wmFontSize ? { fontSize: wmFontSize } : { clearFontSize: true }),
+              ...(wmColor ? { color: wmColor } : { clearColor: true }),
+              ...(wmRotation ? { rotation: wmRotation } : { clearRotation: true }),
+              ...(selectedFont ? { font: selectedFont } : { clearFont: true }),
+              isEnabled: true,
+            },
+        ...(disableWatermarkConfig ? {} : uploadedFile ? { watermarkFile: uploadedFile } : {}),
       })
 
       successNotification({
@@ -138,7 +149,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                     Cancel
                   </Button>
                   <Button iconPosition="left" type="button" onClick={handleApplyWatermark}>
-                    {updating ? 'Applying...' : 'Apply watermark'}
+                    {disableWatermarkConfig ? (updating ? 'Saving...' : 'Save') : updating ? 'Applying...' : 'Apply watermark'}
                   </Button>
                 </div>
               </div>
@@ -201,6 +212,30 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   <div className="text-gray-500 text-sm">Upload a logo or image as watermark</div>
                 </div>
               </label>
+              <label className="flex items-center p-4 border border-border rounded-lg cursor-pointer">
+                <input
+                  type="radio"
+                  name="watermark"
+                  value={WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG}
+                  checked={selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG}
+                  onChange={() => setSelected(WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG)}
+                  className="sr-only"
+                />
+                <div
+                  className={`mr-4 w-5 h-5 rounded-full border-2 flex items-center justify-center
+      ${selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG ? 'border-5 border-primary' : ''}`}
+                >
+                  {selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div
+                    className={`font-medium ${selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG ? 'font-medium leading-6 text-base' : 'font-medium leading-6 text-base text-muted-foreground'}`}
+                  >
+                    No Watermark
+                  </div>
+                  <div className="text-gray-500 text-sm">Do not apply a watermark to newly generated documents</div>
+                </div>
+              </label>
               {selected === WatermarkTypeEnum.FILE && (
                 <div className="flex gap-7 w-full">
                   <div className="w-full">
@@ -222,53 +257,54 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   </div>
                 </div>
               )}
+              {selected !== WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG && (
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="TITLE">
+                    <AccordionTrigger asChild>
+                      <button className="group flex w-full items-center justify-between text-sm font-medium bg-unset">
+                        <span>Advanced Settings</span>
 
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="TITLE">
-                  <AccordionTrigger asChild>
-                    <button className="group flex w-full items-center justify-between text-sm font-medium bg-unset">
-                      <span>Advanced Settings</span>
+                        <ChevronDown size={22} className="text-brand transition-transform duration-200 rotate-0 group-data-[state=open]:rotate-180" />
+                      </button>
+                    </AccordionTrigger>
 
-                      <ChevronDown size={22} className="text-brand transition-transform duration-200 rotate-0 group-data-[state=open]:rotate-180" />
-                    </button>
-                  </AccordionTrigger>
+                    <AccordionContent className="mt-4 grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-sm">Font size</Label>
+                        <Input type="number" value={wmFontSize} onChange={(e) => setWmFontSize(Number(e.target.value))} />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-sm">Font family</Label>
+                        <Select value={selectedFont} onValueChange={(value) => setSelectedFont(value as TrustCenterWatermarkConfigFont)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select font" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TrustCenterWatermarkConfigFontOptions.map((font) => (
+                              <SelectItem key={font.value} value={font.value}>
+                                {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <ColorInput label="Color" value={wmColor} onChange={setWmColor} />
+                      </div>
 
-                  <AccordionContent className="mt-4 grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-sm">Font size</Label>
-                      <Input type="number" value={wmFontSize} onChange={(e) => setWmFontSize(Number(e.target.value))} />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-sm">Font family</Label>
-                      <Select value={selectedFont} onValueChange={(value) => setSelectedFont(value as TrustCenterWatermarkConfigFont)}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select font" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TrustCenterWatermarkConfigFontOptions.map((font) => (
-                            <SelectItem key={font.value} value={font.value}>
-                              {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <ColorInput label="Color" value={wmColor} onChange={setWmColor} />
-                    </div>
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-sm">Opacity</Label>
+                        <Input type="number" step="0.05" min={0} max={1} value={wmOpacity} onChange={(e) => setWmOpacity(Number(e.target.value))} />
+                      </div>
 
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-sm">Opacity</Label>
-                      <Input type="number" step="0.05" min={0} max={1} value={wmOpacity} onChange={(e) => setWmOpacity(Number(e.target.value))} />
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-sm">Rotation (°)</Label>
-                      <Input type="number" value={wmRotation} onChange={(e) => setWmRotation(Number(e.target.value))} />
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-sm">Rotation (°)</Label>
+                        <Input type="number" value={wmRotation} onChange={(e) => setWmRotation(Number(e.target.value))} />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
             </div>
           </div>
 
