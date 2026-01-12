@@ -83,14 +83,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Status Required */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <Binoculars size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Status</span>
+                  <span className="cursor-help text-sm">Status</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -101,7 +101,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div ref={triggerRef} className="min-w-[160px] w-full">
+        <div ref={triggerRef} className="min-w-40 w-full">
           {isEditing || editingField === 'status' ? (
             <Controller
               name="status"
@@ -130,7 +130,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           ) : (
             <HoverPencilWrapper showPencil={editAllowed} className={`w-full  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
               <div
-                className="flex items-center space-x-2 w-full"
+                className="flex items-center space-x-2 w-full text-sm"
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) {
                     setEditingField('status')
@@ -146,14 +146,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
       </div>
 
       {/* Version (read-only) */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <FileStack size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1 ">
-                  <span className="cursor-help">Version</span>
+                  <span className="cursor-help text-sm">Version</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -163,20 +163,20 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="min-w-[160px] cursor-not-allowed">
-          <span>{policy?.revision ?? '0.0.0'}</span>
+        <div className="min-w-40 cursor-not-allowed">
+          <span className="text-sm">{policy?.revision ?? '0.0.0'}</span>
         </div>
       </div>
 
       {/* Policy Type */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <ScrollText size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Policy Type</span>
+                  <span className="cursor-help text-sm">Procedure Type</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -187,7 +187,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div className="min-w-[160px] w-full">
+        <div className="min-w-40 w-full">
           {isEditing || editingField === 'internalPolicyKindName' ? (
             <FormField
               control={form.control}
@@ -219,7 +219,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}>
+            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate text-sm`}>
               <div
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) setEditingField('internalPolicyKindName')
@@ -233,14 +233,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
       </div>
 
       {/* Review Date */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <Calendar size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Review date</span>
+                  <span className="cursor-help text-sm">Review date</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -251,7 +251,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           </TooltipProvider>
         </div>
 
-        <div ref={reviewTriggerRef} className="min-w-[160px] w-full">
+        <div ref={reviewTriggerRef} className="min-w-40 w-full">
           {isEditing || editingField === 'reviewDue' ? (
             <Controller
               name="reviewDue"
@@ -276,7 +276,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}>
+            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate text-sm`}>
               <div
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) setEditingField('reviewDue')
