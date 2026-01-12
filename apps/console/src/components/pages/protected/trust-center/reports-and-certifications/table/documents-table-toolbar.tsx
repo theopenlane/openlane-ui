@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { LoaderCircle, PlusCircle, SearchIcon, Trash2 } from 'lucide-react'
+import { LoaderCircle, PlusCircle, SearchIcon, StopCircle, Trash2 } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -11,11 +11,15 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { trustCenterDocsFilterFields } from './table-config'
-import { useBulkDeleteTrustCenterDocs, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useBulkDeleteTrustCenterDocs, useGetTrustCenter, useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BulkEditTrustCenterDocsDialog } from './bulk-edit-trust-center-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import ApplyWatermarkSheet from './apply-watermark-sheet'
+import Menu from '@/components/shared/menu/menu'
+import { ClientError } from 'graphql-request'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useNotification } from '@/hooks/useNotification'
 
 type TProps = {
   searching?: boolean
@@ -37,7 +41,10 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
   const searchParams = useSearchParams()
   const { data } = useGetTrustCenter()
   const { mutate: deleteDocs, isPending: isDeleting } = useBulkDeleteTrustCenterDocs()
+  const { mutate: updateWatermarkConfig } = useUpdateTrustCenterWatermarkConfig()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isDisableWatermarkingConfigConfirmationDialogOpen, setIsDisableWatermarkingConfigConfirmationDialogOpen] = useState(false)
+  const { successNotification, errorNotification } = useNotification()
 
   const handleCreateClick = () => {
     const params = new URLSearchParams(searchParams)
@@ -47,6 +54,7 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
 
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const watermarkConfig = trustCenter?.watermarkConfig
+  const watermarkConfigId = watermarkConfig?.id
 
   const handleBulkDelete = () => {
     if (selectedDocs.length === 0) return
@@ -68,6 +76,31 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
         },
       },
     )
+  }
+
+  const handleDisableWatermarkConfig = async () => {
+    if (!watermarkConfigId) {
+      return
+    }
+    try {
+      await updateWatermarkConfig({
+        updateTrustCenterWatermarkConfigId: watermarkConfigId,
+        input: {
+          isEnabled: false,
+        },
+      })
+      successNotification({ title: 'Successfully disabled watermark config.' })
+    } catch (error: unknown) {
+      let errorMessage: string | undefined
+      if (error instanceof ClientError) {
+        errorMessage = parseErrorMessage(error.response.errors)
+      }
+      errorNotification({
+        title: errorMessage ?? 'Failed to disable watermark config. Please try again.',
+      })
+    } finally {
+      setIsDisableWatermarkingConfigConfirmationDialogOpen(false)
+    }
   }
 
   return (
@@ -101,6 +134,24 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
         </div>
         {selectedDocs.length === 0 ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
+            <Menu
+              closeOnSelect={true}
+              content={(close) => (
+                <>
+                  <Button
+                    icon={<StopCircle size={16} />}
+                    onClick={() => {
+                      setIsDisableWatermarkingConfigConfirmationDialogOpen(true)
+                      close()
+                    }}
+                    iconPosition="left"
+                    variant="destructive"
+                  >
+                    Disable Watermark config
+                  </Button>
+                </>
+              )}
+            ></Menu>
             {mappedColumns && columnVisibility && setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.DOCUMENTS} />
             )}
@@ -119,6 +170,15 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
           </div>
         )}
       </div>
+
+      <ConfirmationDialog
+        open={isDisableWatermarkingConfigConfirmationDialogOpen}
+        onOpenChange={setIsDisableWatermarkingConfigConfirmationDialogOpen}
+        onConfirm={() => handleDisableWatermarkConfig()}
+        confirmationText={'Disable'}
+        title={`Disable watermarking`}
+        description={<>This will only apply to new documents. Existing documents can have watermarking disabled individually.</>}
+      />
     </>
   )
 }
