@@ -137,7 +137,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
                     navigator.clipboard.writeText(window.location.href)
                     successNotification({
                       title: 'Link copied',
-                      description: 'Trust Center Subprocessor link copied to clipboard.',
+                      description: 'Trust center subprocessor link copied to clipboard.',
                     })
                   }}
                 >
