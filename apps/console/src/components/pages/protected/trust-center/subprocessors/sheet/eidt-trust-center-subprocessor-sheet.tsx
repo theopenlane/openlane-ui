@@ -103,7 +103,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
       successNotification({
         title: 'Subprocessor Updated',
-        description: 'The Trust Center subprocessor has been successfully updated.',
+        description: 'The trust center subprocessor has been successfully updated.',
       })
 
       handleOpenChange(false)
