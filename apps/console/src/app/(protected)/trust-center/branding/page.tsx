@@ -1,4 +1,4 @@
-import BrandSettingsPage from '@/components/pages/protected/trust-center/settings/brand-settings-page'
+import BrandingPage from '@/components/pages/protected/trust-center/settings/brand-settings-page'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 const Page: React.FC = () => {
   return (
     <>
-      <BrandSettingsPage />
+      <BrandingPage />
     </>
   )
 }

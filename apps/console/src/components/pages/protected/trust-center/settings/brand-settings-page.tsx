@@ -10,7 +10,7 @@ import { Label } from '@repo/ui/label'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { BookUp, Eye } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -19,8 +19,10 @@ import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import UrlInput from './url-input'
 import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useNavigationGuard } from 'next-navigation-guard'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
-const BrandSettingsPage: React.FC = () => {
+const BrandPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [title, setTitle] = useState('')
@@ -57,6 +59,61 @@ const BrandSettingsPage: React.FC = () => {
   }
   const [showLogoLinkInputType, setShowLogoLinkInputType] = useState<LogoLinkInputTypeEnum>(LogoLinkInputTypeEnum.FILE)
   const [showFavIconInputType, setShowFavIconInputType] = useState<FavIconInputTypeEnum>(FavIconInputTypeEnum.FILE)
+
+  const initialValues = useMemo(
+    () => ({
+      title: setting?.title ?? '',
+      overview: setting?.overview ?? '',
+      primaryColor: setting?.primaryColor ?? '#f0f0e0',
+      foregroundColor: setting?.foregroundColor ?? '#f0f0e0',
+      backgroundColor: setting?.backgroundColor ?? '#f0f0e0',
+      secondaryForegroundColor: setting?.secondaryForegroundColor ?? '#f0f0e0',
+      secondaryBackgroundColor: setting?.secondaryBackgroundColor ?? '#f0f0e0',
+      accentColor: setting?.accentColor ?? '#f0f0e0',
+      font: setting?.font ?? 'outfit',
+      themeMode: setting?.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY,
+      logoRemoteURL: setting?.logoRemoteURL ?? '',
+      faviconRemoteURL: setting?.faviconRemoteURL ?? '',
+    }),
+    [setting],
+  )
+
+  const isDirty = useMemo(() => {
+    if (!setting) return false
+
+    const hasTextChanged = title !== initialValues.title || overview !== initialValues.overview || font !== initialValues.font || selectedThemeType !== initialValues.themeMode
+
+    const hasColorsChanged =
+      easyColor !== initialValues.primaryColor ||
+      foreground !== initialValues.foregroundColor ||
+      background !== initialValues.backgroundColor ||
+      accent !== initialValues.accentColor ||
+      secondaryForeground !== initialValues.secondaryForegroundColor ||
+      secondaryBackground !== initialValues.secondaryBackgroundColor
+
+    const hasAssetsChanged = logoFile !== null || faviconFile !== null || logoLink !== initialValues.logoRemoteURL || faviconLink !== initialValues.faviconRemoteURL
+
+    return hasTextChanged || hasColorsChanged || hasAssetsChanged
+  }, [
+    title,
+    overview,
+    font,
+    selectedThemeType,
+    easyColor,
+    foreground,
+    background,
+    accent,
+    secondaryForeground,
+    secondaryBackground,
+    logoFile,
+    faviconFile,
+    logoLink,
+    faviconLink,
+    initialValues,
+    setting,
+  ])
+
+  const navGuard = useNavigationGuard({ enabled: isDirty })
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Branding', href: '/trust-center/branding' }])
@@ -469,8 +526,9 @@ const BrandSettingsPage: React.FC = () => {
         title={`Publish`}
         description={<>Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate</>}
       />
+      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
     </div>
   )
 }
 
-export default BrandSettingsPage
+export default BrandPage
