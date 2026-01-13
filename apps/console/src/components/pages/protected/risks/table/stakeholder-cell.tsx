@@ -17,7 +17,7 @@ const StakeholderCell: React.FC<TStakeholderCellProps> = ({ stakeholder, riskId 
   const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
     try {
       await updateRisk({
-        id: riskId,
+        updateRiskId: riskId,
         input: {
           stakeholderID: data.id,
           clearStakeholder: !data.id,

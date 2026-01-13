@@ -77,14 +77,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Status Required */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <Binoculars size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Status</span>
+                  <span className="cursor-help text-sm">Status</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -95,7 +95,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           </TooltipProvider>
         </div>
 
-        <div ref={triggerRef} className="min-w-[160px]">
+        <div ref={triggerRef} className="min-w-40">
           {isEditing || editingField === 'status' ? (
             <Controller
               name="status"
@@ -124,7 +124,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             />
           ) : (
             <div
-              className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              className={`flex items-center space-x-2 text-sm ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
               onClick={() => {
                 if (!isEditing && editAllowed) setEditingField('status')
               }}
@@ -137,14 +137,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       </div>
 
       {/* Version (read-only) */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <FileStack size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Version</span>
+                  <span className="cursor-help text-sm">Version</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -154,22 +154,22 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="min-w-[160px] cursor-not-allowed">
+        <div className="min-w-40 cursor-not-allowed">
           <div className="flex gap-2">
-            <span>{procedure?.revision ?? '0.0.0'}</span>
+            <span className="text-sm">{procedure?.revision ?? '0.0.0'}</span>
           </div>
         </div>
       </div>
 
       {/* Procedure Type */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <ScrollText size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Procedure Type</span>
+                  <span className="cursor-help text-sm">Procedure Type</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -180,7 +180,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           </TooltipProvider>
         </div>
 
-        <div className="min-w-[160px]">
+        <div className="min-w-40">
           {isEditing || editingField === 'procedureKindName' ? (
             <FormField
               control={form.control}
@@ -218,21 +218,21 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 if (!isEditing && editAllowed) setEditingField('procedureKindName')
               }}
             >
-              <span className="w-full block min-h-6">{procedure?.procedureKindName}</span>
+              <span className="w-full block min-h-6 text-sm">{procedure?.procedureKindName}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Review date */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <Calendar size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Review date</span>
+                  <span className="cursor-help text-sm">Review date</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -243,7 +243,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           </TooltipProvider>
         </div>
 
-        <div ref={reviewTriggerRef} className="min-w-[160px]">
+        <div ref={reviewTriggerRef} className="min-w-40">
           {isEditing || editingField === 'reviewDue' ? (
             <Controller
               name="reviewDue"
@@ -274,7 +274,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 if (!isEditing && editAllowed) setEditingField('reviewDue')
               }}
             >
-              <span className="block min-h-6">{formatDate(procedure?.reviewDue) || '\u00A0'}</span>
+              <span className="block min-h-6 text-sm">{formatDate(procedure?.reviewDue) || '\u00A0'}</span>
             </div>
           )}
         </div>

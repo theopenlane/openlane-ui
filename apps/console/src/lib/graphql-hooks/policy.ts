@@ -13,6 +13,9 @@ import {
   GET_POLICY_SUGGESTED_ACTIONS,
   BULK_DELETE_POLICY,
   GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID,
+  INSERT_POLICY_COMMENT,
+  GET_POLICY_DISCUSSION_BY_ID,
+  UPDATE_POLICY_COMMENT,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -32,12 +35,17 @@ import {
   GetInternalPolicyAssociationsByIdQueryVariables,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
+  GetPolicyDiscussionByIdQuery,
   InternalPolicy,
   PolicySuggestedActionsQuery,
   UpdateBulkInternalPolicyMutation,
   UpdateBulkInternalPolicyMutationVariables,
+  InsertInternalPolicyCommentMutation,
+  InsertInternalPolicyCommentMutationVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
+  UpdatePolicyCommentMutation,
+  UpdatePolicyCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -260,6 +268,39 @@ export const useBulkDeletePolicy = () => {
     mutationFn: async (variables) => client.request(BULK_DELETE_POLICY, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    },
+  })
+}
+
+export const POLICY_DISCUSSION_QUERY_KEY = 'policyDiscussion'
+
+export const useGetPolicyDiscussionById = (policyId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetPolicyDiscussionByIdQuery, unknown>({
+    queryKey: [POLICY_DISCUSSION_QUERY_KEY, policyId],
+    queryFn: async () => client.request(GET_POLICY_DISCUSSION_BY_ID, { policyId }),
+    enabled: !!policyId,
+  })
+}
+
+export const useInsertPolicyComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<InsertInternalPolicyCommentMutation, unknown, InsertInternalPolicyCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(INSERT_POLICY_COMMENT, variables)
+    },
+  })
+}
+
+export const useUpdatePolicyComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdatePolicyCommentMutation, unknown, UpdatePolicyCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_POLICY_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['policyComments', data.updateInternalPolicyComment.internalPolicy.id] })
     },
   })
 }

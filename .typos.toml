@@ -1,5 +1,5 @@
 [files]
-extend-exclude = ["packages/ui/src/components/ui/mention-node.tsx"]
+extend-exclude = ["packages/ui/src/components/ui/mention-node.tsx", "packages/codegen/src/introspectionschema.json", "packages/codegen/src/schema.ts"]
 ignore-hidden = true
 ignore-files = true
 ignore-dot = true
