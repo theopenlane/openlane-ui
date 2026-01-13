@@ -23,7 +23,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export const AddExistingDialog = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (arg: boolean) => void }) => {
+export const AddExistingDialog = ({ createdSubprocessorId, onClose }: { createdSubprocessorId: string | null; onClose: () => void }) => {
   const [open, setOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
 
@@ -58,8 +58,10 @@ export const AddExistingDialog = ({ isOpen, setIsOpen }: { isOpen: boolean; setI
 
   const onOpenChange = (value: boolean) => {
     setOpen(value)
-    setIsOpen(value)
-    if (!value) reset()
+    if (!value) {
+      onClose()
+      reset()
+    }
   }
 
   const onSubmit = async (data: FormData) => {
@@ -87,8 +89,9 @@ export const AddExistingDialog = ({ isOpen, setIsOpen }: { isOpen: boolean; setI
   }
 
   useEffect(() => {
-    setOpen(isOpen)
-  }, [isOpen])
+    setOpen(!!createdSubprocessorId)
+    reset({ subprocessorID: createdSubprocessorId || '' })
+  }, [createdSubprocessorId, reset])
 
   if (!subprocessors.length) {
     return null
