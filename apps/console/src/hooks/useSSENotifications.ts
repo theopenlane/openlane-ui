@@ -9,19 +9,7 @@ export interface NotificationData {
   [key: string]: unknown
 }
 
-export type NotificationObjectType =
-  | 'Control'
-  | 'Subcontrol'
-  | 'Control Objective'
-  | 'Program'
-  | 'Task'
-  | 'Evidence'
-  | 'Group'
-  | 'Internal Policy'
-  | 'Procedure'
-  | 'Risk'
-  | 'Questionnaire'
-  | 'Evidence'
+export type NotificationObjectType = 'Program' | 'Task' | 'Evidence' | 'Group' | 'Internal Policy' | 'Procedure' | 'Risk' | 'Questionnaire' | 'Evidence'
 
 export interface Notification {
   id: string
