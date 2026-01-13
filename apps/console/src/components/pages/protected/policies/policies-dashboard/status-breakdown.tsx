@@ -11,6 +11,7 @@ import { saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
+import Link from 'next/link'
 
 interface Props {
   onStatusClick: () => void
@@ -39,7 +40,7 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
   }, [policies])
 
   const policiesByStatus = useMemo(() => {
-    const map: Record<InternalPolicyDocumentStatus, string[]> = {
+    const map: Record<InternalPolicyDocumentStatus, { id: string; name: string }[]> = {
       PUBLISHED: [],
       DRAFT: [],
       NEEDS_APPROVAL: [],
@@ -48,7 +49,7 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
     }
 
     for (const p of policies) {
-      if (p?.status) map[p.status].push(p.name)
+      if (p?.status) map[p.status].push({ id: p.id, name: p.name })
     }
 
     return map
@@ -113,11 +114,16 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
                   <TooltipContent side="right" className="max-w-xs border p-3 rounded-md space-y-2">
                     <p className="font-medium">{label} Policies</p>
 
-                    {showList.map((name, i) => (
-                      <p key={i} className="text-sm text-muted-foreground truncate">
-                        {name}
-                      </p>
-                    ))}
+                    {showList.map((item, i) => {
+                      const policyLink = `/policies/${item.id}/view`
+                      return (
+                        <Link href={policyLink} key={i}>
+                          <p key={i} className="text-sm text-muted-foreground truncate">
+                            {item.name}
+                          </p>
+                        </Link>
+                      )
+                    })}
 
                     {hasMore && (
                       <Button
