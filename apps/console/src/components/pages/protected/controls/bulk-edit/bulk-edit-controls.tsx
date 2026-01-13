@@ -19,9 +19,11 @@ import {
   defaultObject,
   SelectOptionBulkEditControls,
   useGetAllSelectOptionsForBulkEditControls,
+  InputType,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { Input } from '@repo/ui/input'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -30,17 +32,19 @@ const fieldItemSchema = z.object({
       selectOptionEnum: z.nativeEnum(SelectOptionBulkEditControls),
       name: z.string(),
       placeholder: z.string(),
-      selectedValue: z.string().optional(),
-      options: z.array(
-        z.object({
-          label: z.string(),
-          value: z.string(),
-        }),
-      ),
+      inputType: z.nativeEnum(InputType),
+      options: z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
     })
     .optional(),
+  selectedValue: z.string().optional(),
 })
-
 const bulkEditControlsSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
@@ -162,7 +166,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         </SelectContent>
                       </Select>
                     </div>
-                    {item.selectedObject && (
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Select && (
                       <div className="flex flex-col items-center gap-2">
                         <Controller
                           name={item.selectedObject.name as keyof BulkEditDialogFormValues}
@@ -192,12 +196,21 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         />
                       </div>
                     )}
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Input && (
+                      <div className="flex flex-col items-center gap-2">
+                        <Controller
+                          control={form.control}
+                          name={`fieldsArray.${index}.selectedValue`}
+                          render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
+                        />
+                      </div>
+                    )}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)} />
                   </div>
                 )
               })}
 
-              {fields.length < 3 ? (
+              {fields.length < 5 ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>

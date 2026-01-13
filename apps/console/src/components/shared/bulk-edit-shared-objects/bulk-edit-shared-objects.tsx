@@ -54,6 +54,8 @@ export enum SelectOptionBulkEditControls {
   ControlType = 'Control type',
   ControlOwner = 'Control owner',
   Program = 'Program',
+  Category = 'Category',
+  SubCategory = 'Subcategory',
 }
 
 export enum SelectOptionBulkEditPolicies {
@@ -276,6 +278,18 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       placeholder: 'Select program...',
       inputType: InputType.Select,
       options: programOptions || [],
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.Category,
+      name: 'category',
+      inputType: InputType.Input,
+      placeholder: 'Input category',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.SubCategory,
+      name: 'subcategory',
+      inputType: InputType.Input,
+      placeholder: 'Input subcategory',
     },
   ]
 }
