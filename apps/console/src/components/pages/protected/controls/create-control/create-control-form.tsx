@@ -11,6 +11,7 @@ import PropertiesCard from '@/components/pages/protected/controls/properties-car
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
 import {
+  Control,
   ControlControlSource,
   ControlControlStatus,
   CreateControlImplementationInput,
@@ -20,9 +21,10 @@ import {
   CreateSubcontrolInput,
   MappedControlMappingSource,
   MappedControlMappingType,
+  Subcontrol,
 } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useControlSelect, useCreateControl, useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useControlSelect, useCreateControl, useGetControlById, useGetControlDiscussionById, useGetControlMinifiedById } from '@/lib/graphql-hooks/controls'
 import { useNotification } from '@/hooks/useNotification'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Popover, PopoverContent } from '@repo/ui/popover'
@@ -30,7 +32,7 @@ import { Command, CommandItem, CommandList, CommandEmpty } from '@repo/ui/comman
 import { PopoverTrigger } from '@radix-ui/react-popover'
 import useClickOutside from '@/hooks/useClickOutside'
 import { Option } from '@repo/ui/multiple-selector'
-import { useCreateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
+import { useCreateSubcontrol, useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
 import { Check } from 'lucide-react'
 import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
@@ -46,6 +48,10 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import RelatedControls from './related-controls'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { Value } from 'platejs'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -66,7 +72,7 @@ export default function CreateControlForm() {
   const [clearData, setClearData] = useState<boolean>(false)
   const [createObjective, setCreateObjective] = useState(false)
   const [createImplementation, setCreateImplementation] = useState(false)
-
+  const [mappedControls, setMappedControls] = useState<{ controls: Control[]; subcontrols: Subcontrol[] }>({ controls: [], subcontrols: [] })
   const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
   const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
 
@@ -74,6 +80,10 @@ export default function CreateControlForm() {
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
   const { mutateAsync: createMappedControl } = useCreateMappedControl()
+  const { data: discussionData } = useGetControlDiscussionById(id ?? null)
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
   const dropdownRef = useClickOutside(() => setOpen(false))
   const searchRef = useRef(null)
 
@@ -95,6 +105,9 @@ export default function CreateControlForm() {
   } = form
 
   const { data: controlData, isLoading } = useGetControlById(id)
+
+  const { data: mappedControlData } = useGetControlMinifiedById(mapControlId || '')
+  const { data: mappedSubcontrolData } = useGetSubcontrolMinifiedById(mapSubcontrolId || '')
 
   const { data, controlOptions } = useControlSelect({
     where: search ? { refCodeContainsFold: search } : undefined,
@@ -119,13 +132,12 @@ export default function CreateControlForm() {
   const onSubmit = async (formData: ControlFormData) => {
     const { desiredOutcome, details, ...data } = formData
     try {
-      const description = await convertToHtml(data.description)
-
       let newId: string | undefined
 
       const commonInput = {
         ...data,
-        description,
+        description: await convertToHtml(data.descriptionJSON as Value),
+        descriptionJSON: data.descriptionJSON,
         referenceID: data.referenceID || undefined,
         auditorReferenceID: data.auditorReferenceID || undefined,
         ...associations,
@@ -139,15 +151,15 @@ export default function CreateControlForm() {
         newId = response?.createControl?.control?.id
       }
 
-      if (mapControlId || mapSubcontrolId) {
+      if (newId && (mappedControls.controls.length > 0 || mappedControls.subcontrols.length > 0)) {
         const input: CreateMappedControlInput = {
           mappingType: MappedControlMappingType.PARTIAL,
           source: MappedControlMappingSource.MANUAL,
           confidence: 100,
           fromControlIDs: isCreateSubcontrol ? [] : [newId],
-          toControlIDs: mapControlId ? [mapControlId] : [],
           fromSubcontrolIDs: isCreateSubcontrol ? [newId] : [],
-          toSubcontrolIDs: mapSubcontrolId ? [mapSubcontrolId] : [],
+          toControlIDs: mappedControls.controls.map((c) => c.id),
+          toSubcontrolIDs: mappedControls.subcontrols.map((c) => c.id),
           relation: 'Mapping auto-created based on creation of control from framework',
         }
 
@@ -248,6 +260,7 @@ export default function CreateControlForm() {
       form.reset({
         refCode: `CC-${controlData?.control.refCode}`,
         description: controlData?.control.description ?? undefined,
+        descriptionJSON: controlData?.control.descriptionJSON ?? undefined,
         category: controlData?.control.category ?? undefined,
         subcategory: controlData?.control.subcategory ?? undefined,
         source: ControlControlSource.USER_DEFINED,
@@ -267,6 +280,15 @@ export default function CreateControlForm() {
       setDataInitialized(true)
     }
   }, [controlData, form, fillCategoryAndSubcategory, selectedParentControlLabel, dataInitialized, isCloning])
+
+  useEffect(() => {
+    if (mappedControlData || mappedSubcontrolData) {
+      setMappedControls((prev) => ({
+        controls: mappedControlData?.control ? [...prev.controls, mappedControlData.control as Control] : prev.controls,
+        subcontrols: mappedSubcontrolData?.subcontrol ? [...prev.subcontrols, mappedSubcontrolData.subcontrol as Subcontrol] : prev.subcontrols,
+      }))
+    }
+  }, [mappedControlData, mappedSubcontrolData])
 
   const onCancel = () => {
     setClearData(true)
@@ -358,9 +380,19 @@ export default function CreateControlForm() {
             <div className="mt-4">
               <Label>Description</Label>
               <Controller
-                name="description"
+                name="descriptionJSON"
                 control={control}
-                render={({ field }) => <PlateEditor initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} />}
+                render={({ field }) => (
+                  <PlateEditor
+                    initialValue={controlData?.control?.descriptionJSON ?? controlData?.control?.description ?? (form.getValues('description') as string) ?? undefined}
+                    clearData={clearData}
+                    entity={discussionData?.control}
+                    userData={userData}
+                    onClear={() => setClearData(false)}
+                    onChange={field.onChange}
+                    isCreate={!id}
+                  />
+                )}
               />
             </div>
 
@@ -423,6 +455,7 @@ export default function CreateControlForm() {
           {/* Authority & Properties Grid */}
           <div className="w-[45%] flex flex-col gap-5">
             <PropertiesCard isEditing canEdit />
+            <RelatedControls onSave={setMappedControls} mappedControls={mappedControls} />
             <Card className="p-4">
               <h3 className="text-lg font-medium mb-2">Create associations</h3>
               <div className="flex flex-col gap-4"></div>

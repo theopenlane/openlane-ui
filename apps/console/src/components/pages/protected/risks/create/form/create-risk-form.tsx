@@ -30,11 +30,6 @@ const CreateRiskForm: React.FC = () => {
   const [clearData, setClearData] = useState<boolean>(false)
 
   const onSubmitHandler = async (values: CreateRisksFormData) => {
-    let detailsField = values?.details
-
-    if (detailsField) {
-      detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-    }
     let businessCostsField = values?.businessCosts
 
     if (businessCostsField) {
@@ -46,7 +41,8 @@ const CreateRiskForm: React.FC = () => {
         input: {
           ...values,
           mitigation: undefined,
-          details: detailsField,
+          details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
+          detailsJSON: values.detailsJSON,
           businessCosts: businessCostsField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           stakeholderID: values.stakeholderID || undefined,
@@ -92,7 +88,7 @@ const CreateRiskForm: React.FC = () => {
         <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
           <div className="space-y-6 w-full max-w-full overflow-hidden">
             <TitleField isEditing={true} form={form} />
-            <DetailsField isEditing={true} form={form} clearData={clearData} onCleared={() => setClearData(false)} />
+            <DetailsField isEditing={true} form={form} clearData={clearData} onCleared={() => setClearData(false)} isCreate={true} />
             <BusinessCostField isEditing={true} form={form} />
             <div className="flex justify-between items-center">
               <Button variant="primary" type="submit" disabled={isPending}>

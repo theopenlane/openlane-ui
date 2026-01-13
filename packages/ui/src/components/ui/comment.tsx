@@ -16,9 +16,16 @@ import { Button } from '@repo/ui/components/ui/button.tsx'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
 import { cn } from '@repo/ui/lib/utils'
 import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-kit.tsx'
-import { type TDiscussion, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
+import { POLICY_DISCUSSION_QUERY_KEY, useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
+import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
+import { PROCEDURE_DISCUSSION_QUERY_KEY, useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
+import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/controls.ts'
+import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
+import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface TComment {
   id: string
@@ -44,48 +51,121 @@ export function Comment(props: {
   const editor = useEditorRef()
   const userInfo = usePluginOption(discussionPlugin, 'user', comment.userId)
   const currentUserId = usePluginOption(discussionPlugin, 'currentUserId')
+  const { mutateAsync: updateControlComment } = useUpdateControlComment()
+  const { mutateAsync: updateSubcontrolComment } = useUpdateSubcontrolComment()
+  const { mutateAsync: updatePolicyComment } = useUpdatePolicyComment()
+  const { mutateAsync: updateProcedureComment } = useUpdateProcedureComment()
+  const { mutateAsync: updateRiskComment } = useUpdateRiskComment()
+
+  const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
+
+  type EntityInputMap = {
+    Control: UpdateNoteInput
+    Subcontrol: UpdateNoteInput
+    Procedure: UpdateNoteInput
+    InternalPolicy: UpdateNoteInput
+    Risk: UpdateNoteInput
+  }
+
+  type EntityIdKeyMap = {
+    Control: 'updateControlCommentId'
+    Subcontrol: 'updateSubcontrolCommentId'
+    Procedure: 'updateProcedureCommentId'
+    InternalPolicy: 'updateInternalPolicyCommentId'
+    Risk: 'updateRiskCommentId'
+  }
+
+  type EntityType = keyof EntityInputMap
+  type EntityInput<T extends EntityType> = EntityInputMap[T]
+  type EntityIdKey<T extends EntityType> = EntityIdKeyMap[T]
+
+  type EntityUpdateFn<T extends EntityType> = (
+    args: { [K in EntityIdKey<T>]: string } & {
+      input: EntityInput<T>
+    },
+  ) => Promise<unknown>
+
+  const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
+    Control: updateControlComment,
+    Subcontrol: updateSubcontrolComment,
+    Procedure: updateProcedureComment,
+    InternalPolicy: updatePolicyComment,
+    Risk: updateRiskComment,
+  }
+
+  function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
+    return entityUpdateMap[type]
+  }
+
+  const entityUpdate = getEntityUpdater(entityType)
 
   const resolveDiscussion = async (id: string) => {
+    // NOTE: backend does not support resolving discussions; keep this local-only
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id === id) {
         return { ...discussion, isResolved: true }
       }
       return discussion
     })
+
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
   const removeDiscussion = async (id: string) => {
+    // NOTE: backend does not support deleting discussions specifically by ID; keeping this local-only
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').filter((discussion) => discussion.id !== id)
+
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
   const updateComment = async (input: { id: string; contentRich: Value; discussionId: string; isEdited: boolean }) => {
+    const text = NodeApi.string({ children: input.contentRich, type: KEYS.p })
+
+    const commentIdKeyMap = {
+      Control: 'updateControlCommentId',
+      Subcontrol: 'updateSubcontrolCommentId',
+      Procedure: 'updateProcedureCommentId',
+      InternalPolicy: 'updateInternalPolicyCommentId',
+      Risk: 'updateRiskCommentId',
+    } as const
+
+    const noteInput: UpdateNoteInput = {
+      text,
+    }
+
+    await entityUpdate({
+      [commentIdKeyMap[entityType]]: comment.id,
+      input: noteInput,
+    } as {
+      [K in (typeof commentIdKeyMap)[typeof entityType]]: string
+    } & {
+      input: UpdateNoteInput
+    })
+
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id === input.discussionId) {
-        const updatedComments = discussion.comments.map((comment) => {
-          if (comment.id === input.id) {
+        const updatedComments = discussion.comments.map((c) => {
+          if (c.id === input.id) {
             return {
-              ...comment,
+              ...c,
               contentRich: input.contentRich,
               isEdited: true,
               updatedAt: new Date(),
             }
           }
-          return comment
+          return c
         })
         return { ...discussion, comments: updatedComments }
       }
       return discussion
     })
+
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
   const { tf } = useEditorPlugin(CommentPlugin)
 
-  // Replace to your own backend or refer to potion
   const isMyComment = currentUserId === comment.userId
-
   const initialValue = comment.contentRich
 
   const commentEditor = useCommentEditor(
@@ -133,10 +213,7 @@ export function Comment(props: {
           <AvatarImage alt={userInfo?.name} src={userInfo?.avatarUrl} />
           <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
         </Avatar>
-        <h4 className="mx-2 text-sm leading-none font-semibold">
-          {/* Replace to your own backend or refer to potion */}
-          {userInfo?.name}
-        </h4>
+        <h4 className="mx-2 text-sm leading-none font-semibold">{userInfo?.name}</h4>
 
         <div className="text-xs leading-none text-muted-foreground/80">
           <span className="mr-1">{formatCommentDate(new Date(comment.createdAt))}</span>
@@ -232,15 +309,83 @@ function CommentMoreDropdown(props: {
   onRemoveComment?: () => void
 }) {
   const { comment, dropdownOpen, setDropdownOpen, setEditingId, onCloseAutoFocus, onRemoveComment } = props
+  const { mutateAsync: updateInternalPolicy } = useUpdateInternalPolicy()
+  const { mutateAsync: updateProcedure } = useUpdateProcedure()
+  const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
+  const { mutateAsync: updateRisk } = useUpdateRisk()
+  const entityId = usePluginOption(discussionPlugin, 'entityId') as string
+  const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
+
+  type EntityInputMap = {
+    Control: UpdateControlInput
+    Subcontrol: UpdateSubcontrolInput
+    Procedure: UpdateProcedureInput
+    InternalPolicy: UpdateInternalPolicyInput
+    Risk: UpdateRiskInput
+  }
+
+  type EntityIdKeyMap = {
+    Control: 'updateControlId'
+    Subcontrol: 'updateSubcontrolId'
+    Procedure: 'updateProcedureId'
+    InternalPolicy: 'updateInternalPolicyId'
+    Risk: 'updateRiskId'
+  }
+
+  type EntityType = keyof EntityInputMap
+  type EntityInput<T extends EntityType> = EntityInputMap[T]
+  type EntityIdKey<T extends EntityType> = EntityIdKeyMap[T]
+
+  type EntityUpdateFn<T extends EntityType> = (
+    args: { [K in EntityIdKey<T>]: string } & {
+      input: EntityInput<T>
+    },
+  ) => Promise<unknown>
+
+  const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
+    Control: updateControl,
+    Subcontrol: updateSubcontrol,
+    Procedure: updateProcedure,
+    InternalPolicy: updateInternalPolicy,
+    Risk: updateRisk,
+  }
+
+  function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
+    return entityUpdateMap[type]
+  }
+
+  const entityUpdate = getEntityUpdater(entityType)
 
   const editor = useEditorRef()
 
   const selectedEditCommentRef = React.useRef<boolean>(false)
 
-  const onDeleteComment = React.useCallback(() => {
+  const onDeleteComment = React.useCallback(async () => {
     if (!comment.id) return alert('You are operating too quickly, please try again later.')
 
-    // Find and update the discussion
+    const entityIdKeyMap: EntityIdKeyMap = {
+      Control: 'updateControlId',
+      Subcontrol: 'updateSubcontrolId',
+      Procedure: 'updateProcedureId',
+      InternalPolicy: 'updateInternalPolicyId',
+      Risk: 'updateRiskId',
+    }
+
+    const input: EntityInput<typeof entityType> = {
+      deleteComment: comment.id,
+    }
+
+    await entityUpdate({
+      [entityIdKeyMap[entityType]]: entityId,
+      input,
+    } as {
+      [K in EntityIdKey<typeof entityType>]: string
+    } & {
+      input: EntityInput<typeof entityType>
+    })
+
+    // Local-only delete; backend has no comment IDs in response
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id !== comment.discussionId) {
         return discussion
@@ -257,7 +402,6 @@ function CommentMoreDropdown(props: {
       }
     })
 
-    // Save back to session storage
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
     onRemoveComment?.()
   }, [comment.discussionId, comment.id, editor, onRemoveComment])
@@ -271,7 +415,7 @@ function CommentMoreDropdown(props: {
   }, [comment.id, setEditingId])
 
   return (
-    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen} modal={false}>
+    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
         <Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')}>
           <MoreHorizontalIcon className="size-4" />
@@ -289,11 +433,11 @@ function CommentMoreDropdown(props: {
         }}
       >
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={onEditComment}>
+          <DropdownMenuItem className="cursor-pointer" onClick={onEditComment}>
             <PencilIcon className="size-4" />
             Edit comment
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onDeleteComment}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => void onDeleteComment()}>
             <TrashIcon className="size-4" />
             Delete comment
           </DropdownMenuItem>
@@ -329,6 +473,8 @@ export function CommentCreateForm({
   focusOnMount?: boolean
 }) {
   const discussions = usePluginOption(discussionPlugin, 'discussions')
+  const entityId = usePluginOption(discussionPlugin, 'entityId') as string
+  const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
   const editor = useEditorRef()
   const commentId = useCommentId()
@@ -338,6 +484,125 @@ export function CommentCreateForm({
   const [commentValue, setCommentValue] = React.useState<Value | undefined>()
   const commentContent = React.useMemo(() => (commentValue ? NodeApi.string({ children: commentValue, type: KEYS.p }) : ''), [commentValue])
   const commentEditor = useCommentEditor()
+  const { mutateAsync: insertPolicyComment } = useInsertPolicyComment()
+  const { mutateAsync: insertProcedureComment } = useInsertProcedureComment()
+  const { mutateAsync: insertControlComment } = useInsertControlPlateComment()
+  const { mutateAsync: insertSubcontrolComment } = useInsertSubcontrolPlateComment()
+  const { mutateAsync: insertRiskComment } = useInsertRiskComment()
+  const { mutateAsync: updateInternalPolicy } = useUpdateInternalPolicy()
+  const { mutateAsync: updateProcedure } = useUpdateProcedure()
+  const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
+  const { mutateAsync: updateRisk } = useUpdateRisk()
+  const queryClient = useQueryClient()
+
+  type EntityInputMap = {
+    Control: UpdateControlInput
+    Subcontrol: UpdateSubcontrolInput
+    Procedure: UpdateProcedureInput
+    InternalPolicy: UpdateInternalPolicyInput
+    Risk: UpdateRiskInput
+  }
+
+  type EntityIdKeyMap = {
+    Control: 'updateControlId'
+    Subcontrol: 'updateSubcontrolId'
+    Procedure: 'updateProcedureId'
+    InternalPolicy: 'updateInternalPolicyId'
+    Risk: 'updateRiskId'
+  }
+
+  type EntityType = keyof EntityInputMap
+  type EntityInput<T extends EntityType> = EntityInputMap[T]
+  type EntityIdKey<T extends EntityType> = EntityIdKeyMap[T]
+
+  type EntityUpdateFn<T extends EntityType> = (
+    args: { [K in EntityIdKey<T>]: string } & {
+      input: EntityInput<T>
+    },
+  ) => Promise<unknown>
+
+  const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
+    Control: insertControlComment,
+    Subcontrol: insertSubcontrolComment,
+    Procedure: insertProcedureComment,
+    InternalPolicy: insertPolicyComment,
+    Risk: insertRiskComment,
+  }
+
+  const entityDescriptionUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
+    Control: updateControl,
+    Subcontrol: updateSubcontrol,
+    Procedure: updateProcedure,
+    InternalPolicy: updateInternalPolicy,
+    Risk: updateRisk,
+  }
+
+  const entityUpdate = getEntityUpdater(entityType)
+  const entityDescriptionUpdate = getEntityDescriptionUpdater(entityType)
+
+  function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
+    return entityUpdateMap[type]
+  }
+
+  function getEntityDescriptionUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
+    return entityDescriptionUpdateMap[type]
+  }
+
+  const updateDescription = async () => {
+    const entityIdKeyMap: EntityIdKeyMap = {
+      Control: 'updateControlId',
+      Subcontrol: 'updateSubcontrolId',
+      Procedure: 'updateProcedureId',
+      InternalPolicy: 'updateInternalPolicyId',
+      Risk: 'updateRiskId',
+    }
+
+    const input = entityType === 'Control' || entityType === 'Subcontrol' ? { descriptionJSON: editor.children } : { detailsJSON: editor.children }
+
+    await entityDescriptionUpdate({
+      [entityIdKeyMap[entityType]]: entityId,
+      input,
+    } as {
+      [K in EntityIdKey<typeof entityType>]: string
+    } & {
+      input: EntityInput<typeof entityType>
+    })
+
+    let entityUpdateKey
+    let entityDiscussionKey
+
+    switch (entityType) {
+      case 'Control':
+        entityUpdateKey = CONTROL_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'controls'
+        break
+      case 'Risk':
+        entityUpdateKey = RISK_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'risks'
+        break
+      case 'InternalPolicy':
+        entityUpdateKey = POLICY_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'internalPolicies'
+        break
+      case 'Subcontrol':
+        entityUpdateKey = SUBCONTROL_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'subcontrols'
+        break
+      case 'Procedure':
+        entityUpdateKey = PROCEDURE_DISCUSSION_QUERY_KEY
+        entityDiscussionKey = 'procedures'
+        break
+      default:
+        entityUpdateKey = undefined
+        entityDiscussionKey = undefined
+    }
+
+    if (entityUpdateKey && entityDiscussionKey) {
+      queryClient.invalidateQueries({ queryKey: [entityUpdateKey, entityId] })
+      queryClient.invalidateQueries({ queryKey: [entityDiscussionKey, entityId] })
+    }
+  }
 
   React.useEffect(() => {
     if (commentEditor && focusOnMount) {
@@ -348,13 +613,23 @@ export function CommentCreateForm({
   const onAddComment = React.useCallback(async () => {
     if (!commentValue) return
 
+    const entityIdKeyMap: EntityIdKeyMap = {
+      Control: 'updateControlId',
+      Subcontrol: 'updateSubcontrolId',
+      Procedure: 'updateProcedureId',
+      InternalPolicy: 'updateInternalPolicyId',
+      Risk: 'updateRiskId',
+    }
+
+    const text = NodeApi.string({ children: commentValue, type: KEYS.p })
+
     commentEditor.tf.reset()
 
     if (discussionId) {
       // Get existing discussion
       const discussion = discussions.find((d) => d.id === discussionId)
       if (!discussion) {
-        // Mock creating suggestion
+        // Create new discussion locally
         const newDiscussion: TDiscussion = {
           id: discussionId,
           comments: [
@@ -364,37 +639,91 @@ export function CommentCreateForm({
               createdAt: new Date(),
               discussionId,
               isEdited: false,
-              userId: editor.getOption(discussionPlugin, 'currentUserId'),
+              userId: editor.getOption(discussionPlugin, 'currentUserId')!,
             },
           ],
           createdAt: new Date(),
           isResolved: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+          userId: editor.getOption(discussionPlugin, 'currentUserId')!,
         }
 
-        editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion])
+        // 🔁 Sync with backend for NEW discussion only
+        if (entityId) {
+          const input: EntityInput<typeof entityType> = {
+            addDiscussion: {
+              externalID: discussionId,
+              addComment: {
+                text,
+                noteRef: commentValue[0].id! as string,
+              },
+            },
+          }
+
+          await entityUpdate({
+            [entityIdKeyMap[entityType]]: entityId,
+            input,
+          } as {
+            [K in EntityIdKey<typeof entityType>]: string
+          } & {
+            input: EntityInput<typeof entityType>
+          })
+
+          const updatedDiscussions = [...discussions, newDiscussion]
+          editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
+        }
+
         return
       }
 
-      // Create reply comment
       const comment: TComment = {
         id: nanoid(),
         contentRich: commentValue,
         createdAt: new Date(),
         discussionId,
         isEdited: false,
-        userId: editor.getOption(discussionPlugin, 'currentUserId'),
+        userId: editor.getOption(discussionPlugin, 'currentUserId')!,
       }
 
-      // Add reply to discussion comments
       const updatedDiscussion = {
         ...discussion,
         comments: [...discussion.comments, comment],
       }
 
-      // Filter out old discussion and add updated one
-      const updatedDiscussions = discussions.filter((d) => d.id !== discussionId).concat(updatedDiscussion)
+      if (entityId) {
+        const input: EntityInput<typeof entityType> = {
+          updateDiscussion: {
+            id: updatedDiscussion.systemId!,
+            input: {
+              addComment: {
+                text,
+                noteRef: commentValue[0].id! as string,
+              },
+            },
+          },
+        }
 
+        const entityData = (await entityUpdate({
+          [entityIdKeyMap[entityType]]: entityId,
+          input,
+        } as {
+          [K in EntityIdKey<typeof entityType>]: string
+        } & {
+          input: EntityInput<typeof entityType>
+        })) as Record<string, unknown>
+
+        const mutationResult = Object.values(entityData)[0]
+        const entityPayload = mutationResult && Object.values(mutationResult)[0]
+        const discussion = entityPayload?.discussions?.edges[0].node
+
+        const lastUpdatedComment = updatedDiscussion.comments[updatedDiscussion.comments.length - 1]
+        const lastReturnedComment = discussion.comments.edges[discussion.comments.edges.length - 1]
+
+        if (lastUpdatedComment && lastReturnedComment) {
+          lastUpdatedComment.id = lastReturnedComment.node.id
+        }
+      }
+
+      const updatedDiscussions = discussions.filter((d) => d.id !== discussionId).concat(updatedDiscussion)
       editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
 
       return
@@ -407,7 +736,7 @@ export function CommentCreateForm({
     const documentContent = commentsNodeEntry.map(([node]) => node.text).join('')
 
     const _discussionId = nanoid()
-    // Mock creating new discussion
+    // Create new discussion locally
     const newDiscussion: TDiscussion = {
       id: _discussionId,
       comments: [
@@ -417,16 +746,18 @@ export function CommentCreateForm({
           createdAt: new Date(),
           discussionId: _discussionId,
           isEdited: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+          userId: editor.getOption(discussionPlugin, 'currentUserId')!,
         },
       ],
       createdAt: new Date(),
       documentContent,
       isResolved: false,
-      userId: editor.getOption(discussionPlugin, 'currentUserId'),
+      userId: editor.getOption(discussionPlugin, 'currentUserId')!,
     }
 
-    editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion])
+    const updatedDiscussions = [...discussions, newDiscussion]
+
+    editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
 
     const id = newDiscussion.id
 
@@ -439,12 +770,35 @@ export function CommentCreateForm({
       )
       editor.tf.unsetNodes([getDraftCommentKey()], { at: path })
     })
-  }, [commentValue, commentEditor.tf, discussionId, editor, discussions])
+
+    // 🔁 Sync with backend for NEW discussion only
+    if (entityId) {
+      const input: EntityInput<typeof entityType> = {
+        addDiscussion: {
+          externalID: id,
+          addComment: {
+            text,
+            noteRef: commentValue[0].id! as string,
+          },
+        },
+      }
+
+      await entityUpdate({
+        [entityIdKeyMap[entityType]]: entityId,
+        input,
+      } as {
+        [K in EntityIdKey<typeof entityType>]: string
+      } & {
+        input: EntityInput<typeof entityType>
+      })
+
+      updateDescription()
+    }
+  }, [commentValue, commentEditor.tf, commentId, discussionId, discussions, editor, entityId])
 
   return (
-    <div className={cn('flex w-full', className)}>
+    <div className={cn('flex w-full', className)} onClick={(e) => e.stopPropagation()}>
       <div className="mt-2 mr-1 shrink-0">
-        {/* Replace to your own backend or refer to potion */}
         <Avatar className="size-5">
           <AvatarImage alt={userInfo?.name} src={userInfo?.avatarUrl} />
           <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
@@ -465,7 +819,7 @@ export function CommentCreateForm({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  onAddComment()
+                  void onAddComment()
                 }
               }}
               placeholder="Reply..."
@@ -480,7 +834,7 @@ export function CommentCreateForm({
               disabled={commentContent.trim().length === 0}
               onClick={(e) => {
                 e.stopPropagation()
-                onAddComment()
+                void onAddComment()
               }}
             >
               <div className="flex size-6 items-center justify-center rounded-full">

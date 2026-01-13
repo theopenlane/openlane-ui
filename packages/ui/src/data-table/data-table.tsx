@@ -66,7 +66,7 @@ interface BaseDataTableProps<TData, TValue> {
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   footer?: ReactElement | null
-  tableKey: TableKeyEnum
+  tableKey: TableKeyEnum | undefined
   defaultSorting?: { field: string; direction?: OrderDirection }[] | undefined
 }
 

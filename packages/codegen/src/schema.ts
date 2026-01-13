@@ -377,11 +377,6 @@ export interface ActionPlan extends Node {
   actionPlanKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the action_plan */
   actionPlanKindName?: Maybe<Scalars['String']['output']>
-  /**
-   * type of the action_plan, e.g. compliance, operational, health and safety, etc.
-   * @deprecated Use `action_plan_kind_name` instead.
-   */
-  actionPlanType?: Maybe<Scalars['String']['output']>
   /** Returns the active workflow instance for this actionPlan if one is running */
   activeWorkflowInstance?: Maybe<WorkflowInstance>
   /** whether approval is required for edits to the action_plan */
@@ -749,22 +744,6 @@ export interface ActionPlanWhereInput {
   actionPlanKindNameNEQ?: InputMaybe<Scalars['String']['input']>
   actionPlanKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   actionPlanKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** action_plan_type field predicates */
-  actionPlanType?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeContains?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeGT?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeGTE?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  actionPlanTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  actionPlanTypeLT?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeLTE?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  actionPlanTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  actionPlanTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<ActionPlanWhereInput>>
   /** approval_required field predicates */
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
@@ -2579,11 +2558,6 @@ export interface Control extends Node {
   controlOwnerID?: Maybe<Scalars['ID']['output']>
   /** questions to ask to verify the control */
   controlQuestions?: Maybe<Array<Scalars['String']['output']>>
-  /**
-   * type of the control e.g. preventive, detective, corrective, or deterrent.
-   * @deprecated Use `control_kind_name` instead.
-   */
-  controlType?: Maybe<ControlControlType>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** temporary delegate for the control, used for temporary control ownership */
@@ -2943,14 +2917,6 @@ export enum ControlControlStatus {
   NOT_APPLICABLE = 'NOT_APPLICABLE',
   NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   PREPARING = 'PREPARING',
-}
-
-/** ControlControlType is enum for the field control_type */
-export enum ControlControlType {
-  CORRECTIVE = 'CORRECTIVE',
-  DETECTIVE = 'DETECTIVE',
-  DETERRENT = 'DETERRENT',
-  PREVENTATIVE = 'PREVENTATIVE',
 }
 
 /** Return response for createControl mutation */
@@ -3917,7 +3883,6 @@ export interface ControlOrder {
 /** Properties by which Control connections can be ordered. */
 export enum ControlOrderField {
   CONTROL_OWNER_name = 'CONTROL_OWNER_name',
-  CONTROL_TYPE = 'CONTROL_TYPE',
   DELEGATE_name = 'DELEGATE_name',
   REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   RESPONSIBLE_PARTY_name = 'RESPONSIBLE_PARTY_name',
@@ -4040,13 +4005,6 @@ export interface ControlWhereInput {
   controlOwnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   controlOwnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   controlOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** control_type field predicates */
-  controlType?: InputMaybe<ControlControlType>
-  controlTypeIn?: InputMaybe<Array<ControlControlType>>
-  controlTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  controlTypeNEQ?: InputMaybe<ControlControlType>
-  controlTypeNotIn?: InputMaybe<Array<ControlControlType>>
-  controlTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -4475,8 +4433,6 @@ export interface CreateActionPlanInput {
   actionPlanKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the action_plan */
   actionPlanKindName?: InputMaybe<Scalars['String']['input']>
-  /** type of the action_plan, e.g. compliance, operational, health and safety, etc. */
-  actionPlanType?: InputMaybe<Scalars['String']['input']>
   /** whether approval is required for edits to the action_plan */
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
   approverID?: InputMaybe<Scalars['ID']['input']>
@@ -4714,8 +4670,6 @@ export interface CreateControlInput {
   controlOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** questions to ask to verify the control */
   controlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
-  /** type of the control e.g. preventive, detective, corrective, or deterrent. */
-  controlType?: InputMaybe<ControlControlType>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** description of what the control is supposed to accomplish */
   description?: InputMaybe<Scalars['String']['input']>
@@ -5574,8 +5528,6 @@ export interface CreateInternalPolicyInput {
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** type of the policy, e.g. compliance, operational, health and safety, etc. */
-  policyType?: InputMaybe<Scalars['String']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the policy should be reviewed, calculated based on the review_frequency if not directly set */
@@ -6120,8 +6072,6 @@ export interface CreateProcedureInput {
   procedureKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the procedure */
   procedureKindName?: InputMaybe<Scalars['String']['input']>
-  /** type of the procedure, e.g. compliance, operational, health and safety, etc. */
-  procedureType?: InputMaybe<Scalars['String']['input']>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the procedure should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
@@ -6188,8 +6138,6 @@ export interface CreateProgramInput {
   /** the kind of the program */
   programKindName?: InputMaybe<Scalars['String']['input']>
   programOwnerID?: InputMaybe<Scalars['ID']['input']>
-  /** the type of the program */
-  programType?: InputMaybe<ProgramProgramType>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the start date of the period */
   startDate?: InputMaybe<Scalars['Time']['input']>
@@ -6374,8 +6322,6 @@ export interface CreateRiskInput {
   businessCosts?: InputMaybe<Scalars['String']['input']>
   /** structured details of the business costs in JSON format */
   businessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
-  /** category of the risk, e.g. human resources, operations, IT, etc. */
-  category?: InputMaybe<Scalars['String']['input']>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -6406,8 +6352,6 @@ export interface CreateRiskInput {
   riskKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the risk */
   riskKindName?: InputMaybe<Scalars['String']['input']>
-  /** type of the risk, e.g. strategic, operational, financial, external, etc. */
-  riskType?: InputMaybe<Scalars['String']['input']>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
@@ -6555,8 +6499,6 @@ export interface CreateSubcontrolInput {
   controlOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** questions to ask to verify the control */
   controlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
-  /** type of the control e.g. preventive, detective, corrective, or deterrent. */
-  controlType?: InputMaybe<SubcontrolControlType>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** description of what the control is supposed to accomplish */
   description?: InputMaybe<Scalars['String']['input']>
@@ -6688,8 +6630,6 @@ export interface CreateTaskInput {
   actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assigneeID?: InputMaybe<Scalars['ID']['input']>
   assignerID?: InputMaybe<Scalars['ID']['input']>
-  /** the category of the task, e.g. evidence upload, risk review, policy review, etc. */
-  category?: InputMaybe<Scalars['String']['input']>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['DateTime']['input']>
@@ -6818,6 +6758,8 @@ export interface CreateTrustCenterInput {
   /** preview status of the trust center */
   previewStatus?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
   settingID?: InputMaybe<Scalars['ID']['input']>
+  /** External URL for the trust center subprocessors */
+  subprocessorURL?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8062,22 +8004,22 @@ export interface DnsVerificationCreatePayload {
 
 /** DNSVerificationDNSVerificationStatus is enum for the field dns_verification_status */
 export enum DnsVerificationDnsVerificationStatus {
-  active = 'active',
-  active_redeploying = 'active_redeploying',
-  blocked = 'blocked',
-  deleted = 'deleted',
-  moved = 'moved',
-  pending = 'pending',
-  pending_blocked = 'pending_blocked',
-  pending_deletion = 'pending_deletion',
-  pending_migration = 'pending_migration',
-  pending_provisioned = 'pending_provisioned',
-  provisioned = 'provisioned',
-  test_active = 'test_active',
-  test_active_apex = 'test_active_apex',
-  test_blocked = 'test_blocked',
-  test_failed = 'test_failed',
-  test_pending = 'test_pending',
+  ACTIVE = 'ACTIVE',
+  ACTIVE_REDEPLOYING = 'ACTIVE_REDEPLOYING',
+  BLOCKED = 'BLOCKED',
+  DELETED = 'DELETED',
+  MOVED = 'MOVED',
+  PENDING = 'PENDING',
+  PENDING_BLOCKED = 'PENDING_BLOCKED',
+  PENDING_DELETION = 'PENDING_DELETION',
+  PENDING_MIGRATION = 'PENDING_MIGRATION',
+  PENDING_PROVISIONED = 'PENDING_PROVISIONED',
+  PROVISIONED = 'PROVISIONED',
+  TEST_ACTIVE = 'TEST_ACTIVE',
+  TEST_ACTIVE_APEX = 'TEST_ACTIVE_APEX',
+  TEST_BLOCKED = 'TEST_BLOCKED',
+  TEST_FAILED = 'TEST_FAILED',
+  TEST_PENDING = 'TEST_PENDING',
 }
 
 /** Return response for deleteDNSVerification mutation */
@@ -8112,27 +8054,27 @@ export enum DnsVerificationOrderField {
 
 /** DNSVerificationSSLVerificationStatus is enum for the field acme_challenge_status */
 export enum DnsVerificationSslVerificationStatus {
-  active = 'active',
-  backup_issued = 'backup_issued',
-  deactivating = 'deactivating',
-  deleted = 'deleted',
-  deletion_timed_out = 'deletion_timed_out',
-  deployment_timed_out = 'deployment_timed_out',
-  expired = 'expired',
-  holding_deployment = 'holding_deployment',
-  inactive = 'inactive',
-  initializing = 'initializing',
-  initializing_timed_out = 'initializing_timed_out',
-  issuance_timed_out = 'issuance_timed_out',
-  pending_cleanup = 'pending_cleanup',
-  pending_deletion = 'pending_deletion',
-  pending_deployment = 'pending_deployment',
-  pending_expiration = 'pending_expiration',
-  pending_issuance = 'pending_issuance',
-  pending_validation = 'pending_validation',
-  staging_active = 'staging_active',
-  staging_deployment = 'staging_deployment',
-  validation_timed_out = 'validation_timed_out',
+  ACTIVE = 'ACTIVE',
+  BACKUP_ISSUED = 'BACKUP_ISSUED',
+  DEACTIVATING = 'DEACTIVATING',
+  DELETED = 'DELETED',
+  DELETION_TIMED_OUT = 'DELETION_TIMED_OUT',
+  DEPLOYMENT_TIMED_OUT = 'DEPLOYMENT_TIMED_OUT',
+  EXPIRED = 'EXPIRED',
+  HOLDING_DEPLOYMENT = 'HOLDING_DEPLOYMENT',
+  INACTIVE = 'INACTIVE',
+  INITIALIZING = 'INITIALIZING',
+  INITIALIZING_TIMED_OUT = 'INITIALIZING_TIMED_OUT',
+  ISSUANCE_TIMED_OUT = 'ISSUANCE_TIMED_OUT',
+  PENDING_CLEANUP = 'PENDING_CLEANUP',
+  PENDING_DELETION = 'PENDING_DELETION',
+  PENDING_DEPLOYMENT = 'PENDING_DEPLOYMENT',
+  PENDING_EXPIRATION = 'PENDING_EXPIRATION',
+  PENDING_ISSUANCE = 'PENDING_ISSUANCE',
+  PENDING_VALIDATION = 'PENDING_VALIDATION',
+  STAGING_ACTIVE = 'STAGING_ACTIVE',
+  STAGING_DEPLOYMENT = 'STAGING_DEPLOYMENT',
+  VALIDATION_TIMED_OUT = 'VALIDATION_TIMED_OUT',
 }
 
 /** Return response for updateDNSVerification mutation */
@@ -11601,8 +11543,24 @@ export interface EvidenceWorkflowObjectRefsArgs {
 /** Return response for createBulkEvidence mutation */
 export interface EvidenceBulkCreatePayload {
   __typename?: 'EvidenceBulkCreatePayload'
-  /** Created evidences */
+  /** Created evidence */
   evidences?: Maybe<Array<Evidence>>
+}
+
+/** Return response for deleteBulkEvidence mutation */
+export interface EvidenceBulkDeletePayload {
+  __typename?: 'EvidenceBulkDeletePayload'
+  /** Deleted evidence IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkEvidence mutation */
+export interface EvidenceBulkUpdatePayload {
+  __typename?: 'EvidenceBulkUpdatePayload'
+  /** Updated evidences */
+  evidences?: Maybe<Array<Evidence>>
+  /** IDs of the updated evidence */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -16125,11 +16083,6 @@ export interface InternalPolicy extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /**
-   * type of the policy, e.g. compliance, operational, health and safety, etc.
-   * @deprecated Use `policy_kind_name` instead.
-   */
-  policyType?: Maybe<Scalars['String']['output']>
   procedures: ProcedureConnection
   programs: ProgramConnection
   /** the date the policy should be reviewed, calculated based on the review_frequency if not directly set */
@@ -16651,22 +16604,6 @@ export interface InternalPolicyWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** policy_type field predicates */
-  policyType?: InputMaybe<Scalars['String']['input']>
-  policyTypeContains?: InputMaybe<Scalars['String']['input']>
-  policyTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  policyTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  policyTypeGT?: InputMaybe<Scalars['String']['input']>
-  policyTypeGTE?: InputMaybe<Scalars['String']['input']>
-  policyTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  policyTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  policyTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  policyTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  policyTypeLT?: InputMaybe<Scalars['String']['input']>
-  policyTypeLTE?: InputMaybe<Scalars['String']['input']>
-  policyTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  policyTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  policyTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** review_due field predicates */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
   reviewDueGT?: InputMaybe<Scalars['Time']['input']>
@@ -19065,6 +19002,8 @@ export interface Mutation {
   createBulkCSVEntityType: EntityTypeBulkCreatePayload
   /** Create multiple new events via file upload */
   createBulkCSVEvent: EventBulkCreatePayload
+  /** Create multiple new evidence via file upload */
+  createBulkCSVEvidence: EvidenceBulkCreatePayload
   /** Create multiple new findings via file upload */
   createBulkCSVFinding: FindingBulkCreatePayload
   /** Create multiple new findingControls via file upload */
@@ -19127,7 +19066,7 @@ export interface Mutation {
   createBulkCSVTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities via file upload */
+  /** Create multiple new trustcenterEntitys via file upload */
   createBulkCSVTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings via file upload */
   createBulkCSVUserSetting: UserSettingBulkCreatePayload
@@ -19177,6 +19116,8 @@ export interface Mutation {
   createBulkEntityType: EntityTypeBulkCreatePayload
   /** Create multiple new events */
   createBulkEvent: EventBulkCreatePayload
+  /** Create multiple new evidence */
+  createBulkEvidence: EvidenceBulkCreatePayload
   /** Create multiple new findings */
   createBulkFinding: FindingBulkCreatePayload
   /** Create multiple new findingControls */
@@ -19239,7 +19180,7 @@ export interface Mutation {
   createBulkTrustCenterDoc: TrustCenterDocBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new trustcenterEntities */
+  /** Create multiple new trustcenterEntitys */
   createBulkTrustcenterEntity: TrustcenterEntityBulkCreatePayload
   /** Create multiple new userSettings */
   createBulkUserSetting: UserSettingBulkCreatePayload
@@ -19463,6 +19404,8 @@ export interface Mutation {
   deleteBulkEntityType: EntityTypeBulkDeletePayload
   /** Delete multiple events */
   deleteBulkEvent: EventBulkDeletePayload
+  /** Delete multiple evidence */
+  deleteBulkEvidence: EvidenceBulkDeletePayload
   /** Delete multiple exports */
   deleteBulkExport: ExportBulkDeletePayload
   /** Delete multiple groups */
@@ -19680,10 +19623,14 @@ export interface Mutation {
   updateAsset: AssetUpdatePayload
   /** Update multiple existing actionPlans */
   updateBulkActionPlan: ActionPlanBulkUpdatePayload
+  /** Update multiple existing controls with a CSV upload, must include the ID or refCode and referenceFramework */
+  updateBulkCSVControl: ControlBulkUpdatePayload
   /** Update multiple existing contacts */
   updateBulkContact: ContactBulkUpdatePayload
   /** Update multiple existing controls */
   updateBulkControl: ControlBulkUpdatePayload
+  /** Update multiple existing evidence */
+  updateBulkEvidence: EvidenceBulkUpdatePayload
   /** Update multiple existing hushs */
   updateBulkHush: HushBulkUpdatePayload
   /** Update multiple existing internalPolicys */
@@ -19971,6 +19918,10 @@ export interface MutationCreateBulkCsvEventArgs {
   input: Scalars['Upload']['input']
 }
 
+export interface MutationCreateBulkCsvEvidenceArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationCreateBulkCsvFindingArgs {
   input: Scalars['Upload']['input']
 }
@@ -20193,6 +20144,10 @@ export interface MutationCreateBulkEntityTypeArgs {
 
 export interface MutationCreateBulkEventArgs {
   input?: InputMaybe<Array<CreateEventInput>>
+}
+
+export interface MutationCreateBulkEvidenceArgs {
+  input?: InputMaybe<Array<CreateEvidenceInput>>
 }
 
 export interface MutationCreateBulkFindingArgs {
@@ -20790,6 +20745,10 @@ export interface MutationDeleteBulkEventArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
+export interface MutationDeleteBulkEvidenceArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
 export interface MutationDeleteBulkExportArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -21228,6 +21187,10 @@ export interface MutationUpdateBulkActionPlanArgs {
   input: UpdateActionPlanInput
 }
 
+export interface MutationUpdateBulkCsvControlArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationUpdateBulkContactArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateContactInput
@@ -21236,6 +21199,11 @@ export interface MutationUpdateBulkContactArgs {
 export interface MutationUpdateBulkControlArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateControlInput
+}
+
+export interface MutationUpdateBulkEvidenceArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateEvidenceInput
 }
 
 export interface MutationUpdateBulkHushArgs {
@@ -22116,6 +22084,8 @@ export interface Note extends Node {
   /** structured details of the note in JSON format */
   textJSON?: Maybe<Array<Scalars['Any']['output']>>
   trustCenter?: Maybe<TrustCenter>
+  /** the trust center this note belongs to, if applicable */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -22328,6 +22298,22 @@ export interface NoteWhereInput {
   textLTE?: InputMaybe<Scalars['String']['input']>
   textNEQ?: InputMaybe<Scalars['String']['input']>
   textNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -25186,11 +25172,6 @@ export interface Procedure extends Node {
   procedureKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the procedure */
   procedureKindName?: Maybe<Scalars['String']['output']>
-  /**
-   * type of the procedure, e.g. compliance, operational, health and safety, etc.
-   * @deprecated Use `procedure_kind_name` instead.
-   */
-  procedureType?: Maybe<Scalars['String']['output']>
   programs: ProgramConnection
   /** the date the procedure should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: Maybe<Scalars['Time']['output']>
@@ -25687,22 +25668,6 @@ export interface ProcedureWhereInput {
   procedureKindNameNEQ?: InputMaybe<Scalars['String']['input']>
   procedureKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   procedureKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** procedure_type field predicates */
-  procedureType?: InputMaybe<Scalars['String']['input']>
-  procedureTypeContains?: InputMaybe<Scalars['String']['input']>
-  procedureTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  procedureTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  procedureTypeGT?: InputMaybe<Scalars['String']['input']>
-  procedureTypeGTE?: InputMaybe<Scalars['String']['input']>
-  procedureTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  procedureTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  procedureTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  procedureTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  procedureTypeLT?: InputMaybe<Scalars['String']['input']>
-  procedureTypeLTE?: InputMaybe<Scalars['String']['input']>
-  procedureTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  procedureTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  procedureTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** review_due field predicates */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
   reviewDueGT?: InputMaybe<Scalars['Time']['input']>
@@ -25865,11 +25830,6 @@ export interface Program extends Node {
   programOwner?: Maybe<User>
   /** the id of the user who is responsible for this program */
   programOwnerID?: Maybe<Scalars['ID']['output']>
-  /**
-   * the type of the program
-   * @deprecated Use `program_kind` instead.
-   */
-  programType: ProgramProgramType
   risks: RiskConnection
   /** the start date of the period */
   startDate?: Maybe<Scalars['Time']['output']>
@@ -26268,7 +26228,6 @@ export interface ProgramOrder {
 
 /** Properties by which Program connections can be ordered. */
 export enum ProgramOrderField {
-  PROGRAM_TYPE = 'PROGRAM_TYPE',
   STATUS = 'STATUS',
   created_at = 'created_at',
   end_date = 'end_date',
@@ -26286,14 +26245,6 @@ export enum ProgramProgramStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   NOT_STARTED = 'NOT_STARTED',
   READY_FOR_AUDITOR = 'READY_FOR_AUDITOR',
-}
-
-/** ProgramProgramType is enum for the field program_type */
-export enum ProgramProgramType {
-  FRAMEWORK = 'FRAMEWORK',
-  GAP_ANALYSIS = 'GAP_ANALYSIS',
-  OTHER = 'OTHER',
-  RISK_ASSESSMENT = 'RISK_ASSESSMENT',
 }
 
 /** Return response for updateProgram mutation */
@@ -26601,11 +26552,6 @@ export interface ProgramWhereInput {
   programOwnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   programOwnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   programOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** program_type field predicates */
-  programType?: InputMaybe<ProgramProgramType>
-  programTypeIn?: InputMaybe<Array<ProgramProgramType>>
-  programTypeNEQ?: InputMaybe<ProgramProgramType>
-  programTypeNotIn?: InputMaybe<Array<ProgramProgramType>>
   /** start_date field predicates */
   startDate?: InputMaybe<Scalars['Time']['input']>
   startDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -29810,11 +29756,6 @@ export interface Risk extends Node {
   businessCosts?: Maybe<Scalars['String']['output']>
   /** structured details of the business costs in JSON format */
   businessCostsJSON?: Maybe<Array<Scalars['Any']['output']>>
-  /**
-   * category of the risk, e.g. human resources, operations, IT, etc.
-   * @deprecated Use `risk_category_name` instead.
-   */
-  category?: Maybe<Scalars['String']['output']>
   comments: NoteConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -29859,11 +29800,6 @@ export interface Risk extends Node {
   riskKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the risk */
   riskKindName?: Maybe<Scalars['String']['output']>
-  /**
-   * type of the risk, e.g. strategic, operational, financial, external, etc.
-   * @deprecated Use `risk_kind_name` instead.
-   */
-  riskType?: Maybe<Scalars['String']['output']>
   scans: ScanConnection
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: Maybe<Scalars['Int']['output']>
@@ -30088,10 +30024,8 @@ export enum RiskOrderField {
   LIKELIHOOD = 'LIKELIHOOD',
   STATUS = 'STATUS',
   business_costs = 'business_costs',
-  category = 'category',
   created_at = 'created_at',
   name = 'name',
-  risk_type = 'risk_type',
   score = 'score',
   updated_at = 'updated_at',
 }
@@ -30153,22 +30087,6 @@ export interface RiskWhereInput {
   businessCostsNEQ?: InputMaybe<Scalars['String']['input']>
   businessCostsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   businessCostsNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** category field predicates */
-  category?: InputMaybe<Scalars['String']['input']>
-  categoryContains?: InputMaybe<Scalars['String']['input']>
-  categoryContainsFold?: InputMaybe<Scalars['String']['input']>
-  categoryEqualFold?: InputMaybe<Scalars['String']['input']>
-  categoryGT?: InputMaybe<Scalars['String']['input']>
-  categoryGTE?: InputMaybe<Scalars['String']['input']>
-  categoryHasPrefix?: InputMaybe<Scalars['String']['input']>
-  categoryHasSuffix?: InputMaybe<Scalars['String']['input']>
-  categoryIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  categoryLT?: InputMaybe<Scalars['String']['input']>
-  categoryLTE?: InputMaybe<Scalars['String']['input']>
-  categoryNEQ?: InputMaybe<Scalars['String']['input']>
-  categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -30439,22 +30357,6 @@ export interface RiskWhereInput {
   riskKindNameNEQ?: InputMaybe<Scalars['String']['input']>
   riskKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   riskKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** risk_type field predicates */
-  riskType?: InputMaybe<Scalars['String']['input']>
-  riskTypeContains?: InputMaybe<Scalars['String']['input']>
-  riskTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  riskTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  riskTypeGT?: InputMaybe<Scalars['String']['input']>
-  riskTypeGTE?: InputMaybe<Scalars['String']['input']>
-  riskTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  riskTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  riskTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  riskTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  riskTypeLT?: InputMaybe<Scalars['String']['input']>
-  riskTypeLTE?: InputMaybe<Scalars['String']['input']>
-  riskTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  riskTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  riskTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** score field predicates */
   score?: InputMaybe<Scalars['Int']['input']>
   scoreGT?: InputMaybe<Scalars['Int']['input']>
@@ -31930,11 +31832,6 @@ export interface Subcontrol extends Node {
   controlOwnerID?: Maybe<Scalars['ID']['output']>
   /** questions to ask to verify the control */
   controlQuestions?: Maybe<Array<Scalars['String']['output']>>
-  /**
-   * type of the control e.g. preventive, detective, corrective, or deterrent.
-   * @deprecated Use `control_kind_name` instead.
-   */
-  controlType?: Maybe<SubcontrolControlType>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** temporary delegate for the control, used for temporary control ownership */
@@ -32174,14 +32071,6 @@ export enum SubcontrolControlStatus {
   PREPARING = 'PREPARING',
 }
 
-/** SubcontrolControlType is enum for the field control_type */
-export enum SubcontrolControlType {
-  CORRECTIVE = 'CORRECTIVE',
-  DETECTIVE = 'DETECTIVE',
-  DETERRENT = 'DETERRENT',
-  PREVENTATIVE = 'PREVENTATIVE',
-}
-
 /** Return response for createSubcontrol mutation */
 export interface SubcontrolCreatePayload {
   __typename?: 'SubcontrolCreatePayload'
@@ -32216,7 +32105,6 @@ export interface SubcontrolOrder {
 /** Properties by which Subcontrol connections can be ordered. */
 export enum SubcontrolOrderField {
   CONTROL_OWNER_name = 'CONTROL_OWNER_name',
-  CONTROL_TYPE = 'CONTROL_TYPE',
   DELEGATE_name = 'DELEGATE_name',
   REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   RESPONSIBLE_PARTY_name = 'RESPONSIBLE_PARTY_name',
@@ -32321,13 +32209,6 @@ export interface SubcontrolWhereInput {
   controlOwnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   controlOwnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   controlOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** control_type field predicates */
-  controlType?: InputMaybe<SubcontrolControlType>
-  controlTypeIn?: InputMaybe<Array<SubcontrolControlType>>
-  controlTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  controlTypeNEQ?: InputMaybe<SubcontrolControlType>
-  controlTypeNotIn?: InputMaybe<Array<SubcontrolControlType>>
-  controlTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -33748,11 +33629,6 @@ export interface Task extends Node {
   assigner?: Maybe<User>
   /** the id of the user who assigned the task, can be left empty if created by the system or a service token */
   assignerID?: Maybe<Scalars['ID']['output']>
-  /**
-   * the category of the task, e.g. evidence upload, risk review, policy review, etc.
-   * @deprecated Use `task_kind_name` instead.
-   */
-  category?: Maybe<Scalars['String']['output']>
   comments: NoteConnection
   /** the completion date of the task */
   completed?: Maybe<Scalars['DateTime']['output']>
@@ -33991,7 +33867,6 @@ export interface TaskOrder {
 /** Properties by which Task connections can be ordered. */
 export enum TaskOrderField {
   STATUS = 'STATUS',
-  category = 'category',
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
@@ -34053,22 +33928,6 @@ export interface TaskWhereInput {
   assignerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   assignerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   assignerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** category field predicates */
-  category?: InputMaybe<Scalars['String']['input']>
-  categoryContains?: InputMaybe<Scalars['String']['input']>
-  categoryContainsFold?: InputMaybe<Scalars['String']['input']>
-  categoryEqualFold?: InputMaybe<Scalars['String']['input']>
-  categoryGT?: InputMaybe<Scalars['String']['input']>
-  categoryGTE?: InputMaybe<Scalars['String']['input']>
-  categoryHasPrefix?: InputMaybe<Scalars['String']['input']>
-  categoryHasSuffix?: InputMaybe<Scalars['String']['input']>
-  categoryIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  categoryLT?: InputMaybe<Scalars['String']['input']>
-  categoryLTE?: InputMaybe<Scalars['String']['input']>
-  categoryNEQ?: InputMaybe<Scalars['String']['input']>
-  categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** completed field predicates */
   completed?: InputMaybe<Scalars['DateTime']['input']>
   completedGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -34724,6 +34583,8 @@ export interface TrustCenter extends Node {
   setting?: Maybe<TrustCenterSetting>
   /** Slug for the trust center */
   slug?: Maybe<Scalars['String']['output']>
+  /** External URL for the trust center subprocessors */
+  subprocessorURL?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   templates: TemplateConnection
@@ -36578,6 +36439,22 @@ export interface TrustCenterWhereInput {
   slugNEQ?: InputMaybe<Scalars['String']['input']>
   slugNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   slugNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** subprocessor_url field predicates */
+  subprocessorURL?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLContains?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLGT?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLGTE?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  subprocessorURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  subprocessorURLLT?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLLTE?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLNEQ?: InputMaybe<Scalars['String']['input']>
+  subprocessorURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  subprocessorURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -36632,7 +36509,7 @@ export interface TrustcenterEntity extends Node {
 /** Return response for createBulkTrustcenterEntity mutation */
 export interface TrustcenterEntityBulkCreatePayload {
   __typename?: 'TrustcenterEntityBulkCreatePayload'
-  /** Created trustcenterEntities */
+  /** Created trustcenterEntitys */
   trustcenterEntities?: Maybe<Array<TrustcenterEntity>>
 }
 
@@ -36869,8 +36746,6 @@ export interface UpdateActionPlanInput {
   actionPlanKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the action_plan */
   actionPlanKindName?: InputMaybe<Scalars['String']['input']>
-  /** type of the action_plan, e.g. compliance, operational, health and safety, etc. */
-  actionPlanType?: InputMaybe<Scalars['String']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -36901,7 +36776,6 @@ export interface UpdateActionPlanInput {
   blockerReason?: InputMaybe<Scalars['String']['input']>
   clearActionPlanKind?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanKindName?: InputMaybe<Scalars['Boolean']['input']>
-  clearActionPlanType?: InputMaybe<Scalars['Boolean']['input']>
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -37267,7 +37141,6 @@ export interface UpdateControlInput {
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControlOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearControlQuestions?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlType?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDescriptionJSON?: InputMaybe<Scalars['Boolean']['input']>
@@ -37309,8 +37182,6 @@ export interface UpdateControlInput {
   controlOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** questions to ask to verify the control */
   controlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
-  /** type of the control e.g. preventive, detective, corrective, or deterrent. */
-  controlType?: InputMaybe<ControlControlType>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
@@ -38623,7 +38494,6 @@ export interface UpdateInternalPolicyInput {
   clearInternalPolicyKindName?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
-  clearPolicyType?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewDue?: InputMaybe<Scalars['Boolean']['input']>
@@ -38665,8 +38535,6 @@ export interface UpdateInternalPolicyInput {
   /** the name of the policy */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** type of the policy, e.g. compliance, operational, health and safety, etc. */
-  policyType?: InputMaybe<Scalars['String']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39475,7 +39343,6 @@ export interface UpdateProcedureInput {
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureKind?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureKindName?: InputMaybe<Scalars['Boolean']['input']>
-  clearProcedureType?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewDue?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
@@ -39516,8 +39383,6 @@ export interface UpdateProcedureInput {
   procedureKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the procedure */
   procedureKindName?: InputMaybe<Scalars['String']['input']>
-  /** type of the procedure, e.g. compliance, operational, health and safety, etc. */
-  procedureType?: InputMaybe<Scalars['String']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39625,8 +39490,6 @@ export interface UpdateProgramInput {
   /** the kind of the program */
   programKindName?: InputMaybe<Scalars['String']['input']>
   programOwnerID?: InputMaybe<Scalars['ID']['input']>
-  /** the type of the program */
-  programType?: InputMaybe<ProgramProgramType>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39934,14 +39797,11 @@ export interface UpdateRiskInput {
   businessCosts?: InputMaybe<Scalars['String']['input']>
   /** structured details of the business costs in JSON format */
   businessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
-  /** category of the risk, e.g. human resources, operations, IT, etc. */
-  category?: InputMaybe<Scalars['String']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBusinessCosts?: InputMaybe<Scalars['Boolean']['input']>
   clearBusinessCostsJSON?: InputMaybe<Scalars['Boolean']['input']>
-  clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
@@ -39961,7 +39821,6 @@ export interface UpdateRiskInput {
   clearRiskCategoryName?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskKind?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskKindName?: InputMaybe<Scalars['Boolean']['input']>
-  clearRiskType?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScore?: InputMaybe<Scalars['Boolean']['input']>
   clearStakeholder?: InputMaybe<Scalars['Boolean']['input']>
@@ -40008,8 +39867,6 @@ export interface UpdateRiskInput {
   riskKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the risk */
   riskKindName?: InputMaybe<Scalars['String']['input']>
-  /** type of the risk, e.g. strategic, operational, financial, external, etc. */
-  riskType?: InputMaybe<Scalars['String']['input']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
@@ -40227,7 +40084,6 @@ export interface UpdateSubcontrolInput {
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControlOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearControlQuestions?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlType?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDescriptionJSON?: InputMaybe<Scalars['Boolean']['input']>
@@ -40263,8 +40119,6 @@ export interface UpdateSubcontrolInput {
   controlOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** questions to ask to verify the control */
   controlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
-  /** type of the control e.g. preventive, detective, corrective, or deterrent. */
-  controlType?: InputMaybe<SubcontrolControlType>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
@@ -40445,12 +40299,9 @@ export interface UpdateTaskInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   assigneeID?: InputMaybe<Scalars['ID']['input']>
   assignerID?: InputMaybe<Scalars['ID']['input']>
-  /** the category of the task, e.g. evidence upload, risk review, policy review, etc. */
-  category?: InputMaybe<Scalars['String']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssignee?: InputMaybe<Scalars['Boolean']['input']>
   clearAssigner?: InputMaybe<Scalars['Boolean']['input']>
-  clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearCompleted?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
@@ -40624,6 +40475,7 @@ export interface UpdateTrustCenterInput {
   clearPreviewSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearPreviewStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubprocessorURL?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterCompliances?: InputMaybe<Scalars['Boolean']['input']>
@@ -40650,6 +40502,8 @@ export interface UpdateTrustCenterInput {
   removeTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustcenterEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
+  /** External URL for the trust center subprocessors */
+  subprocessorURL?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   updateTrustCenterSetting?: InputMaybe<UpdateTrustCenterSettingInput>
@@ -45651,6 +45505,7 @@ export type ControlDetailsFieldsFragment = {
   status?: ControlControlStatus | null
   tags?: Array<string> | null
   description?: string | null
+  descriptionJSON?: Array<any> | null
   implementationGuidance?: Array<any> | null
   exampleEvidence?: Array<any> | null
   controlQuestions?: Array<string> | null
@@ -45708,7 +45563,7 @@ export type GetAllControlsQuery = {
       __typename?: 'ControlEdge'
       cursor: any
       node?: {
-        __typename?: 'Control'
+        __typename: 'Control'
         id: string
         refCode: string
         description?: string | null
@@ -45781,6 +45636,7 @@ export type GetControlByIdQuery = {
     status?: ControlControlStatus | null
     tags?: Array<string> | null
     description?: string | null
+    descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
     controlQuestions?: Array<string> | null
@@ -45923,6 +45779,15 @@ export type CreateBulkCsvControlMutationVariables = Exact<{
 export type CreateBulkCsvControlMutation = {
   __typename?: 'Mutation'
   createBulkCSVControl: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
+}
+
+export type UpdateBulkCsvControlMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type UpdateBulkCsvControlMutation = {
+  __typename?: 'Mutation'
+  updateBulkCSVControl: { __typename?: 'ControlBulkUpdatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
 export type CreateBulkCsvMappedControlMutationVariables = Exact<{
@@ -46185,6 +46050,116 @@ export type GetExistingControlsForOrganizationQuery = {
   }
 }
 
+export type ControlDiscussionFieldsFragment = {
+  __typename: 'Control'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetControlDiscussionByIdQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlDiscussionByIdQuery = {
+  __typename?: 'Query'
+  control: {
+    __typename: 'Control'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertControlPlateCommentMutationVariables = Exact<{
+  updateControlId: Scalars['ID']['input']
+  input: UpdateControlInput
+}>
+
+export type InsertControlPlateCommentMutation = {
+  __typename?: 'Mutation'
+  updateControl: {
+    __typename?: 'ControlUpdatePayload'
+    control: {
+      __typename?: 'Control'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
 export type CustomTypeEnumFieldsFragment = {
   __typename?: 'CustomTypeEnum'
   id: string
@@ -46286,6 +46261,43 @@ export type DeleteCustomTypeEnumMutationVariables = Exact<{
 }>
 
 export type DeleteCustomTypeEnumMutation = { __typename?: 'Mutation'; deleteCustomTypeEnum: { __typename?: 'CustomTypeEnumDeletePayload'; deletedID: string } }
+
+export type CreateDiscussionMutationVariables = Exact<{
+  input: CreateDiscussionInput
+}>
+
+export type CreateDiscussionMutation = {
+  __typename?: 'Mutation'
+  createDiscussion: { __typename?: 'DiscussionCreatePayload'; discussion: { __typename?: 'Discussion'; id: string; createdAt?: any | null; createdBy?: string | null } }
+}
+
+export type UpdateDiscussionMutationVariables = Exact<{
+  updateDiscussionId: Scalars['ID']['input']
+  input: UpdateDiscussionInput
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type UpdateDiscussionMutation = {
+  __typename?: 'Mutation'
+  updateDiscussion: {
+    __typename?: 'DiscussionUpdatePayload'
+    discussion: {
+      __typename?: 'Discussion'
+      updatedBy?: string | null
+      updatedAt?: any | null
+      isResolved: boolean
+      id: string
+      externalID?: string | null
+      comments: {
+        __typename?: 'NoteConnection'
+        edges?: Array<{
+          __typename?: 'NoteEdge'
+          node?: { __typename?: 'Note'; createdAt?: any | null; createdBy?: string | null; displayID: string; id: string; isEdited: boolean; noteRef?: string | null; text: string } | null
+        } | null> | null
+      }
+    }
+  }
+}
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
@@ -46647,6 +46659,28 @@ export type UpdateEvidenceCommentMutationVariables = Exact<{
 }>
 
 export type UpdateEvidenceCommentMutation = { __typename?: 'Mutation'; updateEvidenceComment: { __typename?: 'EvidenceUpdatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
+
+export type CreateBulkCsvEvidenceMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvEvidenceMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVEvidence: { __typename?: 'EvidenceBulkCreatePayload'; evidences?: Array<{ __typename?: 'Evidence'; id: string }> | null }
+}
+
+export type DeleteBulkEvidenceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkEvidenceMutation = { __typename?: 'Mutation'; deleteBulkEvidence: { __typename?: 'EvidenceBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkEvidenceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateEvidenceInput
+}>
+
+export type UpdateBulkEvidenceMutation = { __typename?: 'Mutation'; updateBulkEvidence: { __typename?: 'EvidenceBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type CreateExportMutationVariables = Exact<{
   input: CreateExportInput
@@ -47487,6 +47521,7 @@ export type InternalPolicyByIdFragment = {
   reviewFrequency?: InternalPolicyFrequency | null
   approvalRequired?: boolean | null
   summary?: string | null
+  detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
@@ -47515,6 +47550,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     reviewFrequency?: InternalPolicyFrequency | null
     approvalRequired?: boolean | null
     summary?: string | null
+    detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
@@ -47664,6 +47700,126 @@ export type DeleteBulkInternalPolicyMutationVariables = Exact<{
 
 export type DeleteBulkInternalPolicyMutation = { __typename?: 'Mutation'; deleteBulkInternalPolicy: { __typename?: 'InternalPolicyBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type PolicyDiscussionFieldsFragment = {
+  __typename: 'InternalPolicy'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetPolicyDiscussionByIdQueryVariables = Exact<{
+  policyId: Scalars['ID']['input']
+}>
+
+export type GetPolicyDiscussionByIdQuery = {
+  __typename?: 'Query'
+  internalPolicy: {
+    __typename: 'InternalPolicy'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertInternalPolicyCommentMutationVariables = Exact<{
+  updateInternalPolicyId: Scalars['ID']['input']
+  input: UpdateInternalPolicyInput
+}>
+
+export type InsertInternalPolicyCommentMutation = {
+  __typename?: 'Mutation'
+  updateInternalPolicy: {
+    __typename?: 'InternalPolicyUpdatePayload'
+    internalPolicy: {
+      __typename?: 'InternalPolicy'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
+export type UpdatePolicyCommentMutationVariables = Exact<{
+  updateInternalPolicyCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdatePolicyCommentMutation = {
+  __typename?: 'Mutation'
+  updateInternalPolicyComment: { __typename?: 'InternalPolicyUpdatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string } }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
@@ -47806,6 +47962,7 @@ export type ProcedureByIdFragment = {
   reviewFrequency?: ProcedureFrequency | null
   approvalRequired?: boolean | null
   procedureKindName?: string | null
+  detailsJSON?: Array<any> | null
   approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
@@ -47877,6 +48034,7 @@ export type GetProcedureDetailsByIdQuery = {
     reviewFrequency?: ProcedureFrequency | null
     approvalRequired?: boolean | null
     procedureKindName?: string | null
+    detailsJSON?: Array<any> | null
     approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   }
@@ -47911,6 +48069,123 @@ export type DeleteBulkProcedureMutationVariables = Exact<{
 }>
 
 export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkProcedure: { __typename?: 'ProcedureBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type ProcedureDiscussionFieldsFragment = {
+  __typename: 'Procedure'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProcedureDiscussionByIdQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureDiscussionByIdQuery = {
+  __typename?: 'Query'
+  procedure: {
+    __typename: 'Procedure'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertProcedureCommentMutationVariables = Exact<{
+  updateProcedureId: Scalars['ID']['input']
+  input: UpdateProcedureInput
+}>
+
+export type InsertProcedureCommentMutation = {
+  __typename?: 'Mutation'
+  updateProcedure: {
+    __typename?: 'ProcedureUpdatePayload'
+    procedure: {
+      __typename?: 'Procedure'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
+export type UpdateProcedureCommentMutationVariables = Exact<{
+  updateProcedureCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateProcedureCommentMutation = { __typename?: 'Mutation'; updateProcedureComment: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string } } }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
   input: CreateProgramWithMembersInput
@@ -48234,6 +48509,7 @@ export type RiskFieldsFragment = {
   displayID: string
   name: string
   details?: string | null
+  detailsJSON?: Array<any> | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
@@ -48302,6 +48578,7 @@ export type GetRiskByIdQuery = {
     displayID: string
     name: string
     details?: string | null
+    detailsJSON?: Array<any> | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
@@ -48383,7 +48660,7 @@ export type GetAllRisksQuery = {
 }
 
 export type UpdateRiskMutationVariables = Exact<{
-  id: Scalars['ID']['input']
+  updateRiskId: Scalars['ID']['input']
   input: UpdateRiskInput
 }>
 
@@ -48423,6 +48700,123 @@ export type DeleteBulkRiskMutation = { __typename?: 'Mutation'; deleteBulkRisk: 
 export type GetOpenRiskCountQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetOpenRiskCountQuery = { __typename?: 'Query'; risks: { __typename?: 'RiskConnection'; totalCount: number } }
+
+export type RiskDiscussionFieldsFragment = {
+  __typename: 'Risk'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetRiskDiscussionByIdQueryVariables = Exact<{
+  riskId: Scalars['ID']['input']
+}>
+
+export type GetRiskDiscussionByIdQuery = {
+  __typename?: 'Query'
+  risk: {
+    __typename: 'Risk'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertRiskCommentMutationVariables = Exact<{
+  updateRiskId: Scalars['ID']['input']
+  input: UpdateRiskInput
+}>
+
+export type InsertRiskCommentMutation = {
+  __typename?: 'Mutation'
+  updateRisk: {
+    __typename?: 'RiskUpdatePayload'
+    risk: {
+      __typename?: 'Risk'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
+  }
+}
+
+export type UpdateRiskCommentMutationVariables = Exact<{
+  updateRiskCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateRiskCommentMutation = { __typename?: 'Mutation'; updateRiskComment: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
@@ -48566,6 +48960,7 @@ export type GetAllStandardsSelectQuery = {
 }
 
 export type GetStandardsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<StandardWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
@@ -48627,7 +49022,7 @@ export type GetAllSubcontrolsQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string; referenceFramework?: string | null } | null
+      node?: { __typename: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string; referenceFramework?: string | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
@@ -48649,6 +49044,7 @@ export type GetSubcontrolByIdQuery = {
     status?: SubcontrolControlStatus | null
     tags?: Array<string> | null
     description?: string | null
+    descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
     controlQuestions?: Array<string> | null
@@ -48864,6 +49260,116 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
       __typename?: 'SubcontrolEdge'
       node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
     } | null> | null
+  }
+}
+
+export type SubcontrolDiscussionFieldsFragment = {
+  __typename: 'Subcontrol'
+  id: string
+  discussions: {
+    __typename?: 'DiscussionConnection'
+    edges?: Array<{
+      __typename?: 'DiscussionEdge'
+      node?: {
+        __typename?: 'Discussion'
+        id: string
+        externalID?: string | null
+        createdAt?: any | null
+        comments: {
+          __typename?: 'NoteConnection'
+          edges?: Array<{
+            __typename?: 'NoteEdge'
+            node?: {
+              __typename?: 'Note'
+              updatedBy?: string | null
+              updatedAt?: any | null
+              text: string
+              noteRef?: string | null
+              isEdited: boolean
+              id: string
+              displayID: string
+              discussionID?: string | null
+              createdAt?: any | null
+              createdBy?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetSubcontrolDiscussionByIdQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolDiscussionByIdQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename: 'Subcontrol'
+    id: string
+    discussions: {
+      __typename?: 'DiscussionConnection'
+      edges?: Array<{
+        __typename?: 'DiscussionEdge'
+        node?: {
+          __typename?: 'Discussion'
+          id: string
+          externalID?: string | null
+          createdAt?: any | null
+          comments: {
+            __typename?: 'NoteConnection'
+            edges?: Array<{
+              __typename?: 'NoteEdge'
+              node?: {
+                __typename?: 'Note'
+                updatedBy?: string | null
+                updatedAt?: any | null
+                text: string
+                noteRef?: string | null
+                isEdited: boolean
+                id: string
+                displayID: string
+                discussionID?: string | null
+                createdAt?: any | null
+                createdBy?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type InsertSubcontrolPlateCommentMutationVariables = Exact<{
+  updateSubcontrolId: Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type InsertSubcontrolPlateCommentMutation = {
+  __typename?: 'Mutation'
+  updateSubcontrol: {
+    __typename?: 'SubcontrolUpdatePayload'
+    subcontrol: {
+      __typename?: 'Subcontrol'
+      discussions: {
+        __typename?: 'DiscussionConnection'
+        edges?: Array<{
+          __typename?: 'DiscussionEdge'
+          node?: {
+            __typename?: 'Discussion'
+            id: string
+            externalID?: string | null
+            isResolved: boolean
+            comments: {
+              __typename?: 'NoteConnection'
+              edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; text: string; isEdited: boolean; id: string; noteRef?: string | null } | null } | null> | null
+            }
+          } | null
+        } | null> | null
+      }
+    }
   }
 }
 
@@ -49116,58 +49622,6 @@ export type TaskQuery = {
     assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; id: string } | null
     assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; displayName: string; id: string } | null
     tasks?: Array<{ __typename?: 'Task'; id: string; title: string; displayID: string; details?: string | null }> | null
-    subcontrols: {
-      __typename?: 'SubcontrolConnection'
-      edges?: Array<{
-        __typename?: 'SubcontrolEdge'
-        node?: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
-      } | null> | null
-    }
-    controls: {
-      __typename?: 'ControlConnection'
-      edges?: Array<{
-        __typename?: 'ControlEdge'
-        node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
-      } | null> | null
-    }
-    risks: {
-      __typename?: 'RiskConnection'
-      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; details?: string | null; displayID: string } | null } | null> | null
-    }
-    programs: {
-      __typename?: 'ProgramConnection'
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; description?: string | null; name: string } | null } | null> | null
-    }
-    procedures: {
-      __typename?: 'ProcedureConnection'
-      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
-    }
-    internalPolicies: {
-      __typename?: 'InternalPolicyConnection'
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
-    }
-    evidence: {
-      __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; id: string; description?: string | null; name: string } | null } | null> | null
-    }
-    groups: {
-      __typename?: 'GroupConnection'
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; displayID: string; id: string; description?: string | null; name: string } | null } | null> | null
-    }
-    controlObjectives: {
-      __typename?: 'ControlObjectiveConnection'
-      edges?: Array<{
-        __typename?: 'ControlObjectiveEdge'
-        node?: {
-          __typename?: 'ControlObjective'
-          displayID: string
-          id: string
-          name: string
-          desiredOutcome?: string | null
-          controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
-        } | null
-      } | null> | null
-    }
     comments: {
       __typename?: 'NoteConnection'
       edges?: Array<{
@@ -49228,6 +49682,69 @@ export type GetOverdueTaskCountQueryVariables = Exact<{
 }>
 
 export type GetOverdueTaskCountQuery = { __typename?: 'Query'; tasks: { __typename?: 'TaskConnection'; totalCount: number } }
+
+export type GetTaskAssociationsQueryVariables = Exact<{
+  taskId: Scalars['ID']['input']
+}>
+
+export type GetTaskAssociationsQuery = {
+  __typename?: 'Query'
+  task: {
+    __typename?: 'Task'
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
+      } | null> | null
+    }
+    controls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{
+        __typename?: 'ControlEdge'
+        node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
+      } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; details?: string | null; displayID: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; description?: string | null; name: string } | null } | null> | null
+    }
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string; summary?: string | null } | null } | null> | null
+    }
+    evidence: {
+      __typename?: 'EvidenceConnection'
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; description?: string | null; name: string } | null } | null> | null
+    }
+    groups: {
+      __typename?: 'GroupConnection'
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayID: string; description?: string | null; name: string } | null } | null> | null
+    }
+    controlObjectives: {
+      __typename?: 'ControlObjectiveConnection'
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: {
+          __typename?: 'ControlObjective'
+          id: string
+          displayID: string
+          name: string
+          desiredOutcome?: string | null
+          controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+        } | null
+      } | null> | null
+    }
+  }
+}
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
@@ -49531,14 +50048,20 @@ export type GetTrustCenterCompliancesQuery = {
   }
 }
 
-export type CreateTrustCenterComplianceMutationVariables = Exact<{
-  input: CreateTrustCenterComplianceInput
+export type CreateBulkTrustCenterComplianceMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateTrustCenterComplianceInput> | CreateTrustCenterComplianceInput>
 }>
 
-export type CreateTrustCenterComplianceMutation = {
+export type CreateBulkTrustCenterComplianceMutation = {
   __typename?: 'Mutation'
-  createTrustCenterCompliance: { __typename?: 'TrustCenterComplianceCreatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
+  createBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkCreatePayload'; trustCenterCompliances?: Array<{ __typename?: 'TrustCenterCompliance'; id: string }> | null }
 }
+
+export type DeleteBulkTrustCenterComplianceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type UpdateTrustCenterComplianceMutationVariables = Exact<{
   updateTrustCenterComplianceId: Scalars['ID']['input']
@@ -49550,11 +50073,47 @@ export type UpdateTrustCenterComplianceMutation = {
   updateTrustCenterCompliance: { __typename?: 'TrustCenterComplianceUpdatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
 }
 
-export type DeleteTrustCenterComplianceMutationVariables = Exact<{
-  deleteTrustCenterComplianceId: Scalars['ID']['input']
+export type GetTrustCenterEntitiesQueryVariables = Exact<{
+  where?: InputMaybe<TrustcenterEntityWhereInput>
 }>
 
-export type DeleteTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteTrustCenterCompliance: { __typename?: 'TrustCenterComplianceDeletePayload'; deletedID: string } }
+export type GetTrustCenterEntitiesQuery = {
+  __typename?: 'Query'
+  trustcenterEntities: {
+    __typename?: 'TrustcenterEntityConnection'
+    edges?: Array<{
+      __typename?: 'TrustcenterEntityEdge'
+      node?: { __typename?: 'TrustcenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustcenterEntityMutationVariables = Exact<{
+  input: CreateTrustcenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type CreateTrustcenterEntityMutation = {
+  __typename?: 'Mutation'
+  createTrustcenterEntity: { __typename?: 'TrustcenterEntityCreatePayload'; trustcenterEntity: { __typename?: 'TrustcenterEntity'; id: string } }
+}
+
+export type DeleteTrustcenterEntityMutationVariables = Exact<{
+  deleteTrustcenterEntityId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustcenterEntityMutation = { __typename?: 'Mutation'; deleteTrustcenterEntity: { __typename?: 'TrustcenterEntityDeletePayload'; deletedID: string } }
+
+export type UpdateTrustcenterEntityMutationVariables = Exact<{
+  updateTrustcenterEntityId: Scalars['ID']['input']
+  input: UpdateTrustcenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustcenterEntityMutation = {
+  __typename?: 'Mutation'
+  updateTrustcenterEntity: { __typename?: 'TrustcenterEntityUpdatePayload'; trustcenterEntity: { __typename?: 'TrustcenterEntity'; id: string } }
+}
 
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>
@@ -49646,9 +50205,16 @@ export type GetTrustCenterQuery = {
           __typename?: 'CustomDomain'
           id: string
           cnameRecord: string
-          dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
+          dnsVerification?: {
+            __typename?: 'DNSVerification'
+            dnsVerificationStatus: DnsVerificationDnsVerificationStatus
+            dnsTxtRecord: string
+            dnsTxtValue: string
+            dnsVerificationStatusReason?: string | null
+          } | null
           mappableDomain: { __typename?: 'MappableDomain'; name: string }
         } | null
+        previewDomain?: { __typename?: 'CustomDomain'; cnameRecord: string } | null
         setting?: {
           __typename?: 'TrustCenterSetting'
           id: string
@@ -49667,6 +50233,23 @@ export type GetTrustCenterQuery = {
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
+        previewSetting?: {
+          __typename?: 'TrustCenterSetting'
+          id: string
+          title?: string | null
+          overview?: string | null
+          primaryColor?: string | null
+          themeMode?: TrustCenterSettingTrustCenterThemeMode | null
+          foregroundColor?: string | null
+          secondaryForegroundColor?: string | null
+          font?: string | null
+          backgroundColor?: string | null
+          secondaryBackgroundColor?: string | null
+          faviconRemoteURL?: string | null
+          logoRemoteURL?: string | null
+          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        } | null
         watermarkConfig?: {
           __typename?: 'TrustCenterWatermarkConfig'
           id: string
@@ -49675,6 +50258,7 @@ export type GetTrustCenterQuery = {
           color?: string | null
           opacity?: number | null
           rotation?: number | null
+          isEnabled?: boolean | null
           file?: { __typename?: 'File'; presignedURL?: string | null } | null
         } | null
       } | null
@@ -49828,6 +50412,36 @@ export type UpdateTrustCenterWatermarkConfigMutation = {
   updateTrustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfigUpdatePayload'; trustCenterWatermarkConfig: { __typename?: 'TrustCenterWatermarkConfig'; id: string } }
 }
 
+export type GetTrustCenterPostsQueryVariables = Exact<{
+  trustCenterId: Scalars['ID']['input']
+}>
+
+export type GetTrustCenterPostsQuery = {
+  __typename?: 'Query'
+  trustCenter: {
+    __typename?: 'TrustCenter'
+    posts: {
+      __typename?: 'NoteConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; text: string; updatedAt?: any | null } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateTrustCenterMutationVariables = Exact<{
+  updateTrustCenterId: Scalars['ID']['input']
+  input: UpdateTrustCenterInput
+}>
+
+export type UpdateTrustCenterMutation = { __typename?: 'Mutation'; updateTrustCenter: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
+
+export type UpdateTrustCenterPostMutationVariables = Exact<{
+  updateTrustCenterPostId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTrustCenterPostMutation = { __typename?: 'Mutation'; updateTrustCenterPost: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
@@ -49872,3 +50486,9 @@ export type UpdateUserSettingMutationVariables = Exact<{
 }>
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
+
+export type DeleteUserMutationVariables = Exact<{
+  deleteUserId: Scalars['ID']['input']
+}>
+
+export type DeleteUserMutation = { __typename?: 'Mutation'; deleteUser: { __typename?: 'UserDeletePayload'; deletedID: string } }

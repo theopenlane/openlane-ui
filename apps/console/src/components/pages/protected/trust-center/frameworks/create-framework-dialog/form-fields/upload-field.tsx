@@ -7,7 +7,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Eye } from 'lucide-react'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 
-export const UploadField = ({ isEditing, initialUrl }: { isEditing: boolean; initialUrl?: string | null }) => {
+export const UploadField = ({ initialUrl }: { initialUrl?: string | null }) => {
   const { setValue } = useFormContext()
 
   const [preview, setPreview] = useState<string | null>(null)
@@ -56,7 +56,6 @@ export const UploadField = ({ isEditing, initialUrl }: { isEditing: boolean; ini
       <Label className="mb-2 block text-sm">Logo</Label>
 
       <div className="flex gap-4">
-        {/* Preview */}
         <div className="mb-3 flex h-[150px] w-[150px] items-center justify-center rounded-md border">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -66,17 +65,15 @@ export const UploadField = ({ isEditing, initialUrl }: { isEditing: boolean; ini
           )}
         </div>
 
-        {isEditing && (
-          <div className="w-[290px]">
-            <FileUpload
-              acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
-              acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
-              maxFileSizeInMb={5}
-              multipleFiles={false}
-              onFileUpload={handleUpload}
-            />
-          </div>
-        )}
+        <div className="w-[300px]">
+          <FileUpload
+            acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
+            acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
+            maxFileSizeInMb={5}
+            multipleFiles={false}
+            onFileUpload={handleUpload}
+          />
+        </div>
       </div>
     </div>
   )

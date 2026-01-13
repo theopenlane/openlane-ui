@@ -48,7 +48,7 @@ export const getControlsFilterFields = (
   },
   {
     key: 'controlOwnerIDIn',
-    label: 'Owners',
+    label: 'Owner',
     type: 'multiselect',
     options: groups.map((group) => ({
       value: group.value,
@@ -100,7 +100,8 @@ export const CONTROLS_SORT_FIELDS = [
   { key: 'CONTROL_TYPE', label: 'Control Type' },
   { key: 'category', label: 'Category' },
   { key: 'subcategory', label: 'Subcategory' },
-  { key: 'CONTROL_OWNER_name', label: 'Owners' },
+  { key: 'CONTROL_OWNER_name', label: 'Owner' },
+  { key: 'DELEGATE_name', label: 'Delegate' },
   { key: 'ref_code', label: 'Ref' },
 ]
 
@@ -276,7 +277,10 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     },
     {
       header: 'Delegate',
-      accessorKey: 'delegate',
+      accessorKey: ControlOrderField.DELEGATE_name,
+      meta: {
+        exportPrefix: 'delegate.name',
+      },
       cell: ({ row }) => {
         const delegate = row.original.delegate
         const controlId = row.original.id
@@ -366,6 +370,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Comments',
       accessorKey: 'comments',
+      meta: {
+        exportPrefix: 'comments.text',
+      },
       cell: ({ row }) => {
         return (
           <Link onClick={(e) => e.stopPropagation()} href={`/controls/${row.original.id}?showComments=true`} className="flex items-center gap-2">

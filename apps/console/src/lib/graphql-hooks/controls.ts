@@ -26,6 +26,9 @@ import {
   GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
   GET_CONTROL_ASSOCIATIONS_BY_ID,
   GET_CONTROL_NOT_IMPLEMENTED_COUNT,
+  INSERT_CONTROL_PLATE_COMMENT,
+  GET_CONTROL_DISCUSSION_BY_ID,
+  UPDATE_CSV_BULK_CONTROL,
 } from '@repo/codegen/query/control'
 
 import {
@@ -49,6 +52,8 @@ import {
   GetControlsPaginatedQuery,
   GetControlsPaginatedQueryVariables,
   GetControlSubcategoriesQuery,
+  UpdateBulkCsvControlMutation,
+  UpdateBulkCsvControlMutationVariables,
   UpdateControlMutation,
   UpdateControlMutationVariables,
   GetControlsPaginatedWithListFieldsQuery,
@@ -75,6 +80,9 @@ import {
   GetControlAssociationsByIdQuery,
   GetControlAssociationsByIdQueryVariables,
   GetNotImplementedControlCountQuery,
+  InsertControlPlateCommentMutation,
+  InsertControlPlateCommentMutationVariables,
+  GetControlDiscussionByIdQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -176,6 +184,17 @@ export const useCreateBulkCSVControl = () => {
 
   return useMutation<CreateBulkCsvControlMutation, unknown, CreateBulkCsvControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTROL, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
+  })
+}
+
+export const useUpdateBulkCSVControl = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkCsvControlMutation, unknown, UpdateBulkCsvControlMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
     },
@@ -550,4 +569,26 @@ export const useGetControlNotImplementedCount = () => {
     ...queryResult,
     totalCount: queryResult.data?.controls?.totalCount ?? 0,
   }
+}
+
+export const CONTROL_DISCUSSION_QUERY_KEY = 'controlsDiscussion'
+
+export const useGetControlDiscussionById = (controlId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlDiscussionByIdQuery, unknown>({
+    queryKey: [CONTROL_DISCUSSION_QUERY_KEY, controlId],
+    queryFn: async () => client.request(GET_CONTROL_DISCUSSION_BY_ID, { controlId }),
+    enabled: !!controlId,
+  })
+}
+
+export const useInsertControlPlateComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<InsertControlPlateCommentMutation, unknown, InsertControlPlateCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(INSERT_CONTROL_PLATE_COMMENT, variables)
+    },
+  })
 }
