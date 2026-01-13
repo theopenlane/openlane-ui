@@ -14,6 +14,7 @@ export const GET_TRUST_CENTER = gql`
               dnsVerificationStatus
               dnsTxtRecord
               dnsTxtValue
+              dnsVerificationStatusReason
             }
             mappableDomain {
               name
