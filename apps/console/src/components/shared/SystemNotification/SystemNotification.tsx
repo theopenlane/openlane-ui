@@ -13,8 +13,6 @@ export default function SystemNotificationTracker() {
   const { notifications } = useSSENotifications()
   const [open, setOpen] = useState(false)
 
-  console.log('notifications', notifications)
-
   const bellRef = useRef<HTMLDivElement>(null)
 
   const dropdownRef = useClickOutside(() => setOpen(false))
