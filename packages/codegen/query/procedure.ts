@@ -88,6 +88,22 @@ export const GET_TABLE_PROCEDURES = gql`
           revision
           status
           tags
+          internalPolicies {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
         }
       }
       pageInfo {
