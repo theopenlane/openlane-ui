@@ -4,10 +4,10 @@ import React, { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { SquarePlus } from 'lucide-react'
+import { PanelRightClose, SquarePlus } from 'lucide-react'
 
 import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetFooter } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from '@repo/ui/sheet'
 
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -47,7 +47,7 @@ const schema = z
 
 type FormData = z.infer<typeof schema>
 
-export const CreateSubprocessorSheet = () => {
+export const CreateSubprocessorSheet = ({ onCreateSuccess }: { onCreateSuccess: (id: string) => void }) => {
   const [open, setOpen] = useState(false)
 
   const { successNotification, errorNotification } = useNotification()
@@ -80,18 +80,21 @@ export const CreateSubprocessorSheet = () => {
     }
   }
 
+  const handleClose = () => {
+    setOpen(false)
+    reset()
+  }
+
   const onOpenChange = (value: boolean) => {
     setOpen(value)
-    if (!value) {
-      reset()
-    }
+    if (!value) reset()
   }
 
   const onSubmit = async (data: FormData) => {
     try {
-      await createSubprocessor({
+      const resp = await createSubprocessor({
         input: {
-          name: data.name,
+          name: data.name.trim(),
           description: data.description || '',
           tags: data.tags,
           logoRemoteURL: data.uploadMode === 'url' ? data.logoUrl : undefined,
@@ -104,8 +107,8 @@ export const CreateSubprocessorSheet = () => {
         description: 'The subprocessor has been created successfully.',
       })
 
-      setOpen(false)
-      reset()
+      handleClose()
+      onCreateSuccess(resp.createSubprocessor.subprocessor.id)
     } catch (error) {
       errorNotification({
         title: 'Error Creating Subprocessor',
@@ -123,22 +126,34 @@ export const CreateSubprocessorSheet = () => {
       </SheetTrigger>
 
       <SheetContent>
-        <SheetTitle className="text-2xl mb-6">Create Subprocessor</SheetTitle>
+        <SheetHeader>
+          <div className="flex items-center justify-between">
+            <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleClose} />
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
+                Cancel
+              </Button>
+
+              <Button iconPosition="left" type="button" form="subprocessor-form" onClick={handleSubmit(onSubmit)} disabled={isSubmitting || isSubmitDisabled}>
+                {isSubmitting ? 'Creating...' : 'Create'}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-start">
+            <SheetTitle className="text-2xl mb-6">Create Subprocessor</SheetTitle>
+          </div>
+        </SheetHeader>
 
         <FormProvider {...formMethods}>
-          <form id="subprocessor-form" className="space-y-6 ">
+          <form id="subprocessor-form" className="space-y-6">
             <NameField isEditing />
             <LogoField onFileUpload={handleLogoUpload} />
             <DescriptionField isEditing />
             <TagsField isEditing />
           </form>
         </FormProvider>
-
-        <SheetFooter className="mt-8">
-          <Button onClick={handleSubmit(onSubmit)} type="button" form="subprocessor-form" variant="primary" disabled={isSubmitting || isSubmitDisabled} className="w-full">
-            {isSubmitting ? 'Creating...' : 'Create Subprocessor'}
-          </Button>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   )
