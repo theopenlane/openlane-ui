@@ -749,7 +749,7 @@ const AuthorityField = ({
               >
                 <div className="flex gap-2 items-center">
                   <Avatar entity={value as Group} variant="small" />
-                  <span className="truncate">{displayName}</span>
+                  <span className="truncate text-sm">{displayName}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="bottom">{displayName}</TooltipContent>
