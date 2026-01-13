@@ -1,4 +1,5 @@
-import { StatusBgClasses, WatermarkStatusLabels } from '@/components/shared/enum-mapper/watermark-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { StatusBgClasses } from '@/components/shared/enum-mapper/watermark-enum'
 import { TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 type DocumentsWatermarkStatusChipProps = {
@@ -10,7 +11,7 @@ const DocumentsWatermarkStatusChip = ({ status, className }: DocumentsWatermarkS
 
   return (
     <div className={`inline-flex items-center gap-1 rounded-sm border border-switch-bg-inactive py-1 px-2 font-normal text-xs leading-4 shrink-0 ${bgClass} ${className ?? ''}`}>
-      {WatermarkStatusLabels[status ?? 'PENDING']}
+      {getEnumLabel(status ?? 'PENDING')}
     </div>
   )
 }
