@@ -230,10 +230,10 @@ const ViewProcedurePage: React.FC = () => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+          <Button className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
             Cancel
           </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
+          <Button type="submit" iconPosition="left" className="h-8 px-2!" icon={<SaveIcon />} disabled={isSaving}>
             {isSaving ? 'Saving' : 'Save'}
           </Button>
         </div>

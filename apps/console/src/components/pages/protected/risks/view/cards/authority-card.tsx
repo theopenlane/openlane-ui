@@ -60,10 +60,10 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
     const showEditable = isEditAllowed && (isEditing || editingField === editingKey)
 
     return (
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center border-b border-border pb-3">
         <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''}`}>
           {icon}
-          <span>{label}</span>
+          <span className="text-sm">{label}</span>
         </div>
 
         {showEditable ? (
@@ -97,7 +97,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
                 >
                   <div className="flex gap-2 items-center">
                     <Avatar entity={value as Group} variant="small" />
-                    <span className="truncate">{displayName}</span>
+                    <span className="truncate text-sm">{displayName}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{displayName}</TooltipContent>
