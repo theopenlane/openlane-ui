@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
 import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
-import { enumToOptions } from '@/components/pages/protected/tasks/table/table-config'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 interface Props {
   isEditing: boolean
