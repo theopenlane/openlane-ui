@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import UrlInput from './url-input'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
+import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -47,6 +48,7 @@ const DomainSettingsPage = () => {
   }
 
   const dnsVerification = trustCenter?.customDomain?.dnsVerification
+  const hasReason = typeof dnsVerification?.dnsVerificationStatusReason === 'string' && dnsVerification.dnsVerificationStatusReason.trim().length > 0
 
   const cnameRecord = trustCenter?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.').slice(0, -2).join('.') : ''
@@ -191,7 +193,7 @@ const DomainSettingsPage = () => {
     if (trustCenter.customDomain?.cnameRecord) {
       return (
         <div className="flex w-full gap-2">
-          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={trustCenter.customDomain?.dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-10" />
+          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-10" />
           {editing ? (
             <div className="flex gap-2">
               <Button onClick={handleUpdateCustomDomain} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
@@ -207,7 +209,7 @@ const DomainSettingsPage = () => {
                 Edit
               </Button>
               <Button onClick={handleDeleteCustomDomain} variant="secondary" className="h-10 flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />
-              {trustCenter.customDomain?.dnsVerification?.dnsVerificationStatus && (
+              {dnsVerification?.dnsVerificationStatus && (
                 <>
                   <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
                   <a href={trustCenter.customDomain?.cnameRecord} rel={'noreferrer'} target="_blank">
@@ -253,7 +255,7 @@ const DomainSettingsPage = () => {
                   </div>
                 )}
               </div>
-              <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-5">
+              <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-3">
                 <div className="flex items-start gap-2">
                   <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
                   <div>
@@ -265,6 +267,16 @@ const DomainSettingsPage = () => {
                   </div>
                 </div>
               </div>
+              {dnsVerification?.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.PENDING && hasReason && (
+                <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-1">
+                  <div className="flex items-start gap-2">
+                    <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
+                    <div>
+                      <p className="text-sm">{dnsVerification.dnsVerificationStatusReason}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col gap-3">
                 <p className="text-base font-medium leading-6">Vanity Domain</p>
                 {renderContent()}

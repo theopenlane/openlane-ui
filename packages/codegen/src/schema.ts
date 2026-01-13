@@ -50214,7 +50214,13 @@ export type GetTrustCenterQuery = {
           __typename?: 'CustomDomain'
           id: string
           cnameRecord: string
-          dnsVerification?: { __typename?: 'DNSVerification'; dnsVerificationStatus: DnsVerificationDnsVerificationStatus; dnsTxtRecord: string; dnsTxtValue: string } | null
+          dnsVerification?: {
+            __typename?: 'DNSVerification'
+            dnsVerificationStatus: DnsVerificationDnsVerificationStatus
+            dnsTxtRecord: string
+            dnsTxtValue: string
+            dnsVerificationStatusReason?: string | null
+          } | null
           mappableDomain: { __typename?: 'MappableDomain'; name: string }
         } | null
         previewDomain?: { __typename?: 'CustomDomain'; cnameRecord: string } | null
