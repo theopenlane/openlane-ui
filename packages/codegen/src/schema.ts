@@ -50196,6 +50196,15 @@ export type DeleteTrustCenterSubprocessorMutationVariables = Exact<{
 
 export type DeleteTrustCenterSubprocessorMutation = { __typename?: 'Mutation'; deleteTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorDeletePayload'; deletedID: string } }
 
+export type GetTrustCenterSubprocessorByIdQueryVariables = Exact<{
+  trustCenterSubprocessorId: Scalars['ID']['input']
+}>
+
+export type GetTrustCenterSubprocessorByIdQuery = {
+  __typename?: 'Query'
+  trustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessor'; id: string; category: string; countries?: Array<string> | null; subprocessor: { __typename?: 'Subprocessor'; id: string } }
+}
+
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTrustCenterQuery = {
