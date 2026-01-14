@@ -10,6 +10,8 @@ import { Checkbox } from '@repo/ui/checkbox'
 import ApproverCell from './approver-cell'
 import DelegateCell from './delegate-cell'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { LinkedControlsCell } from './linked-controls-cell'
+import { LinkedPoliciesCell } from './linked-plolicies-cell'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -183,6 +185,25 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
         return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
+    {
+      accessorKey: 'linkedControls',
+      header: 'Linked Controls',
+      meta: {
+        exportPrefix: 'controls.refCode',
+      },
+      size: 220,
+      cell: ({ row }) => <LinkedControlsCell row={row} />,
+    },
+    {
+      accessorKey: 'linkedPolicies',
+      header: 'Linked Policies',
+      meta: {
+        exportPrefix: 'internalPolicies.name',
+      },
+      size: 220,
+      cell: ({ row }) => <LinkedPoliciesCell row={row} />,
+    },
+
     {
       accessorKey: 'createdBy',
       header: 'Created by',
