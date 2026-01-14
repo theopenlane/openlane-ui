@@ -83,11 +83,17 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'name',
       header: 'Name',
+      meta: {
+        exportPrefix: 'subprocessor.name',
+      },
     },
     {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => row.original.description || '—',
+      meta: {
+        exportPrefix: 'subprocessor.description',
+      },
     },
 
     {
