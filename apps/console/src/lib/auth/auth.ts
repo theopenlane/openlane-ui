@@ -18,8 +18,6 @@ import { CredentialsSignin } from 'next-auth'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 
-console.log('NextAuth runtime Node version:', process.version)
-
 export class InvalidLoginError extends CredentialsSignin {
   code = 'Invalid login'
   constructor(message: string) {
@@ -67,6 +65,8 @@ export const config = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log('NextAuth runtime Node version:', process.version)
+
       if ('error' in user && typeof user.error === 'string') {
         throw new InvalidLoginError(user.error)
       }
