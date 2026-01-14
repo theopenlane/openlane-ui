@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { addDays } from 'date-fns'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Value } from 'platejs'
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -15,7 +16,7 @@ const formSchema = z.object({
   renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
   evidenceFiles: z.array(z.any()).optional(),
   url: z.preprocess((val) => (val === '' ? undefined : val), z.string().url().optional()),
-  collectionProcedure: z.string().optional(),
+  collectionProcedure: z.custom<Value | string>().nullable().optional(),
   source: z.string().optional(),
   fileIDs: z.array(z.string()).optional(),
   controlObjectiveIDs: z.array(z.any()).optional().nullable(),
@@ -48,7 +49,6 @@ const useFormSchema = () => {
         description: '',
         tags: [],
         evidenceFiles: [],
-        collectionProcedure: '',
         source: '',
         fileIDs: [],
         renewalDate: addDays(new Date(), 365),

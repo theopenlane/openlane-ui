@@ -47480,6 +47480,8 @@ export type GetInternalPoliciesListQuery = {
         tags?: Array<string> | null
         approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
         delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -47903,6 +47905,11 @@ export type GetProceduresTableListQuery = {
         tags?: Array<string> | null
         approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
         delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        internalPolicies: {
+          __typename?: 'InternalPolicyConnection'
+          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+        }
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -50188,6 +50195,15 @@ export type DeleteTrustCenterSubprocessorMutationVariables = Exact<{
 }>
 
 export type DeleteTrustCenterSubprocessorMutation = { __typename?: 'Mutation'; deleteTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorDeletePayload'; deletedID: string } }
+
+export type GetTrustCenterSubprocessorByIdQueryVariables = Exact<{
+  trustCenterSubprocessorId: Scalars['ID']['input']
+}>
+
+export type GetTrustCenterSubprocessorByIdQuery = {
+  __typename?: 'Query'
+  trustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessor'; id: string; category: string; countries?: Array<string> | null; subprocessor: { __typename?: 'Subprocessor'; id: string } }
+}
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
 

@@ -78,6 +78,9 @@ import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -86,6 +89,7 @@ type TEvidenceDetailsSheet = {
 type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
+  const { convertToHtml, convertToReadOnly } = usePlateEditor()
   const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<Option[]>([])
@@ -239,7 +243,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         creationDate: evidence.creationDate ? new Date(evidence.creationDate as string) : undefined,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
-        collectionProcedure: evidence?.collectionProcedure ?? '',
+        collectionProcedure: evidence?.collectionProcedure || '',
         source: evidence?.source ?? '',
         url: evidence?.url ?? '',
       })
@@ -331,11 +335,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     const cleanFormData = omit(formData, ['programIDs', 'controlIDs', 'subcontrolIDs'])
 
     try {
+      let collectionProcedure
+      if (formData.collectionProcedure) {
+        collectionProcedure = await convertToHtml(formData.collectionProcedure as Value)
+      }
+
       await updateEvidence({
         updateEvidenceId: config.id as string,
         input: {
           ...cleanFormData,
           ...associationInputs,
+          collectionProcedure,
           clearURL: formData?.url === undefined,
         },
       })
@@ -588,7 +598,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                         </div>
                         <FormControl>
-                          <Textarea id="collectionProcedure" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                          <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
                         </FormControl>
                         {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                       </FormItem>
@@ -597,10 +607,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 ) : (
                   <div className="mt-5">
                     <FormLabel className="font-bold">Collection Procedure</FormLabel>
-                    <HoverPencilWrapper pencilClass="!-right-5" showPencil={editAllowed} className={`w-fit ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-                      <div onDoubleClick={() => editAllowed && handleDoubleClick('collectionProcedure')}>
-                        {evidence?.collectionProcedure ? <p>{evidence.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
-                      </div>
+                    <HoverPencilWrapper showPencil={false} pencilClass="!-right-5" className={`w-fit cursor-not-allowed`}>
+                      <div>{evidence?.collectionProcedure ? <p>{convertToReadOnly(evidence.collectionProcedure)}</p> : <p className="text-gray-500">no collection procedure provided</p>}</div>
                     </HoverPencilWrapper>
                   </div>
                 )}
@@ -1075,7 +1083,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
               creationDate: evidence?.creationDate ? new Date(evidence.creationDate as string) : undefined,
               status: evidence?.status ?? undefined,
               tags: evidence?.tags ?? [],
-              collectionProcedure: evidence?.collectionProcedure ?? '',
+              collectionProcedure: evidence?.collectionProcedure as string,
               source: evidence?.source ?? '',
               url: evidence?.url ?? '',
               controlIDs: initialAssociations.controlIDs ?? [],
