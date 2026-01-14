@@ -29,6 +29,10 @@ export async function GET() {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
   }
 
+  if (!sessionString) {
+    return new Response(JSON.stringify({ error: 'Unauthorized session string missing' }), { status: 401 })
+  }
+
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
