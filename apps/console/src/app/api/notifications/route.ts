@@ -1,4 +1,4 @@
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { sessionCookieName } from '@repo/dally/auth'
 import { auth } from '@/lib/auth/auth'
@@ -21,42 +21,22 @@ const getNotifications = `
 
 export async function GET() {
   const cookieStore = await cookies()
-  const sessionString = cookieStore.get(sessionCookieName as string)?.value
+  const sessionString = cookieStore.get(sessionCookieName!)?.value
   const session = await auth()
   const accessToken = session?.user?.accessToken
 
-  // 1. Initial Auth Logging
-  const h = await headers()
-  console.warn('cookieStore', cookieStore)
-  console.warn('[Debug] raw cookie header:', h.get('cookie'))
-
-  console.warn('[SSE Proxy] Debug Info:', {
-    hasSessionString: sessionString,
-    sessionCookieName,
-    hasAccessToken: !!accessToken,
-    apiUrl: process.env.NEXT_PUBLIC_API_GQL_URL,
-  })
-
-  if (!accessToken) {
-    console.error('[SSE Proxy] Error: No access token found in session')
+  if (!accessToken || !sessionString) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
-  }
-
-  if (!sessionString) {
-    console.error('[SSE Proxy] Error: Session string (cookie) is missing')
-    return new Response(JSON.stringify({ error: 'Unauthorized session string missing' }), { status: 401 })
   }
 
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
+  let closed = false
+
   const stream = new ReadableStream({
     async start(controller) {
-      let isStreamClosed = false
-
       try {
-        console.log('[SSE Proxy] Initiating secureFetch to backend...')
-
         const response = await secureFetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
           method: 'POST',
           headers: {
@@ -72,54 +52,33 @@ export async function GET() {
           }),
         })
 
-        // 2. Log Backend Response Status
-        console.log('[SSE Proxy] Backend Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          contentType: response.headers.get('content-type'),
-        })
-
         if (!response.ok || !response.body) {
-          const errorBody = await response.text().catch(() => 'No body')
-          console.error('[SSE Proxy] Backend Error Details:', errorBody)
-
-          if (!isStreamClosed) controller.close()
+          controller.error(new Error('Upstream SSE failed'))
           return
         }
 
         const reader = response.body.getReader()
-        console.log('[SSE Proxy] Stream established successfully')
 
-        while (true) {
+        while (!closed) {
           const { done, value } = await reader.read()
-          if (done) {
-            console.log('[SSE Proxy] Stream finished (done: true)')
-            break
-          }
-
-          const rawChunk = decoder.decode(value, { stream: true })
-          const formattedChunk = rawChunk.endsWith('\n\n') ? rawChunk : `${rawChunk}\n\n`
+          if (done || closed) break
 
           try {
-            controller.enqueue(encoder.encode(formattedChunk))
-          } catch (err) {
-            console.warn('[SSE Proxy] Controller closed while enqueuing:', err)
-            isStreamClosed = true
+            controller.enqueue(encoder.encode(decoder.decode(value, { stream: true })))
+          } catch {
+            closed = true
             break
           }
         }
-      } catch (error) {
-        console.error('[SSE Proxy] Critical Stream Error:', error)
-      } finally {
-        if (!isStreamClosed) {
-          try {
-            controller.close()
-            console.log('[SSE Proxy] Controller closed safely')
-          } catch (e: unknown) {
-            console.error('[SSE Proxy] Controller close error:', e)
-          }
-        }
+
+        reader.cancel().catch(() => {})
+      } catch (err) {
+        if (!closed) controller.error(err)
       }
+    },
+
+    cancel() {
+      closed = true
     },
   })
 
