@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+console.log('Build Node version:', process.version)
+
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
