@@ -1,5 +1,5 @@
 'use server'
-import { sessionCookieName, sessionCookieExpiration, isDevelopment, cookieDomain } from '@repo/dally/auth'
+import { sessionCookieName, sessionCookieExpiration, isDevelopment } from '@repo/dally/auth'
 import { cookies } from 'next/headers'
 
 export const setSessionCookie = async (session: string) => {
@@ -16,7 +16,7 @@ export const setSessionCookie = async (session: string) => {
     })
   } else {
     cookieStore.set(`${sessionCookieName}`, session, {
-      domain: `${cookieDomain}`,
+      domain: 'openlane-ui-git-feat-notification-subscription-openlane.vercel.app',
       httpOnly: true,
       sameSite: 'none',
       secure: true,
