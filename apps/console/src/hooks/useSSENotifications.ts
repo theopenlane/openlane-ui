@@ -9,7 +9,7 @@ export interface NotificationData {
   [key: string]: unknown
 }
 
-export type NotificationObjectType = 'Program' | 'Task' | 'Evidence' | 'Group' | 'Internal Policy' | 'Procedure' | 'Risk' | 'Questionnaire' | 'Evidence'
+export type NotificationObjectType = 'Program' | 'Task' | 'Evidence' | 'Group' | 'Internal Policy' | 'Procedure' | 'Risk' | 'Questionnaire'
 
 export interface Notification {
   id: string
@@ -37,34 +37,40 @@ export function useSSENotifications() {
   })
 
   useEffect(() => {
-    const eventSource = new EventSource('/api/notifications')
+    let eventSource: EventSource | null = null
 
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const payload: SSESubscriptionPayload = JSON.parse(event.data)
-        const newNotification = payload?.data?.notificationCreated
+    const timeoutId = setTimeout(() => {
+      eventSource = new EventSource('/api/notifications')
 
-        if (newNotification) {
-          queryClient.setQueryData<Notification[]>(['notifications'], (old = []) => {
-            if (old.some((n) => n.id === newNotification.id)) return old
-            return [newNotification, ...old]
-          })
+      const handleMessage = (event: MessageEvent) => {
+        try {
+          const payload: SSESubscriptionPayload = JSON.parse(event.data)
+          const newNotification = payload?.data?.notificationCreated
+
+          if (newNotification) {
+            queryClient.setQueryData<Notification[]>(['notifications'], (old = []) => {
+              if (old.some((n) => n.id === newNotification.id)) return old
+              return [newNotification, ...old]
+            })
+          }
+        } catch (e: unknown) {
+          console.error('SSE notification error:', e)
         }
-      } catch (e: unknown) {
-        console.error('SSE nofitication error:', e)
       }
-    }
 
-    eventSource.onmessage = handleMessage
-    eventSource.addEventListener('next', handleMessage as EventListener)
+      eventSource.onmessage = handleMessage
+      eventSource.addEventListener('next', handleMessage as EventListener)
 
-    eventSource.onerror = () => {
-      eventSource.close()
-    }
+      eventSource.onerror = () => {
+        eventSource?.close()
+      }
+    }, 5000)
 
     return () => {
-      eventSource.removeEventListener('next', handleMessage as EventListener)
-      eventSource.close()
+      clearTimeout(timeoutId)
+      if (eventSource) {
+        eventSource.close()
+      }
     }
   }, [queryClient])
 
