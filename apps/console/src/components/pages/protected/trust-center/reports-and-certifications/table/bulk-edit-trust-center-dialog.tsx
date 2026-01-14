@@ -171,7 +171,7 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
               ))}
 
               {/* Add New Field Button */}
-              {fields.length < 4 && (
+              {fields.length < Object.keys(SelectOptionBulkEditTrustCenterDocs).length && (
                 <Button icon={<Plus />} onClick={() => append({ value: undefined })} iconPosition="left" variant="secondary">
                   Add Field
                 </Button>

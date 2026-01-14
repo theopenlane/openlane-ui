@@ -252,7 +252,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                   </div>
                 )
               })}
-              {fields.length < 4 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditTasks).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
