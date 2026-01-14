@@ -1,6 +1,8 @@
-/**
- * Export the route handlers from our auth config
- * and set the runtime to the Edge
- */
-export { GET, POST } from '@/lib/auth/auth'
-export const runtime = 'edge'
+// route.ts
+export const runtime = 'nodejs'
+
+import { GET, POST } from '@/lib/auth/auth'
+
+console.log('NextAuth runtime Node version:', process.version)
+
+export { GET, POST }
