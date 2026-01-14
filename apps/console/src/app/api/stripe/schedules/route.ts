@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import Stripe from 'stripe'
+import { auth } from '@/lib/auth/auth'
 
 export async function GET(req: Request) {
+  // ensure we have a valid session
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
     const { searchParams } = new URL(req.url)
     const customerId = searchParams.get('customerId')
