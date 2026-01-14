@@ -11,6 +11,7 @@ import Cropper, { Area, Point } from 'react-easy-crop'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import getCroppedImg from './utils/getCroppedImage'
 import { Scalars } from '@repo/codegen/src/schema'
+import { SaveButton } from '../save-button/save-button'
 
 interface AvatarUploadProps extends AvatarUploadVariants {
   className?: string
@@ -111,7 +112,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
       </div>
 
       <Dialog open={isCroppingModalOpen}>
-        <DialogContent className="w-[600px] max-w-[100%]">
+        <DialogContent className="w-[600px] max-w-full">
           <DialogHeader>
             <DialogTitle>Edit your avatar</DialogTitle>
             <DialogDescription>Please crop, resize and click &apos;Save avatar&apos;</DialogDescription>
@@ -148,7 +149,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
             <Button variant="secondary" onClick={closeModal}>
               Cancel
             </Button>
-            <Button onClick={saveCroppedImage}>Save avatar</Button>
+            <SaveButton onClick={saveCroppedImage} />
           </DialogFooter>
         </DialogContent>
       </Dialog>

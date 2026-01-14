@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Edit, Send, Trash2, Save } from 'lucide-react'
+import { Edit, Send, Trash2 } from 'lucide-react'
 import { useDeleteAssessment, useCreateAssessmentResponse, useGetAssessment } from '@/lib/graphql-hooks/assessments'
 import { useCreateTemplate } from '@/lib/graphql-hooks/templates'
 import { useNotification } from '@/hooks/useNotification'
@@ -19,6 +19,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -138,11 +139,7 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            {editAllowed && !hasTemplate && (
-              <Button type="button" className="h-8 px-3" icon={<Save />} iconPosition="left" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving}>
-                Save as Template
-              </Button>
-            )}
+            {editAllowed && !hasTemplate && <SaveButton type="button" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />}
 
             <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
               Send
@@ -229,9 +226,7 @@ const QuestionnaireViewerPage: React.FC = () => {
               <Button variant="secondary">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button onClick={handleSaveAsTemplate} disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save as Template'}
-              </Button>
+              <SaveButton onClick={handleSaveAsTemplate} disabled={isSaving} />
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

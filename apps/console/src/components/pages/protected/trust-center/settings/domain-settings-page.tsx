@@ -13,6 +13,7 @@ import UrlInput from './url-input'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -196,9 +197,7 @@ const DomainSettingsPage = () => {
           <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-10" />
           {editing ? (
             <div className="flex gap-2">
-              <Button onClick={handleUpdateCustomDomain} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
-                Save
-              </Button>
+              <SaveButton onClick={handleUpdateCustomDomain} className="h-10 flex items-center justify-center gap-2 px-4" />
               <Button onClick={handleCancel} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
                 Cancel
               </Button>

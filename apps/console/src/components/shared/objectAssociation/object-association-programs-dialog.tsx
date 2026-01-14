@@ -13,6 +13,7 @@ import { getProgramsColumns } from './object-association-programs-columns'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SaveButton } from '../save-button/save-button'
 
 type TProgramSelectionDialogProps = {
   open: boolean
@@ -98,7 +99,7 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save</Button>
+          <SaveButton onClick={handleSave} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -22,6 +22,7 @@ import {
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -72,7 +73,6 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
   const { control, handleSubmit, watch } = form
   const watchedFields = watch('fieldsArray') || []
-  const hasFieldsToUpdate = watchedFields.some((field) => field.selectedObject && field.selectedValue)
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
@@ -215,9 +215,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
             </div>
 
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
+              <SaveButton onClick={form.handleSubmit(onSubmit)} />
               <Button
                 variant="secondary"
                 onClick={() => {

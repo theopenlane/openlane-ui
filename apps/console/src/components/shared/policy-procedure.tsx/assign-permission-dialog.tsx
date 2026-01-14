@@ -18,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { SearchIcon } from 'lucide-react'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SaveButton } from '../save-button/save-button'
 
 interface AssignPermissionsDialogProps {
   open: boolean
@@ -162,9 +163,7 @@ export function AssignPermissionsDialog({ open, onOpenChange }: AssignPermission
           <Button variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button disabled={selectedGroupIds.length === 0 || config.isSaving} onClick={handleSave}>
-            {config.isSaving ? 'Saving...' : 'Save'}
-          </Button>
+          <SaveButton isSaving={config.isSaving} disabled={selectedGroupIds.length === 0 || config.isSaving} onClick={handleSave} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

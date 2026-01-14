@@ -18,6 +18,7 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { UseFormReturn } from 'react-hook-form'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SaveButton } from '../save-button/save-button'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -128,7 +129,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
@@ -220,7 +221,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           <Button variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save</Button>
+          <SaveButton onClick={handleSave} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

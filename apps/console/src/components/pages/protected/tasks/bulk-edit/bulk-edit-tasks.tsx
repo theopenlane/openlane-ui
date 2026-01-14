@@ -26,6 +26,7 @@ import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -269,9 +270,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
               ) : null}
             </div>
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
               <Button
                 variant="secondary"
                 onClick={() => {

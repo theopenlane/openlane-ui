@@ -12,6 +12,7 @@ import { StandardNode, useCreateStandard, useUpdateStandard } from '@/lib/graphq
 import { TitleField } from './form-fields/title-field'
 import { DescriptionField } from './form-fields/description-field'
 import { UploadField } from './form-fields/upload-field'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -122,9 +123,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
           <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>
           </DialogClose>
-          <Button form="standard-form" type="submit" disabled={isSubmitting} variant="primary">
-            {isSubmitting ? 'Creating...' : 'Save Framework'}
-          </Button>
+          <SaveButton form="standard-form" disabled={isSubmitting} isSaving={isSubmitting} />
         </div>
       </DialogContent>
     </Dialog>

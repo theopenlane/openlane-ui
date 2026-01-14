@@ -25,6 +25,7 @@ import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Label } from '@repo/ui/label'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -143,7 +144,7 @@ const BasicInformation = () => {
             {!isEditing && isEditAllowed && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
-                className="!h-8 !p-2"
+                className="h-8! p-2!"
                 variant="secondary"
                 type="button"
                 icon={<Pencil />}
@@ -155,10 +156,8 @@ const BasicInformation = () => {
             )}
             {isEditing && (
               <div className="flex gap-2">
-                <Button className="!h-8 !p-2" variant="secondary" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                  Save
-                </Button>
-                <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
+                <SaveButton disabled={isPending} />
+                <Button type="button" variant="back" className="h-8! p-2!" onClick={handleCancel}>
                   Cancel
                 </Button>
               </div>
@@ -222,7 +221,7 @@ const BasicInformation = () => {
                   isEditing ? (
                     <Textarea {...field} value={field.value ?? ''} placeholder="Add a description..." />
                   ) : (
-                    <p className={`${!program?.description && '!text-neutral-400'}`}>{program?.description || '—'}</p>
+                    <p className={`${!program?.description && 'text-neutral-400!'}`}>{program?.description || '—'}</p>
                   )
                 }
               />
@@ -248,7 +247,7 @@ const BasicInformation = () => {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className={`${!programOwnerDisplayName && '!text-neutral-400'}`}>{programOwnerDisplayName || '—'}</p>
+                    <p className={`${!programOwnerDisplayName && 'text-neutral-400!'}`}>{programOwnerDisplayName || '—'}</p>
                   )
                 }
               />
@@ -325,7 +324,7 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
                 )}
               </div>
             ) : (
-              <p className={`${!program?.frameworkName && '!text-neutral-400'}`}>{program?.frameworkName || '—'}</p>
+              <p className={`${!program?.frameworkName && 'text-neutral-400!'}`}>{program?.frameworkName || '—'}</p>
             )
           }}
         />

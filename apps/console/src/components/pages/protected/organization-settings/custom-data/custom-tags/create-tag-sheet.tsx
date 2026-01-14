@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { PanelRightClose, Trash2, LinkIcon, Check, LoaderCircle } from 'lucide-react'
+import { PanelRightClose, Trash2, LinkIcon, LoaderCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@repo/ui/sheet'
@@ -19,6 +19,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useCreateTag, useUpdateTag, useDeleteTag, useGetTagDetails } from '@/lib/graphql-hooks/tags'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -63,7 +64,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     if (tagData?.tagDefinition) {
       const t = tagData.tagDefinition
       setValue('name', t.name ?? '')
-      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : t.aliases ?? '')
+      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''))
       setValue('description', t.description ?? '')
       setValue('color', t.color?.startsWith('#') ? t.color : `#${t.color || '6366f1'}`)
     }
@@ -160,9 +161,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
                 </Button>
               )}
 
-              <Button variant="primary" onClick={handleSubmit(onSubmit)} icon={isPending ? <LoaderCircle className="animate-spin" size={14} /> : <Check size={14} />} disabled={isPending}>
-                {isPending ? 'Saving...' : 'Save'}
-              </Button>
+              <SaveButton onClick={handleSubmit(onSubmit)} isSaving={isPending} disabled={isPending} />
             </div>
           </div>
 

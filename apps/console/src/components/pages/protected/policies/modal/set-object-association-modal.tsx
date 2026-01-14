@@ -13,6 +13,7 @@ import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
@@ -172,9 +173,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
           defaultSelectedObject={fromTable ? ObjectTypeObjects.PROCEDURE : undefined}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
+          <SaveButton onClick={handleSave} isSaving={isSaving} />
           <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
             Cancel
           </Button>

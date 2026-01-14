@@ -13,6 +13,7 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type TSetObjectAssociationDialog = {
   procedureId?: string
@@ -157,9 +158,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.PROCEDURE]}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
+          <SaveButton onClick={handleSave} disabled={isSaving} />
           <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
             Cancel
           </Button>

@@ -26,6 +26,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -255,9 +256,7 @@ export const CreateDocumentSheet: React.FC = () => {
                           >
                             Cancel
                           </Button>
-                          <Button variant="primary" type="submit" form="document-form" className="h-8 p-2" icon={<Save />} iconPosition="left">
-                            Save
-                          </Button>
+                          <SaveButton form="document-form" />
                         </>
                       ) : (
                         <>

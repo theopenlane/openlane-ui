@@ -25,6 +25,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import clsx from 'clsx'
 import { Label } from '@repo/ui/label'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const formSchema = z
   .object({
@@ -150,7 +151,7 @@ const TimelineReadiness = () => {
             {!isEditing && isEditAllowed && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
-                className="!h-8 !p-2"
+                className="h-8! p-2!"
                 variant="secondary"
                 type="button"
                 icon={<Pencil />}
@@ -162,10 +163,8 @@ const TimelineReadiness = () => {
             )}
             {isEditing && (
               <div className="flex gap-2">
-                <Button className="!h-8 !p-2" variant="secondary" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                  Save
-                </Button>
-                <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
+                <SaveButton disabled={isPending} />
+                <Button type="button" variant="back" className="h-8! p-2!" onClick={handleCancel}>
                   Cancel
                 </Button>
               </div>

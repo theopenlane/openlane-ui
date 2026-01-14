@@ -1,10 +1,11 @@
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import { SheetHeader } from '@repo/ui/sheet'
-import { Check, LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
+import { LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
 import DeleteTaskDialog from '../../dialog/delete-task-dialog'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 interface TasksSheetHeaderProps {
   close: () => void
@@ -53,9 +54,7 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, is
               <Button disabled={isPending} type="button" variant="secondary" onClick={() => setIsEditing(false)}>
                 Cancel
               </Button>
-              <Button type="submit" form="editTask" loading={isPending} disabled={isPending} icon={<Check />} iconPosition="left">
-                {isPending ? 'Saving...' : 'Save'}
-              </Button>
+              <SaveButton form="editTask" disabled={isPending} isSaving={isPending} />
             </div>
           ) : (
             <>

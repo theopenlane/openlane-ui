@@ -15,6 +15,7 @@ import { formatDate } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const formSchema = z.object({
   text: z.string().min(1, 'Update text is required').max(280),
@@ -178,9 +179,7 @@ export default function UpdatesSection() {
                               <Button variant="secondary" onClick={cancelEditing}>
                                 Cancel
                               </Button>
-                              <Button onClick={editForm.handleSubmit(handleUpdateSubmit)} disabled={isUpdating}>
-                                {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
-                              </Button>
+                              <SaveButton isSaving={isUpdating} onClick={editForm.handleSubmit(handleUpdateSubmit)} disabled={isUpdating} />
                             </div>
                           </div>
                         </div>

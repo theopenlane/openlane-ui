@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Pencil, Trash2, X, Save } from 'lucide-react'
+import { Pencil, Trash2, X } from 'lucide-react'
 
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -14,6 +14,7 @@ import { EyeNoneIcon } from '@radix-ui/react-icons'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const formSchema = z.object({
   url: z.string().optional(),
@@ -168,9 +169,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
                   Cancel
                 </Button>
 
-                <Button type="submit" disabled={isUpdating} icon={<Save />} iconPosition="left">
-                  Save
-                </Button>
+                <SaveButton disabled={isUpdating} />
               </div>
             </form>
           </Form>

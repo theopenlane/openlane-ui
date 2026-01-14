@@ -1,3 +1,4 @@
+import { SaveButton } from '@/components/shared/save-button/save-button'
 import Slider from '@/components/shared/slider/slider'
 import { MappedControlMappingType } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
@@ -125,9 +126,7 @@ const MapControlsRelations = () => {
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button variant="secondary" type="submit">
-          Save
-        </Button>
+        <SaveButton />
         <Button type="button" variant="secondary" onClick={() => router.back()}>
           Cancel
         </Button>

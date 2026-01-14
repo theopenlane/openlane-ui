@@ -12,6 +12,7 @@ import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-ris
 import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
@@ -153,9 +154,7 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.CONTROL_OBJECTIVE]}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
+          <SaveButton onClick={handleSave} disabled={isSaving} />
           <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
             Cancel
           </Button>

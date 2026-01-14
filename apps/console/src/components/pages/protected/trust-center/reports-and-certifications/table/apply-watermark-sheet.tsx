@@ -15,6 +15,7 @@ import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-c
 import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type WatermarkConfigUI = {
   id?: string
@@ -148,9 +149,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   <Button type="button" iconPosition="left" variant="back" onClick={handleSheetClose}>
                     Cancel
                   </Button>
-                  <Button iconPosition="left" type="button" onClick={handleApplyWatermark}>
-                    {disableWatermarkConfig ? (updating ? 'Saving...' : 'Save') : updating ? 'Applying...' : 'Apply watermark'}
-                  </Button>
+                  <SaveButton onClick={handleApplyWatermark} title={disableWatermarkConfig ? (updating ? 'Saving...' : 'Save') : updating ? 'Applying...' : 'Apply watermark'} />
                 </div>
               </div>
             </SheetHeader>

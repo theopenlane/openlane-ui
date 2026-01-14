@@ -13,6 +13,7 @@ import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 export function SetObjectAssociationDialog() {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
@@ -165,9 +166,7 @@ export function SetObjectAssociationDialog() {
           ]}
         />
         <DialogFooter>
-          <Button onClick={onSave} disabled={isSaving || saveEnabled}>
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
+          <SaveButton onClick={onSave} isSaving={isSaving} />
           <Button variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>

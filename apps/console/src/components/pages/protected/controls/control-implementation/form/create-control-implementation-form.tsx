@@ -10,7 +10,7 @@ import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
-import { Info, Pencil, Trash2 } from 'lucide-react'
+import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { TFormData } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
@@ -21,6 +21,7 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
   const { id, subcontrolId } = useParams()
@@ -124,20 +125,18 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       <div className="flex justify-end gap-2">
         {isEditing ? (
           <>
-            <Button className="h-8 !px-4" icon={<Pencil />} iconPosition="left">
-              Save
-            </Button>
-            <Button variant="back" className="h-8 !px-4" type="button" onClick={onSuccess}>
+            <SaveButton />
+            <Button variant="back" className="h-8 px-4!" type="button" onClick={onSuccess}>
               Cancel
             </Button>
-            <Button variant="destructive" className="h-8 !px-4" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
+            <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
             </Button>
           </>
         ) : (
           <>
-            <Button className="h-8 !px-4">Create</Button>
-            <Button variant="back" className="h-8 !px-4" type="button" onClick={onSuccess}>
+            <Button className="h-8 px-4!">Create</Button>
+            <Button variant="back" className="h-8 px-4!" type="button" onClick={onSuccess}>
               Cancel
             </Button>
           </>

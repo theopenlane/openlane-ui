@@ -24,6 +24,7 @@ import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Alert, AlertDescription } from '@repo/ui/alert'
 import { X } from 'lucide-react'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type viewMode = 'overview' | 'edit'
 
@@ -515,9 +516,7 @@ const SSOPage = () => {
                 <Button variant="secondary" type="button" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button variant={isSuccess ? 'success' : 'secondary'} type="submit" loading={isPending}>
-                  {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save Configuration'}
-                </Button>
+                <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving Changes' : isSuccess ? 'Saved' : 'Save Changes'} />
               </div>
             </form>
           </Form>
