@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   const token = session?.user?.accessToken
 
+  if (!token) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  }
+
   const body = (await req.json().catch(() => ({}))) as StartBody
 
   const provider = body.provider

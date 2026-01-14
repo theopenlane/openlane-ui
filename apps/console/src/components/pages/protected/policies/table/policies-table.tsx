@@ -141,6 +141,8 @@ export const PoliciesTable = () => {
     tags: false,
     createdAt: false,
     createdBy: false,
+    linkedProcedures: false,
+    linkedControls: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.POLICY, defaultVisibility))
