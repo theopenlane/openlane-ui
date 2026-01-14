@@ -27,7 +27,7 @@ export async function GET() {
 
   // 1. Initial Auth Logging
   const h = await headers()
-
+  console.warn('cookieStore', cookieStore)
   console.warn('[Debug] raw cookie header:', h.get('cookie'))
 
   console.warn('[SSE Proxy] Debug Info:', {
