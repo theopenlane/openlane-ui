@@ -36,7 +36,7 @@ const ReportsAndCertificationsPage = () => {
   const { data: orgPermission } = useOrganizationRoles()
 
   const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
-  const { docs, paginationMeta, isLoading, error } = useGetTrustCenterDocs({
+  const { docs, paginationMeta, isLoading } = useGetTrustCenterDocs({
     where: {
       ...(searchTerm ? { titleContainsFold: searchTerm } : {}),
       ...(filters ?? {}),
@@ -76,10 +76,6 @@ const ReportsAndCertificationsPage = () => {
   }, [setCrumbs])
 
   if (isLoading) return <Loading />
-
-  if (error) {
-    return <div className="p-6 text-red-600">Failed to load trust center documents: {error.message}</div>
-  }
 
   const areFiltersAndSearchTurnedOff = !searchTerm && filters && !Object.keys(filters).length
   const showCreatePanel = areFiltersAndSearchTurnedOff && tableData.length === 0
