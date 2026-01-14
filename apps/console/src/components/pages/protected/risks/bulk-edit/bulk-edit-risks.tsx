@@ -225,7 +225,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                   </div>
                 )
               })}
-              {fields.length < 7 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditRisks).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>

@@ -226,7 +226,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                 )
               })}
 
-              {fields.length < 5 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditControls).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>

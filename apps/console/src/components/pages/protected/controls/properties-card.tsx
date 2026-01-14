@@ -466,7 +466,7 @@ export const EditableSelectFromQuery = ({
   )
 
   return (
-    <div className={cn(`grid items-start border-b border-border pb-3 last:border-b-0 grid-cols-[${gridColWidth}px_1fr]`, hasGap && 'gap-x-3')}>
+    <div className={cn('grid items-start border-b border-border pb-3 last:border-b-0', hasGap && 'gap-x-3')} style={{ gridTemplateColumns: `${gridColWidth}px 1fr` }}>
       {iconAndLabelVisible && (
         <div className="flex items-start gap-2">
           <div className="pt-0.5">{icon}</div>
