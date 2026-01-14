@@ -20,6 +20,7 @@ const DomainSettingsPage = () => {
   const { successNotification, errorNotification } = useNotification()
   const [inputValue, setInputValue] = useState('')
   const [editing, setEditing] = useState(false)
+  const [verificationCountDown, setVerificationCountDown] = useState(0)
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
   const { mutateAsync: createCustomDomain } = useCreateCustomDomain()
   const { mutateAsync: validateCustomDomain, isPending: isValidating } = useValidateCustomDomain()
@@ -35,6 +36,14 @@ const DomainSettingsPage = () => {
     setInputValue(trustCenter?.customDomain?.cnameRecord || '')
     return () => {}
   }, [trustCenter])
+
+  useEffect(() => {
+    if (verificationCountDown <= 0) return
+    const timer = setInterval(() => {
+      setVerificationCountDown((prev) => prev - 1)
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [verificationCountDown])
 
   if (isLoading) {
     return <Loading />
@@ -63,6 +72,7 @@ const DomainSettingsPage = () => {
     if (!trustCenter?.customDomain?.id) return
     try {
       await validateCustomDomain({ validateCustomDomainId: trustCenter.customDomain.id })
+      setVerificationCountDown(60)
       successNotification({
         title: 'Verification triggered',
         description: 'DNS verification has been initiated.',
@@ -301,7 +311,7 @@ const DomainSettingsPage = () => {
             </div>
           </CardContent>
         </Card>
-        {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} isVerifying={isValidating} />}
+        {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} isVerifying={isValidating} countdown={verificationCountDown} />}
         <div className="grid gap-10 text-sm text-text-informational mt-6">
           <ul className="list-disc list-inside space-y-1">
             <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider</li>

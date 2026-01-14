@@ -14,9 +14,11 @@ type TDnsRecordsProps = {
   } | null
   onVerify?: () => void
   isVerifying?: boolean
+  countdown?: number
 }
 
-export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification, onVerify, isVerifying }: TDnsRecordsProps) => {
+export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification, onVerify, isVerifying, countdown = 0 }: TDnsRecordsProps) => {
+  const isDisabled = isVerifying || countdown > 0
   const cnameValue = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME || ''
   const handleCopy = async () => {
     await navigator.clipboard.writeText(cnameValue)
@@ -39,9 +41,9 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
                     onClick={onVerify}
                     iconPosition="left"
                     loading={isVerifying}
-                    disabled={isVerifying}
+                    disabled={isDisabled}
                   >
-                    {isVerifying ? 'Verifying' : 'Verify'}
+                    {isVerifying ? 'Verifying' : countdown > 0 ? `Verify (${countdown}s)` : 'Verify'}
                   </Button>
                 </div>
               </>
