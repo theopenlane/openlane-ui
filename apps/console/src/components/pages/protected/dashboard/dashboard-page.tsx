@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
-import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import Loading from '@/app/(protected)/dashboard/loading'
@@ -53,14 +52,13 @@ const DashboardPage: React.FC = () => {
   }, [setCrumbs])
 
   if (isLoading) return <Loading />
-  if (!data?.programs.edges?.length) return <NewUserLanding />
 
   return (
     <>
       <div className="max-w-[1076px] mx-auto w-full px-4 flex flex-col gap-4">
         <div>
           <p className="text-3xl leading-9 font-medium pt-2">Welcome, {userData?.user?.displayName}!</p>
-          <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here's what's happening in your organization.</p>
+          <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here&apos;s what&apos;s happening in your organization.</p>
         </div>
 
         <DashboardActions />

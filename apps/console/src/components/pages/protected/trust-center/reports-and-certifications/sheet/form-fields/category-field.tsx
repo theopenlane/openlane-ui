@@ -15,7 +15,7 @@ export const CategoryField = ({ isEditing }: Props) => {
   } = useFormContext()
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <Label>Category</Label>
       {isEditing ? (
         <>

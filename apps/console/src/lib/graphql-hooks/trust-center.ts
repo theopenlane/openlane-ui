@@ -9,7 +9,10 @@ import {
   GET_TRUST_CENTER,
   GET_TRUST_CENTER_DOC_BY_ID,
   GET_TRUST_CENTER_DOCS,
+  GET_TRUST_CENTER_POSTS,
+  UPDATE_TRUST_CENTER,
   UPDATE_TRUST_CENTER_DOC,
+  UPDATE_TRUST_CENTER_POST,
   UPDATE_TRUST_CENTER_SETTING,
   UPDATE_TRUST_CENTER_WATERMARK_CONFIG,
 } from '@repo/codegen/query/trust-center'
@@ -28,9 +31,15 @@ import {
   GetTruestCenterDocByIdQueryVariables,
   GetTrustCenterDocsQuery,
   GetTrustCenterDocsQueryVariables,
+  GetTrustCenterPostsQuery,
+  GetTrustCenterPostsQueryVariables,
   GetTrustCenterQuery,
   UpdateTrustCenterDocMutation,
   UpdateTrustCenterDocMutationVariables,
+  UpdateTrustCenterMutation,
+  UpdateTrustCenterMutationVariables,
+  UpdateTrustCenterPostMutation,
+  UpdateTrustCenterPostMutationVariables,
   UpdateTrustCenterSettingMutation,
   UpdateTrustCenterSettingMutationVariables,
   UpdateTrustCenterWatermarkConfigMutation,
@@ -255,15 +264,15 @@ export const useUpdateTrustCenterWatermarkConfig = () => {
 
   return useMutation<UpdateTrustCenterWatermarkConfigMutation, unknown, UpdateTrustCenterWatermarkConfigMutationVariables>({
     mutationFn: async (variables) => {
-      const { updateTrustCenterWatermarkConfigId, input, logoFile } = variables
+      const { updateTrustCenterWatermarkConfigId, input, watermarkFile } = variables
 
-      if (logoFile) {
+      if (watermarkFile) {
         return fetchGraphQLWithUpload({
           query: UPDATE_TRUST_CENTER_WATERMARK_CONFIG,
           variables: {
             updateTrustCenterWatermarkConfigId,
             input,
-            logoFile,
+            watermarkFile,
           },
         })
       }
@@ -277,6 +286,54 @@ export const useUpdateTrustCenterWatermarkConfig = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['trustCenter'],
+      })
+    },
+  })
+}
+
+type UseGetTrustCenterPostsArgs = {
+  trustCenterId: string
+  enabled?: boolean
+}
+
+export const useGetTrustCenterPosts = ({ trustCenterId, enabled = true }: UseGetTrustCenterPostsArgs) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetTrustCenterPostsQuery>({
+    queryKey: ['trustCenter', 'posts'],
+    queryFn: () =>
+      client.request<GetTrustCenterPostsQuery, GetTrustCenterPostsQueryVariables>(GET_TRUST_CENTER_POSTS, {
+        trustCenterId,
+      }),
+    enabled: !!trustCenterId && enabled,
+  })
+}
+
+export const useUpdateTrustCenter = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateTrustCenterMutation, Error, UpdateTrustCenterMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request<UpdateTrustCenterMutation, UpdateTrustCenterMutationVariables>(UPDATE_TRUST_CENTER, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter'],
+      })
+    },
+  })
+}
+
+export const useUpdateTrustCenterPost = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateTrustCenterPostMutation, Error, UpdateTrustCenterPostMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request<UpdateTrustCenterPostMutation, UpdateTrustCenterPostMutationVariables>(UPDATE_TRUST_CENTER_POST, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter', 'posts'],
       })
     },
   })

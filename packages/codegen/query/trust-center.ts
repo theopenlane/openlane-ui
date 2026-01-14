@@ -14,10 +14,14 @@ export const GET_TRUST_CENTER = gql`
               dnsVerificationStatus
               dnsTxtRecord
               dnsTxtValue
+              dnsVerificationStatusReason
             }
             mappableDomain {
               name
             }
+          }
+          previewDomain {
+            cnameRecord
           }
           setting {
             id
@@ -44,6 +48,28 @@ export const GET_TRUST_CENTER = gql`
             title
             logoRemoteURL
           }
+          previewSetting {
+            id
+            title
+            overview
+            primaryColor
+            themeMode
+            foregroundColor
+            secondaryForegroundColor
+            font
+            backgroundColor
+            secondaryBackgroundColor
+            logoFile {
+              id
+              presignedURL
+            }
+            faviconRemoteURL
+            faviconFile {
+              id
+              presignedURL
+            }
+            logoRemoteURL
+          }
           watermarkConfig {
             id
             file {
@@ -54,6 +80,7 @@ export const GET_TRUST_CENTER = gql`
             color
             opacity
             rotation
+            isEnabled
           }
         }
       }
@@ -103,6 +130,14 @@ export const GET_TRUST_CENTER_DOCS = gql`
                 tags
                 createdAt
                 updatedAt
+                watermarkingEnabled
+                watermarkStatus
+                file {
+                  presignedURL
+                }
+                originalFile {
+                  presignedURL
+                }
               }
             }
             pageInfo {
@@ -151,6 +186,11 @@ export const GET_TRUST_CENTER_DOC_BY_ID = gql`
         providedFileName
         providedFileSize
       }
+      originalFile {
+        presignedURL
+        providedFileSize
+        providedFileName
+      }
       watermarkingEnabled
       watermarkStatus
     }
@@ -183,9 +223,45 @@ export const BULK_UPDATE_TRUST_CENTER_DOC = gql`
 `
 
 export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
-  mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $logoFile: Upload) {
-    updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, logoFile: $logoFile) {
+  mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $watermarkFile: Upload) {
+    updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, watermarkFile: $watermarkFile) {
       trustCenterWatermarkConfig {
+        id
+      }
+    }
+  }
+`
+
+export const GET_TRUST_CENTER_POSTS = gql`
+  query GetTrustCenterPosts($trustCenterId: ID!) {
+    trustCenter(id: $trustCenterId) {
+      posts {
+        edges {
+          node {
+            id
+            text
+            updatedAt
+          }
+        }
+        totalCount
+      }
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER = gql`
+  mutation UpdateTrustCenter($updateTrustCenterId: ID!, $input: UpdateTrustCenterInput!) {
+    updateTrustCenter(id: $updateTrustCenterId, input: $input) {
+      trustCenter {
+        id
+      }
+    }
+  }
+`
+export const UPDATE_TRUST_CENTER_POST = gql`
+  mutation UpdateTrustCenterPost($updateTrustCenterPostId: ID!, $input: UpdateNoteInput!) {
+    updateTrustCenterPost(id: $updateTrustCenterPostId, input: $input) {
+      trustCenter {
         id
       }
     }

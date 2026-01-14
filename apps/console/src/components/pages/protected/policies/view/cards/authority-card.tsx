@@ -50,14 +50,14 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
     const showEditable = editAllowed && (isEditing || editingField === editingKey)
 
     return (
-      <div className="flex items-center">
-        <div className={`flex gap-2 min-w-[160px] items-center ${inputClassName ?? ''} `}>
+      <div className="flex items-center border-b border-border pb-3">
+        <div className={`flex gap-2 min-w-40 items-center ${inputClassName ?? ''} `}>
           {icon}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">{label}</span>
+                  <span className="cursor-hel text-sm">{label}</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -93,7 +93,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
         ) : (
           <TooltipProvider disableHoverableContent>
             <Tooltip>
-              <HoverPencilWrapper showPencil={editAllowed} className={`min-w-[160px] w-full bg-unset }`}>
+              <HoverPencilWrapper showPencil={editAllowed} className={`min-w-40 w-full bg-unset }`}>
                 <TooltipTrigger
                   type="button"
                   onDoubleClick={() => {
@@ -105,7 +105,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
                 >
                   <div className="flex gap-2 items-center">
                     <Avatar entity={value as Group} variant="small" />
-                    <span className="truncate">{displayName}</span>
+                    <span className="truncate text-sm">{displayName}</span>
                   </div>
                 </TooltipTrigger>
               </HoverPencilWrapper>

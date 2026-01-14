@@ -1,15 +1,7 @@
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { FilterField } from '@/types'
 import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
-
-const enumToOptions = (e: Record<string, string>) =>
-  Object.values(e).map((value) => ({
-    label: value
-      .replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, (l) => l.toUpperCase()),
-    value,
-  }))
 
 export const getRisksFilterFields = (
   programOptions: { value: string; label: string }[],
@@ -79,9 +71,5 @@ export const RISKS_SORT_FIELDS = [
   {
     key: RiskOrderField.STATUS,
     label: 'Status',
-  },
-  {
-    key: RiskOrderField.category,
-    label: 'Category',
   },
 ]

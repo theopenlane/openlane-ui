@@ -7,11 +7,10 @@ import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { PencilIcon, SaveIcon, XIcon, CirclePlus, PanelRightClose, InfoIcon } from 'lucide-react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
+import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useGetSubcontrolDiscussionById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
@@ -44,10 +43,12 @@ import ControlImplementationsSection from '@/components/pages/protected/controls
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 interface FormValues {
   refCode: string
   description: string | Value
+  descriptionJSON?: Value
   delegateID: string
   controlOwnerID: string
   category?: string
@@ -69,6 +70,7 @@ interface SheetData {
 const initialDataObj = {
   refCode: '',
   description: '',
+  descriptionJSON: undefined,
   delegateID: '',
   controlOwnerID: '',
   category: '',
@@ -91,14 +93,15 @@ const ControlDetailsPage: React.FC = () => {
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
-  const plateEditorHelper = usePlateEditor()
 
   const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const plateEditorHelper = usePlateEditor()
 
   const { data: permission } = useAccountRoles(ObjectEnum.SUBCONTROL, subcontrolId)
+  const { data: discussionData } = useGetSubcontrolDiscussionById(id)
   const { data: orgPermission } = useOrganizationRoles()
 
   const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)
@@ -134,7 +137,6 @@ const ControlDetailsPage: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const description = await plateEditorHelper.convertToHtml(values.description as Value)
       const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
         const initialValue = initialValues[key as keyof FormValues]
         if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
@@ -143,14 +145,16 @@ const ControlDetailsPage: React.FC = () => {
         return acc
       }, {})
 
-      if (changedFields.description) {
-        changedFields.description = description
+      if (changedFields.descriptionJSON) {
+        changedFields.descriptionJSON = values?.descriptionJSON
+        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
       }
 
       if (isSourceFramework) {
         // remove read only fields
         delete changedFields.title
         delete changedFields.refCode
+        delete changedFields.descriptionJSON
         delete changedFields.description
       }
 
@@ -234,6 +238,7 @@ const ControlDetailsPage: React.FC = () => {
       const newValues: FormValues = {
         refCode: data?.subcontrol?.refCode || '',
         description: data?.subcontrol?.description || '',
+        descriptionJSON: data.subcontrol?.descriptionJSON ? (data.subcontrol.descriptionJSON as Value) : undefined,
         delegateID: data?.subcontrol?.delegate?.id || '',
         controlOwnerID: data?.subcontrol?.controlOwner?.id || '',
         category: data?.subcontrol?.category || '',
@@ -365,7 +370,12 @@ const ControlDetailsPage: React.FC = () => {
           </div>
         )}
       </div>
-      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
+      <DescriptionField
+        isEditing={isEditing}
+        initialValue={initialValues.descriptionJSON ?? initialValues.description}
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        discussionData={discussionData?.subcontrol}
+      />
       <ControlObjectivesSection controlObjectives={subcontrol.controlObjectives} />
       <ControlImplementationsSection controlImplementations={subcontrol.controlImplementations} />
       <ControlEvidenceTable

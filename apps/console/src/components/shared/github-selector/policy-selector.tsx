@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@repo/ui/button'
-import { FileTextIcon, FolderIcon, X, Eye } from 'lucide-react'
+import { FileTextIcon, X, Eye } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
@@ -25,10 +25,9 @@ type PolicyTemplateBrowserProps = {
 
 export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyTemplateBrowserProps) => {
   const [items, setItems] = useState<GitHubItem[]>([])
-  const [currentPath, setCurrentPath] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [breadcrumbs, setBreadcrumbs] = useState<Array<{ name: string; path: string }>>([])
+  const [search, setSearch] = useState('')
 
   // Preview state
   const [previewItem, setPreviewItem] = useState<GitHubItem | null>(null)
@@ -36,50 +35,37 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
   const [loadingPreview, setLoadingPreview] = useState(false)
 
   useEffect(() => {
-    if (isOpen && currentPath === '') {
-      setItems(POLICY_DIRECTORIES.map((dir) => ({ ...dir, type: 'dir' as const })))
-    } else if (isOpen && currentPath) {
-      fetchDirectoryContents(currentPath)
+    if (isOpen) {
+      fetchAllTemplates()
     }
-  }, [isOpen, currentPath])
+  }, [isOpen])
 
-  const fetchDirectoryContents = async (path: string) => {
+  const fetchAllTemplates = async () => {
     setLoading(true)
     setError(null)
-
     try {
-      const response = await fetch(`${GITHUB_API_BASE}/${POLICY_REPO}/contents/${path}`)
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch directory contents')
-      }
-
-      const data: GitHubItem[] = await response.json()
-      const sorted = data.sort((a, b) => {
-        if (a.type === b.type) return a.name.localeCompare(b.name)
-        return a.type === 'dir' ? -1 : 1
-      })
-      setItems(sorted)
+      // Fetch all files from all policy directories in parallel
+      const allFiles: GitHubItem[] = []
+      await Promise.all(
+        POLICY_DIRECTORIES.map(async (dir) => {
+          const response = await fetch(`${GITHUB_API_BASE}/${POLICY_REPO}/contents/${dir.path}?ref=feat-dongatotemplates`)
+          if (!response.ok) {
+            // just log the error and continue
+            console.error('Failed to fetch templates from GitHub:', response.statusText)
+            return
+          }
+          const data: GitHubItem[] = await response.json()
+          // Only add files, not directories
+          allFiles.push(...data.filter((item) => item.type === 'file'))
+        }),
+      )
+      // Sort alphabetically
+      allFiles.sort((a, b) => a.name.localeCompare(b.name))
+      setItems(allFiles)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleFolderClick = (item: GitHubItem) => {
-    setCurrentPath(item.path)
-    setBreadcrumbs([...breadcrumbs, { name: item.name, path: item.path }])
-  }
-
-  const handleBreadcrumbClick = (index: number) => {
-    if (index === -1) {
-      setCurrentPath('')
-      setBreadcrumbs([])
-    } else {
-      const newBreadcrumbs = breadcrumbs.slice(0, index + 1)
-      setBreadcrumbs(newBreadcrumbs)
-      setCurrentPath(newBreadcrumbs[newBreadcrumbs.length - 1].path)
     }
   }
 
@@ -93,10 +79,9 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
     try {
       const response = await fetch(item.download_url)
       const content = await response.text()
-      // Get first 1000 characters for preview
       setPreviewContent(content.slice(0, 1000) + (content.length > 1000 ? '...' : ''))
     } catch (err) {
-      console.error('Error loading preview:', err)
+      console.error('Failed to load preview:', err)
       setPreviewContent('Failed to load preview')
     } finally {
       setLoadingPreview(false)
@@ -125,12 +110,15 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
       onClose()
       onFileSelect(uploadedFile)
     } catch (err) {
-      console.error('Failed to download file', err)
+      console.error('Failed to download file:', err)
       setError('Failed to download file')
     } finally {
       setLoading(false)
     }
   }
+
+  // Filter items by search (case-insensitive substring match)
+  const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
 
   if (!isOpen) return null
 
@@ -153,22 +141,16 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
           </Button>
         </div>
 
-        {/* Breadcrumbs */}
-        {breadcrumbs.length > 0 && (
-          <div className="px-6 py-3 border-b flex items-center gap-2 text-sm">
-            <Button variant="icon" type="button" onClick={() => handleBreadcrumbClick(-1)} className="transition-colors">
-              Templates
-            </Button>
-            {breadcrumbs.map((crumb, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span className="">/</span>
-                <Button variant="icon" type="button" onClick={() => handleBreadcrumbClick(index)} className="transition-colors">
-                  {crumb.name}
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Search Box */}
+        <div className="px-6 pt-4 pb-2 border-b">
+          <input
+            type="text"
+            placeholder="Search templates by name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-3 py-2 rounded border bg-gray-100 dark:bg-gray-800 text-sm outline-none focus:ring-2 focus:ring-primary-500 transition"
+          />
+        </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
@@ -180,38 +162,29 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
 
           {error && <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 text-red-400">{error}</div>}
 
-          {!loading && !error && items.length === 0 && <div className="text-center py-12">No files or folders found</div>}
+          {!loading && !error && filteredItems.length === 0 && <div className="text-center py-12">No templates found</div>}
 
-          {!loading && !error && items.length > 0 && (
+          {!loading && !error && filteredItems.length > 0 && (
             <div className="space-y-2">
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <div key={item.path} className="w-full rounded-lg bg-gray-200/20 hover:bg-gray-300/40 dark:bg-gray-700/20 dark:hover:bg-gray-700/40 group transition-colors">
                   <div className="w-full flex items-center gap-4 p-3">
-                    {item.type === 'dir' ? (
-                      <button type="button" onClick={() => handleFolderClick(item)} className="flex items-center gap-4 flex-1">
-                        <FolderIcon className="h-5 w-5 flex-shrink-0 text-primary" />
-                        <span className="flex-1 text-left">{formatFileName(item.name)}</span>
-                      </button>
-                    ) : (
-                      <>
-                        <button type="button" onClick={() => handleFileSelect(item)} className="flex items-center gap-4 flex-1">
-                          <FileTextIcon className="h-5 w-5 flex-shrink-0" />
-                          <span className="flex-1 text-left">{formatFileName(item.name)}</span>
-                        </button>
-                        <Button
-                          type="button"
-                          variant="icon"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handlePreview(item, e)
-                          }}
-                          className="p-1.5 rounded transition-colors"
-                          title="Preview"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                    <button type="button" onClick={() => handleFileSelect(item)} className="flex items-center gap-4 flex-1">
+                      <FileTextIcon className="h-5 w-5 flex-shrink-0" />
+                      <span className="flex-1 text-left">{formatFileName(item.name)}</span>
+                    </button>
+                    <Button
+                      type="button"
+                      variant="icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handlePreview(item, e)
+                      }}
+                      className="p-1.5 rounded transition-colors"
+                      title="Preview"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               ))}

@@ -2,17 +2,16 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Control, ControlControlSource, ControlControlStatus, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
@@ -43,10 +42,12 @@ import ControlImplementationsSection from '@/components/pages/protected/controls
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 interface FormValues {
   refCode: string
   description: Value | string
+  descriptionJSON?: Value
   delegateID: string
   controlOwnerID: string
   category?: string
@@ -68,6 +69,7 @@ interface SheetData {
 const initialDataObj = {
   refCode: '',
   description: '',
+  descriptionJSON: undefined,
   delegateID: '',
   controlOwnerID: '',
   category: '',
@@ -94,6 +96,7 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
+  const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { data: associationsData } = useGetControlAssociationsById(id)
@@ -128,8 +131,6 @@ const ControlDetailsPage: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const description = await plateEditorHelper.convertToHtml(values.description as Value)
-
       const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
         const initialValue = initialValues[key as keyof FormValues]
         if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
@@ -138,14 +139,16 @@ const ControlDetailsPage: React.FC = () => {
         return acc
       }, {})
 
-      if (changedFields.description) {
-        changedFields.description = description
+      if (changedFields.descriptionJSON) {
+        changedFields.descriptionJSON = values?.descriptionJSON
+        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
       }
 
       if (isSourceFramework) {
         //remove readonly fields
         delete changedFields.title
         delete changedFields.refCode
+        delete changedFields.descriptionJSON
         delete changedFields.description
       }
 
@@ -226,6 +229,7 @@ const ControlDetailsPage: React.FC = () => {
       const newValues: FormValues = {
         refCode: data.control.refCode || '',
         description: data.control.description || '',
+        descriptionJSON: data.control?.descriptionJSON ? (data.control.descriptionJSON as Value) : undefined,
         delegateID: data.control.delegate?.id || '',
         controlOwnerID: data.control.controlOwner?.id || '',
         category: data.control.category || '',
@@ -254,10 +258,10 @@ const ControlDetailsPage: React.FC = () => {
     <div className="space-y-4">
       {isEditing && (
         <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+          <Button variant="secondary" className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
             Cancel
           </Button>
-          <Button variant="secondary" type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
+          <Button variant="secondary" type="submit" iconPosition="left" className="h-8 px-2!" icon={<SaveIcon />}>
             Save
           </Button>
         </div>
@@ -325,13 +329,21 @@ const ControlDetailsPage: React.FC = () => {
                     </button>
                   </Link>
                 )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControl) && (
+                  <Link href={`/controls/${id}/clone-control?mapControlId=${id}`}>
+                    <button className="flex items-center space-x-2 px-1 bg-transparent">
+                      <CopyPlus size={16} strokeWidth={2} />
+                      <span>Clone Control</span>
+                    </button>
+                  </Link>
+                )}
               </>
             }
           />
           {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
             <div className="flex gap-2">
               {canEdit(permission?.roles) && (
-                <Button type="button" variant="secondary" className="!p-1 h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
+                <Button type="button" variant="secondary" className="p-1! h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
                   <PencilIcon size={16} strokeWidth={2} />
                 </Button>
               )}
@@ -370,7 +382,12 @@ const ControlDetailsPage: React.FC = () => {
           </div>
         )}
       </div>
-      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
+      <DescriptionField
+        isEditing={isEditing}
+        initialValue={initialValues.descriptionJSON ?? initialValues.description}
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        discussionData={discussionData?.control}
+      />
       <ControlObjectivesSection controlObjectives={control.controlObjectives} />
       <ControlImplementationsSection controlImplementations={control.controlImplementations} />
       <ControlEvidenceTable

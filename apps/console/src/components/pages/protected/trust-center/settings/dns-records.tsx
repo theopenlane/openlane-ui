@@ -27,7 +27,7 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
         <CardContent>
           <div className="flex items-center justify-between">
             <p className="text-base font-medium leading-6">Add a CNAME record</p>
-            {dnsVerification && dnsVerification.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.pending && (
+            {dnsVerification && dnsVerification.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.PENDING && (
               <>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center rounded-3xl h-6 px-3 border border-[#FF842C3D] bg-[#FF842C14] text-warning">Pending</div>

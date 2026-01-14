@@ -9,6 +9,7 @@ import {
   FolderTree,
   Key,
   Link,
+  MessageCircle,
   RefreshCw,
   RouteOff,
   ScanEye,
@@ -19,7 +20,7 @@ import {
   UsersRound,
   type LucideIcon,
 } from 'lucide-react'
-import { ControlControlStatus, ControlControlType, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
   [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
@@ -80,13 +81,6 @@ export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
   [ControlControlStatus.NOT_APPLICABLE]: 'Not applicable',
 }
 
-export const ControlTypeLabels: Record<ControlControlType, string> = {
-  [ControlControlType.CORRECTIVE]: 'Corrective',
-  [ControlControlType.DETECTIVE]: 'Detective',
-  [ControlControlType.DETERRENT]: 'Deterrent',
-  [ControlControlType.PREVENTATIVE]: 'Preventative',
-}
-
 export enum ControlsFilterIconName {
   RefCode = 'RefCode',
   Program = 'Program',
@@ -98,6 +92,7 @@ export enum ControlsFilterIconName {
   ProgramName = 'ProgramName',
   Type = 'Type',
   LinkedPolicies = 'LinkedPolicies',
+  Comments = 'Comments',
 }
 
 export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
@@ -111,6 +106,7 @@ export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
   [ControlsFilterIconName.ProgramName]: ShieldCheck,
   [ControlsFilterIconName.Type]: Tag,
   [ControlsFilterIconName.LinkedPolicies]: Link,
+  [ControlsFilterIconName.Comments]: MessageCircle,
 }
 
 // Status options for select dropdowns
@@ -134,9 +130,4 @@ export const ControlStatusFilterOptions = Object.entries(ControlControlStatus).m
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase()),
   value,
-}))
-
-export const ControlControlTypeOptions = Object.values(ControlControlType).map((type) => ({
-  label: ControlTypeLabels[type],
-  value: type,
 }))

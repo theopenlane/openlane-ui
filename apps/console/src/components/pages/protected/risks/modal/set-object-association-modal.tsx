@@ -100,10 +100,10 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
       }
 
       const formData: {
-        id: string
+        updateRiskId: string
         input: UpdateRiskInput
       } = {
-        id: riskId!,
+        updateRiskId: riskId!,
         input: {
           ...associationInputs,
         },

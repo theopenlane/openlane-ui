@@ -1,8 +1,7 @@
 'use client'
 
-import { useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import React, { useEffect, useMemo, useState } from 'react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/procedures/view/fields/details-field.tsx'
@@ -14,7 +13,6 @@ import PropertiesCard from '@/components/pages/protected/procedures/view/cards/p
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
@@ -37,6 +35,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -44,7 +44,6 @@ const ViewProcedurePage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
-  const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedureState = useProcedure()
   const procedure = data?.procedure
@@ -62,6 +61,8 @@ const ViewProcedurePage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+  const { data: discussionData } = useGetProcedureDiscussionById(procedureId)
+  const plateEditorHelper = usePlateEditor()
 
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
@@ -162,12 +163,6 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: {
         updateProcedureId: string
         input: UpdateProcedureInput
@@ -175,7 +170,8 @@ const ViewProcedurePage: React.FC = () => {
         updateProcedureId: procedure?.id,
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
@@ -191,6 +187,7 @@ const ViewProcedurePage: React.FC = () => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      queryClient.invalidateQueries({ queryKey: ['procedureDiscussion', procedureId] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -233,10 +230,10 @@ const ViewProcedurePage: React.FC = () => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+          <Button className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
             Cancel
           </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
+          <Button type="submit" iconPosition="left" className="h-8 px-2!" icon={<SaveIcon />} disabled={isSaving}>
             {isSaving ? 'Saving' : 'Save'}
           </Button>
         </div>
@@ -289,7 +286,7 @@ const ViewProcedurePage: React.FC = () => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
+      <DetailsField isEditing={isEditing} form={form} procedure={procedure} discussionData={discussionData?.procedure} />
     </div>
   )
 

@@ -1,7 +1,12 @@
+import { auth } from '@/lib/auth/auth'
 import { stripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
+  // ensure we have a valid session
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
     const { customerId } = (await req.json()) as { customerId?: string }
 

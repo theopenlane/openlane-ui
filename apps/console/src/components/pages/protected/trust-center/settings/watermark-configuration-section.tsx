@@ -47,7 +47,7 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
       await updateWatermark({
         updateTrustCenterWatermarkConfigId: id!,
         input: { clearText: true, clearFont: true, clearColor: true },
-        logoFile: uploadedFile,
+        watermarkFile: uploadedFile,
       })
 
       successNotification({
@@ -142,10 +142,6 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
 
   return (
     <div className="grid grid-cols-[250px_auto] gap-6 items-start mt-12">
-      <div className="flex items-center mb-4">
-        <h1 className="text-xl text-text-header font-medium">Watermark</h1>
-      </div>
-
       <div className="flex flex-col">
         <div className="flex flex-col">
           <p className="mb-2 font-medium">Image</p>

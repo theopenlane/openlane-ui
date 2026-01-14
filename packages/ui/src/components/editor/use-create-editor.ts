@@ -46,6 +46,7 @@ export const EditorKit = [
   ...CopilotKit,
   ...AIKit,*/
   // Elements
+  ...AIKit,
   ...BasicBlocksKit,
   ...CodeBlockKit,
   ...TableKit,
@@ -91,13 +92,16 @@ export const BasicKit = [...EditorKit, ...BasicFixedToolbarKit, ...BasicFloating
 
 export const AdvancedKit = [...EditorKit, ...FixedToolbarKit, ...FloatingToolbarKit]
 
+export const ReadonlyKit = [...EditorKit]
+
 export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>
 
-export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal'
+export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal' | 'readonly'
 
 export const EditorKitVariant = {
   minimal: MinimalisticKit,
   basic: BasicKit,
   standard: AdvancedKit,
   advanced: AdvancedKit,
+  readonly: ReadonlyKit,
 }
