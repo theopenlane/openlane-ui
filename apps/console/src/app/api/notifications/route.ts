@@ -1,3 +1,4 @@
+'use server'
 import { cookies } from 'next/headers'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { sessionCookieName } from '@repo/dally/auth'
@@ -26,7 +27,7 @@ export async function GET() {
   const accessToken = session?.user?.accessToken
 
   // 1. Initial Auth Logging
-  console.log('[SSE Proxy] Debug Info:', {
+  console.warn('[SSE Proxy] Debug Info:', {
     hasSessionString: !!sessionString,
     sessionCookieName,
     hasAccessToken: !!accessToken,
