@@ -26,6 +26,7 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { usePathname } from 'next/navigation'
+import { cn } from '@repo/ui/lib/utils'
 
 interface PropertiesCardProps {
   isEditing: boolean
@@ -420,6 +421,9 @@ export const EditableSelectFromQuery = ({
   icon,
   handleUpdate,
   isEditAllowed,
+  iconAndLabelVisible = true,
+  hasGap = true,
+  gridColWidth = '140',
 }: {
   label: string
   name: string
@@ -427,6 +431,9 @@ export const EditableSelectFromQuery = ({
   icon: React.ReactNode
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   isEditAllowed: boolean
+  iconAndLabelVisible?: boolean
+  hasGap?: boolean
+  gridColWidth?: string
 }) => {
   const { control } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
@@ -459,11 +466,14 @@ export const EditableSelectFromQuery = ({
   )
 
   return (
-    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
-      <div className="flex items-start gap-2">
-        <div className="pt-0.5">{icon}</div>
-        <div className="text-sm">{label}</div>
-      </div>
+    <div className={cn('grid items-start border-b border-border pb-3 last:border-b-0', hasGap && 'gap-x-3')} style={{ gridTemplateColumns: `${gridColWidth}px 1fr` }}>
+      {iconAndLabelVisible && (
+        <div className="flex items-start gap-2">
+          <div className="pt-0.5">{icon}</div>
+          <div className="text-sm">{label}</div>
+        </div>
+      )}
+
       <div className="text-sm min-w-0">
         <Controller
           name={name}

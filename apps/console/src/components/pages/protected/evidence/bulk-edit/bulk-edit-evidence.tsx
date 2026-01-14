@@ -225,7 +225,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                   </div>
                 )
               })}
-              {fields.length < 3 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditEvidence).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
