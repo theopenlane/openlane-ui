@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,7 +23,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export const AddExistingDialog = () => {
+export const AddExistingDialog = ({ createdSubprocessorId, onClose }: { createdSubprocessorId: string | null; onClose: () => void }) => {
   const [open, setOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
 
@@ -58,7 +58,10 @@ export const AddExistingDialog = () => {
 
   const onOpenChange = (value: boolean) => {
     setOpen(value)
-    if (!value) reset()
+    if (!value) {
+      onClose()
+      reset()
+    }
   }
 
   const onSubmit = async (data: FormData) => {
@@ -84,6 +87,11 @@ export const AddExistingDialog = () => {
       })
     }
   }
+
+  useEffect(() => {
+    setOpen(!!createdSubprocessorId)
+    reset({ subprocessorID: createdSubprocessorId || '' })
+  }, [createdSubprocessorId, reset])
 
   if (!subprocessors.length) {
     return null

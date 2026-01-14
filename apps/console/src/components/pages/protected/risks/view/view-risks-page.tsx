@@ -201,7 +201,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <Card className="p-4 !mt-2 flex flex-col gap-4">
+      <Card className="p-4 mt-2! flex flex-col gap-4">
         <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
         <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
         <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
@@ -213,10 +213,10 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+          <Button className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
             Cancel
           </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isPending}>
+          <Button type="submit" iconPosition="left" className="h-8 px-2!" icon={<SaveIcon />} disabled={isPending}>
             {isPending ? 'Saving' : 'Save'}
           </Button>
         </div>

@@ -11,6 +11,7 @@ import { markdownJoinerTransform } from '@repo/ui/lib/markdown-joiner-transform'
 import { z } from 'zod'
 
 import { getChooseToolPrompt, getCommentPrompt, getEditPrompt, getGeneratePrompt } from './prompts'
+import { auth } from '@/lib/auth/auth'
 
 // -----------------------------
 // CONFIG
@@ -24,6 +25,12 @@ const DEFAULT_MODEL = 'gemini-2.5-flash'
 // -----------------------------
 
 export async function POST(req: NextRequest) {
+  const session = await auth()
+
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { apiKey, ctx, messages: messagesRaw = [], model } = await req.json()
 
   const { children, selection, toolName: toolNameParam } = ctx
@@ -155,6 +162,7 @@ const getCommentTool = (
   }: {
     messagesRaw: ChatMessage[]
     model: ReturnType<typeof google>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     writer: any
   },
 ) =>

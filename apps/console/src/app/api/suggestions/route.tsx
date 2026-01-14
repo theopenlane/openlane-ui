@@ -1,6 +1,7 @@
 import { AI_SYSTEM_INSTRUCTION, TEMPERATURE, MAX_OUTPUT_TOKENS, GEMINI_MODEL_NAME } from '@/constants/ai'
+import { auth } from '@/lib/auth/auth'
 import { Tool, VertexAI } from '@google-cloud/vertexai'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const AI_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 
@@ -23,6 +24,10 @@ export async function POST(req: NextRequest) {
   if (!AI_ENABLED || !vertexAI) {
     return new Response(JSON.stringify({ error: 'AI suggestions are not enabled' }), { status: 503 })
   }
+
+  // ensure we have a valid session
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
     const { prompt, context } = await req.json()

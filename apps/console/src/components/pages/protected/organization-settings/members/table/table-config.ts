@@ -1,20 +1,7 @@
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
 import { FilterField } from '@/types'
 import { InviteInviteStatus, InviteRole, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
-
-function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
-  return Object.entries(e).map(([key, value]) => ({
-    value,
-    label: labels?.[value as T[keyof T]] ?? prettifyEnum(key),
-  }))
-}
-
-function prettifyEnum(key: string) {
-  return key
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/^\w/, (c) => c.toUpperCase())
-}
 
 const AUTH_PROVIDER_LABELS: Partial<Record<UserAuthProvider, string>> = {
   [UserAuthProvider.CREDENTIALS]: 'Credentials',
