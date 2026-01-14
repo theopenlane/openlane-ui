@@ -1,7 +1,7 @@
 'use client'
 
 import Loading from '@/app/(protected)/trust-center/domain/loading'
-import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useContext, useEffect, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
@@ -22,6 +22,7 @@ const DomainSettingsPage = () => {
   const [editing, setEditing] = useState(false)
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
   const { mutateAsync: createCustomDomain } = useCreateCustomDomain()
+  const { mutateAsync: validateCustomDomain, isPending: isValidating } = useValidateCustomDomain()
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Domain', href: '/trust-center/domain' }])
@@ -59,7 +60,20 @@ const DomainSettingsPage = () => {
   }
 
   const verify = async () => {
-    await refetch()
+    if (!trustCenter?.customDomain?.id) return
+    try {
+      await validateCustomDomain({ validateCustomDomainId: trustCenter.customDomain.id })
+      successNotification({
+        title: 'Verification triggered',
+        description: 'DNS verification has been initiated.',
+      })
+    } catch (err) {
+      errorNotification({
+        title: 'Verification failed',
+        description: 'Could not trigger DNS verification. Please try again.',
+      })
+      console.error(err)
+    }
   }
 
   const handleCreateCustomDomain = async () => {
@@ -287,7 +301,7 @@ const DomainSettingsPage = () => {
             </div>
           </CardContent>
         </Card>
-        {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} />}
+        {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} isVerifying={isValidating} />}
         <div className="grid gap-10 text-sm text-text-informational mt-6">
           <ul className="list-disc list-inside space-y-1">
             <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider</li>
