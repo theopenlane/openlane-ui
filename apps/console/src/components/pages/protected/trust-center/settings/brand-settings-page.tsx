@@ -21,7 +21,6 @@ import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOpt
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const BrandPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -144,8 +143,8 @@ const BrandPage: React.FC = () => {
     return <div className="p-6 text-red-600">Failed to load trust center settings: {error.message}</div>
   }
 
-  if (!setting || !trustCenter) {
-    return <ProtectedArea />
+  if (!setting) {
+    return <div className="p-6">No trust center settings found.</div>
   }
 
   const handleLogoUpload = (uploadedFile: TUploadedFile) => {

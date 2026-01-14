@@ -15,7 +15,6 @@ import { formatDate } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const formSchema = z.object({
   text: z.string().min(1, 'Update text is required').max(280),
@@ -29,7 +28,6 @@ export default function UpdatesSection() {
 
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
-  const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
 
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
@@ -103,10 +101,6 @@ export default function UpdatesSection() {
   const cancelEditing = () => {
     setEditingPostId(null)
     editForm.reset()
-  }
-
-  if (!trustCenter) {
-    return <ProtectedArea />
   }
 
   return (

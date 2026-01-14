@@ -6,7 +6,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetTrustCenter, useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
 import { TrustCenterDocWatermarkStatus, TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -24,7 +24,6 @@ import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.DOCUMENTS)
@@ -37,7 +36,6 @@ const ReportsAndCertificationsPage = () => {
   const { data: orgPermission } = useOrganizationRoles()
 
   const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
-  const { data } = useGetTrustCenter()
   const { docs, paginationMeta, isLoading, error } = useGetTrustCenterDocs({
     where: {
       ...(searchTerm ? { titleContainsFold: searchTerm } : {}),
@@ -45,7 +43,6 @@ const ReportsAndCertificationsPage = () => {
     },
     pagination,
   })
-  const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const handleFilterChange = useCallback((newFilters: TrustCenterDocWhereInput) => {
     setFilters(newFilters)
     setPagination((prev) => ({
@@ -82,10 +79,6 @@ const ReportsAndCertificationsPage = () => {
 
   if (error) {
     return <div className="p-6 text-red-600">Failed to load trust center documents: {error.message}</div>
-  }
-
-  if (!trustCenter) {
-    return <ProtectedArea />
   }
 
   const areFiltersAndSearchTurnedOff = !searchTerm && filters && !Object.keys(filters).length

@@ -26,7 +26,6 @@ import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
@@ -41,7 +40,6 @@ export default function FrameworksPage() {
 
   const { mutateAsync: deleteStandard } = useDeleteStandard()
   const { data: trustCenterData } = useGetTrustCenter()
-  const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
 
   const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
@@ -189,10 +187,6 @@ export default function FrameworksPage() {
         <p className="text-red-500">Error loading frameworks.</p>
       </div>
     )
-  }
-
-  if (!trustCenter) {
-    return <ProtectedArea />
   }
 
   return (

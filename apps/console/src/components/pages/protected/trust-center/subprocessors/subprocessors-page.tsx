@@ -15,8 +15,6 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import { EditTrustCenterSubprocessorSheet } from './sheet/eidt-trust-center-subprocessor-sheet'
-import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
@@ -30,8 +28,6 @@ const SubprocessorsPage = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
-  const { data } = useGetTrustCenter()
-  const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
@@ -93,10 +89,6 @@ const SubprocessorsPage = () => {
   }, [setCrumbs])
 
   if (isLoading) return <Loading />
-
-  if (!trustCenter) {
-    return <ProtectedArea />
-  }
 
   return (
     <>
