@@ -2,20 +2,7 @@ import { FilterField } from '@/types'
 import { TaskStatusWithoutCompletedAndOpen } from '@/components/pages/protected/tasks/util/task'
 import { TOrgMembers } from '../hooks/useTaskStore'
 import { FilterIcons } from '@/components/shared/enum-mapper/task-enum'
-
-function prettifyEnum(key: string) {
-  return key
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/^\w/, (c) => c.toUpperCase())
-}
-
-export function enumToOptions<T extends Record<string, string>>(e: T, labels?: Partial<Record<T[keyof T], string>>) {
-  return Object.entries(e).map(([key, value]) => ({
-    value,
-    label: labels?.[value as T[keyof T]] ?? prettifyEnum(key),
-  }))
-}
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: { value: string; label: string }[], taskKindOptions: { value: string; label: string }[]): FilterField[] => [
   { key: 'displayID', label: 'DisplayID', type: 'text', icon: FilterIcons.DisplayID },
