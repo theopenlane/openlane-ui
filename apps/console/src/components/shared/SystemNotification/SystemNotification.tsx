@@ -2,14 +2,12 @@
 import React, { useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Bell, CheckCheck } from 'lucide-react'
-import { useTrackedExports } from '@/components/shared/export/use-tracked-export.ts'
 import { useSSENotifications } from '@/hooks/useSSENotifications'
 import { NotificationRow } from './notification-row'
 import useClickOutside from '@/hooks/useClickOutside'
 import { BellButton } from './export-row'
 
 export default function SystemNotificationTracker() {
-  const { jobs } = useTrackedExports()
   const { notifications } = useSSENotifications()
   const [open, setOpen] = useState(false)
 
@@ -19,12 +17,11 @@ export default function SystemNotificationTracker() {
 
   const counts = useMemo(() => {
     const unreadNotifications = notifications.filter((n) => !n.readAt).length
-    const total = jobs.length + unreadNotifications
     return {
-      total,
+      total: unreadNotifications,
       hasUnread: unreadNotifications > 0,
     }
-  }, [jobs, notifications])
+  }, [notifications])
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -49,20 +46,6 @@ export default function SystemNotificationTracker() {
 
                 <div className="overflow-y-auto p-2 custom-scrollbar">
                   <div className="flex flex-col gap-1">
-                    {/* {jobs.length > 0 && (
-                      <>
-                        <div className="my-2 flex items-center gap-2 px-2">
-                          <div className="h-px flex-1 bg-border" />
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">Exports</span>
-                          <div className="h-px flex-1 bg-border" />
-                        </div>
-                        {jobs.map((j) => (
-                          <ExportRow key={j.id} job={j} />
-                        ))}
-                        <div className="h-px bg-border w-full" />
-                      </>
-                    )} */}
-
                     {notifications.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                         <div className="mb-3 rounded-full bg-muted p-3">
