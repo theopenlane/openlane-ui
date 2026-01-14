@@ -5568,8 +5568,6 @@ export interface CreateInviteInput {
   ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['input']
-  /** the user who initiated the invitation */
-  requestorID?: InputMaybe<Scalars['String']['input']>
   role?: InputMaybe<InviteRole>
   /** the number of attempts made to perform email send of the invitation, maximum of 5 */
   sendAttempts?: InputMaybe<Scalars['Int']['input']>
@@ -5812,8 +5810,8 @@ export interface CreateNotificationInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the title of the notification */
   title: Scalars['String']['input']
-  /** the topic of the notification */
-  topic?: InputMaybe<Scalars['String']['input']>
+  /** the topic of the notification (TASK_ASSIGNMENT, APPROVAL, MENTION, EXPORT) */
+  topic?: InputMaybe<NotificationNotificationTopic>
 }
 
 /**
@@ -7311,6 +7309,13 @@ export enum CustomDomainOrderField {
 export interface CustomDomainUpdatePayload {
   __typename?: 'CustomDomainUpdatePayload'
   /** Updated customDomain */
+  customDomain: CustomDomain
+}
+
+/** Return response for validateCustomDomain mutation */
+export interface CustomDomainValidatePayload {
+  __typename?: 'CustomDomainValidatePayload'
+  /** CustomDomain that validation was triggered for */
   customDomain: CustomDomain
 }
 
@@ -11903,7 +11908,7 @@ export interface Export extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** the user who initiated the export */
+  /** the user who initiated the request */
   requestorID?: Maybe<Scalars['String']['output']>
   /** the status of the export, e.g., pending, ready, failed */
   status: ExportExportStatus
@@ -12004,6 +12009,7 @@ export enum ExportExportType {
   SUBPROCESSOR = 'SUBPROCESSOR',
   SUBSCRIBER = 'SUBSCRIBER',
   TASK = 'TASK',
+  TRUST_CENTER_SUBPROCESSOR = 'TRUST_CENTER_SUBPROCESSOR',
   VULNERABILITY = 'VULNERABILITY',
 }
 
@@ -16732,7 +16738,7 @@ export interface Invite extends Node {
   ownershipTransfer?: Maybe<Scalars['Boolean']['output']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['output']
-  /** the user who initiated the invitation */
+  /** the user who initiated the request */
   requestorID?: Maybe<Scalars['String']['output']>
   role: InviteRole
   /** the number of attempts made to perform email send of the invitation, maximum of 5 */
@@ -19804,6 +19810,8 @@ export interface Mutation {
   updateWorkflowEvent: WorkflowEventUpdatePayload
   /** Update an existing workflowInstance */
   updateWorkflowInstance: WorkflowInstanceUpdatePayload
+  /** Trigger validation for an existing customDomain */
+  validateCustomDomain: CustomDomainValidatePayload
 }
 
 export interface MutationCloneBulkCsvControlArgs {
@@ -21665,6 +21673,10 @@ export interface MutationUpdateWorkflowInstanceArgs {
   input: UpdateWorkflowInstanceInput
 }
 
+export interface MutationValidateCustomDomainArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface Narrative extends Node {
   __typename?: 'Narrative'
   blockedGroups: GroupConnection
@@ -22367,12 +22379,20 @@ export interface Notification extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the title of the notification */
   title: Scalars['String']['output']
-  /** the topic of the notification */
-  topic?: Maybe<Scalars['String']['output']>
+  /** the topic of the notification (TASK_ASSIGNMENT, APPROVAL, MENTION, EXPORT) */
+  topic?: Maybe<NotificationNotificationTopic>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the user this notification is for */
   userID?: Maybe<Scalars['ID']['output']>
+}
+
+/** NotificationNotificationTopic is enum for the field topic */
+export enum NotificationNotificationTopic {
+  APPROVAL = 'APPROVAL',
+  EXPORT = 'EXPORT',
+  MENTION = 'MENTION',
+  TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
 
 /** NotificationNotificationType is enum for the field notification_type */
