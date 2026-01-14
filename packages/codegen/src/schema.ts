@@ -50163,7 +50163,7 @@ export type GetTrustCenterSubprocessorsQuery = {
           name: string
           description?: string | null
           logoRemoteURL?: string | null
-          logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
         }
       } | null
     } | null> | null
