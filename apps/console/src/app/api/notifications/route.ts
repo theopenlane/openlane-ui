@@ -31,7 +31,7 @@ export async function GET() {
   console.warn('[Debug] raw cookie header:', h.get('cookie'))
 
   console.warn('[SSE Proxy] Debug Info:', {
-    hasSessionString: !!sessionString,
+    hasSessionString: sessionString,
     sessionCookieName,
     hasAccessToken: !!accessToken,
     apiUrl: process.env.NEXT_PUBLIC_API_GQL_URL,

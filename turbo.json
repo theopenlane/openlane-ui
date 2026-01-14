@@ -7,7 +7,11 @@
       "env": [
         "NODE_ENV",
         "API_REST_URL",
+        "API_GQL_URL",
         "NEXT_PUBLIC_OPENLANE_URL",
+        "NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS",
+        "AUTH_SECRET",
+        "NEXTAUTH_SECRET",
         "AUTH_GITHUB_ID",
         "AUTH_GITHUB_SECRET",
         "AUTH_GOOGLE_ID",
@@ -15,6 +19,7 @@
         "SESSION_COOKIE_NAME",
         "SESSION_COOKIE_DOMAIN",
         "NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS",
+        "SESSION_COOKIE_EXPIRATION_MINUTES",
         "SESSION_NEXAUTH_MAX_AGE",
         "RECAPTCHA_SECRET_KEY",
         "AWS_REGION",
@@ -29,7 +34,8 @@
         "GOOGLE_RAG_CORPUS_ID",
         "NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED",
         "GOOGLE_AI_MODEL_NAME",
-        "GOOGLE_GENERATIVE_AI_API_KEY"
+        "GOOGLE_GENERATIVE_AI_API_KEY",
+        "GEMINI_API_KEY"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },
