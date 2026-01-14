@@ -8,30 +8,27 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
-import { Panel, PanelHeader } from '@repo/ui/panel'
-import { Button } from '@repo/ui/button'
-import { Building2 } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
-import { CreateTrustCenterSubprocessorSheet } from './sheet/create-trust-center-subprocessor-sheet'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { EditTrustCenterSubprocessorSheet } from './sheet/eidt-trust-center-subprocessor-sheet'
 
 const SubprocessorsPage = () => {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     id: false,
     createdBy: false,
     updatedAt: false,
+    updatedVy: false,
+    createdAt: false,
   })
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
 
-  const router = useRouter()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
@@ -94,52 +91,36 @@ const SubprocessorsPage = () => {
 
   if (isLoading) return <Loading />
 
-  const areFiltersOff = !searchTerm && filters && !Object.keys(filters).length
-  const showCreatePanel = areFiltersOff && tableData.length === 0
-
   return (
     <>
-      <CreateTrustCenterSubprocessorSheet />
-
-      {showCreatePanel ? (
-        <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
-          <PanelHeader heading="Subprocessors" subheading="You haven't added any subprocessors yet. Add third-party vendors that process customer data on your behalf." />
-          <Link href="/trust-center/subprocessors?create=true">
-            <Button variant="primary" icon={<Building2 size={16} />} iconPosition="left">
-              Add Subprocessor
-            </Button>
-          </Link>
-        </Panel>
-      ) : (
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Subprocessors</h2>
-          </div>
-
-          <SubprocessorsTableToolbar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            mappedColumns={mappedColumns}
-            columnVisibility={columnVisibility}
-            setColumnVisibility={setColumnVisibility}
-            handleFilterChange={handleFilterChange}
-            selectedRows={selectedRows}
-            setSelectedRows={setSelectedRows}
-          />
-
-          <DataTable
-            columns={columns}
-            data={tableData}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            paginationMeta={paginationMeta}
-            loading={isLoading}
-            columnVisibility={columnVisibility}
-            onRowClick={(row) => router.push(`/trust-center/subprocessors?id=${row.id}`)}
-            tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
-          />
+      <EditTrustCenterSubprocessorSheet />
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Subprocessors</h2>
         </div>
-      )}
+
+        <SubprocessorsTableToolbar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          mappedColumns={mappedColumns}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+          handleFilterChange={handleFilterChange}
+          selectedRows={selectedRows}
+          setSelectedRows={setSelectedRows}
+        />
+
+        <DataTable
+          columns={columns}
+          data={tableData}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={paginationMeta}
+          loading={isLoading}
+          columnVisibility={columnVisibility}
+          tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
+        />
+      </div>
     </>
   )
 }

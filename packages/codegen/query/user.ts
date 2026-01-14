@@ -51,3 +51,11 @@ export const UPDATE_USER_SETTING = gql`
     }
   }
 `
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($deleteUserId: ID!) {
+    deleteUser(id: $deleteUserId) {
+      deletedID
+    }
+  }
+`

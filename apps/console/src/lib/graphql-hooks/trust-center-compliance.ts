@@ -1,16 +1,16 @@
 import {
   GetTrustCenterCompliancesQuery,
-  CreateTrustCenterComplianceMutation,
-  CreateTrustCenterComplianceMutationVariables,
   UpdateTrustCenterComplianceMutation,
   UpdateTrustCenterComplianceMutationVariables,
-  DeleteTrustCenterComplianceMutation,
-  DeleteTrustCenterComplianceMutationVariables,
+  DeleteBulkTrustCenterComplianceMutation,
+  CreateBulkTrustCenterComplianceMutation,
+  CreateBulkTrustCenterComplianceMutationVariables,
+  DeleteBulkTrustCenterComplianceMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { CREATE_TRUST_CENTER_COMPLIANCE, DELETE_TRUST_CENTER_COMPLIANCE, GET_TRUST_CENTER_COMPLIANCES, UPDATE_TRUST_CENTER_COMPLIANCE } from '@repo/codegen/query/trust-center-compliances'
+import { CREATE_BULK_TRUST_CENTER_COMPLIANCE, DELETE_BULK_TRUST_CENTER_COMPLIANCE, GET_TRUST_CENTER_COMPLIANCES, UPDATE_TRUST_CENTER_COMPLIANCE } from '@repo/codegen/query/trust-center-compliances'
 
 export const useGetTrustCenterCompliances = () => {
   const { client } = useGraphQLClient()
@@ -26,11 +26,23 @@ export const useGetTrustCenterCompliances = () => {
   return { ...queryResult, compliances }
 }
 
-export const useCreateTrustCenterCompliance = () => {
+export const useCreateBulkTrustCenterCompliance = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<CreateTrustCenterComplianceMutation, Error, CreateTrustCenterComplianceMutationVariables>({
-    mutationFn: async (variables) => client.request<CreateTrustCenterComplianceMutation, CreateTrustCenterComplianceMutationVariables>(CREATE_TRUST_CENTER_COMPLIANCE, variables),
+  return useMutation<CreateBulkTrustCenterComplianceMutation, Error, CreateBulkTrustCenterComplianceMutationVariables>({
+    mutationFn: async (variables) => client.request<CreateBulkTrustCenterComplianceMutation, CreateBulkTrustCenterComplianceMutationVariables>(CREATE_BULK_TRUST_CENTER_COMPLIANCE, variables),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenter', 'compliances'] })
+    },
+  })
+}
+
+export const useDeleteBulkTrustCenterCompliance = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkTrustCenterComplianceMutation, Error, DeleteBulkTrustCenterComplianceMutationVariables>({
+    mutationFn: async (variables) => client.request<DeleteBulkTrustCenterComplianceMutation, DeleteBulkTrustCenterComplianceMutationVariables>(DELETE_BULK_TRUST_CENTER_COMPLIANCE, variables),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenter', 'compliances'] })
@@ -43,18 +55,6 @@ export const useUpdateTrustCenterCompliance = () => {
 
   return useMutation<UpdateTrustCenterComplianceMutation, Error, UpdateTrustCenterComplianceMutationVariables>({
     mutationFn: async (variables) => client.request<UpdateTrustCenterComplianceMutation, UpdateTrustCenterComplianceMutationVariables>(UPDATE_TRUST_CENTER_COMPLIANCE, variables),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trustCenter', 'compliances'] })
-    },
-  })
-}
-
-export const useDeleteTrustCenterCompliance = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation<DeleteTrustCenterComplianceMutation, Error, DeleteTrustCenterComplianceMutationVariables>({
-    mutationFn: async (variables) => client.request<DeleteTrustCenterComplianceMutation, DeleteTrustCenterComplianceMutationVariables>(DELETE_TRUST_CENTER_COMPLIANCE, variables),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenter', 'compliances'] })

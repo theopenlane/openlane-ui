@@ -174,6 +174,10 @@ export default function SideNav({
 
     const linkContent = (
       <Link
+        onClick={(e) => {
+          e.preventDefault()
+          router.push(child.href ?? '#')
+        }}
         href={child.href ?? '#'}
         className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
           secondaryExpanded ? 'px-2.5' : 'justify-center'

@@ -3,18 +3,23 @@
 import React from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
+import { ProcedureDiscussionFieldsFragment, ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
+import { Value } from 'platejs'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 
 type TDetailsFieldProps = {
   isEditing: boolean
   form: UseFormReturn<EditProcedureMetadataFormData>
   procedure: ProcedureByIdFragment
+  discussionData?: ProcedureDiscussionFieldsFragment
 }
 
-const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure }) => {
-  const plateEditorHelper = usePlateEditor()
+const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure, discussionData }) => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
 
   return isEditing ? (
     <div className="w-full">
@@ -23,12 +28,29 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
       </label>
       <Controller
         control={form.control}
-        name="details"
-        render={({ field }) => <PlateEditor initialValue={procedure?.details as string} onChange={field.onChange} placeholder="Write your procedure description" />}
+        name="detailsJSON"
+        render={({ field }) => (
+          <PlateEditor
+            userData={userData}
+            initialValue={procedure?.detailsJSON ? (procedure?.detailsJSON as Value) : (procedure?.details ?? undefined)}
+            entity={discussionData}
+            onChange={field.onChange}
+            placeholder="Write your procedure description"
+          />
+        )}
       />
     </div>
   ) : (
-    <div className={`!mt-4 min-h-[20px]`}>{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string)}</div>
+    <div className={`!mt-4 min-h-[20px]`}>
+      <PlateEditor
+        key={JSON.stringify(procedure.detailsJSON ?? procedure.details)}
+        userData={userData}
+        initialValue={procedure?.detailsJSON ? (procedure?.detailsJSON as Value) : (procedure?.details ?? undefined)}
+        entity={discussionData}
+        readonly={true}
+        variant="readonly"
+      />
+    </div>
   )
 }
 

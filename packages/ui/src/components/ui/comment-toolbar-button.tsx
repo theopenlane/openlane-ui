@@ -14,7 +14,8 @@ export function CommentToolbarButton() {
 
   return (
     <ToolbarButton
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation()
         editor.getTransforms(commentPlugin).comment.setDraft()
       }}
       data-plate-prevent-overlay

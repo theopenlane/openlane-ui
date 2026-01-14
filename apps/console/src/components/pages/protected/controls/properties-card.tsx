@@ -262,8 +262,10 @@ const EditableSelect = ({
               <Select
                 value={field.value}
                 onValueChange={(val) => {
-                  handleChange(val)
-                  field.onChange(val)
+                  if (val) {
+                    handleChange(val)
+                    field.onChange(val)
+                  }
                 }}
               >
                 <SelectTrigger>
@@ -436,7 +438,7 @@ export const EditableSelectFromQuery = ({
   const [open, setOpen] = useState(false)
 
   const rawOptions = useMemo(() => {
-    return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
+    return isCategory ? (categoriesData?.controlCategories ?? []) : (subcategoriesData?.controlSubcategories ?? [])
   }, [isCategory, categoriesData, subcategoriesData])
   const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -747,7 +749,7 @@ const AuthorityField = ({
               >
                 <div className="flex gap-2 items-center">
                   <Avatar entity={value as Group} variant="small" />
-                  <span className="truncate">{displayName}</span>
+                  <span className="truncate text-sm">{displayName}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="bottom">{displayName}</TooltipContent>

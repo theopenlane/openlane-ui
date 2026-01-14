@@ -11,7 +11,11 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import OwnerCell from './owner-cell'
 import DelegateCell from './delegate-cell'
-import { FileQuestion } from 'lucide-react'
+import { FileQuestion, LinkIcon } from 'lucide-react'
+import Link from 'next/link'
+import { LinkedPoliciesCell } from './linked-policies-cell'
+import { LinkedProceduresCell } from './linked-procedures-cell'
+import AssociatedObjectsCell from './associated-objects-cell'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -44,7 +48,7 @@ export const getControlsFilterFields = (
   },
   {
     key: 'controlOwnerIDIn',
-    label: 'Owners',
+    label: 'Owner',
     type: 'multiselect',
     options: groups.map((group) => ({
       value: group.value,
@@ -69,8 +73,22 @@ export const getControlsFilterFields = (
   {
     key: 'hasInternalPolicies',
     label: 'Linked Policies',
-    type: 'boolean',
+    type: 'radio',
     icon: FilterIcons.LinkedPolicies,
+    radioOptions: [
+      { value: true, label: 'Has linked policies' },
+      { value: false, label: 'No linked policies' },
+    ],
+  },
+  {
+    key: 'hasComments',
+    label: 'Has Comments',
+    type: 'radio',
+    icon: FilterIcons.Comments,
+    radioOptions: [
+      { value: true, label: 'Has comments' },
+      { value: false, label: 'No comments' },
+    ],
   },
 ]
 
@@ -82,7 +100,8 @@ export const CONTROLS_SORT_FIELDS = [
   { key: 'CONTROL_TYPE', label: 'Control Type' },
   { key: 'category', label: 'Category' },
   { key: 'subcategory', label: 'Subcategory' },
-  { key: 'CONTROL_OWNER_name', label: 'Owners' },
+  { key: 'CONTROL_OWNER_name', label: 'Owner' },
+  { key: 'DELEGATE_name', label: 'Delegate' },
   { key: 'ref_code', label: 'Ref' },
 ]
 
@@ -165,10 +184,10 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
-      size: 400, // Set a reasonable pixel width
+      size: 400,
       minSize: 300,
       meta: {
-        className: 'w-[50%] min-w-[300px]', // CSS class for responsive width
+        className: 'w-[50%] min-w-[300px]',
       },
     },
     {
@@ -258,7 +277,10 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     },
     {
       header: 'Delegate',
-      accessorKey: 'delegate',
+      accessorKey: ControlOrderField.DELEGATE_name,
+      meta: {
+        exportPrefix: 'delegate.name',
+      },
       cell: ({ row }) => {
         const delegate = row.original.delegate
         const controlId = row.original.id
@@ -273,7 +295,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -295,7 +317,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -338,6 +360,47 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
+    },
+    {
+      header: 'Associated Objects',
+      accessorKey: 'associatedObjects',
+      cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
+      minSize: 180,
+    },
+    {
+      header: 'Comments',
+      accessorKey: 'comments',
+      meta: {
+        exportPrefix: 'comments.text',
+      },
+      cell: ({ row }) => {
+        return (
+          <Link onClick={(e) => e.stopPropagation()} href={`/controls/${row.original.id}?showComments=true`} className="flex items-center gap-2">
+            <Badge>
+              {row.original.comments?.totalCount ?? 0} Comments <LinkIcon size={12} className="ml-1 inline-block" />
+            </Badge>
+          </Link>
+        )
+      },
+      minSize: 120,
+    },
+    {
+      header: 'Linked Policies',
+      accessorKey: 'linkedPolicies',
+      meta: {
+        exportPrefix: 'internalPolicies.name',
+      },
+      size: 220,
+      cell: LinkedPoliciesCell,
+    },
+    {
+      header: 'Linked Procedures',
+      accessorKey: 'linkedProcedures',
+      meta: {
+        exportPrefix: 'procedures.name',
+      },
+      size: 220,
+      cell: LinkedProceduresCell,
     },
   ]
 }

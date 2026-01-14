@@ -27,6 +27,7 @@ import {
   DeleteStandardMutationVariables,
   GetStandardsPaginatedQuery,
   GetStandardsPaginatedQueryVariables,
+  StandardWhereInput,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -150,10 +151,14 @@ export const useDeleteStandard = () => {
   })
 }
 
-export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pagination: TPagination; enabled?: boolean }) => {
+type StandardEdge = NonNullable<NonNullable<GetStandardsPaginatedQuery['standards']>['edges']>[number]
+
+export type StandardNode = NonNullable<NonNullable<StandardEdge>['node']>
+
+export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = true }: { where?: StandardWhereInput; pagination: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const queryKey = useMemo(() => ['standards', 'infinite', pagination.query] as const, [pagination.query])
+  const queryKey = useMemo(() => ['standards', 'infinite', where, pagination.query] as const, [pagination.query, where])
 
   const queryResult = useInfiniteQuery<GetStandardsPaginatedQuery, Error, InfiniteData<GetStandardsPaginatedQuery>, typeof queryKey, string | null>({
     queryKey,
@@ -163,6 +168,7 @@ export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pag
         ...pagination.query,
         first: pagination.query.first,
         after: pageParam ?? undefined,
+        where,
       }),
 
     getNextPageParam: (lastPage) => {
@@ -175,7 +181,7 @@ export const useGetAllStandardsInfinite = ({ pagination, enabled = true }: { pag
     enabled,
   })
 
-  const standards = queryResult.data?.pages.flatMap((page) => page.standards?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node) ?? []) ?? []
+  const standards: StandardNode[] = queryResult.data?.pages.flatMap((page) => page.standards?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node) ?? []) ?? []
 
   const lastPage = queryResult.data?.pages.at(-1)
 
