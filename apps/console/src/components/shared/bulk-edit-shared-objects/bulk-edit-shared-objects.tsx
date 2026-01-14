@@ -100,6 +100,7 @@ export enum InputType {
   Input = 'INPUT',
   Date = 'DATETIME',
   Tag = 'TAG',
+  TypeAhead = 'TYPE_AHEAD',
 }
 
 export interface FieldItem {
@@ -282,13 +283,13 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
     {
       selectOptionEnum: SelectOptionBulkEditControls.Category,
       name: 'category',
-      inputType: InputType.Input,
+      inputType: InputType.TypeAhead,
       placeholder: 'Input category',
     },
     {
       selectOptionEnum: SelectOptionBulkEditControls.SubCategory,
       name: 'subcategory',
-      inputType: InputType.Input,
+      inputType: InputType.TypeAhead,
       placeholder: 'Input subcategory',
     },
   ]
