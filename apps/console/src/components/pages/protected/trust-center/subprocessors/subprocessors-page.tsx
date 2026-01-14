@@ -99,7 +99,7 @@ const SubprocessorsPage = () => {
     }
 
     handleExport({
-      exportType: ExportExportType.SUBPROCESSOR,
+      exportType: ExportExportType.TRUST_CENTER_SUBPROCESSOR,
       filters: JSON.stringify(where),
       fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,

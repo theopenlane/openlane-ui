@@ -5812,8 +5812,8 @@ export interface CreateNotificationInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the title of the notification */
   title: Scalars['String']['input']
-  /** the topic of the notification */
-  topic?: InputMaybe<Scalars['String']['input']>
+  /** the topic of the notification (TASK_ASSIGNMENT, APPROVAL, MENTION, EXPORT) */
+  topic?: InputMaybe<NotificationNotificationTopic>
 }
 
 /**
@@ -12004,6 +12004,7 @@ export enum ExportExportType {
   SUBPROCESSOR = 'SUBPROCESSOR',
   SUBSCRIBER = 'SUBSCRIBER',
   TASK = 'TASK',
+  TRUST_CENTER_SUBPROCESSOR = 'TRUST_CENTER_SUBPROCESSOR',
   VULNERABILITY = 'VULNERABILITY',
 }
 
@@ -22367,12 +22368,20 @@ export interface Notification extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the title of the notification */
   title: Scalars['String']['output']
-  /** the topic of the notification */
-  topic?: Maybe<Scalars['String']['output']>
+  /** the topic of the notification (TASK_ASSIGNMENT, APPROVAL, MENTION, EXPORT) */
+  topic?: Maybe<NotificationNotificationTopic>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the user this notification is for */
   userID?: Maybe<Scalars['ID']['output']>
+}
+
+/** NotificationNotificationTopic is enum for the field topic */
+export enum NotificationNotificationTopic {
+  APPROVAL = 'APPROVAL',
+  EXPORT = 'EXPORT',
+  MENTION = 'MENTION',
+  TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
 
 /** NotificationNotificationType is enum for the field notification_type */
