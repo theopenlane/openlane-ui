@@ -117,19 +117,19 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       },
       minSize: 60,
     },
-    {
-      accessorKey: 'logo',
-      header: 'Logo',
-      // meta: {
-      //   exportPrefix: 'subprocessor.logoFile.base64',
-      // },
-      cell: ({ row }) => {
-        const logo = row.original.logo
-        if (!logo) return <div className="text-muted-foreground">—</div>
-        //  eslint-disable-next-line @next/next/no-img-element
-        return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
-      },
-    },
+    // {
+    //   accessorKey: 'logo',
+    //   header: 'Logo',
+    //   meta: {
+    //     exportPrefix: 'subprocessor.logoFile.base64',
+    //   },
+    //   cell: ({ row }) => {
+    //     const logo = row.original.logo
+    //     if (!logo) return <div className="text-muted-foreground">—</div>
+    //     //  eslint-disable-next-line @next/next/no-img-element
+    //     return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
+    //   },
+    // },
 
     {
       accessorKey: 'category',
