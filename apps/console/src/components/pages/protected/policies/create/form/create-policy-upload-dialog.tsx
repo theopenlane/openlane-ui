@@ -234,7 +234,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteLink(index)} />
           </div>
         ))}
-        <div className="flex gap-6">
+        <div className="grid grid-cols-4 gap-6 max-h-96 overflow-y-auto">
           {uploadedFiles.map((file, index) => (
             <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={handleDeleteFile} />
           ))}
