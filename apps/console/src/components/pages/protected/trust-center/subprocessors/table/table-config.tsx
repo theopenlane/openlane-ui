@@ -120,9 +120,9 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'logo',
       header: 'Logo',
-      meta: {
-        exportPrefix: 'subprocessor.logoFile.base64',
-      },
+      // meta: {
+      //   exportPrefix: 'subprocessor.logoFile.base64',
+      // },
       cell: ({ row }) => {
         const logo = row.original.logo
         if (!logo) return <div className="text-muted-foreground">—</div>
