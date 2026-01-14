@@ -24,6 +24,7 @@ import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.DOCUMENTS)
@@ -84,7 +85,7 @@ const ReportsAndCertificationsPage = () => {
   }
 
   if (!trustCenter) {
-    return <div className="p-6">No trust center settings found.</div>
+    return <ProtectedArea />
   }
 
   const areFiltersAndSearchTurnedOff = !searchTerm && filters && !Object.keys(filters).length

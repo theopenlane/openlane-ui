@@ -12,6 +12,7 @@ import { useDeleteTrustCenterEntity, useGetTrustCenterEntities, useUpdateTrustCe
 import CreateCustomerLogo from './create-customer-logo'
 import CustomerLogoCard from './customer-logo-card'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 export default function CustomerLogosPage() {
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -56,7 +57,7 @@ export default function CustomerLogosPage() {
   }, [setCrumbs])
 
   if (!trustCenter) {
-    return <div className="p-6">No trust center settings found.</div>
+    return <ProtectedArea />
   }
 
   return (

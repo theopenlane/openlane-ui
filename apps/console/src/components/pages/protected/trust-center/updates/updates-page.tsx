@@ -15,6 +15,7 @@ import { formatDate } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const formSchema = z.object({
   text: z.string().min(1, 'Update text is required').max(280),
@@ -105,7 +106,7 @@ export default function UpdatesSection() {
   }
 
   if (!trustCenter) {
-    return <div className="p-6">No trust center settings found.</div>
+    return <ProtectedArea />
   }
 
   return (

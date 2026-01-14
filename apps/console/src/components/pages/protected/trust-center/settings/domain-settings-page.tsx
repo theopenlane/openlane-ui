@@ -13,6 +13,7 @@ import UrlInput from './url-input'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -44,7 +45,7 @@ const DomainSettingsPage = () => {
   }
 
   if (!setting || !trustCenter) {
-    return <div className="p-6">No trust center settings found.</div>
+    return <ProtectedArea />
   }
 
   const dnsVerification = trustCenter?.customDomain?.dnsVerification

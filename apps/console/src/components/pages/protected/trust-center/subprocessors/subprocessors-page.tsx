@@ -16,6 +16,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import { EditTrustCenterSubprocessorSheet } from './sheet/eidt-trust-center-subprocessor-sheet'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
@@ -94,7 +95,7 @@ const SubprocessorsPage = () => {
   if (isLoading) return <Loading />
 
   if (!trustCenter) {
-    return <div className="p-6">No trust center settings found.</div>
+    return <ProtectedArea />
   }
 
   return (

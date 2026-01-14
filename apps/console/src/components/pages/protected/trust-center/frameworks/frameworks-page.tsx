@@ -26,6 +26,7 @@ import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
@@ -191,7 +192,7 @@ export default function FrameworksPage() {
   }
 
   if (!trustCenter) {
-    return <div className="p-6">No trust center settings found.</div>
+    return <ProtectedArea />
   }
 
   return (
