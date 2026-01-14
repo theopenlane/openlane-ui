@@ -6,7 +6,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenter, useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
 import { TrustCenterDocWatermarkStatus, TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -36,15 +36,15 @@ const ReportsAndCertificationsPage = () => {
   const { data: orgPermission } = useOrganizationRoles()
 
   const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
-
-  const { docs, paginationMeta, isLoading } = useGetTrustCenterDocs({
+  const { data } = useGetTrustCenter()
+  const { docs, paginationMeta, isLoading, error } = useGetTrustCenterDocs({
     where: {
       ...(searchTerm ? { titleContainsFold: searchTerm } : {}),
       ...(filters ?? {}),
     },
     pagination,
   })
-
+  const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const handleFilterChange = useCallback((newFilters: TrustCenterDocWhereInput) => {
     setFilters(newFilters)
     setPagination((prev) => ({
@@ -78,6 +78,14 @@ const ReportsAndCertificationsPage = () => {
   }, [setCrumbs])
 
   if (isLoading) return <Loading />
+
+  if (error) {
+    return <div className="p-6 text-red-600">Failed to load trust center documents: {error.message}</div>
+  }
+
+  if (!trustCenter) {
+    return <div className="p-6">No trust center settings found.</div>
+  }
 
   const areFiltersAndSearchTurnedOff = !searchTerm && filters && !Object.keys(filters).length
   const showCreatePanel = areFiltersAndSearchTurnedOff && tableData.length === 0

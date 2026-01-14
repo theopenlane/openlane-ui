@@ -22,7 +22,7 @@ export default function CustomerLogosPage() {
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-
+  const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const { entities } = useGetTrustCenterEntities({})
   const { mutateAsync: deleteEntity } = useDeleteTrustCenterEntity()
   const { mutateAsync: updateEntity } = useUpdateTrustCenterEntity()
@@ -54,6 +54,10 @@ export default function CustomerLogosPage() {
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Customer Logos', href: '/trust-center/customer-logos' }])
   }, [setCrumbs])
+
+  if (!trustCenter) {
+    return <div className="p-6">No trust center settings found.</div>
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6 min-h-screen text-foreground">

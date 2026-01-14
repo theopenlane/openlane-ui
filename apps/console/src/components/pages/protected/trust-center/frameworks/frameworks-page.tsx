@@ -40,6 +40,7 @@ export default function FrameworksPage() {
 
   const { mutateAsync: deleteStandard } = useDeleteStandard()
   const { data: trustCenterData } = useGetTrustCenter()
+  const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
 
   const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
@@ -187,6 +188,10 @@ export default function FrameworksPage() {
         <p className="text-red-500">Error loading frameworks.</p>
       </div>
     )
+  }
+
+  if (!trustCenter) {
+    return <div className="p-6">No trust center settings found.</div>
   }
 
   return (

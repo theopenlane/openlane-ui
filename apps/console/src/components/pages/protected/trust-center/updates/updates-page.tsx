@@ -28,6 +28,7 @@ export default function UpdatesSection() {
 
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
+  const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
 
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
@@ -101,6 +102,10 @@ export default function UpdatesSection() {
   const cancelEditing = () => {
     setEditingPostId(null)
     editForm.reset()
+  }
+
+  if (!trustCenter) {
+    return <div className="p-6">No trust center settings found.</div>
   }
 
   return (
