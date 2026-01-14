@@ -65,8 +65,9 @@ export const config = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('NextAuth runtime Node version:', process.version)
-
+      if (typeof process !== 'undefined') {
+        console.log('NextAuth runtime Node version:', process.version)
+      }
       if ('error' in user && typeof user.error === 'string') {
         throw new InvalidLoginError(user.error)
       }
