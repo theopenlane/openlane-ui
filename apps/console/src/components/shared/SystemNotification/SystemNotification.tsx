@@ -6,7 +6,7 @@ import { useTrackedExports } from '@/components/shared/export/use-tracked-export
 import { useSSENotifications } from '@/hooks/useSSENotifications'
 import { NotificationRow } from './notification-row'
 import useClickOutside from '@/hooks/useClickOutside'
-import { BellButton, ExportRow } from './export-row'
+import { BellButton } from './export-row'
 
 export default function SystemNotificationTracker() {
   const { jobs } = useTrackedExports()
@@ -49,7 +49,7 @@ export default function SystemNotificationTracker() {
 
                 <div className="overflow-y-auto p-2 custom-scrollbar">
                   <div className="flex flex-col gap-1">
-                    {jobs.length > 0 && (
+                    {/* {jobs.length > 0 && (
                       <>
                         <div className="my-2 flex items-center gap-2 px-2">
                           <div className="h-px flex-1 bg-border" />
@@ -61,9 +61,9 @@ export default function SystemNotificationTracker() {
                         ))}
                         <div className="h-px bg-border w-full" />
                       </>
-                    )}
+                    )} */}
 
-                    {notifications.length === 0 && jobs.length === 0 ? (
+                    {notifications.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                         <div className="mb-3 rounded-full bg-muted p-3">
                           <Bell className="h-6 w-6 text-muted-foreground" />
