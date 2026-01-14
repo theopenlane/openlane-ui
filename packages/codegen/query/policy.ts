@@ -64,6 +64,22 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           revision
           status
           tags
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
+          procedures {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
         }
       }
       pageInfo {

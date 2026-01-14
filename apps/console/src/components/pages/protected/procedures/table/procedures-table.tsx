@@ -132,6 +132,8 @@ export const ProceduresTable = () => {
     tags: false,
     createdAt: false,
     createdBy: false,
+    linkedPolicies: false,
+    linkedControls: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.PROCEDURE, defaultVisibility))
