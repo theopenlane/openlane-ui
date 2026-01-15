@@ -52,6 +52,7 @@
     "react-force-graph-2d": "^1.28.0",
     "react-pdf": "^10.2.0",
     "stripe": "^18.5.0",
+    "subscriptions-transport-ws": "^0.11.0",
     "survey-core": "^2.3.15",
     "survey-creator-core": "^2.3.15",
     "survey-creator-react": "^2.3.15",
