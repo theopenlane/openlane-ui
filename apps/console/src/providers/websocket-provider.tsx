@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { useSession } from 'next-auth/react'
-import { websocketGQLUrl } from '@repo/dally/auth'
+import { sessionCookieName, websocketGQLUrl } from '@repo/dally/auth'
 
 interface WebSocketContextType {
   client: SubscriptionClient | null
@@ -19,6 +19,14 @@ export function useWebSocketClient() {
   return useContext(WebSocketContext)
 }
 
+function getCookie(name: string): string | undefined {
+  if (typeof document === 'undefined') return undefined
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift()
+  return undefined
+}
+
 export function WebSocketProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession()
   const token = session?.user?.accessToken
@@ -26,37 +34,40 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const clientRef = useRef<SubscriptionClient | null>(null)
 
   useEffect(() => {
-    if (status !== 'authenticated' || !token) {
+    if (status !== 'authenticated' || !token || !websocketGQLUrl || !sessionCookieName) {
       return
     }
+
+    const cookieValue = getCookie(sessionCookieName)
 
     const client = new SubscriptionClient(websocketGQLUrl, {
       reconnect: true,
       connectionParams: {
         Authorization: `Bearer ${token}`,
+        cookie: cookieValue ? `${sessionCookieName}=${cookieValue}` : undefined,
+        session: cookieValue,
       },
     })
 
     client.onConnected(() => {
-      console.log('✅ WS: Legacy Connected')
       setIsConnected(true)
     })
 
     client.onDisconnected(() => {
-      console.log('❌ WS: Legacy Disconnected')
       setIsConnected(false)
     })
 
-    client.onError((err) => {
-      console.error('⚠️ WS: Legacy Error', err)
+    client.onError(() => {
+      setIsConnected(false)
     })
 
     clientRef.current = client
 
     return () => {
-      console.log('🔌 WS: Disposing Legacy client')
-      client.close()
-      clientRef.current = null
+      if (clientRef.current) {
+        clientRef.current.close()
+        clientRef.current = null
+      }
       setIsConnected(false)
     }
   }, [token, status])
