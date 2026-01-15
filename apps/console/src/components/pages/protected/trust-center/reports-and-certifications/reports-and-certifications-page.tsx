@@ -36,7 +36,6 @@ const ReportsAndCertificationsPage = () => {
   const { data: orgPermission } = useOrganizationRoles()
 
   const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
-
   const { docs, paginationMeta, isLoading } = useGetTrustCenterDocs({
     where: {
       ...(searchTerm ? { titleContainsFold: searchTerm } : {}),
@@ -44,7 +43,6 @@ const ReportsAndCertificationsPage = () => {
     },
     pagination,
   })
-
   const handleFilterChange = useCallback((newFilters: TrustCenterDocWhereInput) => {
     setFilters(newFilters)
     setPagination((prev) => ({

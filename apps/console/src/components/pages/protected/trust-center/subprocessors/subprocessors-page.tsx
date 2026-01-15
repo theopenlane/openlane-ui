@@ -28,7 +28,6 @@ const SubprocessorsPage = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
-
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
