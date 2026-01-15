@@ -114,6 +114,20 @@ export const DELETE_CUSTOM_DOMAIN = gql`
   }
 `
 
+export const VALIDATE_CUSTOM_DOMAIN = gql`
+  mutation ValidateCustomDomain($validateCustomDomainId: ID!) {
+    validateCustomDomain(id: $validateCustomDomainId) {
+      customDomain {
+        id
+        dnsVerification {
+          dnsVerificationStatus
+          dnsVerificationStatusReason
+        }
+      }
+    }
+  }
+`
+
 export const GET_TRUST_CENTER_DOCS = gql`
   query GetTrustCenterDocs($where: TrustCenterDocWhereInput, $first: Int, $orderBy: [TrustCenterDocOrder!], $after: Cursor, $before: Cursor, $last: Int) {
     trustCenters {

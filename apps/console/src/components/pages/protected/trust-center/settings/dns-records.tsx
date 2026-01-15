@@ -13,9 +13,12 @@ type TDnsRecordsProps = {
     dnsTxtValue: string
   } | null
   onVerify?: () => void
+  isVerifying?: boolean
+  countdown?: number
 }
 
-export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification, onVerify }: TDnsRecordsProps) => {
+export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification, onVerify, isVerifying, countdown = 0 }: TDnsRecordsProps) => {
+  const isDisabled = isVerifying || countdown > 0
   const cnameValue = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME || ''
   const handleCopy = async () => {
     await navigator.clipboard.writeText(cnameValue)
@@ -31,8 +34,16 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
               <>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center rounded-3xl h-6 px-3 border border-[#FF842C3D] bg-[#FF842C14] text-warning">Pending</div>
-                  <Button variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Check size={16} />} onClick={onVerify} iconPosition="left">
-                    Verify
+                  <Button
+                    variant="secondary"
+                    className="h-10 flex items-center justify-center gap-2 px-4"
+                    icon={<Check size={16} />}
+                    onClick={onVerify}
+                    iconPosition="left"
+                    loading={isVerifying}
+                    disabled={isDisabled}
+                  >
+                    {isVerifying ? 'Verifying' : countdown > 0 ? `Verify (${countdown}s)` : 'Verify'}
                   </Button>
                 </div>
               </>

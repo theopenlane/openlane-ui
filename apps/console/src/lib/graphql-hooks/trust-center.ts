@@ -15,6 +15,7 @@ import {
   UPDATE_TRUST_CENTER_POST,
   UPDATE_TRUST_CENTER_SETTING,
   UPDATE_TRUST_CENTER_WATERMARK_CONFIG,
+  VALIDATE_CUSTOM_DOMAIN,
 } from '@repo/codegen/query/trust-center'
 import {
   BulkDeleteTrustCenterDocMutation,
@@ -111,6 +112,21 @@ export function useDeleteCustomDomain() {
   return useMutation({
     mutationFn: async (variables: { deleteCustomDomainId: string }) => {
       return await client.request(DELETE_CUSTOM_DOMAIN, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['trustCenter'],
+      })
+    },
+  })
+}
+
+export function useValidateCustomDomain() {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: async (variables: { validateCustomDomainId: string }) => {
+      return await client.request(VALIDATE_CUSTOM_DOMAIN, variables)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
