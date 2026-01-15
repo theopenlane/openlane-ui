@@ -3,18 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useWebSocketClient } from '@/providers/websocket-provider'
 import { useSession } from 'next-auth/react'
+import { Notification as SchemaNotification } from '@repo/codegen/src/schema'
 
-export interface Notification {
-  id: string
-  title: string
-  body: string
-  topic: string
-  data?: any
-  readAt?: string | null
-  objectType: string
-}
+export type Notification = Pick<SchemaNotification, 'id' | 'title' | 'body' | 'topic' | 'data' | 'readAt' | 'objectType'>
 
-interface SubscriptionPayload {
+type SubscriptionData = {
   notificationCreated: Notification
 }
 
@@ -39,48 +32,47 @@ export function useWebsocketNotifications() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Rely on the WebSocketProvider's isConnected state
-    // This ensures CSRF/Auth logic in the provider is finished first
     if (!client || !isConnected || status !== 'authenticated') {
       return
     }
 
-    console.log('📡 Hook: Subscribing to notificationCreated...')
-
-    const unsubscribe = client.subscribe(
-      {
+    const subscription = client
+      .request({
         query: NOTIFICATION_SUBSCRIPTION,
-      },
-      {
-        next: (payload) => {
-          const data = payload.data as SubscriptionPayload
+      })
+      .subscribe({
+        next: (value) => {
+          const data = value.data as unknown as SubscriptionData
           const newNotification = data?.notificationCreated
 
           if (newNotification) {
-            console.log('🔔 Hook: Notification received!', newNotification.title)
             setNotifications((prev) => {
-              if (prev.some((n) => n.id === newNotification.id)) return prev
+              const exists = prev.some((n) => n.id === newNotification.id)
+              if (exists) return prev
               return [newNotification, ...prev]
             })
           }
           setIsLoading(false)
         },
-        error: (err) => {
-          console.error('🔴 Hook: Subscription error:', err)
+        error: (err: Error) => {
+          console.error('Subscription error:', err)
           setIsLoading(false)
         },
-        complete: () => console.log('📡 Hook: Subscription complete'),
-      },
-    )
+        complete: () => {
+          setIsLoading(false)
+        },
+      })
 
     return () => {
-      console.log('📡 Hook: Unsubscribing')
-      unsubscribe()
+      if (subscription) {
+        subscription.unsubscribe()
+      }
     }
   }, [client, isConnected, status])
 
   return {
     notifications,
+    setNotifications,
     isLoading: status === 'loading' || (isLoading && notifications.length === 0),
     isConnected,
   }

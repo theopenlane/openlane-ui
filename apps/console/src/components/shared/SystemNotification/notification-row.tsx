@@ -3,7 +3,7 @@ import { cn } from '@repo/ui/lib/utils'
 import React from 'react'
 
 import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText } from 'lucide-react'
-import { Notification } from '@repo/codegen/src/schema'
+import { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 
 interface NotificationRowProps {
   notification: Notification

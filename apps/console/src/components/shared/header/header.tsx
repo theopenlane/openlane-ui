@@ -8,13 +8,10 @@ import { useSidebar } from '@/hooks/useSidebar'
 import React, { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import SystemNotificationTracker from '@/components/shared/SystemNotification/SystemNotification.tsx'
-import { useWebsocketNotifications } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 
 export default function Header() {
   const { isOpen } = useSidebar()
   const [status] = useState(false)
-  const { notifications } = useWebsocketNotifications()
-  console.log('notifications', notifications)
 
   const path = usePathname()
   const { header, nav, userNav } = headerStyles()

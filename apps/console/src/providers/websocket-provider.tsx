@@ -1,11 +1,11 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
-import { createClient, Client } from 'graphql-ws'
+import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { useSession } from 'next-auth/react'
 
 interface WebSocketContextType {
-  client: Client | null
+  client: SubscriptionClient | null
   isConnected: boolean
 }
 
@@ -22,52 +22,43 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession()
   const token = session?.user?.accessToken
   const [isConnected, setIsConnected] = useState(false)
-  const clientRef = useRef<Client | null>(null)
-
-  console.log('isConnected', isConnected)
+  const clientRef = useRef<SubscriptionClient | null>(null)
 
   useEffect(() => {
-    if (status !== 'authenticated' || !token || !process.env.NEXT_PUBLIC_API_GQL_URL) {
+    if (status !== 'authenticated' || !token) {
       return
     }
 
-    // const wsUrl = process.env.NEXT_PUBLIC_API_GQL_URL.replace(/^https/, 'wss').replace(/^http/, 'ws')
     const wsUrl = 'ws://localhost:17608/query'
-    // const wsUrl = 'ws://localhost:17608/subscriptions'
-    // const wsUrl = 'ws://localhost:17608/graphql'
 
-    console.log('🔌 WS: Initializing client for', wsUrl)
+    console.log('🔌 WS: Initializing LEGACY client for', wsUrl)
 
-    const client = createClient({
-      url: wsUrl,
-      // The Guild recommends lazy: true for better connection management
-      lazy: true,
-      connectionParams: async () => {
-        return {
-          Authorization: `Bearer ${token}`,
-        }
+    const client = new SubscriptionClient(wsUrl, {
+      reconnect: true,
+      connectionParams: {
+        Authorization: `Bearer ${token}`,
       },
-      on: {
-        connected: () => {
-          console.log('✅ WS: Connected')
-          setIsConnected(true)
-        },
-        closed: (event) => {
-          console.log('❌ WS: Closed', event)
-          setIsConnected(false)
-        },
-        error: (err) => {
-          console.error('⚠️ WS: Error', err)
-          setIsConnected(false)
-        },
-      },
+    })
+
+    client.onConnected(() => {
+      console.log('✅ WS: Legacy Connected')
+      setIsConnected(true)
+    })
+
+    client.onDisconnected(() => {
+      console.log('❌ WS: Legacy Disconnected')
+      setIsConnected(false)
+    })
+
+    client.onError((err) => {
+      console.error('⚠️ WS: Legacy Error', err)
     })
 
     clientRef.current = client
 
     return () => {
-      console.log('🔌 WS: Disposing client')
-      client.dispose()
+      console.log('🔌 WS: Disposing Legacy client')
+      client.close()
       clientRef.current = null
       setIsConnected(false)
     }
