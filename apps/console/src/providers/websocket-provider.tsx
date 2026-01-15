@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
 import { createClient, Client } from 'graphql-ws'
 import { useSession } from 'next-auth/react'
 
@@ -19,37 +19,59 @@ export function useWebSocketClient() {
 }
 
 export function WebSocketProvider({ children }: { children: ReactNode }) {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const token = session?.user?.accessToken
-  const [client, setClient] = useState<Client | null>(null)
   const [isConnected, setIsConnected] = useState(false)
+  const clientRef = useRef<Client | null>(null)
+
+  console.log('isConnected', isConnected)
 
   useEffect(() => {
-    if (!token || !process.env.NEXT_PUBLIC_API_GQL_URL) return
+    if (status !== 'authenticated' || !token || !process.env.NEXT_PUBLIC_API_GQL_URL) {
+      return
+    }
 
-    const wsUrl = process.env.NEXT_PUBLIC_API_GQL_URL.replace(/^http/, 'ws')
+    // const wsUrl = process.env.NEXT_PUBLIC_API_GQL_URL.replace(/^https/, 'wss').replace(/^http/, 'ws')
+    const wsUrl = 'ws://localhost:17608/query'
+    // const wsUrl = 'ws://localhost:17608/subscriptions'
+    // const wsUrl = 'ws://localhost:17608/graphql'
 
-    const newClient = createClient({
+    console.log('🔌 WS: Initializing client for', wsUrl)
+
+    const client = createClient({
       url: wsUrl,
-      connectionParams: {
-        Authorization: `Bearer ${token}`,
+      // The Guild recommends lazy: true for better connection management
+      lazy: true,
+      connectionParams: async () => {
+        return {
+          Authorization: `Bearer ${token}`,
+        }
       },
       on: {
-        connected: () => setIsConnected(true),
-        closed: () => setIsConnected(false),
-        error: () => setIsConnected(false),
+        connected: () => {
+          console.log('✅ WS: Connected')
+          setIsConnected(true)
+        },
+        closed: (event) => {
+          console.log('❌ WS: Closed', event)
+          setIsConnected(false)
+        },
+        error: (err) => {
+          console.error('⚠️ WS: Error', err)
+          setIsConnected(false)
+        },
       },
-      shouldRetry: () => true,
     })
 
-    setClient(newClient)
+    clientRef.current = client
 
     return () => {
-      newClient.dispose()
-      setClient(null)
+      console.log('🔌 WS: Disposing client')
+      client.dispose()
+      clientRef.current = null
       setIsConnected(false)
     }
-  }, [token])
+  }, [token, status])
 
-  return <WebSocketContext.Provider value={{ client, isConnected }}>{children}</WebSocketContext.Provider>
+  return <WebSocketContext.Provider value={{ client: clientRef.current, isConnected }}>{children}</WebSocketContext.Provider>
 }

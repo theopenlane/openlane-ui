@@ -13,6 +13,8 @@ interface UseSubscriptionOptions<TData> {
 export function useSubscription<TData>({ query, variables, onData, onError }: UseSubscriptionOptions<TData>) {
   const { client, isConnected } = useWebSocketClient()
 
+  console.log('isConnected', isConnected)
+
   const onDataRef = useRef(onData)
   const onErrorRef = useRef(onError)
 
