@@ -1,13 +1,12 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
-import { SubscriptionClient } from 'subscriptions-transport-ws'
+import { createClient, Client } from 'graphql-ws'
 import { useSession } from 'next-auth/react'
-import { sessionCookieName, websocketGQLUrl } from '@repo/dally/auth'
-import { getCookie } from '@/lib/auth/utils/getCookie'
+import { websocketGQLUrl } from '@repo/dally/auth'
 
 interface WebSocketContextType {
-  client: SubscriptionClient | null
+  client: Client | null
   isConnected: boolean
 }
 
@@ -20,44 +19,64 @@ export function useWebSocketClient() {
   return useContext(WebSocketContext)
 }
 
-export function WebSocketProvider({ children }: { children: ReactNode }) {
+interface WebSocketProviderProps {
+  children: ReactNode
+}
+
+export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const { data: session, status } = useSession()
   const token = session?.user?.accessToken
   const [isConnected, setIsConnected] = useState(false)
-  const clientRef = useRef<SubscriptionClient | null>(null)
+  const clientRef = useRef<Client | null>(null)
 
   useEffect(() => {
-    if (status !== 'authenticated' || !token || !websocketGQLUrl || !sessionCookieName) {
+    console.log('WS: Status check', { status, url: websocketGQLUrl })
+
+    if (status !== 'authenticated' || !token || !websocketGQLUrl) {
       return
     }
 
-    const cookieValue = getCookie(sessionCookieName)
+    console.log('WS: Initializing Non-Lazy Client...')
 
-    const client = new SubscriptionClient(websocketGQLUrl, {
-      reconnect: true,
-      connectionParams: {
-        Authorization: `Bearer ${token}`,
-        cookie: cookieValue ? `${sessionCookieName}=${cookieValue}` : undefined,
+    const client = createClient({
+      url: websocketGQLUrl,
+      lazy: false,
+      connectionParams: async () => {
+        console.log('WS: Generating connection_init payload')
+        return {
+          Authorization: `Bearer ${token}`,
+        }
       },
+      onNonLazyError: (error) => {
+        console.error('WS: Fatal Non-Lazy Error (Handshake failed)', error)
+      },
+      retryAttempts: 10,
     })
 
-    client.onConnected(() => {
+    const unsubConnect = client.on('connected', () => {
+      console.log('✅ WS: Connected & Handshake Acked')
       setIsConnected(true)
     })
 
-    client.onDisconnected(() => {
+    const unsubClosed = client.on('closed', (event) => {
+      console.warn('❌ WS: Connection Closed', event)
       setIsConnected(false)
     })
 
-    client.onError(() => {
+    const unsubError = client.on('error', (error) => {
+      console.error('⚠️ WS: Protocol/Socket Error', error)
       setIsConnected(false)
     })
 
     clientRef.current = client
 
     return () => {
+      console.log('🔌 WS: Cleaning up')
+      unsubConnect()
+      unsubClosed()
+      unsubError()
       if (clientRef.current) {
-        clientRef.current.close()
+        clientRef.current.dispose()
         clientRef.current = null
       }
       setIsConnected(false)
