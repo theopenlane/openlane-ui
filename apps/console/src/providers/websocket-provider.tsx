@@ -30,51 +30,38 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const clientRef = useRef<Client | null>(null)
 
   useEffect(() => {
-    console.log('WS: Status check', { status, url: websocketGQLUrl })
-
     if (status !== 'authenticated' || !token || !websocketGQLUrl) {
       return
     }
 
-    console.log('WS: Initializing Non-Lazy Client...')
-
     const client = createClient({
       url: websocketGQLUrl,
       lazy: false,
-      connectionParams: async () => {
-        console.log('WS: Generating connection_init payload')
-        return {
-          Authorization: `Bearer ${token}`,
-        }
-      },
-      onNonLazyError: (error) => {
-        console.error('WS: Fatal Non-Lazy Error (Handshake failed)', error)
-      },
+      keepAlive: 12000,
+      connectionParams: async () => ({
+        Authorization: `Bearer ${token}`,
+      }),
       retryAttempts: 10,
+      shouldRetry: () => true,
     })
 
-    const unsubConnect = client.on('connected', () => {
-      console.log('✅ WS: Connected & Handshake Acked')
-      setIsConnected(true)
-    })
-
-    const unsubClosed = client.on('closed', (event) => {
-      console.warn('❌ WS: Connection Closed', event)
-      setIsConnected(false)
-    })
-
-    const unsubError = client.on('error', (error) => {
-      console.error('⚠️ WS: Protocol/Socket Error', error)
-      setIsConnected(false)
-    })
+    const unsubs = [
+      client.on('connected', () => {
+        setIsConnected(true)
+      }),
+      client.on('closed', () => {
+        setIsConnected(false)
+      }),
+      client.on('error', (error) => {
+        console.error('WebSocket Protocol Error:', error)
+        setIsConnected(false)
+      }),
+    ]
 
     clientRef.current = client
 
     return () => {
-      console.log('🔌 WS: Cleaning up')
-      unsubConnect()
-      unsubClosed()
-      unsubError()
+      unsubs.forEach((unsub) => unsub())
       if (clientRef.current) {
         clientRef.current.dispose()
         clientRef.current = null
