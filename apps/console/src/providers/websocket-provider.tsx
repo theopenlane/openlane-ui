@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { useSession } from 'next-auth/react'
+import { websocketGQLUrl } from '@repo/dally/auth'
 
 interface WebSocketContextType {
   client: SubscriptionClient | null
@@ -29,11 +30,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    const wsUrl = 'ws://localhost:17608/query'
-
-    console.log('🔌 WS: Initializing LEGACY client for', wsUrl)
-
-    const client = new SubscriptionClient(wsUrl, {
+    const client = new SubscriptionClient(websocketGQLUrl, {
       reconnect: true,
       connectionParams: {
         Authorization: `Bearer ${token}`,
