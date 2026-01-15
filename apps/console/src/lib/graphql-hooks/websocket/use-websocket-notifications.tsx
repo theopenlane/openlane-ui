@@ -36,11 +36,11 @@ export function useWebsocketNotifications() {
       return
     }
 
-    const subscription = client
-      .request({
+    const unsubscribe = client.subscribe(
+      {
         query: NOTIFICATION_SUBSCRIPTION,
-      })
-      .subscribe({
+      },
+      {
         next: (value) => {
           const data = value.data as unknown as SubscriptionData
           const newNotification = data?.notificationCreated
@@ -54,19 +54,18 @@ export function useWebsocketNotifications() {
           }
           setIsLoading(false)
         },
-        error: (err: Error) => {
+        error: (err) => {
           console.error('Subscription error:', err)
           setIsLoading(false)
         },
         complete: () => {
           setIsLoading(false)
         },
-      })
+      },
+    )
 
     return () => {
-      if (subscription) {
-        subscription.unsubscribe()
-      }
+      unsubscribe()
     }
   }, [client, isConnected, status])
 
