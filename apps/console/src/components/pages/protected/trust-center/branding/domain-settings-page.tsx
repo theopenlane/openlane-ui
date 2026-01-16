@@ -53,7 +53,7 @@ const DomainSettingsPage = () => {
     return <div className="p-6 text-red-600">Failed to load trust center settings: {error.message}</div>
   }
 
-  if (!setting || !trustCenter) {
+  if (!setting) {
     return <div className="p-6">No trust center settings found.</div>
   }
 

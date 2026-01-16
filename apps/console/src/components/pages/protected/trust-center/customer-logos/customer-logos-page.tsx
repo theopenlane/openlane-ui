@@ -22,7 +22,6 @@ export default function CustomerLogosPage() {
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-
   const { entities } = useGetTrustCenterEntities({})
   const { mutateAsync: deleteEntity } = useDeleteTrustCenterEntity()
   const { mutateAsync: updateEntity } = useUpdateTrustCenterEntity()
