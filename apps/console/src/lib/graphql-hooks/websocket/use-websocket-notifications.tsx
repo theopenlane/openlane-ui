@@ -27,12 +27,12 @@ const NOTIFICATION_SUBSCRIPTION = `
 
 export function useWebsocketNotifications() {
   const { status } = useSession()
-  const { client, isConnected } = useWebSocketClient()
+  const { client } = useWebSocketClient()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (!client || !isConnected || status !== 'authenticated') {
+    if (!client || status !== 'authenticated') {
       return
     }
 
@@ -67,12 +67,11 @@ export function useWebsocketNotifications() {
     return () => {
       unsubscribe()
     }
-  }, [client, isConnected, status])
+  }, [client, status])
 
   return {
     notifications,
     setNotifications,
     isLoading: status === 'loading' || (isLoading && notifications.length === 0),
-    isConnected,
   }
 }
