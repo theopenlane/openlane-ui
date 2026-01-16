@@ -5568,8 +5568,6 @@ export interface CreateInviteInput {
   ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['input']
-  /** the user who initiated the invitation */
-  requestorID?: InputMaybe<Scalars['String']['input']>
   role?: InputMaybe<InviteRole>
   /** the number of attempts made to perform email send of the invitation, maximum of 5 */
   sendAttempts?: InputMaybe<Scalars['Int']['input']>
@@ -7311,6 +7309,13 @@ export enum CustomDomainOrderField {
 export interface CustomDomainUpdatePayload {
   __typename?: 'CustomDomainUpdatePayload'
   /** Updated customDomain */
+  customDomain: CustomDomain
+}
+
+/** Return response for validateCustomDomain mutation */
+export interface CustomDomainValidatePayload {
+  __typename?: 'CustomDomainValidatePayload'
+  /** CustomDomain that validation was triggered for */
   customDomain: CustomDomain
 }
 
@@ -11903,7 +11908,7 @@ export interface Export extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** the user who initiated the export */
+  /** the user who initiated the request */
   requestorID?: Maybe<Scalars['String']['output']>
   /** the status of the export, e.g., pending, ready, failed */
   status: ExportExportStatus
@@ -16733,7 +16738,7 @@ export interface Invite extends Node {
   ownershipTransfer?: Maybe<Scalars['Boolean']['output']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['output']
-  /** the user who initiated the invitation */
+  /** the user who initiated the request */
   requestorID?: Maybe<Scalars['String']['output']>
   role: InviteRole
   /** the number of attempts made to perform email send of the invitation, maximum of 5 */
@@ -19805,6 +19810,8 @@ export interface Mutation {
   updateWorkflowEvent: WorkflowEventUpdatePayload
   /** Update an existing workflowInstance */
   updateWorkflowInstance: WorkflowInstanceUpdatePayload
+  /** Trigger validation for an existing customDomain */
+  validateCustomDomain: CustomDomainValidatePayload
 }
 
 export interface MutationCloneBulkCsvControlArgs {
@@ -21664,6 +21671,10 @@ export interface MutationUpdateWorkflowEventArgs {
 export interface MutationUpdateWorkflowInstanceArgs {
   id: Scalars['ID']['input']
   input: UpdateWorkflowInstanceInput
+}
+
+export interface MutationValidateCustomDomainArgs {
+  id: Scalars['ID']['input']
 }
 
 export interface Narrative extends Node {
