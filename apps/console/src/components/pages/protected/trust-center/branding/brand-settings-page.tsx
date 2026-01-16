@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@repo/ui/textarea'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
-import { BookUp, Eye } from 'lucide-react'
+import { BookUp, Eye, RotateCcw } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
@@ -140,18 +140,6 @@ const BrandPage: React.FC = () => {
     }
   }, [setting])
 
-  if (isLoading) {
-    return <Loading />
-  }
-
-  if (error) {
-    return <div className="p-6 text-red-600">Failed to load trust center settings: {error.message}</div>
-  }
-
-  if (!setting) {
-    return <div className="p-6">No trust center settings found.</div>
-  }
-
   const handleLogoUpload = (uploadedFile: TUploadedFile) => {
     if (!uploadedFile.file) return
     setLogoFile(uploadedFile.file)
@@ -206,18 +194,53 @@ const BrandPage: React.FC = () => {
     })
   }
 
+  const handleRevert = () => {
+    setTitle(initialValues.title)
+    setOverview(initialValues.overview)
+    setFont(initialValues.font)
+    setSelectedThemeType(initialValues.themeMode)
+    setEasyColor(initialValues.primaryColor)
+    setForeground(initialValues.foregroundColor)
+    setBackground(initialValues.backgroundColor)
+    setAccent(initialValues.accentColor)
+    setSecondaryForeground(initialValues.secondaryForegroundColor)
+    setSecondaryBackground(initialValues.secondaryBackgroundColor)
+    setLogoFile(null)
+    setLogoLink(initialValues.logoRemoteURL)
+    setLogoPreview(setting?.logoFile?.presignedURL || initialValues.logoRemoteURL || null)
+    setFaviconFile(null)
+    setFaviconLink(initialValues.faviconRemoteURL)
+    setFaviconPreview(setting?.faviconFile?.presignedURL || initialValues.faviconRemoteURL || null)
+    setShowLogoLinkInputType(LogoLinkInputTypeEnum.FILE)
+    setShowFavIconInputType(FavIconInputTypeEnum.FILE)
+  }
+
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-600">Failed to load trust center settings: {error.message}</div>
+  }
+
+  if (!setting) {
+    return <div className="p-6">No trust center settings found.</div>
+  }
+
   return (
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-[1200px] grid gap-6">
         <PageHeading heading="Branding" />
         <div className="flex items-center gap-5 w-full">
-          <Button onClick={() => handleSave(true)} className="h-10" type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
+          <Button onClick={() => handleSave(true)} type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
             Preview
           </Button>
-
+          <Button onClick={handleRevert} type="button" variant="secondary" icon={<RotateCcw size={16} strokeWidth={2} />} iconPosition="left">
+            Revert Changes
+          </Button>
           <div className="flex items-center gap-10 flex-1">
-            <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={cnameRecord ?? ''} className="h-10" />
-            <Button className="h-10 ml-auto" variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setIsConfirmationDialogOpen(true)}>
+            <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={cnameRecord ?? ''} className="h-8" />
+            <Button className=" ml-auto" variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setIsConfirmationDialogOpen(true)}>
               Publish
             </Button>
           </div>
