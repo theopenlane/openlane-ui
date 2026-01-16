@@ -40,12 +40,7 @@ function walk(currentPath: string, routePrefix = '') {
 
   for (const entry of entries) {
     if (entry.isDirectory()) {
-      // Rekurzivno prolazimo kroz foldere (npr. (group) folderi ostaju u putanji ali se filtriraju ako treba)
-      // Ako želiš ignorirati (group) foldere u samoj ruti, Next.js to radi automatski,
-      // ali ovaj skript čita file system direktno.
-
       let nextPrefix = routePrefix
-      // Preskačemo folder u ruti ako je Next.js route group (npr. (auth))
       if (entry.name.startsWith('(') && entry.name.endsWith(')')) {
         nextPrefix = routePrefix
       } else {
@@ -59,10 +54,8 @@ function walk(currentPath: string, routePrefix = '') {
       const existing = existingRoutes.find((r) => r.route === route)
 
       if (existing) {
-        // Ako ruta postoji, zadržavamo CIJELI object (uključujući keywords i hidden)
         discoveredRoutes.push({ ...existing })
       } else {
-        // Ako je nova ruta, generiramo osnovni object
         discoveredRoutes.push({
           route,
           name: toNameFromPath(route),
@@ -74,10 +67,8 @@ function walk(currentPath: string, routePrefix = '') {
 
 walk(baseDir)
 
-// Uklanjanje duplikata (u slučaju da više page.tsx završi na istoj ruti zbog route grupa)
 const uniqueRoutes = discoveredRoutes.filter((value, index, self) => index === self.findIndex((t) => t.route === value.route))
 
-// Sortiranje
 uniqueRoutes.sort((a, b) => a.route.localeCompare(b.route))
 
 const addedCount = uniqueRoutes.filter((d) => !existingRoutes.some((e) => e.route === d.route)).length
