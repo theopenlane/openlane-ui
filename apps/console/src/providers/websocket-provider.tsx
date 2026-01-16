@@ -32,7 +32,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   useEffect(() => {
     console.log('WS: Status check', { status, url: websocketGQLUrl })
 
-    if (status !== 'authenticated' || !token || !websocketGQLUrl) {
+    if (status !== 'authenticated' || !token || !websocketGQLUrl || !clientRef) {
       return
     }
 
