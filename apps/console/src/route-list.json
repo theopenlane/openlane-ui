@@ -220,5 +220,65 @@
   {
     "route": "/programs/create/framework-based",
     "name": "Create Framework Based Program"
+  },
+  {
+    "route": "/user-settings/developers",
+    "name": "Developers"
+  },
+  {
+    "route": "/trust-center/reports-and-certifications",
+    "name": "Reports And Certifications"
+  },
+  {
+    "route": "/trust-center/updates",
+    "name": "Updates"
+  },
+  {
+    "route": "/trust-center/documents",
+    "name": "Documents"
+  },
+  {
+    "route": "/trust-center/domain",
+    "name": "Domain"
+  },
+  {
+    "route": "/trust-center/branding",
+    "name": "Branding"
+  },
+  {
+    "route": "/trust-center/customer-logos",
+    "name": "Customer Logos"
+  },
+  {
+    "route": "/trust-center/subprocessors",
+    "name": "Subprocessors"
+  },
+  {
+    "route": "/trust-center/frameworks",
+    "name": "Frameworks"
+  },
+  {
+    "route": "/templates/template-editor",
+    "name": "Template Editor"
+  },
+  {
+    "route": "/templates/template-viewer",
+    "name": "Template Viewer"
+  },
+  {
+    "route": "/templates",
+    "name": "Templates"
+  },
+  {
+    "route": "/user-management/groups",
+    "name": "Groups"
+  },
+  {
+    "route": "/organization-settings/developers",
+    "name": "Developers"
+  },
+  {
+    "route": "/organization-settings/custom-data",
+    "name": "Custom Data"
   }
 ]
