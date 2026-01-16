@@ -120,6 +120,7 @@ const BrandPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Branding', href: '/trust-center/branding' }])
   }, [setCrumbs])
+
   useEffect(() => {
     if (setting) {
       setTitle(setting.title ?? '')
@@ -183,12 +184,12 @@ const BrandPage: React.FC = () => {
     await updateTrustCenterSetting({
       id: savePreview ? previewSetting?.id : setting?.id,
       input: {
-        primaryColor: easyColor,
-        foregroundColor: foreground,
-        backgroundColor: background,
-        secondaryForegroundColor: secondaryForeground,
-        secondaryBackgroundColor: secondaryBackground,
-        accentColor: accent,
+        primaryColor: easyColor || undefined,
+        foregroundColor: foreground || undefined,
+        backgroundColor: background || undefined,
+        secondaryForegroundColor: secondaryForeground || undefined,
+        secondaryBackgroundColor: secondaryBackground || undefined,
+        accentColor: accent || undefined,
         font,
         themeMode: selectedThemeType,
         title,
