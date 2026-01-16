@@ -21,6 +21,7 @@ import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOpt
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import SectionWarning from './section-warning'
 
 const BrandPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -50,6 +51,7 @@ const BrandPage: React.FC = () => {
 
   const { updateTrustCenterSetting } = useHandleUpdateSetting()
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
+  const [showWarnings, setShowWarnings] = useState(false)
 
   enum LogoLinkInputTypeEnum {
     URL = 'url',
@@ -80,40 +82,28 @@ const BrandPage: React.FC = () => {
     [setting],
   )
 
-  const isDirty = useMemo(() => {
-    if (!setting) return false
+  const hasTextChanged = useMemo(() => {
+    return title !== initialValues.title || overview !== initialValues.overview
+  }, [title, overview, initialValues])
 
-    const hasTextChanged = title !== initialValues.title || overview !== initialValues.overview || font !== initialValues.font || selectedThemeType !== initialValues.themeMode
+  const hasThemeChanged = useMemo(() => {
+    const colorChanges =
+      selectedThemeType === TrustCenterSettingTrustCenterThemeMode.EASY
+        ? easyColor !== initialValues.primaryColor
+        : foreground !== initialValues.foregroundColor ||
+          background !== initialValues.backgroundColor ||
+          accent !== initialValues.accentColor ||
+          secondaryForeground !== initialValues.secondaryForegroundColor ||
+          secondaryBackground !== initialValues.secondaryBackgroundColor
 
-    const hasColorsChanged =
-      easyColor !== initialValues.primaryColor ||
-      foreground !== initialValues.foregroundColor ||
-      background !== initialValues.backgroundColor ||
-      accent !== initialValues.accentColor ||
-      secondaryForeground !== initialValues.secondaryForegroundColor ||
-      secondaryBackground !== initialValues.secondaryBackgroundColor
+    return font !== initialValues.font || selectedThemeType !== initialValues.themeMode || colorChanges
+  }, [font, selectedThemeType, easyColor, foreground, background, accent, secondaryForeground, secondaryBackground, initialValues])
 
-    const hasAssetsChanged = logoFile !== null || faviconFile !== null || logoLink !== initialValues.logoRemoteURL || faviconLink !== initialValues.faviconRemoteURL
+  const hasAssetsChanged = useMemo(() => {
+    return logoFile !== null || faviconFile !== null || logoLink !== initialValues.logoRemoteURL || faviconLink !== initialValues.faviconRemoteURL
+  }, [logoFile, faviconFile, logoLink, faviconLink, initialValues])
 
-    return hasTextChanged || hasColorsChanged || hasAssetsChanged
-  }, [
-    title,
-    overview,
-    font,
-    selectedThemeType,
-    easyColor,
-    foreground,
-    background,
-    accent,
-    secondaryForeground,
-    secondaryBackground,
-    logoFile,
-    faviconFile,
-    logoLink,
-    faviconLink,
-    initialValues,
-    setting,
-  ])
+  const isDirty = useMemo(() => hasTextChanged || hasThemeChanged || hasAssetsChanged, [hasTextChanged, hasThemeChanged, hasAssetsChanged])
 
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
@@ -161,13 +151,8 @@ const BrandPage: React.FC = () => {
   }
 
   const handleSave = async (savePreview: boolean) => {
-    if (!setting?.id) {
-      return
-    }
-
-    if (savePreview && !previewSetting?.id) {
-      return
-    }
+    if (!setting?.id) return
+    if (savePreview && !previewSetting?.id) return
 
     await updateTrustCenterSetting({
       id: savePreview ? previewSetting?.id : setting?.id,
@@ -192,6 +177,10 @@ const BrandPage: React.FC = () => {
       ...(logoFile ? { logoFile: logoFile } : null),
       ...(faviconFile ? { faviconFile: faviconFile } : null),
     })
+
+    if (!savePreview) {
+      setShowWarnings(false)
+    }
   }
 
   const handleRevert = () => {
@@ -213,6 +202,12 @@ const BrandPage: React.FC = () => {
     setFaviconPreview(setting?.faviconFile?.presignedURL || initialValues.faviconRemoteURL || null)
     setShowLogoLinkInputType(LogoLinkInputTypeEnum.FILE)
     setShowFavIconInputType(FavIconInputTypeEnum.FILE)
+    setShowWarnings(false)
+  }
+
+  const onCancelNavigation = () => {
+    setShowWarnings(true)
+    navGuard.reject()
   }
 
   if (isLoading) {
@@ -247,6 +242,7 @@ const BrandPage: React.FC = () => {
         </div>
         <Card>
           <CardContent>
+            {showWarnings && hasTextChanged && <SectionWarning />}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Title and Overview</p>
@@ -284,6 +280,7 @@ const BrandPage: React.FC = () => {
         </Card>
         <Card>
           <CardContent>
+            {showWarnings && hasThemeChanged && <SectionWarning />}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Theme</p>
@@ -367,6 +364,7 @@ const BrandPage: React.FC = () => {
         </Card>
         <Card>
           <CardContent>
+            {showWarnings && hasAssetsChanged && <SectionWarning />}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Brand</p>
@@ -554,7 +552,7 @@ const BrandPage: React.FC = () => {
         title={`Publish`}
         description={<>Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate</>}
       />
-      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
+      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={onCancelNavigation} />
     </div>
   )
 }
