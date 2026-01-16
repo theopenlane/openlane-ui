@@ -29,7 +29,7 @@ export const useGetAllExports = ({ where, enabled = true }: { where?: ExportWher
   const { client } = useGraphQLClient()
 
   return useQuery<GetExportsQuery>({
-    queryKey: ['exports'],
+    queryKey: ['exports', where],
     queryFn: async () => client.request<GetExportsQuery>(GET_EXPORTS, where),
     enabled,
   })
