@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useRef, useCallback } from 'react'
 import { createClient, Client } from 'graphql-ws'
 import { useSession } from 'next-auth/react'
 import { websocketGQLUrl } from '@repo/dally/auth'
@@ -8,11 +8,15 @@ import { websocketGQLUrl } from '@repo/dally/auth'
 interface WebSocketContextType {
   client: Client | null
   isConnected: boolean
+  error: unknown | null
+  resetConnection: () => void
 }
 
 const WebSocketContext = createContext<WebSocketContextType>({
   client: null,
   isConnected: false,
+  error: null,
+  resetConnection: () => {},
 })
 
 export function useWebSocketClient() {
@@ -26,62 +30,94 @@ interface WebSocketProviderProps {
 export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const { data: session, status } = useSession()
   const token = session?.user?.accessToken
+
   const [isConnected, setIsConnected] = useState(false)
+  const [error, setError] = useState<unknown | null>(null)
+  const [hasFatalError, setHasFatalError] = useState(false)
+
   const clientRef = useRef<Client | null>(null)
+  const lastTokenRef = useRef<string | null>(null)
+
+  const resetConnection = useCallback(() => {
+    console.log('WS: Manual reset triggered')
+    setHasFatalError(false)
+    setError(null)
+    lastTokenRef.current = null
+  }, [])
 
   useEffect(() => {
-    console.log('WS: Status check', { status, url: websocketGQLUrl })
-
-    if (status !== 'authenticated' || !token || !websocketGQLUrl || !clientRef) {
+    if (status !== 'authenticated' || !token || !websocketGQLUrl || hasFatalError) {
       return
     }
 
-    console.log('WS: Initializing Non-Lazy Client...')
+    if (lastTokenRef.current === token && clientRef.current) {
+      return
+    }
+    lastTokenRef.current = token
+
+    console.log('WS: Initializing Client...')
 
     const client = createClient({
       url: websocketGQLUrl,
       lazy: false,
       connectionParams: async () => {
-        console.log('WS: Generating connection_init payload')
         return {
           Authorization: `Bearer ${token}`,
         }
       },
-      onNonLazyError: (error) => {
-        console.error('WS: Fatal Non-Lazy Error (Handshake failed)', error)
+      retryAttempts: 5,
+      onNonLazyError: (err) => {
+        console.error('WS: Final connection failure', err)
+        setError(err)
+        setHasFatalError(true)
       },
-      retryAttempts: 10,
     })
 
     const unsubConnect = client.on('connected', () => {
-      console.log('✅ WS: Connected & Handshake Acked')
+      console.log('✅ WS: Connected')
       setIsConnected(true)
+      setError(null)
+      setHasFatalError(false)
     })
 
     const unsubClosed = client.on('closed', (event) => {
-      console.warn('❌ WS: Connection Closed', event)
+      console.warn('❌ WS: Closed', event)
       setIsConnected(false)
+      const closeEvent = event as CloseEvent
+      if (closeEvent && closeEvent.reason === 'terminated') {
+        setHasFatalError(true)
+        setError('Server terminated connection')
+      }
     })
 
-    const unsubError = client.on('error', (error) => {
-      console.error('⚠️ WS: Protocol/Socket Error', error)
+    const unsubError = client.on('error', (err) => {
+      console.error('⚠️ WS: Protocol Error', err)
       setIsConnected(false)
     })
 
     clientRef.current = client
 
     return () => {
-      console.log('🔌 WS: Cleaning up')
+      console.log('🔌 WS: Cleanup/Dispose')
       unsubConnect()
       unsubClosed()
       unsubError()
-      if (clientRef.current) {
-        clientRef.current.dispose()
-        clientRef.current = null
-      }
+      client.dispose()
+      clientRef.current = null
       setIsConnected(false)
     }
-  }, [token, status])
+  }, [token, status, hasFatalError])
 
-  return <WebSocketContext.Provider value={{ client: clientRef.current, isConnected }}>{children}</WebSocketContext.Provider>
+  return (
+    <WebSocketContext.Provider
+      value={{
+        client: clientRef.current,
+        isConnected,
+        error,
+        resetConnection,
+      }}
+    >
+      {children}
+    </WebSocketContext.Provider>
+  )
 }
