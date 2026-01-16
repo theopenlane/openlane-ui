@@ -81,6 +81,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -498,9 +499,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 <div className="flex gap-3">
                   {isEditing ? (
                     <>
-                      <Button className="h-8 p-2" type="button" variant="secondary" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
+                      <CancelButton onClick={() => setIsEditing(false)}></CancelButton>
                       <SaveButton onClick={form.handleSubmit(onSubmit)} />
                     </>
                   ) : (

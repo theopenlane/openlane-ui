@@ -11,6 +11,7 @@ import { useUpdateControlImplementation } from '@/lib/graphql-hooks/control-impl
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface Props {
   initialData: TObjectAssociationMap
@@ -130,9 +131,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
         />
         <DialogFooter>
           <SaveButton disabled={!saveEnabled || isSaving} onClick={onSave} isSaving={isSaving} />
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

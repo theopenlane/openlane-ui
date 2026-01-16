@@ -35,6 +35,7 @@ import { PLATFORM_DOCS_URL } from '@/constants/docs'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -172,9 +173,7 @@ const GroupDetailsSheet = () => {
                 </Button>
                 {isEditing ? (
                   <div className="flex gap-2">
-                    <Button type="button" variant="secondary" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
+                    <CancelButton onClick={() => setIsEditing(false)}></CancelButton>
                     <SaveButton onClick={handleSubmit(onSubmit)} />
                   </div>
                 ) : (

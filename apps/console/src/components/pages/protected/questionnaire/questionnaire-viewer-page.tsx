@@ -20,6 +20,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -184,7 +185,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           </Form>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="secondary">Cancel</Button>
+              <CancelButton />
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button onClick={form.handleSubmit(handleSend)}>Send</Button>
@@ -202,7 +203,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="secondary">Cancel</Button>
+              <CancelButton />
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button variant="destructive" onClick={handleDelete}>
@@ -223,7 +224,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="secondary">Cancel</Button>
+              <CancelButton />
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <SaveButton onClick={handleSaveAsTemplate} disabled={isSaving} />

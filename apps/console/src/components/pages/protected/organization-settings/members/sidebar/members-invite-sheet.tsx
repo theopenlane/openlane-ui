@@ -37,6 +37,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -211,9 +212,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
             <div className="flex items-center justify-between">
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleClose} />
               <div className="flex justify-end gap-2">
-                <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
-                  Cancel
-                </Button>
+                <CancelButton onClick={handleClose}></CancelButton>
                 <Button iconPosition="left" type="button" form="inviteForm" onClick={handleSubmit(onSubmit)} disabled={emails.length === 0}>
                   Invite
                 </Button>

@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import React from 'react'
 import DeleteTaskDialog from '../../dialog/delete-task-dialog'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface TasksSheetHeaderProps {
   close: () => void
@@ -51,9 +52,7 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, is
           </Button>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button disabled={isPending} type="button" variant="secondary" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
+              <CancelButton disabled={isPending} onClick={() => setIsEditing(false)}></CancelButton>
               <SaveButton form="editTask" disabled={isPending} isSaving={isPending} />
             </div>
           ) : (

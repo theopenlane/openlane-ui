@@ -26,6 +26,7 @@ import { Label } from '@repo/ui/label'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -157,9 +158,7 @@ const BasicInformation = () => {
             {isEditing && (
               <div className="flex gap-2">
                 <SaveButton disabled={isPending} />
-                <Button type="button" variant="back" className="h-8! p-2!" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <CancelButton onClick={handleCancel}></CancelButton>
               </div>
             )}
           </div>

@@ -1,7 +1,6 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { DataTable } from '@repo/ui/data-table'
 import { useState, useMemo } from 'react'
@@ -19,6 +18,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { SearchIcon } from 'lucide-react'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
+import { CancelButton } from '../cancel-button.tsx/cancel-button'
 
 interface AssignPermissionsDialogProps {
   open: boolean
@@ -160,9 +160,7 @@ export function AssignPermissionsDialog({ open, onOpenChange }: AssignPermission
         </div>
 
         <DialogFooter className="mt-6 flex justify-between">
-          <Button variant="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
           <SaveButton isSaving={config.isSaving} disabled={selectedGroupIds.length === 0 || config.isSaving} onClick={handleSave} />
         </DialogFooter>
       </DialogContent>

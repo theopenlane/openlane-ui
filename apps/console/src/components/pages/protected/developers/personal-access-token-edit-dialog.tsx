@@ -19,6 +19,7 @@ import { useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-h
 import { buildOrganizationsInput } from './utils'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type PersonalAccessTokenEditProps = {
   tokenId: string
@@ -312,9 +313,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
               {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
             </Button>
           )}
-          <Button onClick={handleCloseDialog} className="text-[hsl(var(--muted-foreground))]">
-            Cancel
-          </Button>
+          <CancelButton onClick={handleCloseDialog}></CancelButton>
           <SaveButton disabled={isSubmitting} form="edit-token-form" isSaving={isSubmitting} />
         </DialogFooter>
       </DialogContent>

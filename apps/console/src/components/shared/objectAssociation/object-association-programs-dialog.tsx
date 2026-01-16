@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
@@ -14,6 +13,7 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { UseFormReturn } from 'react-hook-form'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
+import { CancelButton } from '../cancel-button.tsx/cancel-button'
 
 type TProgramSelectionDialogProps = {
   open: boolean
@@ -96,9 +96,7 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
         />
 
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
+          <CancelButton onClick={onClose}></CancelButton>
           <SaveButton onClick={handleSave} />
         </DialogFooter>
       </DialogContent>

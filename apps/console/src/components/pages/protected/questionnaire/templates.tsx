@@ -15,6 +15,7 @@ import { useTemplates } from '@/lib/graphql-hooks/templates'
 import { useCreateAssessment } from '@/lib/graphql-hooks/assessments'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 export const TemplateList = () => {
   const router = useRouter()
@@ -132,7 +133,7 @@ export const TemplateList = () => {
 
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
-            <Button variant="secondary">Cancel</Button>
+            <CancelButton />
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button variant="primary" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))}>

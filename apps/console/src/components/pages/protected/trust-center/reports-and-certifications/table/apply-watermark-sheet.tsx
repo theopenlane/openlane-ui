@@ -16,6 +16,7 @@ import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type WatermarkConfigUI = {
   id?: string
@@ -146,9 +147,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   <p className="text-2xl leading-8 font-medium">Watermark Document</p>
                 </SheetTitle>
                 <div className="flex items-center gap-2">
-                  <Button type="button" iconPosition="left" variant="back" onClick={handleSheetClose}>
-                    Cancel
-                  </Button>
+                  <CancelButton onClick={handleSheetClose}></CancelButton>
                   <SaveButton onClick={handleApplyWatermark} title={disableWatermarkConfig ? (updating ? 'Saving...' : 'Save') : updating ? 'Applying...' : 'Apply watermark'} />
                 </div>
               </div>

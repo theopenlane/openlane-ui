@@ -16,6 +16,7 @@ import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams<{ id: string }>()
@@ -195,15 +196,12 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
 
           {/* Actions */}
           <div className="flex justify-end gap-2 mt-6">
-            <Button
-              variant="secondary"
+            <CancelButton
               onClick={() => {
                 setOpen(false)
                 onClose()
               }}
-            >
-              Cancel
-            </Button>
+            ></CancelButton>
             <SaveButton onClick={handleSave} isSaving={isPending} />
           </div>
         </DialogContent>

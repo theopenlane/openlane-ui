@@ -1,5 +1,6 @@
 import { Button } from '@repo/ui/button'
-import { SaveIcon } from 'lucide-react'
+import { XIcon } from 'lucide-react'
+import React from 'react'
 type CancelButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   title?: string
@@ -30,7 +31,7 @@ type CancelButtonProps = {
 
 export const CancelButton = ({ onClick, title = 'Cancel', type = 'button', disabled, className, variant = 'secondary' }: CancelButtonProps) => {
   return (
-    <Button disabled={disabled} onClick={onClick} variant={variant} type={type} iconPosition="left" className={`h-8 px-2 ${className}`} icon={<SaveIcon />}>
+    <Button disabled={disabled} onClick={onClick} variant={variant} type={type} iconPosition="left" className={`h-8 px-2! ${className}`} icon={<XIcon />}>
       {title}
     </Button>
   )

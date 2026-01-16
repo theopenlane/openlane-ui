@@ -1,7 +1,7 @@
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import Slider from '@/components/shared/slider/slider'
 import { MappedControlMappingType } from '@repo/codegen/src/schema'
-import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
@@ -127,9 +127,7 @@ const MapControlsRelations = () => {
 
       <div className="flex justify-end space-x-2">
         <SaveButton />
-        <Button type="button" variant="secondary" onClick={() => router.back()}>
-          Cancel
-        </Button>
+        <CancelButton onClick={() => router.back()}></CancelButton>
       </div>
     </div>
   )

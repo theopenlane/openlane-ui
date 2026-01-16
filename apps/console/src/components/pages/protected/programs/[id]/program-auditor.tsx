@@ -21,6 +21,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -150,9 +151,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
             {isEditing && (
               <div className="flex gap-2">
                 <SaveButton disabled={isPending} />
-                <Button type="button" variant="back" className="h-8! p-2!" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <CancelButton onClick={handleCancel}></CancelButton>
               </div>
             )}
           </div>

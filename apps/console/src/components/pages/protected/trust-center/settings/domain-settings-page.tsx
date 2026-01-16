@@ -14,6 +14,7 @@ import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -222,9 +223,7 @@ const DomainSettingsPage = () => {
           {editing ? (
             <div className="flex gap-2">
               <SaveButton onClick={handleUpdateCustomDomain} className="h-10 flex items-center justify-center gap-2 px-4" />
-              <Button onClick={handleCancel} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
-                Cancel
-              </Button>
+              <CancelButton className="h-10 flex items-center justify-center gap-2" onClick={handleCancel}></CancelButton>
             </div>
           ) : (
             <div className="flex gap-2">

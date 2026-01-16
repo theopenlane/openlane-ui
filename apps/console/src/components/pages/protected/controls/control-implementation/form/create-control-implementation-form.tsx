@@ -22,6 +22,7 @@ import { useCreateControlImplementation, useDeleteControlImplementation, useUpda
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
   const { id, subcontrolId } = useParams()
@@ -126,9 +127,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
         {isEditing ? (
           <>
             <SaveButton />
-            <Button variant="back" className="h-8 px-4!" type="button" onClick={onSuccess}>
-              Cancel
-            </Button>
+            <CancelButton onClick={onSuccess}></CancelButton>
             <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
             </Button>
@@ -136,9 +135,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
         ) : (
           <>
             <Button className="h-8 px-4!">Create</Button>
-            <Button variant="back" className="h-8 px-4!" type="button" onClick={onSuccess}>
-              Cancel
-            </Button>
+            <CancelButton onClick={onSuccess}></CancelButton>
           </>
         )}
       </div>

@@ -25,6 +25,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Alert, AlertDescription } from '@repo/ui/alert'
 import { X } from 'lucide-react'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type viewMode = 'overview' | 'edit'
 
@@ -513,9 +514,7 @@ const SSOPage = () => {
               />
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="secondary" type="button" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <CancelButton onClick={handleCancel}></CancelButton>
                 <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving Changes' : isSuccess ? 'Saved' : 'Save Changes'} />
               </div>
             </form>

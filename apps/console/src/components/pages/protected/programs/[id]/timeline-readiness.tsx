@@ -26,6 +26,7 @@ import { canEdit } from '@/lib/authz/utils'
 import clsx from 'clsx'
 import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const formSchema = z
   .object({
@@ -164,9 +165,7 @@ const TimelineReadiness = () => {
             {isEditing && (
               <div className="flex gap-2">
                 <SaveButton disabled={isPending} />
-                <Button type="button" variant="back" className="h-8! p-2!" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <CancelButton onClick={handleCancel}></CancelButton>
               </div>
             )}
           </div>

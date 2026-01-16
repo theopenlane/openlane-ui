@@ -21,6 +21,7 @@ import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
@@ -133,9 +134,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
         {isEditing ? (
           <>
             <SaveButton />
-            <Button variant="back" className="h-8 px-4!" type="button" onClick={onSuccess}>
-              Cancel
-            </Button>
+            <CancelButton onClick={onSuccess}></CancelButton>
             <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
             </Button>
@@ -145,9 +144,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
             <Button variant="secondary" className="h-8 px-4!">
               Create
             </Button>
-            <Button variant="secondary" className="h-8 px-!4" type="button" onClick={onSuccess}>
-              Cancel
-            </Button>
+            <CancelButton onClick={onSuccess}></CancelButton>
           </>
         )}
       </div>

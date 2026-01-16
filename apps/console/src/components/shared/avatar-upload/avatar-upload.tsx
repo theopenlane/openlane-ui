@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import getCroppedImg from './utils/getCroppedImage'
 import { Scalars } from '@repo/codegen/src/schema'
 import { SaveButton } from '../save-button/save-button'
+import { CancelButton } from '../cancel-button.tsx/cancel-button'
 
 interface AvatarUploadProps extends AvatarUploadVariants {
   className?: string
@@ -146,9 +147,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
             )}
           </div>
           <DialogFooter>
-            <Button variant="secondary" onClick={closeModal}>
-              Cancel
-            </Button>
+            <CancelButton onClick={closeModal}></CancelButton>
             <SaveButton onClick={saveCroppedImage} />
           </DialogFooter>
         </DialogContent>

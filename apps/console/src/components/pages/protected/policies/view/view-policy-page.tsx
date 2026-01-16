@@ -5,7 +5,7 @@ import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon, Trash2, XIcon } from 'lucide-react'
+import { LockOpen, PencilIcon, Trash2 } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
@@ -34,6 +34,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TViewPolicyPage = {
   policyId: string
@@ -241,9 +242,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
           <SaveButton disabled={isSaving} isSaving={isSaving} />
         </div>
       ) : (

@@ -18,6 +18,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SUPPORT_EMAIL } from '@/constants'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const setAuditorSchema = z.object({
   auditorName: z.string().optional().nullable(),
@@ -151,9 +152,7 @@ export const SetAuditorDialog = () => {
 
         <DialogFooter className="mt-6 flex gap-2">
           <SaveButton onClick={form.handleSubmit(onSubmit)} />
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

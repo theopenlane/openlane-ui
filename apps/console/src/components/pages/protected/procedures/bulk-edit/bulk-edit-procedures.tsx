@@ -26,6 +26,7 @@ import { Group } from '@repo/codegen/src/schema'
 import { useBulkEditProcedure } from '@/lib/graphql-hooks/procedures'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditProcedures).optional(),
@@ -237,15 +238,12 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
             </div>
             <DialogFooter className="mt-6 flex gap-2">
               <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
-              <Button
-                variant="secondary"
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

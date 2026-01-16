@@ -12,6 +12,7 @@ import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from 
 import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveData: ControlObjectiveFieldsFragment }) {
   const params = useParams()
@@ -143,9 +144,7 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
         />
         <DialogFooter>
           <SaveButton onClick={onSave} disabled={isSaving || saveEnabled} isSaving={isSaving} />
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>
