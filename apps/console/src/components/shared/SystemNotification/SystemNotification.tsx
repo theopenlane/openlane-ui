@@ -26,8 +26,8 @@ export default function SystemNotificationTracker() {
   }, [notifications])
 
   const exportIDs = notifications.flatMap((n) => {
-    if (n.topic === NotificationNotificationTopic.EXPORT && n.data?.id) {
-      return [n.data.id as string]
+    if (n.topic === NotificationNotificationTopic.EXPORT && n.data?.export_id) {
+      return [n.data.export_id as string]
     }
     return []
   })
