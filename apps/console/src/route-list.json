@@ -1,144 +1,7 @@
 [
   {
-    "route": "/controls",
-    "name": "Controls",
-    "keywords": ["requirements"]
-  },
-  {
-    "route": "/controls/create-control",
-    "name": "Create Control"
-  },
-  {
-    "route": "/controls/create-subcontrol",
-    "name": "Create Subcontrol"
-  },
-  {
-    "route": "/user-management/members",
-    "name": "Members",
-    "keywords": ["roles", "invites", "invitations"]
-  },
-  {
-    "route": "/organization-settings/authentication",
-    "name": "Authentication",
-    "keywords": ["auth"]
-  },
-  {
-    "route": "/organization-settings",
-    "name": "Organization Settings"
-  },
-  {
-    "route": "/organization-settings/subscribers",
-    "name": "Subscribers",
-    "hidden": true
-  },
-  {
-    "route": "/organization-settings/general-settings",
-    "name": "General Settings"
-  },
-  {
-    "route": "/developers/api-tokens",
-    "name": "Developers",
-    "keywords": ["api", "api keys", "auth", "token"]
-  },
-  {
-    "route": "/organization-settings/logs",
-    "name": "Logs",
-    "keywords": ["audit logs", "activity", "history"]
-  },
-  {
-    "route": "/organization-settings/billing",
-    "name": "Billing",
-    "keywords": ["subscription", "plan", "payment method"]
-  },
-  {
-    "route": "/standards",
-    "name": "Standards",
-    "keywords": ["frameworks", "regulations", "compliance"]
-  },
-  {
-    "route": "/programs",
-    "name": "Programs",
-    "keywords": ["audits", "assessments"]
-  },
-  {
-    "route": "/programs/settings",
-    "name": "Program Settings"
-  },
-  {
-    "route": "/questionnaires/questionnaire-editor",
-    "name": "Questionnaire Editor"
-  },
-  {
-    "route": "/questionnaires",
-    "name": "Questionnaires"
-  },
-  {
-    "route": "/questionnaires/questionnaire-viewer",
-    "name": "Questionnaire Viewer"
-  },
-  {
-    "route": "/onboarding",
-    "name": "Onboarding",
-    "hidden": true
-  },
-  {
-    "route": "/user-settings/profile",
-    "name": "Profile",
-    "keywords": ["account", "default organization", "preferences", "passkey", "2fa", "mfa", "two-factor authentication", "avatar"]
-  },
-  {
-    "route": "/user-settings/alerts-preferences",
-    "name": "Alerts Preferences",
-    "hidden": true
-  },
-  {
-    "route": "/user-settings",
-    "name": "User Settings"
-  },
-  {
-    "route": "/developers/personal-access-tokens",
-    "name": "Developers",
-    "keywords": ["pat", "personal access tokens", "api", "auth"]
-  },
-  {
-    "route": "/tasks",
-    "name": "Tasks"
-  },
-  {
-    "route": "/groups",
-    "name": "Groups",
-    "keywords": ["teams", "permissions"]
-  },
-  {
-    "route": "/evidence",
-    "name": "Evidence",
-    "keywords": ["audit", "files"]
-  },
-  {
-    "route": "/dashboard",
-    "name": "Dashboard",
-    "keywords": ["home"]
-  },
-  {
-    "route": "/risks",
-    "name": "Risks"
-  },
-  {
-    "route": "/procedures/create",
-    "name": "Create Procedure"
-  },
-  {
-    "route": "/procedures",
-    "name": "Procedures"
-  },
-  {
     "route": "/assets",
     "name": "Assets",
-    "hidden": true
-  },
-  {
-    "route": "/assets/servers",
-    "name": "Servers",
     "hidden": true
   },
   {
@@ -152,13 +15,37 @@
     "hidden": true
   },
   {
-    "route": "/policies/create",
-    "name": "Create Policy"
+    "route": "/assets/servers",
+    "name": "Servers",
+    "hidden": true
   },
   {
-    "route": "/policies",
-    "name": "Policies",
-    "keywords": ["internal policies", "documents"]
+    "route": "/controls",
+    "name": "Controls",
+    "keywords": ["requirements"]
+  },
+  {
+    "route": "/controls/create-control",
+    "name": "Create Control"
+  },
+  {
+    "route": "/controls/create-subcontrol",
+    "name": "Create Subcontrol"
+  },
+  {
+    "route": "/dashboard",
+    "name": "Dashboard",
+    "keywords": ["home"]
+  },
+  {
+    "route": "/developers/api-tokens",
+    "name": "Developers",
+    "keywords": ["api", "api keys", "auth", "token"]
+  },
+  {
+    "route": "/developers/personal-access-tokens",
+    "name": "Developers",
+    "keywords": ["pat", "personal access tokens", "api", "auth"]
   },
   {
     "route": "/entities",
@@ -166,8 +53,121 @@
     "hidden": true
   },
   {
+    "route": "/evidence",
+    "name": "Evidence",
+    "keywords": ["audit", "files"]
+  },
+  {
+    "route": "/evidence/create",
+    "name": "Create"
+  },
+  {
+    "route": "/onboarding",
+    "name": "Onboarding",
+    "hidden": true
+  },
+  {
     "route": "/organization",
     "name": "Organization"
+  },
+  {
+    "route": "/organization-settings",
+    "name": "Organization Settings"
+  },
+  {
+    "route": "/organization-settings/authentication",
+    "name": "Authentication",
+    "keywords": ["auth"]
+  },
+  {
+    "route": "/organization-settings/billing",
+    "name": "Billing",
+    "keywords": ["subscription", "plan", "payment method"]
+  },
+  {
+    "route": "/organization-settings/custom-data",
+    "name": "Custom Data"
+  },
+  {
+    "route": "/organization-settings/developers",
+    "name": "Developers"
+  },
+  {
+    "route": "/organization-settings/general-settings",
+    "name": "General Settings"
+  },
+  {
+    "route": "/organization-settings/integrations",
+    "name": "Integrations",
+    "hidden": true
+  },
+  {
+    "route": "/organization-settings/logs",
+    "name": "Logs",
+    "keywords": ["audit logs", "activity", "history"]
+  },
+  {
+    "route": "/organization-settings/subscribers",
+    "name": "Subscribers",
+    "hidden": true
+  },
+  {
+    "route": "/policies",
+    "name": "Policies",
+    "keywords": ["internal policies", "documents"]
+  },
+  {
+    "route": "/policies/create",
+    "name": "Create Policy"
+  },
+  {
+    "route": "/procedures",
+    "name": "Procedures"
+  },
+  {
+    "route": "/procedures/create",
+    "name": "Create Procedure"
+  },
+  {
+    "route": "/programs",
+    "name": "Programs",
+    "keywords": ["audits", "assessments"]
+  },
+  {
+    "route": "/programs/create",
+    "name": "Create Program"
+  },
+  {
+    "route": "/programs/create/advanced-setup",
+    "name": "Advanced Program Setup"
+  },
+  {
+    "route": "/programs/create/framework-based",
+    "name": "Create Framework Based Program"
+  },
+  {
+    "route": "/programs/create/generic-program",
+    "name": "Generic Program Setup"
+  },
+  {
+    "route": "/programs/create/risk-assessment",
+    "name": "Create Risk Assessment Program"
+  },
+  {
+    "route": "/programs/create/soc2",
+    "name": "Create SOC2 Program"
+  },
+  {
+    "route": "/questionnaires",
+    "name": "Questionnaires"
+  },
+  {
+    "route": "/questionnaires/questionnaire-editor",
+    "name": "Questionnaire Editor"
+  },
+  {
+    "route": "/questionnaires/questionnaire-viewer",
+    "name": "Questionnaire Viewer"
   },
   {
     "route": "/reporting",
@@ -180,82 +180,25 @@
     "hidden": true
   },
   {
-    "route": "/evidence/create",
-    "name": "Create"
+    "route": "/risks",
+    "name": "Risks"
   },
   {
     "route": "/risks/create",
     "name": "Create"
   },
   {
-    "route": "/organization-settings/integrations",
-    "name": "Integrations",
-    "hidden": true
+    "route": "/standards",
+    "name": "Standards",
+    "keywords": ["frameworks", "regulations", "compliance"]
   },
   {
-    "route": "/trust-center/settings",
-    "name": "Settings",
-    "hidden": true
+    "route": "/tasks",
+    "name": "Tasks"
   },
   {
-    "route": "/programs/create/generic-program",
-    "name": "Generic Program Setup"
-  },
-  {
-    "route": "/programs/create/advanced-setup",
-    "name": "Advanced Program Setup"
-  },
-  {
-    "route": "/programs/create/risk-assessment",
-    "name": "Create Risk Assessment Program"
-  },
-  {
-    "route": "/programs/create/soc2",
-    "name": "Create SOC2 Program"
-  },
-  {
-    "route": "/programs/create",
-    "name": "Create Program"
-  },
-  {
-    "route": "/programs/create/framework-based",
-    "name": "Create Framework Based Program"
-  },
-  {
-    "route": "/user-settings/developers",
-    "name": "Developers"
-  },
-  {
-    "route": "/trust-center/reports-and-certifications",
-    "name": "Reports And Certifications"
-  },
-  {
-    "route": "/trust-center/updates",
-    "name": "Updates"
-  },
-  {
-    "route": "/trust-center/documents",
-    "name": "Documents"
-  },
-  {
-    "route": "/trust-center/domain",
-    "name": "Domain"
-  },
-  {
-    "route": "/trust-center/branding",
-    "name": "Branding"
-  },
-  {
-    "route": "/trust-center/customer-logos",
-    "name": "Customer Logos"
-  },
-  {
-    "route": "/trust-center/subprocessors",
-    "name": "Subprocessors"
-  },
-  {
-    "route": "/trust-center/frameworks",
-    "name": "Frameworks"
+    "route": "/templates",
+    "name": "Templates"
   },
   {
     "route": "/templates/template-editor",
@@ -266,19 +209,67 @@
     "name": "Template Viewer"
   },
   {
-    "route": "/templates",
-    "name": "Templates"
+    "route": "/trust-center/branding",
+    "name": "Branding"
+  },
+  {
+    "route": "/trust-center/customer-logos",
+    "name": "Customer Logos"
+  },
+  {
+    "route": "/trust-center/documents",
+    "name": "Documents"
+  },
+  {
+    "route": "/trust-center/domain",
+    "name": "Domain"
+  },
+  {
+    "route": "/trust-center/frameworks",
+    "name": "Frameworks"
+  },
+  {
+    "route": "/trust-center/reports-and-certifications",
+    "name": "Reports And Certifications"
+  },
+  {
+    "route": "/trust-center/settings",
+    "name": "Settings",
+    "hidden": true
+  },
+  {
+    "route": "/trust-center/subprocessors",
+    "name": "Subprocessors"
+  },
+  {
+    "route": "/trust-center/updates",
+    "name": "Updates"
   },
   {
     "route": "/user-management/groups",
     "name": "Groups"
   },
   {
-    "route": "/organization-settings/developers",
+    "route": "/user-management/members",
+    "name": "Members",
+    "keywords": ["roles", "invites", "invitations"]
+  },
+  {
+    "route": "/user-settings",
+    "name": "User Settings"
+  },
+  {
+    "route": "/user-settings/alerts-preferences",
+    "name": "Alerts Preferences",
+    "hidden": true
+  },
+  {
+    "route": "/user-settings/developers",
     "name": "Developers"
   },
   {
-    "route": "/organization-settings/custom-data",
-    "name": "Custom Data"
+    "route": "/user-settings/profile",
+    "name": "Profile",
+    "keywords": ["account", "default organization", "preferences", "passkey", "2fa", "mfa", "two-factor authentication", "avatar"]
   }
 ]

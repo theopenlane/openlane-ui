@@ -4,7 +4,12 @@ import path from 'path'
 const baseDir = path.join(__dirname, '../src/app/(protected)')
 const routeListPath = path.join(__dirname, '../src/route-list.json')
 
-type RouteEntry = { route: string; name: string }
+type RouteEntry = {
+  route: string
+  name: string
+  keywords?: string[]
+  hidden?: boolean
+}
 
 function toNameFromPath(pathStr: string): string {
   return (
@@ -26,23 +31,42 @@ if (fs.existsSync(routeListPath)) {
   }
 }
 
-const existingRouteSet = new Set(existingRoutes.map((r) => r.route))
-const newRoutes: RouteEntry[] = []
+const discoveredRoutes: RouteEntry[] = []
 
 function walk(currentPath: string, routePrefix = '') {
+  if (!fs.existsSync(currentPath)) return
+
   const entries = fs.readdirSync(currentPath, { withFileTypes: true })
 
   for (const entry of entries) {
     if (entry.isDirectory()) {
-      walk(path.join(currentPath, entry.name), `${routePrefix}/${entry.name}`)
+      // Rekurzivno prolazimo kroz foldere (npr. (group) folderi ostaju u putanji ali se filtriraju ako treba)
+      // Ako želiš ignorirati (group) foldere u samoj ruti, Next.js to radi automatski,
+      // ali ovaj skript čita file system direktno.
+
+      let nextPrefix = routePrefix
+      // Preskačemo folder u ruti ako je Next.js route group (npr. (auth))
+      if (entry.name.startsWith('(') && entry.name.endsWith(')')) {
+        nextPrefix = routePrefix
+      } else {
+        nextPrefix = `${routePrefix}/${entry.name}`
+      }
+
+      walk(path.join(currentPath, entry.name), nextPrefix)
     } else if (entry.name.startsWith('page.tsx') && !routePrefix.includes('[')) {
       const route = routePrefix || '/'
-      if (!existingRouteSet.has(route)) {
-        newRoutes.push({
+
+      const existing = existingRoutes.find((r) => r.route === route)
+
+      if (existing) {
+        // Ako ruta postoji, zadržavamo CIJELI object (uključujući keywords i hidden)
+        discoveredRoutes.push({ ...existing })
+      } else {
+        // Ako je nova ruta, generiramo osnovni object
+        discoveredRoutes.push({
           route,
           name: toNameFromPath(route),
         })
-        existingRouteSet.add(route)
       }
     }
   }
@@ -50,7 +74,19 @@ function walk(currentPath: string, routePrefix = '') {
 
 walk(baseDir)
 
-const updatedRoutes = [...existingRoutes, ...newRoutes]
+// Uklanjanje duplikata (u slučaju da više page.tsx završi na istoj ruti zbog route grupa)
+const uniqueRoutes = discoveredRoutes.filter((value, index, self) => index === self.findIndex((t) => t.route === value.route))
 
-fs.writeFileSync(routeListPath, JSON.stringify(updatedRoutes, null, 2))
-console.log(`✅ Route list updated. ${newRoutes.length} new route(s) added.`)
+// Sortiranje
+uniqueRoutes.sort((a, b) => a.route.localeCompare(b.route))
+
+const addedCount = uniqueRoutes.filter((d) => !existingRoutes.some((e) => e.route === d.route)).length
+
+const removedCount = existingRoutes.filter((e) => !uniqueRoutes.some((d) => d.route === e.route)).length
+
+fs.writeFileSync(routeListPath, JSON.stringify(uniqueRoutes, null, 2))
+
+console.log(`✅ Route list synced.`)
+console.log(`   Added: ${addedCount}`)
+console.log(`   Removed: ${removedCount}`)
+console.log(`   Total: ${uniqueRoutes.length}`)
