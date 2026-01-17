@@ -2,8 +2,8 @@ import { gql } from 'graphql-request'
 import { useQuery, useMutation } from '@tanstack/react-query'
 
 export const GET_TRUST_CENTER_ENTITIES = gql`
-  query GetTrustCenterEntities($where: TrustcenterEntityWhereInput) {
-    trustcenterEntities(where: $where) {
+  query GetTrustCenterEntities($where: TrustCenterEntityWhereInput) {
+    trustCenterEntities(where: $where) {
       edges {
         node {
           id
@@ -19,9 +19,9 @@ export const GET_TRUST_CENTER_ENTITIES = gql`
 `
 
 export const CREATE_TRUST_CENTER_ENTITY = gql`
-  mutation CreateTrustcenterEntity($input: CreateTrustcenterEntityInput!, $logoFile: Upload) {
-    createTrustcenterEntity(input: $input, logoFile: $logoFile) {
-      trustcenterEntity {
+  mutation CreateTrustCenterEntity($input: CreateTrustCenterEntityInput!, $logoFile: Upload) {
+    createTrustCenterEntity(input: $input, logoFile: $logoFile) {
+      trustCenterEntity {
         id
       }
     }
@@ -29,17 +29,17 @@ export const CREATE_TRUST_CENTER_ENTITY = gql`
 `
 
 export const DELETE_TRUST_CENTER_ENTITY = gql`
-  mutation DeleteTrustcenterEntity($deleteTrustcenterEntityId: ID!) {
-    deleteTrustcenterEntity(id: $deleteTrustcenterEntityId) {
+  mutation DeleteTrustCenterEntity($deleteTrustCenterEntityId: ID!) {
+    deleteTrustCenterEntity(id: $deleteTrustCenterEntityId) {
       deletedID
     }
   }
 `
 
 export const UPDATE_TRUST_CENTER_ENTITY = gql`
-  mutation UpdateTrustcenterEntity($updateTrustcenterEntityId: ID!, $input: UpdateTrustcenterEntityInput!, $logoFile: Upload) {
-    updateTrustcenterEntity(id: $updateTrustcenterEntityId, input: $input, logoFile: $logoFile) {
-      trustcenterEntity {
+  mutation UpdateTrustCenterEntity($updateTrustCenterEntityId: ID!, $input: UpdateTrustCenterEntityInput!, $logoFile: Upload) {
+    updateTrustCenterEntity(id: $updateTrustCenterEntityId, input: $input, logoFile: $logoFile) {
+      trustCenterEntity {
         id
       }
     }
