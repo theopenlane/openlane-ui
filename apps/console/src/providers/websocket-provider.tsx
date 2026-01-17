@@ -81,6 +81,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       url: websocketGQLUrl,
       lazy: true,
       retryAttempts: 5,
+      keepAlive: 20_000,
       connectionParams: async () => ({
         Authorization: `Bearer ${token}`,
       }),
