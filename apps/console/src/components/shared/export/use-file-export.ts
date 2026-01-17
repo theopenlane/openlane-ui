@@ -13,7 +13,7 @@ type TUseFileExportProps = {
 const useFileExport = () => {
   const { successNotification } = useNotification()
   const { mutateAsync: createExport, isPending } = useCreateExport()
-  const { refetch } = useGetAllExports()
+  const { refetch } = useGetAllExports({ enabled: false })
 
   const handleExport = async ({ exportType, filters, fields, format }: TUseFileExportProps) => {
     successNotification({

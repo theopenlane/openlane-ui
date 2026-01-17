@@ -14,7 +14,7 @@ export type TJob = {
 export function useTrackedExports() {
   const [enabled, setEnabled] = useState(true)
   // TODO: Once we get new notifications, dynamically enable/disable the hook
-  const { data, isLoading, refetch } = useGetAllExports(enabled)
+  const { data, isLoading, refetch } = useGetAllExports({ enabled })
 
   const jobs: TJob[] = useMemo(() => {
     return (
