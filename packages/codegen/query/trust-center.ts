@@ -59,6 +59,7 @@ export const GET_TRUST_CENTER = gql`
             font
             backgroundColor
             secondaryBackgroundColor
+            accentColor
             logoFile {
               id
               presignedURL
@@ -93,6 +94,14 @@ export const UPDATE_TRUST_CENTER_SETTING = gql`
     updateTrustCenterSetting(id: $updateTrustCenterSettingId, input: $input, faviconFile: $faviconFile, logoFile: $logoFile) {
       trustCenterSetting {
         id
+        logoRemoteURL
+        faviconRemoteURL
+        faviconFile {
+          id
+        }
+        logoFile {
+          id
+        }
       }
     }
   }

@@ -1,9 +1,10 @@
+'use client'
 import { useUpdateTrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
-import { UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
+import { UpdateTrustCenterSettingInput, UpdateTrustCenterSettingMutation } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-type UpdateTrustCenterSettingsArgs = {
+export type UpdateTrustCenterSettingsArgs = {
   id?: string
   input: UpdateTrustCenterSettingInput
   logoFile?: File
@@ -14,18 +15,17 @@ export function useHandleUpdateSetting() {
   const { mutateAsync, isPending } = useUpdateTrustCenterSetting()
   const { successNotification, errorNotification } = useNotification()
 
-  const updateTrustCenterSetting = async ({ id, input, logoFile, faviconFile }: UpdateTrustCenterSettingsArgs) => {
+  const updateTrustCenterSetting = async ({ id, input, logoFile, faviconFile }: UpdateTrustCenterSettingsArgs): Promise<UpdateTrustCenterSettingMutation['updateTrustCenterSetting'] | undefined> => {
     if (!id) {
-      // this case should never happen
       errorNotification({
         title: 'Missing ID',
         description: 'Something went wrong, please try again.',
       })
-      return
+      return undefined
     }
 
     try {
-      await mutateAsync({
+      const response = await mutateAsync({
         updateTrustCenterSettingId: id,
         input,
         logoFile,
@@ -36,11 +36,14 @@ export function useHandleUpdateSetting() {
         title: 'Settings updated',
         description: 'Your Trust Center settings were saved successfully.',
       })
+
+      return response.updateTrustCenterSetting
     } catch (err) {
       errorNotification({
         title: 'Failed to update settings',
         description: parseErrorMessage(err),
       })
+      return undefined
     }
   }
 
