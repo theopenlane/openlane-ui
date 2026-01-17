@@ -210,27 +210,33 @@
   },
   {
     "route": "/trust-center/branding",
-    "name": "Branding"
+    "name": "Branding",
+    "hidden": true
   },
   {
     "route": "/trust-center/customer-logos",
-    "name": "Customer Logos"
+    "name": "Customer Logos",
+    "hidden": true
   },
   {
     "route": "/trust-center/documents",
-    "name": "Documents"
+    "name": "Documents",
+    "hidden": true
   },
   {
     "route": "/trust-center/domain",
-    "name": "Domain"
+    "name": "Domain",
+    "hidden": true
   },
   {
     "route": "/trust-center/frameworks",
-    "name": "Frameworks"
+    "name": "Frameworks",
+    "hidden": true
   },
   {
     "route": "/trust-center/reports-and-certifications",
-    "name": "Reports And Certifications"
+    "name": "Reports And Certifications",
+    "hidden": true
   },
   {
     "route": "/trust-center/settings",
@@ -239,11 +245,13 @@
   },
   {
     "route": "/trust-center/subprocessors",
-    "name": "Subprocessors"
+    "name": "Subprocessors",
+    "hidden": true
   },
   {
     "route": "/trust-center/updates",
-    "name": "Updates"
+    "name": "Updates",
+    "hidden": true
   },
   {
     "route": "/user-management/groups",
