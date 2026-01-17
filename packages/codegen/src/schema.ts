@@ -50362,6 +50362,48 @@ export type UpdateTrustCenterComplianceMutation = {
   updateTrustCenterCompliance: { __typename?: 'TrustCenterComplianceUpdatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
 }
 
+export type GetTrustCenterEntitiesQueryVariables = Exact<{
+  where?: InputMaybe<TrustCenterEntityWhereInput>
+}>
+
+export type GetTrustCenterEntitiesQuery = {
+  __typename?: 'Query'
+  trustCenterEntities: {
+    __typename?: 'TrustCenterEntityConnection'
+    edges?: Array<{
+      __typename?: 'TrustCenterEntityEdge'
+      node?: { __typename?: 'TrustCenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustCenterEntityMutationVariables = Exact<{
+  input: CreateTrustCenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type CreateTrustCenterEntityMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterEntity: { __typename?: 'TrustCenterEntityCreatePayload'; trustCenterEntity: { __typename?: 'TrustCenterEntity'; id: string } }
+}
+
+export type DeleteTrustCenterEntityMutationVariables = Exact<{
+  deleteTrustCenterEntityId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterEntityMutation = { __typename?: 'Mutation'; deleteTrustCenterEntity: { __typename?: 'TrustCenterEntityDeletePayload'; deletedID: string } }
+
+export type UpdateTrustCenterEntityMutationVariables = Exact<{
+  updateTrustCenterEntityId: Scalars['ID']['input']
+  input: UpdateTrustCenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterEntityMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterEntity: { __typename?: 'TrustCenterEntityUpdatePayload'; trustCenterEntity: { __typename?: 'TrustCenterEntity'; id: string } }
+}
+
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
