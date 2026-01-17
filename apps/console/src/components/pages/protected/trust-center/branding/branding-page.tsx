@@ -11,7 +11,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
+import { UpdateTrustCenterSettingsArgs, useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { BookUp, Eye, RotateCcw } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -51,7 +51,6 @@ const BrandPage: React.FC = () => {
 
   const { updateTrustCenterSetting } = useHandleUpdateSetting()
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
-  const [showWarnings, setShowWarnings] = useState(false)
 
   enum LogoLinkInputTypeEnum {
     URL = 'url',
@@ -78,6 +77,8 @@ const BrandPage: React.FC = () => {
       themeMode: setting?.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY,
       logoRemoteURL: setting?.logoRemoteURL ?? '',
       faviconRemoteURL: setting?.faviconRemoteURL ?? '',
+      logoFileId: setting?.logoFile?.id,
+      faviconFileId: setting?.faviconFile?.id,
     }),
     [setting],
   )
@@ -106,6 +107,36 @@ const BrandPage: React.FC = () => {
   const isDirty = useMemo(() => hasTextChanged || hasThemeChanged || hasAssetsChanged, [hasTextChanged, hasThemeChanged, hasAssetsChanged])
 
   const navGuard = useNavigationGuard({ enabled: isDirty })
+
+  const hasPreviewDifference = useMemo(() => {
+    if (!setting || !previewSetting) return false
+
+    const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview
+
+    const themeDiff =
+      setting.themeMode !== previewSetting.themeMode ||
+      setting.font !== previewSetting.font ||
+      setting.primaryColor !== previewSetting.primaryColor ||
+      setting.foregroundColor !== previewSetting.foregroundColor ||
+      setting.backgroundColor !== previewSetting.backgroundColor ||
+      setting.accentColor !== previewSetting.accentColor ||
+      setting.secondaryForegroundColor !== previewSetting.secondaryForegroundColor ||
+      setting.secondaryBackgroundColor !== previewSetting.secondaryBackgroundColor
+
+    const assetDiff =
+      setting.logoRemoteURL !== previewSetting.logoRemoteURL ||
+      setting.faviconRemoteURL !== previewSetting.faviconRemoteURL ||
+      setting.logoFile?.id !== previewSetting.logoFile?.id ||
+      setting.faviconFile?.id !== previewSetting.faviconFile?.id
+
+    return {
+      text: textDiff,
+      theme: themeDiff,
+      assets: assetDiff,
+    }
+  }, [setting, previewSetting])
+
+  console.log('brah', { setting, previewSetting })
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Branding', href: '/trust-center/branding' }])
@@ -150,12 +181,13 @@ const BrandPage: React.FC = () => {
     return `https://${url}`
   }
 
-  const handleSave = async (savePreview: boolean) => {
+  const handleSave = async (action: 'preview' | 'publish') => {
+    // on preview we update only previewSetting and on publish we save both
     if (!setting?.id) return
-    if (savePreview && !previewSetting?.id) return
+    if (action === 'preview' && !previewSetting?.id) return
 
-    await updateTrustCenterSetting({
-      id: savePreview ? previewSetting?.id : setting?.id,
+    const payload: UpdateTrustCenterSettingsArgs = {
+      id: action === 'preview' ? previewSetting?.id : setting?.id,
       input: {
         primaryColor: easyColor || undefined,
         foregroundColor: foreground || undefined,
@@ -167,46 +199,67 @@ const BrandPage: React.FC = () => {
         themeMode: selectedThemeType,
         title,
         overview,
-        clearLogoRemoteURL: true,
-        ...(logoLink ? { logoRemoteURL: logoLink } : null),
-        clearLogoFile: true,
-        clearFaviconRemoteURL: true,
-        ...(faviconLink ? { faviconRemoteURL: faviconLink } : null),
-        clearFaviconFile: true,
+        ...(logoLink ? { logoRemoteURL: logoLink, clearLogoFile: true } : null),
+        ...(logoFile ? { clearLogoRemoteURL: true } : null),
+        ...(faviconLink ? { faviconRemoteURL: faviconLink, clearFaviconFile: true } : null),
+        ...(faviconFile ? { clearFaviconRemoteURL: true } : null),
       },
       ...(logoFile ? { logoFile: logoFile } : null),
       ...(faviconFile ? { faviconFile: faviconFile } : null),
-    })
+    }
 
-    if (!savePreview) {
-      setShowWarnings(false)
+    const resp = await updateTrustCenterSetting(payload)
+
+    if (action === 'publish' && previewSetting?.id) {
+      await updateTrustCenterSetting({
+        id: previewSetting.id,
+        input: {
+          primaryColor: easyColor || undefined,
+          foregroundColor: foreground || undefined,
+          backgroundColor: background || undefined,
+          secondaryForegroundColor: secondaryForeground || undefined,
+          secondaryBackgroundColor: secondaryBackground || undefined,
+          accentColor: accent || undefined,
+          font,
+          themeMode: selectedThemeType,
+          title,
+          overview,
+          logoFileID: resp?.trustCenterSetting.logoFile?.id,
+          logoRemoteURL: resp?.trustCenterSetting.logoRemoteURL,
+          faviconFileID: resp?.trustCenterSetting.faviconFile?.id,
+          faviconRemoteURL: resp?.trustCenterSetting.faviconRemoteURL,
+        },
+      })
     }
   }
 
   const handleRevert = () => {
-    setTitle(initialValues.title)
-    setOverview(initialValues.overview)
-    setFont(initialValues.font)
-    setSelectedThemeType(initialValues.themeMode)
-    setEasyColor(initialValues.primaryColor)
-    setForeground(initialValues.foregroundColor)
-    setBackground(initialValues.backgroundColor)
-    setAccent(initialValues.accentColor)
-    setSecondaryForeground(initialValues.secondaryForegroundColor)
-    setSecondaryBackground(initialValues.secondaryBackgroundColor)
-    setLogoFile(null)
-    setLogoLink(initialValues.logoRemoteURL)
-    setLogoPreview(setting?.logoFile?.presignedURL || initialValues.logoRemoteURL || null)
-    setFaviconFile(null)
-    setFaviconLink(initialValues.faviconRemoteURL)
-    setFaviconPreview(setting?.faviconFile?.presignedURL || initialValues.faviconRemoteURL || null)
-    setShowLogoLinkInputType(LogoLinkInputTypeEnum.FILE)
-    setShowFavIconInputType(FavIconInputTypeEnum.FILE)
-    setShowWarnings(false)
+    if (!setting?.id) {
+      return
+    }
+    const payload: UpdateTrustCenterSettingsArgs = {
+      id: setting?.id,
+      input: {
+        primaryColor: previewSetting?.primaryColor,
+        foregroundColor: previewSetting?.foregroundColor,
+        backgroundColor: previewSetting?.backgroundColor,
+        secondaryForegroundColor: previewSetting?.secondaryForegroundColor,
+        secondaryBackgroundColor: previewSetting?.secondaryBackgroundColor,
+        accentColor: previewSetting?.accentColor,
+        font: previewSetting?.font,
+        themeMode: previewSetting?.themeMode,
+        title: previewSetting?.title,
+        overview: previewSetting?.overview,
+        logoRemoteURL: previewSetting?.logoRemoteURL,
+        faviconRemoteURL: previewSetting?.faviconRemoteURL,
+        logoFileID: previewSetting?.logoFile?.id,
+        faviconFileID: previewSetting?.logoFile?.id,
+      },
+    }
+    updateTrustCenterSetting(payload)
   }
 
   const onCancelNavigation = () => {
-    setShowWarnings(true)
     navGuard.reject()
   }
 
@@ -227,7 +280,7 @@ const BrandPage: React.FC = () => {
       <div className="w-full max-w-[1200px] grid gap-6">
         <PageHeading heading="Branding" />
         <div className="flex items-center gap-5 w-full">
-          <Button onClick={() => handleSave(true)} type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
+          <Button onClick={() => handleSave('preview')} type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
             Preview
           </Button>
           <Button onClick={handleRevert} type="button" variant="secondary" icon={<RotateCcw size={16} strokeWidth={2} />} iconPosition="left">
@@ -242,7 +295,7 @@ const BrandPage: React.FC = () => {
         </div>
         <Card>
           <CardContent>
-            {showWarnings && hasTextChanged && <SectionWarning />}
+            {hasPreviewDifference && hasPreviewDifference.text && <SectionWarning />}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Title and Overview</p>
@@ -280,7 +333,7 @@ const BrandPage: React.FC = () => {
         </Card>
         <Card>
           <CardContent>
-            {showWarnings && hasThemeChanged && <SectionWarning />}
+            {hasPreviewDifference && hasPreviewDifference.theme && <SectionWarning />}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Theme</p>
@@ -364,7 +417,7 @@ const BrandPage: React.FC = () => {
         </Card>
         <Card>
           <CardContent>
-            {showWarnings && hasAssetsChanged && <SectionWarning />}
+            {hasPreviewDifference && hasPreviewDifference.assets && <SectionWarning />}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium leading-6">Brand</p>
@@ -547,7 +600,7 @@ const BrandPage: React.FC = () => {
       <ConfirmationDialog
         open={isConfirmationDialogOpen}
         onOpenChange={setIsConfirmationDialogOpen}
-        onConfirm={() => handleSave(false)}
+        onConfirm={() => handleSave('publish')}
         confirmationText={'Publish'}
         title={`Publish`}
         description={<>Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate</>}
