@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -15,6 +15,7 @@ import { subprocessorsFilterFields } from './table-config'
 import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
+import Menu from '@/components/shared/menu/menu'
 
 type TProps = {
   searching?: boolean
@@ -26,6 +27,8 @@ type TProps = {
   handleFilterChange: (arg: SubprocessorWhereInput) => void
   selectedRows: { id: string }[]
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  onExport: () => void
+  exportEnabled: boolean
 }
 
 const SubprocessorsTableToolbar: React.FC<TProps> = ({
@@ -38,6 +41,8 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   handleFilterChange,
   selectedRows,
   setSelectedRows,
+  exportEnabled,
+  onExport,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
@@ -97,6 +102,25 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
 
         {selectedRows.length === 0 ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
+            <Menu
+              closeOnSelect={true}
+              content={(close) => (
+                <>
+                  <Button
+                    size="sm"
+                    variant="transparent"
+                    className={`px-1 flex items-center justify-start space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    onClick={() => {
+                      onExport()
+                      close()
+                    }}
+                  >
+                    <DownloadIcon size={16} strokeWidth={2} />
+                    <span>Export</span>
+                  </Button>
+                </>
+              )}
+            />
             {mappedColumns && columnVisibility && setColumnVisibility && (
               <ColumnVisibilityMenu
                 mappedColumns={mappedColumns}
@@ -114,6 +138,15 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
           <div className="flex items-center gap-2 justify-end flex-wrap">
             <Button variant="secondary" icon={<Trash2 size={16} />} iconPosition="left" onClick={handleBulkDelete} disabled={isDeleting}>
               Bulk Delete ({selectedRows.length})
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setSelectedRows([])
+              }}
+            >
+              Cancel
             </Button>
           </div>
         )}

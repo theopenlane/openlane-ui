@@ -3,17 +3,18 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
-import { VisibilityState } from '@tanstack/react-table'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/eidt-trust-center-subprocessor-sheet'
 
 const SubprocessorsPage = () => {
@@ -28,13 +29,17 @@ const SubprocessorsPage = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
+  const { handleExport } = useFileExport()
+
   const { setCrumbs } = useContext(BreadcrumbContext)
 
+  const where = {
+    ...(searchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: searchTerm }, { descriptionContainsFold: searchTerm }] }] } : {}),
+    ...(filters ?? {}),
+  }
+
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
-    where: {
-      ...(searchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: searchTerm }, { descriptionContainsFold: searchTerm }] }] } : {}),
-      ...(filters ?? {}),
-    },
+    where,
     pagination,
   })
 
@@ -84,6 +89,23 @@ const SubprocessorsPage = () => {
 
   const { columns, mappedColumns } = useMemo(() => getSubprocessorsColumns({ selectedRows, setSelectedRows, userMap }), [selectedRows, userMap])
 
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
+
+  const handleExportFile = async () => {
+    if (trustCenterSubprocessors.length === 0) {
+      return
+    }
+
+    handleExport({
+      exportType: ExportExportType.TRUST_CENTER_SUBPROCESSOR,
+      filters: JSON.stringify(where),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
+      format: ExportExportFormat.CSV,
+    })
+  }
+
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Subprocessors', href: '/trust-center/subprocessors' }])
   }, [setCrumbs])
@@ -107,6 +129,8 @@ const SubprocessorsPage = () => {
           handleFilterChange={handleFilterChange}
           selectedRows={selectedRows}
           setSelectedRows={setSelectedRows}
+          onExport={handleExportFile}
+          exportEnabled={trustCenterSubprocessors.length === 0}
         />
 
         <DataTable

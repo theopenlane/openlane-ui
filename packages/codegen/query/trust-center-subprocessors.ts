@@ -13,6 +13,7 @@ export const GET_TRUST_CENTER_SUBPROCESSORS = gql`
             logoRemoteURL
             logoFile {
               presignedURL
+              base64
             }
           }
           category
