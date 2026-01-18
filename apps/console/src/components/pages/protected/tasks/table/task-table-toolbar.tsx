@@ -26,6 +26,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -198,15 +199,11 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       props.handleClearSelectedTasks()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>

@@ -19,6 +19,7 @@ import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type GroupRow = {
   id: string
@@ -203,7 +204,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Assign</Button>
+        <Button className="h-8 px-2!">Assign</Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
@@ -233,7 +234,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
-              <Button variant="back">Cancel</Button>
+              <CancelButton />
             </DialogTrigger>
           </div>
         </div>

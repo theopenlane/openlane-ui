@@ -1,7 +1,6 @@
 'use client'
 
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
@@ -12,6 +11,8 @@ import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-ris
 import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
@@ -153,12 +154,8 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.CONTROL_OBJECTIVE]}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
-          <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton onClick={handleSave} disabled={isSaving} />
+          <CancelButton disabled={isSaving} onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

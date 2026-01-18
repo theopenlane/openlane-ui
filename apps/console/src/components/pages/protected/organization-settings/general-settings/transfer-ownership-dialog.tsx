@@ -9,6 +9,7 @@ import { Input } from '@repo/ui/input'
 import { UsersRound } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import React, { useMemo, useState } from 'react'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TransferOwnershipDialogProps = {
   trigger?: React.ReactNode
@@ -99,7 +100,7 @@ export const TransferOwnershipDialog: React.FC<TransferOwnershipDialogProps> = (
     >
       <DialogTrigger asChild>
         {!trigger ? (
-          <Button className="!h-8 !p-2" variant="destructive" type="button" icon={<UsersRound />} iconPosition="left">
+          <Button className="h-8! p-2!" variant="destructive" type="button" icon={<UsersRound />} iconPosition="left">
             Transfer ownership
           </Button>
         ) : (
@@ -145,9 +146,7 @@ export const TransferOwnershipDialog: React.FC<TransferOwnershipDialogProps> = (
           <Button disabled={!email || !isValidEmail(email)} onClick={handleTransferOwnership}>
             Transfer
           </Button>
-          <Button variant="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

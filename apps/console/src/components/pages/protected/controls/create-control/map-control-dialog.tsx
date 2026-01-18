@@ -20,6 +20,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface MapControlDialogProps {
   onSave: (arg: { controls: Control[]; subcontrols: Subcontrol[] }) => void
@@ -289,10 +291,10 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
 
         <div className="flex justify-end gap-2 pt-4 border-t mt-auto">
           <DialogClose asChild>
-            <Button variant="back">Cancel</Button>
+            <CancelButton />
           </DialogClose>
           <DialogClose asChild>
-            <Button onClick={handleSave}>Save Mapping ({totalSelected})</Button>
+            <SaveButton onClick={handleSave} title={`Save Mapping (${totalSelected})`} />
           </DialogClose>
         </div>
       </DialogContent>

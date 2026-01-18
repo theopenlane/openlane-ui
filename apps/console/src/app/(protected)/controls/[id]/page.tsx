@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
@@ -43,6 +43,8 @@ import ControlObjectivesSection from '@/components/pages/protected/controls/cont
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
 
 interface FormValues {
   refCode: string
@@ -258,12 +260,8 @@ const ControlDetailsPage: React.FC = () => {
     <div className="space-y-4">
       {isEditing && (
         <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button variant="secondary" type="submit" iconPosition="left" className="h-8 px-2!" icon={<SaveIcon />}>
-            Save
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton />
         </div>
       )}
       {!isEditing && (

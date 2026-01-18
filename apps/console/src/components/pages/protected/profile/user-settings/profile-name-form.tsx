@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 import { z } from 'zod'
-import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useNotification } from '@/hooks/useNotification'
@@ -15,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { InfoIcon } from 'lucide-react'
 import { useGetCurrentUser, useUpdateUser } from '@/lib/graphql-hooks/user'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -196,9 +196,7 @@ const ProfileNameForm = () => {
               )}
             />
           </InputRow>
-          <Button variant={isSuccess ? 'success' : 'secondary'} type="submit" loading={isSubmitting} className="mt-6">
-            {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-          </Button>
+          <SaveButton variant={isSuccess ? 'success' : 'primary'} className="mt-6" title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
         </form>
       </Form>
     </Panel>

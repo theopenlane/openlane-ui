@@ -15,6 +15,8 @@ import { formatDate } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const formSchema = z.object({
   text: z.string().min(1, 'Update text is required').max(280),
@@ -175,12 +177,8 @@ export default function UpdatesSection() {
                               <span className={editCharsRemaining < 0 ? 'text-destructive font-medium' : ''}>{editCharsRemaining} characters remaining</span>
                             </div>
                             <div className="flex gap-2">
-                              <Button variant="secondary" onClick={cancelEditing}>
-                                Cancel
-                              </Button>
-                              <Button onClick={editForm.handleSubmit(handleUpdateSubmit)} disabled={isUpdating}>
-                                {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
-                              </Button>
+                              <CancelButton onClick={cancelEditing}></CancelButton>
+                              <SaveButton isSaving={isUpdating} onClick={editForm.handleSubmit(handleUpdateSubmit)} disabled={isUpdating} />
                             </div>
                           </div>
                         </div>

@@ -1,7 +1,6 @@
 'use client'
 
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
@@ -13,6 +12,8 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TSetObjectAssociationDialog = {
   procedureId?: string
@@ -157,12 +158,8 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.PROCEDURE]}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
-          <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton onClick={handleSave} disabled={isSaving} />
+          <CancelButton disabled={isSaving} onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -11,6 +11,8 @@ import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveData: ControlObjectiveFieldsFragment }) {
   const params = useParams()
@@ -141,12 +143,8 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
           ]}
         />
         <DialogFooter>
-          <Button onClick={onSave} disabled={isSaving || saveEnabled}>
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton onClick={onSave} disabled={isSaving || saveEnabled} isSaving={isSaving} />
+          <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

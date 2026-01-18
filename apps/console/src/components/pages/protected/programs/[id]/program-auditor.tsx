@@ -20,6 +20,8 @@ import { useParams } from 'next/navigation'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -135,7 +137,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
               {hasAuditor && !isEditing && isEditAllowed && (
                 <Button
                   disabled={programStatus === ProgramProgramStatus.ARCHIVED}
-                  className="!h-8 !p-2"
+                  className="h-8! p-2!"
                   variant="secondary"
                   type="button"
                   icon={<Pencil />}
@@ -148,12 +150,8 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
             </div>
             {isEditing && (
               <div className="flex gap-2">
-                <Button className="!h-8 !p-2" variant="secondary" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                  Save
-                </Button>
-                <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <SaveButton disabled={isPending} />
+                <CancelButton onClick={handleCancel}></CancelButton>
               </div>
             )}
           </div>

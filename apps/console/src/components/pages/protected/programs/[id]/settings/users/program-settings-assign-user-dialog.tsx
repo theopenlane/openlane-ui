@@ -19,6 +19,7 @@ import { Label } from '@repo/ui/label'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type UserRow = {
   id: string
@@ -167,7 +168,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
       <DialogTitle />
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button className="h-8 !px-2" variant="secondary">
+          <Button className="h-8 px-2!" variant="secondary">
             Assign
           </Button>
         )}
@@ -204,7 +205,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
-              <Button variant="back">Cancel</Button>
+              <CancelButton />
             </DialogTrigger>
           </div>
         </div>

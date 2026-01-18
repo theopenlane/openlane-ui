@@ -32,6 +32,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TransferOwnershipDialog } from '../../general-settings/transfer-ownership-dialog'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type MemberActionsProps = {
   memberId: string
@@ -212,7 +213,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                     </div>
                     <AlertDialogFooter>
                       <AlertDialogCancel asChild>
-                        <Button variant="secondary">Cancel</Button>
+                        <CancelButton />
                       </AlertDialogCancel>
                       <AlertDialogAction asChild>
                         <Button variant="primary" onClick={handleSubmit((data) => handleChangeRole(data.role))}>

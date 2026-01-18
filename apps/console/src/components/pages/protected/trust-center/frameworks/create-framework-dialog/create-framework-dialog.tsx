@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
-import { Button } from '@repo/ui/button'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,6 +11,8 @@ import { StandardNode, useCreateStandard, useUpdateStandard } from '@/lib/graphq
 import { TitleField } from './form-fields/title-field'
 import { DescriptionField } from './form-fields/description-field'
 import { UploadField } from './form-fields/upload-field'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -120,11 +121,9 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
         </FormProvider>
         <div className="flex gap-2 justify-end">
           <DialogClose asChild>
-            <Button variant="secondary">Cancel</Button>
+            <CancelButton />
           </DialogClose>
-          <Button form="standard-form" type="submit" disabled={isSubmitting} variant="primary">
-            {isSubmitting ? 'Creating...' : 'Save Framework'}
-          </Button>
+          <SaveButton form="standard-form" disabled={isSubmitting} isSaving={isSubmitting} />
         </div>
       </DialogContent>
     </Dialog>

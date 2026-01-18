@@ -30,6 +30,7 @@ import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { useOrganization } from '@/hooks/useOrganization'
 import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -172,15 +173,11 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       handleClearSelectedControls()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>

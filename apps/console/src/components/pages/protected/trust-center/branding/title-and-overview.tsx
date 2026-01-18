@@ -5,10 +5,10 @@ import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
-import { Button } from '@repo/ui/button'
 import { InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Label } from '@repo/ui/label'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const TitleAndOverview = () => {
   const { data } = useGetTrustCenter()
@@ -87,9 +87,7 @@ const TitleAndOverview = () => {
           />
         </div>
 
-        <Button onClick={handleSave} disabled={!isDirty || isPending} className="self-start gap-1">
-          {isPending ? 'Saving...' : 'Save changes'}
-        </Button>
+        <SaveButton isSaving={isPending} onClick={handleSave} disabled={!isDirty || isPending} className="self-start gap-1" />
       </div>
     </div>
   )

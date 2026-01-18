@@ -14,6 +14,7 @@ import { User } from '@repo/codegen/src/schema'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const AddMembersDialog = () => {
   const { selectedGroup } = useGroupsStore()
@@ -111,9 +112,7 @@ const AddMembersDialog = () => {
         </div>
 
         <DialogFooter className="flex justify-center pt-4">
-          <Button variant="secondary" className="w-full" onClick={handleSave}>
-            Save
-          </Button>
+          <SaveButton className="w-full" onClick={handleSave} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

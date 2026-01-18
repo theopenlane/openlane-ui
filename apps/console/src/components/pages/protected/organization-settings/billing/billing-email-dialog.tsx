@@ -1,4 +1,3 @@
-import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -8,6 +7,7 @@ import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const BillingEmailDialog = () => {
   const queryClient = useQueryClient()
@@ -71,9 +71,7 @@ const BillingEmailDialog = () => {
           </div>
 
           <DialogFooter>
-            <Button className="w-full mt-4" variant="filled" type="submit" disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save'}
-            </Button>
+            <SaveButton className="w-full" isSaving={isPending} disabled={isPending} />
           </DialogFooter>
         </form>
         {/* Form ends here */}

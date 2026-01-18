@@ -12,6 +12,7 @@ import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type BulkCsvCreateSubscriberDialogProps = {
   trigger?: React.ReactElement<
@@ -99,9 +100,7 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
           acceptedFilesClass="flex justify-between text-sm"
         />
         <div className="flex justify-end gap-2">
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
           <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>

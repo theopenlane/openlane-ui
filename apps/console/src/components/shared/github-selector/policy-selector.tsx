@@ -8,6 +8,7 @@ import { TUploadedFile } from '@/components/pages/protected/evidence/upload/type
 import { GITHUB_API_BASE, POLICY_DIRECTORIES, POLICY_HUB_REPO_URL, POLICY_REPO } from '@/constants/templates'
 import { formatFileName } from './naming'
 import Link from 'next/link'
+import { CancelButton } from '../cancel-button.tsx/cancel-button'
 
 type GitHubItem = {
   name: string
@@ -131,7 +132,7 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
             <h3 className="text-lg font-semibold">Browse Policy Templates</h3>
             <p className="text-sm mt-1">
               Select a template to import or browse our template repo on{' '}
-              <Link href={POLICY_HUB_REPO_URL} target="_blank" className="ml-1 text-[var(--color-info)] underline underline-offset-4 hover:opacity-80">
+              <Link href={POLICY_HUB_REPO_URL} target="_blank" className="ml-1 text-(--color-info) underline underline-offset-4 hover:opacity-80">
                 GitHub
               </Link>
             </p>
@@ -170,7 +171,7 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
                 <div key={item.path} className="w-full rounded-lg bg-gray-200/20 hover:bg-gray-300/40 dark:bg-gray-700/20 dark:hover:bg-gray-700/40 group transition-colors">
                   <div className="w-full flex items-center gap-4 p-3">
                     <button type="button" onClick={() => handleFileSelect(item)} className="flex items-center gap-4 flex-1">
-                      <FileTextIcon className="h-5 w-5 flex-shrink-0" />
+                      <FileTextIcon className="h-5 w-5 shrink-0" />
                       <span className="flex-1 text-left">{formatFileName(item.name)}</span>
                     </button>
                     <Button
@@ -194,16 +195,14 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
 
         {/* Footer */}
         <div className="p-2">
-          <Button type="button" variant="secondary" onClick={onClose} className="w-full">
-            Cancel
-          </Button>
+          <CancelButton onClick={onClose} className="w-full"></CancelButton>
         </div>
       </div>
 
       {/* Preview Modal */}
       {previewItem &&
         createPortal(
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-60 p-4">
             <div className="bg-secondary rounded-xl border shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
               {/* Preview Header */}
               <div className="flex items-center justify-between px-8 py-4 border-b">

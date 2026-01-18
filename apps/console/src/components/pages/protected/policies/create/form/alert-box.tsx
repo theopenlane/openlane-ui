@@ -14,6 +14,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
 import { Input } from '@repo/ui/input'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const AI_SUGGESTIONS_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 
@@ -119,16 +120,16 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-lg border dark:border-gray-700/50 bg-gradient-to-br dark:from-blue-800/10 dark:via-gray-800/60 dark:to-purple-900/20 from-blue-200/10 via-white-800/20 to-purple-400/10">
+      <div className="relative overflow-hidden rounded-lg border dark:border-gray-700/50 bg-linear-to-br dark:from-blue-800/10 dark:via-gray-800/60 dark:to-purple-900/20 from-blue-200/10 via-white-800/20 to-purple-400/10">
         {/* Header */}
         <button type="button" onClick={() => setIsAIHelperOpen(!isHelperOpen)} className="w-full flex items-center justify-between px-4 pt-4 pb-2 transition-colors">
           <div className="flex items-center gap-3">
             {AI_SUGGESTIONS_ENABLED ? (
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center">
+              <div className="shrink-0 w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-purple-400" />
               </div>
             ) : (
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center">
+              <div className="shrink-0 w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center">
                 <InfoIcon className="h-4 w-4 text-blue-400" />
               </div>
             )}
@@ -139,7 +140,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
             </div>
           </div>
 
-          <ChevronDown className={`h-4 w-4 transition-transform flex-shrink-0 ${isHelperOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`h-4 w-4 transition-transform shrink-0 ${isHelperOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {/* Collapsible content */}
@@ -158,7 +159,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
               <Button
                 type="button"
                 variant="secondary"
-                className="h-8 !px-2 !pl-3"
+                className="h-8 px-2! pl-3!"
                 icon={<FileTextIcon />}
                 iconPosition="left"
                 onClick={() => setShowTemplateBrowser(true)}
@@ -168,7 +169,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
               </Button>
 
               <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation">
-                <Button type="button" variant="secondary" className="h-8 !px-2 !pl-3" icon={<BookOpenIcon />} iconPosition="left">
+                <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<BookOpenIcon />} iconPosition="left">
                   View Docs
                 </Button>
               </a>
@@ -218,9 +219,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
 
                 {/* Actions */}
                 <div className="flex gap-3 pt-2">
-                  <Button type="button" variant="secondary" onClick={() => setShowNameDialog(false)} className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors">
-                    Cancel
-                  </Button>
+                  <CancelButton className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors" onClick={() => setShowNameDialog(false)}></CancelButton>
                   <Button
                     type="submit"
                     variant="primary"
@@ -241,7 +240,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
       {/* Full-screen loading overlay */}
       {isCreatingFromTemplate &&
         createPortal(
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[90]">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-90">
             <div className="bg-secondary rounded-xl border p-8 flex flex-col items-center gap-4">
               <LoaderCircle className="animate-spin opacity-30" size={32} />
               <p className="text-lg">Creating policy from template...</p>

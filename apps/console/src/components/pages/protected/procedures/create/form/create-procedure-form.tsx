@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
-import { Button } from '@repo/ui/button'
 import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -29,6 +28,7 @@ import { Switch } from '@repo/ui/switch'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -362,9 +362,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             </InputRow>
 
             <div className="flex justify-between items-center">
-              <Button variant="primary" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
-              </Button>
+              <SaveButton disabled={isSubmitting} title={isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Save Procedure'} />
               <div className="flex items-center gap-2">
                 <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>
@@ -372,7 +370,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             </div>
           </div>
 
-          <div className="flex-shrink-0 w-[380px] space-y-4">
+          <div className="shrink-0 w-[380px] space-y-4">
             <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />

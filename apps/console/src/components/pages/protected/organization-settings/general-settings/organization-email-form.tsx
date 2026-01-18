@@ -5,12 +5,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
-import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetBillingEmail, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const OrganizationEmailForm = () => {
   const queryClient = useQueryClient()
@@ -86,9 +86,7 @@ const OrganizationEmailForm = () => {
                 </FormItem>
               )}
             />
-            <Button variant={isSuccess ? 'success' : 'secondary'} type="submit" loading={isPending}>
-              {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-            </Button>
+            <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving Changes' : isSuccess ? 'Saved' : 'Save Changes'} />
           </InputRow>
         </form>
       </Form>

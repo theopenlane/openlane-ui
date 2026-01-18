@@ -22,6 +22,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessments'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -134,15 +135,11 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       handleClearSelectedQuestionnaires()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>

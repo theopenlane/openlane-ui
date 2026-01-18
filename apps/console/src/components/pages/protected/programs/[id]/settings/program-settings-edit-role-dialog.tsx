@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialo
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useEffect, useState } from 'react'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type Props = {
   open: boolean
@@ -49,9 +50,7 @@ export const EditGroupRoleDialog = ({ open, onOpenChange, groupName, currentRole
 
         <div className="mt-4 flex justify-start gap-2">
           <Button onClick={() => onSubmit(role)}>Edit role</Button>
-          <Button variant="back" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => onOpenChange(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>
