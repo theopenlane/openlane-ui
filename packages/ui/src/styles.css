@@ -586,6 +586,15 @@
   --color-document-published-border: #21c55d3d;
 
   --color-infobox: #6392ff1f;
+
+  /* notifications */
+  --color-notifications-programs: #4ade80;
+  --color-notifications-tasks: #6ee7b7;
+  --color-notifications-risks: #5eead4;
+  --color-notifications-procedures: #67e8f9;
+  --color-notifications-questionnaires: #38bdf8;
+  --color-notifications-evidence: #38bdf8;
+  --color-notifications-policies: #67e8f9;
 }
 
 /* ─────────────────────────────────────────────────────────

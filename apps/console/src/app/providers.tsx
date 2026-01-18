@@ -11,6 +11,7 @@ import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
 import { enableDevrevChat } from '@repo/dally/auth'
+import { WebSocketProvider } from '@/providers/websocket-provider'
 
 interface ProvidersProps {
   children: ReactNode
@@ -68,12 +69,14 @@ const Providers = ({ children }: ProvidersProps) => {
     <NavigationGuardProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
-          <BreadcrumbProvider>
-            {enableDevrevChat === 'true' && <InitPlugSDK />}
-            <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
-              {children}
-            </TooltipProvider>
-          </BreadcrumbProvider>
+          <WebSocketProvider>
+            <BreadcrumbProvider>
+              {enableDevrevChat === 'true' && <InitPlugSDK />}
+              <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
+                {children}
+              </TooltipProvider>
+            </BreadcrumbProvider>
+          </WebSocketProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </NavigationGuardProvider>
