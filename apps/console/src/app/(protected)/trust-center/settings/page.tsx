@@ -1,6 +1,6 @@
 import React from 'react'
 import { Metadata } from 'next'
-import TrustCenterSettingsPage from '@/components/pages/protected/trust-center/settings/trust-center-settings-page'
+import TrustCenterSettingsPage from '@/components/pages/protected/trust-center/branding/trust-center-settings-page'
 export const metadata: Metadata = {
   title: 'Settings | Trust center',
 }

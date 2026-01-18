@@ -25,30 +25,32 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 const BrandPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [title, setTitle] = useState('')
-  const [overview, setOverview] = useState('')
+
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const cnameRecord = trustCenter?.previewDomain?.cnameRecord
   const setting = trustCenter?.setting
   const previewSetting = trustCenter?.previewSetting
-  const [easyColor, setEasyColor] = useState(setting?.primaryColor ?? '#f0f0e0')
-  const [foreground, setForeground] = useState(setting?.foregroundColor ?? '#f0f0e0')
-  const [background, setBackground] = useState(setting?.backgroundColor ?? '#f0f0e0')
-  const [secondaryForeground, setSecondaryForeground] = useState(setting?.secondaryForegroundColor ?? '#f0f0e0')
-  const [secondaryBackground, setSecondaryBackground] = useState(setting?.secondaryBackgroundColor ?? '#f0f0e0')
-  const [accent, setAccent] = useState(setting?.accentColor ?? '#f0f0e0')
-  const [font, setFont] = useState(setting?.font ?? 'outfit')
-  const { updateTrustCenterSetting } = useHandleUpdateSetting()
-  const [logoPreview, setLogoPreview] = useState<string | null>(setting?.logoFile?.presignedURL || setting?.logoRemoteURL || null)
+
+  const [title, setTitle] = useState('')
+  const [overview, setOverview] = useState('')
+  const [easyColor, setEasyColor] = useState('#f0f0e0')
+  const [foreground, setForeground] = useState('#f0f0e0')
+  const [background, setBackground] = useState('#f0f0e0')
+  const [secondaryForeground, setSecondaryForeground] = useState('#f0f0e0')
+  const [secondaryBackground, setSecondaryBackground] = useState('#f0f0e0')
+  const [accent, setAccent] = useState('#f0f0e0')
+  const [font, setFont] = useState('outfit')
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
-  const [logoLink, setLogoLink] = useState(setting?.logoRemoteURL ?? '')
+  const [logoLink, setLogoLink] = useState('')
+  const [faviconPreview, setFaviconPreview] = useState<string | null>(null)
+  const [faviconFile, setFaviconFile] = useState<File | null>(null)
+  const [faviconLink, setFaviconLink] = useState('')
+  const [selectedThemeType, setSelectedThemeType] = useState<TrustCenterSettingTrustCenterThemeMode>(TrustCenterSettingTrustCenterThemeMode.EASY)
+
+  const { updateTrustCenterSetting } = useHandleUpdateSetting()
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
 
-  const [faviconPreview, setFaviconPreview] = useState<string | null>(setting?.faviconFile?.presignedURL || setting?.faviconRemoteURL || null)
-  const [faviconFile, setFaviconFile] = useState<File | null>(null)
-  const [faviconLink, setFaviconLink] = useState(setting?.faviconRemoteURL ?? '')
-
-  const [selectedThemeType, setSelectedThemeType] = useState<TrustCenterSettingTrustCenterThemeMode>(setting?.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY)
   enum LogoLinkInputTypeEnum {
     URL = 'url',
     FILE = 'file',
@@ -121,17 +123,20 @@ const BrandPage: React.FC = () => {
 
   useEffect(() => {
     if (setting) {
-      setTitle(setting.title || '')
-      setOverview(setting.overview || '')
-      setBackground(setting.backgroundColor || '#f0f0e0')
-      setSecondaryBackground(setting.secondaryBackgroundColor || '#f0f0e0')
-      setSecondaryForeground(setting.secondaryForegroundColor || '#f0f0e0')
-      setForeground(setting.foregroundColor || '#f0f0e0')
-      setAccent(setting.accentColor || '#f0f0e0')
-      setSecondaryBackground(setting.secondaryBackgroundColor || '#f0f0e0')
-      setFont(setting.font || 'outfit')
-      setEasyColor(setting.primaryColor || '#f0f0e0')
+      setTitle(setting.title ?? '')
+      setOverview(setting.overview ?? '')
+      setEasyColor(setting.primaryColor ?? '#f0f0e0')
+      setForeground(setting.foregroundColor ?? '#f0f0e0')
+      setBackground(setting.backgroundColor ?? '#f0f0e0')
+      setSecondaryForeground(setting.secondaryForegroundColor ?? '#f0f0e0')
+      setSecondaryBackground(setting.secondaryBackgroundColor ?? '#f0f0e0')
+      setAccent(setting.accentColor ?? '#f0f0e0')
+      setFont(setting.font ?? 'outfit')
       setSelectedThemeType(setting.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY)
+      setLogoPreview(setting.logoFile?.presignedURL || setting.logoRemoteURL || null)
+      setLogoLink(setting.logoRemoteURL ?? '')
+      setFaviconPreview(setting.faviconFile?.presignedURL || setting.faviconRemoteURL || null)
+      setFaviconLink(setting.faviconRemoteURL ?? '')
     }
   }, [setting])
 
@@ -179,12 +184,12 @@ const BrandPage: React.FC = () => {
     await updateTrustCenterSetting({
       id: savePreview ? previewSetting?.id : setting?.id,
       input: {
-        primaryColor: easyColor,
-        foregroundColor: foreground,
-        backgroundColor: background,
-        secondaryForegroundColor: secondaryForeground,
-        secondaryBackgroundColor: secondaryBackground,
-        accentColor: accent,
+        primaryColor: easyColor || undefined,
+        foregroundColor: foreground || undefined,
+        backgroundColor: background || undefined,
+        secondaryForegroundColor: secondaryForeground || undefined,
+        secondaryBackgroundColor: secondaryBackground || undefined,
+        accentColor: accent || undefined,
         font,
         themeMode: selectedThemeType,
         title,
