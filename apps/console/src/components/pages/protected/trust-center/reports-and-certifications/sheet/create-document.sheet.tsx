@@ -115,7 +115,6 @@ export const CreateDocumentSheet: React.FC = () => {
       if (isEditMode) {
         await updateDoc({
           input: {
-            trustCenterID,
             title: data.title,
             category: data.category,
             visibility: data.visibility,
