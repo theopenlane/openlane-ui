@@ -3,7 +3,6 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
-import { controlIconsMap } from '../controls/propereties-card/properties-card'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
@@ -13,6 +12,7 @@ import { GroupedControls, RelatedNode } from '../controls/related-controls'
 import { RelatedControlChip } from '../controls/shared/related-control-chip'
 import AccordionInfo from './control-details-accordion-info'
 import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
+import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
