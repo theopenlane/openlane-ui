@@ -18,6 +18,7 @@ import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TEvidenceRenewDialog = {
   controlId?: string
@@ -171,9 +172,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
           <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Create'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
-            Cancel
-          </Button>
+          <CancelButton disabled={isSubmitting} onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>
