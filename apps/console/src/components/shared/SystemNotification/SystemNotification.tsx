@@ -69,8 +69,8 @@ export default function SystemNotificationTracker() {
                       <>
                         {notifications.map((n) => (
                           <>
-                            {exportIDs.includes(n.data.id) ? (
-                              <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.id)?.node} />
+                            {exportIDs.includes(n.data?.export_id) ? (
+                              <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} />
                             ) : (
                               <NotificationRow key={n.id} notification={n} />
                             )}

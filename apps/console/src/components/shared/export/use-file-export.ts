@@ -1,4 +1,4 @@
-import { useCreateExport, useGetAllExports } from '@/lib/graphql-hooks/export'
+import { useCreateExport } from '@/lib/graphql-hooks/export'
 import { ExportExportFormat, ExportExportType, InputMaybe, Scalars } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -13,11 +13,10 @@ type TUseFileExportProps = {
 const useFileExport = () => {
   const { successNotification } = useNotification()
   const { mutateAsync: createExport, isPending } = useCreateExport()
-  const { refetch } = useGetAllExports({ enabled: false })
 
   const handleExport = async ({ exportType, filters, fields, format }: TUseFileExportProps) => {
     successNotification({
-      title: `Your export has started. You’ll get a notification when your file is ready to download.`,
+      title: `Your export has started. You'll get a notification when your file is ready to download.`,
     })
 
     try {
@@ -29,7 +28,6 @@ const useFileExport = () => {
           format,
         },
       })
-      refetch()
 
       return data.createExport.export.id
     } catch (error) {
