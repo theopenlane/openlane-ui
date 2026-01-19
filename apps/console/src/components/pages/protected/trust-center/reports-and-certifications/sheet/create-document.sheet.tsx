@@ -114,7 +114,7 @@ export const CreateDocumentSheet: React.FC = () => {
         await updateDoc({
           input: {
             title: data.title,
-            category: data.category,
+            trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
           },
@@ -132,7 +132,7 @@ export const CreateDocumentSheet: React.FC = () => {
         await createDoc({
           input: {
             title: data.title,
-            category: data.category,
+            trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
             trustCenterID,
@@ -162,7 +162,7 @@ export const CreateDocumentSheet: React.FC = () => {
     const doc = documentData?.trustCenterDoc
     reset({
       title: doc?.title ?? '',
-      category: doc?.category ?? '',
+      category: doc?.trustCenterDocKindName ?? '',
       visibility: doc?.visibility ?? TrustCenterDocTrustCenterDocumentVisibility.NOT_VISIBLE,
       tags: doc?.tags ?? [],
       file: undefined,
