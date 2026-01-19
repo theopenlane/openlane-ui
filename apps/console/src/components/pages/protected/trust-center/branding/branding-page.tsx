@@ -181,6 +181,8 @@ const BrandPage: React.FC = () => {
     return `https://${url}`
   }
 
+  const colorInput = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
+
   const handleSave = async (action: 'preview' | 'publish') => {
     // on preview we update only previewSetting and on publish we save both
     if (!setting?.id) return
@@ -189,12 +191,12 @@ const BrandPage: React.FC = () => {
     const payload: UpdateTrustCenterSettingsArgs = {
       id: action === 'preview' ? previewSetting?.id : setting?.id,
       input: {
-        primaryColor: easyColor || undefined,
-        foregroundColor: foreground || undefined,
-        backgroundColor: background || undefined,
-        secondaryForegroundColor: secondaryForeground || undefined,
-        secondaryBackgroundColor: secondaryBackground || undefined,
-        accentColor: accent || undefined,
+        ...colorInput(easyColor, 'primaryColor', 'clearPrimaryColor'),
+        ...colorInput(foreground, 'foregroundColor', 'clearForegroundColor'),
+        ...colorInput(background, 'backgroundColor', 'clearBackgroundColor'),
+        ...colorInput(secondaryForeground, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+        ...colorInput(secondaryBackground, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+        ...colorInput(accent, 'accentColor', 'clearAccentColor'),
         font,
         themeMode: selectedThemeType,
         title,
@@ -214,12 +216,12 @@ const BrandPage: React.FC = () => {
       await updateTrustCenterSetting({
         id: previewSetting.id,
         input: {
-          primaryColor: easyColor || undefined,
-          foregroundColor: foreground || undefined,
-          backgroundColor: background || undefined,
-          secondaryForegroundColor: secondaryForeground || undefined,
-          secondaryBackgroundColor: secondaryBackground || undefined,
-          accentColor: accent || undefined,
+          ...colorInput(easyColor, 'primaryColor', 'clearPrimaryColor'),
+          ...colorInput(foreground, 'foregroundColor', 'clearForegroundColor'),
+          ...colorInput(background, 'backgroundColor', 'clearBackgroundColor'),
+          ...colorInput(secondaryForeground, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+          ...colorInput(secondaryBackground, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+          ...colorInput(accent, 'accentColor', 'clearAccentColor'),
           font,
           themeMode: selectedThemeType,
           title,
@@ -240,12 +242,12 @@ const BrandPage: React.FC = () => {
     const payload: UpdateTrustCenterSettingsArgs = {
       id: setting?.id,
       input: {
-        primaryColor: previewSetting?.primaryColor,
-        foregroundColor: previewSetting?.foregroundColor,
-        backgroundColor: previewSetting?.backgroundColor,
-        secondaryForegroundColor: previewSetting?.secondaryForegroundColor,
-        secondaryBackgroundColor: previewSetting?.secondaryBackgroundColor,
-        accentColor: previewSetting?.accentColor,
+        ...colorInput(previewSetting?.primaryColor, 'primaryColor', 'clearPrimaryColor'),
+        ...colorInput(previewSetting?.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
+        ...colorInput(previewSetting?.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
+        ...colorInput(previewSetting?.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+        ...colorInput(previewSetting?.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+        ...colorInput(previewSetting?.accentColor, 'accentColor', 'clearAccentColor'),
         font: previewSetting?.font,
         themeMode: previewSetting?.themeMode,
         title: previewSetting?.title,
