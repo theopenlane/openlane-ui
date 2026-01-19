@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { GlobeIcon, Info, Link, Tag, User, Pencil, Check, PanelRightClose } from 'lucide-react'
+import { GlobeIcon, Info, Link, Tag, User, Pencil, PanelRightClose } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import GroupsMembersTable from './groups-members-table'
 import { Card } from '@repo/ui/cardpanel'
@@ -34,6 +34,8 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -171,12 +173,8 @@ const GroupDetailsSheet = () => {
                 </Button>
                 {isEditing ? (
                   <div className="flex gap-2">
-                    <Button type="button" variant="secondary" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                      Save
-                    </Button>
+                    <CancelButton onClick={() => setIsEditing(false)}></CancelButton>
+                    <SaveButton onClick={handleSubmit(onSubmit)} />
                   </div>
                 ) : (
                   <Button disabled={!!isManaged || !canEdit(permission?.roles)} icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
@@ -235,7 +233,11 @@ const GroupDetailsSheet = () => {
                     {isEditing ? (
                       <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable options={tagOptions} onChange={field.onChange} />} />
                     ) : (
-                      <div className="flex flex-wrap gap-2">{tags?.map((tag: string, i: number) => <TagChip key={i} tag={tag} />)}</div>
+                      <div className="flex flex-wrap gap-2">
+                        {tags?.map((tag: string, i: number) => (
+                          <TagChip key={i} tag={tag} />
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>

@@ -13,6 +13,8 @@ import UrlInput from '../shared/url-input'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -220,12 +222,8 @@ const DomainSettingsPage = () => {
           <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-8" />
           {editing ? (
             <div className="flex gap-2">
-              <Button onClick={handleUpdateCustomDomain} variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
-                Save
-              </Button>
-              <Button onClick={handleCancel} variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
-                Cancel
-              </Button>
+              <SaveButton onClick={handleUpdateCustomDomain} className="h-10 flex items-center justify-center gap-2 px-4" />
+              <CancelButton className="h-10 flex items-center justify-center gap-2" onClick={handleCancel}></CancelButton>
             </div>
           ) : (
             <div className="flex gap-2">
