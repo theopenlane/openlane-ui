@@ -3,13 +3,13 @@
 import React, { useState } from 'react'
 import { Eye, InfoIcon } from 'lucide-react'
 import { Label } from '@repo/ui/label'
-import { Button } from '@repo/ui/button'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import UrlInput from './url-input'
 import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type Props = {
   setting: TrustCenterSetting
@@ -151,9 +151,7 @@ const BrandSection = ({ setting }: Props) => {
                         multipleFiles={false}
                       />
                     </div>
-                    <Button variant="primary" onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} className="mt-3 block">
-                      {logoPending || logoLinkPending ? 'Saving…' : 'Save'}
-                    </Button>
+                    <SaveButton onClick={handleSaveLogoFile} disabled={logoPending || !logoFile} isSaving={logoPending || logoLinkPending} />
                   </>
                 )}
 
@@ -174,9 +172,7 @@ const BrandSection = ({ setting }: Props) => {
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
-                      <Button variant="primary" className="w-auto" onClick={handleSaveLogoLink} disabled={logoLinkPending}>
-                        {logoLinkPending ? 'Saving…' : 'Save'}
-                      </Button>
+                      <SaveButton className="w-auto" onClick={handleSaveLogoLink} isSaving={logoLinkPending} />
                     </div>
                   </div>
                 )}
@@ -222,9 +218,7 @@ const BrandSection = ({ setting }: Props) => {
                         multipleFiles={false}
                       />
                     </div>
-                    <Button variant="primary" onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3 block">
-                      {faviconPending || faviconLinkPending ? 'Saving…' : 'Save'}
-                    </Button>
+                    <SaveButton onClick={handleSaveFaviconFile} disabled={faviconPending || !faviconFile} className="mt-3 block" isSaving={faviconPending || faviconLinkPending} />
                   </>
                 )}
 
@@ -245,9 +239,7 @@ const BrandSection = ({ setting }: Props) => {
                     </div>
                     <div className="flex gap-3 items-center mt-1">
                       <UrlInput className="w-full" value={faviconLink} onChange={setFaviconLink} />
-                      <Button variant="primary" className="w-auto" onClick={handleSaveFaviconLink} disabled={faviconLinkPending}>
-                        {faviconLinkPending ? 'Saving…' : 'Save'}
-                      </Button>
+                      <SaveButton isSaving={faviconLinkPending} className="w-auto" onClick={handleSaveFaviconLink} disabled={faviconLinkPending} />
                     </div>
                   </div>
                 )}

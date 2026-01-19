@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Copy, PanelRightClose, Save } from 'lucide-react'
+import { Copy, PanelRightClose } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,6 +17,7 @@ import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { SubprocessorSelectField } from './form-fields/subprocessor-select-field'
 import { CategoryField } from './form-fields/category-field'
 import { CountriesField } from './form-fields/countries-field'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
@@ -144,9 +145,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
                   Copy link
                 </Button>
 
-                <Button variant="primary" type="submit" form="tc-subprocessor-form" className="h-8 p-2" icon={<Save />} iconPosition="left">
-                  {isSubmitting ? 'Saving...' : 'Save'}
-                </Button>
+                <SaveButton isSaving={isSubmitting} form="tc-subprocessor-form" />
               </div>
             </div>
           </div>

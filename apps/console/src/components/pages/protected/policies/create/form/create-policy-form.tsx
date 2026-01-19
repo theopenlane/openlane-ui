@@ -7,7 +7,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
-import { Button } from '@repo/ui/button'
 import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -27,6 +26,7 @@ import HelperText from './alert-box'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { useSession } from 'next-auth/react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -327,9 +327,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
               />
             </InputRow>
             <div className="flex justify-between items-center">
-              <Button variant="primary" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
-              </Button>
+              <SaveButton disabled={isSubmitting} title={isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Save Changes'} />
               <div className="flex items-center gap-2">
                 <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>
@@ -337,7 +335,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
             </div>
           </div>
 
-          <div className="flex-shrink-0 w-[380px] space-y-4">
+          <div className="shrink-0 w-[380px] space-y-4">
             <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />

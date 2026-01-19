@@ -14,6 +14,8 @@ import { ClientError } from 'graphql-request'
 import { useBulkUpdateTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
 import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 export enum SelectOptionBulkEditTrustCenterDocs {
   CATEGORY = 'Category',
@@ -197,18 +199,13 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
             </div>
 
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>
