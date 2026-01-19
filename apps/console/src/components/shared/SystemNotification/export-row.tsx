@@ -15,7 +15,7 @@ export const ExportRow = ({ notification, exportData }: ExportRowProps) => {
   const isUnread = true
 
   return (
-    <div className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md', isUnread && 'bg-accent/20')}>
+    <div className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md justify-center', isUnread && 'bg-accent/20')}>
       <div className="relative">
         <NotificationIcon objectType={notification.objectType} />
       </div>
@@ -25,7 +25,6 @@ export const ExportRow = ({ notification, exportData }: ExportRowProps) => {
       </div>
       <div className="flex flex-col items-end gap-1">
         <span className="text-[10px] text-muted-foreground">{formatTimeSince(new Date().toISOString())}</span>
-        {isUnread && <div className="h-1.5 w-1.5 rounded-full" />}
         <a
           href={exportData?.files.edges?.[0]?.node?.presignedURL || '#'}
           target="_blank"
@@ -36,6 +35,7 @@ export const ExportRow = ({ notification, exportData }: ExportRowProps) => {
           <span>Download</span>
         </a>
       </div>
+      {isUnread && <div className="h-1.5 w-1.5 rounded-full bg-primary " />}
     </div>
   )
 }
