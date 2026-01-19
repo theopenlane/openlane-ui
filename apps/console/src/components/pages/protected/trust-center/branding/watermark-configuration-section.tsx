@@ -3,16 +3,15 @@
 import React, { useEffect, useState } from 'react'
 import { Eye, InfoIcon } from 'lucide-react'
 import { Label } from '@repo/ui/label'
-import { Button } from '@repo/ui/button'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Input } from '@repo/ui/input'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
-
 import { TrustCenterWatermarkConfig, useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type Props = {
   watermarkConfig: TrustCenterWatermarkConfig | null
@@ -178,9 +177,7 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
                   />
                 </div>
 
-                <Button variant="primary" onClick={saveFile} disabled={updating || !uploadedFile} className="mt-3 block">
-                  {updating ? 'Saving…' : 'Save'}
-                </Button>
+                <SaveButton isSaving={updating} onClick={saveFile} disabled={updating || !uploadedFile} className="mt-3 block" />
               </div>
             </div>
           </div>
@@ -200,9 +197,7 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
 
               <ColorInput label="Color" value={wmColor} onChange={setWmColor} />
 
-              <Button variant="primary" onClick={saveTextConfig} disabled={updating} className="size-fit mt-3">
-                {updating ? 'Saving…' : 'Save'}
-              </Button>
+              <SaveButton isSaving={updating} onClick={saveTextConfig} disabled={updating} className="size-fit mt-3" />
             </div>
           </div>
         </div>
@@ -219,9 +214,7 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
               <Label className="text-sm">Rotation (°)</Label>
               <Input type="number" value={wmRotation} onChange={(e) => setWmRotation(Number(e.target.value))} />
 
-              <Button variant="primary" onClick={saveVisualConfig} disabled={updating} className="size-fit mt-3">
-                {updating ? 'Saving…' : 'Save'}
-              </Button>
+              <SaveButton isSaving={updating} onClick={saveVisualConfig} disabled={updating} className="size-fit mt-3" />
             </div>
           </div>
         </div>

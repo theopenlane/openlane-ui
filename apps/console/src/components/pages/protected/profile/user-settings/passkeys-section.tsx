@@ -14,6 +14,7 @@ import { useMemo, useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useDeletePasskey, useGetPasskeys } from '@/lib/graphql-hooks/passkeys'
 import rawData from '@/lib/passkeys.json' assert { type: 'json' }
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type PasskeyEntry = {
   name?: string
@@ -194,7 +195,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
           </DialogHeader>
           <div className="flex justify-end space-x-4 pt-4">
             <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
+              <CancelButton />
             </DialogClose>
             <Button variant="destructive" onClick={removePasskeys}>
               Remove Passkey

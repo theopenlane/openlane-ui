@@ -52,6 +52,7 @@ import RelatedControls from './related-controls'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { Value } from 'platejs'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -441,9 +442,7 @@ export default function CreateControlForm() {
                 <Button variant="primary" type="submit">
                   Create
                 </Button>
-                <Button type="button" variant="secondary" onClick={onCancel}>
-                  Cancel
-                </Button>
+                <CancelButton onClick={onCancel}></CancelButton>
               </div>
               <div className="flex items-center gap-2">
                 <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />

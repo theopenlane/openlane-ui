@@ -12,6 +12,7 @@ import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { TUploadedFile } from '../upload/types/TUploadedFile'
 import { useCreateBulkCSVEvidence } from '@/lib/graphql-hooks/evidence'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type BulkCSVCreateEvidenceDialogProps = {
   trigger?: React.ReactElement<
@@ -104,9 +105,7 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
           <Button variant="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

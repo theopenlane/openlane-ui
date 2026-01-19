@@ -102,13 +102,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
@@ -167,7 +161,7 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {
-    key: 'categoryContainsFold',
+    key: 'trustCenterDocKindNameContainsFold',
     label: 'Category',
     type: 'text',
     icon: Folder,

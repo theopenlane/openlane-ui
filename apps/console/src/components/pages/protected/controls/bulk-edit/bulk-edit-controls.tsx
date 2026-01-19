@@ -24,6 +24,8 @@ import {
 import { Group } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { EditableSelectFromQuery } from '../propereties-card/fields/editable-select-from-query'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 
 const fieldItemSchema = z.object({
@@ -245,18 +247,13 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
             </div>
 
             <DialogFooter className="mt-6 flex gap-2">
-              <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

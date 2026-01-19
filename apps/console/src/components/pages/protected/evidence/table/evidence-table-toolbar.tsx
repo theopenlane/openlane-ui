@@ -17,6 +17,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BulkEditEvidenceDialog } from '../bulk-edit/bulk-edit-evidence'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -115,15 +116,11 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
+                  <CancelButton
                     onClick={() => {
                       setSelectedEvidence([])
                     }}
-                    variant="secondary"
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>

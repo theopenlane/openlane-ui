@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
@@ -14,6 +13,7 @@ import { useGetCurrentUser, useUpdateUserSetting } from '@/lib/graphql-hooks/use
 import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const DefaultOrgForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -105,9 +105,7 @@ const DefaultOrgForm = () => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <Button type="submit" loading={isSubmitting}>
-                    {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-                  </Button>
+                  <SaveButton title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
                 </div>
                 <FormMessage />
               </FormItem>

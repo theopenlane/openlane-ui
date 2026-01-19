@@ -25,6 +25,8 @@ import {
 import { Group } from '@repo/codegen/src/schema'
 import { useBulkEditRisk } from '@/lib/graphql-hooks/risks'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditRisks).optional(),
@@ -242,18 +244,13 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
               ) : null}
             </div>
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

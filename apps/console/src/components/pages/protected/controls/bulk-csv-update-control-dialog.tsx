@@ -12,6 +12,7 @@ import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type BulkCSVUpdateControlDialogProps = {
   trigger?: React.ReactElement<
@@ -69,7 +70,7 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button icon={<Upload />} className="h-8 !px-2 bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+          <Button icon={<Upload />} className="h-8 px-2! bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Bulk Upload
           </Button>
         </DialogTrigger>
@@ -102,9 +103,7 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
           <Button variant="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>
