@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 
 interface BrandingThemeSectionProps {
-  selectedThemeType: TrustCenterSettingTrustCenterThemeMode
+  selectedThemeType: TrustCenterSettingTrustCenterThemeMode | null | undefined
   setSelectedThemeType: (mode: TrustCenterSettingTrustCenterThemeMode) => void
   font: string
   setFont: (font: string) => void

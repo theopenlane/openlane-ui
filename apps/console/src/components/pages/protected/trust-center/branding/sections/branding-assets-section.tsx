@@ -23,7 +23,6 @@ export const BrandingAssetsSection = ({ logo, favicon, isReadOnly, hasWarning, n
             </p>
           </div>
 
-          {/* Logo Podsekcija */}
           <AssetInputGroup
             label="Logo"
             preview={logo.preview}
@@ -43,7 +42,6 @@ export const BrandingAssetsSection = ({ logo, favicon, isReadOnly, hasWarning, n
 
           <div className="border-b my-2" />
 
-          {/* Favicon Podsekcija */}
           <AssetInputGroup
             label="Favicon"
             preview={favicon.preview}

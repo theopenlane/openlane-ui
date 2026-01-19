@@ -49,33 +49,41 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
           </div>
         </div>
 
-        <div className="flex-1">
-          {inputType === InputTypeEnum.FILE && !isReadOnly ? (
-            <>
-              <Label className="block text-sm mb-2">Upload</Label>
-              <div className="w-full max-w-[417px]">
-                <FileUpload acceptedFileTypes={fileConfigs.types} onFileUpload={onUpload} acceptedFileTypesShort={fileConfigs.shortTypes} maxFileSizeInMb={fileConfigs.maxSize} multipleFiles={false} />
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col gap-2 mt-6">
-              <Label className="text-sm">URL</Label>
-              <UrlInput disabled={isReadOnly} className="w-full" value={link} onChange={setLink} />
-            </div>
-          )}
-
-          <div className="flex gap-6 mt-5">
-            {options.map((option) => (
-              <label key={option.value} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                <input type="radio" disabled={isReadOnly} name={`${label.toLowerCase()}Type`} checked={inputType === option.value} onChange={() => setInputType(option.value)} className="sr-only" />
-                <div className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${inputType === option.value ? 'border-primary' : ''}`}>
-                  {inputType === option.value && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
+        {!isReadOnly && (
+          <div className="flex-1">
+            {inputType === InputTypeEnum.FILE ? (
+              <>
+                <Label className="block text-sm mb-2">Upload</Label>
+                <div className="w-full max-w-[417px]">
+                  <FileUpload
+                    acceptedFileTypes={fileConfigs.types}
+                    onFileUpload={onUpload}
+                    acceptedFileTypesShort={fileConfigs.shortTypes}
+                    maxFileSizeInMb={fileConfigs.maxSize}
+                    multipleFiles={false}
+                  />
                 </div>
-                <p className="text-sm">{option.label}</p>
-              </label>
-            ))}
+              </>
+            ) : (
+              <div className="flex flex-col gap-2 mt-6">
+                <Label className="text-sm">URL</Label>
+                <UrlInput disabled={isReadOnly} className="w-full" value={link} onChange={setLink} />
+              </div>
+            )}
+
+            <div className="flex gap-6 mt-5">
+              {options.map((option) => (
+                <label key={option.value} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
+                  <input type="radio" disabled={isReadOnly} name={`${label.toLowerCase()}Type`} checked={inputType === option.value} onChange={() => setInputType(option.value)} className="sr-only" />
+                  <div className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${inputType === option.value ? 'border-primary' : ''}`}>
+                    {inputType === option.value && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
+                  </div>
+                  <p className="text-sm">{option.label}</p>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

@@ -136,25 +136,25 @@ const BrandPage: React.FC = () => {
   }, [setCrumbs])
 
   useEffect(() => {
-    setTitle(initialValues.title)
-    setOverview(initialValues.overview)
-    setEasyColor(initialValues.primaryColor)
-    setForeground(initialValues.foregroundColor)
-    setBackground(initialValues.backgroundColor)
-    setSecondaryForeground(initialValues.secondaryForegroundColor)
-    setSecondaryBackground(initialValues.secondaryBackgroundColor)
-    setAccent(initialValues.accentColor)
-    setFont(initialValues.font)
-    setSelectedThemeType(initialValues.themeMode)
-    setLogoPreview(activeTab === 'preview' ? previewSetting?.logoFile?.presignedURL || previewSetting?.logoRemoteURL || null : setting?.logoFile?.presignedURL || setting?.logoRemoteURL || null)
-    setLogoLink(initialValues.logoRemoteURL)
-    setFaviconPreview(
-      activeTab === 'preview' ? previewSetting?.faviconFile?.presignedURL || previewSetting?.faviconRemoteURL || null : setting?.faviconFile?.presignedURL || setting?.faviconRemoteURL || null,
-    )
-    setFaviconLink(initialValues.faviconRemoteURL)
-    setLogoFile(null)
-    setFaviconFile(null)
-  }, [initialValues, activeTab, setting, previewSetting])
+    if (previewSetting) {
+      setTitle(previewSetting.title ?? '')
+      setOverview(previewSetting.overview ?? '')
+      setEasyColor(previewSetting.primaryColor ?? '#f0f0e0')
+      setForeground(previewSetting.foregroundColor ?? '#f0f0e0')
+      setBackground(previewSetting.backgroundColor ?? '#f0f0e0')
+      setSecondaryForeground(previewSetting.secondaryForegroundColor ?? '#f0f0e0')
+      setSecondaryBackground(previewSetting.secondaryBackgroundColor ?? '#f0f0e0')
+      setAccent(previewSetting.accentColor ?? '#f0f0e0')
+      setFont(previewSetting.font ?? 'outfit')
+      setSelectedThemeType(previewSetting.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY)
+      setLogoLink(previewSetting.logoRemoteURL ?? '')
+      setFaviconLink(previewSetting.faviconRemoteURL ?? '')
+      setLogoPreview(previewSetting.logoFile?.presignedURL || previewSetting.logoRemoteURL || null)
+      setFaviconPreview(previewSetting.faviconFile?.presignedURL || previewSetting.faviconRemoteURL || null)
+      setLogoFile(null)
+      setFaviconFile(null)
+    }
+  }, [previewSetting])
 
   const handleLogoUpload = (uploadedFile: TUploadedFile) => {
     if (!uploadedFile.file) return
@@ -255,10 +255,6 @@ const BrandPage: React.FC = () => {
     updateTrustCenterSetting(payload)
   }
 
-  const onCancelNavigation = () => {
-    navGuard.reject()
-  }
-
   if (isLoading) {
     return <Loading />
   }
@@ -277,7 +273,6 @@ const BrandPage: React.FC = () => {
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-[1200px] grid gap-6">
         <PageHeading heading="Branding" />
-
         <BrandingHeader
           cnameRecord={cnameRecord}
           hasChanges={hasPreviewDifference?.any}
@@ -285,51 +280,54 @@ const BrandPage: React.FC = () => {
           onRevert={handleRevert}
           onPublish={() => setIsConfirmationDialogOpen(true)}
         />
-
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
           <TabsList className="grid w-full max-w-[400px] grid-cols-2">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="published">Published</TabsTrigger>
           </TabsList>
         </Tabs>
-
-        <BrandingTextSection title={title} setTitle={setTitle} overview={overview} setOverview={setOverview} isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.text} />
-
+        <BrandingTextSection
+          title={isReadOnly ? setting.title ?? '' : title}
+          setTitle={setTitle}
+          overview={isReadOnly ? setting.overview ?? '' : overview}
+          setOverview={setOverview}
+          isReadOnly={isReadOnly}
+          hasWarning={hasPreviewDifference?.text}
+        />
         <BrandingThemeSection
-          selectedThemeType={selectedThemeType}
+          selectedThemeType={isReadOnly ? setting.themeMode : selectedThemeType}
           setSelectedThemeType={setSelectedThemeType}
-          font={font}
+          font={isReadOnly ? setting.font ?? 'outfit' : font}
           setFont={setFont}
           colors={{
-            easyColor,
+            easyColor: isReadOnly ? setting.primaryColor ?? '#f0f0e0' : easyColor,
             setEasyColor,
-            foreground,
+            foreground: isReadOnly ? setting.foregroundColor ?? '#f0f0e0' : foreground,
             setForeground,
-            background,
+            background: isReadOnly ? setting.backgroundColor ?? '#f0f0e0' : background,
             setBackground,
-            accent,
+            accent: isReadOnly ? setting.accentColor ?? '#f0f0e0' : accent,
             setAccent,
-            secondaryForeground,
+            secondaryForeground: isReadOnly ? setting.secondaryForegroundColor ?? '#f0f0e0' : secondaryForeground,
             setSecondaryForeground,
-            secondaryBackground,
+            secondaryBackground: isReadOnly ? setting.secondaryBackgroundColor ?? '#f0f0e0' : secondaryBackground,
             setSecondaryBackground,
           }}
           isReadOnly={isReadOnly}
           hasWarning={hasPreviewDifference?.theme}
         />
-
         <BrandingAssetsSection
           logo={{
-            preview: logoPreview,
-            link: logoLink,
+            preview: isReadOnly ? setting.logoFile?.presignedURL || setting.logoRemoteURL || null : logoPreview,
+            link: isReadOnly ? setting.logoRemoteURL ?? '' : logoLink,
             setLink: setLogoLink,
             onUpload: handleLogoUpload,
             inputType: showLogoLinkInputType,
             setInputType: setShowLogoLinkInputType,
           }}
           favicon={{
-            preview: faviconPreview,
-            link: faviconLink,
+            preview: isReadOnly ? setting.faviconFile?.presignedURL || setting.faviconRemoteURL || null : faviconPreview,
+            link: isReadOnly ? setting.faviconRemoteURL ?? '' : faviconLink,
             setLink: setFaviconLink,
             onUpload: handleFaviconUpload,
             inputType: showFavIconInputType,
@@ -340,16 +338,15 @@ const BrandPage: React.FC = () => {
           normalizeUrl={normalizeUrl}
         />
       </div>
-
       <ConfirmationDialog
         open={isConfirmationDialogOpen}
         onOpenChange={setIsConfirmationDialogOpen}
         onConfirm={() => handleSave('publish')}
         confirmationText="Publish"
         title="Publish"
-        description="Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate"
+        description="Publishing will apply these changes to your live site..."
       />
-      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={onCancelNavigation} />
+      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={() => navGuard.reject()} />
     </div>
   )
 }
