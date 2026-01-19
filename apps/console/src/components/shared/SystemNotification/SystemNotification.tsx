@@ -5,6 +5,9 @@ import { Bell, CheckCheck } from 'lucide-react'
 import useClickOutside from '@/hooks/useClickOutside'
 import { useWebsocketNotifications } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { NotificationRow } from './notification-row'
+import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
+import { useGetAllExports } from '@/lib/graphql-hooks/export'
+import { ExportRow } from './export-row'
 
 export default function SystemNotificationTracker() {
   const { notifications } = useWebsocketNotifications()
@@ -21,6 +24,15 @@ export default function SystemNotificationTracker() {
       hasUnread: unreadNotifications > 0,
     }
   }, [notifications])
+
+  const exportIDs = notifications.flatMap((n) => {
+    if (n.topic === NotificationNotificationTopic.EXPORT && n.data?.export_id) {
+      return [n.data.export_id as string]
+    }
+    return []
+  })
+
+  const { data: exportData } = useGetAllExports({ where: { idIn: exportIDs } })
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -56,7 +68,13 @@ export default function SystemNotificationTracker() {
                     ) : (
                       <>
                         {notifications.map((n) => (
-                          <NotificationRow key={n.id} notification={n} />
+                          <>
+                            {exportIDs.includes(n.data?.export_id) ? (
+                              <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} />
+                            ) : (
+                              <NotificationRow key={n.id} notification={n} />
+                            )}
+                          </>
                         ))}
                       </>
                     )}
