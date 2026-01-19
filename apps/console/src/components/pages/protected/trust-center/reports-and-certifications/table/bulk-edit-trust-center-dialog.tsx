@@ -8,12 +8,12 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ClientError } from 'graphql-request'
 import { useBulkUpdateTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
 import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
@@ -43,6 +43,12 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditDocs } = useBulkUpdateTrustCenterDocs()
   const { successNotification, errorNotification } = useNotification()
+  const { enumOptions: categoryOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'trustcenterdoc',
+      field: 'kind',
+    },
+  })
 
   const form = useForm<BulkEditDialogFormValues>({
     resolver: zodResolver(bulkEditDocsSchema),
@@ -74,7 +80,7 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
     const input: Record<string, string> = {}
     watchedFields.forEach((field) => {
       if (field.value === SelectOptionBulkEditTrustCenterDocs.CATEGORY && field.selectedValue) {
-        input.category = field.selectedValue
+        input.trustCenterDocKindName = field.selectedValue
       }
       if (field.value === SelectOptionBulkEditTrustCenterDocs.VISIBILITY && field.visibilityEnum) {
         input.visibility = field.visibilityEnum
@@ -144,7 +150,20 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                     <Controller
                       control={control}
                       name={`fieldsArray.${index}.selectedValue`}
-                      render={({ field }) => <Input {...field} placeholder="Enter category" variant="medium" className="w-60" />}
+                      render={({ field }) => (
+                        <Select value={field.value || ''} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-60">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categoryOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     />
                   )}
 
