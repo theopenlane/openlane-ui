@@ -22,6 +22,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import SectionWarning from './section-warning'
+import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 
 const BrandPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -31,6 +32,8 @@ const BrandPage: React.FC = () => {
   const cnameRecord = trustCenter?.previewDomain?.cnameRecord
   const setting = trustCenter?.setting
   const previewSetting = trustCenter?.previewSetting
+
+  const [activeTab, setActiveTab] = useState<'preview' | 'published'>('preview')
 
   const [title, setTitle] = useState('')
   const [overview, setOverview] = useState('')
@@ -65,22 +68,22 @@ const BrandPage: React.FC = () => {
 
   const initialValues = useMemo(
     () => ({
-      title: setting?.title ?? '',
-      overview: setting?.overview ?? '',
-      primaryColor: setting?.primaryColor ?? '#f0f0e0',
-      foregroundColor: setting?.foregroundColor ?? '#f0f0e0',
-      backgroundColor: setting?.backgroundColor ?? '#f0f0e0',
-      secondaryForegroundColor: setting?.secondaryForegroundColor ?? '#f0f0e0',
-      secondaryBackgroundColor: setting?.secondaryBackgroundColor ?? '#f0f0e0',
-      accentColor: setting?.accentColor ?? '#f0f0e0',
-      font: setting?.font ?? 'outfit',
-      themeMode: setting?.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY,
-      logoRemoteURL: setting?.logoRemoteURL ?? '',
-      faviconRemoteURL: setting?.faviconRemoteURL ?? '',
-      logoFileId: setting?.logoFile?.id,
-      faviconFileId: setting?.faviconFile?.id,
+      title: (activeTab === 'preview' ? previewSetting?.title : setting?.title) ?? '',
+      overview: (activeTab === 'preview' ? previewSetting?.overview : setting?.overview) ?? '',
+      primaryColor: (activeTab === 'preview' ? previewSetting?.primaryColor : setting?.primaryColor) ?? '#f0f0e0',
+      foregroundColor: (activeTab === 'preview' ? previewSetting?.foregroundColor : setting?.foregroundColor) ?? '#f0f0e0',
+      backgroundColor: (activeTab === 'preview' ? previewSetting?.backgroundColor : setting?.backgroundColor) ?? '#f0f0e0',
+      secondaryForegroundColor: (activeTab === 'preview' ? previewSetting?.secondaryForegroundColor : setting?.secondaryForegroundColor) ?? '#f0f0e0',
+      secondaryBackgroundColor: (activeTab === 'preview' ? previewSetting?.secondaryBackgroundColor : setting?.secondaryBackgroundColor) ?? '#f0f0e0',
+      accentColor: (activeTab === 'preview' ? previewSetting?.accentColor : setting?.accentColor) ?? '#f0f0e0',
+      font: (activeTab === 'preview' ? previewSetting?.font : setting?.font) ?? 'outfit',
+      themeMode: (activeTab === 'preview' ? previewSetting?.themeMode : setting?.themeMode) ?? TrustCenterSettingTrustCenterThemeMode.EASY,
+      logoRemoteURL: (activeTab === 'preview' ? previewSetting?.logoRemoteURL : setting?.logoRemoteURL) ?? '',
+      faviconRemoteURL: (activeTab === 'preview' ? previewSetting?.faviconRemoteURL : setting?.faviconRemoteURL) ?? '',
+      logoFileId: activeTab === 'preview' ? previewSetting?.logoFile?.id : setting?.logoFile?.id,
+      faviconFileId: activeTab === 'preview' ? previewSetting?.faviconFile?.id : setting?.faviconFile?.id,
     }),
-    [setting],
+    [setting, previewSetting, activeTab],
   )
 
   const hasTextChanged = useMemo(() => {
@@ -136,30 +139,30 @@ const BrandPage: React.FC = () => {
     }
   }, [setting, previewSetting])
 
-  console.log('brah', { setting, previewSetting })
-
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Branding', href: '/trust-center/branding' }])
   }, [setCrumbs])
 
   useEffect(() => {
-    if (setting) {
-      setTitle(setting.title ?? '')
-      setOverview(setting.overview ?? '')
-      setEasyColor(setting.primaryColor ?? '#f0f0e0')
-      setForeground(setting.foregroundColor ?? '#f0f0e0')
-      setBackground(setting.backgroundColor ?? '#f0f0e0')
-      setSecondaryForeground(setting.secondaryForegroundColor ?? '#f0f0e0')
-      setSecondaryBackground(setting.secondaryBackgroundColor ?? '#f0f0e0')
-      setAccent(setting.accentColor ?? '#f0f0e0')
-      setFont(setting.font ?? 'outfit')
-      setSelectedThemeType(setting.themeMode ?? TrustCenterSettingTrustCenterThemeMode.EASY)
-      setLogoPreview(setting.logoFile?.presignedURL || setting.logoRemoteURL || null)
-      setLogoLink(setting.logoRemoteURL ?? '')
-      setFaviconPreview(setting.faviconFile?.presignedURL || setting.faviconRemoteURL || null)
-      setFaviconLink(setting.faviconRemoteURL ?? '')
-    }
-  }, [setting])
+    setTitle(initialValues.title)
+    setOverview(initialValues.overview)
+    setEasyColor(initialValues.primaryColor)
+    setForeground(initialValues.foregroundColor)
+    setBackground(initialValues.backgroundColor)
+    setSecondaryForeground(initialValues.secondaryForegroundColor)
+    setSecondaryBackground(initialValues.secondaryBackgroundColor)
+    setAccent(initialValues.accentColor)
+    setFont(initialValues.font)
+    setSelectedThemeType(initialValues.themeMode)
+    setLogoPreview(activeTab === 'preview' ? previewSetting?.logoFile?.presignedURL || previewSetting?.logoRemoteURL || null : setting?.logoFile?.presignedURL || setting?.logoRemoteURL || null)
+    setLogoLink(initialValues.logoRemoteURL)
+    setFaviconPreview(
+      activeTab === 'preview' ? previewSetting?.faviconFile?.presignedURL || previewSetting?.faviconRemoteURL || null : setting?.faviconFile?.presignedURL || setting?.faviconRemoteURL || null,
+    )
+    setFaviconLink(initialValues.faviconRemoteURL)
+    setLogoFile(null)
+    setFaviconFile(null)
+  }, [initialValues, activeTab, setting, previewSetting])
 
   const handleLogoUpload = (uploadedFile: TUploadedFile) => {
     if (!uploadedFile.file) return
@@ -184,7 +187,6 @@ const BrandPage: React.FC = () => {
   const colorInput = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
 
   const handleSave = async (action: 'preview' | 'publish') => {
-    // on preview we update only previewSetting and on publish we save both
     if (!setting?.id) return
     if (action === 'preview' && !previewSetting?.id) return
 
@@ -236,26 +238,26 @@ const BrandPage: React.FC = () => {
   }
 
   const handleRevert = () => {
-    if (!setting?.id) {
+    if (!previewSetting?.id) {
       return
     }
     const payload: UpdateTrustCenterSettingsArgs = {
-      id: setting?.id,
+      id: previewSetting.id,
       input: {
-        ...colorInput(previewSetting?.primaryColor, 'primaryColor', 'clearPrimaryColor'),
-        ...colorInput(previewSetting?.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
-        ...colorInput(previewSetting?.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
-        ...colorInput(previewSetting?.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
-        ...colorInput(previewSetting?.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
-        ...colorInput(previewSetting?.accentColor, 'accentColor', 'clearAccentColor'),
-        font: previewSetting?.font,
-        themeMode: previewSetting?.themeMode,
-        title: previewSetting?.title,
-        overview: previewSetting?.overview,
-        logoRemoteURL: previewSetting?.logoRemoteURL,
-        faviconRemoteURL: previewSetting?.faviconRemoteURL,
-        logoFileID: previewSetting?.logoFile?.id,
-        faviconFileID: previewSetting?.logoFile?.id,
+        ...colorInput(setting?.primaryColor, 'primaryColor', 'clearPrimaryColor'),
+        ...colorInput(setting?.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
+        ...colorInput(setting?.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
+        ...colorInput(setting?.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+        ...colorInput(setting?.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+        ...colorInput(setting?.accentColor, 'accentColor', 'clearAccentColor'),
+        font: setting?.font,
+        themeMode: setting?.themeMode,
+        title: setting?.title,
+        overview: setting?.overview,
+        logoRemoteURL: setting?.logoRemoteURL,
+        faviconRemoteURL: setting?.faviconRemoteURL,
+        logoFileID: setting?.logoFile?.id,
+        faviconFileID: setting?.logoFile?.id,
       },
     }
     updateTrustCenterSetting(payload)
@@ -277,6 +279,8 @@ const BrandPage: React.FC = () => {
     return <div className="p-6">No trust center settings found.</div>
   }
 
+  const isReadOnly = activeTab === 'published'
+
   return (
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-[1200px] grid gap-6">
@@ -295,6 +299,14 @@ const BrandPage: React.FC = () => {
             </Button>
           </div>
         </div>
+
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value="published">Published</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         <Card>
           <CardContent>
             {hasPreviewDifference && hasPreviewDifference.text && <SectionWarning />}
@@ -310,6 +322,7 @@ const BrandPage: React.FC = () => {
                 <Input
                   id="trust-center-title"
                   value={title}
+                  disabled={isReadOnly}
                   onChange={(e) => {
                     setTitle(e.target.value)
                   }}
@@ -322,6 +335,7 @@ const BrandPage: React.FC = () => {
                 <Textarea
                   id="trust-center-overview"
                   value={overview}
+                  disabled={isReadOnly}
                   onChange={(e) => {
                     setOverview(e.target.value)
                   }}
@@ -345,10 +359,11 @@ const BrandPage: React.FC = () => {
                 </p>
               </div>
               <div className="flex gap-6">
-                <label className="flex items-center gap-1 cursor-pointer">
+                <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
                   <input
                     type="radio"
                     name="theme"
+                    disabled={isReadOnly}
                     value={TrustCenterSettingTrustCenterThemeMode.EASY}
                     checked={selectedThemeType === TrustCenterSettingTrustCenterThemeMode.EASY}
                     onChange={() => setSelectedThemeType(TrustCenterSettingTrustCenterThemeMode.EASY)}
@@ -362,10 +377,11 @@ const BrandPage: React.FC = () => {
                   </div>
                   <p>Easy</p>
                 </label>
-                <label className="flex items-center gap-1 cursor-pointer">
+                <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
                   <input
                     type="radio"
                     name="theme"
+                    disabled={isReadOnly}
                     value={TrustCenterSettingTrustCenterThemeMode.ADVANCED}
                     checked={selectedThemeType === TrustCenterSettingTrustCenterThemeMode.ADVANCED}
                     onChange={() => setSelectedThemeType(TrustCenterSettingTrustCenterThemeMode.ADVANCED)}
@@ -383,7 +399,7 @@ const BrandPage: React.FC = () => {
               {selectedThemeType === TrustCenterSettingTrustCenterThemeMode.EASY && (
                 <div className="flex flex-col gap-3">
                   <div className="w-[200px]">
-                    <ColorInput label="" value={easyColor} onChange={setEasyColor} />
+                    <ColorInput label="" value={easyColor} onChange={setEasyColor} disabled={isReadOnly} />
                   </div>
                   <div>
                     <p className="text-sm text-text-informational">Put your primary brand color and we&apos;ll take care of the rest.</p>
@@ -394,7 +410,7 @@ const BrandPage: React.FC = () => {
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label className="text-sm">Font family</Label>
-                    <Select defaultValue={font} onValueChange={setFont}>
+                    <Select defaultValue={font} onValueChange={setFont} disabled={isReadOnly}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select font" />
                       </SelectTrigger>
@@ -407,11 +423,11 @@ const BrandPage: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <ColorInput label="Foreground color" value={foreground} onChange={setForeground} />
-                  <ColorInput label="Background color" value={background} onChange={setBackground} />
-                  <ColorInput label="Accent/brand color" value={accent} onChange={setAccent} />
-                  <ColorInput label="Secondary Foreground color" value={secondaryForeground} onChange={setSecondaryForeground} />
-                  <ColorInput label="Secondary Background color" value={secondaryBackground} onChange={setSecondaryBackground} />
+                  <ColorInput label="Foreground color" value={foreground} onChange={setForeground} disabled={isReadOnly} />
+                  <ColorInput label="Background color" value={background} onChange={setBackground} disabled={isReadOnly} />
+                  <ColorInput label="Accent/brand color" value={accent} onChange={setAccent} disabled={isReadOnly} />
+                  <ColorInput label="Secondary Foreground color" value={secondaryForeground} onChange={setSecondaryForeground} disabled={isReadOnly} />
+                  <ColorInput label="Secondary Background color" value={secondaryBackground} onChange={setSecondaryBackground} disabled={isReadOnly} />
                 </div>
               )}
             </div>
@@ -444,7 +460,7 @@ const BrandPage: React.FC = () => {
                     </div>
 
                     <div>
-                      {showLogoLinkInputType === LogoLinkInputTypeEnum.FILE && (
+                      {showLogoLinkInputType === LogoLinkInputTypeEnum.FILE && !isReadOnly && (
                         <>
                           <div className="flex items-center gap-1 mb-2">
                             <Label className="block text-sm">Upload</Label>
@@ -467,16 +483,17 @@ const BrandPage: React.FC = () => {
                             <Label className="text-sm">URL</Label>
                           </div>
                           <div className="flex gap-3 items-center mt-1">
-                            <UrlInput className="w-full" value={logoLink} onChange={setLogoLink} />
+                            <UrlInput disabled={isReadOnly} className="w-full" value={logoLink} onChange={setLogoLink} />
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex gap-6 mt-5">
-                    <label className="flex items-center gap-1 cursor-pointer">
+                    <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
                       <input
                         type="radio"
+                        disabled={isReadOnly}
                         name="logoLinkInputType"
                         value={LogoLinkInputTypeEnum.FILE}
                         checked={showLogoLinkInputType === LogoLinkInputTypeEnum.FILE}
@@ -491,9 +508,10 @@ const BrandPage: React.FC = () => {
                       </div>
                       <p>Upload File</p>
                     </label>
-                    <label className="flex items-center gap-1 cursor-pointer">
+                    <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
                       <input
                         type="radio"
+                        disabled={isReadOnly}
                         name="logoLinkInputType"
                         value={LogoLinkInputTypeEnum.URL}
                         checked={showLogoLinkInputType === LogoLinkInputTypeEnum.URL}
@@ -527,7 +545,7 @@ const BrandPage: React.FC = () => {
                       </div>
 
                       <div>
-                        {showFavIconInputType === FavIconInputTypeEnum.FILE && (
+                        {showFavIconInputType === FavIconInputTypeEnum.FILE && !isReadOnly && (
                           <>
                             <div className="flex items-center gap-1 mb-2">
                               <Label className="block text-sm">Upload</Label>
@@ -550,16 +568,17 @@ const BrandPage: React.FC = () => {
                               <Label className="text-sm">URL</Label>
                             </div>
                             <div className="flex gap-3 items-center mt-1">
-                              <UrlInput className="w-full" value={faviconLink} onChange={setFaviconLink} />
+                              <UrlInput disabled={isReadOnly} className="w-full" value={faviconLink} onChange={setFaviconLink} />
                             </div>
                           </div>
                         )}
                       </div>
                     </div>
                     <div className="flex gap-6 mt-5">
-                      <label className="flex items-center gap-1 cursor-pointer">
+                      <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
                         <input
                           type="radio"
+                          disabled={isReadOnly}
                           name="favIconInputType"
                           value={FavIconInputTypeEnum.FILE}
                           checked={showFavIconInputType === FavIconInputTypeEnum.FILE}
@@ -574,9 +593,10 @@ const BrandPage: React.FC = () => {
                         </div>
                         <p>Upload File</p>
                       </label>
-                      <label className="flex items-center gap-1 cursor-pointer">
+                      <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
                         <input
                           type="radio"
+                          disabled={isReadOnly}
                           name="favIconInputType"
                           value={FavIconInputTypeEnum.URL}
                           checked={showFavIconInputType === FavIconInputTypeEnum.URL}
