@@ -1,28 +1,25 @@
 'use client'
-import { ColorInput } from '@/components/shared/color-input/color-input'
 import { Loading } from '@/components/shared/loading/loading'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { TrustCenterSettingTrustCenterThemeMode, TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { PageHeading } from '@repo/ui/page-heading'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Textarea } from '@repo/ui/textarea'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { UpdateTrustCenterSettingsArgs, useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
-import { BookUp, Eye, RotateCcw } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import FileUpload from '@/components/shared/file-upload/file-upload'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
-import UrlInput from '../shared/url-input'
-import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import SectionWarning from './section-warning'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { BrandingHeader } from './sections/branding-header'
+import { BrandingTextSection } from './sections/branding-text-section'
+import { BrandingThemeSection } from './sections/branding-theme-section'
+import { BrandingAssetsSection } from './sections/branding-assets-section'
+
+export enum InputTypeEnum {
+  URL = 'url',
+  FILE = 'file',
+}
 
 const BrandPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
@@ -55,16 +52,8 @@ const BrandPage: React.FC = () => {
   const { updateTrustCenterSetting } = useHandleUpdateSetting()
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
 
-  enum LogoLinkInputTypeEnum {
-    URL = 'url',
-    FILE = 'file',
-  }
-  enum FavIconInputTypeEnum {
-    URL = 'url',
-    FILE = 'file',
-  }
-  const [showLogoLinkInputType, setShowLogoLinkInputType] = useState<LogoLinkInputTypeEnum>(LogoLinkInputTypeEnum.FILE)
-  const [showFavIconInputType, setShowFavIconInputType] = useState<FavIconInputTypeEnum>(FavIconInputTypeEnum.FILE)
+  const [showLogoLinkInputType, setShowLogoLinkInputType] = useState<InputTypeEnum>(InputTypeEnum.FILE)
+  const [showFavIconInputType, setShowFavIconInputType] = useState<InputTypeEnum>(InputTypeEnum.FILE)
 
   const initialValues = useMemo(
     () => ({
@@ -187,7 +176,7 @@ const BrandPage: React.FC = () => {
     return `https://${url}`
   }
 
-  const colorInput = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
+  const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
 
   const handleSave = async (action: 'preview' | 'publish') => {
     if (!setting?.id) return
@@ -196,12 +185,12 @@ const BrandPage: React.FC = () => {
     const payload: UpdateTrustCenterSettingsArgs = {
       id: action === 'preview' ? previewSetting?.id : setting?.id,
       input: {
-        ...colorInput(easyColor, 'primaryColor', 'clearPrimaryColor'),
-        ...colorInput(foreground, 'foregroundColor', 'clearForegroundColor'),
-        ...colorInput(background, 'backgroundColor', 'clearBackgroundColor'),
-        ...colorInput(secondaryForeground, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
-        ...colorInput(secondaryBackground, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
-        ...colorInput(accent, 'accentColor', 'clearAccentColor'),
+        ...setColorOrClear(easyColor, 'primaryColor', 'clearPrimaryColor'),
+        ...setColorOrClear(foreground, 'foregroundColor', 'clearForegroundColor'),
+        ...setColorOrClear(background, 'backgroundColor', 'clearBackgroundColor'),
+        ...setColorOrClear(secondaryForeground, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+        ...setColorOrClear(secondaryBackground, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+        ...setColorOrClear(accent, 'accentColor', 'clearAccentColor'),
         font,
         themeMode: selectedThemeType,
         title,
@@ -221,12 +210,12 @@ const BrandPage: React.FC = () => {
       await updateTrustCenterSetting({
         id: previewSetting.id,
         input: {
-          ...colorInput(easyColor, 'primaryColor', 'clearPrimaryColor'),
-          ...colorInput(foreground, 'foregroundColor', 'clearForegroundColor'),
-          ...colorInput(background, 'backgroundColor', 'clearBackgroundColor'),
-          ...colorInput(secondaryForeground, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
-          ...colorInput(secondaryBackground, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
-          ...colorInput(accent, 'accentColor', 'clearAccentColor'),
+          ...setColorOrClear(easyColor, 'primaryColor', 'clearPrimaryColor'),
+          ...setColorOrClear(foreground, 'foregroundColor', 'clearForegroundColor'),
+          ...setColorOrClear(background, 'backgroundColor', 'clearBackgroundColor'),
+          ...setColorOrClear(secondaryForeground, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+          ...setColorOrClear(secondaryBackground, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+          ...setColorOrClear(accent, 'accentColor', 'clearAccentColor'),
           font,
           themeMode: selectedThemeType,
           title,
@@ -247,12 +236,12 @@ const BrandPage: React.FC = () => {
     const payload: UpdateTrustCenterSettingsArgs = {
       id: previewSetting.id,
       input: {
-        ...colorInput(setting?.primaryColor, 'primaryColor', 'clearPrimaryColor'),
-        ...colorInput(setting?.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
-        ...colorInput(setting?.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
-        ...colorInput(setting?.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
-        ...colorInput(setting?.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
-        ...colorInput(setting?.accentColor, 'accentColor', 'clearAccentColor'),
+        ...setColorOrClear(setting?.primaryColor, 'primaryColor', 'clearPrimaryColor'),
+        ...setColorOrClear(setting?.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
+        ...setColorOrClear(setting?.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
+        ...setColorOrClear(setting?.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+        ...setColorOrClear(setting?.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+        ...setColorOrClear(setting?.accentColor, 'accentColor', 'clearAccentColor'),
         font: setting?.font,
         themeMode: setting?.themeMode,
         title: setting?.title,
@@ -288,22 +277,14 @@ const BrandPage: React.FC = () => {
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-[1200px] grid gap-6">
         <PageHeading heading="Branding" />
-        <div className="flex items-center gap-5 w-full">
-          <Button onClick={() => handleSave('preview')} type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
-            Preview
-          </Button>
-          {hasPreviewDifference?.any && (
-            <Button onClick={handleRevert} type="button" variant="secondary" icon={<RotateCcw size={16} strokeWidth={2} />} iconPosition="left">
-              Revert Changes
-            </Button>
-          )}
-          <div className="flex items-center gap-10 flex-1">
-            <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={cnameRecord ?? ''} className="h-8" />
-            <Button className=" ml-auto" variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setIsConfirmationDialogOpen(true)}>
-              Publish
-            </Button>
-          </div>
-        </div>
+
+        <BrandingHeader
+          cnameRecord={cnameRecord}
+          hasChanges={hasPreviewDifference?.any}
+          onPreview={() => handleSave('preview')}
+          onRevert={handleRevert}
+          onPublish={() => setIsConfirmationDialogOpen(true)}
+        />
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
           <TabsList className="grid w-full max-w-[400px] grid-cols-2">
@@ -312,325 +293,61 @@ const BrandPage: React.FC = () => {
           </TabsList>
         </Tabs>
 
-        <Card>
-          <CardContent>
-            {hasPreviewDifference && hasPreviewDifference.text && <SectionWarning />}
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <p className="text-base font-medium leading-6">Title and Overview</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                  This information appears prominently at the top of your Trust Center and is also used for SEO metadata, including the page title and description.
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <p className="text-base font-medium leading-6">Title</p>
-                <Input
-                  id="trust-center-title"
-                  value={title}
-                  disabled={isReadOnly}
-                  onChange={(e) => {
-                    setTitle(e.target.value)
-                  }}
-                  placeholder="Enter title"
-                  className="text-base"
-                />
-              </div>
-              <div className="flex flex-col gap-3">
-                <p className="text-base font-medium leading-6">Overview</p>
-                <Textarea
-                  id="trust-center-overview"
-                  value={overview}
-                  disabled={isReadOnly}
-                  onChange={(e) => {
-                    setOverview(e.target.value)
-                  }}
-                  placeholder="Enter overview"
-                  rows={5}
-                  className="text-base"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            {hasPreviewDifference && hasPreviewDifference.theme && <SectionWarning />}
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <p className="text-base font-medium leading-6">Theme</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                  Control the visual appearance of your Trust Center. Choose Easy Mode to apply your brand color automatically, or use Advanced Mode to customize fonts, colors, and other design
-                  settings.
-                </p>
-              </div>
-              <div className="flex gap-6">
-                <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                  <input
-                    type="radio"
-                    name="theme"
-                    disabled={isReadOnly}
-                    value={TrustCenterSettingTrustCenterThemeMode.EASY}
-                    checked={selectedThemeType === TrustCenterSettingTrustCenterThemeMode.EASY}
-                    onChange={() => setSelectedThemeType(TrustCenterSettingTrustCenterThemeMode.EASY)}
-                    className="sr-only"
-                  />
-                  <div
-                    className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center
-   ${selectedThemeType === TrustCenterSettingTrustCenterThemeMode.EASY ? 'border-5 border-primary' : ''}`}
-                  >
-                    {selectedThemeType === TrustCenterSettingTrustCenterThemeMode.EASY && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
-                  </div>
-                  <p>Easy</p>
-                </label>
-                <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                  <input
-                    type="radio"
-                    name="theme"
-                    disabled={isReadOnly}
-                    value={TrustCenterSettingTrustCenterThemeMode.ADVANCED}
-                    checked={selectedThemeType === TrustCenterSettingTrustCenterThemeMode.ADVANCED}
-                    onChange={() => setSelectedThemeType(TrustCenterSettingTrustCenterThemeMode.ADVANCED)}
-                    className="sr-only"
-                  />
-                  <div
-                    className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center
-   ${selectedThemeType === TrustCenterSettingTrustCenterThemeMode.ADVANCED ? 'border-5 border-primary' : ''}`}
-                  >
-                    {selectedThemeType === TrustCenterSettingTrustCenterThemeMode.ADVANCED && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
-                  </div>
-                  <p>Advanced</p>
-                </label>
-              </div>
-              {selectedThemeType === TrustCenterSettingTrustCenterThemeMode.EASY && (
-                <div className="flex flex-col gap-3">
-                  <div className="w-[200px]">
-                    <ColorInput label="" value={easyColor} onChange={setEasyColor} disabled={isReadOnly} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-informational">Put your primary brand color and we&apos;ll take care of the rest.</p>
-                  </div>
-                </div>
-              )}
-              {selectedThemeType === TrustCenterSettingTrustCenterThemeMode.ADVANCED && (
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label className="text-sm">Font family</Label>
-                    <Select defaultValue={font} onValueChange={setFont} disabled={isReadOnly}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select font" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TrustCenterWatermarkConfigFontOptions.map((font) => (
-                          <SelectItem key={font.value} value={font.value}>
-                            {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <ColorInput label="Foreground color" value={foreground} onChange={setForeground} disabled={isReadOnly} />
-                  <ColorInput label="Background color" value={background} onChange={setBackground} disabled={isReadOnly} />
-                  <ColorInput label="Accent/brand color" value={accent} onChange={setAccent} disabled={isReadOnly} />
-                  <ColorInput label="Secondary Foreground color" value={secondaryForeground} onChange={setSecondaryForeground} disabled={isReadOnly} />
-                  <ColorInput label="Secondary Background color" value={secondaryBackground} onChange={setSecondaryBackground} disabled={isReadOnly} />
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            {hasPreviewDifference && hasPreviewDifference.assets && <SectionWarning />}
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <p className="text-base font-medium leading-6">Brand</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                  Upload your logo and favicon to brand your Trust Center. These assets appear in the header, browser tab, and when sharing your Trust Center externally.
-                </p>
-              </div>
-              <div className="flex flex-col">
-                <p className="mb-2 font-medium">Logo</p>
-                <div className="flex-col gap-7 border-b pb-8">
-                  <div className="flex gap-7">
-                    <div>
-                      <Label className="mb-2 block text-sm">Preview</Label>
-                      <div className="flex h-[150px] w-[150px] items-center justify-center rounded-md border">
-                        {logoPreview ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={normalizeUrl(logoPreview)!} alt="Logo preview" className="max-h-28 object-contain" />
-                        ) : (
-                          <Eye className="h-6 w-6" />
-                        )}
-                      </div>
-                    </div>
+        <BrandingTextSection title={title} setTitle={setTitle} overview={overview} setOverview={setOverview} isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.text} />
 
-                    <div>
-                      {showLogoLinkInputType === LogoLinkInputTypeEnum.FILE && !isReadOnly && (
-                        <>
-                          <div className="flex items-center gap-1 mb-2">
-                            <Label className="block text-sm">Upload</Label>
-                          </div>
-                          <div className="w-[417px]">
-                            <FileUpload
-                              acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
-                              onFileUpload={handleLogoUpload}
-                              acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
-                              maxFileSizeInMb={5}
-                              multipleFiles={false}
-                            />
-                          </div>
-                        </>
-                      )}
+        <BrandingThemeSection
+          selectedThemeType={selectedThemeType}
+          setSelectedThemeType={setSelectedThemeType}
+          font={font}
+          setFont={setFont}
+          colors={{
+            easyColor,
+            setEasyColor,
+            foreground,
+            setForeground,
+            background,
+            setBackground,
+            accent,
+            setAccent,
+            secondaryForeground,
+            setSecondaryForeground,
+            secondaryBackground,
+            setSecondaryBackground,
+          }}
+          isReadOnly={isReadOnly}
+          hasWarning={hasPreviewDifference?.theme}
+        />
 
-                      {showLogoLinkInputType === LogoLinkInputTypeEnum.URL && (
-                        <div className="flex  flex-col gap-2 mt-6">
-                          <div className="flex items-center gap-1">
-                            <Label className="text-sm">URL</Label>
-                          </div>
-                          <div className="flex gap-3 items-center mt-1">
-                            <UrlInput disabled={isReadOnly} className="w-full" value={logoLink} onChange={setLogoLink} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-6 mt-5">
-                    <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                      <input
-                        type="radio"
-                        disabled={isReadOnly}
-                        name="logoLinkInputType"
-                        value={LogoLinkInputTypeEnum.FILE}
-                        checked={showLogoLinkInputType === LogoLinkInputTypeEnum.FILE}
-                        onChange={() => setShowLogoLinkInputType(LogoLinkInputTypeEnum.FILE)}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center
-   ${showLogoLinkInputType === LogoLinkInputTypeEnum.FILE ? 'border-5 border-primary' : ''}`}
-                      >
-                        {showLogoLinkInputType === LogoLinkInputTypeEnum.FILE && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
-                      </div>
-                      <p>Upload File</p>
-                    </label>
-                    <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                      <input
-                        type="radio"
-                        disabled={isReadOnly}
-                        name="logoLinkInputType"
-                        value={LogoLinkInputTypeEnum.URL}
-                        checked={showLogoLinkInputType === LogoLinkInputTypeEnum.URL}
-                        onChange={() => setShowLogoLinkInputType(LogoLinkInputTypeEnum.URL)}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center
-   ${showLogoLinkInputType === LogoLinkInputTypeEnum.URL ? 'border-5 border-primary' : ''}`}
-                      >
-                        {showLogoLinkInputType === LogoLinkInputTypeEnum.URL && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
-                      </div>
-                      <p>Enter URL</p>
-                    </label>
-                  </div>
-                </div>
-                <div className="flex flex-col mt-8">
-                  <p className="mb-2 font-medium">Favicon</p>
-                  <div className="flex-col gap-7">
-                    <div className="flex gap-7">
-                      <div>
-                        <Label className="mb-2 block text-sm">Preview</Label>
-                        <div className="flex h-[150px] w-[150px] items-center justify-center rounded-md border">
-                          {faviconPreview ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={normalizeUrl(faviconPreview)!} alt="Favicon preview" className="max-h-28 object-contain" />
-                          ) : (
-                            <Eye className="h-6 w-6" />
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        {showFavIconInputType === FavIconInputTypeEnum.FILE && !isReadOnly && (
-                          <>
-                            <div className="flex items-center gap-1 mb-2">
-                              <Label className="block text-sm">Upload</Label>
-                            </div>
-                            <div className="w-[417px]">
-                              <FileUpload
-                                acceptedFileTypes={['image/x-icon', 'image/png', 'image/jpeg', 'image/vnd.microsoft.icon']}
-                                onFileUpload={handleFaviconUpload}
-                                acceptedFileTypesShort={['ICO', 'PNG', 'JPG']}
-                                maxFileSizeInMb={1}
-                                multipleFiles={false}
-                              />
-                            </div>
-                          </>
-                        )}
-
-                        {showFavIconInputType === FavIconInputTypeEnum.URL && (
-                          <div className="flex flex-col gap-2 mt-6">
-                            <div className="flex items-center gap-1">
-                              <Label className="text-sm">URL</Label>
-                            </div>
-                            <div className="flex gap-3 items-center mt-1">
-                              <UrlInput disabled={isReadOnly} className="w-full" value={faviconLink} onChange={setFaviconLink} />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-6 mt-5">
-                      <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                        <input
-                          type="radio"
-                          disabled={isReadOnly}
-                          name="favIconInputType"
-                          value={FavIconInputTypeEnum.FILE}
-                          checked={showFavIconInputType === FavIconInputTypeEnum.FILE}
-                          onChange={() => setShowFavIconInputType(FavIconInputTypeEnum.FILE)}
-                          className="sr-only"
-                        />
-                        <div
-                          className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center
-   ${showFavIconInputType === FavIconInputTypeEnum.FILE ? 'border-5 border-primary' : ''}`}
-                        >
-                          {showFavIconInputType === FavIconInputTypeEnum.FILE && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
-                        </div>
-                        <p>Upload File</p>
-                      </label>
-                      <label className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                        <input
-                          type="radio"
-                          disabled={isReadOnly}
-                          name="favIconInputType"
-                          value={FavIconInputTypeEnum.URL}
-                          checked={showFavIconInputType === FavIconInputTypeEnum.URL}
-                          onChange={() => setShowFavIconInputType(FavIconInputTypeEnum.URL)}
-                          className="sr-only"
-                        />
-                        <div
-                          className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center
-   ${showFavIconInputType === FavIconInputTypeEnum.URL ? 'border-5 border-primary' : ''}`}
-                        >
-                          {showFavIconInputType === FavIconInputTypeEnum.URL && <div className="w-2 h-2 rounded-full bg-destructive-foreground" />}
-                        </div>
-                        <p>Enter URL</p>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <BrandingAssetsSection
+          logo={{
+            preview: logoPreview,
+            link: logoLink,
+            setLink: setLogoLink,
+            onUpload: handleLogoUpload,
+            inputType: showLogoLinkInputType,
+            setInputType: setShowLogoLinkInputType,
+          }}
+          favicon={{
+            preview: faviconPreview,
+            link: faviconLink,
+            setLink: setFaviconLink,
+            onUpload: handleFaviconUpload,
+            inputType: showFavIconInputType,
+            setInputType: setShowFavIconInputType,
+          }}
+          isReadOnly={isReadOnly}
+          hasWarning={hasPreviewDifference?.assets}
+          normalizeUrl={normalizeUrl}
+        />
       </div>
+
       <ConfirmationDialog
         open={isConfirmationDialogOpen}
         onOpenChange={setIsConfirmationDialogOpen}
         onConfirm={() => handleSave('publish')}
-        confirmationText={'Publish'}
-        title={`Publish`}
-        description={<>Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate</>}
+        confirmationText="Publish"
+        title="Publish"
+        description="Publishing will apply these changes to your live site. We recommend reviewing the preview environment before proceeding. Changes may take up to 5 minutes to propagate"
       />
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={onCancelNavigation} />
     </div>
