@@ -112,7 +112,7 @@ const BrandPage: React.FC = () => {
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const hasPreviewDifference = useMemo(() => {
-    if (!setting || !previewSetting) return false
+    if (!setting || !previewSetting) return null
 
     const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview
 
@@ -132,10 +132,13 @@ const BrandPage: React.FC = () => {
       setting.logoFile?.id !== previewSetting.logoFile?.id ||
       setting.faviconFile?.id !== previewSetting.faviconFile?.id
 
+    const hasAnyDifference = textDiff || themeDiff || assetDiff
+
     return {
       text: textDiff,
       theme: themeDiff,
       assets: assetDiff,
+      any: hasAnyDifference,
     }
   }, [setting, previewSetting])
 
@@ -289,9 +292,11 @@ const BrandPage: React.FC = () => {
           <Button onClick={() => handleSave('preview')} type="button" variant="secondary" icon={<Eye size={16} strokeWidth={2} />} iconPosition="left">
             Preview
           </Button>
-          <Button onClick={handleRevert} type="button" variant="secondary" icon={<RotateCcw size={16} strokeWidth={2} />} iconPosition="left">
-            Revert Changes
-          </Button>
+          {hasPreviewDifference?.any && (
+            <Button onClick={handleRevert} type="button" variant="secondary" icon={<RotateCcw size={16} strokeWidth={2} />} iconPosition="left">
+              Revert Changes
+            </Button>
+          )}
           <div className="flex items-center gap-10 flex-1">
             <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={cnameRecord ?? ''} className="h-8" />
             <Button className=" ml-auto" variant="primary" icon={<BookUp size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setIsConfirmationDialogOpen(true)}>
