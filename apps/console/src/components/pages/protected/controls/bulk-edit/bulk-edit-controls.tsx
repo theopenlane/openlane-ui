@@ -23,7 +23,8 @@ import {
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
-import { controlIconsMap, EditableSelectFromQuery } from '../properties-card'
+import { EditableSelectFromQuery } from '../propereties-card/fields/editable-select-from-query'
+import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),

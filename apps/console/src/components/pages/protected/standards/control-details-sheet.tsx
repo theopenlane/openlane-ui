@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
-import { controlIconsMap } from '../controls/properties-card'
+import { controlIconsMap } from '../controls/propereties-card/properties-card'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
