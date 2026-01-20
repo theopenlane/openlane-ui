@@ -47,6 +47,7 @@ export const GET_TRUST_CENTER = gql`
             overview
             title
             logoRemoteURL
+            securityContact
           }
           previewSetting {
             id
@@ -70,6 +71,7 @@ export const GET_TRUST_CENTER = gql`
               presignedURL
             }
             logoRemoteURL
+            securityContact
           }
           watermarkConfig {
             id

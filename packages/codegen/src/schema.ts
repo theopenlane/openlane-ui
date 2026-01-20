@@ -50796,6 +50796,7 @@ export type GetTrustCenterQuery = {
           accentColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
+          securityContact?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
@@ -50814,6 +50815,7 @@ export type GetTrustCenterQuery = {
           accentColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
+          securityContact?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
