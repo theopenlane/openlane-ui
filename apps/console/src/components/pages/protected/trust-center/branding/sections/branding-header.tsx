@@ -1,6 +1,6 @@
 import { Button } from '@repo/ui/button'
 import { BookUp, Eye, RotateCcw } from 'lucide-react'
-import UrlInput from '../url-input'
+import UrlInput from '../../shared/url-input'
 
 interface BrandingHeaderProps {
   cnameRecord?: string | null
