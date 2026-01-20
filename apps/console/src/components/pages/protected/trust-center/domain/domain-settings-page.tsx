@@ -13,6 +13,7 @@ import UrlInput from '../shared/url-input'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -184,7 +185,6 @@ const DomainSettingsPage = () => {
 
   const handleCopyDefaultCname = () => {
     const domain = trustCenter.customDomain?.cnameRecord
-
     if (!domain) return
 
     const fullUrl = `https://${domain}`
@@ -239,7 +239,7 @@ const DomainSettingsPage = () => {
               {dnsVerification?.dnsVerificationStatus && (
                 <>
                   <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center  gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
-                  <a href={trustCenter.customDomain?.cnameRecord} rel={'noreferrer'} target="_blank">
+                  <a href={normalizeUrl(trustCenter.customDomain?.cnameRecord) ?? undefined} rel={'noreferrer'} target="_blank">
                     <Button variant="secondary" className="flex items-center justify-center  gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
                   </a>
                 </>
