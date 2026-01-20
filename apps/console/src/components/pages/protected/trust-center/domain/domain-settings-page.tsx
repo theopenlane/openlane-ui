@@ -34,9 +34,7 @@ const DomainSettingsPage = () => {
 
   useEffect(() => {
     setInputValue(trustCenter?.customDomain?.cnameRecord || '')
-    return () => {}
   }, [trustCenter])
-
   useEffect(() => {
     if (verificationCountDown <= 0) return
     const timer = setInterval(() => {
