@@ -2,7 +2,7 @@ import { formatTimeSince } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
 import React from 'react'
 
-import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText, Download } from 'lucide-react'
+import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText, Download, CircleOff } from 'lucide-react'
 import { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { GetExportsQueryNode } from '@/lib/graphql-hooks/export'
 
@@ -25,15 +25,22 @@ export const ExportRow = ({ notification, exportData }: ExportRowProps) => {
       </div>
       <div className="flex flex-col items-end gap-1">
         <span className="text-[10px] text-muted-foreground">{formatTimeSince(notification.createdAt)}</span>
-        <a
-          href={exportData?.files.edges?.[0]?.node?.presignedURL || '#'}
-          target="_blank"
-          rel="noreferrer"
-          className="hover:bg-table-row-bg-hover inline-flex items-center gap-2 text-sm bg-panel-bg rounded-md border px-2 py-1 font-bold hover:bg-panel-bg/80 transition"
-        >
-          <Download className="w-4 h-4" />
-          <span>Download</span>
-        </a>
+        {exportData?.files.edges?.[0]?.node?.presignedURL ? (
+          <a
+            href={exportData?.files.edges?.[0]?.node?.presignedURL}
+            target="_blank"
+            rel="noreferrer"
+            className="hover:bg-table-row-bg-hover inline-flex items-center gap-2 text-sm bg-panel-bg rounded-md border px-2 py-1 font-bold hover:bg-panel-bg/80 transition"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download</span>
+          </a>
+        ) : (
+          <div className="hover:bg-table-row-bg-hover inline-flex items-center gap-2 text-sm bg-panel-bg rounded-md border px-2 py-1 font-bold hover:bg-panel-bg/80 transition">
+            <CircleOff className="w-4 h-4" />
+            <span className="text-muted-foreground text-sm">Expired</span>
+          </div>
+        )}
       </div>
       {isUnread && <div className="h-1.5 w-1.5 rounded-full bg-primary" />}
     </div>
