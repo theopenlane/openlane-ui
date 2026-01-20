@@ -10,6 +10,7 @@ import UrlInput from './url-input'
 import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 type Props = {
   setting: TrustCenterSetting
@@ -103,14 +104,6 @@ const BrandSection = ({ setting }: Props) => {
     } finally {
       setFaviconLinkPending(false)
     }
-  }
-
-  const normalizeUrl = (url?: string | null) => {
-    if (!url) return null
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
-      return url
-    }
-    return `https://${url}`
   }
 
   return (

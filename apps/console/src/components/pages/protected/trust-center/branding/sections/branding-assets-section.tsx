@@ -8,6 +8,7 @@ import { BrandFormValues } from '../brand-schema'
 import { useMemo, useState, useEffect } from 'react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -31,12 +32,6 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
   const [faviconInputType, setFaviconInputType] = useState<InputTypeEnum>(InputTypeEnum.FILE)
 
   const formValues = watch()
-
-  const normalizeUrl = (url?: string | null): string | null => {
-    if (!url) return null
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-    return `https://${url}`
-  }
 
   const logoPreview = useMemo(() => {
     if (isReadOnly) {
