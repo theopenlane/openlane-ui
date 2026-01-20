@@ -3,7 +3,6 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import clsx from 'clsx'
 import { BadgeCheck, CircleX, ExternalLink, Hourglass } from 'lucide-react'
-import Link from 'next/link'
 import React from 'react'
 
 type UrlInputProps = {
@@ -27,9 +26,9 @@ function UrlInput({ value, onChange, disabled, className, verifiedStatus, hasCop
         // <a href={value} rel={'noreferrer'} target="_blank">
         //   <Button variant="secondary" className="flex items-center justify-center h-8 gap-1 rounded-l-none" icon={<ExternalLink size={14} />} disabled={!value} iconPosition="center"></Button>
         // </a>
-        <Link href={value}>
-          <Button variant="secondary" className="flex items-center justify-center h-8 gap-1 rounded-l-none" icon={<ExternalLink size={14} />} iconPosition="center"></Button>
-        </Link>
+        <a href={value} target="_blank" rel="noopener noreferrer">
+          <Button variant="secondary" className="flex items-center justify-center h-8 gap-1 rounded-l-none" icon={<ExternalLink size={14} />} iconPosition="center" />
+        </a>
       ) : (
         <div className="flex items-center ml-2 pr-3 whitespace-nowrap gap-1">
           {verifiedStatus !== undefined ? (
