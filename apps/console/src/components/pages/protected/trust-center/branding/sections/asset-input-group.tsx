@@ -3,7 +3,7 @@ import { Label } from '@repo/ui/label'
 import UrlInput from '../../shared/url-input'
 import { Eye } from 'lucide-react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
-import { InputTypeEnum } from './branding-assets-section' // Uvezi iz glavne komponente
+import { InputTypeEnum } from './branding-assets-section'
 
 interface FileConfigs {
   types: string[]
