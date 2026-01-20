@@ -1,7 +1,8 @@
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Check, Copy } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Check, Copy, RefreshCcw } from 'lucide-react'
 import React from 'react'
 
 type TDnsRecordsProps = {
@@ -18,10 +19,17 @@ type TDnsRecordsProps = {
 }
 
 export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerification, onVerify, isVerifying, countdown = 0 }: TDnsRecordsProps) => {
+  const queryClient = useQueryClient()
   const isDisabled = isVerifying || countdown > 0
   const cnameValue = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME || ''
   const handleCopy = async () => {
     await navigator.clipboard.writeText(cnameValue)
+  }
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({
+      queryKey: ['trustCenter'],
+    })
   }
 
   return (
@@ -104,6 +112,9 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
                     >
                       <Copy size={16} />
                     </Button>
+                    <Button variant="secondary" onClick={handleRefresh} className="rounded-md hover:bg-muted transition h-9 px-3" type="button">
+                      <RefreshCcw size={16} />
+                    </Button>
                   </div>
                 </li>
                 <li>
@@ -119,6 +130,9 @@ export const DnsRecords: React.FC<TDnsRecordsProps> = ({ cnameName, dnsVerificat
                       type="button"
                     >
                       <Copy size={16} />
+                    </Button>
+                    <Button variant="secondary" onClick={handleRefresh} className="rounded-md hover:bg-muted transition h-9 px-3" type="button">
+                      <RefreshCcw size={16} />
                     </Button>
                   </div>
                 </li>

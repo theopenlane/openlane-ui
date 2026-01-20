@@ -148,7 +148,7 @@ export const GET_TRUST_CENTER_DOCS = gql`
               node {
                 id
                 title
-                category
+                trustCenterDocKindName
                 visibility
                 tags
                 createdAt
@@ -201,7 +201,7 @@ export const GET_TRUST_CENTER_DOC_BY_ID = gql`
     trustCenterDoc(id: $trustCenterDocId) {
       id
       title
-      category
+      trustCenterDocKindName
       visibility
       tags
       file {
