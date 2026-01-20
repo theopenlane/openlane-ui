@@ -2,12 +2,12 @@
 import React, { useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Bell, CheckCheck } from 'lucide-react'
-import useClickOutside from '@/hooks/useClickOutside'
 import { useWebsocketNotifications } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { NotificationRow } from './notification-row'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { ExportRow } from './export-row'
+import { useClickOutside } from '@/hooks/useClickOutside'
 
 export default function SystemNotificationTracker() {
   const { notifications } = useWebsocketNotifications()
@@ -15,7 +15,12 @@ export default function SystemNotificationTracker() {
 
   const bellRef = useRef<HTMLDivElement>(null)
 
-  const dropdownRef = useClickOutside(() => setOpen(false))
+  const dropdownRef = useClickOutside((event) => {
+    if (bellRef.current && bellRef.current.contains(event.target as Node)) {
+      return
+    }
+    setOpen(false)
+  })
 
   const counts = useMemo(() => {
     const unreadNotifications = notifications.filter((n) => !n.readAt).length
@@ -67,15 +72,13 @@ export default function SystemNotificationTracker() {
                       </div>
                     ) : (
                       <>
-                        {notifications.map((n) => (
-                          <>
-                            {exportIDs.includes(n.data?.export_id) ? (
-                              <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} />
-                            ) : (
-                              <NotificationRow key={n.id} notification={n} />
-                            )}
-                          </>
-                        ))}
+                        {notifications.map((n) =>
+                          exportIDs.includes(n.data?.export_id) ? (
+                            <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} />
+                          ) : (
+                            <NotificationRow key={n.id} notification={n} />
+                          ),
+                        )}
                       </>
                     )}
                   </div>

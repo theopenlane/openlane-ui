@@ -5,7 +5,7 @@ import { useWebSocketClient } from '@/providers/websocket-provider'
 import { useSession } from 'next-auth/react'
 import { Notification as SchemaNotification } from '@repo/codegen/src/schema'
 
-export type Notification = Pick<SchemaNotification, 'id' | 'title' | 'body' | 'topic' | 'data' | 'readAt' | 'objectType'>
+export type Notification = Pick<SchemaNotification, 'id' | 'title' | 'body' | 'topic' | 'data' | 'readAt' | 'objectType' | 'createdAt'>
 
 type SubscriptionData = {
   notificationCreated: Notification
@@ -21,6 +21,7 @@ const NOTIFICATION_SUBSCRIPTION = `
       data
       readAt
       objectType
+      createdAt
     }
   }
 `

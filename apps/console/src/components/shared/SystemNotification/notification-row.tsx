@@ -27,7 +27,7 @@ export function NotificationRow({ notification }: NotificationRowProps) {
         <div className="truncate text-xs text-muted-foreground">{notification.body}</div>
       </div>
       <div className="flex flex-col items-end gap-1">
-        <span className="text-[10px] text-muted-foreground">{formatTimeSince(new Date().toISOString())}</span>
+        <span className="text-[10px] text-muted-foreground">{formatTimeSince(notification.createdAt)}</span>
         {isUnread && <div className="h-1.5 w-1.5 rounded-full" />}
       </div>
     </div>

@@ -30,7 +30,7 @@ export const useGetAllExports = ({ where, enabled = true }: { where?: ExportWher
 
   return useQuery<GetExportsQuery>({
     queryKey: ['exports', where],
-    queryFn: async () => client.request<GetExportsQuery>(GET_EXPORTS, where),
+    queryFn: async () => client.request<GetExportsQuery>(GET_EXPORTS, { where }),
     enabled,
   })
 }

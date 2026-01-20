@@ -24,7 +24,7 @@ export const ExportRow = ({ notification, exportData }: ExportRowProps) => {
         <div className="truncate text-xs text-muted-foreground">{notification.body}</div>
       </div>
       <div className="flex flex-col items-end gap-1">
-        <span className="text-[10px] text-muted-foreground">{formatTimeSince(new Date().toISOString())}</span>
+        <span className="text-[10px] text-muted-foreground">{formatTimeSince(notification.createdAt)}</span>
         <a
           href={exportData?.files.edges?.[0]?.node?.presignedURL || '#'}
           target="_blank"
