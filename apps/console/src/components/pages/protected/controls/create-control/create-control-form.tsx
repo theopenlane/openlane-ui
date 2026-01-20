@@ -7,7 +7,7 @@ import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import PropertiesCard from '@/components/pages/protected/controls/properties-card'
+import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
 import {
