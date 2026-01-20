@@ -15,6 +15,7 @@ import { BrandingHeader } from './sections/branding-header'
 import { BrandingTextSection } from './sections/branding-text-section'
 import { BrandingThemeSection } from './sections/branding-theme-section'
 import { BrandingAssetsSection } from './sections/branding-assets-section'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -168,14 +169,6 @@ const BrandPage: React.FC = () => {
     setFaviconPreview(URL.createObjectURL(uploadedFile.file))
   }
 
-  const normalizeUrl = (url?: string | null) => {
-    if (!url) return null
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
-      return url
-    }
-    return `https://${url}`
-  }
-
   const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
 
   const handleSave = async (action: 'preview' | 'publish') => {
@@ -321,9 +314,9 @@ const BrandPage: React.FC = () => {
           </TabsList>
         </Tabs>
         <BrandingTextSection
-          title={isReadOnly ? setting.title ?? '' : title}
+          title={isReadOnly ? (setting.title ?? '') : title}
           setTitle={setTitle}
-          overview={isReadOnly ? setting.overview ?? '' : overview}
+          overview={isReadOnly ? (setting.overview ?? '') : overview}
           setOverview={setOverview}
           isReadOnly={isReadOnly}
           hasWarning={hasPreviewDifference?.text}
@@ -331,20 +324,20 @@ const BrandPage: React.FC = () => {
         <BrandingThemeSection
           selectedThemeType={isReadOnly ? setting.themeMode : selectedThemeType}
           setSelectedThemeType={setSelectedThemeType}
-          font={isReadOnly ? setting.font ?? 'outfit' : font}
+          font={isReadOnly ? (setting.font ?? 'outfit') : font}
           setFont={setFont}
           colors={{
-            easyColor: isReadOnly ? setting.primaryColor ?? '#f0f0e0' : easyColor,
+            easyColor: isReadOnly ? (setting.primaryColor ?? '#f0f0e0') : easyColor,
             setEasyColor,
-            foreground: isReadOnly ? setting.foregroundColor ?? '#f0f0e0' : foreground,
+            foreground: isReadOnly ? (setting.foregroundColor ?? '#f0f0e0') : foreground,
             setForeground,
-            background: isReadOnly ? setting.backgroundColor ?? '#f0f0e0' : background,
+            background: isReadOnly ? (setting.backgroundColor ?? '#f0f0e0') : background,
             setBackground,
-            accent: isReadOnly ? setting.accentColor ?? '#f0f0e0' : accent,
+            accent: isReadOnly ? (setting.accentColor ?? '#f0f0e0') : accent,
             setAccent,
-            secondaryForeground: isReadOnly ? setting.secondaryForegroundColor ?? '#f0f0e0' : secondaryForeground,
+            secondaryForeground: isReadOnly ? (setting.secondaryForegroundColor ?? '#f0f0e0') : secondaryForeground,
             setSecondaryForeground,
-            secondaryBackground: isReadOnly ? setting.secondaryBackgroundColor ?? '#f0f0e0' : secondaryBackground,
+            secondaryBackground: isReadOnly ? (setting.secondaryBackgroundColor ?? '#f0f0e0') : secondaryBackground,
             setSecondaryBackground,
           }}
           isReadOnly={isReadOnly}
@@ -353,7 +346,7 @@ const BrandPage: React.FC = () => {
         <BrandingAssetsSection
           logo={{
             preview: isReadOnly ? setting.logoFile?.presignedURL || setting.logoRemoteURL || null : logoPreview,
-            link: isReadOnly ? setting.logoRemoteURL ?? '' : logoLink,
+            link: isReadOnly ? (setting.logoRemoteURL ?? '') : logoLink,
             setLink: setLogoLink,
             onUpload: handleLogoUpload,
             inputType: showLogoLinkInputType,
@@ -361,7 +354,7 @@ const BrandPage: React.FC = () => {
           }}
           favicon={{
             preview: isReadOnly ? setting.faviconFile?.presignedURL || setting.faviconRemoteURL || null : faviconPreview,
-            link: isReadOnly ? setting.faviconRemoteURL ?? '' : faviconLink,
+            link: isReadOnly ? (setting.faviconRemoteURL ?? '') : faviconLink,
             setLink: setFaviconLink,
             onUpload: handleFaviconUpload,
             inputType: showFavIconInputType,

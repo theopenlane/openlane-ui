@@ -10,7 +10,7 @@ export const exportToCSV = <T extends object>(data: T[], columns: { label: strin
   data.forEach((item) => {
     const row = columns.map((col) => {
       const val = col.accessor(item)
-      return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : val ?? ''
+      return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : (val ?? '')
     })
     csvRows.push(row.join(','))
   })
