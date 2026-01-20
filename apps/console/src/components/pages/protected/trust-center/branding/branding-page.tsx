@@ -34,6 +34,7 @@ const BrandPage: React.FC = () => {
 
   const [title, setTitle] = useState('')
   const [overview, setOverview] = useState('')
+  const [securityContact, setSecurityContact] = useState('')
   const [easyColor, setEasyColor] = useState('#f0f0e0')
   const [foreground, setForeground] = useState('#f0f0e0')
   const [background, setBackground] = useState('#f0f0e0')
@@ -59,6 +60,7 @@ const BrandPage: React.FC = () => {
     () => ({
       title: (activeTab === 'preview' ? previewSetting?.title : setting?.title) ?? '',
       overview: (activeTab === 'preview' ? previewSetting?.overview : setting?.overview) ?? '',
+      SecurityContact: (activeTab === 'preview' ? previewSetting?.securityContact : setting?.securityContact) ?? '',
       primaryColor: (activeTab === 'preview' ? previewSetting?.primaryColor : setting?.primaryColor) ?? '#f0f0e0',
       foregroundColor: (activeTab === 'preview' ? previewSetting?.foregroundColor : setting?.foregroundColor) ?? '#f0f0e0',
       backgroundColor: (activeTab === 'preview' ? previewSetting?.backgroundColor : setting?.backgroundColor) ?? '#f0f0e0',
@@ -76,8 +78,8 @@ const BrandPage: React.FC = () => {
   )
 
   const hasTextChanged = useMemo(() => {
-    return title !== initialValues.title || overview !== initialValues.overview
-  }, [title, overview, initialValues])
+    return title !== initialValues.title || overview !== initialValues.overview || securityContact !== initialValues.SecurityContact
+  }, [title, overview, securityContact, initialValues])
 
   const hasThemeChanged = useMemo(() => {
     const colorChanges =
@@ -103,7 +105,7 @@ const BrandPage: React.FC = () => {
   const hasPreviewDifference = useMemo(() => {
     if (!setting || !previewSetting) return null
 
-    const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview
+    const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
 
     const themeDiff =
       setting.themeMode !== previewSetting.themeMode ||
@@ -139,6 +141,7 @@ const BrandPage: React.FC = () => {
     if (previewSetting) {
       setTitle(previewSetting.title ?? '')
       setOverview(previewSetting.overview ?? '')
+      setSecurityContact(previewSetting.securityContact ?? '')
       setEasyColor(previewSetting.primaryColor ?? '#f0f0e0')
       setForeground(previewSetting.foregroundColor ?? '#f0f0e0')
       setBackground(previewSetting.backgroundColor ?? '#f0f0e0')
@@ -195,6 +198,8 @@ const BrandPage: React.FC = () => {
         themeMode: selectedThemeType,
         title,
         overview,
+        securityContact: securityContact || null,
+        clearSecurityContact: !securityContact,
       },
     }
 
@@ -236,6 +241,8 @@ const BrandPage: React.FC = () => {
           themeMode: selectedThemeType,
           title,
           overview,
+          securityContact: securityContact || null,
+          clearSecurityContact: !securityContact,
           logoFileID: resp?.trustCenterSetting.logoFile?.id,
           logoRemoteURL: resp?.trustCenterSetting.logoRemoteURL,
           faviconFileID: resp?.trustCenterSetting.faviconFile?.id,
@@ -261,6 +268,8 @@ const BrandPage: React.FC = () => {
         themeMode: setting.themeMode,
         title: setting.title,
         overview: setting.overview,
+        securityContact: setting.securityContact || null,
+        clearSecurityContact: !setting.securityContact,
       },
     }
 
@@ -325,6 +334,8 @@ const BrandPage: React.FC = () => {
           setTitle={setTitle}
           overview={isReadOnly ? setting.overview ?? '' : overview}
           setOverview={setOverview}
+          securityContact={isReadOnly ? setting.securityContact ?? '' : securityContact}
+          setSecurityContact={setSecurityContact}
           isReadOnly={isReadOnly}
           hasWarning={hasPreviewDifference?.text}
         />
