@@ -181,7 +181,7 @@ const DomainSettingsPage = () => {
         })
       })
   }
-
+  console.log('trustCenter.customDomain?.cnameRecord', trustCenter.customDomain?.cnameRecord)
   const handleCopyDefaultCname = () => {
     const domain = trustCenter.customDomain?.cnameRecord
     console.log('domain', domain)
