@@ -184,10 +184,11 @@ const DomainSettingsPage = () => {
 
   const handleCopyDefaultCname = () => {
     const domain = trustCenter.customDomain?.cnameRecord
-
+    console.log('domain', domain)
     if (!domain) return
 
     const fullUrl = `https://${domain}`
+    console.log('fullUrl', fullUrl)
     navigator.clipboard
       .writeText(fullUrl)
       .then(() => {
