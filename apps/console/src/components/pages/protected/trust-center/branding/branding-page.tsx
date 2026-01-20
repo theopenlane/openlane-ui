@@ -173,7 +173,7 @@ const BrandPage: React.FC = () => {
   if (error || !setting) return <div className="p-6 text-red-600">Error loading settings.</div>
 
   const isReadOnly = activeTab === 'published'
-
+  console.log('cnameRecord', cnameRecord)
   return (
     <FormProvider {...methods}>
       <form onSubmit={(e) => e.preventDefault()} className="w-full flex justify-center py-4">
