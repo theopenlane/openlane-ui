@@ -26,6 +26,8 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -113,9 +115,8 @@ export const CreateDocumentSheet: React.FC = () => {
       if (isEditMode) {
         await updateDoc({
           input: {
-            trustCenterID,
             title: data.title,
-            category: data.category,
+            trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
           },
@@ -133,7 +134,7 @@ export const CreateDocumentSheet: React.FC = () => {
         await createDoc({
           input: {
             title: data.title,
-            category: data.category,
+            trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
             trustCenterID,
@@ -163,7 +164,7 @@ export const CreateDocumentSheet: React.FC = () => {
     const doc = documentData?.trustCenterDoc
     reset({
       title: doc?.title ?? '',
-      category: doc?.category ?? '',
+      category: doc?.trustCenterDocKindName ?? '',
       visibility: doc?.visibility ?? TrustCenterDocTrustCenterDocumentVisibility.NOT_VISIBLE,
       tags: doc?.tags ?? [],
       file: undefined,
@@ -244,20 +245,13 @@ export const CreateDocumentSheet: React.FC = () => {
                     <>
                       {isEditing ? (
                         <>
-                          <Button
-                            className="h-8 p-2"
-                            type="button"
-                            variant="secondary"
+                          <CancelButton
                             onClick={() => {
                               setIsEditing(false)
                               prefillForm()
                             }}
-                          >
-                            Cancel
-                          </Button>
-                          <Button variant="primary" type="submit" form="document-form" className="h-8 p-2" icon={<Save />} iconPosition="left">
-                            Save
-                          </Button>
+                          ></CancelButton>
+                          <SaveButton form="document-form" />
                         </>
                       ) : (
                         <>

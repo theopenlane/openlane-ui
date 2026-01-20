@@ -7,6 +7,8 @@ import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface Props {
   setAssociations: (arg: TObjectAssociationMap) => void
@@ -62,12 +64,8 @@ export function SetObjectAssociationDialog({ setAssociations, initialData }: Pro
           ]}
         />
         <DialogFooter>
-          <Button onClick={onSave} disabled={!saveEnabled}>
-            Save
-          </Button>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
+          <SaveButton onClick={onSave} disabled={!saveEnabled} />
+          <CancelButton onClick={handleClose}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>
