@@ -1,6 +1,7 @@
 import { Button } from '@repo/ui/button'
 import { BookUp, Eye, RotateCcw } from 'lucide-react'
 import UrlInput from '../../shared/url-input'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 interface BrandingHeaderProps {
   cnameRecord?: string | null
@@ -11,11 +12,7 @@ interface BrandingHeaderProps {
 }
 
 export const BrandingHeader = ({ cnameRecord, hasChanges, onPreview, onRevert, onPublish }: BrandingHeaderProps) => {
-  const prependHttps = (value?: string) => {
-    if (!value) return ''
-    return value.startsWith('http://') || value.startsWith('https://') ? value : `https://${value}`
-  }
-  const url = prependHttps(cnameRecord || '')
+  const url = normalizeUrl(cnameRecord)
   return (
     <div className="flex items-center gap-5 w-full">
       <Button onClick={onPreview} type="button" variant="secondary" icon={<Eye size={16} />}>
