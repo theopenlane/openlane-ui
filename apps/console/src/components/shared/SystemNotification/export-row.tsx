@@ -35,7 +35,7 @@ export const ExportRow = ({ notification, exportData }: ExportRowProps) => {
           <span>Download</span>
         </a>
       </div>
-      {isUnread && <div className="h-1.5 w-1.5 rounded-full bg-primary " />}
+      {isUnread && <div className="h-1.5 w-1.5 rounded-full bg-primary" />}
     </div>
   )
 }
