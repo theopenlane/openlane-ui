@@ -179,11 +179,11 @@ const BrandPage: React.FC = () => {
   const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
 
   const handleSave = async (action: 'preview' | 'publish') => {
-    if (!setting?.id) return
-    if (action === 'preview' && !previewSetting?.id) return
+    const targetSettingId = action === 'preview' ? previewSetting?.id : setting?.id
+    if (!targetSettingId) return
 
     const payload: UpdateTrustCenterSettingsArgs = {
-      id: action === 'preview' ? previewSetting?.id : setting?.id,
+      id: targetSettingId,
       input: {
         ...setColorOrClear(easyColor, 'primaryColor', 'clearPrimaryColor'),
         ...setColorOrClear(foreground, 'foregroundColor', 'clearForegroundColor'),
@@ -195,13 +195,29 @@ const BrandPage: React.FC = () => {
         themeMode: selectedThemeType,
         title,
         overview,
-        ...(logoLink ? { logoRemoteURL: logoLink, clearLogoFile: true } : null),
-        ...(logoFile ? { clearLogoRemoteURL: true } : null),
-        ...(faviconLink ? { faviconRemoteURL: faviconLink, clearFaviconFile: true } : null),
-        ...(faviconFile ? { clearFaviconRemoteURL: true } : null),
       },
-      ...(logoFile ? { logoFile: logoFile } : null),
-      ...(faviconFile ? { faviconFile: faviconFile } : null),
+    }
+
+    if (logoFile) {
+      payload.logoFile = logoFile
+      payload.input.clearLogoRemoteURL = true
+    } else if (action === 'publish' && previewSetting?.logoFile?.id) {
+      payload.input.logoFileID = previewSetting.logoFile.id
+      payload.input.clearLogoRemoteURL = true
+    } else if (logoLink) {
+      payload.input.logoRemoteURL = logoLink
+      payload.input.clearLogoFile = true
+    }
+
+    if (faviconFile) {
+      payload.faviconFile = faviconFile
+      payload.input.clearFaviconRemoteURL = true
+    } else if (action === 'publish' && previewSetting?.faviconFile?.id) {
+      payload.input.faviconFileID = previewSetting.faviconFile.id
+      payload.input.clearFaviconRemoteURL = true
+    } else if (faviconLink) {
+      payload.input.faviconRemoteURL = faviconLink
+      payload.input.clearFaviconFile = true
     }
 
     const resp = await updateTrustCenterSetting(payload)
@@ -230,28 +246,46 @@ const BrandPage: React.FC = () => {
   }
 
   const handleRevert = () => {
-    if (!previewSetting?.id) {
-      return
-    }
+    if (!previewSetting?.id || !setting) return
+
     const payload: UpdateTrustCenterSettingsArgs = {
       id: previewSetting.id,
       input: {
-        ...setColorOrClear(setting?.primaryColor, 'primaryColor', 'clearPrimaryColor'),
-        ...setColorOrClear(setting?.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
-        ...setColorOrClear(setting?.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
-        ...setColorOrClear(setting?.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
-        ...setColorOrClear(setting?.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
-        ...setColorOrClear(setting?.accentColor, 'accentColor', 'clearAccentColor'),
-        font: setting?.font,
-        themeMode: setting?.themeMode,
-        title: setting?.title,
-        overview: setting?.overview,
-        logoRemoteURL: setting?.logoRemoteURL,
-        faviconRemoteURL: setting?.faviconRemoteURL,
-        logoFileID: setting?.logoFile?.id,
-        faviconFileID: setting?.logoFile?.id,
+        ...setColorOrClear(setting.primaryColor, 'primaryColor', 'clearPrimaryColor'),
+        ...setColorOrClear(setting.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
+        ...setColorOrClear(setting.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
+        ...setColorOrClear(setting.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
+        ...setColorOrClear(setting.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
+        ...setColorOrClear(setting.accentColor, 'accentColor', 'clearAccentColor'),
+        font: setting.font,
+        themeMode: setting.themeMode,
+        title: setting.title,
+        overview: setting.overview,
       },
     }
+
+    if (setting.logoFile?.id) {
+      payload.input.logoFileID = setting.logoFile.id
+      payload.input.clearLogoRemoteURL = true
+    } else if (setting.logoRemoteURL) {
+      payload.input.logoRemoteURL = setting.logoRemoteURL
+      payload.input.clearLogoFile = true
+    } else {
+      payload.input.clearLogoFile = true
+      payload.input.clearLogoRemoteURL = true
+    }
+
+    if (setting.faviconFile?.id) {
+      payload.input.faviconFileID = setting.faviconFile.id
+      payload.input.clearFaviconRemoteURL = true
+    } else if (setting.faviconRemoteURL) {
+      payload.input.faviconRemoteURL = setting.faviconRemoteURL
+      payload.input.clearFaviconFile = true
+    } else {
+      payload.input.clearFaviconFile = true
+      payload.input.clearFaviconRemoteURL = true
+    }
+
     updateTrustCenterSetting(payload)
   }
 
