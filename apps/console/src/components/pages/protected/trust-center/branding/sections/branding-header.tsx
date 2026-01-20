@@ -12,9 +12,7 @@ interface BrandingHeaderProps {
 }
 
 export const BrandingHeader = ({ cnameRecord, hasChanges, onPreview, onRevert, onPublish }: BrandingHeaderProps) => {
-  console.log('cnameRecord', cnameRecord)
   const url = normalizeUrl(cnameRecord)
-  console.log('url', url)
   return (
     <div className="flex items-center gap-5 w-full">
       <Button onClick={onPreview} type="button" variant="secondary" icon={<Eye size={16} />}>

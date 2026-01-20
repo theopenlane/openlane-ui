@@ -3,6 +3,7 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import clsx from 'clsx'
 import { BadgeCheck, CircleX, ExternalLink, Hourglass } from 'lucide-react'
+import Link from 'next/link'
 import React from 'react'
 
 type UrlInputProps = {
@@ -17,7 +18,7 @@ type UrlInputProps = {
 
 function UrlInput({ value, onChange, disabled, className, verifiedStatus, hasCopyButton, placeholder }: UrlInputProps) {
   const isVerified = verifiedStatus === DnsVerificationDnsVerificationStatus.ACTIVE
-  console.log('url input value', value)
+  console.log('url input value with next link', value)
   return (
     <div className={clsx('flex items-center border rounded-md w-[490px]', className)}>
       <p className="px-3 py-2 text-sm select-none">https://</p>
@@ -26,9 +27,9 @@ function UrlInput({ value, onChange, disabled, className, verifiedStatus, hasCop
         // <a href={value} rel={'noreferrer'} target="_blank">
         //   <Button variant="secondary" className="flex items-center justify-center h-8 gap-1 rounded-l-none" icon={<ExternalLink size={14} />} disabled={!value} iconPosition="center"></Button>
         // </a>
-        <Button asChild variant="secondary" className="flex items-center justify-center h-8 gap-1 rounded-l-none" icon={<ExternalLink size={14} />}>
-          <a href={value} target="_blank" rel="noreferrer" />
-        </Button>
+        <Link href={value}>
+          <Button variant="secondary" className="flex items-center justify-center h-8 gap-1 rounded-l-none" icon={<ExternalLink size={14} />} disabled={!value} iconPosition="center"></Button>
+        </Link>
       ) : (
         <div className="flex items-center ml-2 pr-3 whitespace-nowrap gap-1">
           {verifiedStatus !== undefined ? (
