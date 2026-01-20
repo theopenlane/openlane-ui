@@ -5,19 +5,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { Plus, Eye, Loader2 } from 'lucide-react'
-
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entities'
-
 import type { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Customer name is required'),
@@ -47,12 +45,6 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
     if (!uploaded.file) return
     setSelectedFile(uploaded.file)
     setPreview(URL.createObjectURL(uploaded.file))
-  }
-
-  const normalizeUrl = (url?: string | null) => {
-    if (!url) return null
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-    return `https://${url}`
   }
 
   const onSubmit = async (values: TFormValues) => {
