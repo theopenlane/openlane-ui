@@ -1,6 +1,6 @@
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
-import UrlInput from '../url-input'
+import UrlInput from '../../shared/url-input'
 import { Eye } from 'lucide-react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { InputTypeEnum } from '../branding-page'
