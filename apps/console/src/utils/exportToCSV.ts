@@ -10,7 +10,7 @@ export const exportToCSV = <T extends object>(data: T[], columns: { label: strin
   data.forEach((item) => {
     const row = columns.map((col) => {
       const val = col.accessor(item)
-      return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : val ?? ''
+      return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : (val ?? '')
     })
     csvRows.push(row.join(','))
   })
@@ -22,4 +22,12 @@ export const exportToCSV = <T extends object>(data: T[], columns: { label: strin
   a.download = `${fileName}.csv`
   a.click()
   URL.revokeObjectURL(url)
+}
+
+export const normalizeUrl = (url?: string | null) => {
+  if (!url) return ''
+  const trimmed = url.trim()
+  if (!trimmed) return ''
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) return trimmed
+  return `https://${trimmed}`
 }

@@ -14,6 +14,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { normalizeUrl } from '@/utils/exportToCSV'
 
 const formSchema = z.object({
   url: z.string().optional(),
@@ -30,14 +31,6 @@ type CustomerLogoCardProps = {
   onDelete: (id: string) => void
   isUpdating?: boolean
   isDeleting?: boolean
-}
-
-function normalizeUrl(value?: string | null) {
-  if (!value) return ''
-  const trimmed = value.trim()
-  if (!trimmed) return ''
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) return trimmed
-  return `https://${trimmed}`
 }
 
 export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onDelete, isUpdating, isDeleting }: CustomerLogoCardProps) {

@@ -12,6 +12,7 @@ import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { normalizeUrl } from '@/utils/exportToCSV'
 
 type Props = {
   watermarkConfig: TrustCenterWatermarkConfig | null
@@ -109,12 +110,6 @@ const WatermarkConfigurationSection = ({ watermarkConfig }: Props) => {
         description: message,
       })
     }
-  }
-
-  const normalizeUrl = (url?: string | null) => {
-    if (!url) return null
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-    return `https://${url}`
   }
 
   useEffect(() => {

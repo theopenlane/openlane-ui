@@ -18,6 +18,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entities'
 
 import type { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { normalizeUrl } from '@/utils/exportToCSV'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Customer name is required'),
@@ -47,12 +48,6 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
     if (!uploaded.file) return
     setSelectedFile(uploaded.file)
     setPreview(URL.createObjectURL(uploaded.file))
-  }
-
-  const normalizeUrl = (url?: string | null) => {
-    if (!url) return null
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-    return `https://${url}`
   }
 
   const onSubmit = async (values: TFormValues) => {
