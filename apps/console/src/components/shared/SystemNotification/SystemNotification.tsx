@@ -7,7 +7,7 @@ import { NotificationRow } from './notification-row'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { ExportRow } from './export-row'
-import { useClickOutside } from '@/hooks/useClickOutside'
+import useClickOutside from '@/hooks/useClickOutside'
 
 export default function SystemNotificationTracker() {
   const { notifications } = useWebsocketNotifications()
