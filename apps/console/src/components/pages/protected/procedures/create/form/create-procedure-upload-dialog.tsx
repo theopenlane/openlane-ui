@@ -17,6 +17,7 @@ import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-proce
 import { Callout } from '@/components/shared/callout/callout'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -236,9 +237,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
           <Button className="primary" onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
             {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

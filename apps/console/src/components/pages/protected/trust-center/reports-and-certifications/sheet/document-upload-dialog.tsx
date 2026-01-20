@@ -10,6 +10,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
 import { useQueryClient } from '@tanstack/react-query'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TDocumentUploadDialog = {
   documentId: string
@@ -101,9 +102,7 @@ export const DocumentUploadDialog: React.FC<TDocumentUploadDialog> = ({ document
           <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || uploadedFiles.length === 0}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)} disabled={isSubmitting}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

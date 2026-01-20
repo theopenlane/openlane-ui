@@ -4,11 +4,11 @@ import React, { useState } from 'react'
 import { Label } from '@repo/ui/label'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Button } from '@repo/ui/button'
 import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { ColorInput } from '@/components/shared/color-input/color-input'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type Props = {
   setting: TrustCenterSetting
@@ -95,9 +95,7 @@ const ThemeSection = ({ setting }: Props) => {
           </div>
         </RadioGroup>
 
-        <Button onClick={handleSave} disabled={isPending || !isDirty} className="ml-7" variant="secondary">
-          {isPending ? 'Saving…' : 'Save changes'}
-        </Button>
+        <SaveButton isSaving={isPending} onClick={handleSave} disabled={isPending || !isDirty} className="ml-7" />
       </div>
     </div>
   )

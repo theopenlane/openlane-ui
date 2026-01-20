@@ -56,7 +56,7 @@ const ReportsAndCertificationsPage = () => {
       docs.map((doc) => ({
         id: doc?.id ?? '',
         title: doc?.title ?? '',
-        category: doc?.category ?? '',
+        category: doc?.trustCenterDocKindName ?? '',
         visibility: doc?.visibility ?? '',
         tags: doc?.tags ?? [],
         createdAt: doc?.createdAt ?? '',

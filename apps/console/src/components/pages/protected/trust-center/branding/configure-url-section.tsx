@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Pencil, Trash2, InfoIcon, Save, ExternalLink, Copy } from 'lucide-react'
+import { Pencil, Trash2, InfoIcon, ExternalLink, Copy } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import UrlInput from './url-input'
@@ -9,6 +9,8 @@ import { useCreateCustomDomain, useDeleteCustomDomain } from '@/lib/graphql-hook
 import { useNotification } from '@/hooks/useNotification'
 import { GetTrustCenterQuery } from '@repo/codegen/src/schema'
 import { DnsRecordsSheet } from './dns-records-sheet'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type Props = {
   trustCenter: NonNullable<NonNullable<NonNullable<GetTrustCenterQuery['trustCenters']>['edges']>[number]> | undefined
@@ -159,12 +161,8 @@ const ConfigureUrlSection = ({ trustCenter }: Props) => {
               <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={trustCenter.node.customDomain.dnsVerification?.dnsVerificationStatus || null} />
               {editing ? (
                 <div className="flex gap-2">
-                  <Button onClick={handleUpdateCustomDomain} className="gap-1 p-2" icon={<Save size={16} />} iconPosition="left">
-                    Save
-                  </Button>
-                  <Button onClick={handleCancel} className="gap-1 p-2" icon={<Save size={16} />} iconPosition="left">
-                    Cancel
-                  </Button>
+                  <SaveButton onClick={handleUpdateCustomDomain} className="gap-1 p-2" />
+                  <CancelButton className="gap-1" onClick={handleCancel}></CancelButton>
                 </div>
               ) : (
                 <>
