@@ -15,7 +15,7 @@ import { BrandingHeader } from './sections/branding-header'
 import { BrandingTextSection } from './sections/branding-text-section'
 import { BrandingThemeSection } from './sections/branding-theme-section'
 import { BrandingAssetsSection } from './sections/branding-assets-section'
-import { normalizeUrl } from '@/utils/exportToCSV'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 export enum InputTypeEnum {
   URL = 'url',

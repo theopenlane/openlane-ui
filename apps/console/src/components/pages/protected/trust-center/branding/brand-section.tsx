@@ -10,7 +10,7 @@ import UrlInput from './url-input'
 import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { SaveButton } from '@/components/shared/save-button/save-button'
-import { normalizeUrl } from '@/utils/exportToCSV'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 type Props = {
   setting: TrustCenterSetting

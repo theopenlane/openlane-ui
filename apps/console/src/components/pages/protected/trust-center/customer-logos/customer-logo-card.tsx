@@ -14,7 +14,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { normalizeUrl } from '@/utils/exportToCSV'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 const formSchema = z.object({
   url: z.string().optional(),

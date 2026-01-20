@@ -12,7 +12,7 @@ import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
-import { normalizeUrl } from '@/utils/exportToCSV'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 type Props = {
   watermarkConfig: TrustCenterWatermarkConfig | null
