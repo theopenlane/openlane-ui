@@ -17,7 +17,6 @@ type UrlInputProps = {
 
 function UrlInput({ value, onChange, disabled, className, verifiedStatus, hasCopyButton, placeholder }: UrlInputProps) {
   const isVerified = verifiedStatus === DnsVerificationDnsVerificationStatus.ACTIVE
-  return null
   return (
     <div className={clsx('flex items-center border rounded-md w-[490px]', className)}>
       <p className="px-3 py-2 text-sm select-none">https://</p>
