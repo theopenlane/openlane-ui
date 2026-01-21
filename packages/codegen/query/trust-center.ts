@@ -47,6 +47,7 @@ export const GET_TRUST_CENTER = gql`
             overview
             title
             logoRemoteURL
+            securityContact
           }
           previewSetting {
             id
@@ -59,6 +60,7 @@ export const GET_TRUST_CENTER = gql`
             font
             backgroundColor
             secondaryBackgroundColor
+            accentColor
             logoFile {
               id
               presignedURL
@@ -69,6 +71,7 @@ export const GET_TRUST_CENTER = gql`
               presignedURL
             }
             logoRemoteURL
+            securityContact
           }
           watermarkConfig {
             id
@@ -93,6 +96,14 @@ export const UPDATE_TRUST_CENTER_SETTING = gql`
     updateTrustCenterSetting(id: $updateTrustCenterSettingId, input: $input, faviconFile: $faviconFile, logoFile: $logoFile) {
       trustCenterSetting {
         id
+        logoRemoteURL
+        faviconRemoteURL
+        faviconFile {
+          id
+        }
+        logoFile {
+          id
+        }
       }
     }
   }

@@ -1,5 +1,6 @@
 export const openlaneAPIUrl = process.env.NEXT_PUBLIC_OPENLANE_URL!
 export const openlaneGQLUrl = `${process.env.NEXT_PUBLIC_OPENLANE_URL!}/query`
+export const websocketGQLUrl = openlaneGQLUrl.replace(/^https/, 'wss').replace(/^http/, 'ws')
 
 export const sessionCookieName = process.env.SESSION_COOKIE_NAME
 export const sessionCookieDomain = process.env.SESSION_COOKIE_DOMAIN

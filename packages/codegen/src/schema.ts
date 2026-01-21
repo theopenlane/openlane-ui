@@ -50796,6 +50796,7 @@ export type GetTrustCenterQuery = {
           accentColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
+          securityContact?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
@@ -50811,8 +50812,10 @@ export type GetTrustCenterQuery = {
           font?: string | null
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
+          accentColor?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
+          securityContact?: string | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
@@ -50841,7 +50844,17 @@ export type UpdateTrustCenterSettingMutationVariables = Exact<{
 
 export type UpdateTrustCenterSettingMutation = {
   __typename?: 'Mutation'
-  updateTrustCenterSetting: { __typename?: 'TrustCenterSettingUpdatePayload'; trustCenterSetting: { __typename?: 'TrustCenterSetting'; id: string } }
+  updateTrustCenterSetting: {
+    __typename?: 'TrustCenterSettingUpdatePayload'
+    trustCenterSetting: {
+      __typename?: 'TrustCenterSetting'
+      id: string
+      logoRemoteURL?: string | null
+      faviconRemoteURL?: string | null
+      faviconFile?: { __typename?: 'File'; id: string } | null
+      logoFile?: { __typename?: 'File'; id: string } | null
+    }
+  }
 }
 
 export type CreateCustomDomainMutationVariables = Exact<{

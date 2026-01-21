@@ -61,8 +61,9 @@ export const useGetTrustCenter = () => {
 
 export type TrustCenterEdge = NonNullable<NonNullable<GetTrustCenterQuery['trustCenters']>['edges']>[number]
 export type TrustCenterNode = NonNullable<NonNullable<NonNullable<GetTrustCenterQuery['trustCenters']>['edges']>[number]>['node']
-export type TrustCenterSetting = NonNullable<TrustCenterNode>['setting']
+export type TrustCenterSetting = NonNullable<TrustCenterNode>['setting'] | null | undefined
 export type TrustCenterWatermarkConfig = NonNullable<TrustCenterNode>['watermarkConfig']
+export type TrustCenterPreviewSetting = NonNullable<NonNullable<TrustCenterNode>['previewSetting']> | null | undefined
 
 export const useUpdateTrustCenterSetting = () => {
   const { client, queryClient } = useGraphQLClient()

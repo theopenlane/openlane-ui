@@ -12,7 +12,7 @@ export const TitleField = () => {
   return (
     <div>
       <Label>Title</Label>
-      <Input placeholder="Document title" {...register('title')} />
+      <Input placeholder="Framework title" {...register('title')} />
       {errors.title && <p className="text-red-500 text-sm mt-1">{String(errors.title.message)}</p>}
     </div>
   )

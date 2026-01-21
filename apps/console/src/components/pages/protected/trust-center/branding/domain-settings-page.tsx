@@ -9,7 +9,7 @@ import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Copy, ExternalLink, InfoIcon, Pencil, Save, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import UrlInput from './url-input'
+import UrlInput from '../shared/url-input'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
@@ -208,8 +208,8 @@ const DomainSettingsPage = () => {
     if (!trustCenter?.customDomain) {
       return (
         <div className="flex w-full gap-2">
-          <UrlInput value={inputValue} onChange={setInputValue} className="flex-1 h-10" />
-          <Button onClick={handleCreateCustomDomain} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
+          <UrlInput value={inputValue} onChange={setInputValue} className="flex-1 h-8" />
+          <Button onClick={handleCreateCustomDomain} variant="secondary" className="flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
             Set
           </Button>
         </div>
@@ -219,7 +219,7 @@ const DomainSettingsPage = () => {
     if (trustCenter.customDomain?.cnameRecord) {
       return (
         <div className="flex w-full gap-2">
-          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-10" />
+          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-8" />
           {editing ? (
             <div className="flex gap-2">
               <SaveButton onClick={handleUpdateCustomDomain} className="h-10 flex items-center justify-center gap-2 px-4" />
@@ -227,15 +227,15 @@ const DomainSettingsPage = () => {
             </div>
           ) : (
             <div className="flex gap-2">
-              <Button variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
+              <Button variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
                 Edit
               </Button>
-              <Button onClick={handleDeleteCustomDomain} variant="secondary" className="h-10 flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />
+              <Button onClick={handleDeleteCustomDomain} variant="secondary" className=" flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />
               {dnsVerification?.dnsVerificationStatus && (
                 <>
-                  <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
+                  <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center  gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
                   <a href={trustCenter.customDomain?.cnameRecord} rel={'noreferrer'} target="_blank">
-                    <Button variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
+                    <Button variant="secondary" className="flex items-center justify-center  gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
                   </a>
                 </>
               )}
@@ -262,16 +262,16 @@ const DomainSettingsPage = () => {
               <div>
                 {trustCenter?.slug && (
                   <div className="flex items-center gap-2 justify-between">
-                    <div className="flex items-center gap-3 border rounded-md justify-between py-2 px-3 w-full">
+                    <div className="flex items-center gap-3 border rounded-md justify-between py-1 px-3 w-full">
                       <div className="flex items-center gap-2">
                         <Label className="text-sm text-inverted-muted-foreground font-medium leading-6">Default:</Label>
                         <span className="text-sm">{defaultDomain}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button onClick={handleCopyDefaultDomain} variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
+                      <Button onClick={handleCopyDefaultDomain} variant="secondary" className="flex items-center justify-center  gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
                       <a href={defaultDomain} rel={'noreferrer'} target="_blank">
-                        <Button variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
+                        <Button variant="secondary" className="flex items-center justify-center  gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
                       </a>
                     </div>
                   </div>

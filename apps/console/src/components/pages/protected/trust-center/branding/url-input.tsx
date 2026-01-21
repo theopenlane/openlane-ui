@@ -20,10 +20,10 @@ function UrlInput({ value, onChange, disabled, className, verifiedStatus, hasCop
   return (
     <div className={clsx('flex items-center border rounded-md w-[490px]', className)}>
       <p className="px-3 py-2 text-sm select-none">https://</p>
-      <Input className="rounded-none" maxWidth value={value} placeholder={placeholder ?? 'meow.comply.theopenlane.net'} onChange={(e) => onChange?.(e.target.value)} disabled={disabled} />
+      <Input className="rounded-none h-8" maxWidth value={value} placeholder={placeholder ?? 'meow.comply.theopenlane.net'} onChange={(e) => onChange?.(e.target.value)} disabled={disabled} />
       {hasCopyButton ? (
         <a href={value} rel={'noreferrer'} target="_blank">
-          <Button variant="secondary" className="flex items-center justify-center h-10 gap-1" icon={<ExternalLink size={14} />} disabled={!value} iconPosition="center"></Button>
+          <Button variant="secondary" className="flex items-center justify-center h-8 gap-1 rounded-l-none" icon={<ExternalLink size={14} />} disabled={!value} iconPosition="center"></Button>
         </a>
       ) : (
         <div className="flex items-center ml-2 pr-3 whitespace-nowrap gap-1">
