@@ -9,7 +9,7 @@ import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
 import { format } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
-const ANDAsPage = () => {
+const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
@@ -67,4 +67,4 @@ const ANDAsPage = () => {
   )
 }
 
-export default ANDAsPage
+export default NDAsPage
