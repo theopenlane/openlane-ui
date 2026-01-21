@@ -9,6 +9,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
 import { formatEnumLabel } from '@/utils/enumToLabel'
 import { cn } from '@repo/ui/lib/utils'
+import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 interface RiskLabelProps {
   fieldName?: keyof EditRisksFormData
@@ -134,7 +135,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
           <SelectContent ref={popoverRef}>
             {riskKindOptions?.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                <CustomTypeEnumChip option={opt} />
               </SelectItem>
             ))}
           </SelectContent>
@@ -154,7 +155,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
           <SelectContent ref={popoverRef}>
             {riskCategoryOptions?.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                <CustomTypeEnumChip option={opt} />
               </SelectItem>
             ))}
           </SelectContent>

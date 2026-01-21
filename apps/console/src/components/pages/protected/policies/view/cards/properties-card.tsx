@@ -15,6 +15,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -207,7 +208,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                       <SelectContent ref={popoverRef}>
                         {enumOptions?.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                            <CustomTypeEnumChip option={option} />
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -28,6 +28,7 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -214,7 +215,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                                 <SelectContent>
                                   {item.selectedObject?.options?.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
+                                      <CustomTypeEnumChip option={option} />
                                     </SelectItem>
                                   ))}
                                 </SelectContent>

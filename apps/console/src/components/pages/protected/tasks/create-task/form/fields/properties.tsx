@@ -20,6 +20,7 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -260,7 +261,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   <SelectContent ref={popoverRef}>
                     {taskKindOptions.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
-                        {o.value}
+                        <CustomTypeEnumChip option={o} />
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -27,6 +27,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TProps = {
   onSuccess: () => void
@@ -140,7 +141,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               <SelectContent>
                                 {taskKindOptions.map((o) => (
                                   <SelectItem key={o.value} value={o.value}>
-                                    {o.value}
+                                    <CustomTypeEnumChip option={o} />
                                   </SelectItem>
                                 ))}
                               </SelectContent>

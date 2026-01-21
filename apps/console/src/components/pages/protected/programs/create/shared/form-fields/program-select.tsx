@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFormContext } from 'react-hook-form'
 import { getYear } from 'date-fns'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 const currentYear = getYear(new Date())
 
@@ -51,7 +52,7 @@ const ProgramTypeSelect = () => {
               <SelectContent>
                 {enumOptions?.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                    <CustomTypeEnumChip option={opt} />
                   </SelectItem>
                 ))}
               </SelectContent>

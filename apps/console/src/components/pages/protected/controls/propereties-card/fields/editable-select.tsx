@@ -7,21 +7,21 @@ import { useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { FolderIcon } from 'lucide-react'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
+import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { Option } from '@repo/ui/multiple-selector'
 
 export const EditableSelect = ({
   label,
   name,
   isEditing,
   options,
-  labels,
   handleUpdate,
   isEditAllowed,
 }: {
   label: string
   name: string
   isEditing: boolean
-  options: string[]
-  labels: Record<string, string>
+  options: Option[]
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   isEditAllowed: boolean
 }) => {
@@ -83,12 +83,12 @@ export const EditableSelect = ({
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value] ?? ''}</SelectValue>
+                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{options.find((o) => o.value === field.value)?.label ?? ''}</SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>
-                  {options.map((opt) => (
-                    <SelectItem key={opt} value={opt}>
-                      {labels[opt]}
+                  {options.map((opt, i) => (
+                    <SelectItem key={`${opt.value} ${i}`} value={opt.value}>
+                      <CustomTypeEnumChip option={opt} />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -97,7 +97,7 @@ export const EditableSelect = ({
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
-            <div onDoubleClick={isEditAllowed ? handleClick : undefined}>{labels[getValues(name)] ?? '-'}</div>
+            <div onDoubleClick={isEditAllowed ? handleClick : undefined}>{getValues(name) ?? '-'}</div>
           </HoverPencilWrapper>
         )}
       </div>

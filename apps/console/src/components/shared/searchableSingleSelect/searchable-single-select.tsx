@@ -7,6 +7,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { Option } from '@repo/ui/multiple-selector'
 import { useRef, useState } from 'react'
+import CustomTypeEnumChip from '../custom-type-enum-chip/custom-type-enum-chip'
 
 interface SearchableSingleSelectProps {
   value?: string
@@ -55,7 +56,7 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
                       setOpen(false)
                     }}
                   >
-                    {option.label}
+                    <CustomTypeEnumChip option={option} />
                   </CommandItem>
                 ))}
               </CommandGroup>
