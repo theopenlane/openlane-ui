@@ -1,24 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_TRUST_CENTER_NDA_REQUESTS, CREATE_TRUST_CENTER_NDA } from '@repo/codegen/query/trust-center-NDA'
-import { GetTrustCenterNdaRequestsQuery, CreateTrustCenterNdaMutation, CreateTrustCenterNdaMutationVariables } from '@repo/codegen/src/schema'
+import { CREATE_TRUST_CENTER_NDA, GET_TRUST_CENTER_NDA_FILES, UPDATE_TRUST_CENTER_NDA } from '@repo/codegen/query/trust-center-NDA'
+import {
+  CreateTrustCenterNdaMutation,
+  CreateTrustCenterNdaMutationVariables,
+  GetTrustCenterNdaFilesQuery,
+  UpdateTrustCenterNdaMutation,
+  UpdateTrustCenterNdaMutationVariables,
+} from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
-export const useGetTrustCenterNDARequests = (enabled = true) => {
+export const useGetTrustCenterNDAFiles = (enabled = true) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetTrustCenterNdaRequestsQuery>({
-    queryKey: ['trustCenterNdaRequests'],
-    queryFn: () => client.request<GetTrustCenterNdaRequestsQuery>(GET_TRUST_CENTER_NDA_REQUESTS),
+  const queryResult = useQuery<GetTrustCenterNdaFilesQuery>({
+    queryKey: ['trustCenterNdaFiles'],
+    queryFn: () =>
+      client.request<GetTrustCenterNdaFilesQuery>(GET_TRUST_CENTER_NDA_FILES, {
+        where: {},
+      }),
     enabled,
   })
 
-  const edges = queryResult.data?.trustCenterNdaRequests?.edges ?? []
-  const ndaRequests = edges.map((e) => e?.node)
+  const templateEdges = queryResult.data?.templates?.edges ?? []
+  const latestTemplate = templateEdges[0]?.node
+  const files = latestTemplate?.files?.edges?.map((e) => e?.node) ?? []
+  const latestFile = files[0]
 
   return {
     ...queryResult,
-    ndaRequests,
+    latestFile,
+    latestTemplate,
   }
 }
 
@@ -34,6 +46,21 @@ export const useCreateTrustCenterNDA = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterNdaRequests'] })
+    },
+  })
+}
+
+export const useUpdateTrustCenterNDA = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateTrustCenterNdaMutation, unknown, UpdateTrustCenterNdaMutationVariables>({
+    mutationFn: async (variables) =>
+      fetchGraphQLWithUpload({
+        query: UPDATE_TRUST_CENTER_NDA,
+        variables,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenterNdaFiles'] })
     },
   })
 }

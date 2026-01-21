@@ -2,21 +2,26 @@
 
 import React, { useContext, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import { CheckCircle2, FileText, Loader2 } from 'lucide-react'
+import { CheckCircle2, FileText, Loader2, Download } from 'lucide-react'
+import { Button } from '@repo/ui/button'
 import { NDAUploadDialog } from './components/NDA-upload-dialog'
-import { useGetTrustCenterNDARequests } from '@/lib/graphql-hooks/trust-center-NDA'
+import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
 import { format } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
-const NDAsPage = () => {
-  const { ndaRequests, isLoading } = useGetTrustCenterNDARequests()
+const ANDAsPage = () => {
+  const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
-  const latestNda = ndaRequests?.[0]
-
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'NDAs', href: '/trust-center/NDAs' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'ANDAs', href: '/trust-center/NDAs' }])
   }, [setCrumbs])
+
+  const handleDownload = () => {
+    if (latestFile?.presignedURL) {
+      window.open(latestFile.presignedURL, '_blank')
+    }
+  }
 
   if (isLoading) {
     return (
@@ -31,7 +36,7 @@ const NDAsPage = () => {
       <div className="grid w-full max-w-[1200px] gap-6">
         <PageHeading heading="Non-Disclosure Agreements" />
 
-        {!latestNda ? (
+        {!latestFile ? (
           <div className="flex flex-col items-start gap-4 rounded-lg">
             <div className="flex items-center gap-2 text-muted-foreground">
               <FileText className="h-5 w-5" />
@@ -41,13 +46,19 @@ const NDAsPage = () => {
           </div>
         ) : (
           <div className="grid gap-4">
-            <div className="flex items-center gap-2 font-medium text-green-600">
-              <CheckCircle2 className="h-5 w-5" />
-              <span>NDA uploaded • last updated {format(new Date(latestNda.updatedAt), 'MMM d, yyyy')}</span>
+            <div className="flex items-center gap-2 font-medium">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              <span>
+                NDA: {latestFile.providedFileName} • updated: {format(new Date(latestFile.updatedAt), 'MMM d, yyyy')}
+              </span>
             </div>
 
             <div className="flex gap-3">
-              <NDAUploadDialog triggerText="Replace Document" />
+              <Button variant="outline" onClick={handleDownload} className="flex gap-2">
+                <Download className="h-4 w-4" />
+                View PDF
+              </Button>
+              <NDAUploadDialog triggerText="Replace Document" ndaId={latestTemplate?.id} />
             </div>
           </div>
         )}
@@ -56,4 +67,4 @@ const NDAsPage = () => {
   )
 }
 
-export default NDAsPage
+export default ANDAsPage

@@ -6,16 +6,17 @@ import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { Loader2 } from 'lucide-react'
-import { useCreateTrustCenterNDA } from '@/lib/graphql-hooks/trust-center-NDA'
+import { useCreateTrustCenterNDA, useUpdateTrustCenterNDA } from '@/lib/graphql-hooks/trust-center-NDA'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface NDAUploadDialogProps {
   triggerText?: string
+  ndaId?: string
 }
 
-export const NDAUploadDialog = ({ triggerText = 'Upload NDA' }: NDAUploadDialogProps) => {
+export const NDAUploadDialog = ({ triggerText = 'Upload NDA', ndaId }: NDAUploadDialogProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -24,7 +25,10 @@ export const NDAUploadDialog = ({ triggerText = 'Upload NDA' }: NDAUploadDialogP
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
 
-  const { mutateAsync: createNda, isPending } = useCreateTrustCenterNDA()
+  const { mutateAsync: createNda, isPending: isCreating } = useCreateTrustCenterNDA()
+  const { mutateAsync: updateNda, isPending: isUpdating } = useUpdateTrustCenterNDA()
+
+  const isPending = isCreating || isUpdating
 
   const handleFileSelect = (uploaded: TUploadedFile) => {
     if (uploaded?.file) {
@@ -36,13 +40,20 @@ export const NDAUploadDialog = ({ triggerText = 'Upload NDA' }: NDAUploadDialogP
     if (!selectedFile) return
 
     try {
-      await createNda({
-        input: { trustCenterID },
-        templateFiles: [selectedFile],
-      })
+      if (ndaId) {
+        await updateNda({
+          id: ndaId,
+          templateFiles: [selectedFile],
+        })
+      } else {
+        await createNda({
+          input: { trustCenterID },
+          templateFiles: [selectedFile],
+        })
+      }
 
       successNotification({
-        title: 'NDA Uploaded',
+        title: ndaId ? 'NDA Updated' : 'NDA Uploaded',
         description: `Successfully uploaded ${selectedFile.name}`,
       })
 
@@ -63,8 +74,8 @@ export const NDAUploadDialog = ({ triggerText = 'Upload NDA' }: NDAUploadDialogP
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Upload NDA Document</DialogTitle>
-          <DialogDescription>Upload a PDF version of the Non-Disclosure Agreement. New requests will use this document.</DialogDescription>
+          <DialogTitle>{ndaId ? 'Replace NDA Document' : 'Upload NDA Document'}</DialogTitle>
+          <DialogDescription>Upload a PDF version of the Non-Disclosure Agreement.</DialogDescription>
         </DialogHeader>
 
         <div className="relative grid gap-4 py-4">
@@ -78,7 +89,7 @@ export const NDAUploadDialog = ({ triggerText = 'Upload NDA' }: NDAUploadDialogP
           </Button>
           <Button onClick={handleSave} disabled={!selectedFile || isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save NDA
+            {ndaId ? 'Update NDA' : 'Save NDA'}
           </Button>
         </DialogFooter>
       </DialogContent>

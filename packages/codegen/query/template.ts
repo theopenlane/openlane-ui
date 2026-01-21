@@ -19,8 +19,8 @@ export const CREATE_TEMPLATE = gql`
 `
 
 export const UPDATE_TEMPLATE = gql`
-  mutation UpdateTemplate($updateTemplateId: ID!, $input: UpdateTemplateInput!) {
-    updateTemplate(id: $updateTemplateId, input: $input) {
+  mutation UpdateTemplate($updateTemplateId: ID!, $input: UpdateTemplateInput!, $templateFiles: [Upload!]) {
+    updateTemplate(id: $updateTemplateId, input: $input, templateFiles: $templateFiles) {
       template {
         id
         name
