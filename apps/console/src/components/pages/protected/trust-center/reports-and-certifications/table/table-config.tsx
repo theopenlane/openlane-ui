@@ -18,6 +18,7 @@ export type TTrustCenterDoc = {
   file?: GqlFile | null
   originalFile?: GqlFile | null
   watermarkStatus: TrustCenterDocWatermarkStatus
+  standardShortName: string
 }
 
 type Params = {
@@ -106,6 +107,13 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       },
     },
     {
+      accessorKey: 'standard',
+      header: 'Standard',
+      cell: ({ row }) => {
+        return <StandardChip referenceFramework={row.original.standardShortName} />
+      },
+    },
+    {
       accessorKey: 'createdAt',
       header: 'Created At',
       cell: ({ row }) => <span>{formatDate(row.original.createdAt)}</span>,
@@ -151,13 +159,14 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
   },
 ]
 
-import { Eye, Folder } from 'lucide-react'
+import { Eye, FileQuestion, Folder } from 'lucide-react'
 import { FilterField } from '@/types'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import DocumentActions from '../../actions/documents-actions'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import StandardChip from '../../../standards/shared/standard-chip'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {
@@ -172,5 +181,11 @@ export const trustCenterDocsFilterFields: FilterField[] = [
     type: 'multiselect',
     options: enumToOptions(TrustCenterDocTrustCenterDocumentVisibility),
     icon: Eye,
+  },
+  {
+    key: 'hasStandardWith',
+    label: 'Standard Name',
+    type: 'text',
+    icon: FileQuestion,
   },
 ]
