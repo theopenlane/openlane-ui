@@ -7,7 +7,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { Option } from '@repo/ui/multiple-selector'
 import { useRef, useState } from 'react'
-import CustomTypeEnumChip from '../custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '../custom-type-enum-chip/custom-type-enum-chip'
 
 interface SearchableSingleSelectProps {
   value?: string
@@ -30,14 +30,14 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
 
   useEscapeKey(() => onClose?.())
 
-  const selected = options.find((opt) => opt.value === value)
-
   return (
     <div ref={triggerRef} className={`${className} w-full`}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
-            <span className="truncate">{selected?.label || placeholder}</span>
+            <span className="truncate">
+              <CustomTypeEnumValue value={value} options={options} placeholder={placeholder} />
+            </span>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
@@ -49,14 +49,14 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
               <CommandGroup>
                 {options.map((option, i) => (
                   <CommandItem
-                    key={`option ${option.value}, ${i}`}
+                    key={`option-${option.value}-${i}`}
                     value={option.label}
                     onSelect={() => {
                       onChange?.(option.value)
                       setOpen(false)
                     }}
                   >
-                    <CustomTypeEnumChip option={option} />
+                    <CustomTypeEnumOptionChip option={option} />
                   </CommandItem>
                 ))}
               </CommandGroup>

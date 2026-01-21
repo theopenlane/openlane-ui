@@ -16,7 +16,7 @@ import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/s
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 export enum SelectOptionBulkEditTrustCenterDocs {
   CATEGORY = 'Category',
@@ -154,12 +154,14 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                       render={({ field }) => (
                         <Select value={field.value || ''} onValueChange={field.onChange}>
                           <SelectTrigger className="w-60">
-                            <SelectValue placeholder="Select category" />
+                            <SelectValue placeholder="Select category">
+                              <CustomTypeEnumValue value={field.value} options={categoryOptions} placeholder="Select category" />
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {categoryOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
-                                <CustomTypeEnumChip option={option} />
+                                <CustomTypeEnumOptionChip option={option} />
                               </SelectItem>
                             ))}
                           </SelectContent>

@@ -13,7 +13,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { TMetadata } from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
-import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOptionChip } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -169,7 +169,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       <SelectContent>
                         {enumOptions?.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            <CustomTypeEnumChip option={option} />
+                            <CustomTypeEnumOptionChip option={option} />
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -5,7 +5,7 @@ import { InternalPolicyFrequency } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
@@ -13,7 +13,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
-import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -158,11 +158,15 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                 <FormItem>
                   <FormControl>
                     <Select value={field.value || ''} onValueChange={(value) => field.onChange(value)} disabled={!isTypesSuccess}>
-                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select type">
+                          <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
+                        </SelectValue>
+                      </SelectTrigger>
                       <SelectContent>
                         {enumOptions?.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            <CustomTypeEnumChip option={option} />
+                            <CustomTypeEnumOptionChip option={option} />
                           </SelectItem>
                         ))}
                       </SelectContent>

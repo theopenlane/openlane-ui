@@ -28,7 +28,7 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -199,23 +199,30 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                           <Controller
                             name={item.selectedObject.name as keyof BulkEditDialogFormValues}
                             control={control}
-                            render={() => (
+                            render={({ field }) => (
                               <Select
                                 value={item.selectedValue as string | undefined}
-                                onValueChange={(value) =>
+                                onValueChange={(value) => {
+                                  field.onChange(value)
                                   update(index, {
                                     ...item,
                                     selectedValue: value,
                                   })
-                                }
+                                }}
                               >
                                 <SelectTrigger className="w-60">
-                                  <SelectValue placeholder={item.selectedObject?.placeholder} />
+                                  <SelectValue placeholder={item.selectedObject?.placeholder}>
+                                    <CustomTypeEnumValue
+                                      value={item.selectedValue as string | undefined}
+                                      options={item.selectedObject?.options || []}
+                                      placeholder={item.selectedObject?.placeholder ?? ''}
+                                    />
+                                  </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {item.selectedObject?.options?.map((option) => (
+                                  {(item.selectedObject?.options || []).map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
-                                      <CustomTypeEnumChip option={option} />
+                                      <CustomTypeEnumOptionChip option={option} />
                                     </SelectItem>
                                   ))}
                                 </SelectContent>

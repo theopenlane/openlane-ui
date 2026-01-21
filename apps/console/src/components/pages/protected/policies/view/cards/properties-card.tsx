@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react'
 import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus, UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
@@ -15,7 +15,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
-import CustomTypeEnumChip from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -203,12 +203,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                         handleUpdateIfChanged('internalPolicyKindName', val, policy?.internalPolicyKindName)
                       }}
                     >
-                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
+                        </SelectValue>
+                      </SelectTrigger>
 
                       <SelectContent ref={popoverRef}>
                         {enumOptions?.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            <CustomTypeEnumChip option={option} />
+                            <CustomTypeEnumOptionChip option={option} />
                           </SelectItem>
                         ))}
                       </SelectContent>
