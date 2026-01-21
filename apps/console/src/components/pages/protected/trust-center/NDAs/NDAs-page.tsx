@@ -1,16 +1,22 @@
 'use client'
 
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { CheckCircle2, FileText, Loader2 } from 'lucide-react'
 import { NDAUploadDialog } from './components/NDA-upload-dialog'
 import { useGetTrustCenterNDARequests } from '@/lib/graphql-hooks/trust-center-NDA'
 import { format } from 'date-fns'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
-const ANDAsPage = () => {
+const NDAsPage = () => {
   const { ndaRequests, isLoading } = useGetTrustCenterNDARequests()
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const latestNda = ndaRequests?.[0]
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'NDAs', href: '/trust-center/NDAs' }])
+  }, [setCrumbs])
 
   if (isLoading) {
     return (
@@ -50,4 +56,4 @@ const ANDAsPage = () => {
   )
 }
 
-export default ANDAsPage
+export default NDAsPage

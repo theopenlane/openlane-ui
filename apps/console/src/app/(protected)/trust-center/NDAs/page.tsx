@@ -1,13 +1,13 @@
 import React from 'react'
 import { Metadata } from 'next'
-import ANDAsPage from '@/components/pages/protected/trust-center/NDAs/NDAs-page'
+import NDAsPage from '@/components/pages/protected/trust-center/NDAs/NDAs-page'
 
 export const metadata: Metadata = {
-  title: 'ANDAs | Trust center',
+  title: 'NDAs | Trust center',
 }
 
 const Page: React.FC = () => {
-  return <ANDAsPage />
+  return <NDAsPage />
 }
 
 export default Page
