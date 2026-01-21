@@ -17,15 +17,7 @@ export const StandardField = ({ isEditing }: Props) => {
   const { control, watch } = useFormContext()
   const [open, setOpen] = useState(false)
 
-  const { standardOptions, isLoading } = useStandardsSelect({
-    where: {
-      //   hasControlsWith: [
-      //     {
-      //       hasOwnerWith: [{ id: currentOrgId || '' }],
-      //     },
-      //   ],
-    },
-  })
+  const { standardOptions, isLoading } = useStandardsSelect({})
 
   const selectedId = watch('standardID')
   const selectedStandard = standardOptions.find((s) => s.value === selectedId)
