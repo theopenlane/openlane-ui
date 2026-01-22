@@ -361,7 +361,7 @@ const ControlDetailsPage: React.FC = () => {
           isEditing={isEditing}
           initialValue={initialValues.title}
           handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
-          referenceFramework={control.referenceFramework}
+          standard={control.standard}
         />
         {isEditing && isSourceFramework && (
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
@@ -394,7 +394,7 @@ const ControlDetailsPage: React.FC = () => {
           controlID: control.id,
           controlRefCodes: [control?.refCode],
           referenceFramework: {
-            [control?.id ?? 'default']: control?.referenceFramework ?? '',
+            [control?.id ?? 'default']: control?.standard?.shortName ?? '',
           },
           programDisplayIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
           objectAssociations: {
@@ -420,7 +420,7 @@ const ControlDetailsPage: React.FC = () => {
 
       <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} canEdit={canEdit(permission?.roles)} />
       <ControlCommentsCard />
-      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} refCode={control.refCode} sourceFramework={control.referenceFramework} />
+      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} refCode={control.refCode} sourceFramework={control.standard?.shortName} />
       {hasInfoData && (
         <InfoCard
           implementationGuidance={control.implementationGuidance}

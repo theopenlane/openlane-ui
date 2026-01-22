@@ -23,12 +23,12 @@ import FedRAMPModerate from '@/assets/FedRAMPModerate'
 import FedRAMPLow from '@/assets/FedRAMPLow'
 
 type TStandardsIconMapperProps = {
-  shortName: string
+  shortName: string | undefined | null
   height?: number
   width?: number
 }
 
-export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIconMapperProps) => {
+const StandardsIconMapper = ({ shortName, height, width }: TStandardsIconMapperProps) => {
   const icon = useMemo(() => {
     const sizeProps = { height, width }
     const iconMap: Record<string, React.ReactNode> = {
@@ -54,7 +54,36 @@ export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIcon
       'FedRAMP Moderate': <FedRAMPModerate {...sizeProps} />,
       'FedRAMP Low': <FedRAMPLow {...sizeProps} />,
     }
-    return iconMap[shortName] || <Custom {...sizeProps} />
+    return iconMap[shortName || ''] || <Custom {...sizeProps} />
   }, [shortName, width, height])
   return <>{icon}</>
+}
+
+interface TStandardIconProps {
+  shortName: string | null | undefined
+  base64: string | null | undefined
+  governingBodyLogoURL: string | null | undefined
+  height?: number
+  width?: number
+}
+
+export const StandardIcon = ({ shortName, base64, governingBodyLogoURL, height = 24, width = 24 }: TStandardIconProps) => {
+  const sizeStyles = { height, width }
+
+  if (base64) {
+    const src = base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={src} alt={`${shortName} logo`} style={sizeStyles} />
+    )
+  }
+
+  if (governingBodyLogoURL) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={governingBodyLogoURL} alt={`${shortName} governing body logo`} style={sizeStyles} />
+    )
+  }
+
+  return <StandardsIconMapper shortName={shortName} height={height} width={width} />
 }

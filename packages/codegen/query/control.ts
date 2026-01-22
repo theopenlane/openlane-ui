@@ -10,11 +10,17 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     subcategory
     tags
     mappedCategories
-    referenceFramework
     referenceID
     auditorReferenceID
     source
     controlKindName
+    standard {
+      shortName
+      governingBodyLogoURL
+      logoFile {
+        base64
+      }
+    }
     subcontrols {
       totalCount
     }
@@ -158,7 +164,13 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     controlKindName
     auditorReferenceID
     referenceID
-    referenceFramework
+    standard {
+      shortName
+      governingBodyLogoURL
+      logoFile {
+        base64
+      }
+    }
     title
     __typename
     controlObjectives {

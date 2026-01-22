@@ -14,7 +14,6 @@ import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { StandardWhereInput } from '@repo/codegen/src/schema'
-import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import Loading from '@/app/(protected)/standards/loading'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { getTasksFilterFields } from './table/table-config'
@@ -93,7 +92,6 @@ const StandardsPage = () => {
                   </p>
                 </div>
               </div>
-              <StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />
             </div>
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">{standard?.node?.tags?.map((tag, i) => <TagChip tag={tag} key={i} />)}</div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>

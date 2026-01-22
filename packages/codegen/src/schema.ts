@@ -46008,7 +46008,6 @@ export type ControlListFieldsFragment = {
   subcategory?: string | null
   tags?: Array<string> | null
   mappedCategories?: Array<string> | null
-  referenceFramework?: string | null
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
@@ -46017,6 +46016,7 @@ export type ControlListFieldsFragment = {
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
+  standard?: { __typename?: 'Standard'; shortName?: string | null; governingBodyLogoURL?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
@@ -46089,8 +46089,8 @@ export type ControlDetailsFieldsFragment = {
   controlKindName?: string | null
   auditorReferenceID?: string | null
   referenceID?: string | null
-  referenceFramework?: string | null
   title?: string | null
+  standard?: { __typename?: 'Standard'; shortName?: string | null; governingBodyLogoURL?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{
@@ -46145,7 +46145,6 @@ export type GetAllControlsQuery = {
         subcategory?: string | null
         tags?: Array<string> | null
         mappedCategories?: Array<string> | null
-        referenceFramework?: string | null
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
@@ -46154,6 +46153,7 @@ export type GetAllControlsQuery = {
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        standard?: { __typename?: 'Standard'; shortName?: string | null; governingBodyLogoURL?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         subcontrols: {
           __typename?: 'SubcontrolConnection'
           totalCount: number
@@ -46220,8 +46220,8 @@ export type GetControlByIdQuery = {
     controlKindName?: string | null
     auditorReferenceID?: string | null
     referenceID?: string | null
-    referenceFramework?: string | null
     title?: string | null
+    standard?: { __typename?: 'Standard'; shortName?: string | null; governingBodyLogoURL?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -49489,6 +49489,7 @@ export type GetAllStandardsQuery = {
         tags?: Array<string> | null
         description?: string | null
         domains?: Array<string> | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
         controls: { __typename?: 'ControlConnection'; totalCount: number }
       } | null
     } | null> | null
@@ -49517,7 +49518,7 @@ export type GetStandardDetailsQuery = {
     framework?: string | null
     governingBody?: string | null
     controls: { __typename?: 'ControlConnection'; totalCount: number }
-    logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+    logoFile?: { __typename?: 'File'; base64?: string | null } | null
   }
 }
 
@@ -49561,7 +49562,7 @@ export type GetStandardsPaginatedQuery = {
         description?: string | null
         systemOwned?: boolean | null
         governingBodyLogoURL?: string | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
