@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import Gdpr from '@/assets/standards/gdpr.svg'
 import Iso27001 from '@/assets/standards/iso27001'
 import Iso27002 from '@/assets/standards/iso27002'
 import Nist80053 from '@/assets/standards/nist80053'
@@ -18,6 +17,7 @@ import NercCip from '@/assets/standards/nerc-cip'
 import FedrampHigh from '@/assets/standards/fedramp-high'
 import FedrampModerate from '@/assets/standards/fredramp-moderate'
 import Iso42001 from '@/assets/standards/iso42001'
+import GDPR from '@/assets/standards/gdpr'
 
 type TStandardsIconMapperProps = {
   shortName: string
@@ -36,7 +36,7 @@ export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIcon
       'NIST 800-171': <Nist800171 {...sizeProps} />,
       'NIST CSF': <NistCsf {...sizeProps} />,
       'SOC 2': <Soc2 {...sizeProps} />,
-      GDPR: <Gdpr {...sizeProps} />,
+      GDPR: <GDPR {...sizeProps} />,
       CCM: <Ccm {...sizeProps} />,
       HIPAA: <Hipaa {...sizeProps} />,
       SOX: <Sox {...sizeProps} />,
