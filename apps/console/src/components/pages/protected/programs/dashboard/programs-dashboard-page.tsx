@@ -16,7 +16,6 @@ import { ProgramProgramStatus, ProgramWhereInput, TaskTaskStatus } from '@repo/c
 import { Switch } from '@repo/ui/switch'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
-import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { ProgramIconMapper, ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { Separator } from '@repo/ui/separator'
 import Menu from '@/components/shared/menu/menu'
@@ -32,6 +31,7 @@ import { Callout } from '@/components/shared/callout/callout'
 import ProgramsCreate from '../create/programs-page'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
+import { StandardIcon } from '@/components/shared/standard-icon/standard-icon'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
@@ -252,7 +252,7 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
     <Card className="p-6 gap-6  flex flex-col ">
       <div className="flex justify-between items-center">
         <div className="font-medium flex items-center gap-3">
-          <StandardsIconMapper height={30} width={30} shortName={program.frameworkName ?? ''}></StandardsIconMapper>
+          <StandardIcon height={30} width={30} shortName={program.frameworkName ?? ''}></StandardIcon>
           {program.name}
           {program.status === ProgramProgramStatus.READY_FOR_AUDITOR && <Badge variant={'green'}>Ready For Auditor</Badge>}
         </div>

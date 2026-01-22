@@ -8,12 +8,12 @@ import StandardDetailsAccordion from '@/components/pages/protected/standards/sta
 import { useEffect, useContext, useState } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
-import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { Button } from '@repo/ui/button'
 import { canEdit } from '@/lib/authz/utils.ts'
 import Loading from './loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { StandardIcon } from '@/components/shared/standard-icon/standard-icon'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
@@ -45,7 +45,7 @@ const StandardDetailsPage = () => {
     <>
       <div className="flex flex-col gap-7">
         <div className="flex flex-row gap-7 items-center">
-          <StandardsIconMapper shortName={standard?.shortName ?? ''} />
+          {<StandardIcon shortName={standard?.shortName} base64={standard?.logoFile?.base64} governingBodyLogoURL={standard?.governingBodyLogoURL} />}
           <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />
         </div>
         <p className="">{data?.standard.description}</p>

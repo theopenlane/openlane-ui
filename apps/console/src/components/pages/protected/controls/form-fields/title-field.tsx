@@ -3,20 +3,20 @@
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
-import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { ControlDetailsFieldsFragment, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { StandardIcon } from '@/components/shared/standard-icon/standard-icon'
 
 interface TitleFieldProps {
   isEditing: boolean
   isEditAllowed?: boolean
   handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   initialValue: string
-  referenceFramework: string | null | undefined
+  standard: ControlDetailsFieldsFragment['standard']
 }
 
-const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue, referenceFramework }: TitleFieldProps) => {
+const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue, standard }: TitleFieldProps) => {
   const { register, getValues, setValue } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
   const handleClick = () => {
@@ -62,7 +62,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
     </div>
   ) : (
     <div className="flex gap-2 items-center">
-      {referenceFramework && <StandardsIconMapper height={40} width={42} shortName={referenceFramework} />}
+      <StandardIcon height={40} width={42} shortName={standard?.shortName} base64={standard?.logoFile?.base64} governingBodyLogoURL={standard?.governingBodyLogoURL} />
       <HoverPencilWrapper showPencil={isEditAllowed}>
         <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold pr-5 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
           {getValues('title')}
