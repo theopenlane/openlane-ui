@@ -8,8 +8,11 @@ import { LivePreview, LivePreviewTrustCenter } from './live-preview'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { useRouter } from 'next/navigation'
 import { SuggestedActionCard } from './suggested-action-card'
+import { useContext, useEffect } from 'react'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const OverviewPage: React.FC = () => {
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: trustCenterData } = useGetTrustCenter()
   const { trustCenterSubprocessors, isLoading: isLoadingSubprocessors } = useGetTrustCenterSubprocessors({})
   const { docs, isLoading: isLoadingDocs } = useGetTrustCenterDocs({})
@@ -29,6 +32,10 @@ const OverviewPage: React.FC = () => {
 
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
   const posts = postsData?.trustCenter?.posts?.edges ?? []
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Overview', href: '/trust-center/overview' }])
+  }, [setCrumbs])
 
   const handleRouting = (route: string) => {
     router.push(`/trust-center/${route}`)

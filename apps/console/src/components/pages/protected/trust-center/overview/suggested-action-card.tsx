@@ -13,8 +13,8 @@ export const SuggestedActionCard = ({ handleRouting, icon: Icon, description, ro
     <Card className="bg-btn-secondary w-full cursor-pointer">
       <CardContent>
         <div onClick={() => handleRouting(route)} className="flex items-center gap-4">
-          <div className="flex items-center justify-center h-10 w-10 rounded-md bg-card">
-            <Icon className="text-primary" />
+          <div className="flex items-center justify-center h-10 w-10  rounded-md bg-card">
+            <Icon size={20} className="text-primary" />
           </div>
           <p className="text-sm text-text-paragraph font-medium leading-6">{description}</p>
         </div>
