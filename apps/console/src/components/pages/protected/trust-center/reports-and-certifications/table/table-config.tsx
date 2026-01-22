@@ -110,7 +110,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       accessorKey: 'standard',
       header: 'Standard',
       cell: ({ row }) => {
-        return <StandardChip referenceFramework={row.original.standardShortName} />
+        return row.original.standardShortName ? <StandardChip referenceFramework={row.original.standardShortName} /> : '-'
       },
     },
     {
