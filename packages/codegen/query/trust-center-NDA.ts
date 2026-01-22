@@ -35,8 +35,8 @@ export const CREATE_TRUST_CENTER_NDA = gql`
 `
 
 export const UPDATE_TRUST_CENTER_NDA = gql`
-  mutation UpdateTrustCenterNDA($id: ID!, $templateFiles: [Upload!]) {
-    updateTrustCenterNDA(id: $id, templateFiles: $templateFiles) {
+  mutation UpdateTrustCenterNDA($updateTrustCenterNdaId: ID!, $templateFiles: [Upload!]) {
+    updateTrustCenterNDA(id: $updateTrustCenterNdaId, templateFiles: $templateFiles) {
       template {
         id
       }

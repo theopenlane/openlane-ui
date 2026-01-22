@@ -42,7 +42,7 @@ export const NDAUploadDialog = ({ triggerText = 'Upload NDA', ndaId }: NDAUpload
     try {
       if (ndaId) {
         await updateNda({
-          id: ndaId,
+          updateTrustCenterNdaId: trustCenterID,
           templateFiles: [selectedFile],
         })
       } else {

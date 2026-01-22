@@ -50674,7 +50674,7 @@ export type CreateTrustCenterNdaMutationVariables = Exact<{
 export type CreateTrustCenterNdaMutation = { __typename?: 'Mutation'; createTrustCenterNDA: { __typename?: 'TrustCenterNDACreatePayload'; template: { __typename?: 'Template'; id: string } } }
 
 export type UpdateTrustCenterNdaMutationVariables = Exact<{
-  id: Scalars['ID']['input']
+  updateTrustCenterNdaId: Scalars['ID']['input']
   templateFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 

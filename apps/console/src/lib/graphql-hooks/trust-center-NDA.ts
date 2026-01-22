@@ -25,7 +25,7 @@ export const useGetTrustCenterNDAFiles = (enabled = true) => {
   const templateEdges = queryResult.data?.templates?.edges ?? []
   const latestTemplate = templateEdges[0]?.node
   const files = latestTemplate?.files?.edges?.map((e) => e?.node) ?? []
-  const latestFile = files[0]
+  const latestFile = files.at(-1)
 
   return {
     ...queryResult,
