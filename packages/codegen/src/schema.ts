@@ -6874,6 +6874,8 @@ export interface CreateTrustCenterSettingInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** URL to the company's homepage */
   companyDomain?: InputMaybe<Scalars['String']['input']>
+  /** company name for the trust center, defaults to the organization's display name */
+  companyName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** environment of the trust center */
   environment?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
@@ -35944,6 +35946,8 @@ export interface TrustCenterSetting extends Node {
   blockedGroups: GroupConnection
   /** URL to the company's homepage */
   companyDomain?: Maybe<Scalars['String']['output']>
+  /** company name for the trust center, defaults to the organization's display name */
+  companyName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
@@ -36134,6 +36138,22 @@ export interface TrustCenterSettingWhereInput {
   companyDomainNEQ?: InputMaybe<Scalars['String']['input']>
   companyDomainNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   companyDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** company_name field predicates */
+  companyName?: InputMaybe<Scalars['String']['input']>
+  companyNameContains?: InputMaybe<Scalars['String']['input']>
+  companyNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  companyNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  companyNameGT?: InputMaybe<Scalars['String']['input']>
+  companyNameGTE?: InputMaybe<Scalars['String']['input']>
+  companyNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  companyNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  companyNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  companyNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  companyNameLT?: InputMaybe<Scalars['String']['input']>
+  companyNameLTE?: InputMaybe<Scalars['String']['input']>
+  companyNameNEQ?: InputMaybe<Scalars['String']['input']>
+  companyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  companyNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -41203,6 +41223,7 @@ export interface UpdateTrustCenterSettingInput {
   clearBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDomain?: InputMaybe<Scalars['Boolean']['input']>
+  clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
@@ -41221,6 +41242,8 @@ export interface UpdateTrustCenterSettingInput {
   clearTrustCenterID?: InputMaybe<Scalars['Boolean']['input']>
   /** URL to the company's homepage */
   companyDomain?: InputMaybe<Scalars['String']['input']>
+  /** company name for the trust center, defaults to the organization's display name */
+  companyName?: InputMaybe<Scalars['String']['input']>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the favicon */
   faviconRemoteURL?: InputMaybe<Scalars['String']['input']>
@@ -50924,6 +50947,7 @@ export type GetTrustCenterDocsQuery = {
               watermarkStatus?: TrustCenterDocWatermarkStatus | null
               file?: { __typename?: 'File'; presignedURL?: string | null } | null
               originalFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+              standard?: { __typename?: 'Standard'; shortName?: string | null; id: string } | null
             } | null
           } | null> | null
           pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
@@ -50969,6 +50993,7 @@ export type GetTruestCenterDocByIdQuery = {
     tags?: Array<string> | null
     watermarkingEnabled?: boolean | null
     watermarkStatus?: TrustCenterDocWatermarkStatus | null
+    standardID?: string | null
     file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string; providedFileSize?: number | null } | null
     originalFile?: { __typename?: 'File'; presignedURL?: string | null; providedFileSize?: number | null; providedFileName: string } | null
   }

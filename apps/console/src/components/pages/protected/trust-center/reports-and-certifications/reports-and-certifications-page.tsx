@@ -24,6 +24,7 @@ import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.DOCUMENTS)
@@ -34,12 +35,32 @@ const ReportsAndCertificationsPage = () => {
   const router = useRouter()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: orgPermission } = useOrganizationRoles()
-
   const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
+
+  const whereFilter = useMemo(() => {
+    const base: TrustCenterDocWhereInput = {}
+
+    const result = whereGenerator<TrustCenterDocWhereInput>(filters, (key, value) => {
+      if (key === 'hasStandardWith') {
+        return {
+          hasStandardWith: [
+            {
+              shortNameContainsFold: value as string,
+            },
+          ],
+        } as TrustCenterDocWhereInput
+      }
+
+      return { [key]: value } as TrustCenterDocWhereInput
+    })
+
+    return { ...base, ...result }
+  }, [filters])
+
   const { docs, paginationMeta, isLoading } = useGetTrustCenterDocs({
     where: {
       ...(searchTerm ? { titleContainsFold: searchTerm } : {}),
-      ...(filters ?? {}),
+      ...whereFilter,
     },
     pagination,
   })
@@ -65,6 +86,7 @@ const ReportsAndCertificationsPage = () => {
         file: doc?.file ? { presignedURL: doc.file.presignedURL } : null,
         originalFile: doc?.originalFile ? { presignedURL: doc.originalFile.presignedURL } : null,
         watermarkStatus: doc?.watermarkStatus ?? TrustCenterDocWatermarkStatus.DISABLED,
+        standardShortName: doc?.standard?.shortName ?? '',
       })) ?? [],
     [docs],
   )
