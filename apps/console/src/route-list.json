@@ -239,11 +239,6 @@
     "hidden": true
   },
   {
-    "route": "/trust-center/settings",
-    "name": "Settings",
-    "hidden": true
-  },
-  {
     "route": "/trust-center/subprocessors",
     "name": "Subprocessors",
     "hidden": true
