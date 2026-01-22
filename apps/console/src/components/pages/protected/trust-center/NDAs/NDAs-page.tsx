@@ -14,7 +14,7 @@ const NDAsPage = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'ANDAs', href: '/trust-center/NDAs' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'NDAs', href: '/trust-center/NDAs' }])
   }, [setCrumbs])
 
   const handleDownload = () => {
