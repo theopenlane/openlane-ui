@@ -96,19 +96,26 @@ const OverviewPage: React.FC = () => {
                     <SuggestedActionCard
                       handleRouting={handleRouting}
                       icon={Globe}
-                      description="Make your trust center available at a branded URL for customers and auditors."
+                      header="Set Up a Custom Domain"
+                      subheader="Make your trust center available at a branded URL for customers and auditors."
                       route="domain"
                     ></SuggestedActionCard>
                   )}
-                  {!trustCenter?.setting?.logoFile ||
-                    (!trustCenter?.setting?.faviconFile && (
-                      <SuggestedActionCard handleRouting={handleRouting} icon={Brush} description="Add your logo and favicon to personalize your trust center." route="branding"></SuggestedActionCard>
-                    ))}
-                  {!isLoadingSubprocessors && !trustCenterSubprocessors && (
+                  {(!trustCenter?.setting?.logoFile || !trustCenter?.setting?.faviconFile) && (
+                    <SuggestedActionCard
+                      handleRouting={handleRouting}
+                      icon={Brush}
+                      header="Update Branding"
+                      subheader="Add your logo and favicon to personalize your trust center."
+                      route="branding"
+                    ></SuggestedActionCard>
+                  )}
+                  {!isLoadingSubprocessors && trustCenterSubprocessors.length === 0 && (
                     <SuggestedActionCard
                       handleRouting={handleRouting}
                       icon={Server}
-                      description="Maintain an up-to-date list of third-party services that process customer data."
+                      header="Add Subprocessors"
+                      subheader="Maintain an up-to-date list of third-party services that process customer data."
                       route="subprocessors"
                     ></SuggestedActionCard>
                   )}
@@ -116,14 +123,16 @@ const OverviewPage: React.FC = () => {
                     <SuggestedActionCard
                       handleRouting={handleRouting}
                       icon={Upload}
-                      description="Upload policies, reports, and certifications to share your security posture."
+                      header="Add Documents"
+                      subheader="Upload policies, reports, and certifications to share your security posture."
                       route="documents"
                     ></SuggestedActionCard>
                   )}
                   <SuggestedActionCard
                     handleRouting={handleRouting}
                     icon={Megaphone}
-                    description="Share updates, announcements, or important security notices with visitors."
+                    header="Create a Post"
+                    subheader="Share updates, announcements, or important security notices with visitors."
                     route="updates"
                   ></SuggestedActionCard>
                 </div>
