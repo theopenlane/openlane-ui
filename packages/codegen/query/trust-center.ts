@@ -72,6 +72,7 @@ export const GET_TRUST_CENTER = gql`
             }
             logoRemoteURL
             securityContact
+            updatedAt
           }
           watermarkConfig {
             id
@@ -270,6 +271,7 @@ export const GET_TRUST_CENTER_POSTS = gql`
           node {
             id
             text
+            title
             updatedAt
           }
         }
@@ -293,6 +295,55 @@ export const UPDATE_TRUST_CENTER_POST = gql`
     updateTrustCenterPost(id: $updateTrustCenterPostId, input: $input) {
       trustCenter {
         id
+      }
+    }
+  }
+`
+
+export const GET_TRUST_CENTER_LAST_UPDATED = gql`
+  query TrustCenterLastUpdated($trustCenterId: ID!) {
+    trustCenter(id: $trustCenterId) {
+      customDomain {
+        cnameRecord
+        updatedAt
+      }
+      setting {
+        updatedAt
+      }
+      trustCenterCompliances {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      trustCenterSubprocessors {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      trustCenterEntities {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      trustCenterDocs {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      posts {
+        edges {
+          node {
+            updatedAt
+          }
+        }
       }
     }
   }

@@ -103,7 +103,13 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return (
+          <div className="flex gap-2">
+            {row?.original?.tags?.map((tag, i) => (
+              <TagChip key={i} tag={tag} />
+            ))}
+          </div>
+        )
       },
     },
     {
@@ -125,7 +131,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       size: 140,
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: '',
       cell: ({ row }) => {
         const presignedURL = row.original.file?.presignedURL || row.original.originalFile?.presignedURL || ''
