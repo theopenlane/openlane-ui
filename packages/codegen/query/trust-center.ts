@@ -163,6 +163,10 @@ export const GET_TRUST_CENTER_DOCS = gql`
                 originalFile {
                   presignedURL
                 }
+                standard {
+                  shortName
+                  id
+                }
               }
             }
             pageInfo {
@@ -218,6 +222,7 @@ export const GET_TRUST_CENTER_DOC_BY_ID = gql`
       }
       watermarkingEnabled
       watermarkStatus
+      standardID
     }
   }
 `
