@@ -72,6 +72,7 @@ export const GET_TRUST_CENTER = gql`
             }
             logoRemoteURL
             securityContact
+            updatedAt
           }
           watermarkConfig {
             id
@@ -270,6 +271,7 @@ export const GET_TRUST_CENTER_POSTS = gql`
           node {
             id
             text
+            title
             updatedAt
           }
         }
