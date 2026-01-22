@@ -1,16 +1,16 @@
 import { formatDate } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { siteExists } from '@/utils/siteExists'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ExternalLink, Shield } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export interface LivePreviewTrustCenter {
-  previewDomain?: {
+  customDomain?: {
     cnameRecord: string
   } | null
-  previewSetting?: {
-    updatedAt: string
-  } | null
+  updatedAt: string
 }
 
 interface LivePreviewProps {
@@ -18,10 +18,21 @@ interface LivePreviewProps {
 }
 
 export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
-  const cnameRecord = trustCenter?.previewDomain?.cnameRecord
-  const lastUpdated = trustCenter?.previewSetting?.updatedAt
+  const cnameRecord = trustCenter?.customDomain?.cnameRecord
+  const lastUpdated = trustCenter?.updatedAt
+  const normalizedUrl = normalizeUrl(cnameRecord)
+  const [isLive, setIsLive] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsLive(false)
+
+    if (!normalizedUrl) return
+
+    siteExists(normalizedUrl).then(setIsLive)
+  }, [normalizedUrl])
+
   return (
-    <Card className="w-[380px] shrink-0">
+    <Card className="w-[550px] shrink-0">
       <CardContent className="flex flex-col gap-2">
         <p className="text-xl font-medium leading-7">Live Preview</p>
         <div className="flex flex-col rounded-md h-[185px] border border-border">
@@ -45,10 +56,20 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
         </div>
         <div className="flex justify-between">
           <p className="text-trust-center-text">Status</p>
-          <p>Status</p>
+          {isLive ? (
+            <div className="flex flex-row items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-trust-center-green-dot" />
+              <div className="text-trust-center-green-dot">Live</div>
+            </div>
+          ) : (
+            <div className="flex flex-row items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-trust-center-red-dot" />
+              <div className="text-trust-center-red-dot">Not live</div>
+            </div>
+          )}
         </div>
         <a href={normalizeUrl(cnameRecord) ?? undefined} rel="noreferrer" target="_blank" className="w-full">
-          <Button disabled={!cnameRecord} variant="secondary" iconPosition="left" icon={<ExternalLink />} className="w-full">
+          <Button disabled={!cnameRecord || !isLive} variant="secondary" iconPosition="left" icon={<ExternalLink />} className="w-full">
             View live site
           </Button>
         </a>

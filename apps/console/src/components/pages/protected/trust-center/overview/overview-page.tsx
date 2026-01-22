@@ -1,5 +1,5 @@
 'use client'
-import { useGetTrustCenter, useGetTrustCenterDocs, useGetTrustCenterPosts } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenter, useGetTrustCenterDocs, useGetTrustCenterLastUpdated, useGetTrustCenterPosts } from '@/lib/graphql-hooks/trust-center'
 import { formatDate } from '@/utils/date'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
@@ -14,19 +14,33 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 const OverviewPage: React.FC = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: trustCenterData } = useGetTrustCenter()
+
   const { trustCenterSubprocessors, isLoading: isLoadingSubprocessors } = useGetTrustCenterSubprocessors({})
   const { docs, isLoading: isLoadingDocs } = useGetTrustCenterDocs({})
   const router = useRouter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
+  const { data: lastUpdatedData } = useGetTrustCenterLastUpdated({ trustCenterId: trustCenterID, enabled: !trustCenterID })
+
+  const updatedAtValues: string[] = [
+    lastUpdatedData?.trustCenter.customDomain?.updatedAt,
+    lastUpdatedData?.trustCenter.setting?.updatedAt,
+
+    ...(lastUpdatedData?.trustCenter.trustCenterCompliances?.edges ?? []).map((e) => e?.node?.updatedAt),
+    ...(lastUpdatedData?.trustCenter.trustCenterSubprocessors?.edges ?? []).map((e) => e?.node?.updatedAt),
+    ...(lastUpdatedData?.trustCenter.trustCenterEntities?.edges ?? []).map((e) => e?.node?.updatedAt),
+    ...(lastUpdatedData?.trustCenter.trustCenterDocs?.edges ?? []).map((e) => e?.node?.updatedAt),
+    ...(lastUpdatedData?.trustCenter.posts?.edges ?? []).map((e) => e?.node?.updatedAt),
+  ].filter(Boolean)
+
+  const mostRecentUpdatedAt = updatedAtValues.length > 0 ? new Date(Math.max(...updatedAtValues.map((d) => new Date(d).getTime()))).toISOString() : null
+
   const trustCenterLivePreview: LivePreviewTrustCenter | undefined = trustCenter
     ? {
-        previewDomain: {
-          cnameRecord: trustCenter.previewDomain?.cnameRecord ?? '',
+        customDomain: {
+          cnameRecord: (trustCenter.customDomain?.cnameRecord ?? trustCenter?.slug) ? `https://trust.theopenlane.net/${trustCenter?.slug}` : '',
         },
-        previewSetting: {
-          updatedAt: trustCenter.previewSetting?.updatedAt ?? '',
-        },
+        updatedAt: mostRecentUpdatedAt ?? new Date(0).toISOString(),
       }
     : undefined
 
@@ -57,7 +71,7 @@ const OverviewPage: React.FC = () => {
                 <Card>
                   <CardContent className="flex flex-col gap-2">
                     <p className="text-xl font-medium leading-7">Latest Updates</p>
-                    {posts.map((edge) => {
+                    {posts.slice(-3).map((edge) => {
                       const post = edge?.node
                       if (!post) return null
 

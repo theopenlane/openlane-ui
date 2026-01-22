@@ -51091,6 +51091,36 @@ export type UpdateTrustCenterPostMutationVariables = Exact<{
 
 export type UpdateTrustCenterPostMutation = { __typename?: 'Mutation'; updateTrustCenterPost: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
 
+export type TrustCenterLastUpdatedQueryVariables = Exact<{
+  trustCenterId: Scalars['ID']['input']
+}>
+
+export type TrustCenterLastUpdatedQuery = {
+  __typename?: 'Query'
+  trustCenter: {
+    __typename?: 'TrustCenter'
+    customDomain?: { __typename?: 'CustomDomain'; cnameRecord: string; updatedAt?: any | null } | null
+    setting?: { __typename?: 'TrustCenterSetting'; updatedAt?: any | null } | null
+    trustCenterCompliances: {
+      __typename?: 'TrustCenterComplianceConnection'
+      edges?: Array<{ __typename?: 'TrustCenterComplianceEdge'; node?: { __typename?: 'TrustCenterCompliance'; updatedAt?: any | null } | null } | null> | null
+    }
+    trustCenterSubprocessors: {
+      __typename?: 'TrustCenterSubprocessorConnection'
+      edges?: Array<{ __typename?: 'TrustCenterSubprocessorEdge'; node?: { __typename?: 'TrustCenterSubprocessor'; updatedAt?: any | null } | null } | null> | null
+    }
+    trustCenterEntities: {
+      __typename?: 'TrustCenterEntityConnection'
+      edges?: Array<{ __typename?: 'TrustCenterEntityEdge'; node?: { __typename?: 'TrustCenterEntity'; updatedAt?: any | null } | null } | null> | null
+    }
+    trustCenterDocs: {
+      __typename?: 'TrustCenterDocConnection'
+      edges?: Array<{ __typename?: 'TrustCenterDocEdge'; node?: { __typename?: 'TrustCenterDoc'; updatedAt?: any | null } | null } | null> | null
+    }
+    posts: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; updatedAt?: any | null } | null } | null> | null }
+  }
+}
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
