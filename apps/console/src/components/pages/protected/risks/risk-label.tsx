@@ -37,12 +37,16 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     },
   })
 
+  console.log('riskKindOptions', riskKindOptions)
+
   const { enumOptions: riskCategoryOptions } = useGetCustomTypeEnums({
     where: {
       objectType: 'risk',
       field: 'category',
     },
   })
+
+  console.log('riskCategoryOptions', riskCategoryOptions)
 
   useClickOutsideWithPortal(
     () => {

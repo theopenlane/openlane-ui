@@ -90,7 +90,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       size: 100,
       cell: ({ cell }) => (
         <div className="flex items-center space-x-2">
-          <RiskLabel fieldName="riskKindName" status={(cell.getValue() as RiskRiskStatus) || ''} isEditing={false} />
+          <RiskLabel fieldName="riskKindName" riskKindName={(cell.getValue() as string) || ''} isEditing={false} />
         </div>
       ),
     },
@@ -100,7 +100,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       size: 100,
       cell: ({ cell }) => (
         <div className="flex items-center space-x-2">
-          <RiskLabel fieldName="riskCategoryName" score={cell.getValue() as number} isEditing={false} />
+          <RiskLabel fieldName="riskCategoryName" riskCategoryName={cell.getValue() as string} isEditing={false} />
         </div>
       ),
     },
