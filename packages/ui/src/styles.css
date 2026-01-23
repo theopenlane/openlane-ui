@@ -198,6 +198,11 @@
   --color-gradient-border-primary-from: rgba(255, 255, 255, 0.36);
   --color-gradient-border-primary-to: #ffffff00;
   --color-document-chip: #6b7682;
+  --color-trust-center-title: #09151d;
+  --color-trust-center-text: #99a1af;
+  --color-trust-center-created-at: #6a7282;
+  --color-trust-center-live-preview-badge-container: #60e8c926;
+  --color-trust-center-live-preview-skeleton: #09151d1a;
 
   --color-btn-primary: #9af5dc;
   --color-btn-primary-text: #052e2a;
@@ -283,6 +288,11 @@
   --color-gradient-border-top: #50616b;
   --color-toast-border: #ffffff1f;
   --color-document-chip: #ffffff;
+  --color-trust-center-title: #ffffff;
+  --color-trust-center-text: #6b7682;
+  --color-trust-center-created-at: #6a7282;
+  --color-trust-center-live-preview-badge-container: #60e8c926;
+  --color-trust-center-live-preview-skeleton: #ffffff1a;
 
   --color-primary-muted: #60e8c91f;
   --color-btn-primary: #60e8c9;
@@ -437,6 +447,10 @@
 }
 
 @theme inline {
+  /*Trust center*/
+  --color-trust-center-red-dot: #ef4444;
+  --color-trust-center-green-dot: #10b981;
+
   /* Trial */
   --color-gold-trial: #d9ae40;
   --color-divider: #233440;
