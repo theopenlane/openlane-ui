@@ -223,7 +223,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 if (!isEditing && editAllowed) setEditingField('procedureKindName')
               }}
             >
-              <span className="w-full block min-h-6 text-sm">{procedure?.procedureKindName}</span>
+              <div className="w-full block min-h-6 text-sm">
+                <CustomTypeEnumValue value={procedure?.procedureKindName ?? ''} options={enumOptions ?? []} placeholder="" />
+              </div>
             </div>
           )}
         </div>

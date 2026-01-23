@@ -230,7 +230,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                   if (!isEditing && editAllowed) setEditingField('internalPolicyKindName')
                 }}
               >
-                <span className="w-full block min-h-6">{policy?.internalPolicyKindName}</span>
+                <div className="w-full block min-h-6">
+                  <CustomTypeEnumValue value={policy?.internalPolicyKindName || ''} options={enumOptions ?? []}></CustomTypeEnumValue>
+                </div>
               </div>
             </HoverPencilWrapper>
           )}

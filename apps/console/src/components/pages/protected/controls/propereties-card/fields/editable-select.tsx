@@ -100,7 +100,7 @@ export const EditableSelect = ({
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
-            <div onDoubleClick={isEditAllowed ? handleClick : undefined} className="flex items-center min-h-[24px]">
+            <div onDoubleClick={isEditAllowed ? handleClick : undefined} className="flex items-center min-h-6">
               {(() => {
                 const val = getValues(name)
                 const option = options.find((o) => o.value === val)
@@ -112,7 +112,7 @@ export const EditableSelect = ({
                     }}
                   />
                 ) : (
-                  val ?? '-'
+                  <CustomTypeEnumValue value={val ?? ''} options={options} placeholder={'-'} />
                 )
               })()}
             </div>

@@ -5,7 +5,7 @@ import { InternalPolicyFrequency } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
@@ -159,9 +159,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                   <FormControl>
                     <Select value={field.value || ''} onValueChange={(value) => field.onChange(value)} disabled={!isTypesSuccess}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select type">
-                          <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
-                        </SelectValue>
+                        <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
                         {enumOptions?.map((option) => (

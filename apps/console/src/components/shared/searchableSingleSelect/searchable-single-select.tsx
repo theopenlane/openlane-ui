@@ -34,14 +34,14 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
     <div ref={triggerRef} className={`${className} w-full`}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
+          <div className="w-full flex text-sm h-10 px-3 py-0! justify-between border bg-input rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
             <span className="truncate">
               <CustomTypeEnumValue value={value} options={options} placeholder={placeholder} />
             </span>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
-        <PopoverContent ref={popoverRef} className="p-0 !bg-input border w-[var(--radix-popover-trigger-width)] min-w-[var(--radix-popover-trigger-width)]" side="bottom" align="start" sideOffset={4}>
+        <PopoverContent ref={popoverRef} className="p-0 bg-input! border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width)" side="bottom" align="start" sideOffset={4}>
           <Command shouldFilter autoFocus={autoFocus}>
             <CommandInput placeholder="Search..." />
             <CommandList>

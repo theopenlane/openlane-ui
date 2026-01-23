@@ -10,6 +10,8 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 export default function CoverageByType({ onTypeClick }: { onTypeClick: () => void }) {
   const saved = loadFilters(TableFilterKeysEnum.POLICY) || {}
@@ -29,6 +31,13 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
 
     saveFilters(TableFilterKeysEnum.POLICY, newState)
   }
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'internal_policy',
+      field: 'kind',
+    },
+  })
 
   const groupedData = useMemo(() => {
     if (!policies?.length) return []
@@ -63,26 +72,27 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
     const showList = names.slice(0, 10)
     const hasMore = names.length > 10
     const policyLink = `/policies/${id}/view`
+
     return (
-      <div key={label} className="flex items-center gap-3 w-full md:w-[calc(50%-1rem)] cursor-pointer" onClick={() => handleTypeClick(label)}>
+      <div key={label} className="flex items-center gap-4 w-full md:w-[calc(50%-1.5rem)] cursor-pointer" onClick={() => handleTypeClick(label)}>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="w-30 text-sm">{label}</span>
-          </TooltipTrigger>
+          <div className="min-w-36 shrink-0">
+            <TooltipTrigger asChild>
+              <CustomTypeEnumValue value={label || ''} options={enumOptions ?? []} />
+            </TooltipTrigger>
+          </div>
 
           <TooltipContent side="right" align="center" className="max-w-xs border p-3 rounded-md space-y-2">
             <p className="font-medium">{label} Policies</p>
-
             {showList.map((name, i) => (
               <Link href={policyLink} key={i}>
-                <p key={i} className="text-sm text-muted-foreground truncate">
-                  {name}
-                </p>
+                <p className="text-sm text-muted-foreground truncate hover:underline">{name}</p>
               </Link>
             ))}
-
             {hasMore && (
               <Button
+                size="sm"
+                className="w-full mt-2"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleTypeClick(label)
@@ -93,13 +103,13 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
             )}
           </TooltipContent>
         </Tooltip>
-
-        <ProgressBar percentage={percentage} />
-        <span className="text-sm text-text-informational w-12 text-right">{ratio}</span>
+        <div className="grow">
+          <ProgressBar percentage={percentage} />
+        </div>
+        <span className="text-sm text-text-informational w-10 text-right tabular-nums">{ratio}</span>
       </div>
     )
   }
-
   return (
     <div className="rounded-2xl py-6">
       <h2 className="text-lg font-medium mb-6">Coverage by Type</h2>

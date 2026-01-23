@@ -271,11 +271,19 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
   }
 
   if (fieldName === 'riskKindName') {
-    return <div className="text-sm flex items-center">{riskKindName || '-'}</div>
+    return (
+      <div className="text-sm flex items-center">
+        <CustomTypeEnumValue value={riskKindName} options={riskKindOptions ?? []} placeholder="-" />
+      </div>
+    )
   }
 
   if (fieldName === 'riskCategoryName') {
-    return <div className="text-sm flex items-center">{riskCategoryName || '-'}</div>
+    return (
+      <div className="text-sm flex items-center">
+        <CustomTypeEnumValue value={riskCategoryName} options={riskCategoryOptions ?? []} placeholder="-" />
+      </div>
+    )
   }
 
   return null

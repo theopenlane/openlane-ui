@@ -35,6 +35,7 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -84,6 +85,13 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'control',
+      field: 'kind',
+    },
+  })
 
   const whereFilter = useMemo(() => {
     const base: ControlWhereInput = {}
@@ -191,7 +199,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     return map
   }, [users])
 
-  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls }), [convertToReadOnly, userMap, selectedControls])
+  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls, enumOptions }), [convertToReadOnly, userMap, selectedControls, enumOptions])
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
     .filter((column): column is { accessorKey: string; header: string } => typeof column.header === 'string')

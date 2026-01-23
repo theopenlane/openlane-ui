@@ -84,8 +84,26 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       maxSize: 80,
       minSize: 80,
     },
-    { accessorKey: 'riskKindName', header: 'Type', size: 100 },
-    { accessorKey: 'riskCategoryName', header: 'Category', size: 100 },
+    {
+      accessorKey: 'riskKindName',
+      header: 'Type',
+      size: 100,
+      cell: ({ cell }) => (
+        <div className="flex items-center space-x-2">
+          <RiskLabel fieldName="riskKindName" status={(cell.getValue() as RiskRiskStatus) || ''} isEditing={false} />
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'riskCategoryName',
+      header: 'Category',
+      size: 100,
+      cell: ({ cell }) => (
+        <div className="flex items-center space-x-2">
+          <RiskLabel fieldName="riskCategoryName" score={cell.getValue() as number} isEditing={false} />
+        </div>
+      ),
+    },
     {
       accessorKey: 'score',
       header: 'Score',
@@ -160,7 +178,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user as User} className="w-[24px] h-[24px]" />
+            <Avatar entity={user as User} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -182,7 +200,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user as User} className="w-[24px] h-[24px]" />
+            <Avatar entity={user as User} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (

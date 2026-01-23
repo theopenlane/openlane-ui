@@ -51,7 +51,9 @@ export const CategoryField = ({ isEditing }: Props) => {
           {errors.category && <p className="text-red-500 text-sm mt-1">{String(errors.category.message)}</p>}
         </>
       ) : (
-        <p className="text-base text-muted-foreground mt-1">{watch('category') || '—'}</p>
+        <div className="mt-1">
+          <CustomTypeEnumValue value={watch('category') || ''} options={enumOptions} placeholder={'-'} />
+        </div>
       )}
     </div>
   )

@@ -1,5 +1,5 @@
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useFormContext } from 'react-hook-form'
 import { getYear } from 'date-fns'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
@@ -46,9 +46,7 @@ const ProgramTypeSelect = () => {
               required
             >
               <SelectTrigger className="grow justify-between">
-                <SelectValue>
-                  <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select Program Type" />
-                </SelectValue>
+                <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select Program Type" />
               </SelectTrigger>
 
               <SelectContent>

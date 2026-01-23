@@ -35,6 +35,7 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -137,7 +138,15 @@ export const ProceduresTable = () => {
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.PROCEDURE, defaultVisibility))
-  const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures })
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'procedure',
+      field: 'kind',
+    },
+  })
+
+  const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures, enumOptions })
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)

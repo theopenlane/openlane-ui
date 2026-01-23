@@ -276,7 +276,9 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>{taskData?.taskKindName || 'No category'}</p>
+            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>
+              <CustomTypeEnumValue value={taskData?.taskKindName ?? ''} options={taskKindOptions} placeholder="No category" />
+            </div>
           </HoverPencilWrapper>
         )}
       </div>

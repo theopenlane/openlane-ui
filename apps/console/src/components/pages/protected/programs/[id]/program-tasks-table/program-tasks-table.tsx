@@ -19,6 +19,8 @@ import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.t
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums.ts'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip.tsx'
 
 type FormattedTask = {
   id: string
@@ -29,63 +31,6 @@ type FormattedTask = {
   assignee?: User
 }
 
-const columns: ColumnDef<FormattedTask>[] = [
-  {
-    header: 'Title',
-    accessorKey: 'title',
-    cell: ({ row }) => {
-      const task = row.original
-      return (
-        <Link href={`/tasks?id=${task.id}`} className="text-blue-500 hover:underline">
-          {task.title}
-        </Link>
-      )
-    },
-  },
-  {
-    header: 'Type',
-    accessorKey: 'taskKindName',
-    cell: ({ row }) => row.original.taskKindName || '—',
-  },
-
-  {
-    header: 'Status',
-    accessorKey: 'status',
-    cell: ({ row }) => {
-      const status = row.original.status
-      const icon = TaskStatusIconMapper[status] ?? null
-
-      return (
-        <span className="flex items-center gap-2 capitalize">
-          {icon}
-          {TaskStatusMapper[status]}
-        </span>
-      )
-    },
-  },
-  {
-    header: 'Due Date',
-    accessorKey: 'due',
-    cell: ({ row }) => {
-      const due = row.original.due
-      return formatDate(due)
-    },
-  },
-  {
-    header: 'Assignee',
-    accessorKey: 'assignee',
-    cell: ({ row }) => {
-      const assignee = row.original.assignee
-      return (
-        <div className="flex items-center gap-2">
-          <Avatar entity={assignee as User} />
-          {assignee?.displayName || '—'}
-        </div>
-      )
-    },
-  },
-]
-
 const ProgramTasksTable = () => {
   const { id } = useParams<{ id: string | undefined }>()
   const [pagination, setPagination] = useState<TPagination>(
@@ -93,6 +38,73 @@ const ProgramTasksTable = () => {
       ...DEFAULT_PAGINATION,
       pageSize: 5,
     }),
+  )
+
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
+
+  const columns: ColumnDef<FormattedTask>[] = useMemo(
+    () => [
+      {
+        header: 'Title',
+        accessorKey: 'title',
+        cell: ({ row }) => {
+          const task = row.original
+          return (
+            <Link href={`/tasks?id=${task.id}`} className="text-blue-500 hover:underline">
+              {task.title}
+            </Link>
+          )
+        },
+      },
+      {
+        header: 'Type',
+        accessorKey: 'taskKindName',
+        cell: ({ cell }) => <CustomTypeEnumValue value={(cell.getValue() as string) ?? ''} options={taskKindOptions} placeholder="Select" />,
+      },
+
+      {
+        header: 'Status',
+        accessorKey: 'status',
+        cell: ({ row }) => {
+          const status = row.original.status
+          const icon = TaskStatusIconMapper[status] ?? null
+
+          return (
+            <span className="flex items-center gap-2 capitalize">
+              {icon}
+              {TaskStatusMapper[status]}
+            </span>
+          )
+        },
+      },
+      {
+        header: 'Due Date',
+        accessorKey: 'due',
+        cell: ({ row }) => {
+          const due = row.original.due
+          return formatDate(due)
+        },
+      },
+      {
+        header: 'Assignee',
+        accessorKey: 'assignee',
+        cell: ({ row }) => {
+          const assignee = row.original.assignee
+          return (
+            <div className="flex items-center gap-2">
+              <Avatar entity={assignee as User} />
+              {assignee?.displayName || '—'}
+            </div>
+          )
+        },
+      },
+    ],
+    [taskKindOptions],
   )
 
   const where: TaskWhereInput = id
