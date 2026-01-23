@@ -1,6 +1,6 @@
+import { SiteExistsResponse } from '@/types/site-exists'
 import { formatDate } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
-import { siteExists } from '@/utils/siteExists'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ExternalLink, Shield } from 'lucide-react'
@@ -24,11 +24,28 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
   const [isLive, setIsLive] = useState<boolean>(false)
 
   useEffect(() => {
-    setIsLive(false)
-
     if (!normalizedUrl) return
 
-    siteExists(normalizedUrl).then(setIsLive)
+    const checkForSite = async () => {
+      try {
+        const res = await fetch('/api/site-exists', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: normalizedUrl }),
+        })
+
+        const siteData: SiteExistsResponse = await res.json()
+
+        if (!res.ok) {
+          setIsLive(false)
+          return
+        }
+        setIsLive(siteData.exists)
+      } catch {
+        setIsLive(false)
+      }
+    }
+    checkForSite()
   }, [normalizedUrl])
 
   return (
@@ -42,7 +59,7 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
               <div className="w-2.5 h-2.5 rounded-full bg-tasks" />
               <div className="w-2.5 h-2.5 rounded-full bg-trust-center-green-dot" />
             </div>
-            <div className="flex-1 pl-2 rounded-md h-6 bg-background text-trust-center-text">{cnameRecord}</div>
+            <div className="flex-1 pl-2 rounded-md h-6 bg-background text-trust-center-text">{cnameRecord || 'meow.comply.theopenlane.net'}</div>
           </div>
           <div className="flex-1 gap-2 flex flex-col items-center justify-center h-full">
             <div className="flex items-center justify-center h-12 w-12 rounded-md bg-trust-center-live-preview-badge-container">{<Shield className="text-primary"></Shield>}</div>
