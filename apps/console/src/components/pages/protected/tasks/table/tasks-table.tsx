@@ -14,6 +14,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TAccessRole, TData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -66,6 +67,14 @@ const TasksTable = forwardRef(
 
     const { convertToReadOnly } = usePlateEditor()
     const { errorNotification } = useNotification()
+
+    const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+      where: {
+        objectType: 'task',
+        field: 'kind',
+      },
+    })
+
     const userIds = useMemo(() => {
       if (!tasks) return []
       const ids = new Set<string>()
@@ -120,7 +129,10 @@ const TasksTable = forwardRef(
       exportData: () => tasks,
     }))
 
-    const columns = useMemo(() => getTaskColumns({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks }), [userMap, convertToReadOnly, selectedTasks, setSelectedTasks])
+    const columns = useMemo(
+      () => getTaskColumns({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }),
+      [userMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions],
+    )
 
     return (
       <DataTable
