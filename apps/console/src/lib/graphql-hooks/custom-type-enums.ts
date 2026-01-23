@@ -26,7 +26,7 @@ import {
   DELETE_CUSTOM_TYPE_ENUM,
 } from '@repo/codegen/query/custom-type-enum'
 
-export type CustomTypeEnumOption = Option & { color?: string; description: string }
+export type CustomTypeEnumOption = Option & { color?: string; description?: string }
 
 export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
   const { client } = useGraphQLClient()

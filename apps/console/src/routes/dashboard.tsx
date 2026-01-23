@@ -30,6 +30,7 @@ import {
   Megaphone,
   Paintbrush,
   Component,
+  LayoutDashboard,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -111,6 +112,11 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
     isChildren: true,
     hidden: session?.user?.isOnboarding,
     children: [
+      {
+        title: 'Overview',
+        href: '/trust-center/overview',
+        icon: LayoutDashboard,
+      },
       {
         title: 'Branding',
         href: '/trust-center/branding',

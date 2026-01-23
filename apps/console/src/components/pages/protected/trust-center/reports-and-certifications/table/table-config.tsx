@@ -18,6 +18,7 @@ export type TTrustCenterDoc = {
   file?: GqlFile | null
   originalFile?: GqlFile | null
   watermarkStatus: TrustCenterDocWatermarkStatus
+  standardShortName: string
 }
 
 type Params = {
@@ -102,7 +103,20 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return (
+          <div className="flex gap-2">
+            {row?.original?.tags?.map((tag, i) => (
+              <TagChip key={i} tag={tag} />
+            ))}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'standard',
+      header: 'Standard',
+      cell: ({ row }) => {
+        return row.original.standardShortName ? <StandardChip referenceFramework={row.original.standardShortName} /> : '-'
       },
     },
     {
@@ -117,7 +131,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       size: 140,
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: '',
       cell: ({ row }) => {
         const presignedURL = row.original.file?.presignedURL || row.original.originalFile?.presignedURL || ''
@@ -151,13 +165,14 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
   },
 ]
 
-import { Eye, Folder } from 'lucide-react'
+import { Eye, FileQuestion, Folder } from 'lucide-react'
 import { FilterField } from '@/types'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import DocumentActions from '../../actions/documents-actions'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import StandardChip from '../../../standards/shared/standard-chip'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {
@@ -172,5 +187,11 @@ export const trustCenterDocsFilterFields: FilterField[] = [
     type: 'multiselect',
     options: enumToOptions(TrustCenterDocTrustCenterDocumentVisibility),
     icon: Eye,
+  },
+  {
+    key: 'hasStandardWith',
+    label: 'Standard Name',
+    type: 'text',
+    icon: FileQuestion,
   },
 ]
