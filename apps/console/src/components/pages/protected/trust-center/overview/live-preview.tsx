@@ -22,12 +22,14 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
   const lastUpdated = trustCenter?.updatedAt
   const normalizedUrl = normalizeUrl(cnameRecord)
   const [isLive, setIsLive] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
     if (!normalizedUrl) return
 
     const checkForSite = async () => {
       try {
+        setIsLoading(true)
         const res = await fetch('/api/site-exists', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -43,6 +45,8 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
         setIsLive(siteData.exists)
       } catch {
         setIsLive(false)
+      } finally {
+        setIsLoading(false)
       }
     }
     checkForSite()
@@ -59,7 +63,7 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
               <div className="w-2.5 h-2.5 rounded-full bg-tasks" />
               <div className="w-2.5 h-2.5 rounded-full bg-trust-center-green-dot" />
             </div>
-            <div className="flex-1 pl-2 rounded-md h-6 bg-background text-trust-center-text">{cnameRecord || 'meow.comply.theopenlane.net'}</div>
+            <div className="flex-1 pl-2 rounded-md h-6 bg-background text-trust-center-text">{normalizedUrl || 'https://meow.comply.theopenlane.net'}</div>
           </div>
           <div className="flex-1 gap-2 flex flex-col items-center justify-center h-full">
             <div className="flex items-center justify-center h-12 w-12 rounded-md bg-trust-center-live-preview-badge-container">{<Shield className="text-primary"></Shield>}</div>
@@ -73,7 +77,12 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
         </div>
         <div className="flex justify-between">
           <p className="text-trust-center-text">Status</p>
-          {isLive ? (
+          {isLoading ? (
+            <div className="flex flex-row items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-tasks" />
+              <div className="text-tasks">Pending...</div>
+            </div>
+          ) : isLive ? (
             <div className="flex flex-row items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-trust-center-green-dot" />
               <div className="text-trust-center-green-dot">Live</div>
