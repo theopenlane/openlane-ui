@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -12,11 +12,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface NDAUploadDialogProps {
-  triggerText?: string
+  trigger?: ReactNode
   ndaId?: string
 }
 
-export const NDAUploadDialog = ({ triggerText = 'Upload NDA', ndaId }: NDAUploadDialogProps) => {
+export const NDAUploadDialog = ({ trigger, ndaId }: NDAUploadDialogProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -69,9 +69,7 @@ export const NDAUploadDialog = ({ triggerText = 'Upload NDA', ndaId }: NDAUpload
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">{triggerText}</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{ndaId ? 'Replace NDA Document' : 'Upload NDA Document'}</DialogTitle>
