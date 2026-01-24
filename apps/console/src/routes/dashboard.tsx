@@ -30,6 +30,7 @@ import {
   Megaphone,
   Paintbrush,
   Component,
+  LockKeyhole,
   LayoutDashboard,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
@@ -131,6 +132,11 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         title: 'Documents',
         href: '/trust-center/documents',
         icon: FileText,
+      },
+      {
+        title: 'NDAs',
+        href: '/trust-center/NDAs',
+        icon: LockKeyhole,
       },
       {
         title: 'Frameworks',
