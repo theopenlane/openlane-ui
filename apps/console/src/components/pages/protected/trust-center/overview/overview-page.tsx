@@ -38,7 +38,7 @@ const OverviewPage: React.FC = () => {
   const trustCenterLivePreview: LivePreviewTrustCenter | undefined = trustCenter
     ? {
         customDomain: {
-          cnameRecord: (trustCenter.customDomain?.cnameRecord ?? trustCenter?.slug) ? `https://trust.theopenlane.net/${trustCenter?.slug}` : '',
+          cnameRecord: trustCenter.customDomain?.cnameRecord ?? `https://trust.theopenlane.net/${trustCenter?.slug}`,
         },
         updatedAt: mostRecentUpdatedAt ?? new Date(0).toISOString(),
       }
