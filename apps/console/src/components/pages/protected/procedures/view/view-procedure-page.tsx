@@ -1,20 +1,18 @@
 'use client'
 
-import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import React, { useEffect, useMemo, useState } from 'react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/procedures/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/procedures/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { LockOpen, PencilIcon } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/procedures/view/cards/properties-card.tsx'
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
@@ -37,6 +35,10 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -44,7 +46,6 @@ const ViewProcedurePage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
-  const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedureState = useProcedure()
   const procedure = data?.procedure
@@ -62,17 +63,22 @@ const ViewProcedurePage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+  const { data: discussionData } = useGetProcedureDiscussionById(procedureId)
+  const plateEditorHelper = usePlateEditor()
+
+  const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
+
   const memoizedSections = useMemo(() => {
-    if (!procedure) return {}
+    if (!assocData) return {}
     return {
-      policies: procedure.internalPolicies,
-      controls: procedure.controls,
-      subcontrols: procedure.subcontrols,
-      risks: procedure.risks,
-      tasks: procedure.tasks,
-      programs: procedure.programs,
+      policies: assocData.procedure.internalPolicies,
+      controls: assocData.procedure.controls,
+      subcontrols: assocData.procedure.subcontrols,
+      risks: assocData.procedure.risks,
+      tasks: assocData.procedure.tasks,
+      programs: assocData.procedure.programs,
     }
-  }, [procedure])
+  }, [assocData])
 
   const memoizedCenterNode = useMemo(() => {
     if (!procedure) return null
@@ -91,21 +97,21 @@ const ViewProcedurePage: React.FC = () => {
   }, [setCrumbs, procedure, isLoading])
 
   useEffect(() => {
-    if (procedure && !dataInitialized) {
+    if (procedure && assocData && !dataInitialized) {
       const procedureAssociations: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       }
 
       const procedureAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
       }
 
       form.reset({
@@ -114,7 +120,7 @@ const ViewProcedurePage: React.FC = () => {
         tags: procedure.tags ?? [],
         approvalRequired: procedure?.approvalRequired ?? true,
         status: procedure.status ?? ProcedureDocumentStatus.DRAFT,
-        procedureType: procedure.procedureType ?? '',
+        procedureKindName: procedure.procedureKindName ?? '',
         reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
         reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
         approverID: procedure.approver?.id,
@@ -126,7 +132,7 @@ const ViewProcedurePage: React.FC = () => {
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
       setDataInitialized(true)
     }
-  }, [procedure, form, procedureState, dataInitialized])
+  }, [procedure, form, procedureState, dataInitialized, assocData])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -159,12 +165,6 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: {
         updateProcedureId: string
         input: UpdateProcedureInput
@@ -172,7 +172,8 @@ const ViewProcedurePage: React.FC = () => {
         updateProcedureId: procedure?.id,
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
@@ -188,6 +189,7 @@ const ViewProcedurePage: React.FC = () => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      queryClient.invalidateQueries({ queryKey: ['procedureDiscussion', procedureId] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -230,12 +232,8 @@ const ViewProcedurePage: React.FC = () => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
-            {isSaving ? 'Saving' : 'Save'}
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton disabled={isSaving} isSaving={isSaving} />
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
@@ -286,7 +284,7 @@ const ViewProcedurePage: React.FC = () => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
+      <DetailsField isEditing={isEditing} form={form} procedure={procedure} discussionData={discussionData?.procedure} />
     </div>
   )
 

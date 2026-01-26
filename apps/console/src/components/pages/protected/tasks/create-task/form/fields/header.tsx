@@ -1,21 +1,23 @@
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import { SheetHeader } from '@repo/ui/sheet'
-import { Check, LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
+import { LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
 import DeleteTaskDialog from '../../dialog/delete-task-dialog'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface TasksSheetHeaderProps {
   close: () => void
   isEditing: boolean
   setIsEditing: (value: boolean) => void
   isPending: boolean
-  displayID?: string | null
+  title?: string | null
   isEditAllowed: boolean
 }
 
-const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID, isEditAllowed }: TasksSheetHeaderProps) => {
+const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed }: TasksSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
@@ -50,12 +52,8 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID
           </Button>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button disabled={isPending} type="button" variant="secondary" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" form="editTask" loading={isPending} disabled={isPending} icon={<Check />} iconPosition="left">
-                {isPending ? 'Saving...' : 'Save'}
-              </Button>
+              <CancelButton disabled={isPending} onClick={() => setIsEditing(false)}></CancelButton>
+              <SaveButton form="editTask" disabled={isPending} isSaving={isPending} />
             </div>
           ) : (
             <>
@@ -66,7 +64,7 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID
               )}
             </>
           )}
-          {displayID && id && <DeleteTaskDialog taskName={displayID} taskId={id} />}
+          {title && id && <DeleteTaskDialog taskName={title} taskId={id} />}
         </div>
       </div>
     </SheetHeader>

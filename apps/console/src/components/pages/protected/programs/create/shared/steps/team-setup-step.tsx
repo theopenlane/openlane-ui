@@ -9,6 +9,7 @@ import { useFormContext } from 'react-hook-form'
 import { useUserSelect } from '@/lib/graphql-hooks/members'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { useSession } from 'next-auth/react'
+import MembersInviteSheet from '@/components/pages/protected/organization-settings/members/sidebar/members-invite-sheet'
 
 export default function TeamSetupStep() {
   const [showInviteForm, setShowInviteForm] = useState(false)
@@ -16,11 +17,22 @@ export default function TeamSetupStep() {
   const { groupOptions } = useGroupSelect()
   const whereNotCurrentUser = { not: { userID: data?.user?.userId } }
   const { userOptions } = useUserSelect({ where: whereNotCurrentUser })
+  const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-medium">Team setup</h2>
-        <p className="text-sm text-muted-foreground">Want to invite team members now?</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-medium">Team setup</h2>
+          <p className="text-sm text-muted-foreground">Want to invite team members now?</p>
+        </div>
+        {showInviteForm && (
+          <>
+            <Button type="button" variant="secondary" size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)}>
+              Invite member
+            </Button>
+            <MembersInviteSheet isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />
+          </>
+        )}
       </div>
 
       {!showInviteForm ? (

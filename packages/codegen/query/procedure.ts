@@ -17,7 +17,7 @@ export const UPDATE_PROCEDURE = gql`
       procedure {
         id
         name
-        procedureType
+        procedureKindName
       }
     }
   }
@@ -82,12 +82,28 @@ export const GET_TABLE_PROCEDURES = gql`
             gravatarLogoURL
             logoURL
           }
-          procedureType
+          procedureKindName
           reviewDue
           reviewFrequency
           revision
           status
           tags
+          internalPolicies {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -147,7 +163,8 @@ export const PROCEDURE_BY_ID = gql`
     reviewDue
     reviewFrequency
     approvalRequired
-    procedureType
+    procedureKindName
+    detailsJSON
     approver {
       id
       displayName
@@ -160,92 +177,85 @@ export const PROCEDURE_BY_ID = gql`
       gravatarLogoURL
       logoURL
     }
-    narratives {
-      edges {
-        node {
-          id
-          displayID
-        }
-      }
-    }
-    risks {
-      edges {
-        node {
-          id
-          name
-          displayID
-          details
-        }
-      }
-      totalCount
-    }
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-        }
-      }
-      totalCount
-    }
-    controls {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-        }
-      }
-      totalCount
-    }
-    subcontrols {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-          control {
+  }
+`
+export const GET_PROCEDURE_ASSOCIATIONS_BY_ID = gql`
+  query GetProcedureAssociationsById($procedureId: ID!) {
+    procedure(id: $procedureId) {
+      risks {
+        edges {
+          node {
             id
+            name
+            displayID
+            details
           }
         }
+        totalCount
       }
-      totalCount
-    }
-    programs {
-      edges {
-        node {
-          id
-          displayID
-          name
-          description
+
+      internalPolicies {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+          }
         }
+        totalCount
       }
-      totalCount
-    }
-    tasks {
-      edges {
-        node {
-          id
-          displayID
-          title
-          details
+
+      controls {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+          }
         }
+        totalCount
       }
-      totalCount
-    }
-    internalPolicies {
-      edges {
-        node {
-          id
-          displayID
-          name
+
+      subcontrols {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+            control {
+              id
+            }
+          }
         }
+        totalCount
       }
-      totalCount
+
+      programs {
+        edges {
+          node {
+            id
+            displayID
+            name
+            description
+          }
+        }
+        totalCount
+      }
+
+      tasks {
+        edges {
+          node {
+            id
+            displayID
+            title
+            details
+          }
+        }
+        totalCount
+      }
     }
   }
 `
@@ -292,6 +302,86 @@ export const BULK_DELETE_PROCEDURE = gql`
   mutation DeleteBulkProcedure($ids: [ID!]!) {
     deleteBulkProcedure(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const PROCEDURE_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment ProcedureDiscussionFields on Procedure {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_PROCEDURE_DISCUSSION_BY_ID = gql`
+  ${PROCEDURE_DISCUSSION_FIELDS_FRAGMENT}
+  query GetProcedureDiscussionById($procedureId: ID!) {
+    procedure(id: $procedureId) {
+      ...ProcedureDiscussionFields
+    }
+  }
+`
+
+export const INSERT_PROCEDURE_COMMENT = gql`
+  mutation InsertProcedureComment($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
+    updateProcedure(id: $updateProcedureId, input: $input) {
+      procedure {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_PROCEDURE_COMMENT = gql`
+  mutation UpdateProcedureComment($updateProcedureCommentId: ID!, $input: UpdateNoteInput!) {
+    updateProcedureComment(id: $updateProcedureCommentId, input: $input) {
+      procedure {
+        id
+      }
     }
   }
 `

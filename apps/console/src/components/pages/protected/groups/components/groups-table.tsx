@@ -12,6 +12,7 @@ import { getGroupTableColumns } from '../table/columns'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TGroupsTableProps = {
   onSortChange?: (sortCondition: GroupOrder | GroupOrder[]) => void
@@ -83,6 +84,7 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
       columnVisibility={columnVisibility}
       setColumnVisibility={setColumnVisibility}
       loading={fetchingUsers}
+      tableKey={TableKeyEnum.GROUP}
     />
   )
 }

@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { AllQueriesData, generateColumns, generateGroupsPermissionsWhere, OBJECT_TYPE_CONFIG, ObjectDataNode, ObjectTypes, TableDataItem } from '@/constants/groups'
@@ -22,6 +22,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const options = Object.values(ObjectTypes)
 
@@ -43,7 +44,7 @@ const AssignPermissionsDialog = () => {
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(defaultPagination)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.GROUP_ASSIGN_PERMISSION, defaultPagination))
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
@@ -108,7 +109,7 @@ const AssignPermissionsDialog = () => {
     )
   }, [objectDataList, selectedPermissions, togglePermission, objectName])
 
-  const columns = useMemo(() => generateColumns(selectedObject), [selectedObject])
+  const columns = useMemo(() => generateColumns(selectedObject, tableData), [selectedObject, tableData])
 
   const handleNext = () => setStep(2)
   const handleBack = () => setStep(1)
@@ -282,12 +283,21 @@ const AssignPermissionsDialog = () => {
               {selectedObject && (
                 <div className="flex gap-2 flex-col">
                   <Label>Search</Label>
-                  <Input onChange={handleSearchChange} value={searchValue} placeholder="Type program name ..." className="h-10 w-[200px]" />
+                  <Input onChange={handleSearchChange} value={searchValue} placeholder={`Type ${selectedObject} name ...`} className="h-10 w-[200px]" />
                 </div>
               )}
             </div>
 
-            {selectedObject && <DataTable columns={columns} data={tableData} onPaginationChange={setPagination} pagination={pagination} paginationMeta={{ totalCount, pageInfo, isLoading }} />}
+            {selectedObject && (
+              <DataTable
+                columns={columns}
+                data={tableData}
+                onPaginationChange={setPagination}
+                pagination={pagination}
+                paginationMeta={{ totalCount, pageInfo, isLoading }}
+                tableKey={TableKeyEnum.GROUP_ASSIGN_PERMISSION}
+              />
+            )}
 
             <DialogFooter className="flex justify-start pt-4">
               <Button variant="secondary" className="w-[180px]" onClick={handleNext} disabled={selectedPermissions.length === 0}>
@@ -298,7 +308,7 @@ const AssignPermissionsDialog = () => {
         ) : (
           <>
             <p>You are about to add {selectedPermissions.length} relationship(s) to the group.</p>
-            <DataTable columns={columnsStep2} data={selectedPermissions} />
+            <DataTable columns={columnsStep2} data={selectedPermissions} tableKey={TableKeyEnum.GROUP_SELECTED_PERMISSION} />
             <DialogFooter className="flex justify-between pt-4">
               <Button variant="secondary" onClick={handleBack}>
                 Back

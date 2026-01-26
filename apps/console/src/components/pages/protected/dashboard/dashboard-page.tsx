@@ -1,27 +1,25 @@
 'use client'
 import React, { useState, useMemo, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { PageHeading } from '@repo/ui/page-heading'
-import MyTask from '@/components/pages/protected/overview/my-task'
-import PendingActions from '@/components/pages/protected/overview/pending-actions'
-import Risks from '@/components/pages/protected/overview/risks'
-import Questionnaire from '@/components/pages/protected/overview/questionnaire'
+import { useSearchParams } from 'next/navigation'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
-import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import Loading from '@/app/(protected)/dashboard/loading'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
-import { SlidersHorizontal } from 'lucide-react'
+import DashboardActions from '@/components/pages/protected/overview/DashboardActions.tsx'
+import DashboardComplianceOverview from '@/components/pages/protected/overview/DashboardComplianceOverview.tsx'
+import DashboardSuggestedActions from '@/components/pages/protected/overview/DashboardSuggestedActions.tsx'
+import DashboardViewDocumentation from '../overview/DashboardViewDocumentation'
+import DashboardContactSupport from '@/components/pages/protected/overview/DashboardContactSupport.tsx'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 
 const DashboardPage: React.FC = () => {
-  const router = useRouter()
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+  const { data: userData } = useGetCurrentUser(userId)
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
+  const [, setSelectedProgram] = useState<string>('All programs')
   const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   const { data, isLoading } = useGetAllPrograms({
@@ -53,88 +51,26 @@ const DashboardPage: React.FC = () => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
   }, [setCrumbs])
 
-  const handleSelectChange = (val: string) => {
-    if (val === 'All programs') {
-      setSelectedProgram('All programs')
-      router.push('/dashboard')
-    } else {
-      const programName = programMap[val] ?? 'Unknown Program'
-      setSelectedProgram(programName)
-      router.push(`/dashboard?id=${val}`)
-    }
-  }
-
-  if (isLoading) {
-    return <Loading />
-  }
-
-  if (!data?.programs.edges?.length) {
-    return <NewUserLanding />
-  }
+  if (isLoading) return <Loading />
 
   return (
     <>
-      <PageHeading
-        heading={
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-              <h1>Overview</h1>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-8 !px-2 !pl-3" icon={<SlidersHorizontal />} iconPosition="left">
-                    <span className="text-muted-foreground">Filter by:</span>
-                    <span>Program</span>
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
-                  {/* All programs */}
-                  <DropdownMenuItem
-                    className="flex items-center gap-2"
-                    onSelect={(e) => {
-                      e.preventDefault()
-                      handleSelectChange('All programs')
-                    }}
-                  >
-                    <Checkbox checked={selectedProgram === 'All programs'} />
-                    <span>All programs</span>
-                  </DropdownMenuItem>
-
-                  {/* Dynamic program list */}
-                  {data?.programs?.edges?.map((edge) => {
-                    const program = edge?.node
-                    if (!program) return null
-
-                    return (
-                      <DropdownMenuItem
-                        key={program.id}
-                        className="flex items-center gap-2"
-                        onSelect={(e) => {
-                          e.preventDefault()
-                          handleSelectChange(program.id)
-                        }}
-                      >
-                        <Checkbox checked={program.id === programId} />
-                        <span>{program.name}</span>
-                      </DropdownMenuItem>
-                    )
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        }
-      />
-
-      <div className="flex flex-col gap-7">
-        <div className="flex flex-wrap gap-7">
-          <MyTask />
-          <PendingActions />
+      <div className="max-w-[1076px] mx-auto w-full px-4 flex flex-col gap-4">
+        <div>
+          <p className="text-3xl leading-9 font-medium pt-2">Welcome, {userData?.user?.displayName}!</p>
+          <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here&apos;s what&apos;s happening in your organization.</p>
         </div>
-        <StatsCards />
-        <Risks />
-        <Questionnaire />
+
+        <DashboardActions />
+        <DashboardComplianceOverview />
+
+        <div className="grid grid-cols-2 gap-4 auto-rows-fr">
+          <div className="row-span-2">
+            <DashboardSuggestedActions />
+          </div>
+          <DashboardViewDocumentation />
+          <DashboardContactSupport />
+        </div>
       </div>
     </>
   )

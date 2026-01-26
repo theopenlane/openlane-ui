@@ -6,9 +6,10 @@ const RISK_FIELDS = gql`
     displayID
     name
     details
+    detailsJSON
     tags
-    category
-    riskType
+    riskCategoryName
+    riskKindName
     score
     status
     businessCosts
@@ -93,8 +94,8 @@ const RISK_TABLE_FIELDS = gql`
     id
     displayID
     name
-    category
-    riskType
+    riskCategoryName
+    riskKindName
     score
     status
     businessCosts
@@ -151,8 +152,8 @@ export const GET_ALL_RISKS = gql`
 `
 
 export const UPDATE_RISK = gql`
-  mutation UpdateRisk($id: ID!, $input: UpdateRiskInput!) {
-    updateRisk(id: $id, input: $input) {
+  mutation UpdateRisk($updateRiskId: ID!, $input: UpdateRiskInput!) {
+    updateRisk(id: $updateRiskId, input: $input) {
       risk {
         id
       }
@@ -199,6 +200,93 @@ export const BULK_DELETE_RISK = gql`
   mutation DeleteBulkRisk($ids: [ID!]!) {
     deleteBulkRisk(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const GET_RISK_OPEN_AND_IDENTIFIED_COUNT = gql`
+  query GetOpenRiskCount {
+    risks(where: { statusIn: [OPEN, IDENTIFIED] }) {
+      totalCount
+    }
+  }
+`
+
+export const RISK_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment RiskDiscussionFields on Risk {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_RISK_DISCUSSION_BY_ID = gql`
+  ${RISK_DISCUSSION_FIELDS_FRAGMENT}
+  query GetRiskDiscussionById($riskId: ID!) {
+    risk(id: $riskId) {
+      ...RiskDiscussionFields
+    }
+  }
+`
+
+export const INSERT_RISK_COMMENT = gql`
+  mutation InsertRiskComment($updateRiskId: ID!, $input: UpdateRiskInput!) {
+    updateRisk(id: $updateRiskId, input: $input) {
+      risk {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+export const UPDATE_RISK_COMMENT = gql`
+  mutation UpdateRiskComment($updateRiskCommentId: ID!, $input: UpdateNoteInput!) {
+    updateRiskComment(id: $updateRiskCommentId, input: $input) {
+      risk {
+        id
+      }
     }
   }
 `

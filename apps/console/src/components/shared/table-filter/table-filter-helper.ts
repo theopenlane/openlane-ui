@@ -129,6 +129,17 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       case 'sliderNumber':
         andConditions.push({ [field.key]: val as number })
         break
+      case 'dropdownSearch':
+        if (val) {
+          andConditions.push({
+            [key]: [{ userID: val as string }],
+          })
+        }
+        break
+
+      case 'radio':
+        andConditions.push({ [key]: val as boolean } as Condition)
+        break
     }
   }
 

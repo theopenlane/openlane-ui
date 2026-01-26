@@ -6,6 +6,6 @@ export const DEFAULT_PAGINATION = {
 
 export const CARD_DEFAULT_PAGINATION = {
   page: 1,
-  pageSize: 30,
-  query: { first: 30 },
+  pageSize: 10,
+  query: { first: 10 },
 }

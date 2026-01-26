@@ -7,7 +7,7 @@ import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styl
 import { Hourglass } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -16,6 +16,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { Input } from '@repo/ui/input'
 import { SelectedItem, TSharedImportControlsComponentsPropsFrameworks } from '../shared/program-settings-import-controls-shared-props'
 import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, selectedFrameworkIds, setSelectedFrameworkIds }: TSharedImportControlsComponentsPropsFrameworks) => {
   const { data } = useGetStandards({})
@@ -25,12 +26,14 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const { wrapper, content } = statCardStyles({ color: 'green' })
   const [customSelected, setCustomSelected] = useState(false)
 
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS, {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    }),
+  )
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
@@ -126,7 +129,15 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
         <Label>Search</Label>
         <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Type" className="h-10 w-[200px] mt-1" />
       </div>
-      <DataTable columns={columns} data={pagedData} paginationMeta={{ totalCount: tableData.length }} pagination={pagination} onPaginationChange={setPagination} stickyDialogHeader />
+      <DataTable
+        columns={columns}
+        data={pagedData}
+        paginationMeta={{ totalCount: tableData.length }}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        stickyDialogHeader
+        tableKey={TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS}
+      />
     </>
   )
 }

@@ -7,11 +7,12 @@ import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { RiskFieldsFragment, UpdateRiskInput } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import useClickOutside from '@/hooks/useClickOutside'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type TTagsCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -23,9 +24,10 @@ type TTagsCardProps = {
 
 const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllowed = true, handleUpdate }) => {
   const [internalEditing, setInternalEditing] = useState(false)
+  const { tagOptions } = useGetTags()
 
   const tags = form.watch('tags')
-  const tagOptions = useMemo(() => {
+  const tagValues = useMemo(() => {
     return (tags ?? [])
       .filter((item): item is string => typeof item === 'string')
       .map((item) => ({
@@ -37,7 +39,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
   const wrapperRef = useClickOutside(() => {
     if (!internalEditing || isEditing) return
     const current = risk.tags || []
-    const next = tagOptions.map((item) => item.value)
+    const next = tagValues.map((item) => item.value)
 
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
@@ -67,7 +69,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
             <Tag size={16} className="text-brand" />
-            <span>Tags</span>
+            <span className="text-sm">Tags</span>
           </div>
         </div>
 
@@ -83,10 +85,11 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                     <>
                       <FormControl>
                         <MultipleSelector
+                          options={tagOptions}
                           className="w-full"
                           placeholder="Add tag..."
                           creatable
-                          value={tagOptions}
+                          value={tagValues}
                           onChange={(selectedOptions) => {
                             const newTags = selectedOptions.map((opt) => opt.value)
                             field.onChange(newTags)
@@ -110,13 +113,11 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                   }}
                 >
                   {risk.tags?.length ? (
-                    risk.tags.map((item, index) => (
-                      <Fragment key={index}>
-                        <Badge className="bg-background-secondary mr-1" variant="outline">
-                          {item}
-                        </Badge>
-                      </Fragment>
-                    ))
+                    <div className="flex gap-2">
+                      {risk.tags.map((tag, index) => (
+                        <TagChip tag={tag} key={index} />
+                      ))}
+                    </div>
                   ) : (
                     <span className="text-muted-foreground text-sm italic">No tags</span>
                   )}

@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const pathname = usePathname()
@@ -142,7 +143,16 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
 
           <div className="mt-6">
             <h3 className="text-lg font-medium mb-2">Group list</h3>
-            <DataTable columns={columns} data={groups} showFilter={false} showVisibility={false} loading={isLoading} pagination={null} onPaginationChange={() => {}} />
+            <DataTable
+              columns={columns}
+              data={groups}
+              showFilter={false}
+              showVisibility={false}
+              loading={isLoading}
+              pagination={null}
+              onPaginationChange={() => {}}
+              tableKey={TableKeyEnum.POLICY_PROCEDURE_MANAGE_PERMISSION}
+            />
           </div>
         </SheetContent>
       </Sheet>

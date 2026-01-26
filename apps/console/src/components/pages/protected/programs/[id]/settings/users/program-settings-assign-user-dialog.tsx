@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -18,6 +18,8 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type UserRow = {
   id: string
@@ -31,7 +33,8 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
   const [open, setOpen] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<UserRow[]>([])
   const [rows, setRows] = useState<UserRow[]>([])
-  const [pagination, setPagination] = useState<TPagination>(defaultPagination)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROGRAM_ASSIGN_USER, defaultPagination))
+
   const [searchValue, setSearchValue] = useState('')
 
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
@@ -165,7 +168,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
       <DialogTitle />
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button className="h-8 !px-2" variant="secondary">
+          <Button className="h-8 px-2!" variant="secondary">
             Assign
           </Button>
         )}
@@ -194,6 +197,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
               pageInfo: data?.orgMemberships?.pageInfo,
               isLoading: isFetching,
             }}
+            tableKey={TableKeyEnum.PROGRAM_ASSIGN_USER}
           />
 
           <div className="flex gap-2 mt-4 justify-end">
@@ -201,7 +205,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
-              <Button variant="back">Cancel</Button>
+              <CancelButton />
             </DialogTrigger>
           </div>
         </div>

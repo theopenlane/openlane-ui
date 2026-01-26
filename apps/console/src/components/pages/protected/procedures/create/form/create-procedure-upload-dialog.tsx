@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, Import, Trash2 } from 'lucide-react'
+import { Import, Trash2 } from 'lucide-react'
 import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
 import { Callout } from '@/components/shared/callout/callout'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -175,7 +177,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Import Existing Procedure(s)</DialogTitle>
         </DialogHeader>
@@ -187,7 +189,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
           </a>
           .
         </Callout>
-        <Tabs variant="underline" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
+        <Tabs defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
           <TabsList>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
               Upload
@@ -226,25 +228,16 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteLink(index)} />
           </div>
         ))}
-        {uploadedFiles.map((file, index) => (
-          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
-            <div className="mr-2">
-              <FileUp className="w-8 h-8" />
-            </div>
-            <div>
-              <div className="font-semibold">{file.name}</div>
-              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
-            </div>
-            <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteFile(index)} />
-          </div>
-        ))}
-        <div className="flex justify-end gap-2">
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button className="btn-secondary" onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
+        <div className="grid grid-cols-4 gap-6 max-h-96 overflow-y-auto">
+          {uploadedFiles.map((file, index) => (
+            <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={handleDeleteFile} />
+          ))}
+        </div>
+        <div className="flex flex-col gap-2">
+          <Button className="primary" onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
             {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
           </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

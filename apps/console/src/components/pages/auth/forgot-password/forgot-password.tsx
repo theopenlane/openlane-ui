@@ -80,11 +80,11 @@ export default function ForgotPasswordComponent() {
         <form onSubmit={handleSubmit} className={form()}>
           <hr />
           <span>
-            <p className="text-xl text-logo-dark text-border font-medium mb-2 text-left">Reset your password</p>
-            <p className="text-sm text-border text-left mb-4">Enter your email address and we will send you a link to reset your password.</p>
+            <p className="text-xl text-logo-dark font-medium mb-2 text-left">Reset your password</p>
+            <p className="text-sm text-logo-dark text-left mb-4">Enter your email address and we will send you a link to reset your password.</p>
           </span>
           <div className={input()}>
-            <Label htmlFor="email  " className="text-border">
+            <Label htmlFor="email  " className="text-logo-dark">
               Email*
             </Label>
             <Input
@@ -95,7 +95,7 @@ export default function ForgotPasswordComponent() {
               onChange={(e) => setEmail(e.target.value)}
               required
               variant="light"
-              className="!border-neutral-300 dark:!border-neutral-300 text-border"
+              className="!border-neutral-300 dark:!border-neutral-300 text-logo-dark"
             />
           </div>
 

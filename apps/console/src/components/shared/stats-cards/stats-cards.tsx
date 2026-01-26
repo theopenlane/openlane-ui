@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ArrowDownRight, ArrowUpRight, Hourglass, Minus } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/programs'
 import { useSubmittedEvidenceTrend, useAcceptedEvidenceTrend, useRejectedEvidenceTrend } from '@/lib/graphql-hooks/evidence'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -125,11 +125,17 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
 }
 
 const StatsCards: React.FC = () => {
-  const path = usePathname()
-  const { id } = useParams<{ id: string | undefined }>()
+  const pathname = usePathname()
+  const params = useParams<{ id?: string }>()
+  const searchParams = useSearchParams()
+
+  const queryId = searchParams.get('id') ?? undefined
+  const routeId = params?.id
+
+  const id = queryId || routeId
 
   const programStats = useProgramEvidenceStats(id)
-  const globalStats = useGlobalEvidenceStats({ enabled: !path.startsWith('/programs') })
+  const globalStats = useGlobalEvidenceStats({ enabled: !pathname.startsWith('/programs') })
   const submittedTrend = useSubmittedEvidenceTrend(id)
   const acceptedTrend = useAcceptedEvidenceTrend(id)
   const rejectedTrend = useRejectedEvidenceTrend(id)
@@ -138,13 +144,12 @@ const StatsCards: React.FC = () => {
 
   const total = data?.total ?? 0
 
-  // In dynamicStats, allow optional tooltip property
   const dynamicStats: Stat[] = [
     {
       title: 'Evidence Submitted',
       filter: {
         field: 'status',
-        value: EvidenceEvidenceStatus.READY,
+        value: EvidenceEvidenceStatus.READY_FOR_AUDITOR,
       },
       percentage: total ? Math.round(((data?.submitted ?? 0) / total) * 100) : 0,
       count: data?.submitted ?? 0,
@@ -159,7 +164,7 @@ const StatsCards: React.FC = () => {
       title: 'Evidence Accepted',
       filter: {
         field: 'status',
-        value: EvidenceEvidenceStatus.APPROVED,
+        value: EvidenceEvidenceStatus.AUDITOR_APPROVED,
       },
       percentage: total ? Math.round(((data?.accepted ?? 0) / total) * 100) : 0,
       count: data?.accepted ?? 0,
@@ -190,9 +195,9 @@ const StatsCards: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="flex gap-8 justify-center">
-        {dynamicStats.map((stat, index) => {
-          return <StatCard programId={id} key={index} stat={stat} hasData={total > 0} tooltip={stat.tooltip} />
-        })}
+        {dynamicStats.map((stat, index) => (
+          <StatCard programId={id} key={index} stat={stat} hasData={total > 0} tooltip={stat.tooltip} />
+        ))}
       </div>
     </TooltipProvider>
   )

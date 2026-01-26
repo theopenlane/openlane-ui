@@ -1,10 +1,9 @@
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 import { z } from 'zod'
 export const selectFrameworkSchema = z.object({
   framework: z.string().optional(),
   standardID: z.string().optional(),
   name: z.string().optional(),
-  programType: z.nativeEnum(ProgramProgramType).optional(),
+  programKindName: z.string().optional(),
 })
 
 export const programInviteSchema = z.object({

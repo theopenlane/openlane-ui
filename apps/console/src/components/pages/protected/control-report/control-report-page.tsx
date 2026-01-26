@@ -10,8 +10,8 @@ import { Card } from '@repo/ui/cardpanel'
 import { ChevronDown, ChevronsDownUp, List, SlidersHorizontal, SquarePlus, Upload } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
-import { ControlStatusOrder, ControlStatusTooltips, ControlIconMapper, ControlStatusLabels } from '@/components/shared/enum-mapper/control-enum'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { ControlIconMapper, ControlStatusLabels, ControlStatusOrder, ControlStatusTooltips } from '@/components/shared/enum-mapper/control-enum'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
@@ -19,7 +19,6 @@ import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percen
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
-import TabSwitcher from '@/components/shared/control-switcher/tab-switcher'
 import { isStringArray, loadFilters, saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -32,6 +31,8 @@ import { Callout } from '@/components/shared/callout/callout'
 import { ControlsEmptyActions } from './control-empty'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Checkbox } from '@repo/ui/checkbox'
+import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
+import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -62,11 +63,11 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     const hasCustom = selectedStandards.includes('CUSTOM')
     const normalStandards = selectedStandards.filter((id) => id !== 'CUSTOM')
 
-    if (!hasCustom && normalStandards.length === 0) {
-      return { ownerIDNEQ: '' }
-    }
+    const where: ControlWhereInput = { ownerIDNEQ: '', statusNEQ: ControlControlStatus.ARCHIVED }
 
-    const where: ControlWhereInput = { ownerIDNEQ: '' }
+    if (!hasCustom && normalStandards.length === 0) {
+      return where
+    }
 
     if (hasCustom && normalStandards.length > 0) {
       where.or = [{ referenceFrameworkIsNil: true }, { standardIDIn: normalStandards }]
@@ -162,7 +163,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
-          <TabSwitcher active={active} setActive={setActive} />
+          <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
           {!isLoading && !isFetching && !hasNoControls ? (
             <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
               <div className="flex">

@@ -5,7 +5,6 @@ import { usePoliciesFilters } from '@/components/pages/protected/policies/table/
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
-
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -21,6 +20,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeletePolicy } from '@/lib/graphql-hooks/policy'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -127,15 +128,11 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       handleClearSelectedPolicies()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>
@@ -148,7 +145,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreatePolicyUploadDialog
                         trigger={
-                          <div className="flex items-center bg-transparent space-x-2 px-1">
+                          <div className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer">
                             <Import size={16} strokeWidth={2} />
                             <span>Import existing document</span>
                           </div>
@@ -180,12 +177,12 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               />
 
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.POLICY} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                 <Link href="/policies/create">
-                  <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+                  <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                     Create
                   </Button>
                 </Link>

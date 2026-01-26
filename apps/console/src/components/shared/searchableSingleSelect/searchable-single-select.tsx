@@ -1,3 +1,5 @@
+'use client'
+
 import { ChevronDown } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
@@ -30,7 +32,7 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
   const selected = options.find((opt) => opt.value === value)
 
   return (
-    <div ref={triggerRef} className={`w-[200px] ${className}`}>
+    <div ref={triggerRef} className={`${className} w-full`}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
@@ -38,15 +40,15 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
-        <PopoverContent ref={popoverRef} className="w-[200px] p-0 !bg-input border" side="bottom">
+        <PopoverContent ref={popoverRef} className="p-0 !bg-input border w-[var(--radix-popover-trigger-width)] min-w-[var(--radix-popover-trigger-width)]" side="bottom" align="start" sideOffset={4}>
           <Command shouldFilter autoFocus={autoFocus}>
             <CommandInput placeholder="Search..." />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                {options.map((option) => (
+                {options.map((option, i) => (
                   <CommandItem
-                    key={option.value}
+                    key={`option ${option.value}, ${i}`}
                     value={option.label}
                     onSelect={() => {
                       onChange?.(option.value)

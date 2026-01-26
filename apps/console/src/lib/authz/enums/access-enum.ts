@@ -22,4 +22,5 @@ export enum AccessEnum {
   CanCreateEvidence = 'can_create_evidence',
   CanCreateProgram = 'can_create_program',
   CanDelete = 'can_delete',
+  CanCreateTrustCenterDocument = 'can_create_trust_center_doc',
 }

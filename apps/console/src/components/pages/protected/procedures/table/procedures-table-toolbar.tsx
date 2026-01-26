@@ -20,6 +20,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { useBulkDeleteProcedures } from '@/lib/graphql-hooks/procedures'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -130,15 +132,11 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       handleClearSelectedProcedures()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>
@@ -182,11 +180,16 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 )}
               />
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+                <ColumnVisibilityMenu
+                  mappedColumns={mappedColumns}
+                  columnVisibility={columnVisibility}
+                  setColumnVisibility={setColumnVisibility}
+                  storageKey={TableColumnVisibilityKeysEnum.PROCEDURE}
+                />
               )}
               {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
               {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
-                <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+                <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                   Create
                 </Button>
               )}

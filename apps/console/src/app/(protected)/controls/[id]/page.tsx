@@ -2,18 +2,17 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
-import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
+import PropertiesCard from '../../../../components/pages/protected/controls/propereties-card/properties-card.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { Control, ControlControlSource, ControlControlStatus, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
@@ -43,21 +42,25 @@ import ControlImplementationsSection from '@/components/pages/protected/controls
 import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
 
 interface FormValues {
   refCode: string
   description: Value | string
+  descriptionJSON?: Value
   delegateID: string
   controlOwnerID: string
   category?: string
   subcategory?: string
   status: ControlControlStatus
   mappedCategories: string[]
-  controlType?: ControlControlType
   source?: ControlControlSource
   referenceID?: string
   auditorReferenceID?: string
   title: string
+  controlKindName?: string
 }
 
 interface SheetData {
@@ -68,6 +71,7 @@ interface SheetData {
 const initialDataObj = {
   refCode: '',
   description: '',
+  descriptionJSON: undefined,
   delegateID: '',
   controlOwnerID: '',
   category: '',
@@ -94,19 +98,22 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
+  const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const { data: associationsData } = useGetControlAssociationsById(id)
+
   const memoizedSections = useMemo(() => {
-    if (!data?.control) return {}
+    if (!associationsData?.control || !data) return {}
     return {
-      policies: data?.control.internalPolicies,
-      procedures: data?.control.procedures,
-      tasks: data?.control.tasks,
-      programs: data?.control.programs,
-      risks: data?.control.risks,
-      subcontrols: data?.control.subcontrols,
+      policies: associationsData.control.internalPolicies,
+      procedures: associationsData.control.procedures,
+      tasks: associationsData.control.tasks,
+      programs: associationsData.control.programs,
+      risks: associationsData.control.risks,
+      subcontrols: data.control.subcontrols,
     }
-  }, [data?.control])
+  }, [associationsData?.control, data])
 
   const memoizedCenterNode = useMemo(() => {
     if (!data?.control) return null
@@ -126,8 +133,6 @@ const ControlDetailsPage: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const description = await plateEditorHelper.convertToHtml(values.description as Value)
-
       const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
         const initialValue = initialValues[key as keyof FormValues]
         if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
@@ -136,14 +141,16 @@ const ControlDetailsPage: React.FC = () => {
         return acc
       }, {})
 
-      if (changedFields.description) {
-        changedFields.description = description
+      if (changedFields.descriptionJSON) {
+        changedFields.descriptionJSON = values?.descriptionJSON
+        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
       }
 
       if (isSourceFramework) {
         //remove readonly fields
         delete changedFields.title
         delete changedFields.refCode
+        delete changedFields.descriptionJSON
         delete changedFields.description
       }
 
@@ -224,17 +231,18 @@ const ControlDetailsPage: React.FC = () => {
       const newValues: FormValues = {
         refCode: data.control.refCode || '',
         description: data.control.description || '',
+        descriptionJSON: data.control?.descriptionJSON ? (data.control.descriptionJSON as Value) : undefined,
         delegateID: data.control.delegate?.id || '',
         controlOwnerID: data.control.controlOwner?.id || '',
         category: data.control.category || '',
         subcategory: data.control.subcategory || '',
         status: data.control.status || ControlControlStatus.NOT_IMPLEMENTED,
         mappedCategories: data.control.mappedCategories || [],
-        controlType: data.control.controlType || undefined,
         source: data.control.source || undefined,
         referenceID: data.control.referenceID || undefined,
         auditorReferenceID: data.control.auditorReferenceID || undefined,
         title: data.control.title ? `${data.control.refCode} ${data.control.title}` : data.control.refCode,
+        controlKindName: data.control?.controlKindName || undefined,
       }
       form.reset(newValues)
       setInitialValues(newValues)
@@ -252,12 +260,8 @@ const ControlDetailsPage: React.FC = () => {
     <div className="space-y-4">
       {isEditing && (
         <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button variant="secondary" type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
-            Save
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton />
         </div>
       )}
       {!isEditing && (
@@ -307,11 +311,11 @@ const ControlDetailsPage: React.FC = () => {
                   className="px-1 bg-transparent"
                   defaultSelectedObject={ObjectTypeObjects.CONTROL}
                   initialData={{
-                    programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    internalPolicyIDs: (control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    programIDs: (associationsData?.control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    procedureIDs: (associationsData?.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    internalPolicyIDs: (associationsData?.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                     controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    riskIDs: (control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    riskIDs: (associationsData?.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                     controlIDs: [id],
                   }}
                 />
@@ -323,13 +327,21 @@ const ControlDetailsPage: React.FC = () => {
                     </button>
                   </Link>
                 )}
+                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControl) && (
+                  <Link href={`/controls/${id}/clone-control?mapControlId=${id}`}>
+                    <button className="flex items-center space-x-2 px-1 bg-transparent">
+                      <CopyPlus size={16} strokeWidth={2} />
+                      <span>Clone Control</span>
+                    </button>
+                  </Link>
+                )}
               </>
             }
           />
           {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
             <div className="flex gap-2">
               {canEdit(permission?.roles) && (
-                <Button type="button" variant="secondary" className="!p-1 h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
+                <Button type="button" variant="secondary" className="p-1! h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
                   <PencilIcon size={16} strokeWidth={2} />
                 </Button>
               )}
@@ -368,11 +380,15 @@ const ControlDetailsPage: React.FC = () => {
           </div>
         )}
       </div>
-      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
+      <DescriptionField
+        isEditing={isEditing}
+        initialValue={initialValues.descriptionJSON ?? initialValues.description}
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        discussionData={discussionData?.control}
+      />
       <ControlObjectivesSection controlObjectives={control.controlObjectives} />
       <ControlImplementationsSection controlImplementations={control.controlImplementations} />
       <ControlEvidenceTable
-        canEdit={canEdit(permission?.roles)}
         control={{
           displayID: control?.refCode,
           controlID: control.id,
@@ -380,14 +396,14 @@ const ControlDetailsPage: React.FC = () => {
           referenceFramework: {
             [control?.id ?? 'default']: control?.referenceFramework ?? '',
           },
-          programDisplayIDs: (control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+          programDisplayIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
           objectAssociations: {
             controlIDs: [control?.id],
-            programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            programIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
             controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
           },
           objectAssociationsDisplayIDs: [
-            ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+            ...((associationsData?.control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
             ...(control.refCode ? [control.refCode] : []),
           ],

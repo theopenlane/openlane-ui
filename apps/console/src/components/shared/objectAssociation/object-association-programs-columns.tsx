@@ -29,29 +29,53 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
 
   return [
     {
-      accessorKey: 'name',
-      header: 'Program',
-      cell: ({ row }) => {
-        const { id, name } = row.original
-        const checked = (form.getValues('programIDs') || []).includes(id) ?? false
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageRows = table.getRowModel().rows.map((row) => row.original)
+        const selectedIds = form.getValues('programIDs') || []
+
+        const allSelected = currentPageRows.every((row) => selectedIds.includes(row.id))
 
         return (
-          <div className="flex items-center gap-2">
+          <div onClick={(e) => e.stopPropagation()}>
             <Checkbox
-              checked={checked}
-              onCheckedChange={(val) => {
-                toggleChecked(id, name, val === true)
+              checked={allSelected}
+              onCheckedChange={(checked) => {
+                currentPageRows.forEach((row) => {
+                  toggleChecked(row.id, row.name, checked === true)
+                })
               }}
             />
-            <span>{name}</span>
           </div>
         )
       },
+      cell: ({ row }) => {
+        const { id, name } = row.original
+        const checked = (form.getValues('programIDs') || []).includes(id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, name, val === true)} />
+          </div>
+        )
+      },
+      enableResizing: false,
+    },
+    {
+      accessorKey: 'name',
+      header: 'Program',
+      meta: {
+        className: 'max-w-[40%] w-[30%]',
+      },
+      enableResizing: false,
+      cell: ({ row }) => <span className="block truncate whitespace-nowrap">{row.original.name}</span>,
     },
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => <div className="line-clamp-3 text-justify">{convertToReadOnly(row.getValue('description') as string, 0)}</div>,
+      size: 0,
+      enableResizing: false,
+      cell: ({ row }) => <div className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.getValue('description') as string, 0)}</div>,
     },
   ]
 }

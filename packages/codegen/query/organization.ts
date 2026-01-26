@@ -246,3 +246,10 @@ export const UPDATE_ORG_SETTING = gql`
     }
   }
 `
+export const TRANSFER_ORGANIZATION_OWNERSHIP = gql`
+  mutation TransferOrganizationOwnership($newOwnerEmail: String!) {
+    transferOrganizationOwnership(newOwnerEmail: $newOwnerEmail) {
+      invitationSent
+    }
+  }
+`

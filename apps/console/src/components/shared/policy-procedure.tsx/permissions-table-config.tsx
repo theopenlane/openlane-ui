@@ -17,7 +17,7 @@ export const useGroupColumns = ({ onRemoveGroup }: { onRemoveGroup: (group: TGro
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           {row?.original && <Avatar entity={row?.original as Group} className="w-[24px] h-[24px]" />}
-          <span>{row?.original?.name}</span>
+          <span>{row?.original?.displayName}</span>
         </div>
       ),
     },

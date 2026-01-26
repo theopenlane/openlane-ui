@@ -1,30 +1,77 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { Template, User } from '@repo/codegen/src/schema'
+import { ColumnDef, Row } from '@tanstack/react-table'
+import { Assessment, User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type Params = {
   userMap?: Record<string, User>
+  selectedQuestionnaires: { id: string }[]
+  setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
 export const getQuestionnaireColumns = (params?: Params) => {
   const userMap = params?.userMap || {}
+  const toggleSelection = (questionnaire: { id: string }) => {
+    params?.setSelectedQuestionnaires((prev) => {
+      const exists = prev.some((c) => c.id === questionnaire.id)
+      return exists ? prev.filter((c) => c.id !== questionnaire.id) : [...prev, questionnaire]
+    })
+  }
+  const columns: ColumnDef<Assessment>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        const selected = params?.selectedQuestionnaires ?? []
+        const setSelected = params?.setSelectedQuestionnaires
+        const currentPageQuestionnaires = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPageQuestionnaires.every((questionnaire) => selected.some((sc) => sc.id === questionnaire.id))
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked) => {
+                if (checked === 'indeterminate' || !setSelected) return
 
-  const columns: ColumnDef<Template>[] = [
+                const newSelections = checked
+                  ? [...selected.filter((sq) => !currentPageQuestionnaires.some((c) => c.id === sq.id)), ...currentPageQuestionnaires.map((q) => ({ id: q.id }))]
+                  : selected.filter((sq) => !currentPageQuestionnaires.some((c) => c.id === sq.id))
+
+                setSelected(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }: { row: Row<Assessment> }) => {
+        const { id } = row.original
+        const isChecked = params?.selectedQuestionnaires.some((c) => c.id === id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+          </div>
+        )
+      },
+      meta: {
+        className: 'max-w-[10%] w-[4%]',
+      },
+    },
+    {
+      accessorKey: 'id',
+      header: 'ID',
+      meta: {
+        className: 'max-w-[10%] w-[4%]',
+      },
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
-      size: 100,
+      size: 150,
       minSize: 100,
       maxSize: 200,
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      size: 200,
-      minSize: 200,
-      maxSize: 400,
     },
     {
       accessorKey: 'createdBy',
@@ -35,7 +82,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
         const user = userMap?.[userId ?? '']
         return user ? (
           <div className="flex items-center gap-2">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             {user.displayName}
           </div>
         ) : (
@@ -58,7 +105,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
         const user = userMap?.[userId ?? '']
         return user ? (
           <div className="flex items-center gap-2">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             {user.displayName}
           </div>
         ) : (

@@ -13,4 +13,7 @@ export enum TableFilterKeysEnum {
   GROUP = 'group',
   PERSONAL_ACCESS_TOKEN = 'personal-access-token',
   API_TOKEN = 'api-token',
+  TRUST_CENTER_DOCS = 'trust-center-docs',
+  SUBPROCESSORS = 'subprocessors',
+  TEMPLATE = 'template',
 }

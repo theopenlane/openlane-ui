@@ -1,17 +1,17 @@
 'use client'
 
-import React, { useMemo, useState, useEffect, useContext } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { GetAllRisksQueryVariables, OrderDirection, RiskTableFieldsFragment, RiskWhereInput, RiskOrderField, ExportExportType, ExportExportFormat } from '@repo/codegen/src/schema.ts'
+import { ExportExportFormat, ExportExportType, GetAllRisksQueryVariables, OrderDirection, RiskOrderField, RiskTableFieldsFragment, RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useRisks } from '@/lib/graphql-hooks/risks.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -21,27 +21,33 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
   const { convertToReadOnly } = usePlateEditor()
 
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useStorageSearch(SearchKeyEnum.RISKS)
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.RISK, DEFAULT_PAGINATION))
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.RISK, RiskOrderField, [
     {
       field: RiskOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>(defaultSorting)
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
+    id: false,
     businessCosts: false,
     details: false,
     impact: false,
@@ -52,7 +58,9 @@ const RiskTable: React.FC = () => {
     createdAt: false,
     createdBy: false,
     delegate: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.RISK, defaultVisibility))
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
@@ -154,7 +162,7 @@ const RiskTable: React.FC = () => {
     handleExport({
       exportType: ExportExportType.RISK,
       filters: JSON.stringify(where),
-      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }
@@ -199,7 +207,8 @@ const RiskTable: React.FC = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        stickyHeader
+        defaultSorting={defaultSorting}
+        tableKey={TableKeyEnum.RISK}
       />
     </>
   )

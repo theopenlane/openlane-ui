@@ -25,32 +25,30 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, inputClassName }) 
   return (
     <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Authority</h3>
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-[min-content_250px] gap-y-4 gap-x-8 items-center">
         {/* Stakeholder */}
-        <div className="flex justify-between items-center">
-          <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''} `}>
-            <Stamp size={16} className="text-brand" />
-            <span>Stakeholder</span>
-          </div>
-
+        <div className={`flex gap-2 items-center ${inputClassName ?? ''}`}>
+          <Stamp size={16} className="text-brand" />
+          <span>Stakeholder</span>
+        </div>
+        <div className="w-40 min-w-0">
           <Controller
             name="stakeholderID"
             control={form.control}
-            render={({ field }) => <SearchableSingleSelect value={field.value} options={options} placeholder="Select stakeholder" onChange={(val) => field.onChange(val)} />}
+            render={({ field }) => <SearchableSingleSelect className="w-full" value={field.value} options={options} placeholder="Select stakeholder" onChange={(val) => field.onChange(val)} />}
           />
         </div>
 
         {/* Delegate */}
-        <div className="flex justify-between items-center">
-          <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''}`}>
-            <CircleArrowRight size={16} className="text-brand" />
-            <span>Delegate</span>
-          </div>
-
+        <div className={`flex gap-2 items-center ${inputClassName ?? ''}`}>
+          <CircleArrowRight size={16} className="text-brand" />
+          <span>Delegate</span>
+        </div>
+        <div className="w-40 min-w-0">
           <Controller
             name="delegateID"
             control={form.control}
-            render={({ field }) => <SearchableSingleSelect value={field.value} options={options} placeholder="Select delegate" onChange={(val) => field.onChange(val)} />}
+            render={({ field }) => <SearchableSingleSelect className="w-full" value={field.value} options={options} placeholder="Select delegate" onChange={(val) => field.onChange(val)} />}
           />
         </div>
       </div>

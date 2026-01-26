@@ -1,19 +1,25 @@
-import { InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
-
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { FilterField } from '@/types'
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 export function usePoliciesFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
 
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'internal_policy',
+      field: 'kind',
+    },
+  })
+
   const [filters, setFilters] = useState<FilterField[] | null>(null)
 
   useEffect(() => {
-    if (!isProgramSuccess || !isGroupSuccess || filters) return
+    if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess || filters) return
     const newFilters: FilterField[] = [
       {
         key: 'approverIDIn',
@@ -42,10 +48,11 @@ export function usePoliciesFilters(): FilterField[] | null {
         icon: FilterIcons.Subcontrol,
       },
       {
-        key: 'policyTypeContainsFold',
+        key: 'internalPolicyKindNameIn',
         label: 'Type',
-        type: 'text',
+        type: 'multiselect',
         icon: FilterIcons.Type,
+        options: enumOptions,
       },
       {
         key: 'policyTypeIsNil',
@@ -66,27 +73,59 @@ export function usePoliciesFilters(): FilterField[] | null {
         options: InternalPolicyStatusFilterOptions,
         icon: FilterIcons.Status,
       },
+      {
+        key: 'hasControls',
+        label: 'Linked Controls',
+        icon: FilterIcons.LinkedControls,
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked controls' },
+          { value: false, label: 'No linked controls' },
+        ],
+      },
+      {
+        key: 'hasSubcontrols',
+        label: 'Linked Subcontrols',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked subcontrols' },
+          { value: false, label: 'No linked subcontrols' },
+        ],
+        icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasProcedures',
+        label: 'Linked Procedures',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked procedures' },
+          { value: false, label: 'No linked procedures' },
+        ],
+        icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasComments',
+        label: 'Has Comments',
+        type: 'radio',
+        icon: FilterIcons.Comments,
+        radioOptions: [
+          { value: true, label: 'Has comments' },
+          { value: false, label: 'No comments' },
+        ],
+      },
     ]
 
     setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters])
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions])
 
   return filters
 }
 
-export const INTERNAL_POLICIES_SORTABLE_FIELDS = [
+export const INTERNAL_POLICIES_SORT_FIELDS = [
   { key: 'REVIEW_FREQUENCY', label: 'Review Frequency' },
   { key: 'STATUS', label: 'Status' },
-  {
-    key: 'name',
-    label: 'Name',
-    default: {
-      key: InternalPolicyOrderField.name,
-      direction: OrderDirection.ASC,
-    },
-  },
+  { key: 'name', label: 'Name' },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
-  { key: 'updated_by', label: 'Last Updated By' },
   { key: 'updated_at', label: 'Last Updated' },
 ]

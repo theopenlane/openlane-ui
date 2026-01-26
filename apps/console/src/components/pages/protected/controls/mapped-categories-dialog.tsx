@@ -6,25 +6,37 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { useFormContext } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@repo/ui/table'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { FolderIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useUpdateControl } from '@/lib/graphql-hooks/controls'
-
-const ROWS_PER_PAGE = 5
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { ColumnDef } from '@tanstack/react-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams<{ id: string }>()
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [selectedStandardId, setSelectedStandardId] = useState<string | 'all'>('all')
-  const [page, setPage] = useState(0)
 
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.CONTROLS_MAPPED_CATEGORIES, {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    }),
+  )
+
   const { setValue, getValues } = useFormContext()
-  const { data } = useGetStandards({})
+  const { data, isLoading } = useGetStandards({})
 
   const standards = useMemo(() => {
     return data?.standards?.edges?.map((edge) => edge?.node) || []
@@ -39,18 +51,16 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
     return filteredStandards.flatMap((standard) =>
       (standard?.domains || []).map((domain) => ({
         id: `${standard?.id}:${domain}`,
-        standardLabel: standard?.shortName,
+        standardLabel: standard?.shortName ?? '',
         domain,
       })),
     )
   }, [filteredStandards])
 
   const pagedRows = useMemo(() => {
-    const start = page * ROWS_PER_PAGE
-    return allRows.slice(start, start + ROWS_PER_PAGE)
-  }, [allRows, page])
-
-  const totalPages = Math.ceil(allRows.length / ROWS_PER_PAGE)
+    const start = (pagination.page - 1) * pagination.pageSize
+    return allRows.slice(start, start + pagination.pageSize)
+  }, [allRows, pagination.page, pagination.pageSize])
 
   const toggle = (domain: string) => {
     setSelected((prev) => (prev.includes(domain) ? prev.filter((d) => d !== domain) : [...prev, domain]))
@@ -62,6 +72,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
     if (!id) {
       return
     }
+
     await updateControl({
       updateControlId: id!,
       input: {
@@ -71,27 +82,41 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
     onClose()
   }
 
-  const handlePageChange = (direction: 'prev' | 'next') => {
-    setPage((p) => {
-      if (direction === 'prev') return Math.max(0, p - 1)
-      if (direction === 'next') return Math.min(totalPages - 1, p + 1)
-      return p
-    })
-  }
-
   const filterOptions = useMemo(() => {
-    return standards.map((standard) => ({
-      label: standard?.shortName,
-      value: standard?.id,
+    return (standards ?? []).map((standard) => ({
+      label: standard?.shortName ?? 'Unnamed standard',
+      value: standard?.id ?? '',
     }))
   }, [standards])
 
   const handleOpen = () => {
     setOpen(true)
-    setPage(0)
     const initial = getValues('mappedCategories') || []
     setSelected(initial)
   }
+
+  const columns: ColumnDef<{ id: string; standardLabel: string; domain: string }, unknown>[] = useMemo(
+    () => [
+      {
+        id: 'select',
+        header: '',
+        cell: ({ row }) => <Checkbox checked={selected.includes(row.original.domain)} onCheckedChange={() => toggle(row.original.domain)} />,
+        size: 10,
+        maxSize: 10,
+      },
+      {
+        accessorKey: 'standardLabel',
+        header: 'Standard',
+        size: 100,
+      },
+      {
+        accessorKey: 'domain',
+        header: 'Category',
+        size: 200,
+      },
+    ],
+    [selected],
+  )
 
   return (
     <>
@@ -101,7 +126,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
           <div className="text-sm">Mapped categories</div>
         </div>
         <div className="text-sm">
-          <Button variant="primary" className="h-8 !px-2" onClick={handleOpen} type="button">
+          <Button variant="primary" className="h-8 px-2!" onClick={handleOpen} type="button">
             Set mappings
           </Button>
         </div>
@@ -111,7 +136,6 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
         open={open}
         onOpenChange={(val) => {
           setOpen(val)
-          setPage(0)
           if (!val) {
             onClose()
           }
@@ -126,14 +150,25 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
           <div className="grid grid-cols-2 gap-4 my-4">
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1 block">Standards</label>
-              <Select value={selectedStandardId} onValueChange={(val) => setSelectedStandardId(val as string | 'all')}>
+              <Select
+                value={selectedStandardId}
+                onValueChange={(val) => {
+                  setSelectedStandardId(val === 'all' ? 'all' : val)
+                  setPagination((prev) => ({
+                    ...prev,
+                    page: 1,
+                  }))
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select standard" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem key="all" value="all">
+                    All
+                  </SelectItem>
                   {filterOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value || ''}>
+                    <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
                     </SelectItem>
                   ))}
@@ -142,57 +177,32 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="border rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-8" />
-                  <TableHead>Standards</TableHead>
-                  <TableHead>Category</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagedRows.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>
-                      <Checkbox checked={selected.includes(row.domain)} onCheckedChange={() => toggle(row.domain)} />
-                    </TableCell>
-                    <TableCell>{row.standardLabel}</TableCell>
-                    <TableCell>{row.domain}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex justify-between items-center mt-4">
-            <Button size="sm" onClick={() => handlePageChange('prev')} disabled={page === 0}>
-              Previous
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              Page {page + 1} of {totalPages}
-            </span>
-            <Button size="sm" onClick={() => handlePageChange('next')} disabled={page + 1 >= totalPages}>
-              Next
-            </Button>
-          </div>
+          <DataTable
+            columns={columns}
+            data={pagedRows || []}
+            pagination={pagination}
+            paginationMeta={{
+              totalCount: allRows.length,
+              pageInfo: {
+                hasNextPage: pagination.page * pagination.pageSize < allRows.length,
+                hasPreviousPage: pagination.page > 1,
+              },
+              isLoading: isLoading,
+            }}
+            onPaginationChange={setPagination}
+            loading={isLoading}
+            tableKey={TableKeyEnum.CONTROLS_MAPPED_CATEGORIES}
+          />
 
           {/* Actions */}
           <div className="flex justify-end gap-2 mt-6">
-            <Button
-              className="h-8 !px-2"
+            <CancelButton
               onClick={() => {
                 setOpen(false)
                 onClose()
               }}
-            >
-              Cancel
-            </Button>
-            <Button className="h-8 !px-2" onClick={handleSave}>
-              {isPending ? 'Saving...' : `Save(${selected.length})`}
-            </Button>
+            ></CancelButton>
+            <SaveButton onClick={handleSave} isSaving={isPending} />
           </div>
         </DialogContent>
       </Dialog>

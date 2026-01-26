@@ -1,6 +1,5 @@
 // framework-based-wizard-config.ts
 import { TErrorProps } from '@/hooks/useNotification'
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 import { z } from 'zod'
 import { UseFormReturn } from 'react-hook-form'
 
@@ -18,7 +17,7 @@ export const programInviteSchema = z.object({
 })
 
 export const programTypeSchema = z.object({
-  programType: z.nativeEnum(ProgramProgramType, {
+  programKindName: z.string({
     required_error: 'Please choose a program type',
   }),
 })

@@ -3,7 +3,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef, Row } from '@tanstack/react-table'
@@ -23,6 +23,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type MemberRow = {
   id: string
@@ -40,11 +41,13 @@ export const ProgramSettingsUsers = () => {
 
   const editAllowed = canEdit(permission?.roles)
 
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_USERS, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    }),
+  )
 
   const [selectedUser, setSelectedUser] = useState<MemberRow | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -199,6 +202,7 @@ export const ProgramSettingsUsers = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance' },
       { label: 'Programs', href: '/programs' },
       { label: basicInfoData?.program?.name, isLoading: programLoading, href: `/programs/${id}` },
       { label: 'Settings', href: `/programs/${id}/settings` },
@@ -250,6 +254,7 @@ export const ProgramSettingsUsers = () => {
               pageInfo: data?.programMemberships?.pageInfo,
               isLoading: isFetching,
             }}
+            tableKey={TableKeyEnum.PROGRAM_SETTINGS_USERS}
           />
         </div>
       </section>

@@ -3,7 +3,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { CheckCircleIcon, SearchIcon, Settings2, SettingsIcon } from 'lucide-react'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
@@ -19,6 +18,7 @@ import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/s
 import Loading from '@/app/(protected)/standards/loading'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { getTasksFilterFields } from './table/table-config'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 const filterFields = getTasksFilterFields()
 const StandardsPage = () => {
@@ -95,13 +95,7 @@ const StandardsPage = () => {
               </div>
               <StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />
             </div>
-            <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
-              {standard?.node?.tags?.map((tag, index) => (
-                <Badge key={index} variant="outline" className="rounded-full">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+            <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">{standard?.node?.tags?.map((tag, i) => <TagChip tag={tag} key={i} />)}</div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
               <Button variant="primary" className="py-2 px-4">

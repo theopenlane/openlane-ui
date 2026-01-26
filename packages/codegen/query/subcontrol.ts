@@ -5,6 +5,7 @@ export const GET_ALL_SUBCONTROLS = gql`
     subcontrols(where: $where, after: $after, first: $first) {
       edges {
         node {
+          __typename
           id
           displayID
           description
@@ -35,6 +36,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       status
       tags
       description
+      descriptionJSON
       implementationGuidance
       exampleEvidence
       controlQuestions
@@ -42,7 +44,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       assessmentObjectives
       displayID
       source
-      controlType
+      subcontrolKindName
       auditorReferenceID
       referenceID
       referenceFramework
@@ -84,6 +86,25 @@ export const GET_SUBCONTROL_BY_ID = gql`
         }
       }
 
+      delegate {
+        id
+        displayName
+        logoURL
+        gravatarLogoURL
+      }
+
+      controlOwner {
+        id
+        displayName
+        logoURL
+        gravatarLogoURL
+      }
+    }
+  }
+`
+export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
+  query GetSubcontrolAssociationsById($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
       internalPolicies {
         totalCount
         edges {
@@ -99,7 +120,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
           }
         }
       }
-
       procedures {
         totalCount
         edges {
@@ -115,7 +135,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
           }
         }
       }
-
       tasks {
         totalCount
         edges {
@@ -134,7 +153,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
           }
         }
       }
-
       risks {
         totalCount
         edges {
@@ -145,20 +163,6 @@ export const GET_SUBCONTROL_BY_ID = gql`
             details
           }
         }
-      }
-
-      delegate {
-        id
-        displayName
-        logoURL
-        gravatarLogoURL
-      }
-
-      controlOwner {
-        id
-        displayName
-        logoURL
-        gravatarLogoURL
       }
     }
   }
@@ -288,6 +292,92 @@ export const UPDATE_SUBCONTROL_COMMENT = gql`
     updateSubcontrolComment(id: $updateSubcontrolCommentId, input: $input) {
       subcontrol {
         id
+      }
+    }
+  }
+`
+
+export const GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION = gql`
+  query GetExistingSubcontrolsForOrganization($where: SubcontrolWhereInput) {
+    subcontrols(where: $where) {
+      edges {
+        node {
+          id
+          refCode
+          referenceFramework
+          ownerID
+          systemOwned
+        }
+      }
+    }
+  }
+`
+
+export const SUBCONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment SubcontrolDiscussionFields on Subcontrol {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_SUBCONTROL_DISCUSSION_BY_ID = gql`
+  ${SUBCONTROL_DISCUSSION_FIELDS_FRAGMENT}
+  query GetSubcontrolDiscussionById($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
+      ...SubcontrolDiscussionFields
+    }
+  }
+`
+
+export const INSERT_SUBCONTROL_PLATE_COMMENT = gql`
+  mutation InsertSubcontrolPlateComment($updateSubcontrolId: ID!, $input: UpdateSubcontrolInput!) {
+    updateSubcontrol(id: $updateSubcontrolId, input: $input) {
+      subcontrol {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

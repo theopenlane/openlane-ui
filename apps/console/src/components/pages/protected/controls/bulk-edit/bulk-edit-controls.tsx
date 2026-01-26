@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, FormProvider, Controller, useFieldArray, Path } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
@@ -19,8 +19,14 @@ import {
   defaultObject,
   SelectOptionBulkEditControls,
   useGetAllSelectOptionsForBulkEditControls,
+  InputType,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { EditableSelectFromQuery } from '../propereties-card/fields/editable-select-from-query'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -29,17 +35,19 @@ const fieldItemSchema = z.object({
       selectOptionEnum: z.nativeEnum(SelectOptionBulkEditControls),
       name: z.string(),
       placeholder: z.string(),
-      selectedValue: z.string().optional(),
-      options: z.array(
-        z.object({
-          label: z.string(),
-          value: z.string(),
-        }),
-      ),
+      inputType: z.nativeEnum(InputType),
+      options: z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
     })
     .optional(),
+  selectedValue: z.string().optional(),
 })
-
 const bulkEditControlsSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
 })
@@ -60,11 +68,17 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
-  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls((groups?.filter(Boolean) as Group[]) || [])
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'control',
+      field: 'kind',
+    },
+  })
+
+  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls((groups?.filter(Boolean) as Group[]) || [], enumOptions)
 
   const { control, handleSubmit, watch } = form
   const watchedFields = watch('fieldsArray') || []
-  const hasFieldsToUpdate = watchedFields.some((field) => field.selectedObject && field.selectedValue)
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
@@ -89,8 +103,15 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
     watchedFields.forEach((field) => {
       const key = field.selectedObject?.name
+      if (!key) return
       if (key && field?.selectedValue && field?.value) {
         input[key] = field.selectedValue
+        return
+      }
+      const value = form.getValues(key as Path<BulkEditDialogFormValues>)
+      if (typeof value === 'string' && value.trim() !== '') {
+        input[key] = value
+        return
       }
     })
 
@@ -154,7 +175,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         </SelectContent>
                       </Select>
                     </div>
-                    {item.selectedObject && (
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Select && (
                       <div className="flex flex-col items-center gap-2">
                         <Controller
                           name={item.selectedObject.name as keyof BulkEditDialogFormValues}
@@ -184,12 +205,31 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         />
                       </div>
                     )}
+                    {(() => {
+                      const selectedObject = item.selectedObject
+                      if (!selectedObject || selectedObject.inputType !== InputType.TypeAhead) return null
+
+                      return (
+                        <div className="flex flex-col items-center gap-2">
+                          <EditableSelectFromQuery
+                            iconAndLabelVisible={false}
+                            label={selectedObject.selectOptionEnum}
+                            name={selectedObject.name}
+                            isEditAllowed
+                            isEditing
+                            hasGap={false}
+                            gridColWidth="240"
+                            icon={selectedObject.selectOptionEnum === SelectOptionBulkEditControls.Category ? controlIconsMap.Category : controlIconsMap.SubCategory}
+                          />
+                        </div>
+                      )
+                    })()}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)} />
                   </div>
                 )
               })}
 
-              {fields.length < 3 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditControls).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
@@ -207,18 +247,13 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
             </div>
 
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

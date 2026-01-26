@@ -6,7 +6,7 @@ export const CREATE_INTERNAL_POLICY = gql`
       internalPolicy {
         id
         name
-        policyType
+        internalPolicyKindName
         details
       }
     }
@@ -19,7 +19,7 @@ export const UPDATE_INTERNAL_POLICY = gql`
       internalPolicy {
         id
         name
-        policyType
+        internalPolicyKindName
         details
       }
     }
@@ -58,12 +58,28 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
             gravatarLogoURL
             logoURL
           }
-          policyType
+          internalPolicyKindName
           reviewDue
           reviewFrequency
           revision
           status
           tags
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
+          procedures {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -85,6 +101,7 @@ export const GET_ALL_INTERNAL_POLICIES = gql`
           id
           name
           summary
+          displayID
         }
       }
       pageInfo {
@@ -110,13 +127,14 @@ export const INTERNAL_POLICY_BY_ID = gql`
     tags
     revision
     status
-    policyType
     displayID
     details
     reviewDue
     reviewFrequency
     approvalRequired
     summary
+    detailsJSON
+    internalPolicyKindName
     approver {
       id
       displayName
@@ -129,116 +147,6 @@ export const INTERNAL_POLICY_BY_ID = gql`
       gravatarLogoURL
       logoURL
     }
-    narratives {
-      edges {
-        node {
-          id
-          displayID
-        }
-      }
-    }
-    procedures {
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    controls {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    subcontrols {
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          description
-          controlId: controlID
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    programs {
-      edges {
-        node {
-          id
-          displayID
-          name
-          description
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    tasks {
-      edges {
-        node {
-          id
-          displayID
-          title
-          details
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
-    controlObjectives {
-      edges {
-        node {
-          id
-          displayID
-          name
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-    }
   }
 `
 
@@ -249,6 +157,79 @@ export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
     }
   }
   ${INTERNAL_POLICY_BY_ID}
+`
+
+export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
+  query GetInternalPolicyAssociationsById($internalPolicyId: ID!) {
+    internalPolicy(id: $internalPolicyId) {
+      procedures {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+          }
+        }
+        totalCount
+      }
+      controls {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+          }
+        }
+        totalCount
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            description
+            controlId: controlID
+          }
+        }
+        totalCount
+      }
+      programs {
+        edges {
+          node {
+            id
+            displayID
+            name
+            description
+          }
+        }
+        totalCount
+      }
+      tasks {
+        edges {
+          node {
+            id
+            displayID
+            title
+            details
+          }
+        }
+        totalCount
+      }
+      controlObjectives {
+        edges {
+          node {
+            id
+            displayID
+            name
+          }
+        }
+        totalCount
+      }
+    }
+  }
 `
 
 export const CREATE_CSV_BULK_INTERNAL_POLICY = gql`
@@ -287,7 +268,7 @@ export const GET_INTERNAL_POLICIES_DASHBOARD = gql`
         node {
           id
           name
-          policyType
+          internalPolicyKindName
           status
           createdAt
           updatedAt
@@ -359,6 +340,86 @@ export const BULK_DELETE_POLICY = gql`
   mutation DeleteBulkInternalPolicy($ids: [ID!]!) {
     deleteBulkInternalPolicy(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const POLICY_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment PolicyDiscussionFields on InternalPolicy {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_POLICY_DISCUSSION_BY_ID = gql`
+  ${POLICY_DISCUSSION_FIELDS_FRAGMENT}
+  query GetPolicyDiscussionById($policyId: ID!) {
+    internalPolicy(id: $policyId) {
+      ...PolicyDiscussionFields
+    }
+  }
+`
+
+export const INSERT_POLICY_COMMENT = gql`
+  mutation InsertInternalPolicyComment($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
+    updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
+      internalPolicy {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_POLICY_COMMENT = gql`
+  mutation UpdatePolicyComment($updateInternalPolicyCommentId: ID!, $input: UpdateNoteInput!) {
+    updateInternalPolicyComment(id: $updateInternalPolicyCommentId, input: $input) {
+      internalPolicy {
+        id
+      }
     }
   }
 `

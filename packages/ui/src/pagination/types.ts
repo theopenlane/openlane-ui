@@ -1,4 +1,9 @@
-export type TPaginationQuery = { first?: number; after?: string | null } | { last: number; before?: string | null } | { last: number } | { first: number }
+export type TPaginationQuery = {
+  first?: number
+  after?: string | null
+  last?: number
+  before?: string | null
+}
 
 export type TPagination = {
   page: number

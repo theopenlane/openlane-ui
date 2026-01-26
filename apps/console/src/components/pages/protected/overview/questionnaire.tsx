@@ -1,30 +1,30 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
-// import { Badge } from '@repo/ui/badge'
 import { FileQuestion } from 'lucide-react'
-// import { ProgressCircle } from '@repo/ui/progress-circle'
 import { Template } from '@repo/codegen/src/schema'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
 import Link from 'next/link'
-import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { useMemo, useState } from 'react'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { VisibilityState } from '@tanstack/table-core'
 import { getQuestionnaireColumns } from './questionnaire-table-config'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const Questionnaire = () => {
   const { data } = useTemplates({})
   const templates = useMemo(() => (data?.templates?.edges?.map((edge) => edge?.node) as Template[]) || [], [data?.templates?.edges])
   const hasData = !!templates.length
-
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
     createdBy: false,
     createdAt: false,
     updatedBy: false,
     updatedAt: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.QUESTIONNAIRE_OVERVIEW, defaultVisibility))
 
   const userIds = useMemo(() => {
     if (!templates) return []
@@ -52,32 +52,14 @@ const Questionnaire = () => {
 
   const questionnaireContent = (
     <CardContent>
-      {/* <div className="flex gap-6 items-center mb-6">
-        <ProgressCircle radius={65} strokeWidth={20} value={templates.length} max={50} variant="success" />
-        <div className="flex gap-4">
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-3xl font-medium">24</div>
-            <Badge className="bg-gray-500 text-white">Created</Badge>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-3xl font-medium">10</div>
-            <Badge className="bg-yellow-500 text-white">Outstanding</Badge>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-3xl font-medium">14</div>
-            <Badge className="bg-green-500 text-white">Completed</Badge>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-3xl font-medium">2</div>
-            <Badge className="bg-green-600 text-white">Completed Pending Review</Badge>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-3xl font-medium">1</div>
-            <Badge className="bg-green-600 text-white">Completed Accepted</Badge>
-          </div>
-        </div>
-      </div> */}
-      <DataTable columns={columns} data={templates} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} loading={fetchingUsers} />
+      <DataTable
+        columns={columns}
+        data={templates}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        loading={fetchingUsers}
+        tableKey={TableKeyEnum.QUESTIONNAIRE_OVERVIEW}
+      />
     </CardContent>
   )
 
@@ -85,7 +67,14 @@ const Questionnaire = () => {
     <Card className="shadow-md rounded-lg flex-1">
       <div className="flex justify-between items-center pr-6">
         <CardTitle className="text-lg font-semibold">Questionnaire</CardTitle>
-        {mappedColumns && <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} />}
+        {mappedColumns && (
+          <ColumnVisibilityMenu
+            mappedColumns={mappedColumns}
+            columnVisibility={columnVisibility}
+            setColumnVisibility={setColumnVisibility}
+            storageKey={TableColumnVisibilityKeysEnum.QUESTIONNAIRE_OVERVIEW}
+          />
+        )}
       </div>
       {hasData ? (
         questionnaireContent

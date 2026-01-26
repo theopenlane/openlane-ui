@@ -35,21 +35,6 @@ export const SEARCH = gql`
         totalCount
       }
 
-      controlObjectives {
-        edges {
-          node {
-            __typename
-            id
-            name
-          }
-        }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
-      }
-
       controls {
         edges {
           node {

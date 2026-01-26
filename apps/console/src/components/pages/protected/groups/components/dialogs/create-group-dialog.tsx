@@ -17,6 +17,7 @@ import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/groups'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -40,6 +41,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
   const { mutateAsync: createGroup } = useCreateGroupWithMembers()
   const { successNotification, errorNotification } = useNotification()
   const [adminValues, setAdminValues] = useState<{ value: string; label: string }[]>([])
+  const { tagOptions } = useGetTags()
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
@@ -191,6 +193,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
             </Label>
             <MultipleSelector
               creatable
+              options={tagOptions}
               onChange={(selected) =>
                 setValue(
                   'tags',

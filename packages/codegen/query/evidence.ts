@@ -283,13 +283,13 @@ export const GET_EVIDENCE_LIST = gql`
 
 export const GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID = gql`
   query GetEvidenceCountsByStatusByProgramId($programId: ID!) {
-    approved: evidences(where: { status: APPROVED, hasProgramsWith: [{ id: $programId }] }) {
+    approved: evidences(where: { status: AUDITOR_APPROVED, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
     rejected: evidences(where: { status: REJECTED, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
-    ready: evidences(where: { status: READY, hasProgramsWith: [{ id: $programId }] }) {
+    ready: evidences(where: { status: READY_FOR_AUDITOR, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
     missingArtifact: evidences(where: { status: MISSING_ARTIFACT, hasProgramsWith: [{ id: $programId }] }) {
@@ -303,13 +303,13 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID = gql`
 
 export const GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS = gql`
   query GetEvidenceCountsByStatusAllPrograms {
-    approved: evidences(where: { status: APPROVED }) {
+    approved: evidences(where: { status: AUDITOR_APPROVED }) {
       totalCount
     }
     rejected: evidences(where: { status: REJECTED }) {
       totalCount
     }
-    ready: evidences(where: { status: READY }) {
+    ready: evidences(where: { status: READY_FOR_AUDITOR }) {
       totalCount
     }
     missingArtifact: evidences(where: { status: MISSING_ARTIFACT }) {
@@ -410,6 +410,67 @@ export const GET_EVIDENCE_SUGGESTED_ACTIONS = gql`
         }
       }
       totalCount
+    }
+  }
+`
+
+export const GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT = gql`
+  query GetItemsMissingEvidenceCount {
+    evidences(where: { status: MISSING_ARTIFACT }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_EVIDENCE_COMMENTS = gql`
+  query GetEvidenceComments($evidenceId: ID!) {
+    evidence(id: $evidenceId) {
+      comments {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_EVIDENCE_COMMENT = gql`
+  mutation UpdateEvidenceComment($input: UpdateNoteInput!, $updateEvidenceCommentId: ID!) {
+    updateEvidenceComment(input: $input, id: $updateEvidenceCommentId) {
+      evidence {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_CSV_BULK_EVIDENCE = gql`
+  mutation CreateBulkCSVEvidence($input: Upload!) {
+    createBulkCSVEvidence(input: $input) {
+      evidences {
+        id
+      }
+    }
+  }
+`
+
+export const BULK_DELETE_EVIDENCE = gql`
+  mutation DeleteBulkEvidence($ids: [ID!]!) {
+    deleteBulkEvidence(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
+
+export const BULK_EDIT_EVIDENCE = gql`
+  mutation UpdateBulkEvidence($ids: [ID!]!, $input: UpdateEvidenceInput!) {
+    updateBulkEvidence(ids: $ids, input: $input) {
+      updatedIDs
     }
   }
 `

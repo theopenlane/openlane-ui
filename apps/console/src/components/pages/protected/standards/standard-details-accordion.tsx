@@ -1,12 +1,12 @@
 'use client'
-import React, { useState, useMemo, useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useParams, useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ControlListFieldsFragment, ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlListStandardFieldsFragment, ControlWhereInput } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { TData } from '@/types/authz'
 import { DataTable } from '@repo/ui/data-table'
@@ -14,11 +14,11 @@ import { getColumns } from './columns'
 import AddToOrganizationDialog from './add-to-organization-dialog'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
 import { VisibilityState } from '@tanstack/react-table'
 import ControlDetailsSheet from './control-details-sheet'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -164,7 +164,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
     }))
   }
 
-  const handleRowClick = (row: ControlListFieldsFragment) => {
+  const handleRowClick = (row: ControlListStandardFieldsFragment) => {
     push(`/standards/${id}?controlId=${row.id}`)
   }
 
@@ -230,6 +230,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
                     columnVisibility={columnVisibility}
                     onPaginationChange={(newPagination) => handlePaginationChange(category, newPagination)}
                     stickyHeader
+                    tableKey={TableKeyEnum.STANDARD_DETAILS_ACCORDION}
                   />
                 </div>
               </AccordionContent>

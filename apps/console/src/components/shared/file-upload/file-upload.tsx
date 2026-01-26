@@ -69,42 +69,41 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
     <React.Fragment>
       <div
         {...getRootProps()}
-        className={cn('relative rounded-sm border-dashed border border-teal-800/40 py-5 px-[110px] text-center h-[200px] flex items-center justify-center transition ease-in', {
-          'border-teal-800': isDragActive,
+        className={cn('rounded-lg border border-dashed border-muted-foreground/40 bg-card h-[200px] flex items-center justify-center text-center cursor-pointer transition-all', {
+          'border-primary bg-muted/50 ring-1 ring-primary/30': isDragActive,
         })}
       >
         <input {...getInputProps()} />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="relative inline-block">
-            <div className="relative w-24 h-24 flex justify-center items-center">
-              {!uploadedFile && <FileUp className="w-16 h-16" />}
-              {uploadedFile && (
-                <>
-                  <File className="w-16 h-16" />
-                  <Upload className="absolute bottom-4 right-4 w-5 h-5 bg-jade-500 dark:bg-jade-500 rounded-full p-1 shadow-md" />
-                </>
-              )}
-            </div>
+
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-14 h-14 rounded-md bg-border border border-muted flex items-center justify-center">
+            {!uploadedFile && <FileUp className="w-7 h-7" />}
+            {uploadedFile && (
+              <>
+                <File className="w-16 h-16" />
+                <Upload className="absolute bottom-4 right-4 w-5 h-5 bg-jade-500 dark:bg-jade-500 rounded-full p-1 shadow-md" />
+              </>
+            )}
           </div>
-          {uploadedFile && (
-            <div>
-              <div className="font-semibold">{uploadedFile.name}</div>
-              <div className="text-sm">Size: {(uploadedFile.size! / 1024).toFixed(2)} KB</div>
+
+          {!uploadedFile && (
+            <div className="flex flex-col gap-1">
+              <p className="text-sm leading-5 font-medium">
+                Drag and drop files or <span className="underline">click to upload</span>
+              </p>
+              <p className="text-sm font-normal leading-5 text-muted-foreground">
+                Accepted: {props.acceptedFileTypesShort.join(', ')} (Max file size: {MAX_FILE_SIZE_IN_MB}MB)
+              </p>
             </div>
           )}
-          {!uploadedFile && (
-            <p>
-              Drag and drop files here or{' '}
-              <span className="underline cursor-pointer" onClick={() => document.getElementById('file-upload')?.click()}>
-                choose file
-              </span>
-            </p>
+
+          {uploadedFile && (
+            <div className="text-sm">
+              <div className="font-semibold">{uploadedFile.name}</div>
+              <div className="text-muted-foreground">{(uploadedFile.size! / 1024).toFixed(2)} KB</div>
+            </div>
           )}
         </div>
-      </div>
-      <div className={props.acceptedFilesClass ?? 'mt-2 flex justify-between text-xs text-text-light'}>
-        <div>{props.acceptedFileTypesShort.join(', ')}</div>
-        <div>Maximum size: {MAX_FILE_SIZE_IN_MB} MB / file</div>
       </div>
     </React.Fragment>
   )

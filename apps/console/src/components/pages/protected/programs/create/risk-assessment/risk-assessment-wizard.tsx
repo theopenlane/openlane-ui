@@ -8,7 +8,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
-import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramType } from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
 import { programInviteSchema, selectFrameworkSchema, step3Schema, wizardSchema, WizardValues } from './risk-assessment-wizard-config'
@@ -48,7 +48,7 @@ export default function RiskAssessmentWizard() {
       programMembers: [],
       programAdmins: [],
       riskIDs: [],
-      programType: ProgramProgramType.RISK_ASSESSMENT,
+      programKindName: 'Risk Assessment',
     },
   })
 
@@ -71,7 +71,7 @@ export default function RiskAssessmentWizard() {
         name: values.name || `Risk Assessment - ${currentYear}`,
         riskIDs: values.riskIDs,
         frameworkName: values.framework,
-        programType: values.programType,
+        programKindName: values.programKindName,
         startDate: today,
         endDate: oneYearFromToday,
         viewerIDs: values.viewerIDs,
@@ -120,6 +120,7 @@ export default function RiskAssessmentWizard() {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance' },
       { label: 'Programs', href: '/programs' },
       { label: 'Create', href: '/programs/create' },
       { label: 'Risk Assessment', href: '/programs/create/risk-assessment' },

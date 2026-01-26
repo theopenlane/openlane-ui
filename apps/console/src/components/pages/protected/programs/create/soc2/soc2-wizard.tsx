@@ -47,7 +47,7 @@ export default function Soc2Wizard() {
     mode: 'onChange',
     defaultValues: {
       categories: ['Security'],
-      programType: undefined,
+      programKindName: undefined,
     },
   })
 
@@ -69,7 +69,7 @@ export default function Soc2Wizard() {
     const input: CreateProgramWithMembersInput = {
       program: {
         name: `SOC2 - ${currentYear}`,
-        programType: data.programType,
+        programKindName: data.programKindName,
         startDate: today,
         endDate: oneYearFromToday,
         viewerIDs: data.viewerIDs,
@@ -120,6 +120,7 @@ export default function Soc2Wizard() {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance' },
       { label: 'Programs', href: '/programs' },
       { label: 'Create', href: '/programs/create' },
       { label: 'SOC2', href: '/programs/create/soc2' },

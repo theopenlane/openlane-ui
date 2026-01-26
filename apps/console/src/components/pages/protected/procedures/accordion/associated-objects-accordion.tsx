@@ -22,14 +22,19 @@ const AssociatedObjectsAccordion: React.FC = () => {
     </AccordionTrigger>
   )
 
+  const toHumanReadable = (str: string) =>
+    str
+      .replace(/IDs$/, '')
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (s) => s.toUpperCase())
+
   return (
     <div className="space-y-4">
       <Accordion type="multiple" value={expandedItems} onValueChange={(values) => setExpandedItems(values)} className="w-full">
         {Object.entries(associationRefCodes).map(([key, refCodes]) => {
-          const label = key.replace(/IDs$/, '')
           return (
             <AccordionItem key={key} value={key}>
-              <SectionTrigger label={label.charAt(0).toUpperCase() + label.slice(1)} count={refCodes!.length} />
+              <SectionTrigger label={toHumanReadable(key)} count={refCodes!.length} />
               <AccordionContent>
                 <div className="flex gap-[5px]">
                   {refCodes!.map((refCode, index) => (

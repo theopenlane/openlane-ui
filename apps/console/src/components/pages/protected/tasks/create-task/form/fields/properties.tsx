@@ -7,10 +7,9 @@ import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 import { formatDate } from '@/utils/date'
 import { TaskQuery, TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
 import { useTaskStore } from '../../../hooks/useTaskStore'
 import { EditTaskFormData } from '../../../hooks/use-form-schema'
 import { TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
@@ -18,6 +17,9 @@ import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -28,17 +30,24 @@ type PropertiesProps = {
   isEditAllowed: boolean
 }
 
-const allProperties = ['assigneeID', 'due', 'status', 'category', 'tags']
+const allProperties = ['assigneeID', 'due', 'status', 'taskKindName', 'tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
   const { control, formState, watch, setValue } = useFormContext<EditTaskFormData>()
   const { orgMembers } = useTaskStore()
 
   const statusOptions = TaskStatusOptions
-  const taskTypeOptions = Object.values(TaskTypes)
+  const { tagOptions } = useGetTags()
+
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
 
   const tags = watch('tags')
-  const tagOptions = useMemo(() => {
+  const tagValues = useMemo(() => {
     return (tags ?? [])
       .filter((item): item is string => typeof item === 'string')
       .map((item) => ({
@@ -52,18 +61,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
     return (
       <div className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex flex-wrap gap-2`}>
-        {hasTags ? (
-          taskData?.tags?.map(
-            (item, index) =>
-              item && (
-                <Badge key={index} variant="outline">
-                  {item}
-                </Badge>
-              ),
-          )
-        ) : (
-          <span className="text-muted-foreground text-sm italic">No tags</span>
-        )}
+        {hasTags ? taskData?.tags?.map((tag, i) => tag && <TagChip tag={tag} key={i} />) : <span className="text-muted-foreground text-sm italic">No tags</span>}
       </div>
     )
   }
@@ -73,7 +71,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
   const blurTags = () => {
     const current = taskData?.tags || []
-    const next = tagOptions.map((item) => item.value)
+    const next = tagValues.map((item) => item.value)
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdate) {
@@ -100,7 +98,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       if (!internalEditing) {
         return
       }
-      if (['assigneeID', 'due', 'status', 'category'].includes(internalEditing)) {
+      if (['assigneeID', 'due', 'status', 'taskKindName'].includes(internalEditing)) {
         setInternalEditing(null)
       }
       if (internalEditing === 'tags') {
@@ -244,36 +242,36 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
         <Folder className="text-primary" size={16} />
         <p className="text-sm w-[120px]">Task Type</p>
 
-        {isEditing || internalEditing === 'category' ? (
+        {isEditing || internalEditing === 'taskKindName' ? (
           <Controller
-            name="category"
+            name="taskKindName"
             control={control}
             render={({ field }) => (
               <div className="w-[250px]" ref={triggerRef}>
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
-                    handleUpdate?.({ category: value })
+                    handleUpdate?.({ taskKindName: value })
                     field.onChange(value)
                     setInternalEditing(null)
                   }}
                 >
                   <SelectTrigger className="w-full">{field.value || 'Select'}</SelectTrigger>
                   <SelectContent ref={popoverRef}>
-                    {taskTypeOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
+                    {taskKindOptions.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.value}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {formState.errors.category && <p className="text-red-500 text-sm">{formState.errors.category.message}</p>}
+                {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message}</p>}
               </div>
             )}
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('category')}>{taskData?.category || 'No category'}</p>
+            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>{taskData?.taskKindName || 'No category'}</p>
           </HoverPencilWrapper>
         )}
       </div>
@@ -290,11 +288,12 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             render={({ field }) => (
               <div className="w-[250px]" ref={triggerRef}>
                 <MultipleSelector
+                  options={tagOptions}
                   hideClearAllButton
                   placeholder="Add tag..."
                   creatable
                   commandProps={{ className: 'w-full' }}
-                  value={tagOptions}
+                  value={tagValues}
                   onChange={(selectedOptions) => {
                     const newTags = selectedOptions.map((opt) => opt.value)
                     field.onChange(newTags)
@@ -314,7 +313,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       {/* Related Objects */}
       {!isEditing && (
         <div className="flex items-center gap-4">
-          <BookText className="text-primary w-[16px] h-[16px] shrink-0" />
+          <BookText className="text-primary w-4 h-4 shrink-0" />
           <p className="text-sm w-[120px]">Related Objects</p>
           <RelatedObjects taskData={taskData} />
         </div>

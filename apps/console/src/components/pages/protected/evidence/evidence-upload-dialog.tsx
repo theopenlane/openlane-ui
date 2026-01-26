@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, Trash2, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -10,6 +10,8 @@ import { acceptedFileTypes, acceptedFileTypesShort } from '@/components/pages/pr
 import { useUploadEvidenceFiles } from '@/lib/graphql-hooks/evidence.ts'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TControlEvidenceUploadDialog = {
   evidenceID: string
@@ -39,6 +41,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
         title: 'Evidence file(s) uploaded',
         description: `Evidence file(s) have been successfully uploaded`,
       })
+      setEvidenceFiles([])
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -58,6 +61,11 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
     })
   }
 
+  const handleCancel = () => {
+    setIsOpen(false)
+    setEvidenceFiles([])
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -70,27 +78,16 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
           <DialogTitle>Control Evidence Upload</DialogTitle>
         </DialogHeader>
         <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={100} multipleFiles={true} />
-        {evidenceFiles.map((file, index) => (
-          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
-            <div className="flex items-center">
-              <div className="mr-2">
-                <FileUp className="w-8 h-8" />
-              </div>
-              <div>
-                <div className="font-semibold">{file.name}</div>
-                <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
-              </div>
-            </div>
-            <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />
-          </div>
-        ))}
-        <div className="flex gap-2 justify-end">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || evidenceFiles?.length === 0}>
+        <div className="flex gap-6">
+          {evidenceFiles.map((file, index) => (
+            <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={() => handleDelete(file)} />
+          ))}
+        </div>
+        <div className="flex flex-col gap-2">
+          <Button variant="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || evidenceFiles?.length === 0}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
-            Cancel
-          </Button>
+          <CancelButton disabled={isSubmitting} onClick={handleCancel}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

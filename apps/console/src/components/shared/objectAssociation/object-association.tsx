@@ -14,6 +14,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useSession } from 'next-auth/react'
+import { getInitialPagination } from '@repo/ui/data-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 
@@ -29,7 +31,7 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(initialPagination)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION, initialPagination))
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null

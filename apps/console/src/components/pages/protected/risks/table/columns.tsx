@@ -59,6 +59,12 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       maxSize: 20,
     },
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
@@ -78,8 +84,8 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       maxSize: 80,
       minSize: 80,
     },
-    { accessorKey: 'riskType', header: 'Type', size: 100 },
-    { accessorKey: 'category', header: 'Category', size: 100 },
+    { accessorKey: 'riskKindName', header: 'Type', size: 100 },
+    { accessorKey: 'riskCategoryName', header: 'Category', size: 100 },
     {
       accessorKey: 'score',
       header: 'Score',
@@ -92,6 +98,9 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
     {
       accessorKey: 'stakeholder',
       header: 'Stakeholder',
+      meta: {
+        exportPrefix: 'stakeholder.displayName',
+      },
       cell: ({ row }) => {
         const stakeholder = row.original.stakeholder
         const riskId = row.original.id
@@ -107,6 +116,9 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      meta: {
+        exportPrefix: 'delegate.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate

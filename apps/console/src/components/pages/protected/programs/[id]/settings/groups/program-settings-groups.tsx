@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef, Row } from '@tanstack/react-table'
@@ -22,6 +22,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type GroupRow = {
   id: string
@@ -36,12 +37,14 @@ export const ProgramSettingsGroups = () => {
   const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    page: 1,
-    query: {},
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_GROUP, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      page: 1,
+      query: {},
+    }),
+  )
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<GroupRow | null>(null)
@@ -251,7 +254,7 @@ export const ProgramSettingsGroups = () => {
             {editAllowed && basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED && <ProgramSettingsAssignGroupDialog />}
           </div>
 
-          <DataTable columns={groupColumns} data={paginatedGroups} loading={isLoading} />
+          <DataTable columns={groupColumns} data={paginatedGroups} loading={isLoading} tableKey={TableKeyEnum.PROGRAM_SETTINGS_GROUP} />
           <Pagination
             currentPage={pagination.page}
             totalPages={Math.ceil(groups.length / pagination.pageSize)}

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { AlertTriangle } from 'lucide-react'
 import { VisibilityState } from '@tanstack/table-core'
@@ -14,27 +14,37 @@ import { useSession } from 'next-auth/react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
-import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { FormattedRisk, getRiskColumns } from './risks-table-config'
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const Risks = () => {
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.OVERVIEW_RISK, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+    }),
+  )
 
   const { groups } = useGetAllGroups({ where: {} })
   const [tab, setTab] = useState<'created' | 'assigned'>('created')
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
+    id: false,
     createdBy: false,
     createdAt: false,
     updatedBy: false,
     updatedAt: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.RISK_OVERVIEW, defaultVisibility))
 
   const stakeholderGroupIds = useMemo(() => groups?.map((group) => group.id) ?? [], [groups])
 
@@ -123,7 +133,12 @@ const Risks = () => {
             </Button> */}
 
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              <ColumnVisibilityMenu
+                mappedColumns={mappedColumns}
+                columnVisibility={columnVisibility}
+                setColumnVisibility={setColumnVisibility}
+                storageKey={TableColumnVisibilityKeysEnum.RISK_OVERVIEW}
+              />
             )}
           </div>
 
@@ -167,6 +182,7 @@ const Risks = () => {
                 loading={fetchingUsers}
                 columnVisibility={columnVisibility}
                 setColumnVisibility={setColumnVisibility}
+                tableKey={TableKeyEnum.OVERVIEW_RISK}
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-center py-16">

@@ -20,6 +20,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -59,20 +62,34 @@ const RisksTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
-  const { programOptions, isSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess: isProgramsSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteRisks } = useBulkDeleteRisks()
 
-  useEffect(() => {
-    if (filterFields || !isSuccess) {
-      return
-    }
+  const { enumOptions: riskKindOptions, isSuccess: isTypeSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'kind',
+    },
+  })
 
-    const fields = getRisksFilterFields(programOptions)
+  const { enumOptions: riskCategoryOptions, isSuccess: isCategorySuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'category',
+    },
+  })
+
+  useEffect(() => {
+    if (!isProgramsSuccess || !isTypeSuccess || !isCategorySuccess) return
+    if (filterFields) return
+
+    const fields = getRisksFilterFields(programOptions, riskKindOptions ?? [], riskCategoryOptions ?? [])
+
     setFilterFields(fields)
-  }, [programOptions, filterFields, isSuccess])
+  }, [filterFields, programOptions, riskKindOptions, riskCategoryOptions, isProgramsSuccess, isTypeSuccess, isCategorySuccess])
 
   const handleBulkDelete = async () => {
     if (!selectedRisks) {
@@ -135,15 +152,11 @@ const RisksTableToolbar: React.FC<TProps> = ({
                   confirmationTextVariant="destructive"
                   showInput={false}
                 />
-                <Button
-                  type="button"
-                  variant="secondary"
+                <CancelButton
                   onClick={() => {
                     handleClearSelectedControls()
                   }}
-                >
-                  Cancel
-                </Button>
+                ></CancelButton>
               </>
             )}
           </>
@@ -177,11 +190,11 @@ const RisksTableToolbar: React.FC<TProps> = ({
               )}
             />
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.RISK} />
             )}
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.RISK} />}
             {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-              <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             )}

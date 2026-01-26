@@ -1,5 +1,5 @@
-import { ControlSwitcher } from '@/components/shared/control-switcher/control-switcher'
 import { Metadata } from 'next'
+import { ControlSwitcher } from '@/components/shared/tab-switcher/control-switcher.tsx'
 
 export const metadata: Metadata = {
   title: 'Control Report',

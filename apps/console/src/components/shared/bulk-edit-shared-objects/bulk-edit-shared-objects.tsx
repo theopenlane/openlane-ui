@@ -1,10 +1,11 @@
 import { Group } from '@repo/codegen/src/schema'
 import { Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { ControlStatusOptions, ControlControlTypeOptions } from '@/components/shared/enum-mapper/control-enum'
+import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
-import { TaskStatusOptions, TaskTypesOptions } from '../enum-mapper/task-enum'
+import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
 
 export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
@@ -31,12 +32,17 @@ export type BulkEditTasksDialogProps = {
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
+export type BulkEditEvidenceDialogProps = {
+  selectedEvidence: { id: string }[]
+  setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+}
+
 export interface BulkEditDialogFormValues {
   fieldsArray: FieldItem[]
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks
+  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence
   name: string
   placeholder: string
   options?: Option[]
@@ -48,6 +54,8 @@ export enum SelectOptionBulkEditControls {
   ControlType = 'Control type',
   ControlOwner = 'Control owner',
   Program = 'Program',
+  Category = 'Category',
+  SubCategory = 'Subcategory',
 }
 
 export enum SelectOptionBulkEditPolicies {
@@ -78,17 +86,25 @@ export enum SelectOptionBulkEditTasks {
   Status = 'Status',
   TaskAssignee = 'Assignee',
   DueDate = 'Due date',
-  TaskCategory = 'Category',
+  TaskCategory = 'Type',
+}
+
+export enum SelectOptionBulkEditEvidence {
+  Status = 'Status',
+  Tags = 'Tags',
+  Source = 'Source',
 }
 
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
   Date = 'DATETIME',
+  Tag = 'TAG',
+  TypeAhead = 'TYPE_AHEAD',
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | undefined
+  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | undefined
   selectedDate?: Date | null
@@ -105,13 +121,15 @@ const clearValueMap: Record<string, string> = {
   score: 'clearScore',
   category: 'clearCategory',
   due: 'clearDue',
+  clearSource: 'clearSource',
+  clearTags: 'clearTags',
 }
 
 export const getMappedClearValue = (key: string): string => {
   return clearValueMap[key]
 }
 
-export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
@@ -136,9 +154,10 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOpti
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskType,
-      name: 'riskType',
-      inputType: InputType.Input,
+      name: 'riskKindName',
+      inputType: InputType.Select,
       placeholder: 'Select a risk type',
+      options: typeOptions,
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskStakeholder,
@@ -149,9 +168,10 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOpti
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskCategory,
-      name: 'category',
-      inputType: InputType.Input,
+      name: 'riskCategoryName',
+      inputType: InputType.Select,
       placeholder: 'Select category',
+      options: categoryOptions,
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskScore,
@@ -162,7 +182,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[]): SelectOpti
   ]
 }
 
-export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureDelegate,
@@ -180,9 +200,10 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): Selec
     },
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureType,
-      name: 'procedureType',
-      inputType: InputType.Input,
+      name: 'procedureKindName',
+      inputType: InputType.Select,
       placeholder: 'Select a procedure type',
+      options: typeOptions,
     },
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureApprover,
@@ -194,7 +215,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[]): Selec
   ]
 }
 
-export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyDelegate,
@@ -212,9 +233,10 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectO
     },
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyType,
-      name: 'policyType',
-      inputType: InputType.Input,
+      name: 'internalPolicyKindName',
+      inputType: InputType.Select,
       placeholder: 'Select a policy type',
+      options: typeOptions,
     },
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyApprover,
@@ -226,7 +248,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[]): SelectO
   ]
 }
 
-export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[]): SelectOptionSelectedObject[] => {
+export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   const { programOptions } = useProgramSelect({})
 
   return [
@@ -246,10 +268,10 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[]): Sele
     },
     {
       selectOptionEnum: SelectOptionBulkEditControls.ControlType,
-      name: 'controlType',
+      name: 'controlKindName',
       placeholder: 'Select a control type',
       inputType: InputType.Select,
-      options: ControlControlTypeOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+      options: typeOptions,
     },
     {
       selectOptionEnum: SelectOptionBulkEditControls.Program,
@@ -257,6 +279,18 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[]): Sele
       placeholder: 'Select program...',
       inputType: InputType.Select,
       options: programOptions || [],
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.Category,
+      name: 'category',
+      inputType: InputType.TypeAhead,
+      placeholder: 'Input category',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.SubCategory,
+      name: 'subcategory',
+      inputType: InputType.TypeAhead,
+      placeholder: 'Input subcategory',
     },
   ]
 }
@@ -268,6 +302,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
         label: string
       }[]
     | undefined,
+  taskKindOptions: { value: string; label: string }[],
 ): SelectOptionSelectedObject[] => {
   return [
     {
@@ -292,10 +327,34 @@ export const getAllSelectOptionsForBulkEditTasks = (
     },
     {
       selectOptionEnum: SelectOptionBulkEditTasks.TaskCategory,
-      name: 'category',
+      name: 'taskKindName',
       inputType: InputType.Select,
       placeholder: 'Select category',
-      options: TaskTypesOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+      options: taskKindOptions,
+    },
+  ]
+}
+
+export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedObject[] => {
+  return [
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.Status,
+      name: 'status',
+      placeholder: 'Select a status',
+      inputType: InputType.Select,
+      options: EvidenceStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.Source,
+      name: 'source',
+      inputType: InputType.Input,
+      placeholder: 'Input source',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.Tags,
+      name: 'tags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
     },
   ]
 }

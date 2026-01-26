@@ -1,13 +1,14 @@
 'use client'
 import { PageHeading } from '@repo/ui/page-heading'
-import { OrganizationNameForm } from '@/components/pages/protected/organization/general-settings/organization-name-form'
+import { OrganizationNameForm } from '@/components/pages/protected/organization-settings/general-settings/organization-name-form'
 import { pageStyles } from './page.styles'
-import { OrganizationDelete } from '@/components/pages/protected/organization/general-settings/organization-delete'
+import { OrganizationDelete } from '@/components/pages/protected/organization-settings/general-settings/organization-delete'
 import { useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { TransferOwnership } from '@/components/pages/protected/organization-settings/general-settings/transfer-ownership'
 
 export const PageWrapper: React.FC = () => {
   const { wrapper } = pageStyles()
@@ -28,6 +29,7 @@ export const PageWrapper: React.FC = () => {
           <div className={wrapper()}>
             <OrganizationNameForm />
             <OrganizationDelete onLoadingChange={setLoading} />
+            <TransferOwnership />
           </div>
         </>
       )}

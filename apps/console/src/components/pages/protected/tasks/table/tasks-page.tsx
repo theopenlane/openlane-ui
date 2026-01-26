@@ -19,30 +19,37 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useStorageSearch(SearchKeyEnum.TASKS)
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION_PROGRAMS, DEFAULT_PAGINATION))
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { handleExport } = useFileExport()
-  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.TASK, TaskOrderField, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(defaultSorting)
   const allStatuses = useMemo(() => Object.values(TaskTaskStatus), [])
   const statusesWithoutCompleteAndWontDo = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED && status !== TaskTaskStatus.WONT_DO), [allStatuses])
   const { data: permission } = useOrganizationRoles()
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
+    id: false,
     createdAt: false,
     createdBy: false,
     updatedAt: false,
@@ -50,7 +57,10 @@ const TasksPage: React.FC = () => {
     details: false,
     completed: false,
     tags: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.TASK, defaultVisibility))
+
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
   const [hasTasks, setHasTasks] = useState(false)
@@ -123,11 +133,15 @@ const TasksPage: React.FC = () => {
   }
 
   const emptyUserMap = {}
-  const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+  const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
+    .filter(
+      (column): column is { accessorKey: string; header: string; meta: { exportPrefix?: string } } =>
+        'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string',
+    )
     .map((column) => ({
       accessorKey: column.accessorKey,
       header: column.header,
+      meta: column.meta,
     }))
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
@@ -142,7 +156,7 @@ const TasksPage: React.FC = () => {
     handleExport({
       exportType: ExportExportType.TASK,
       filters: JSON.stringify(whereFilter),
-      fields: mappedColumns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: mappedColumns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }
@@ -192,6 +206,7 @@ const TasksPage: React.FC = () => {
           selectedTasks={selectedTasks}
           setSelectedTasks={setSelectedTasks}
           canEdit={canEdit}
+          defaultSorting={defaultSorting}
           permission={permission}
         />
       ) : (

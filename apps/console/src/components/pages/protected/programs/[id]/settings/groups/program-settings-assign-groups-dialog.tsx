@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -18,6 +18,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type GroupRow = {
   id: string
@@ -33,11 +35,13 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const [searchValue, setSearchValue] = useState('')
   const [selectedGroups, setSelectedGroups] = useState<GroupRow[]>([])
   const [rows, setRows] = useState<GroupRow[]>([])
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.GROUP_PROGRAM_SETTINGS, {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    }),
+  )
 
   const debouncedSearch = useDebounce(searchValue, 300)
 
@@ -200,7 +204,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Assign</Button>
+        <Button className="h-8 px-2!">Assign</Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
@@ -215,14 +219,22 @@ export const ProgramSettingsAssignGroupDialog = () => {
             </div>
           </div>
 
-          <DataTable columns={groupColumns} data={rows} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
+          <DataTable
+            columns={groupColumns}
+            data={rows}
+            loading={isLoading}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            paginationMeta={paginationMeta}
+            tableKey={TableKeyEnum.GROUP_PROGRAM_SETTINGS}
+          />
 
           <div className="flex gap-2 mt-4 justify-end">
             <Button onClick={handleAssign} disabled={selectedGroups.length === 0 || isPending}>
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
-              <Button variant="back">Cancel</Button>
+              <CancelButton />
             </DialogTrigger>
           </div>
         </div>

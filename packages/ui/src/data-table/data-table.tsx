@@ -25,6 +25,8 @@ import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
+import { TableKeyEnum } from '../data-table/table-key.ts'
+import { orderBy } from 'lodash'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -33,6 +35,18 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
 }
 
 type TStickyOption = { stickyHeader: true; stickyDialogHeader?: false } | { stickyHeader?: false; stickyDialogHeader: true } | { stickyHeader?: false; stickyDialogHeader?: false }
+
+export function getInitialPagination<T extends TPagination>(key: TableKeyEnum, fallback: T): T {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`${STORAGE_PAGINATION_KEY_PREFIX}${key}`)
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {}
+    }
+  }
+  return fallback
+}
 
 interface BaseDataTableProps<TData, TValue> {
   columns: CustomColumnDef<TData, TValue>[]
@@ -43,7 +57,7 @@ interface BaseDataTableProps<TData, TValue> {
   noResultsText?: string
   noDataMarkup?: ReactElement
   onRowClick?: (rowData: TData) => void
-  sortFields?: { key: string; label: string; default?: { key: string; direction: OrderDirection } }[]
+  sortFields?: { key: string; label: string }[]
   onSortChange?: (sortCondition: any[]) => void
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
@@ -52,9 +66,41 @@ interface BaseDataTableProps<TData, TValue> {
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   footer?: ReactElement | null
+  tableKey: TableKeyEnum | undefined
+  defaultSorting?: { field: string; direction?: OrderDirection }[] | undefined
 }
 
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
+
+export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
+export const STORAGE_PAGINATION_KEY_PREFIX = 'pagination:'
+export type SortCondition<TField extends string> = {
+  field: TField
+  direction: OrderDirection
+}
+
+export function getInitialSortConditions<TField extends string>(
+  tableKey: TableKeyEnum,
+  validSortKeys: Record<string, TField> | TField[],
+  defaultSortFields: SortCondition<TField>[],
+): SortCondition<TField>[] {
+  const validKeysArray = Array.isArray(validSortKeys) ? validSortKeys : Object.values(validSortKeys)
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as SortCondition<string>[]
+        const sanitized: SortCondition<TField>[] = parsed.filter((item): item is SortCondition<TField> => validKeysArray.includes(item.field as TField))
+
+        if (sanitized.length > 0) {
+          return sanitized
+        }
+      } catch {}
+    }
+  }
+
+  return defaultSortFields
+}
 
 export function DataTable<TData, TValue>({
   columns,
@@ -74,10 +120,12 @@ export function DataTable<TData, TValue>({
   setColumnVisibility,
   columnVisibility,
   footer,
+  tableKey,
+  defaultSorting,
   stickyHeader = false,
   stickyDialogHeader = false,
 }: DataTableProps<TData, TValue>) {
-  const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
+  const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>(defaultSorting ?? [])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
@@ -89,12 +137,30 @@ export function DataTable<TData, TValue>({
   const { totalCount, pageInfo, isLoading } = paginationMeta || {}
 
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
-
   const [columnResizeDirection] = useState<ColumnResizeDirection>('ltr')
 
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
   }, [totalCount, currentPageSize])
+
+  const updatePagination = (next: TPagination) => {
+    if (typeof window !== 'undefined') {
+      const safePagination = {
+        page: next.page,
+        pageSize: next.pageSize,
+        query: {
+          first: next.query?.first,
+          last: next.query?.last,
+          after: next.query?.after,
+          before: next.query?.before,
+        },
+      }
+
+      localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(safePagination))
+    }
+
+    onPaginationChange?.(next)
+  }
 
   const handleSortChange = (field: string) => {
     setSortConditions((prev) => {
@@ -161,7 +227,6 @@ export function DataTable<TData, TValue>({
     onColumnSizingChange: setColumnSizes,
     columnResizeMode,
     columnResizeDirection,
-
     enableColumnResizing: true,
     state: {
       columnFilters,
@@ -183,25 +248,22 @@ export function DataTable<TData, TValue>({
       return
     }
 
-    const newPagination: TPagination = {
-      ...pagination,
-      page: newPage,
-      query,
-    }
-    onPaginationChange?.(newPagination)
+    const next = { ...pagination, page: newPage, query }
+    updatePagination(next)
   }
 
   const handlePageSizeChange = (newSize: number) => {
     if (!pagination) {
       return
     }
-    const newPagination: TPagination = {
+
+    const next = {
       ...pagination,
       page: 1,
       pageSize: newSize,
       query: { first: newSize },
     }
-    onPaginationChange?.(newPagination)
+    updatePagination(next)
   }
 
   const goToFirstPage = () => {
@@ -211,15 +273,11 @@ export function DataTable<TData, TValue>({
   const goToLastPage = () => {
     if (!pagination || !totalCount) return
 
-    const totalPages = Math.ceil(totalCount / currentPageSize)
-    const itemsBeforeLastPage = currentPageSize * (totalPages - 1)
-    const remainingItems = totalCount - itemsBeforeLastPage
+    const lastPage = Math.ceil(totalCount / currentPageSize)
+    const itemsBeforeLast = currentPageSize * (lastPage - 1)
+    const remaining = totalCount - itemsBeforeLast
 
-    const query = {
-      last: remainingItems,
-    }
-
-    setNewPagination(totalPages, query)
+    setNewPagination(lastPage, { last: remaining })
   }
 
   const handlePageChange = (newPage: number) => {
@@ -244,33 +302,9 @@ export function DataTable<TData, TValue>({
   }
 
   useEffect(() => {
-    if (!sortFields) {
-      return
-    }
-
-    const defaultField = sortFields.find((field) => field.default)
-    if (!defaultField) {
-      return
-    }
-
-    setSortConditions((prev) => {
-      if (prev.some((cond) => cond.field === defaultField.key)) {
-        return prev
-      }
-
-      return [
-        ...prev,
-        {
-          field: defaultField.key,
-          direction: defaultField.default?.direction,
-        },
-      ]
-    })
-  }, [sortFields])
-
-  useEffect(() => {
     if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
       onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
+      localStorage.setItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, JSON.stringify(sortConditions))
     }
   }, [onSortChange, sortConditions])
 

@@ -7,7 +7,8 @@ import { formatDate } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import Link from 'next/link'
 
 const RecentActivity = () => {
   const { policies } = useInternalPoliciesDashboard({
@@ -17,20 +18,20 @@ const RecentActivity = () => {
   const recentPolicies = useMemo(() => policies.slice(0, 5), [policies])
 
   const userIds = useMemo(() => {
+    if (!recentPolicies) return []
+
     const ids = new Set<string>()
-    recentPolicies?.forEach((p) => {
-      if (p.createdBy) ids.add(p.createdBy)
-      if (p.updatedBy) ids.add(p.updatedBy)
+    recentPolicies.forEach((policy) => {
+      if (policy.createdBy) ids.add(policy.createdBy)
+      if (policy.updatedBy) ids.add(policy.updatedBy)
     })
+
     return Array.from(ids)
   }, [recentPolicies])
 
-  const { data: userData } = useGetOrgMemberships({
-    where: { hasUserWith: userIds.map((id) => ({ id })) },
-    enabled: userIds.length > 0,
+  const { users } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
   })
-
-  const users = userData?.orgMemberships?.edges?.map((edge) => edge?.node?.user) ?? []
 
   if (!recentPolicies?.length) {
     return <p className="text-sm text-muted-foreground">No recent activity</p>
@@ -49,17 +50,19 @@ const RecentActivity = () => {
           const action = isCreated ? 'created' : 'updated'
           const timestamp = isCreated ? policy.createdAt : policy.updatedAt
           const formattedDate = formatDate(timestamp)
-
+          const policyLink = `/policies/${policy.id}/view`
           return (
             <li key={policy.id} className={cn('flex justify-between items-center border-b pb-2 last:border-b-0')}>
-              <div className="flex items-center gap-3">
-                <span className="text-sm flex items-center">
-                  <strong>{policy.name}</strong> &nbsp;was {action} by&nbsp;
-                  <Avatar entity={user as User}></Avatar>
-                  &nbsp;{userName}
-                </span>
-              </div>
-              <span className="text-sm text-text-informational">{formattedDate}</span>
+              <Link href={policyLink} className="flex-1 flex justify-between items-center no-underline">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm flex items-center">
+                    <strong>{policy.name}</strong> &nbsp;was {action} by&nbsp;
+                    <Avatar entity={user as User}></Avatar>
+                    &nbsp;{userName}
+                  </span>
+                </div>
+                <span className="text-sm text-text-informational">{formattedDate}</span>
+              </Link>
             </li>
           )
         })}

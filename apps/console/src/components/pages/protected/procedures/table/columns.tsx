@@ -4,12 +4,14 @@ import { ApiToken, Group, Procedure, User } from '@repo/codegen/src/schema.ts'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 import ApproverCell from './approver-cell'
 import DelegateCell from './delegate-cell'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { LinkedControlsCell } from './linked-controls-cell'
+import { LinkedPoliciesCell } from './linked-plolicies-cell'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -62,6 +64,12 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       minSize: 20,
     },
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       accessorKey: 'name',
       header: 'Name',
       minSize: 100,
@@ -112,6 +120,9 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'approver',
       header: 'Approver',
+      meta: {
+        exportPrefix: 'approver.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
@@ -122,6 +133,9 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      meta: {
+        exportPrefix: 'delegate.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
@@ -130,7 +144,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       },
     },
     {
-      accessorKey: 'procedureType',
+      accessorKey: 'procedureKindName',
       header: 'Type',
       size: 120,
       cell: ({ cell }) => cell.getValue() || '-',
@@ -164,19 +178,32 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       header: 'Tags',
       size: 140,
       cell: ({ row }) => {
-        const tags = row.original.tags
-        if (!tags?.length) return '-'
-        return (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, i) => (
-              <Badge key={i} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
+        const tags = row?.original?.tags
+        if (!tags?.length) {
+          return '-'
+        }
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
+    {
+      accessorKey: 'linkedControls',
+      header: 'Linked Controls',
+      meta: {
+        exportPrefix: 'controls.refCode',
+      },
+      size: 220,
+      cell: ({ row }) => <LinkedControlsCell row={row} />,
+    },
+    {
+      accessorKey: 'linkedPolicies',
+      header: 'Linked Policies',
+      meta: {
+        exportPrefix: 'internalPolicies.name',
+      },
+      size: 220,
+      cell: ({ row }) => <LinkedPoliciesCell row={row} />,
+    },
+
     {
       accessorKey: 'createdBy',
       header: 'Created by',

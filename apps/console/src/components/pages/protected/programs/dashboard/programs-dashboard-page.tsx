@@ -91,10 +91,7 @@ const ProgramsDashboardPage = () => {
   }, [allKeys])
 
   useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Programs', href: '/programs' },
-    ])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }])
   }, [setCrumbs])
 
   if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
@@ -143,8 +140,10 @@ const ProgramsDashboardPage = () => {
             <Input icon={<SearchIcon size={16} />} placeholder="Search" value={search} onChange={(event) => setSearch(event.currentTarget.value)} variant="searchTable" />{' '}
           </div>
           <Tabs value={filterStatus} onValueChange={(v) => setFilterStatus(v as 'ARCHIVED' | 'ACTIVE')} className="space-y-4 ">
-            <TabsList className="size-fit min-w-[198px]">
-              <TabsTrigger value="ACTIVE">Active Programs</TabsTrigger>
+            <TabsList className="size-fit min-w-[18px]">
+              <TabsTrigger value="ACTIVE" className="whitespace-nowrap">
+                Active Programs
+              </TabsTrigger>
               <TabsTrigger value="ARCHIVED">Archived</TabsTrigger>
             </TabsList>
           </Tabs>

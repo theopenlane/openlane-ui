@@ -1,18 +1,21 @@
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { FilterField } from '@/types'
-import { OrderDirection, RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
+import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 
-const enumToOptions = (e: Record<string, string>) =>
-  Object.values(e).map((value) => ({
-    label: value
-      .replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, (l) => l.toUpperCase()),
-    value,
-  }))
+export const getRisksFilterFields = (
+  programOptions: { value: string; label: string }[],
+  riskKindOptions: { value: string; label: string }[],
+  riskCategoryOptions: { value: string; label: string }[],
+): FilterField[] => [
+  {
+    key: 'riskCategoryNameIn',
+    label: 'Category',
+    type: 'multiselect',
+    icon: FilterIcons.Category,
+    options: riskCategoryOptions,
+  },
 
-export const getRisksFilterFields = (programOptions: { value: string; label: string }[]): FilterField[] => [
-  { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
   {
     key: 'impactIn',
     label: 'Impact',
@@ -20,6 +23,7 @@ export const getRisksFilterFields = (programOptions: { value: string; label: str
     options: enumToOptions(RiskRiskImpact),
     icon: FilterIcons.Impact,
   },
+
   {
     key: 'likelihoodIn',
     label: 'Likelihood',
@@ -27,13 +31,17 @@ export const getRisksFilterFields = (programOptions: { value: string; label: str
     options: enumToOptions(RiskRiskLikelihood),
     icon: FilterIcons.Likelihood,
   },
+
   {
-    key: 'riskTypeContainsFold',
+    key: 'riskKindNameIn',
     label: 'Risk Type',
-    type: 'text',
+    type: 'multiselect',
     icon: FilterIcons.RiskType,
+    options: riskKindOptions,
   },
+
   { key: 'score', label: 'Score', type: 'sliderNumber', icon: FilterIcons.Score },
+
   {
     key: 'statusIn',
     label: 'Status',
@@ -41,6 +49,7 @@ export const getRisksFilterFields = (programOptions: { value: string; label: str
     options: enumToOptions(RiskRiskStatus),
     icon: FilterIcons.Status,
   },
+
   {
     key: 'hasProgramsWith',
     label: 'Program Name',
@@ -54,25 +63,13 @@ export const RISKS_SORT_FIELDS = [
   {
     key: RiskOrderField.name,
     label: 'Name',
-    default: {
-      key: RiskOrderField.name,
-      direction: OrderDirection.ASC,
-    },
   },
   {
     key: RiskOrderField.score,
     label: 'Score',
   },
   {
-    key: RiskOrderField.risk_type,
-    label: 'Risk Type',
-  },
-  {
     key: RiskOrderField.STATUS,
     label: 'Status',
-  },
-  {
-    key: RiskOrderField.category,
-    label: 'Category',
   },
 ]

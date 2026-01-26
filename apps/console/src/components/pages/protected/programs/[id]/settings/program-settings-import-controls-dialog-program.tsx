@@ -15,9 +15,10 @@ import { Hourglass } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
 import { useParams } from 'next/navigation'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selectedProgramIds, setSelectedProgramIds }: TSharedImportControlsComponentsPropsPrograms) => {
   const { id } = useParams<{ id: string | undefined }>()
@@ -27,12 +28,14 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const { wrapper, content } = statCardStyles({ color: 'green' })
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS_PROGRAM, {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    }),
+  )
 
   const where: ControlWhereInput = useMemo(() => {
     const initialWhereFilters: ControlWhereInput[] = [{ hasPrograms: true }]
@@ -112,7 +115,15 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
         <Label>Search</Label>
         <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Program" className="h-10 w-[200px] mt-1" />
       </div>
-      <DataTable columns={columns} data={pagedData} paginationMeta={{ totalCount: tableData.length }} pagination={pagination} onPaginationChange={setPagination} stickyDialogHeader />
+      <DataTable
+        columns={columns}
+        data={pagedData}
+        paginationMeta={{ totalCount: tableData.length }}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        stickyDialogHeader
+        tableKey={TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS_PROGRAM}
+      />
     </>
   )
 }

@@ -20,16 +20,18 @@ export default auth(async (req) => {
     '/forgot-password',
     '/password-reset',
     '/signup',
+    '/questionnaire',
   ]
 
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 
   const path = req.nextUrl.pathname
-  const isPublicPage = publicPages.includes(path)
+  const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/')
   const validForPersonalOrg = personalOrgPages.includes(path)
   const isInvite = path === '/invite'
   const isUnsubscribe = path === '/unsubscribe'
   const isWaitlist = path === '/waitlist'
+  const isQuestionnaire = path === '/questionnaire' || path.startsWith('/questionnaire/')
 
   const session = req.auth
 
@@ -56,6 +58,12 @@ export default auth(async (req) => {
 
   if (isPublicPage) {
     if (req.cookies.get('user_sso')) {
+      return NextResponse.next()
+    }
+
+    // authenticated users should be able to access this page
+    // so they can submit the questionnaire too.
+    if (isQuestionnaire) {
       return NextResponse.next()
     }
 

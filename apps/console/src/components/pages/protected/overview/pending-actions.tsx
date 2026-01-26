@@ -9,6 +9,7 @@ import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type PendingAction = {
   date: string
@@ -123,10 +124,10 @@ const PendingActions = () => {
               </TabsList>
 
               <TabsContent value="waiting-on-you">
-                <DataTable columns={columns} data={pendingActions} />
+                <DataTable columns={columns} data={pendingActions} tableKey={TableKeyEnum.OVERVIEW_PENDING_ACTIONS} />
               </TabsContent>
               <TabsContent value="approvals-you-wait-for">
-                <DataTable columns={columns} data={approvalsWaitingFor} />
+                <DataTable columns={columns} data={approvalsWaitingFor} tableKey={TableKeyEnum.OVERVIEW_WAITING_APPROVAL} />
               </TabsContent>
             </Tabs>
           )}

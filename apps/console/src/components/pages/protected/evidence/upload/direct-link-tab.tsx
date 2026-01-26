@@ -2,11 +2,10 @@
 import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { FormItem } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
-import { PlusCircle } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { TUploadedFile } from './types/TUploadedFile'
+import DirectLinkTabSection from '@/components/shared/file-upload/direct-link-tab-section'
 
 type TProps = {
   directLink: (uploadedFile: TUploadedFile) => void
@@ -47,14 +46,7 @@ const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
   return (
     <TabsContent value="directLink">
       <FormItem className="w-full">
-        <div className="flex w-full items-center">
-          <div className="w-4/5">
-            <Input variant="medium" className="w-full" placeholder="Paste URL here" value={evidenceDirectLink} onChange={(e) => setEvidenceDirectLink(e.target.value)} disabled={evidenceLinkAdded} />
-          </div>
-          <div className="w-1/5 flex justify-center">
-            <PlusCircle className="w-8 h-8 text-primary cursor-pointer hover:scale-105 transition-transform" onClick={handleAddLink} />
-          </div>
-        </div>
+        <DirectLinkTabSection setLink={setEvidenceDirectLink} handleAddProcedureLink={handleAddLink} ariaLabel={'Create evidence'} />
         {props.form.formState.errors.url && <p className="text-red-500 text-sm">{props.form.formState.errors.url.message}</p>}
       </FormItem>
     </TabsContent>

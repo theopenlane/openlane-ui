@@ -14,7 +14,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     referenceID
     auditorReferenceID
     source
-    controlType
+    controlKindName
     subcontrols {
       totalCount
     }
@@ -37,13 +37,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       logoURL
       gravatarLogoURL
     }
-    controlObjectives {
-      edges {
-        node {
-          desiredOutcome
-        }
-      }
-    }
+
     controlImplementations {
       edges {
         node {
@@ -51,10 +45,66 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    comments {
+      totalCount
+    }
     updatedAt
     updatedBy
     createdAt
     createdBy
+    controlObjectives {
+      edges {
+        node {
+          desiredOutcome
+        }
+      }
+    }
+    tasks {
+      edges {
+        node {
+          id
+          title
+        }
+      }
+      totalCount
+    }
+    internalPolicies {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      totalCount
+    }
+    procedures {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      totalCount
+    }
+
+    programs {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    risks {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      totalCount
+    }
   }
 `
 
@@ -97,6 +147,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     status
     tags
     description
+    descriptionJSON
     implementationGuidance
     exampleEvidence
     controlQuestions
@@ -104,7 +155,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     assessmentObjectives
     displayID
     source
-    controlType
+    controlKindName
     auditorReferenceID
     referenceID
     referenceFramework
@@ -154,79 +205,6 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
         }
       }
     }
-    internalPolicies {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-          approver {
-            gravatarLogoURL
-            logoURL
-            displayName
-          }
-        }
-      }
-    }
-    procedures {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-          approver {
-            gravatarLogoURL
-            logoURL
-            displayName
-          }
-        }
-      }
-    }
-    tasks {
-      totalCount
-      edges {
-        node {
-          id
-          title
-          displayID
-          details
-          assignee {
-            displayName
-            avatarFile {
-              presignedURL
-            }
-            avatarRemoteURL
-          }
-        }
-      }
-    }
-    programs {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          status
-          description
-        }
-      }
-    }
-    risks {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          details
-        }
-      }
-    }
     delegate {
       id
       displayName
@@ -248,6 +226,7 @@ export const GET_ALL_CONTROLS = gql`
     controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
+          __typename
           ...ControlListFields
         }
         cursor
@@ -268,6 +247,90 @@ export const GET_CONTROL_BY_ID = gql`
   query GetControlById($controlId: ID!) {
     control(id: $controlId) {
       ...ControlDetailsFields
+    }
+  }
+`
+
+export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
+  query GetControlAssociationsById($controlId: ID!) {
+    control(id: $controlId) {
+      internalPolicies {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+            approver {
+              gravatarLogoURL
+              logoURL
+              displayName
+            }
+          }
+        }
+        totalCount
+      }
+
+      procedures {
+        edges {
+          node {
+            id
+            name
+            displayID
+            summary
+            approver {
+              gravatarLogoURL
+              logoURL
+              displayName
+            }
+          }
+        }
+        totalCount
+      }
+
+      tasks {
+        edges {
+          node {
+            id
+            title
+            displayID
+            details
+            assignee {
+              displayName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+            }
+          }
+        }
+        totalCount
+      }
+
+      programs {
+        edges {
+          node {
+            id
+            name
+            displayID
+            status
+            description
+          }
+        }
+        totalCount
+      }
+
+      risks {
+        edges {
+          node {
+            id
+            name
+            displayID
+            details
+          }
+        }
+        totalCount
+      }
     }
   }
 `
@@ -299,9 +362,27 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
   }
 `
 
+export const GET_CONTROL_NOT_IMPLEMENTED_COUNT = gql`
+  query GetNotImplementedControlCount {
+    controls(where: { status: NOT_IMPLEMENTED, systemOwned: false }) {
+      totalCount
+    }
+  }
+`
+
 export const CREATE_CSV_BULK_CONTROL = gql`
   mutation CreateBulkCSVControl($input: Upload!) {
     createBulkCSVControl(input: $input) {
+      controls {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_CSV_BULK_CONTROL = gql`
+  mutation UpdateBulkCSVControl($input: Upload!) {
+    updateBulkCSVControl(input: $input) {
       controls {
         id
       }
@@ -522,6 +603,145 @@ export const BULK_DELETE_CONTROL = gql`
   mutation DeleteBulkControl($ids: [ID!]!) {
     deleteBulkControl(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
+  query GetSuggestedControlsOrSubcontrols($where: MappedControlWhereInput) {
+    mappedControls(where: $where) {
+      edges {
+        node {
+          id
+          source
+          fromControls {
+            edges {
+              node {
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+          toControls {
+            edges {
+              node {
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+          fromSubcontrols {
+            edges {
+              node {
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+          toSubcontrols {
+            edges {
+              node {
+                id
+                referenceFramework
+                refCode
+                __typename
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
+  query GetExistingControlsForOrganization($where: ControlWhereInput) {
+    controls(where: $where) {
+      edges {
+        node {
+          id
+          refCode
+          referenceFramework
+          standardID
+          ownerID
+          systemOwned
+        }
+      }
+    }
+  }
+`
+
+export const CONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment ControlDiscussionFields on Control {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_DISCUSSION_BY_ID = gql`
+  ${CONTROL_DISCUSSION_FIELDS_FRAGMENT}
+  query GetControlDiscussionById($controlId: ID!) {
+    control(id: $controlId) {
+      ...ControlDiscussionFields
+    }
+  }
+`
+
+export const INSERT_CONTROL_PLATE_COMMENT = gql`
+  mutation InsertControlPlateComment($updateControlId: ID!, $input: UpdateControlInput!) {
+    updateControl(id: $updateControlId, input: $input) {
+      control {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 `

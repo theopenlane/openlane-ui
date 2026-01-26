@@ -2,16 +2,15 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Value } from 'platejs'
 
 const formSchema = z.object({
-  category: z
-    .nativeEnum(TaskTypes, {
-      errorMap: () => ({ message: 'Invalid status' }),
+  taskKindName: z
+    .string({
+      errorMap: () => ({ message: 'Invalid category' }),
     })
-    .default(TaskTypes.EVIDENCE),
+    .default('Evidence'),
   title: z.string().min(2, {
     message: 'Title must be at least 2 characters',
   }),

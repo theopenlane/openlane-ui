@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { Evidence, EvidenceOrderField, EvidenceWhereInput, GetEvidenceListQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -10,28 +10,37 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
-import { getEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
+import { useGetEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { canEdit } from '@/lib/authz/utils'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.EVIDENCE)
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>([
+  const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
+  const { data: permission } = useOrganizationRoles()
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>(defaultSorting)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -49,7 +58,8 @@ export const EvidenceTable = () => {
   }, [orderBy])
 
   const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
+    id: false,
     collectionProcedure: false,
     source: false,
     creationDate: false,
@@ -59,7 +69,9 @@ export const EvidenceTable = () => {
     createdAt: false,
     updatedAt: false,
     description: false,
-  })
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.EVIDENCE, defaultVisibility))
 
   const userIds = useMemo(() => {
     if (!evidences) return []
@@ -84,7 +96,7 @@ export const EvidenceTable = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = useMemo(() => getEvidenceColumns({ userMap }), [userMap])
+  const { columns, mappedColumns } = useGetEvidenceColumns({ userMap, selectedEvidence, setSelectedEvidence })
 
   useEffect(() => {
     setCrumbs([
@@ -119,11 +131,16 @@ export const EvidenceTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        selectedEvidence={selectedEvidence}
+        setSelectedEvidence={setSelectedEvidence}
+        canEdit={canEdit}
+        permission={permission}
       />
 
       <DataTable
         sortFields={EVIDENCE_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
+        defaultSorting={defaultSorting}
         columns={columns}
         data={evidences}
         onRowClick={handleRowClick}
@@ -133,6 +150,7 @@ export const EvidenceTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.EVIDENCE}
       />
     </>
   )

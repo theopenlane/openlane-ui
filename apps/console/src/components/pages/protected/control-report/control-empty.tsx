@@ -60,7 +60,7 @@ export function ControlsEmptyActions() {
               {dialog ? (
                 dialog
               ) : (
-                <Button className={featured ? 'btn-secondary' : ''}>
+                <Button variant={featured ? 'secondary' : 'primary'}>
                   <Link href={action.href}>{action.label}</Link>
                 </Button>
               )}

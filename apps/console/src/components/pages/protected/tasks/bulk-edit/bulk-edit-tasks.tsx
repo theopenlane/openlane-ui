@@ -25,6 +25,9 @@ import {
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -63,6 +66,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
 
   const { data: session } = useSession()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+
   const membersOptions = useMemo(() => {
     if (!membersData) return []
     return membersData?.organization?.members?.edges?.map((member) => ({
@@ -71,9 +75,16 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
     }))
   }, [membersData])
 
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
+
   const allOptionSelects = useMemo(() => {
-    return getAllSelectOptionsForBulkEditTasks(membersOptions)
-  }, [membersOptions])
+    return getAllSelectOptionsForBulkEditTasks(membersOptions, taskKindOptions)
+  }, [membersOptions, taskKindOptions])
 
   const { control, handleSubmit, watch } = form
 
@@ -242,7 +253,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                   </div>
                 )
               })}
-              {fields.length < 4 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditTasks).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
@@ -260,18 +271,13 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
               ) : null}
             </div>
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

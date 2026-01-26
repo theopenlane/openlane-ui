@@ -8,6 +8,7 @@ import { ProcedureDocumentStatus, ProcedureFrequency } from '@repo/codegen/src/s
 const formSchema = z.object({
   name: z.string(),
   details: z.custom<Value | string>().optional(),
+  detailsJSON: z.custom<Value>().optional(),
   status: z
     .nativeEnum(ProcedureDocumentStatus, {
       errorMap: () => ({ message: 'Invalid status' }),
@@ -19,7 +20,7 @@ const formSchema = z.object({
       errorMap: () => ({ message: 'Invalid status' }),
     })
     .default(ProcedureFrequency.YEARLY),
-  procedureType: z.string(),
+  procedureKindName: z.string().optional(),
   reviewDue: z.date().optional().nullable(),
   tags: z.array(z.string().optional()),
   programIDs: z.array(z.any()).optional(),
@@ -44,7 +45,7 @@ const useFormSchema = () => {
         status: ProcedureDocumentStatus.DRAFT,
         reviewFrequency: ProcedureFrequency.YEARLY,
         tags: [],
-        procedureType: '',
+        procedureKindName: '',
       },
     }),
   }

@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useDeleteRisk, useGetRiskById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
+import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { Form } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
+import { PencilIcon, Trash2 } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canDelete, canEdit } from '@/lib/authz/utils.ts'
@@ -29,6 +28,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/risks/[id]/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TRisksPageProps = {
   riskId: string
@@ -51,6 +52,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const { data: discussionData } = useGetRiskDiscussionById(riskId)
   const memoizedSections = useMemo(() => {
     if (!risk) return {}
     return {
@@ -83,13 +85,14 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     if (risk) {
       form.reset({
         name: risk.name ?? '',
-        riskType: risk.riskType ?? '',
-        category: risk.category ?? '',
+        riskKindName: risk.riskKindName ?? undefined,
+        riskCategoryName: risk.riskCategoryName ?? undefined,
         score: risk.score ?? 0,
         impact: risk.impact ?? RiskRiskImpact.LOW,
         likelihood: risk.likelihood ?? RiskRiskLikelihood.UNLIKELY,
         status: risk.status ?? RiskRiskStatus.OPEN,
         details: risk.details ?? '',
+        detailsJSON: risk.detailsJSON ?? undefined,
         mitigation: risk.mitigation ?? '',
         businessCosts: risk.businessCosts ?? '',
         tags: risk.tags || [],
@@ -129,11 +132,6 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       return
     }
 
-    let detailsField = values?.details
-
-    if (detailsField) {
-      detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-    }
     let businessCostsField = values?.businessCosts
 
     if (businessCostsField) {
@@ -148,10 +146,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
     try {
       await updateRisk({
-        id: risk.id,
+        updateRiskId: risk.id,
         input: {
           ...values,
-          details: detailsField,
+          detailsJSON: values.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
           businessCosts: businessCostsField,
           mitigation: mitigationField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
@@ -178,7 +177,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const handleUpdateField = async (input: UpdateRiskInput) => {
     if (!risk.id) return
     try {
-      await updateRisk({ id: risk.id, input })
+      await updateRisk({ updateRiskId: risk.id, input })
       successNotification({
         title: 'Risk updated',
         description: 'The risk was successfully updated.',
@@ -203,7 +202,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const sidebarContent = (
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <Card className="p-4 !mt-2 flex flex-col gap-4">
+      <Card className="p-4 mt-2! flex flex-col gap-4">
         <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
         <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
         <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
@@ -215,12 +214,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isPending}>
-            {isPending ? 'Saving' : 'Save'}
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton disabled={isPending} isSaving={isPending} />
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
@@ -267,7 +262,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const mainContent = (
     <div className="space-y-6 p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
-      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} discussionData={discussionData?.risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
       <MitigationField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
     </div>

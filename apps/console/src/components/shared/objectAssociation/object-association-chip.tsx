@@ -38,7 +38,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind }) => {
           <ObjectsChip name={displayText} objectType={objectKind}></ObjectsChip>
         </TooltipTrigger>
 
-        <TooltipContent side="top" className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]">
+        <TooltipContent side="top" className="bg-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]">
           <div>
             <div className="grid grid-cols-[auto_1fr] gap-y-2">
               <div className="flex items-center gap-1 border-b pb-2">

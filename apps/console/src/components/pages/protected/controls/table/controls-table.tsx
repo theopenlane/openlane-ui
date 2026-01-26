@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useMemo, useState, useEffect, useContext } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import {
   ControlControlStatus,
@@ -26,10 +26,15 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
-import TabSwitcher from '@/components/shared/control-switcher/tab-switcher.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
+import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -44,20 +49,21 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, ControlOrderField, [
     {
       field: ControlOrderField.ref_code,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
+    id: false,
     referenceID: false,
     auditorReferenceID: false,
     category: false,
     subcategory: false,
     source: false,
-    controlType: false,
     referenceFramework: false,
     delegate: false,
     createdBy: false,
@@ -66,10 +72,16 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     updatedAt: false,
     controlImplementationsDetails: false,
     desiredOutcome: false,
-  })
+    linkedProcedures: false,
+    linkedPolicies: false,
+    associatedObjects: false,
+    comments: false,
+  }
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CONTROL, defaultVisibility))
+
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.CONTROLS)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 
@@ -109,6 +121,22 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     return { ...base, ...result }
   }, [filters])
 
+  const whereWithSearch: ControlWhereInput = useMemo(() => {
+    const baseWhere = { ...whereFilter, ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        ...(baseWhere.and || []),
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [whereFilter, debouncedSearch])
+
   useEffect(() => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
@@ -126,7 +154,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   }, [setCrumbs])
 
   const { controls, isError, paginationMeta, isLoading, isFetching } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...whereFilter },
+    where: whereWithSearch,
     orderBy,
     pagination,
     enabled: !!filters,
@@ -166,7 +194,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls }), [convertToReadOnly, userMap, selectedControls])
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+    .filter((column): column is { accessorKey: string; header: string } => typeof column.header === 'string')
     .map((column) => ({
       accessorKey: column.accessorKey,
       header: column.header,
@@ -188,7 +216,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     handleExport({
       exportType: ExportExportType.CONTROL,
       filters: JSON.stringify(whereFilter),
-      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }
@@ -202,7 +230,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
-          <TabSwitcher active={active} setActive={setActive} />
+          <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
         </div>
       </div>
       <ControlsTableToolbar
@@ -226,6 +254,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       <DataTable
         columns={columns}
         data={controls}
+        defaultSorting={defaultSorting}
         onRowClick={handleRowClick}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
@@ -235,6 +264,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         loading={fetchingUsers || isLoading || isFetching}
+        tableKey={TableKeyEnum.CONTROL}
       />
     </div>
   )

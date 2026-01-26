@@ -17,6 +17,7 @@ import {
   UPDATE_ORGANIZATION,
   GET_ORGANIZATION_BILLING_BANNER,
   UPDATE_ORG_SETTING,
+  TRANSFER_ORGANIZATION_OWNERSHIP,
 } from '@repo/codegen/query/organization'
 import {
   GetAllOrganizationsQuery,
@@ -48,6 +49,8 @@ import {
   OrgMembershipWhereInput,
   UpdateOrganizationSettingMutationVariables,
   UpdateOrganizationSettingMutation,
+  TransferOrganizationOwnershipMutationVariables,
+  TransferOrganizationOwnershipMutation,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
@@ -249,5 +252,13 @@ export const useUpdateOrganizationSetting = () => {
 
   return useMutation({
     mutationFn: (payload: UpdateOrganizationSettingMutationVariables) => client.request<UpdateOrganizationSettingMutation>(UPDATE_ORG_SETTING, payload),
+  })
+}
+
+export const useTransferOrganizationOwnership = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: (payload: TransferOrganizationOwnershipMutationVariables) => client.request<TransferOrganizationOwnershipMutation>(TRANSFER_ORGANIZATION_OWNERSHIP, payload),
   })
 }

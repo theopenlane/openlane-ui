@@ -4,7 +4,9 @@ import {
   Building2,
   DollarSign,
   FileBadge2,
+  FileText,
   Fingerprint,
+  Globe,
   GlobeLock,
   Handshake,
   History,
@@ -14,16 +16,22 @@ import {
   MailCheck,
   NotebookPen,
   ScrollText,
+  Server,
   ServerCog,
-  Settings,
   Settings2,
   SettingsIcon,
   ShieldCheck,
+  Tag,
   UserCog,
   UserRoundPen,
   UserRoundPlus,
   Users,
   Workflow,
+  Megaphone,
+  Paintbrush,
+  Component,
+  LockKeyhole,
+  LayoutDashboard,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -106,10 +114,38 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
     hidden: session?.user?.isOnboarding,
     children: [
       {
-        title: 'Settings',
-        href: '/trust-center/settings',
-        icon: Settings,
+        title: 'Overview',
+        href: '/trust-center/overview',
+        icon: LayoutDashboard,
       },
+      {
+        title: 'Branding',
+        href: '/trust-center/branding',
+        icon: Paintbrush,
+      },
+      {
+        title: 'Domain',
+        href: '/trust-center/domain',
+        icon: Globe,
+      },
+      {
+        title: 'Documents',
+        href: '/trust-center/documents',
+        icon: FileText,
+      },
+      {
+        title: 'NDAs',
+        href: '/trust-center/NDAs',
+        icon: LockKeyhole,
+      },
+      {
+        title: 'Frameworks',
+        href: '/trust-center/frameworks',
+        icon: ShieldCheck,
+      },
+      { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
+      { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
+      { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
     ],
   },
 ]
@@ -131,6 +167,11 @@ export const bottomNavigationItems = (orgPermission?: TData, session?: Session):
         title: 'Authentication',
         href: '/organization-settings/authentication',
         icon: GlobeLock,
+      },
+      {
+        title: 'Custom Data',
+        href: '/organization-settings/custom-data',
+        icon: Tag,
       },
       {
         title: 'Subscribers',

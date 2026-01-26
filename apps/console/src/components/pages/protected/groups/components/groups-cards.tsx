@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Group } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 interface Props {
   groups: Group[]
@@ -42,17 +42,13 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
               {group?.tags && group?.tags?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {group.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline">
-                      {tag}
-                    </Badge>
+                    <TagChip key={index} tag={tag} />
                   ))}
                 </div>
               )}
               {group.members && (group.members?.edges?.length || 0) > 0 ? (
                 <div className="flex items-center gap-2">
-                  {group.members.edges?.slice(0, 9).map((member, index: number) => (
-                    <Avatar key={index} className="h-8 w-8" entity={member?.node?.user} />
-                  ))}
+                  {group.members.edges?.slice(0, 9).map((member, index: number) => <Avatar key={index} className="h-8 w-8" entity={member?.node?.user} />)}
 
                   {(group.members?.edges?.length || 0) > 9 && (
                     <TooltipProvider disableHoverableContent={false}>

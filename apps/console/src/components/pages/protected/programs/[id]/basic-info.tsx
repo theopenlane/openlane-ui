@@ -14,8 +14,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
-import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/members'
@@ -25,6 +23,10 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Label } from '@repo/ui/label'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -56,6 +58,7 @@ const BasicInformation = () => {
 
   const { standardOptions } = useStandardsSelect({})
   const standardOptionsNormalized = standardOptions.map((s) => ({ label: s.label, value: s.value }))
+  const { tagOptions } = useGetTags()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -142,7 +145,7 @@ const BasicInformation = () => {
             {!isEditing && isEditAllowed && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
-                className="!h-8 !p-2"
+                className="h-8! p-2!"
                 variant="secondary"
                 type="button"
                 icon={<Pencil />}
@@ -154,12 +157,8 @@ const BasicInformation = () => {
             )}
             {isEditing && (
               <div className="flex gap-2">
-                <Button className="!h-8 !p-2" variant="secondary" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                  Save
-                </Button>
-                <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <SaveButton disabled={isPending} />
+                <CancelButton onClick={handleCancel}></CancelButton>
               </div>
             )}
           </div>
@@ -176,20 +175,21 @@ const BasicInformation = () => {
           {/* Type */}
           <div className="flex border-b pb-3 items-center">
             <Label className="block w-32 shrink-0">Type</Label>
-            {program?.programType && <span>{ProgramTypeLabels[program.programType] || '-'}</span>}
+            <span>{program?.programKindName || '-'}</span>
           </div>
           {/* Framework */}
           <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" /> {/* Tags */}
           {(isEditing || (program?.tags && program.tags.length > 0)) && (
             <div className="flex border-b pb-3 items-center">
               <Label className="block w-32 shrink-0">Tags</Label>
-              <div className="text-sm text-left w-full">
+              <div className="text-sm text-left flex gap-2 w-full">
                 {isEditing ? (
                   <Controller
                     name="tags"
                     control={form.control}
                     render={({ field }) => (
                       <MultipleSelector
+                        options={tagOptions}
                         placeholder="Add tag..."
                         creatable
                         className="w-full"
@@ -204,11 +204,7 @@ const BasicInformation = () => {
                     )}
                   />
                 ) : (
-                  program?.tags?.map((tag, i) => (
-                    <Badge key={i} variant={'outline'}>
-                      {tag}
-                    </Badge>
-                  ))
+                  program?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)
                 )}
               </div>
             </div>
@@ -224,7 +220,7 @@ const BasicInformation = () => {
                   isEditing ? (
                     <Textarea {...field} value={field.value ?? ''} placeholder="Add a description..." />
                   ) : (
-                    <p className={`${!program?.description && '!text-neutral-400'}`}>{program?.description || '—'}</p>
+                    <p className={`${!program?.description && 'text-neutral-400!'}`}>{program?.description || '—'}</p>
                   )
                 }
               />
@@ -250,7 +246,7 @@ const BasicInformation = () => {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className={`${!programOwnerDisplayName && '!text-neutral-400'}`}>{programOwnerDisplayName || '—'}</p>
+                    <p className={`${!programOwnerDisplayName && 'text-neutral-400!'}`}>{programOwnerDisplayName || '—'}</p>
                   )
                 }
               />
@@ -327,7 +323,7 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
                 )}
               </div>
             ) : (
-              <p className={`${!program?.frameworkName && '!text-neutral-400'}`}>{program?.frameworkName || '—'}</p>
+              <p className={`${!program?.frameworkName && 'text-neutral-400!'}`}>{program?.frameworkName || '—'}</p>
             )
           }}
         />

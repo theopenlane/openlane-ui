@@ -69,7 +69,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the policy later.</p>} />
             </div>
             <FormControl>
-              <Input {...field} onBlur={() => handleBlur(field.value)} onKeyDown={handleKeyDown} autoFocus className="w-full" />
+              <Input {...field} onBlur={() => handleBlur(field.value!)} onKeyDown={handleKeyDown} autoFocus className="w-full" />
             </FormControl>
             {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
           </FormItem>

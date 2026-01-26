@@ -1,4 +1,3 @@
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 import { z } from 'zod'
 import { FieldValues, UseFormReturn, Path } from 'react-hook-form'
 import { TErrorProps } from '@/hooks/useNotification'
@@ -8,7 +7,7 @@ export const categoriesStepSchema = z.object({
 })
 
 export const step1Schema = z.object({
-  programType: z.nativeEnum(ProgramProgramType, {
+  programKindName: z.string({
     required_error: 'Please select a program type',
   }),
 })
@@ -21,13 +20,13 @@ export const step2Schema = z
     endDate: z.date().nullable().optional(),
     framework: z.string().optional(),
     standardID: z.string().optional(),
-    programType: z.nativeEnum(ProgramProgramType).optional(),
+    programKindName: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     const now = new Date()
 
     // ✅ Framework requirement
-    if (data.programType === ProgramProgramType.FRAMEWORK && !data.framework) {
+    if (data.programKindName === 'Framework' && !data.framework) {
       ctx.addIssue({
         path: ['framework'],
         code: z.ZodIssueCode.custom,
@@ -141,7 +140,7 @@ export type WizardValues = z.infer<typeof fullSchema>
 
 export async function validateStepAndNotify<T extends FieldValues>(methods: UseFormReturn<T>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> {
   const stepFieldMap: Record<string, Path<T>> = {
-    '0': 'programType' as Path<T>,
+    '0': 'programKindName' as Path<T>,
   }
 
   const field = stepFieldMap[stepId]

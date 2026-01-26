@@ -12,6 +12,10 @@ import {
   GET_INTERNAL_POLICIES_DASHBOARD,
   GET_POLICY_SUGGESTED_ACTIONS,
   BULK_DELETE_POLICY,
+  GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID,
+  INSERT_POLICY_COMMENT,
+  GET_POLICY_DISCUSSION_BY_ID,
+  UPDATE_POLICY_COMMENT,
 } from '@repo/codegen/query/policy'
 import {
   CreateBulkCsvInternalPolicyMutation,
@@ -27,24 +31,54 @@ import {
   GetInternalPoliciesDashboardQuery,
   GetInternalPoliciesListQuery,
   GetInternalPoliciesListQueryVariables,
+  GetInternalPolicyAssociationsByIdQuery,
+  GetInternalPolicyAssociationsByIdQueryVariables,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
+  GetPolicyDiscussionByIdQuery,
   InternalPolicy,
   PolicySuggestedActionsQuery,
   UpdateBulkInternalPolicyMutation,
   UpdateBulkInternalPolicyMutationVariables,
+  InsertInternalPolicyCommentMutation,
+  InsertInternalPolicyCommentMutationVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
+  UpdatePolicyCommentMutation,
+  UpdatePolicyCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useSession } from 'next-auth/react'
+import { wherePoliciesDashboard } from '@/components/pages/protected/policies/policies-dashboard/dashboard-config.ts'
 
 type UseInternalPoliciesArgs = {
   where?: GetInternalPoliciesListQueryVariables['where']
   orderBy?: GetInternalPoliciesListQueryVariables['orderBy']
   pagination?: TPagination
   enabled?: boolean
+}
+
+export const useInternalPoliciesCount = (pagination: TPagination) => {
+  const { client } = useGraphQLClient()
+  const where = {
+    ...wherePoliciesDashboard,
+  }
+
+  const queryResult = useQuery<GetInternalPoliciesListQuery>({
+    queryKey: ['internalPolicies', where, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request(GET_INTERNAL_POLICIES_LIST, {
+        where,
+        ...pagination?.query,
+      }),
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
+    isLoading: queryResult.isFetching,
+  }
 }
 
 export const useInternalPolicies = ({ where, orderBy, pagination, enabled }: UseInternalPoliciesArgs) => {
@@ -94,6 +128,19 @@ export const useGetInternalPolicyDetailsById = (internalPolicyId: string | null,
   return useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({
     queryKey: ['internalPolicies', internalPolicyId],
     queryFn: async () => client.request(GET_INTERNAL_POLICY_DETAILS_BY_ID, { internalPolicyId }),
+    enabled: !!internalPolicyId && enabled,
+  })
+}
+
+export const useGetInternalPolicyAssociationsById = (internalPolicyId: string | null, enabled: boolean = true) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetInternalPolicyAssociationsByIdQuery, GetInternalPolicyAssociationsByIdQueryVariables>({
+    queryKey: ['internalPolicies', internalPolicyId, 'associations'],
+    queryFn: async () =>
+      client.request(GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID, {
+        internalPolicyId,
+      }),
     enabled: !!internalPolicyId && enabled,
   })
 }
@@ -221,6 +268,39 @@ export const useBulkDeletePolicy = () => {
     mutationFn: async (variables) => client.request(BULK_DELETE_POLICY, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    },
+  })
+}
+
+export const POLICY_DISCUSSION_QUERY_KEY = 'policyDiscussion'
+
+export const useGetPolicyDiscussionById = (policyId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetPolicyDiscussionByIdQuery, unknown>({
+    queryKey: [POLICY_DISCUSSION_QUERY_KEY, policyId],
+    queryFn: async () => client.request(GET_POLICY_DISCUSSION_BY_ID, { policyId }),
+    enabled: !!policyId,
+  })
+}
+
+export const useInsertPolicyComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<InsertInternalPolicyCommentMutation, unknown, InsertInternalPolicyCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(INSERT_POLICY_COMMENT, variables)
+    },
+  })
+}
+
+export const useUpdatePolicyComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdatePolicyCommentMutation, unknown, UpdatePolicyCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_POLICY_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['policyComments', data.updateInternalPolicyComment.internalPolicy.id] })
     },
   })
 }

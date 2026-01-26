@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo, useEffect, useContext } from 'react'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
@@ -22,33 +22,37 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedures'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
-import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 export const ProceduresTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.PROCEDURES)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
-  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROCEDURE, ProcedureOrderField, [
     {
       field: ProcedureOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
+  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>(defaultSorting)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -115,11 +119,12 @@ export const ProceduresTable = () => {
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  const defaultVisibility: VisibilityState = {
+    id: false,
     approvalRequired: false,
     approver: false,
     delegate: false,
-    procedureType: false,
+    procedureKindName: false,
     reviewDue: false,
     reviewFrequency: false,
     revision: false,
@@ -127,7 +132,11 @@ export const ProceduresTable = () => {
     tags: false,
     createdAt: false,
     createdBy: false,
-  })
+    linkedPolicies: false,
+    linkedControls: false,
+  }
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.PROCEDURE, defaultVisibility))
   const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures })
 
   const handleCreateNew = async () => {
@@ -150,7 +159,7 @@ export const ProceduresTable = () => {
     handleExport({
       exportType: ExportExportType.PROCEDURE,
       filters: JSON.stringify(where),
-      fields: columns.filter(isVisibleColumn).map((item) => item.accessorKey),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })
   }
@@ -227,6 +236,8 @@ export const ProceduresTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        defaultSorting={defaultSorting}
+        tableKey={TableKeyEnum.PROCEDURE}
       />
     </>
   )

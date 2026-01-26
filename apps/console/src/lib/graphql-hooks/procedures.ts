@@ -11,6 +11,10 @@ import {
   BULK_EDIT_PROCEDURE,
   CREATE_UPLOAD_PROCEDURE,
   BULK_DELETE_PROCEDURE,
+  GET_PROCEDURE_ASSOCIATIONS_BY_ID,
+  INSERT_PROCEDURE_COMMENT,
+  GET_PROCEDURE_DISCUSSION_BY_ID,
+  UPDATE_PROCEDURE_COMMENT,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -34,6 +38,13 @@ import {
   CreateUploadProcedureMutationVariables,
   DeleteBulkProcedureMutation,
   DeleteBulkProcedureMutationVariables,
+  GetProcedureAssociationsByIdQuery,
+  GetProcedureAssociationsByIdQueryVariables,
+  InsertProcedureCommentMutation,
+  InsertProcedureCommentMutationVariables,
+  GetProcedureDiscussionByIdQuery,
+  UpdateProcedureCommentMutation,
+  UpdateProcedureCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -105,6 +116,19 @@ export const useGetProcedureDetailsById = (procedureId: string | null, enabled: 
   })
 }
 
+export const useGetProcedureAssociationsById = (procedureId: string | null, enabled: boolean = true) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProcedureAssociationsByIdQuery, unknown>({
+    queryKey: ['procedures', procedureId, 'associations'],
+    queryFn: async () =>
+      client.request<GetProcedureAssociationsByIdQuery, GetProcedureAssociationsByIdQueryVariables>(GET_PROCEDURE_ASSOCIATIONS_BY_ID, {
+        procedureId: procedureId as string,
+      }),
+    enabled: !!procedureId && enabled,
+  })
+}
+
 export const useCreateProcedure = () => {
   const { client, queryClient } = useGraphQLClient()
 
@@ -171,6 +195,39 @@ export const useBulkDeleteProcedures = () => {
     mutationFn: async (variables) => client.request(BULK_DELETE_PROCEDURE, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
+    },
+  })
+}
+
+export const PROCEDURE_DISCUSSION_QUERY_KEY = 'procedureDiscussion'
+
+export const useGetProcedureDiscussionById = (procedureId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProcedureDiscussionByIdQuery, unknown>({
+    queryKey: [PROCEDURE_DISCUSSION_QUERY_KEY, procedureId],
+    queryFn: async () => client.request(GET_PROCEDURE_DISCUSSION_BY_ID, { procedureId }),
+    enabled: !!procedureId,
+  })
+}
+
+export const useInsertProcedureComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<InsertProcedureCommentMutation, unknown, InsertProcedureCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(INSERT_PROCEDURE_COMMENT, variables)
+    },
+  })
+}
+
+export const useUpdateProcedureComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateProcedureCommentMutation, unknown, UpdateProcedureCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_PROCEDURE_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['procedureComments', data.updateProcedureComment.procedure.id] })
     },
   })
 }

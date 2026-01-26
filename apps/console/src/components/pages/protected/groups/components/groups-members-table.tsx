@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
@@ -16,6 +16,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 interface Member {
   id: string
@@ -159,7 +160,7 @@ const GroupsMembersTable = () => {
     },
   ]
 
-  return <DataTable columns={columns} data={users} />
+  return <DataTable columns={columns} data={users} tableKey={TableKeyEnum.GROUP_MEMBERS} />
 }
 
 export default GroupsMembersTable

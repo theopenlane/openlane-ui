@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus, X } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -10,7 +10,6 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { useRouter } from 'next/navigation'
 import { CreateEvidenceInput } from '@repo/codegen/src/schema'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,7 +22,7 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import { TUploadedFile } from './upload/types/TUploadedFile'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
@@ -32,6 +31,14 @@ import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/ob
 import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
 import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
+import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
+import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
+import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import Link from 'next/link'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from 'platejs'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -40,7 +47,7 @@ type TEvidenceCreateSheetProps = {
   defaultSelectedObject?: ObjectTypeObjects
   open: boolean
   onOpenChange: (open: boolean) => void
-  controlIdsFromControl?: { controlIdFromControl: string; subcontrolIdFromControl: string | undefined }
+  controlParam?: CustomEvidenceControl[]
 }
 
 const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
@@ -50,7 +57,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   defaultSelectedObject,
   open,
   onOpenChange,
-  controlIdsFromControl,
+  controlParam,
 }: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
@@ -61,19 +68,24 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
-  const router = useRouter()
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
-
-  const [associationControlsRefMap, setAssociationControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsRefMap, setAssociationSubControlsRefMap] = useState<string[]>([])
-  const [associationSubControlsFrameworksMap, setAssociationSubControlsFrameworksMap] = useState<Record<string, string>>({})
-  const [associationControlsFrameworksMap, setAssociationControlsFrameworksMap] = useState<Record<string, string>>({})
+  const router = useRouter()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
+
+  const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
+  const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
+  const { tagOptions } = useGetTags()
+
+  const { convertToHtml } = usePlateEditor()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
+    if (data.collectionProcedure) {
+      data.collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
+    }
     const formData = {
       input: {
         name: data.name,
@@ -88,7 +100,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : data.programIDs ?? [],
+        programIDs: programId ? [programId] : (data.programIDs ?? []),
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -96,27 +108,43 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
     try {
       const res = await createEvidence(formData)
-      successNotification({
-        title: 'Evidence Created',
-        description: `Evidence has been successfully created`,
-      })
       queryClient.invalidateQueries({
         predicate: (query) => {
           const key = query.queryKey[0]
-          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives'].includes(key as string)
+          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key as string)
         },
       })
 
       if (onEvidenceCreateSuccess) {
         onEvidenceCreateSuccess()
       }
-
-      const { controlIdFromControl, subcontrolIdFromControl } = controlIdsFromControl || {}
+      setEvidenceSubcontrols(null)
+      setEvidenceControls(null)
+      form.reset()
 
       if (!res.createEvidence.evidence.id) return
-      if (subcontrolIdFromControl) router.push(`/controls/${controlIdFromControl}/${subcontrolIdFromControl}?controlEvidenceId=${res.createEvidence.evidence.id}`)
-      else if (!subcontrolIdFromControl && controlIdFromControl) router.push(`/controls/${controlIdFromControl}?controlEvidenceId=${res.createEvidence.evidence.id}`)
-      else router.push(`/evidence?id=${res.createEvidence.evidence.id}`)
+      const id = res.createEvidence.evidence.id
+      if (defaultSelectedObject === ObjectTypeObjects.TASK || defaultSelectedObject === ObjectTypeObjects.CONTROL) {
+        successNotification({
+          title: 'Evidence Created',
+          description: (
+            <>
+              Evidence has been successfully created.{' '}
+              <Link href={`/evidence?id=${id}`} className="text-blue-600 underline">
+                View Evidence
+              </Link>
+            </>
+          ),
+        })
+        onOpenChange(false)
+        return
+      } else {
+        successNotification({
+          title: 'Evidence Created',
+          description: `Evidence has been successfully created`,
+        })
+        router.push(`/evidence?id=${id}`)
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -127,6 +155,22 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   }
   const handleInitialValue = useCallback(() => {
     if (formData) {
+      if (controlParam && controlParam.length) {
+        const newEvidenceControls: CustomEvidenceControl[] = []
+        const newEvidenceSubcontrols: CustomEvidenceControl[] = []
+
+        controlParam.forEach((control) => {
+          if (control.__typename === 'Control') {
+            newEvidenceControls.push(control)
+          } else {
+            newEvidenceSubcontrols.push(control)
+          }
+        })
+
+        setEvidenceControls(newEvidenceControls)
+        setEvidenceSubcontrols(newEvidenceSubcontrols)
+      }
+
       form.setValue('name', `Evidence for ${formData.displayID}`)
       for (const [key, value] of Object.entries(formData.objectAssociations)) {
         form.setValue(key as keyof CreateEvidenceFormData, value)
@@ -147,16 +191,48 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         form.setValue('programIDs', formData.objectAssociations.programIDs ? formData.objectAssociations.programIDs : [])
         form.setValue('subcontrolIDs', formData.objectAssociations.subcontrolIDs ? formData.objectAssociations.subcontrolIDs : [])
 
-        setAssociationControlsRefMap(formData.controlRefCodes ? formData.controlRefCodes : [])
-        setAssociationControlsFrameworksMap(formData.referenceFramework || {})
-
-        setAssociationSubControlsRefMap(formData.subcontrolRefCodes ? formData.subcontrolRefCodes : [])
-        setAssociationSubControlsFrameworksMap(formData.subcontrolReferenceFramework || {})
-
         setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
       }
     }
-  }, [form, formData])
+  }, [form, formData, controlParam])
+
+  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
+
+  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
+    where: where,
+    enabled: !!where,
+  })
+
+  const { data: standards } = useGetStandards({})
+
+  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
+
+  const suggestedItems = useMemo(() => {
+    if (!mappedControls) return []
+
+    return flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
+      .map((item) => ({
+        id: item.id,
+        refCode: item.refCode,
+        referenceFramework: item.referenceFramework ?? null,
+        source: item.source ?? '',
+        typeName: item.type,
+      }))
+      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
+  }, [mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
+
+  useEffect(() => {
+    if (!where) {
+      setSuggestedControlsMap([])
+      return
+    }
+
+    if (!suggestedItems.length) return
+
+    const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
+
+    setSuggestedControlsMap(uniqueItems)
+  }, [where, suggestedItems])
 
   useEffect(() => {
     handleInitialValue()
@@ -194,29 +270,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     setResetEvidenceFiles(false)
   }
 
-  const handleSaveControls = (
-    newIds: string[],
-    subcontrolsNewIds: string[],
-    newControlRefCodes: string[],
-    newSubcontrolRefCodes: string[],
-    frameworks: Record<string, string>,
-    subcontrolFrameworks: Record<string, string>,
-  ) => {
-    const mergedControlRefCodes = [...(associationControlsRefMap || []), ...(newControlRefCodes || [])]
-    const uniqueControlRefCodes = Array.from(new Set(mergedControlRefCodes))
-
-    const mergedSubcontrolRefCodes = [...(associationSubControlsRefMap || []), ...(newSubcontrolRefCodes || [])]
-    const uniqueSubcontrolRefCodes = Array.from(new Set(mergedSubcontrolRefCodes))
-
-    form.setValue('controlIDs', newIds)
-    form.setValue('subcontrolIDs', subcontrolsNewIds)
-    setAssociationControlsRefMap(uniqueControlRefCodes)
-    setAssociationSubControlsRefMap(uniqueSubcontrolRefCodes)
-
-    setAssociationControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(frameworks || {}) }))
-    setAssociationSubControlsFrameworksMap((prev) => ({ ...(prev || {}), ...(subcontrolFrameworks || {}) }))
-  }
-
   const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
     setAssociationProgramsRefMap(newRefCodes || [])
 
@@ -232,7 +285,13 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         header={
           <SheetHeader className="mb-5">
             <div className="flex items-center justify-between">
-              <span className={`text-2xl leading-8 font-medium`}>{`Submit evidence ${formData?.displayID ? 'for' : ''} ${formData?.displayID || ''}`}</span>
+              <span className="text-2xl leading-8 font-medium">
+                {controlParam && controlParam?.length > 0 ? (
+                  <span className="text-2xl leading-8 font-medium whitespace-nowrap">{`Evidence for ${Array.from(new Set(controlParam.map((c) => c.refCode))).join(', ')}`}</span>
+                ) : (
+                  <span className="text-2xl leading-8 font-medium">{`Evidence ${formData?.displayID ? 'for ' + formData.displayID : ''}`}</span>
+                )}
+              </span>
               <X aria-label="Close sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
             </div>
           </SheetHeader>
@@ -299,7 +358,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
-                            <Textarea id="collectionProcedure" {...field} className="w-full" />
+                            <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
                           </FormControl>
                           {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                         </FormItem>
@@ -337,6 +396,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                           <FormLabel>Tags</FormLabel>
                           <FormControl>
                             <MultipleSelector
+                              options={tagOptions}
                               placeholder="Add tag..."
                               creatable
                               value={tagValues}
@@ -441,14 +501,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                               <div className="mt-5 flex flex-col gap-5">
                                 <ObjectAssociationControlsChips
                                   form={form}
-                                  controlsRefMap={associationControlsRefMap}
-                                  setControlsRefMap={setAssociationControlsRefMap}
-                                  subcontrolsRefMap={associationSubControlsRefMap}
-                                  setSubcontrolsRefMap={setAssociationSubControlsRefMap}
-                                  subcontrolFrameworksMap={associationSubControlsFrameworksMap}
-                                  setSubcontrolsFrameworksMap={setAssociationSubControlsFrameworksMap}
-                                  frameworksMap={associationControlsFrameworksMap}
-                                  setFrameworksMap={setAssociationControlsFrameworksMap}
+                                  suggestedControlsMap={suggestedControlsMap}
+                                  evidenceControls={evidenceControls}
+                                  setEvidenceControls={setEvidenceControls}
+                                  evidenceSubcontrols={evidenceSubcontrols}
+                                  setEvidenceSubcontrols={setEvidenceSubcontrols}
                                 />
                               </div>
                             </AccordionContent>
@@ -457,12 +514,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                         <ControlSelectionDialog
                           open={openControlsDialog}
                           onClose={() => setOpenControlsDialog(false)}
-                          initialFramework={associationControlsFrameworksMap}
-                          initialControlRefCodes={associationControlsRefMap}
-                          initialSubcontrolRefCodes={associationSubControlsRefMap}
-                          initialSubcontrolFramework={associationSubControlsFrameworksMap}
-                          onSave={handleSaveControls}
                           form={form}
+                          evidenceControls={evidenceControls}
+                          setEvidenceControls={setEvidenceControls}
+                          evidenceSubcontrols={evidenceSubcontrols}
+                          setEvidenceSubcontrols={setEvidenceSubcontrols}
                         />
                       </Panel>
                     </GridCell>
@@ -525,7 +581,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
                                 <button className="group flex items-center gap-2 text-sm font-medium bg-unset">
-                                  <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                                  <ChevronDown size={22} className="text-brand transform rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   Associate more objects
                                 </button>
                               </AccordionTrigger>
@@ -565,6 +621,9 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
             onOpenChange(false)
+            setEvidenceSubcontrols(null)
+            setEvidenceControls(null)
+            form.reset()
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}
         />

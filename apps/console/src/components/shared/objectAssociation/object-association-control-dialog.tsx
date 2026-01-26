@@ -1,11 +1,10 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -16,6 +15,10 @@ import usePlateEditor from '../plate/usePlateEditor'
 import { getControlsAndSubcontrolsColumns } from './object-association-controls-columns'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { UseFormReturn } from 'react-hook-form'
+import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { SaveButton } from '../save-button/save-button'
+import { CancelButton } from '../cancel-button.tsx/cancel-button'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -25,61 +28,46 @@ export enum AccordionEnum {
 type TControlSelectionDialogProps = {
   open: boolean
   onClose: () => void
-  initialControlRefCodes?: string[]
-  initialSubcontrolRefCodes?: string[]
-  initialFramework?: Record<string, string>
-  initialSubcontrolFramework?: Record<string, string>
-  onSave: (
-    newIds: string[],
-    subcontrolsNewIds: string[],
-    refCodesMap: string[],
-    subcontrolsRefCodesMap: string[],
-    frameworks: Record<string, string>,
-    subcontrolFrameworks: Record<string, string>,
-  ) => void
+  evidenceControls: CustomEvidenceControl[] | null
+  setEvidenceControls: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
+  evidenceSubcontrols: CustomEvidenceControl[] | null
+  setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   form: UseFormReturn<CreateEvidenceFormData>
 }
 
-export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
-  open,
-  onClose,
-  initialControlRefCodes,
-  initialSubcontrolRefCodes,
-  initialFramework = {},
-  initialSubcontrolFramework = {},
-  onSave,
-  form,
-}) => {
+export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({ open, onClose, form, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }) => {
   const [selectedObject, setSelectedObject] = useState<AccordionEnum>(AccordionEnum.Control)
-
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
-  const [frameworks, setFrameworks] = useState<Record<string, string>>({})
-
-  const [selectedSubcontrolRefCodeMap, setSelectedSubcontrolRefCodeMap] = useState<string[]>([])
-  const [subcontrolFrameworks, setSubcontrolFrameworks] = useState<Record<string, string>>({})
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const { convertToReadOnly } = usePlateEditor()
 
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
-
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+  const [initialEvidenceControls, setInitialEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
+  const [initialEvidenceSubcontrols, setInitialEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
+  const [initialControlIDs, setInitialControlIDs] = useState<string[]>([])
+  const [initialSubcontrolIDs, setInitialSubcontrolIDs] = useState<string[]>([])
 
   useEffect(() => {
-    if (!open) return
+    if (open) {
+      setInitialEvidenceControls(evidenceControls ?? [])
+      setInitialEvidenceSubcontrols(evidenceSubcontrols ?? [])
+      setInitialControlIDs(form.getValues('controlIDs') ?? [])
+      setInitialSubcontrolIDs(form.getValues('subcontrolIDs') ?? [])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
-    setSelectedRefCodeMap(initialControlRefCodes ?? [])
-    setFrameworks(initialFramework ?? {})
+  const [pagination, setPagination] = useState<TPagination>(
+    getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    }),
+  )
 
-    setSelectedSubcontrolRefCodeMap(initialSubcontrolRefCodes ?? [])
-    setSubcontrolFrameworks(initialSubcontrolFramework ?? {})
-  }, [open, initialControlRefCodes, initialSubcontrolRefCodes, initialFramework, initialSubcontrolFramework])
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, ControlOrderField, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   useEffect(() => {
     setPagination({
@@ -90,24 +78,54 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     })
   }, [selectedObject])
 
+  const controlsWhere = useMemo(() => {
+    const baseWhere = { ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [debouncedSearch])
+
+  const subcontrolsWhere = useMemo(() => {
+    const baseWhere = { ownerIDNEQ: '' }
+
+    if (!debouncedSearch) return baseWhere
+
+    return {
+      ...baseWhere,
+      and: [
+        {
+          or: [{ refCodeContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }],
+        },
+      ],
+    }
+  }, [debouncedSearch])
+
   const {
     controls,
     paginationMeta: controlsPagination,
     isLoading: controlsLoading,
     isFetching: controlsFetching,
   } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch },
+    where: controlsWhere,
     orderBy,
     pagination,
   })
 
   const {
-    subcontrol: subcontrols,
+    subcontrols,
     paginationMeta: subcontrolsPagination,
     isLoading: subcontrolsLoading,
     isFetching: subcontrolsFetching,
   } = useGetAllSubcontrols({
-    where: { refCodeContainsFold: debouncedSearch },
+    where: subcontrolsWhere,
     pagination,
   })
 
@@ -121,23 +139,37 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     () =>
       getControlsAndSubcontrolsColumns({
         selectedObject,
-        selectedRefCodeMap,
-        frameworks,
-        selectedSubcontrolRefCodeMap,
-        subcontrolFrameworks,
-        setSelectedRefCodeMap,
-        setFrameworks,
-        setSelectedSubcontrolRefCodeMap,
-        setSubcontrolFrameworks,
         convertToReadOnly: convertToReadOnly!,
         form,
+        evidenceControls,
+        setEvidenceControls,
+        evidenceSubcontrols,
+        setEvidenceSubcontrols,
       }),
-    [selectedObject, selectedRefCodeMap, frameworks, selectedSubcontrolRefCodeMap, subcontrolFrameworks, convertToReadOnly, form],
+    [selectedObject, convertToReadOnly, form, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols],
   )
 
   const handleSave = () => {
-    onSave(form.getValues('controlIDs') || [], form.getValues('subcontrolIDs') || [], selectedRefCodeMap, selectedSubcontrolRefCodeMap, frameworks, subcontrolFrameworks)
     onClose()
+  }
+
+  const handleCancel = () => {
+    setEvidenceControls(initialEvidenceControls ? [...initialEvidenceControls] : null)
+    setEvidenceSubcontrols(initialEvidenceSubcontrols ? [...initialEvidenceSubcontrols] : null)
+
+    form.setValue('controlIDs', [...initialControlIDs], { shouldValidate: false, shouldDirty: false })
+    form.setValue('subcontrolIDs', [...initialSubcontrolIDs], { shouldValidate: false, shouldDirty: false })
+
+    onClose()
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+      query: { first: prev.pageSize },
+    }))
   }
 
   return (
@@ -147,7 +179,17 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           <DialogTitle>Select Controls</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 items-center">
-          <Select value={selectedObject} onValueChange={(val: string) => setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)}>
+          <Select
+            value={selectedObject}
+            onValueChange={(val: string) => {
+              setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)
+              setPagination((prev) => ({
+                ...prev,
+                page: 1,
+                query: { first: prev.pageSize },
+              }))
+            }}
+          >
             <SelectTrigger>{selectedObject}</SelectTrigger>
             <SelectContent>
               {(['Control', 'Subcontrol'] as const)
@@ -160,7 +202,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
             </SelectContent>
           </Select>
 
-          <Input placeholder="Search controls" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <Input placeholder="Search controls" value={searchTerm} onChange={(e) => handleSearchChange(e.target.value)} />
         </div>
 
         <DataTable
@@ -171,13 +213,13 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           paginationMeta={paginationMeta}
           onSortChange={setOrderBy}
           loading={isLoading || isFetching}
+          defaultSorting={defaultSorting}
+          tableKey={TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS}
         />
 
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>Save</Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton onClick={handleSave} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useRouter } from 'next/navigation'
+import { useTaskAssociations } from '@/lib/graphql-hooks/tasks'
 
 type RelatedObjectsProps = {
   taskData: TaskQuery['task'] | undefined
@@ -16,9 +17,11 @@ type RelatedObjectsProps = {
 const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
   const plateEditorHelper = usePlateEditor()
   const router = useRouter()
+  const { data: associationData } = useTaskAssociations(taskData?.id)
+
   const handleRelatedObjects = () => {
     const itemsDictionary: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }> = {
-      ...taskData?.controlObjectives?.edges?.reduce(
+      ...associationData?.task?.controlObjectives?.edges?.reduce(
         (acc: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }>, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
@@ -30,7 +33,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.controls?.edges?.reduce(
+      ...associationData?.task?.controls?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.refCode || item?.node?.displayID
           const id = item?.node?.id
@@ -41,7 +44,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.subcontrols?.edges?.reduce(
+      ...associationData?.task?.subcontrols?.edges?.reduce(
         (acc: Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }>, item) => {
           const key = item?.node?.refCode || item?.node?.displayID
           const id = item?.node?.id
@@ -55,7 +58,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; controlId?: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.programs?.edges?.reduce(
+      ...associationData?.task?.programs?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
@@ -66,7 +69,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.procedures?.edges?.reduce(
+      ...associationData?.task?.procedures?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
@@ -77,7 +80,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.internalPolicies?.edges?.reduce(
+      ...associationData?.task?.internalPolicies?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
@@ -88,7 +91,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.evidence?.edges?.reduce(
+      ...associationData?.task?.evidence?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
@@ -99,7 +102,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.groups?.edges?.reduce(
+      ...associationData?.task?.groups?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
@@ -110,12 +113,23 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
       ),
 
-      ...taskData?.risks?.edges?.reduce(
+      ...associationData?.task?.risks?.edges?.reduce(
         (acc, item) => {
           const key = item?.node?.name || item?.node?.displayID
           const id = item?.node?.id
           const details = item?.node?.details
           if (key && id) acc[key] = { id, value: 'Risk', details: details, kind: 'risks' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
+      ),
+
+      ...taskData?.tasks?.reduce(
+        (acc, item) => {
+          const key = item?.title || item?.displayID
+          const id = item?.id
+          const details = item?.details
+          if (key && id) acc[key] = { id, value: 'Task', details: details, kind: 'tasks' }
           return acc
         },
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
@@ -157,7 +171,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
                         <Info size={12} />
                         <span className="font-medium">Type</span>
                       </div>
-                      <span className="cursor-pointer break-words">{value}</span>
+                      <span className="cursor-pointer wrap-break-word">{value}</span>
                     </div>
                     <div className="flex flex-col pt-2">
                       <div className="flex items-center gap-1">

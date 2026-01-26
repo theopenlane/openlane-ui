@@ -4,12 +4,14 @@ import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { KeyRound } from 'lucide-react'
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Checkbox } from '@repo/ui/checkbox'
 import DelegateCell from './delegate-cell'
 import ApproverCell from './approver-cell'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { LinkedControlsCell } from './linked-controls-cell'
+import { LinkedProceduresCell } from './linked-procedures-cell'
 
 type TPoliciesColumnsProps = {
   users?: User[]
@@ -62,6 +64,12 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       minSize: 20,
     },
     {
+      accessorKey: 'id',
+      header: 'ID',
+      size: 120,
+      cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
       accessorKey: 'name',
       header: 'Name',
       minSize: 100,
@@ -110,6 +118,9 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'approver',
       header: 'Approver',
+      meta: {
+        exportPrefix: 'approver.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const approver = row.original.approver
@@ -120,6 +131,9 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'delegate',
       header: 'Delegate',
+      meta: {
+        exportPrefix: 'delegate.displayName',
+      },
       size: 160,
       cell: ({ row }) => {
         const delegate = row.original.delegate
@@ -128,11 +142,12 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       },
     },
     {
-      accessorKey: 'policyType',
+      accessorKey: 'internalPolicyKindName',
       header: 'Type',
       size: 120,
       cell: ({ cell }) => cell.getValue() || '-',
     },
+
     {
       accessorKey: 'reviewDue',
       header: 'Review Due',
@@ -162,18 +177,30 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       header: 'Tags',
       size: 140,
       cell: ({ row }) => {
-        const tags = row.original.tags
-        if (!tags?.length) return '-'
-        return (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, i) => (
-              <Badge key={i} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
+        const tags = row?.original?.tags
+        if (!tags?.length) {
+          return '-'
+        }
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
+    },
+    {
+      header: 'Linked Controls',
+      accessorKey: 'linkedControls',
+      meta: {
+        exportPrefix: 'controls.refCode',
+      },
+      size: 220,
+      cell: LinkedControlsCell,
+    },
+    {
+      header: 'Linked Procedures',
+      accessorKey: 'linkedProcedures',
+      meta: {
+        exportPrefix: 'procedures.name',
+      },
+      size: 220,
+      cell: LinkedProceduresCell,
     },
     {
       accessorKey: 'createdBy',
