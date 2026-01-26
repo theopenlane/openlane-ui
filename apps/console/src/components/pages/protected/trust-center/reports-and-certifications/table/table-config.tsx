@@ -79,7 +79,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       header: 'Visibility',
       cell: ({ row }) => {
         return (
-          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
+          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item-transparent border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
             {row.original.visibility.split('_').join(' ').toLowerCase()}
           </div>
         )
@@ -103,13 +103,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
