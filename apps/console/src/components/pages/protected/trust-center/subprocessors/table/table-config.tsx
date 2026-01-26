@@ -79,7 +79,19 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       enableSorting: false,
       enableHiding: false,
     },
-
+    {
+      accessorKey: 'logo',
+      header: 'Logo',
+      meta: {
+        exportPrefix: 'subprocessor.logoFile.presignedURL',
+      },
+      cell: ({ row }) => {
+        const logo = row.original.logo
+        if (!logo) return <div className="text-muted-foreground">—</div>
+        //  eslint-disable-next-line @next/next/no-img-element
+        return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
+      },
+    },
     {
       accessorKey: 'name',
       header: 'Name',
@@ -117,19 +129,6 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       },
       minSize: 60,
     },
-    // {
-    //   accessorKey: 'logo',
-    //   header: 'Logo',
-    //   meta: {
-    //     exportPrefix: 'subprocessor.logoFile.base64',
-    //   },
-    //   cell: ({ row }) => {
-    //     const logo = row.original.logo
-    //     if (!logo) return <div className="text-muted-foreground">—</div>
-    //     //  eslint-disable-next-line @next/next/no-img-element
-    //     return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
-    //   },
-    // },
 
     {
       accessorKey: 'category',
@@ -152,7 +151,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
 
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -175,7 +174,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
 
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (

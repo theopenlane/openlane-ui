@@ -47,6 +47,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
       subprocessors.map((sp) => ({
         label: sp?.name ?? '',
         value: sp?.id ?? '',
+        logo: sp?.logoFile?.presignedURL || sp?.logoRemoteURL,
       })) ?? [],
     [subprocessors],
   )

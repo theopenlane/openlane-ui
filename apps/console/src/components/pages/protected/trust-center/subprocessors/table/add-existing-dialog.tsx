@@ -37,6 +37,7 @@ export const AddExistingDialog = ({ createdSubprocessorId, onClose }: { createdS
       subprocessors.map((sp) => ({
         label: sp?.name ?? '',
         value: sp?.id ?? '',
+        logo: sp?.logoFile?.presignedURL || sp?.logoRemoteURL,
       })) ?? [],
     [subprocessors],
   )

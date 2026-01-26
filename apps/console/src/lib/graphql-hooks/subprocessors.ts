@@ -9,6 +9,8 @@ import {
   GetSubprocessorsQueryVariables,
   DeleteBulkSubprocessorsMutation,
   DeleteBulkControlMutationVariables,
+  OrderDirection,
+  SubprocessorOrderField,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
@@ -18,19 +20,23 @@ import { TPagination } from '@repo/ui/pagination-types'
 type UseGetSubprocessorsArgs = {
   where?: GetSubprocessorsQueryVariables['where']
   pagination?: TPagination | null
-  orderBy?: GetSubprocessorsQueryVariables['orderBy']
   enabled?: boolean
 }
 
-export const useGetSubprocessors = ({ where, pagination, orderBy, enabled = true }: UseGetSubprocessorsArgs) => {
+export const useGetSubprocessors = ({ where, pagination, enabled = true }: UseGetSubprocessorsArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetSubprocessorsQuery>({
-    queryKey: ['subprocessors', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['subprocessors', where, pagination?.page, pagination?.pageSize],
     queryFn: () =>
       client.request<GetSubprocessorsQuery, GetSubprocessorsQueryVariables>(GET_SUBPROCESSORS, {
         where,
-        orderBy,
+        orderBy: [
+          {
+            direction: OrderDirection.ASC,
+            field: SubprocessorOrderField.name,
+          },
+        ],
         ...pagination?.query,
       }),
     enabled,
