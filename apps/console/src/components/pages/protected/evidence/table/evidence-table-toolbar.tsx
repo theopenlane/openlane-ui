@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { EVIDENCE_FILTERABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
+import { getEvidenceFilterableFields } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import Menu from '@/components/shared/menu/menu'
@@ -18,6 +18,8 @@ import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BulkEditEvidenceDialog } from '../bulk-edit/bulk-edit-evidence'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -54,7 +56,18 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   const { successNotification, errorNotification } = useNotification()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const isSearching = useDebounce(searching, 200)
-
+  const { currentOrgId } = useOrganization()
+  const { standardOptions } = useStandardsSelect({
+    where: {
+      hasControlsWith: [
+        {
+          hasOwnerWith: [{ id: currentOrgId }],
+        },
+      ],
+    },
+    enabled: Boolean(currentOrgId),
+  })
+  const filterFields = useMemo(() => getEvidenceFilterableFields(standardOptions), [standardOptions])
   const handleBulkDelete = async () => {
     if (selectedEvidence.length === 0) {
       errorNotification({
@@ -143,7 +156,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.EVIDENCE} />
               )}
-              <TableFilter filterFields={EVIDENCE_FILTERABLE_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.EVIDENCE} />
+              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.EVIDENCE} />
             </>
           )}
         </div>

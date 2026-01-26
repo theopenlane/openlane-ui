@@ -22,6 +22,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
@@ -34,6 +35,7 @@ export const EvidenceTable = () => {
   const { errorNotification } = useNotification()
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const { data: permission } = useOrganizationRoles()
+
   const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
@@ -45,11 +47,29 @@ export const EvidenceTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    const conditions: EvidenceWhereInput = {
-      ...filters,
-      ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
-      nameContainsFold: debouncedSearch,
+    if (!filters) {
+      return {
+        ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
+        ...(debouncedSearch ? { nameContainsFold: debouncedSearch } : {}),
+      }
     }
+
+    const result = whereGenerator<EvidenceWhereInput>(filters, (key, value) => {
+      if (key === 'satisfiesFramework' && Array.isArray(value) && value.length > 0) {
+        return {
+          or: [{ hasControlsWith: [{ standardIDIn: value }] }, { hasSubcontrolsWith: [{ hasControlWith: [{ standardIDIn: value }] }] }],
+        }
+      }
+
+      return { [key]: value } as EvidenceWhereInput
+    })
+
+    const conditions: EvidenceWhereInput = {
+      ...result,
+      ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
+      ...(debouncedSearch ? { nameContainsFold: debouncedSearch } : {}),
+    }
+
     return conditions
   }, [filters, programId, debouncedSearch])
 
