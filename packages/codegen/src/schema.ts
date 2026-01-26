@@ -9536,6 +9536,8 @@ export interface CreateTrustCenterSettingInput {
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** company description for the trust center */
+  companyDescription?: InputMaybe<Scalars['String']['input']>
   /** URL to the company's homepage */
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
@@ -43712,6 +43714,8 @@ export interface TrustCenterSetting extends Node {
   /** background color for the trust center */
   backgroundColor?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
+  /** company description for the trust center */
+  companyDescription?: Maybe<Scalars['String']['output']>
   /** URL to the company's homepage */
   companyDomain?: Maybe<Scalars['String']['output']>
   /** company name for the trust center, defaults to the organization's display name */
@@ -43890,6 +43894,22 @@ export interface TrustCenterSettingWhereInput {
   backgroundColorNEQ?: InputMaybe<Scalars['String']['input']>
   backgroundColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   backgroundColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** company_description field predicates */
+  companyDescription?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionContains?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionGT?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionGTE?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  companyDescriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  companyDescriptionLT?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionLTE?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  companyDescriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  companyDescriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** company_domain field predicates */
   companyDomain?: InputMaybe<Scalars['String']['input']>
   companyDomainContains?: InputMaybe<Scalars['String']['input']>
@@ -50035,6 +50055,7 @@ export interface UpdateTrustCenterSettingInput {
   clearAccentColor?: InputMaybe<Scalars['Boolean']['input']>
   clearBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCompanyDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
@@ -50053,6 +50074,8 @@ export interface UpdateTrustCenterSettingInput {
   clearThemeMode?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterID?: InputMaybe<Scalars['Boolean']['input']>
+  /** company description for the trust center */
+  companyDescription?: InputMaybe<Scalars['String']['input']>
   /** URL to the company's homepage */
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
@@ -59943,6 +59966,8 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          companyName?: string | null
+          companyDescription?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
@@ -59962,6 +59987,8 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          companyName?: string | null
+          companyDescription?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
