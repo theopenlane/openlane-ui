@@ -44,8 +44,6 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     },
   })
 
-  console.log('riskCategoryOptions', riskCategoryOptions)
-
   useClickOutsideWithPortal(
     () => {
       if (isEditing) onClose?.()
