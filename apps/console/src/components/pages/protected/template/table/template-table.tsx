@@ -117,6 +117,7 @@ export const TemplatesTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Questionnaires', href: '/questionnaires' },
       { label: 'Templates', href: '/templates' },
     ])
   }, [setCrumbs])

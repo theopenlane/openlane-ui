@@ -36,6 +36,10 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
     }
   }
 
+  function setIsOpen(arg0: boolean) {
+    throw new Error('Function not implemented.')
+  }
+
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogOverlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs" />
@@ -54,7 +58,7 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
         )}
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="secondary">Cancel</Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button

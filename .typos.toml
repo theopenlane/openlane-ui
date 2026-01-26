@@ -1,5 +1,5 @@
 [files]
-extend-exclude = ["packages/ui/src/components/ui/mention-node.tsx"]
+extend-exclude = ["packages/ui/src/components/ui/mention-node.tsx", "packages/codegen/src/introspectionschema.json", "packages/codegen/src/schema.ts"]
 ignore-hidden = true
 ignore-files = true
 ignore-dot = true
@@ -16,5 +16,5 @@ ignore-hex = true
 identifier-leading-digits = false
 locale = "en"
 extend-ignore-identifiers-re = []
-extend-ignore-words-re = ["(?i)requestor","(?i)indentity","(?i)encrypter","(?i)seeked","(?i)generater","(?i)policys", "typ", "vulnerabilitys"]
+extend-ignore-words-re = ["(?i)requestor","(?i)indentity","(?i)encrypter","(?i)seeked","(?i)generater","(?i)policys", "typ", "vulnerabilitys", "(?i)ndas?"]
 extend-ignore-re = ["(?Rm)^.*//\\s*spellchecker:disable-line$"]

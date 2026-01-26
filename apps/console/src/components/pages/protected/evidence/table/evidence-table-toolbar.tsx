@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { LoaderCircle, SearchIcon } from 'lucide-react'
+import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
@@ -8,6 +8,16 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { EVIDENCE_FILTERABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import Menu from '@/components/shared/menu/menu'
+import { BulkCSVCreateEvidenceDialog } from '../dialog/bulk-csv-create-evidence-dialog'
+import { TAccessRole, TData } from '@/types/authz'
+import { useBulkDeleteEvidence } from '@/lib/graphql-hooks/evidence'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Button } from '@repo/ui/button'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { BulkEditEvidenceDialog } from '../bulk-edit/bulk-edit-evidence'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -21,10 +31,55 @@ type TEvidenceTableToolbarProps = {
     accessorKey: string
     header: string
   }[]
+  selectedEvidence: { id: string }[]
+  setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TData | undefined
 }
 
-const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm, columnVisibility, setColumnVisibility, mappedColumns }) => {
+const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
+  searching,
+  searchTerm,
+  setFilters,
+  setSearchTerm,
+  columnVisibility,
+  setColumnVisibility,
+  mappedColumns,
+  selectedEvidence,
+  setSelectedEvidence,
+  canEdit,
+  permission,
+}) => {
+  const { mutateAsync: bulkDeleteEvidence } = useBulkDeleteEvidence()
+  const { successNotification, errorNotification } = useNotification()
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const isSearching = useDebounce(searching, 200)
+
+  const handleBulkDelete = async () => {
+    if (selectedEvidence.length === 0) {
+      errorNotification({
+        title: 'Missing evidence',
+        description: 'Evidence not found.',
+      })
+      return
+    }
+
+    try {
+      await bulkDeleteEvidence({ ids: selectedEvidence.map((evidence) => evidence.id) })
+      successNotification({
+        title: 'Selected evidence have been successfully deleted.',
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsBulkDeleteDialogOpen(false)
+      setSelectedEvidence([])
+    }
+  }
 
   return (
     <>
@@ -37,10 +92,60 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({ searching,
           variant="searchTable"
         />
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.EVIDENCE} />
+          {selectedEvidence.length > 0 ? (
+            <>
+              {canEdit(permission?.roles) && <BulkEditEvidenceDialog selectedEvidence={selectedEvidence} setSelectedEvidence={setSelectedEvidence}></BulkEditEvidenceDialog>}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setIsBulkDeleteDialogOpen(true)
+                }}
+              >
+                {selectedEvidence && selectedEvidence.length > 0 ? `Bulk Delete (${selectedEvidence.length})` : 'Bulk Delete'}
+              </Button>
+              {canEdit(permission?.roles) && (
+                <>
+                  <ConfirmationDialog
+                    open={isBulkDeleteDialogOpen}
+                    onOpenChange={setIsBulkDeleteDialogOpen}
+                    onConfirm={handleBulkDelete}
+                    title={`Delete selected evidence?`}
+                    description={<>This action cannot be undone. This will permanently delete selected evidence.</>}
+                    confirmationText="Delete"
+                    confirmationTextVariant="destructive"
+                    showInput={false}
+                  />
+                  <CancelButton
+                    onClick={() => {
+                      setSelectedEvidence([])
+                    }}
+                  ></CancelButton>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Menu
+                content={
+                  <>
+                    <BulkCSVCreateEvidenceDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Bulk Upload</span>
+                        </div>
+                      }
+                    />
+                  </>
+                }
+              />
+              {mappedColumns && columnVisibility && setColumnVisibility && (
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.EVIDENCE} />
+              )}
+              <TableFilter filterFields={EVIDENCE_FILTERABLE_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.EVIDENCE} />
+            </>
           )}
-          <TableFilter filterFields={EVIDENCE_FILTERABLE_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.EVIDENCE} />
         </div>
       </div>
     </>

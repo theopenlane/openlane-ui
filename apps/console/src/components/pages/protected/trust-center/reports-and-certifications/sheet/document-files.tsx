@@ -17,7 +17,7 @@ type TDocumentFiles = {
   editAllowed: boolean
 }
 
-export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId }) => {
+export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId, editAllowed }) => {
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
   const [deleteFileInfo, setDeleteFileInfo] = useState<{ id: string | null; name: string | null }>({ id: null, name: null })
@@ -58,7 +58,16 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId }) => {
           id: documentData.trustCenterDoc.id,
           providedFileName: documentData.trustCenterDoc.file.providedFileName,
           providedFileSize: documentData.trustCenterDoc.file.providedFileSize,
-          presignedURL: documentData.trustCenterDoc.file.presignedURL || '',
+          presignedURL: documentData.trustCenterDoc.file.presignedURL ?? '',
+        },
+      ]
+    : documentData?.trustCenterDoc?.originalFile
+    ? [
+        {
+          id: documentData.trustCenterDoc.id,
+          providedFileName: documentData.trustCenterDoc.originalFile.providedFileName,
+          providedFileSize: documentData.trustCenterDoc.originalFile.providedFileSize,
+          presignedURL: documentData.trustCenterDoc.originalFile.presignedURL ?? '',
         },
       ]
     : []
@@ -77,9 +86,11 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId }) => {
     <div className="mt-5">
       <div className="flex items-center justify-between mb-3">
         <p className="text-lg">Attached files</p>
-        <div className="flex items-center gap-2">
-          <DocumentUploadDialog documentId={documentId} />
-        </div>
+        {editAllowed && (
+          <div className="flex items-center gap-2">
+            <DocumentUploadDialog documentId={documentId} />
+          </div>
+        )}
       </div>
 
       <DataTable columns={columns} data={file} loading={!documentData} tableKey={TableKeyEnum.TRUST_CENTER_DOCUMENT_FILES} />

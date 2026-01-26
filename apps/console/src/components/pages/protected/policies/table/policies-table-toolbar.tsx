@@ -21,6 +21,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeletePolicy } from '@/lib/graphql-hooks/policy'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -127,15 +128,11 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       handleClearSelectedPolicies()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>
@@ -185,7 +182,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                 <Link href="/policies/create">
-                  <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+                  <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                     Create
                   </Button>
                 </Link>

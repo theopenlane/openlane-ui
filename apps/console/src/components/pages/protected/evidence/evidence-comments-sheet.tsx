@@ -77,12 +77,9 @@ const EvidenceCommentSheet = () => {
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
-      console.log('sending... from page', evidenceId)
       if (!evidenceId) return
       try {
-        console.log('sending... from page')
         const comment = await plateEditorHelper.convertToHtml(data.comment)
-        console.log('comment... ', comment)
         await updateEvidence({
           updateEvidenceId: evidenceId,
           input: { addComment: { text: comment } },

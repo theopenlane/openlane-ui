@@ -4,7 +4,12 @@ import path from 'path'
 const baseDir = path.join(__dirname, '../src/app/(protected)')
 const routeListPath = path.join(__dirname, '../src/route-list.json')
 
-type RouteEntry = { route: string; name: string }
+type RouteEntry = {
+  route: string
+  name: string
+  keywords?: string[]
+  hidden?: boolean
+}
 
 function toNameFromPath(pathStr: string): string {
   return (
@@ -26,23 +31,35 @@ if (fs.existsSync(routeListPath)) {
   }
 }
 
-const existingRouteSet = new Set(existingRoutes.map((r) => r.route))
-const newRoutes: RouteEntry[] = []
+const discoveredRoutes: RouteEntry[] = []
 
 function walk(currentPath: string, routePrefix = '') {
+  if (!fs.existsSync(currentPath)) return
+
   const entries = fs.readdirSync(currentPath, { withFileTypes: true })
 
   for (const entry of entries) {
     if (entry.isDirectory()) {
-      walk(path.join(currentPath, entry.name), `${routePrefix}/${entry.name}`)
+      let nextPrefix = routePrefix
+      if (entry.name.startsWith('(') && entry.name.endsWith(')')) {
+        nextPrefix = routePrefix
+      } else {
+        nextPrefix = `${routePrefix}/${entry.name}`
+      }
+
+      walk(path.join(currentPath, entry.name), nextPrefix)
     } else if (entry.name.startsWith('page.tsx') && !routePrefix.includes('[')) {
       const route = routePrefix || '/'
-      if (!existingRouteSet.has(route)) {
-        newRoutes.push({
+
+      const existing = existingRoutes.find((r) => r.route === route)
+
+      if (existing) {
+        discoveredRoutes.push({ ...existing })
+      } else {
+        discoveredRoutes.push({
           route,
           name: toNameFromPath(route),
         })
-        existingRouteSet.add(route)
       }
     }
   }
@@ -50,7 +67,17 @@ function walk(currentPath: string, routePrefix = '') {
 
 walk(baseDir)
 
-const updatedRoutes = [...existingRoutes, ...newRoutes]
+const uniqueRoutes = discoveredRoutes.filter((value, index, self) => index === self.findIndex((t) => t.route === value.route))
 
-fs.writeFileSync(routeListPath, JSON.stringify(updatedRoutes, null, 2))
-console.log(`✅ Route list updated. ${newRoutes.length} new route(s) added.`)
+uniqueRoutes.sort((a, b) => a.route.localeCompare(b.route))
+
+const addedCount = uniqueRoutes.filter((d) => !existingRoutes.some((e) => e.route === d.route)).length
+
+const removedCount = existingRoutes.filter((e) => !uniqueRoutes.some((d) => d.route === e.route)).length
+
+fs.writeFileSync(routeListPath, JSON.stringify(uniqueRoutes, null, 2))
+
+console.log(`✅ Route list synced.`)
+console.log(`   Added: ${addedCount}`)
+console.log(`   Removed: ${removedCount}`)
+console.log(`   Total: ${uniqueRoutes.length}`)

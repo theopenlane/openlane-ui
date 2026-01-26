@@ -1,4 +1,4 @@
-import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, type LucideIcon } from 'lucide-react'
+import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, MessageCircle, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, type LucideIcon } from 'lucide-react'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 
@@ -51,6 +51,7 @@ export enum PoliciesProceduresFilterIconName {
   Status = 'Status',
   ProgramName = 'ProgramName',
   LinkedControls = 'LinkedControls',
+  Comments = 'Comments',
 }
 
 export const FilterIcons: Record<PoliciesProceduresFilterIconName, LucideIcon> = {
@@ -62,6 +63,7 @@ export const FilterIcons: Record<PoliciesProceduresFilterIconName, LucideIcon> =
   [PoliciesProceduresFilterIconName.Status]: CircleDot,
   [PoliciesProceduresFilterIconName.ProgramName]: ShieldCheck,
   [PoliciesProceduresFilterIconName.LinkedControls]: Link,
+  [PoliciesProceduresFilterIconName.Comments]: MessageCircle,
 }
 
 // Status options for select dropdowns
