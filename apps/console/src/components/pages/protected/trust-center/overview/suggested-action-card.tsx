@@ -11,7 +11,7 @@ type SuggestedActionCardProps = {
 
 export const SuggestedActionCard = ({ handleRouting, icon: Icon, header, subheader, route }: SuggestedActionCardProps) => {
   return (
-    <Card className="bg-btn-secondary w-full cursor-pointer">
+    <Card className="bg-btn-secondary w-full transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:border-primary">
       <CardContent>
         <div onClick={() => handleRouting(route)} className="flex items-center gap-4">
           <div className="flex items-center justify-center h-10 w-10  rounded-md bg-card">
