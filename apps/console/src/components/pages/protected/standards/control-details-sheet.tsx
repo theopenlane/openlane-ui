@@ -169,7 +169,7 @@ const ControlDetailsSheet = () => {
         <div className="flex flex-col gap-8">
           {data?.control.description && (
             <div
-              className="mt-5 rich-text"
+              className="mt-5 rich-text pl-0!"
               dangerouslySetInnerHTML={{
                 __html: data.control.description,
               }}
