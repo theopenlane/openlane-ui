@@ -50378,6 +50378,7 @@ export type CreateTemplateMutation = {
 export type UpdateTemplateMutationVariables = Exact<{
   updateTemplateId: Scalars['ID']['input']
   input: UpdateTemplateInput
+  templateFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdateTemplateMutation = {
@@ -50639,6 +50640,46 @@ export type UpdatePersonalAccessTokenMutation = {
   updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
 
+export type GetTrustCenterNdaFilesQueryVariables = Exact<{
+  where?: InputMaybe<TemplateWhereInput>
+}>
+
+export type GetTrustCenterNdaFilesQuery = {
+  __typename?: 'Query'
+  templates: {
+    __typename?: 'TemplateConnection'
+    edges?: Array<{
+      __typename?: 'TemplateEdge'
+      node?: {
+        __typename?: 'Template'
+        id: string
+        updatedAt?: any | null
+        files: {
+          __typename?: 'FileConnection'
+          edges?: Array<{
+            __typename?: 'FileEdge'
+            node?: { __typename?: 'File'; providedFileName: string; id: string; presignedURL?: string | null; base64?: string | null; updatedAt?: any | null } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustCenterNdaMutationVariables = Exact<{
+  input: CreateTrustCenterNdaInput
+  templateFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type CreateTrustCenterNdaMutation = { __typename?: 'Mutation'; createTrustCenterNDA: { __typename?: 'TrustCenterNDACreatePayload'; template: { __typename?: 'Template'; id: string } } }
+
+export type UpdateTrustCenterNdaMutationVariables = Exact<{
+  updateTrustCenterNdaId: Scalars['ID']['input']
+  templateFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterNdaMutation = { __typename?: 'Mutation'; updateTrustCenterNDA: { __typename?: 'TrustCenterNDAUpdatePayload'; template: { __typename?: 'Template'; id: string } } }
+
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTrustCenterCompliancesQuery = {
@@ -50755,7 +50796,7 @@ export type GetTrustCenterSubprocessorsQuery = {
           name: string
           description?: string | null
           logoRemoteURL?: string | null
-          logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
         }
       } | null
     } | null> | null
