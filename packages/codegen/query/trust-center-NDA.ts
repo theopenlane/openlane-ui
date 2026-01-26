@@ -13,7 +13,6 @@ export const GET_TRUST_CENTER_NDA_FILES = gql`
                 providedFileName
                 id
                 presignedURL
-                base64
                 updatedAt
               }
             }
