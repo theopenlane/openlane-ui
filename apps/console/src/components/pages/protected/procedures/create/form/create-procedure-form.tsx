@@ -7,9 +7,7 @@ import React, { useEffect, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
-import { Button } from '@repo/ui/button'
 import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
@@ -19,7 +17,7 @@ import { useProcedure } from '../hooks/use-procedure.tsx'
 import StatusCard from '@/components/pages/protected/procedures/create/cards/status-card.tsx'
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
-import { useCreateProcedure, useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useCreateProcedure, useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -27,6 +25,10 @@ import { useOrganization } from '@/hooks/useOrganization.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Switch } from '@repo/ui/switch'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -47,7 +49,6 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { mutateAsync: createProcedure, isPending: isCreating } = useCreateProcedure()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const isSubmitting = isCreating || isSaving
-  const plateEditorHelper = usePlateEditor()
   const { successNotification, errorNotification } = useNotification()
   const associationsState = useProcedure((state) => state.associations)
   const procedureState = useProcedure()
@@ -64,6 +65,11 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const [clearData, setClearData] = useState<boolean>(false)
 
   const { data: assocData } = useGetProcedureAssociationsById(procedure?.id || null)
+  const { data: discussionData } = useGetProcedureDiscussionById(procedure?.id || null)
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
+  const plateEditorHelper = usePlateEditor()
 
   const isProcedureCreate = path === '/procedures/create'
 
@@ -141,16 +147,11 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: { input: CreateProcedureInput } = {
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -215,12 +216,6 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
   const onSaveHandler = async (data: CreateProcedureFormData) => {
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
 
       const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
@@ -258,7 +253,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
         updateProcedureId: procedure.id,
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationInputs,
         },
@@ -285,7 +281,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   }
 
   const handleDetailsChange = (value: Value) => {
-    form.setValue('details', value)
+    form.setValue('detailsJSON', value)
   }
 
   return (
@@ -342,7 +338,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             <InputRow className="w-full">
               <FormField
                 control={form.control}
-                name="details"
+                name="detailsJSON"
                 render={() => (
                   <FormItem className="w-full min-w-0">
                     <FormLabel>Procedure</FormLabel>
@@ -350,7 +346,15 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} clearData={clearData} onClear={() => setClearData(false)} initialValue={procedure?.details ?? undefined} />
+                    <PlateEditor
+                      onChange={handleDetailsChange}
+                      userData={userData}
+                      entity={discussionData?.procedure}
+                      clearData={clearData}
+                      onClear={() => setClearData(false)}
+                      isCreate={!procedure?.id}
+                      initialValue={procedure?.detailsJSON ?? procedure?.details ?? (form.getValues('details') as string) ?? undefined}
+                    />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}
@@ -358,9 +362,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             </InputRow>
 
             <div className="flex justify-between items-center">
-              <Button variant="primary" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
-              </Button>
+              <SaveButton disabled={isSubmitting} title={isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Save Procedure'} />
               <div className="flex items-center gap-2">
                 <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>
@@ -368,7 +370,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             </div>
           </div>
 
-          <div className="flex-shrink-0 w-[380px] space-y-4">
+          <div className="shrink-0 w-[380px] space-y-4">
             <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />

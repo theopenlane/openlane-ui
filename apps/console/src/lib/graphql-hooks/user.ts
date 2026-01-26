@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_USER_PROFILE, UPDATE_USER, UPDATE_USER_SETTING } from '@repo/codegen/query/user'
+import { DELETE_USER, GET_USER_PROFILE, UPDATE_USER, UPDATE_USER_SETTING } from '@repo/codegen/query/user'
 import {
+  DeleteUserMutation,
+  DeleteUserMutationVariables,
   GetUserProfileQuery,
   GetUserProfileQueryVariables,
   UpdateUserMutation,
@@ -50,6 +52,17 @@ export const useUpdateUserSetting = () => {
 
   return useMutation<UpdateUserSettingMutation, unknown, UpdateUserSettingMutationVariables>({
     mutationFn: async ({ updateUserSettingId, input }) => client.request(UPDATE_USER_SETTING, { updateUserSettingId, input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+    },
+  })
+}
+
+export const useDeleteUser = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteUserMutation, unknown, DeleteUserMutationVariables>({
+    mutationFn: async (variables) => client.request(DELETE_USER, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
     },

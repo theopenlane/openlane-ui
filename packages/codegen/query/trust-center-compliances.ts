@@ -19,12 +19,20 @@ export const GET_TRUST_CENTER_COMPLIANCES = gql`
   }
 `
 
-export const CREATE_TRUST_CENTER_COMPLIANCE = gql`
-  mutation CreateTrustCenterCompliance($input: CreateTrustCenterComplianceInput!) {
-    createTrustCenterCompliance(input: $input) {
-      trustCenterCompliance {
+export const CREATE_BULK_TRUST_CENTER_COMPLIANCE = gql`
+  mutation CreateBulkTrustCenterCompliance($input: [CreateTrustCenterComplianceInput!]) {
+    createBulkTrustCenterCompliance(input: $input) {
+      trustCenterCompliances {
         id
       }
+    }
+  }
+`
+
+export const DELETE_BULK_TRUST_CENTER_COMPLIANCE = gql`
+  mutation DeleteBulkTrustCenterCompliance($ids: [ID!]!) {
+    deleteBulkTrustCenterCompliance(ids: $ids) {
+      deletedIDs
     }
   }
 `
@@ -35,14 +43,6 @@ export const UPDATE_TRUST_CENTER_COMPLIANCE = gql`
       trustCenterCompliance {
         id
       }
-    }
-  }
-`
-
-export const DELETE_TRUST_CENTER_COMPLIANCE = gql`
-  mutation DeleteTrustCenterCompliance($deleteTrustCenterComplianceId: ID!) {
-    deleteTrustCenterCompliance(id: $deleteTrustCenterComplianceId) {
-      deletedID
     }
   }
 `

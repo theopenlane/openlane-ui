@@ -15,19 +15,26 @@ export const useSearch = (query: string) => {
     enabled: query.length > 2,
   })
 
-  const rawPages = useMemo(
-    () =>
-      query.length > 2
-        ? (routeList.filter((r) => {
-            if (r?.hidden === true) return false
+  const rawPages = useMemo(() => {
+    const trimmedQuery = query.trim().toLowerCase()
 
-            const nameMatch = r.name?.toLowerCase().includes(query.toLowerCase())
-            const keywordMatch = r.keywords?.some((kw: string) => kw.toLowerCase().includes(query.toLowerCase()))
-            return nameMatch || keywordMatch
-          }) as RoutePage[])
-        : [],
-    [query],
-  )
+    if (trimmedQuery.length > 2) {
+      const searchTerms = trimmedQuery.split(/\s+/).filter(Boolean)
+
+      return routeList.filter((r) => {
+        if (r?.hidden === true) return false
+        return searchTerms.every((term) => {
+          const nameMatch = r.name?.toLowerCase().includes(term)
+          const routeMatch = r.route?.toLowerCase().includes(term)
+          const keywordMatch = r.keywords?.some((kw: string) => kw.toLowerCase().includes(term))
+
+          return nameMatch || routeMatch || keywordMatch
+        })
+      }) as RoutePage[]
+    }
+
+    return []
+  }, [query])
 
   const filteredSubcontrols = useMemo(() => {
     if (!queryData.data?.search?.subcontrols?.edges) return []

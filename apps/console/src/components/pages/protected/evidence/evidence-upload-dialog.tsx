@@ -11,6 +11,7 @@ import { useUploadEvidenceFiles } from '@/lib/graphql-hooks/evidence.ts'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TControlEvidenceUploadDialog = {
   evidenceID: string
@@ -86,9 +87,7 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ e
           <Button variant="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || evidenceFiles?.length === 0}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button onClick={handleCancel} variant="secondary" disabled={isSubmitting}>
-            Cancel
-          </Button>
+          <CancelButton disabled={isSubmitting} onClick={handleCancel}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

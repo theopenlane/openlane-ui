@@ -29,6 +29,8 @@ import { useBulkDeleteControls } from '@/lib/graphql-hooks/controls'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { useOrganization } from '@/hooks/useOrganization'
+import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -171,15 +173,11 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       handleClearSelectedControls()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>
@@ -210,6 +208,14 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                         <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Upload Control Mappings</span>
+                        </Button>
+                      }
+                    />
+                    <BulkCSVUpdateControlDialog
+                      trigger={
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Update Existing Controls</span>
                         </Button>
                       }
                     />

@@ -28,7 +28,7 @@ const meta: Meta<typeof Dialog> = {
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="secondary">Cancel</Button>
             </DialogClose>
             <Button variant="filled">Delete</Button>
           </DialogFooter>
@@ -59,7 +59,7 @@ export const ConfirmationDialog: Story = {
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="secondary">Cancel</Button>
             </DialogClose>
             <Button variant="filled">Proceed</Button>
           </DialogFooter>

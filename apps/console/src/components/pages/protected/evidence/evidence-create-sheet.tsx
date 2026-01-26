@@ -36,6 +36,9 @@ import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/contro
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from 'platejs'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -77,7 +80,12 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const { tagOptions } = useGetTags()
 
+  const { convertToHtml } = usePlateEditor()
+
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
+    if (data.collectionProcedure) {
+      data.collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
+    }
     const formData = {
       input: {
         name: data.name,
@@ -92,7 +100,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : data.programIDs ?? [],
+        programIDs: programId ? [programId] : (data.programIDs ?? []),
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -350,7 +358,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
-                            <Textarea id="collectionProcedure" {...field} className="w-full" />
+                            <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
                           </FormControl>
                           {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                         </FormItem>
@@ -573,7 +581,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
                                 <button className="group flex items-center gap-2 text-sm font-medium bg-unset">
-                                  <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                                  <ChevronDown size={22} className="text-brand transform rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   Associate more objects
                                 </button>
                               </AccordionTrigger>

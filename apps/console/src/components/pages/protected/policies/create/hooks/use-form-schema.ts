@@ -10,6 +10,7 @@ const formSchema = z.object({
     message: 'Name is required',
   }),
   details: z.custom<Value | string>().optional(),
+  detailsJSON: z.custom<Value>().optional(),
   status: z
     .nativeEnum(InternalPolicyDocumentStatus, {
       errorMap: () => ({ message: 'Invalid status' }),

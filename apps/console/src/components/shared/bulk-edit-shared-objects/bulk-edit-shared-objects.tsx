@@ -5,6 +5,7 @@ import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-en
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
 import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
 
 export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
@@ -31,12 +32,17 @@ export type BulkEditTasksDialogProps = {
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
+export type BulkEditEvidenceDialogProps = {
+  selectedEvidence: { id: string }[]
+  setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+}
+
 export interface BulkEditDialogFormValues {
   fieldsArray: FieldItem[]
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks
+  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence
   name: string
   placeholder: string
   options?: Option[]
@@ -48,6 +54,8 @@ export enum SelectOptionBulkEditControls {
   ControlType = 'Control type',
   ControlOwner = 'Control owner',
   Program = 'Program',
+  Category = 'Category',
+  SubCategory = 'Subcategory',
 }
 
 export enum SelectOptionBulkEditPolicies {
@@ -81,14 +89,22 @@ export enum SelectOptionBulkEditTasks {
   TaskCategory = 'Type',
 }
 
+export enum SelectOptionBulkEditEvidence {
+  Status = 'Status',
+  Tags = 'Tags',
+  Source = 'Source',
+}
+
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
   Date = 'DATETIME',
+  Tag = 'TAG',
+  TypeAhead = 'TYPE_AHEAD',
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | undefined
+  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | undefined
   selectedDate?: Date | null
@@ -105,6 +121,8 @@ const clearValueMap: Record<string, string> = {
   score: 'clearScore',
   category: 'clearCategory',
   due: 'clearDue',
+  clearSource: 'clearSource',
+  clearTags: 'clearTags',
 }
 
 export const getMappedClearValue = (key: string): string => {
@@ -262,6 +280,18 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       inputType: InputType.Select,
       options: programOptions || [],
     },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.Category,
+      name: 'category',
+      inputType: InputType.TypeAhead,
+      placeholder: 'Input category',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.SubCategory,
+      name: 'subcategory',
+      inputType: InputType.TypeAhead,
+      placeholder: 'Input subcategory',
+    },
   ]
 }
 
@@ -301,6 +331,30 @@ export const getAllSelectOptionsForBulkEditTasks = (
       inputType: InputType.Select,
       placeholder: 'Select category',
       options: taskKindOptions,
+    },
+  ]
+}
+
+export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedObject[] => {
+  return [
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.Status,
+      name: 'status',
+      placeholder: 'Select a status',
+      inputType: InputType.Select,
+      options: EvidenceStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.Source,
+      name: 'source',
+      inputType: InputType.Input,
+      placeholder: 'Input source',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.Tags,
+      name: 'tags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
     },
   ]
 }
