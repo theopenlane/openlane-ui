@@ -1,10 +1,8 @@
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
 import { Badge } from '@repo/ui/badge'
-import { Option } from '@repo/ui/multiple-selector'
 import React from 'react'
 
-export type EnumOption = Option & { color?: string; description?: string }
-
-export const CustomTypeEnumOptionChip = ({ option }: { option: EnumOption }) => {
+export const CustomTypeEnumOptionChip = ({ option }: { option: CustomTypeEnumOption }) => {
   if (!option.color) {
     return <span>{option.label}</span>
   }
@@ -18,7 +16,7 @@ export const CustomTypeEnumOptionChip = ({ option }: { option: EnumOption }) => 
 
 interface CustomTypeEnumValueProps {
   value?: string
-  options: EnumOption[]
+  options: CustomTypeEnumOption[]
   placeholder?: string
 }
 

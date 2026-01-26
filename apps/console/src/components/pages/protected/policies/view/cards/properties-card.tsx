@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react'
 import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus, UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
@@ -204,9 +204,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue>
-                          <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
-                        </SelectValue>
+                        <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
                       </SelectTrigger>
 
                       <SelectContent ref={popoverRef}>
