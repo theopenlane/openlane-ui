@@ -6,7 +6,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { ActionBarMorePrimitive, ActionBarPrimitive, AuiIf, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from '@assistant-ui/react'
 import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, DownloadIcon, MoreHorizontalIcon, PencilIcon, RefreshCwIcon, SquareIcon } from 'lucide-react'
 import type { FC } from 'react'
-import { Button } from '@repo/ui/components/ui/button.jsx'
+import { Button } from '../../../@repo/ui/components/button'
 
 export interface ThreadProps {
   welcome?: {
