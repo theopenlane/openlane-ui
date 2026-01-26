@@ -1,7 +1,20 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { BULK_DELETE_RISK, BULK_EDIT_RISK, CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
+import {
+  BULK_DELETE_RISK,
+  BULK_EDIT_RISK,
+  CREATE_CSV_BULK_RISK,
+  CREATE_RISK,
+  DELETE_RISK,
+  GET_ALL_RISKS,
+  GET_RISK_BY_ID,
+  GET_RISK_DISCUSSION_BY_ID,
+  GET_RISK_OPEN_AND_IDENTIFIED_COUNT,
+  UPDATE_RISK,
+  INSERT_RISK_COMMENT,
+  UPDATE_RISK_COMMENT,
+} from '@repo/codegen/query/risks'
 
 import {
   CreateBulkCsvRiskMutation,
@@ -14,15 +27,21 @@ import {
   DeleteRiskMutationVariables,
   GetAllRisksQuery,
   GetAllRisksQueryVariables,
+  GetOpenRiskCountQuery,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
+  GetRiskDiscussionByIdQuery,
   Risk,
   RiskFieldsFragment,
   RiskWhereInput,
   UpdateBulkRiskMutation,
   UpdateBulkRiskMutationVariables,
+  InsertRiskCommentMutation,
+  InsertRiskCommentMutationVariables,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
+  UpdateRiskCommentMutation,
+  UpdateRiskCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -160,6 +179,54 @@ export const useBulkDeleteRisks = () => {
     mutationFn: async (variables) => client.request(BULK_DELETE_RISK, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })
+    },
+  })
+}
+
+export const useGetRiskOpenAndIdentifiedCount = () => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetOpenRiskCountQuery, unknown>({
+    queryKey: ['risks', 'riskOpenAndIdentifiedCount'],
+    queryFn: async () => client.request(GET_RISK_OPEN_AND_IDENTIFIED_COUNT),
+    enabled: true,
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.risks?.totalCount ?? 0,
+  }
+}
+
+export const RISK_DISCUSSION_QUERY_KEY = 'risksDiscussion'
+
+export const useGetRiskDiscussionById = (riskId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetRiskDiscussionByIdQuery, unknown>({
+    queryKey: [RISK_DISCUSSION_QUERY_KEY, riskId],
+    queryFn: async () => client.request(GET_RISK_DISCUSSION_BY_ID, { riskId }),
+    enabled: !!riskId,
+  })
+}
+
+export const useInsertRiskComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<InsertRiskCommentMutation, unknown, InsertRiskCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(INSERT_RISK_COMMENT, variables)
+    },
+  })
+}
+
+export const useUpdateRiskComment = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateRiskCommentMutation, unknown, UpdateRiskCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_RISK_COMMENT, variables),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['riskComments', data.updateRiskComment.risk.id] })
     },
   })
 }

@@ -1,9 +1,11 @@
 import { z } from 'zod'
-import { ControlControlSource, ControlControlStatus, ControlControlType } from '@repo/codegen/src/schema'
+import { ControlControlSource, ControlControlStatus } from '@repo/codegen/src/schema'
+import { Value } from 'platejs'
 
 export const controlFormSchema = z.object({
   refCode: z.string().min(1, 'Name is required'),
   description: z.any(),
+  descriptionJSON: z.custom<Value>().optional(),
   controlOwnerID: z.string().optional(),
   delegateID: z.string().optional(),
   category: z.string().optional(),
@@ -12,7 +14,8 @@ export const controlFormSchema = z.object({
   mappedCategories: z.array(z.string()).optional(),
   controlID: z.string().min(1, 'Parent Control is required'),
   source: z.nativeEnum(ControlControlSource).optional(),
-  controlType: z.nativeEnum(ControlControlType).optional(),
+  controlKindName: z.string().optional(),
+  subcontrolKindName: z.string().optional(),
   referenceID: z.string().optional(),
   auditorReferenceID: z.string().optional(),
   desiredOutcome: z.any(),

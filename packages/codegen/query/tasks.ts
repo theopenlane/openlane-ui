@@ -12,13 +12,12 @@ export const TASKS_WITH_FILTER = gql`
           tags
           due
           displayID
-          category
           details
           updatedAt
           updatedBy
           createdAt
           createdBy
-          category
+          taskKindName
           completed
           assigner {
             displayName
@@ -90,112 +89,18 @@ export const TASK = gql`
         id
       }
       id
-      category
+      taskKindName
       title
       status
-      subcontrols {
-        edges {
-          node {
-            id
-            refCode
-            controlID
-            description
-            displayID
-            referenceFramework
-          }
-        }
-      }
-      controls {
-        edges {
-          node {
-            id
-            refCode
-            description
-            displayID
-            referenceFramework
-          }
-        }
-      }
-      risks {
-        edges {
-          node {
-            id
-            name
-            details
-            displayID
-          }
-        }
-      }
-      programs {
-        edges {
-          node {
-            id
-            displayID
-            description
-            name
-          }
-        }
-      }
-      procedures {
-        edges {
-          node {
-            id
-            displayID
-            name
-            summary
-          }
-        }
-      }
-      internalPolicies {
-        edges {
-          node {
-            id
-            displayID
-            name
-            summary
-          }
-        }
-      }
-      evidence {
-        edges {
-          node {
-            displayID
-            id
-            description
-            name
-          }
-        }
-      }
-      groups {
-        edges {
-          node {
-            displayID
-            id
-            description
-            name
-          }
-        }
+      tasks {
+        id
+        title
+        displayID
+        details
       }
       due
       displayID
       details
-      controlObjectives {
-        edges {
-          node {
-            displayID
-            id
-            name
-            desiredOutcome
-            controls {
-              edges {
-                node {
-                  id
-                }
-              }
-            }
-          }
-        }
-      }
       comments {
         edges {
           node {
@@ -264,6 +169,121 @@ export const BULK_DELETE_TASK = gql`
   mutation DeleteBulkTask($ids: [ID!]!) {
     deleteBulkTask(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const GET_OVERDUE_TASK_COUNT = gql`
+  query GetOverdueTaskCount($now: DateTime!) {
+    tasks(where: { statusNotIn: [COMPLETED, WONT_DO], dueLT: $now }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_TASK_ASSOCIATIONS = gql`
+  query GetTaskAssociations($taskId: ID!) {
+    task(id: $taskId) {
+      subcontrols {
+        edges {
+          node {
+            id
+            refCode
+            controlID
+            description
+            displayID
+            referenceFramework
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+            refCode
+            description
+            displayID
+            referenceFramework
+          }
+        }
+      }
+      risks {
+        edges {
+          node {
+            id
+            name
+            details
+            displayID
+          }
+        }
+      }
+      programs {
+        edges {
+          node {
+            id
+            displayID
+            description
+            name
+          }
+        }
+      }
+      procedures {
+        edges {
+          node {
+            id
+            displayID
+            name
+            summary
+          }
+        }
+      }
+      internalPolicies {
+        edges {
+          node {
+            id
+            displayID
+            name
+            summary
+          }
+        }
+      }
+      evidence {
+        edges {
+          node {
+            id
+            displayID
+            description
+            name
+          }
+        }
+      }
+      groups {
+        edges {
+          node {
+            id
+            displayID
+            description
+            name
+          }
+        }
+      }
+      controlObjectives {
+        edges {
+          node {
+            id
+            displayID
+            name
+            desiredOutcome
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 `

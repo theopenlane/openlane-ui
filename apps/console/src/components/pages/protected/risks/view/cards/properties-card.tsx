@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { RiskFieldsFragment, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Binoculars, Circle, CircleAlert, CircleHelp, Folder, Gauge, Tag } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import RiskLabel from '@/components/pages/protected/risks/risk-label'
 import useEscapeKey from '@/hooks/useEscapeKey'
@@ -20,27 +19,14 @@ type TPropertiesCardProps = {
   isCreate?: boolean
 }
 
-type Fields = 'riskType' | 'category' | 'score' | 'impact' | 'likelihood' | 'status'
+type Fields = 'riskKindName' | 'riskCategoryName' | 'score' | 'impact' | 'likelihood' | 'status'
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, isEditing, isEditAllowed = true, handleUpdate }) => {
-  const { control, getValues } = form
+  const { control } = form
   const [editingField, setEditingField] = useState<Fields | null>(null)
 
   const toggleEditing = (field: Fields) => {
     if (!isEditing && isEditAllowed) setEditingField(field)
-  }
-
-  const handleBlur = (fieldName: keyof EditRisksFormData) => {
-    if (isEditing || !handleUpdate || !risk) return
-
-    const newValue = getValues(fieldName)
-    const oldValue = risk[fieldName as keyof RiskFieldsFragment]
-
-    if (newValue !== oldValue) {
-      handleUpdate({ [fieldName]: newValue })
-    }
-
-    setEditingField(null)
   }
 
   useEscapeKey(() => {
@@ -51,28 +37,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
     }
   })
 
-  const renderTextField = (fieldName: Fields, label: string, value?: string | null) => {
-    const isFieldEditing = isEditing || editingField === fieldName
-    const showPencil = editingField !== fieldName && !isEditing
-
-    return (
-      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed} showPencil={showPencil}>
-        {isFieldEditing ? (
-          <Controller
-            name={fieldName}
-            control={control}
-            render={({ field }) => <Input {...field} value={typeof field.value === 'string' || typeof field.value === 'number' ? field.value : ''} onBlur={() => handleBlur(fieldName)} autoFocus />}
-          />
-        ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`truncate ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-            <div>{value || `No ${label}`}</div>
-          </HoverPencilWrapper>
-        )}
-      </FieldRow>
-    )
-  }
-
-  const renderRiskLabelField = <T extends 'score' | 'impact' | 'likelihood' | 'status'>(fieldName: T, label: string) => {
+  const renderRiskLabelField = <T extends 'score' | 'impact' | 'likelihood' | 'status' | 'riskKindName' | 'riskCategoryName'>(fieldName: T, label: string) => {
     const isFieldEditing = isEditing || editingField === fieldName
     const showPencil = editingField !== fieldName && !isEditing
 
@@ -83,19 +48,21 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 w-[150px] min-w-0">
                 <RiskLabel
+                  selectFieldClassname={'w-full'}
+                  fieldName={fieldName}
                   isEditing={isFieldEditing}
                   score={fieldName === 'score' ? (field.value as number) : undefined}
                   impact={fieldName === 'impact' ? (field.value as RiskRiskImpact) : undefined}
                   likelihood={fieldName === 'likelihood' ? (field.value as RiskRiskLikelihood) : undefined}
                   status={fieldName === 'status' ? (field.value as RiskRiskStatus) : undefined}
+                  riskKindName={fieldName === 'riskKindName' ? (field.value as string) : undefined}
+                  riskCategoryName={fieldName === 'riskCategoryName' ? (field.value as string) : undefined}
                   onChange={(val) => {
                     field.onChange(val)
 
-                    if (fieldName === 'score') {
-                      return
-                    }
+                    if (fieldName === 'score') return
 
                     if (!isEditing && handleUpdate) {
                       handleUpdate({ [fieldName]: val } as UpdateRiskInput)
@@ -123,8 +90,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
     return (
       <div>
         <div className="flex flex-col gap-4">
-          {renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}
-          {renderTextField('category', 'Category', risk?.category ?? undefined)}
+          {renderRiskLabelField('riskKindName', 'Type')}
+          {renderRiskLabelField('riskCategoryName', 'Category')}
           {renderRiskLabelField('score', 'Score')}
           {renderRiskLabelField('impact', 'Impact')}
           {renderRiskLabelField('likelihood', 'Likelihood')}
@@ -135,9 +102,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
   }
 
   return (
-    <Card className="p-4">
-      <div className="m-1">{renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}</div>
-      <div className="m-1">{renderTextField('category', 'Category', risk?.category ?? undefined)}</div>
+    <Card className="flex flex-col gap-1 p-4">
+      <div className="m-1">{renderRiskLabelField('riskKindName', 'Type')}</div>
+      <div className="m-1">{renderRiskLabelField('riskCategoryName', 'Category')}</div>
       <div className="m-1">{renderRiskLabelField('score', 'Score')}</div>
       <div className="m-1">{renderRiskLabelField('impact', 'Impact')}</div>
       <div className="m-1">{renderRiskLabelField('likelihood', 'Likelihood')}</div>
@@ -182,10 +149,10 @@ const FieldRow = ({
   }
 
   return (
-    <div className={`flex justify-between items-center`}>
+    <div className={`flex justify-between items-center border-b border-border pb-3`}>
       <div className="flex gap-2 w-[200px] items-center">
         {getFieldIcon(label)}
-        <span>{label}</span>
+        <span className="text-sm">{label}</span>
       </div>
       <HoverPencilWrapper showPencil={showPencil} className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
         <div

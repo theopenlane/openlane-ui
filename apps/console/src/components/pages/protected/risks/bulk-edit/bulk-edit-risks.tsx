@@ -24,6 +24,9 @@ import {
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 import { useBulkEditRisk } from '@/lib/graphql-hooks/risks'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditRisks).optional(),
@@ -64,10 +67,24 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
+  const { enumOptions: typeOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'kind',
+    },
+  })
+
+  const { enumOptions: categoryOptions, isSuccess: isCategoriesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'risk',
+      field: 'category',
+    },
+  })
+
   const allOptionSelects = useMemo(() => {
-    if (!groups) return []
-    return getAllSelectOptionsForBulkEditRisks(groups?.filter(Boolean) as Group[])
-  }, [groups])
+    if (!groups || !isTypesSuccess || !isCategoriesSuccess) return []
+    return getAllSelectOptionsForBulkEditRisks(groups?.filter(Boolean) as Group[], typeOptions, categoryOptions)
+  }, [groups, typeOptions, categoryOptions, isCategoriesSuccess, isTypesSuccess])
 
   const { control, handleSubmit, watch } = form
 
@@ -210,7 +227,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                   </div>
                 )
               })}
-              {fields.length < 7 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditRisks).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
@@ -227,18 +244,13 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
               ) : null}
             </div>
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

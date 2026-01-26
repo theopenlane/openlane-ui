@@ -8,6 +8,7 @@ import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useQueryClient } from '@tanstack/react-query'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface SetReadyForAuditorDialogProps {
   programStatus: ProgramProgramStatus
@@ -33,7 +34,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={programStatus === ProgramProgramStatus.ARCHIVED} className="!h-8 !p-2" variant="secondary" type="button" icon={<Pencil />} iconPosition="left">
+        <Button disabled={programStatus === ProgramProgramStatus.ARCHIVED} className="h-8! p-2!" variant="secondary" type="button" icon={<Pencil />} iconPosition="left">
           Ready for Auditor
         </Button>
       </DialogTrigger>
@@ -50,9 +51,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
         </div>
         <DialogFooter className="mt-6 flex gap-2">
           <Button onClick={handleSetReadyForAuditor}>Set ready</Button>
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

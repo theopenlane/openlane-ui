@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { CreateTaskFormData } from '../../hooks/use-form-schema'
@@ -26,6 +25,8 @@ import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { Value } from 'platejs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Link from 'next/link'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TProps = {
   onSuccess: () => void
@@ -42,11 +43,18 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { form } = useFormSchema()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
-  const taskTypeOptions = Object.values(TaskTypes)
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+  const { tagOptions } = useGetTags()
+
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -64,7 +72,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
 
       const formData: { input: CreateTaskInput } = {
         input: {
-          category: data?.category,
+          taskKindName: data?.taskKindName,
           due: data?.due,
           title: data?.title,
           details: detailsField,
@@ -117,7 +125,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                     <InputRow className="w-full">
                       <FormField
                         control={form.control}
-                        name="category"
+                        name="taskKindName"
                         render={({ field }) => (
                           <FormItem className="w-full">
                             <div className="flex items-center">
@@ -130,14 +138,14 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                             <Select value={field.value} onValueChange={field.onChange}>
                               <SelectTrigger className=" w-full">{field.value || 'Select'}</SelectTrigger>
                               <SelectContent>
-                                {taskTypeOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
+                                {taskKindOptions.map((o) => (
+                                  <SelectItem key={o.value} value={o.value}>
+                                    {o.value}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            {form.formState.errors.category && <p className="text-red-500 text-sm">{form.formState.errors.category.message}</p>}
+                            {form.formState.errors.taskKindName && <p className="text-red-500 text-sm">{form.formState.errors.taskKindName.message}</p>}
                           </FormItem>
                         )}
                       />
@@ -170,11 +178,13 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                         name="details"
                         render={() => (
                           <FormItem className="w-full">
-                            <FormLabel>Details</FormLabel>
-                            <SystemTooltip
-                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                              content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                            />
+                            <div className="flex items-center">
+                              <FormLabel>Details</FormLabel>
+                              <SystemTooltip
+                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                                content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                              />
+                            </div>
                             <PlateEditor onChange={handleDetailsChange} placeholder="Write your task details" />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
@@ -192,6 +202,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                             <FormLabel>Tags</FormLabel>
                             <FormControl>
                               <MultipleSelector
+                                options={tagOptions}
                                 placeholder="Add tag..."
                                 creatable
                                 value={tagValues}

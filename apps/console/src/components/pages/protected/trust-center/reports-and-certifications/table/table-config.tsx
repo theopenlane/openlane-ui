@@ -1,9 +1,11 @@
 'use client'
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
-import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
+import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
+type GqlFile = {
+  presignedURL?: string | null
+}
 export type TTrustCenterDoc = {
   id: string
   title: string
@@ -12,6 +14,11 @@ export type TTrustCenterDoc = {
   tags?: string[] | null
   createdAt: string
   updatedAt: string
+  watermarkingEnabled?: boolean
+  file?: GqlFile | null
+  originalFile?: GqlFile | null
+  watermarkStatus: TrustCenterDocWatermarkStatus
+  standardShortName: string
 }
 
 type Params = {
@@ -51,7 +58,6 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       cell: ({ row }: { row: Row<TTrustCenterDoc> }) => {
         const { id } = row.original
         const isChecked = selectedDocs.some((d) => d.id === id)
-
         return (
           <div onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
@@ -71,23 +77,46 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
     {
       accessorKey: 'visibility',
       header: 'Visibility',
-      cell: ({ row }) => <span className="capitalize">{row.original.visibility.split('_').join(' ').toLowerCase()}</span>,
+      cell: ({ row }) => {
+        return (
+          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
+            {row.original.visibility.split('_').join(' ').toLowerCase()}
+          </div>
+        )
+      },
+      size: 100,
+    },
+    {
+      accessorKey: 'watermarkingEnabled',
+      header: 'Watermarking',
+      cell: ({ row }) => {
+        return <DocumentsWatermarkStatusChip status={row.original.watermarkStatus} />
+      },
+      size: 100,
     },
     {
       accessorKey: 'tags',
       header: 'Tags',
+      size: 140,
       cell: ({ row }) => {
-        const tags = row.original.tags
-        if (!tags || tags.length === 0) return '-'
+        const tags = row?.original?.tags
+        if (!tags?.length) {
+          return '-'
+        }
         return (
-          <div className="flex flex-wrap gap-1">
-            {tags.map((tag, idx) => (
-              <Badge key={idx} variant="outline">
-                {tag}
-              </Badge>
+          <div className="flex gap-2">
+            {row?.original?.tags?.map((tag, i) => (
+              <TagChip key={i} tag={tag} />
             ))}
           </div>
         )
+      },
+    },
+    {
+      accessorKey: 'standard',
+      header: 'Standard',
+      cell: ({ row }) => {
+        return row.original.standardShortName ? <StandardChip referenceFramework={row.original.standardShortName} /> : '-'
       },
     },
     {
@@ -98,7 +127,16 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
-      cell: ({ row }) => <span>{formatDate(row.original.updatedAt)}</span>,
+      cell: ({ row }) => <span className="whitespace-nowrap">{formatDate(row.original.updatedAt)}</span>,
+      size: 140,
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => {
+        const presignedURL = row.original.file?.presignedURL || row.original.originalFile?.presignedURL || ''
+        return <DocumentActions filePresignedURL={presignedURL} watermarkEnabled={row.original.watermarkingEnabled ?? false} documentId={row.original.id as string} />
+      },
     },
   ]
 
@@ -127,14 +165,18 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
   },
 ]
 
-import { Eye, Folder } from 'lucide-react'
+import { Eye, FileQuestion, Folder } from 'lucide-react'
 import { FilterField } from '@/types'
-import { enumToOptions } from '../../../tasks/table/table-config'
 import { Checkbox } from '@repo/ui/checkbox'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import DocumentActions from '../../actions/documents-actions'
+import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import StandardChip from '../../../standards/shared/standard-chip'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {
-    key: 'categoryContainsFold',
+    key: 'trustCenterDocKindNameContainsFold',
     label: 'Category',
     type: 'text',
     icon: Folder,
@@ -145,5 +187,11 @@ export const trustCenterDocsFilterFields: FilterField[] = [
     type: 'multiselect',
     options: enumToOptions(TrustCenterDocTrustCenterDocumentVisibility),
     icon: Eye,
+  },
+  {
+    key: 'hasStandardWith',
+    label: 'Standard Name',
+    type: 'text',
+    icon: FileQuestion,
   },
 ]

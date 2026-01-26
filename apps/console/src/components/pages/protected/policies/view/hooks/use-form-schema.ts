@@ -8,6 +8,7 @@ import { InternalPolicyDocumentStatus, InternalPolicyFrequency } from '@repo/cod
 const formSchema = z.object({
   name: z.string(),
   details: z.custom<Value | string>().optional(),
+  detailsJSON: z.custom<Value>().optional(),
   status: z
     .nativeEnum(InternalPolicyDocumentStatus, {
       errorMap: () => ({ message: 'Invalid status' }),
@@ -19,7 +20,7 @@ const formSchema = z.object({
       errorMap: () => ({ message: 'Invalid status' }),
     })
     .default(InternalPolicyFrequency.YEARLY),
-  policyType: z.string(),
+  internalPolicyKindName: z.string(),
   reviewDue: z.date().optional().nullable(),
   tags: z.array(z.string().optional()),
   programIDs: z.array(z.any()).optional(),
@@ -43,7 +44,7 @@ const useFormSchema = () => {
         status: InternalPolicyDocumentStatus.DRAFT,
         reviewFrequency: InternalPolicyFrequency.YEARLY,
         tags: [],
-        policyType: '',
+        internalPolicyKindName: '',
       },
     }),
   }

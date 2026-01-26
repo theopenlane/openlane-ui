@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
 import ProgramTypeSelect from '../shared/form-fields/program-select'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
-import { CreateProgramWithMembersInput, ProgramProgramType } from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
@@ -18,7 +18,7 @@ const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 
 type ProgramFormValues = {
-  programType: ProgramProgramType
+  programKindName: string
   name: string
   description: string
 }
@@ -26,7 +26,7 @@ type ProgramFormValues = {
 const GenericProgram = () => {
   const methods = useForm<ProgramFormValues>({
     defaultValues: {
-      programType: undefined,
+      programKindName: undefined,
       name: '',
       description: '',
     },
@@ -49,7 +49,7 @@ const GenericProgram = () => {
         program: {
           name: data.name,
           description: data.description,
-          programType: data.programType,
+          programKindName: data.programKindName,
           startDate: today,
           endDate: oneYearFromToday,
         },
@@ -73,7 +73,7 @@ const GenericProgram = () => {
   }
 
   const handleBack = () => {
-    setShowExitConfirm(true) // ✅ show confirmation instead of direct navigation
+    setShowExitConfirm(true)
   }
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const GenericProgram = () => {
             {/* Program Type */}
             <div className="flex flex-col">
               <ProgramTypeSelect />
-              {errors.programType && <span className="text-xs text-destructive">{errors.programType.message as string}</span>}
+              {errors.programKindName && <span className="text-xs text-destructive">{errors.programKindName.message as string}</span>}
             </div>
 
             {/* Program Name */}

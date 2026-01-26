@@ -3,7 +3,6 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
-import { controlIconsMap } from '../controls/properties-card'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
@@ -13,6 +12,7 @@ import { GroupedControls, RelatedNode } from '../controls/related-controls'
 import { RelatedControlChip } from '../controls/shared/related-control-chip'
 import AccordionInfo from './control-details-accordion-info'
 import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
+import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -182,7 +182,7 @@ const ControlDetailsSheet = () => {
             <Property label="Category" value={data?.control.category} />
             <Property label="Subcategory" value={data?.control.subcategory} />
             <Property label="Mapped categories" value={data?.control?.mappedCategories?.join(', ')} />
-            <Property label="Type" value={data?.control.controlType?.toLowerCase()} />
+            <Property label="Type" value={data?.control.controlKindName?.toLowerCase()} />
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="mb-1.5 text-xl">Subcontrols</p>

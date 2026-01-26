@@ -1,6 +1,18 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK, BULK_EDIT_TASK, UPDATE_TASK_COMMENT, BULK_DELETE_TASK } from '@repo/codegen/query/tasks'
+import {
+  TASKS_WITH_FILTER,
+  CREATE_TASK,
+  UPDATE_TASK,
+  DELETE_TASK,
+  TASK,
+  CREATE_CSV_BULK_TASK,
+  BULK_EDIT_TASK,
+  UPDATE_TASK_COMMENT,
+  BULK_DELETE_TASK,
+  GET_OVERDUE_TASK_COUNT,
+  GET_TASK_ASSOCIATIONS,
+} from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -21,6 +33,9 @@ import {
   UpdateTaskCommentMutationVariables,
   DeleteBulkTaskMutation,
   DeleteBulkTaskMutationVariables,
+  GetOverdueTaskCountQuery,
+  GetTaskAssociationsQuery,
+  GetTaskAssociationsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -179,6 +194,37 @@ export const useBulkDeleteTask = () => {
     mutationFn: async (variables) => client.request(BULK_DELETE_TASK, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    },
+  })
+}
+
+export const useGetOverdueTasksCount = () => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetOverdueTaskCountQuery, unknown>({
+    queryKey: ['tasks', 'overdueTasksCount'],
+    queryFn: async () =>
+      client.request(GET_OVERDUE_TASK_COUNT, {
+        now: new Date().toISOString(),
+      }),
+    enabled: true,
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.tasks?.totalCount ?? 0,
+  }
+}
+
+export const useTaskAssociations = (taskId?: GetTaskAssociationsQueryVariables['taskId']) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetTaskAssociationsQuery, unknown>({
+    queryKey: ['tasks', taskId, 'associations'],
+    enabled: !!taskId,
+    queryFn: async (): Promise<GetTaskAssociationsQuery> => {
+      const result = await client.request(GET_TASK_ASSOCIATIONS, { taskId })
+      return result as GetTaskAssociationsQuery
     },
   })
 }

@@ -6,7 +6,7 @@ import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'luc
 import { Input } from '@repo/ui/input'
 import { useParams, useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ControlListFieldsFragment, ControlListStandardFieldsFragment, ControlWhereInput } from '@repo/codegen/src/schema'
+import { ControlListStandardFieldsFragment, ControlWhereInput } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { TData } from '@/types/authz'
 import { DataTable } from '@repo/ui/data-table'
@@ -164,7 +164,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
     }))
   }
 
-  const handleRowClick = (row: ControlListFieldsFragment) => {
+  const handleRowClick = (row: ControlListStandardFieldsFragment) => {
     push(`/standards/${id}?controlId=${row.id}`)
   }
 

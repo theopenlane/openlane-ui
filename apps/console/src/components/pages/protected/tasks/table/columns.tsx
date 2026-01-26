@@ -7,8 +7,8 @@ import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import AssigneeCell from './assignee-cell'
-import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type ColumnOptions = {
   userMap: Record<string, User>
@@ -71,7 +71,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       size: 200,
     },
     {
-      accessorKey: 'category',
+      accessorKey: 'taskKindName',
       header: 'Type',
       size: 140,
     },
@@ -141,15 +141,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <Badge variant={'outline'} key={i}>
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {

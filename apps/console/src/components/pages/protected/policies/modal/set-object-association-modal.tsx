@@ -1,7 +1,6 @@
 'use client'
 
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useEffect, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
@@ -13,6 +12,8 @@ import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
@@ -42,6 +43,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
     : [ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]
 
   const handleSave = () => {
+    policyState.setInitialAssociations(associations.associations)
     policyState.setAssociations(associations.associations)
     policyState.setAssociationRefCodes(associations.refCodes)
     if (policyId) {
@@ -171,12 +173,8 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
           defaultSelectedObject={fromTable ? ObjectTypeObjects.PROCEDURE : undefined}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
-          <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton onClick={handleSave} isSaving={isSaving} />
+          <CancelButton disabled={isSaving} onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

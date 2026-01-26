@@ -12,4 +12,7 @@ export enum TableColumnVisibilityKeysEnum {
   GROUP = 'group',
   DOCUMENTS = 'documents',
   SUBPROCESSORS = 'subprocessors',
+  TEMPLATE = 'template',
+  CUSTOM_ENUMS = 'custom-enums',
+  CUSTOM_TAGS = 'custom-tags',
 }

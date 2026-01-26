@@ -17,6 +17,12 @@ import {
   GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID,
   GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS,
   GET_EVIDENCE_SUGGESTED_ACTIONS,
+  GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT,
+  GET_EVIDENCE_COMMENTS,
+  UPDATE_EVIDENCE_COMMENT,
+  CREATE_CSV_BULK_EVIDENCE,
+  BULK_DELETE_EVIDENCE,
+  BULK_EDIT_EVIDENCE,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -45,6 +51,17 @@ import {
   GetEvidenceCountsByStatusAllProgramsQuery,
   EvidenceSuggestedActionsQuery,
   FileWhereInput,
+  GetItemsMissingEvidenceCountQuery,
+  GetEvidenceCommentsQuery,
+  GetEvidenceCommentsQueryVariables,
+  UpdateEvidenceCommentMutation,
+  UpdateEvidenceCommentMutationVariables,
+  CreateBulkCsvEvidenceMutation,
+  CreateBulkCsvEvidenceMutationVariables,
+  DeleteBulkEvidenceMutation,
+  DeleteBulkEvidenceMutationVariables,
+  UpdateBulkEvidenceMutation,
+  UpdateBulkEvidenceMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -340,11 +357,11 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
 
 // Convenience hooks for specific statuses
 export const useSubmittedEvidenceTrend = (programId?: string | null) => {
-  return useEvidenceTrend(programId, EvidenceEvidenceStatus.READY)
+  return useEvidenceTrend(programId, EvidenceEvidenceStatus.READY_FOR_AUDITOR)
 }
 
 export const useAcceptedEvidenceTrend = (programId?: string | null) => {
-  return useEvidenceTrend(programId, EvidenceEvidenceStatus.APPROVED)
+  return useEvidenceTrend(programId, EvidenceEvidenceStatus.AUDITOR_APPROVED)
 }
 
 export const useRejectedEvidenceTrend = (programId?: string | null) => {
@@ -381,5 +398,75 @@ export const useEvidenceSuggestedActions = () => {
     queryKey: ['evidences', 'suggested-actions'],
     queryFn: async () => client.request(GET_EVIDENCE_SUGGESTED_ACTIONS),
     refetchOnWindowFocus: false,
+  })
+}
+
+export const useGetEvidenceMissingArtifactCount = () => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetItemsMissingEvidenceCountQuery, unknown>({
+    queryKey: ['evidences', 'evidenceMissingArtifactCount'],
+    queryFn: async () => client.request(GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT),
+    enabled: true,
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.evidences?.totalCount ?? 0,
+  }
+}
+
+export const useGetEvidenceComments = (evidenceId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetEvidenceCommentsQuery, unknown>({
+    queryKey: ['evidenceComments', evidenceId],
+    queryFn: async () => client.request<GetEvidenceCommentsQuery, GetEvidenceCommentsQueryVariables>(GET_EVIDENCE_COMMENTS, { evidenceId: evidenceId! }),
+    enabled: !!evidenceId,
+  })
+}
+
+export const useUpdateEvidenceComment = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<UpdateEvidenceCommentMutation, unknown, UpdateEvidenceCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_EVIDENCE_COMMENT, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidenceComments'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVEvidence = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvEvidenceMutation, unknown, CreateBulkCsvEvidenceMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_EVIDENCE, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+    },
+  })
+}
+
+export const useBulkDeleteEvidence = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkEvidenceMutation, unknown, DeleteBulkEvidenceMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_EVIDENCE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+    },
+  })
+}
+
+export const useBulkEditEvidence = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkEvidenceMutation, unknown, UpdateBulkEvidenceMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_EVIDENCE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+    },
   })
 }

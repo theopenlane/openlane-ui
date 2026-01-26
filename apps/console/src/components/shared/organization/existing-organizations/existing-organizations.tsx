@@ -135,7 +135,7 @@ export const ExistingOrganizations = () => {
               </div>
               {currentOrg !== org?.node?.id ? (
                 <div className={orgSelect()}>
-                  <Button variant="filled" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
+                  <Button variant="secondary" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
                     Select
                   </Button>
                 </div>

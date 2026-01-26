@@ -15,10 +15,9 @@ import { CustomEvidenceControl } from './evidence-sheet-config'
 type Props = {
   evidences?: (EvidenceEdge | null)[]
   control: TFormEvidenceData
-  canEdit?: boolean
 }
 
-const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
+const EvidenceTable = ({ evidences, control }: Props) => {
   const { subcontrolId } = useParams()
   const isSubcontrol = !!subcontrolId
   const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
@@ -46,29 +45,27 @@ const EvidenceTable = ({ evidences, control, canEdit }: Props) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
           <h2 className="text-lg font-semibold">{title}</h2>
-          {canEdit && (
-            <>
-              <CreateButton type="evidence" onClick={() => setIsSheetOpen(true)} />
-              <EvidenceCreateSheet
-                open={isSheetOpen}
-                onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
-                onOpenChange={setIsSheetOpen}
-                formData={control}
-                controlParam={[controlParam]}
-                excludeObjectTypes={[
-                  ObjectTypeObjects.EVIDENCE,
-                  ObjectTypeObjects.RISK,
-                  ObjectTypeObjects.PROCEDURE,
-                  ObjectTypeObjects.GROUP,
-                  ObjectTypeObjects.INTERNAL_POLICY,
-                  ObjectTypeObjects.CONTROL,
-                  ObjectTypeObjects.SUB_CONTROL,
-                  ObjectTypeObjects.PROGRAM,
-                ]}
-                defaultSelectedObject={ObjectTypeObjects.TASK}
-              />
-            </>
-          )}
+          <>
+            <CreateButton type="evidence" onClick={() => setIsSheetOpen(true)} />
+            <EvidenceCreateSheet
+              open={isSheetOpen}
+              onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
+              onOpenChange={setIsSheetOpen}
+              formData={control}
+              controlParam={[controlParam]}
+              excludeObjectTypes={[
+                ObjectTypeObjects.EVIDENCE,
+                ObjectTypeObjects.RISK,
+                ObjectTypeObjects.PROCEDURE,
+                ObjectTypeObjects.GROUP,
+                ObjectTypeObjects.INTERNAL_POLICY,
+                ObjectTypeObjects.CONTROL,
+                ObjectTypeObjects.SUB_CONTROL,
+                ObjectTypeObjects.PROGRAM,
+              ]}
+              defaultSelectedObject={ObjectTypeObjects.TASK}
+            />
+          </>
         </div>
       </div>
 

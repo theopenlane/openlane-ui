@@ -10,12 +10,15 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
 import { CreateInternalPolicyInput } from '@repo/codegen/src/schema'
-import { FileUp, Import, Trash2 } from 'lucide-react'
+import { Import, Trash2 } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
+import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TCreatePolicyUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -35,6 +38,8 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy()
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
 
+  const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
+
   const [defaultTab, setDefaultTab] = useState<PolicyProcedureTabEnum>(PolicyProcedureTabEnum.Upload)
   const [policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
   const [policyMdDocumentLinks, setPolicyMdDocumentLinks] = useState<string[]>([])
@@ -51,6 +56,10 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     }
 
     setIsOpen(false)
+  }
+
+  const handleTemplateFileSelect = (file: TUploadedFile) => {
+    setUploadedFiles((prev) => [...prev, file])
   }
 
   const handleLinkUpload = async () => {
@@ -175,7 +184,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Import Existing Policy(s)</DialogTitle>
         </DialogHeader>
@@ -187,7 +196,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           </a>
           .
         </Callout>
-        <Tabs variant="underline" defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
+        <Tabs defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
           <TabsList>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
               Upload
@@ -226,27 +235,19 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteLink(index)} />
           </div>
         ))}
-        {uploadedFiles.map((file, index) => (
-          <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
-            <div className="mr-2">
-              <FileUp className="w-8 h-8" />
-            </div>
-            <div>
-              <div className="font-semibold">{file.name}</div>
-              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
-            </div>
-            <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteFile(index)} />
-          </div>
-        ))}
-        <div className="flex justify-end gap-2">
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+        <div className="grid grid-cols-4 gap-6 max-h-96 overflow-y-auto">
+          {uploadedFiles.map((file, index) => (
+            <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={handleDeleteFile} />
+          ))}
+        </div>
+        <div className="flex flex-col gap-2">
           <Button variant="primary" onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
-            {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
+            {isSubmitting || isCreating ? 'Uploading...' : 'Upload Files'}
           </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
+      <PolicyTemplateBrowser isOpen={showTemplateBrowser} onClose={() => setShowTemplateBrowser(false)} onFileSelect={handleTemplateFileSelect} />
     </Dialog>
   )
 }

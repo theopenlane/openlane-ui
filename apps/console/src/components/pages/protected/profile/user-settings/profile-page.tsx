@@ -16,6 +16,7 @@ import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from 
 import PasskeySection from './passkeys-section'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import DeleteUserSection from '../delete-user-section'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -151,7 +152,7 @@ const ProfilePage = () => {
     if (!tfaSettings || !isVerified) {
       return {
         badge: <Badge variant="secondary">Recommended</Badge>,
-        text: <p className="text-sm">A TOTP method has not been setup for your account.</p>,
+        text: <p className="text-sm">A second factor method has not been setup for your account.</p>,
         buttons: [
           <Button variant="primary" key={0} className="mx-10 w-24" onClick={handleConfigure}>
             Configure
@@ -165,7 +166,7 @@ const ProfilePage = () => {
         badge: <Badge variant="default">Enabled</Badge>,
         text: (
           <p className="text-sm">
-            A TOTP method has been added for your account. Ensure you have your recovery codes stored, or{' '}
+            A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
             <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
               regenerate&nbsp;
             </span>
@@ -187,7 +188,7 @@ const ProfilePage = () => {
       badge: <Badge variant="destructive">Disabled</Badge>,
       text: (
         <p className="text-sm">
-          A TOTP method has been added for your account. Ensure you have your recovery codes stored, or{' '}
+          A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
           <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
             regenerate&nbsp;
           </span>
@@ -248,6 +249,7 @@ const ProfilePage = () => {
       )}
 
       <PasskeySection userData={userData} />
+      <DeleteUserSection userId={userId} />
     </>
   )
 }

@@ -27,8 +27,8 @@ export function EvidenceSummaryCard() {
   const needsRenewalCount = data?.needsRenewal?.totalCount ?? 0
 
   const chartData: TChardData[] = [
-    { name: 'Ready', value: readyCount, status: EvidenceEvidenceStatus.READY, description: 'Indicates that the evidence is ready for auditor review.' },
-    { name: 'Approved', value: approvedCount, status: EvidenceEvidenceStatus.APPROVED, description: 'Indicates that the evidence has been approved by the auditor' },
+    { name: 'Ready', value: readyCount, status: EvidenceEvidenceStatus.READY_FOR_AUDITOR, description: 'Indicates that the evidence is ready for auditor review.' },
+    { name: 'Approved', value: approvedCount, status: EvidenceEvidenceStatus.AUDITOR_APPROVED, description: 'Indicates that the evidence has been approved by the auditor' },
     { name: 'Needs Renewal', value: needsRenewalCount, status: EvidenceEvidenceStatus.NEEDS_RENEWAL, description: 'Indicates that the evidence needs to be renewed' },
     { name: 'Missing Artifact', value: missingArtifactCount, status: EvidenceEvidenceStatus.MISSING_ARTIFACT, description: 'Indicates that the evidence is missing an artifact' },
     { name: 'Rejected', value: rejectedCount, status: EvidenceEvidenceStatus.REJECTED, description: 'Indicates that the evidence has been rejected by the auditor' },

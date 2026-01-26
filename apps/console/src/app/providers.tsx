@@ -11,6 +11,7 @@ import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
 import { enableDevrevChat } from '@repo/dally/auth'
+import { WebSocketProvider } from '@/providers/websocket-provider'
 
 interface ProvidersProps {
   children: ReactNode
@@ -30,12 +31,13 @@ const publicPages = [
   '/forgot-password',
   '/password-reset',
   '/signup',
+  '/questionnaire',
 ]
 
 const Providers = ({ children }: ProvidersProps) => {
   const { status } = useSession()
   const pathname = usePathname()
-  const isPublicPage = publicPages.includes(pathname)
+  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/')
 
   const queryClient = useMemo(
     () =>
@@ -54,7 +56,7 @@ const Providers = ({ children }: ProvidersProps) => {
   if (isPublicPage) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        {children}
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </ThemeProvider>
     )
   }
@@ -67,12 +69,14 @@ const Providers = ({ children }: ProvidersProps) => {
     <NavigationGuardProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
-          <BreadcrumbProvider>
-            {enableDevrevChat === 'true' && <InitPlugSDK />}
-            <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
-              {children}
-            </TooltipProvider>
-          </BreadcrumbProvider>
+          <WebSocketProvider>
+            <BreadcrumbProvider>
+              {enableDevrevChat === 'true' && <InitPlugSDK />}
+              <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
+                {children}
+              </TooltipProvider>
+            </BreadcrumbProvider>
+          </WebSocketProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </NavigationGuardProvider>

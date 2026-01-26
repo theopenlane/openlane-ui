@@ -27,11 +27,11 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpirat
   const { mutateAsync: deleteApiToken } = useDeleteApiToken()
   const { successNotification, errorNotification } = useNotification()
   const path = usePathname()
-  const isOrg = path.includes('/organization-settings')
+  const isApiTokens = path.includes('/api-tokens')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const handleDeleteToken = async () => {
     try {
-      if (isOrg) {
+      if (isApiTokens) {
         await deleteApiToken({ deleteAPITokenId: tokenId })
       } else {
         await deletePersonalToken({ deletePersonalAccessTokenId: tokenId })
@@ -77,7 +77,7 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpirat
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteToken}
-        title={`Delete ${isOrg ? 'API Token' : 'Personal Token'}`}
+        title={`Delete ${isApiTokens ? 'API Token' : 'Personal Token'}`}
         description={
           <>
             This action cannot be undone. This will permanently remove the <b>{tokenName}</b> from the organization.

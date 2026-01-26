@@ -12,6 +12,7 @@ import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { exportCSV } from '@/lib/export'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TBulkCSVCreateProcedureDialogProps = {
   trigger?: React.ReactElement<
@@ -73,7 +74,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Bulk upload</DialogTitle>
         </DialogHeader>
@@ -98,13 +99,11 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
           multipleFiles={false}
           acceptedFilesClass="flex justify-between text-sm"
         />
-        <div className="flex justify-end gap-2">
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+        <div className="flex flex-col gap-2">
+          <Button className="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

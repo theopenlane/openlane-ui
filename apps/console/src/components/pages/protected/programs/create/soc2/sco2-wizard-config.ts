@@ -1,4 +1,3 @@
-import { ProgramProgramType } from '@repo/codegen/src/schema'
 import { z } from 'zod'
 import { UseFormReturn } from 'react-hook-form'
 import { TErrorProps } from '@/hooks/useNotification'
@@ -16,7 +15,7 @@ export const programInviteSchema = z.object({
 })
 
 export const step3Schema = z.object({
-  programType: z.nativeEnum(ProgramProgramType, {
+  programKindName: z.string({
     errorMap: (issue, ctx) => {
       if (issue.code === z.ZodIssueCode.invalid_type) {
         return { message: 'Choose how you want to get started' }

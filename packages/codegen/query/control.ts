@@ -14,7 +14,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     referenceID
     auditorReferenceID
     source
-    controlType
+    controlKindName
     subcontrols {
       totalCount
     }
@@ -37,13 +37,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       logoURL
       gravatarLogoURL
     }
-    controlObjectives {
-      edges {
-        node {
-          desiredOutcome
-        }
-      }
-    }
+
     controlImplementations {
       edges {
         node {
@@ -51,10 +45,66 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    comments {
+      totalCount
+    }
     updatedAt
     updatedBy
     createdAt
     createdBy
+    controlObjectives {
+      edges {
+        node {
+          desiredOutcome
+        }
+      }
+    }
+    tasks {
+      edges {
+        node {
+          id
+          title
+        }
+      }
+      totalCount
+    }
+    internalPolicies {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      totalCount
+    }
+    procedures {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      totalCount
+    }
+
+    programs {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    risks {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      totalCount
+    }
   }
 `
 
@@ -97,6 +147,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     status
     tags
     description
+    descriptionJSON
     implementationGuidance
     exampleEvidence
     controlQuestions
@@ -104,7 +155,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     assessmentObjectives
     displayID
     source
-    controlType
+    controlKindName
     auditorReferenceID
     referenceID
     referenceFramework
@@ -175,6 +226,7 @@ export const GET_ALL_CONTROLS = gql`
     controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
+          __typename
           ...ControlListFields
         }
         cursor
@@ -310,9 +362,27 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
   }
 `
 
+export const GET_CONTROL_NOT_IMPLEMENTED_COUNT = gql`
+  query GetNotImplementedControlCount {
+    controls(where: { status: NOT_IMPLEMENTED, systemOwned: false }) {
+      totalCount
+    }
+  }
+`
+
 export const CREATE_CSV_BULK_CONTROL = gql`
   mutation CreateBulkCSVControl($input: Upload!) {
     createBulkCSVControl(input: $input) {
+      controls {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_CSV_BULK_CONTROL = gql`
+  mutation UpdateBulkCSVControl($input: Upload!) {
+    updateBulkCSVControl(input: $input) {
       controls {
         id
       }
@@ -600,6 +670,76 @@ export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
           standardID
           ownerID
           systemOwned
+        }
+      }
+    }
+  }
+`
+
+export const CONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment ControlDiscussionFields on Control {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_DISCUSSION_BY_ID = gql`
+  ${CONTROL_DISCUSSION_FIELDS_FRAGMENT}
+  query GetControlDiscussionById($controlId: ID!) {
+    control(id: $controlId) {
+      ...ControlDiscussionFields
+    }
+  }
+`
+
+export const INSERT_CONTROL_PLATE_COMMENT = gql`
+  mutation InsertControlPlateComment($updateControlId: ID!, $input: UpdateControlInput!) {
+    updateControl(id: $updateControlId, input: $input) {
+      control {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

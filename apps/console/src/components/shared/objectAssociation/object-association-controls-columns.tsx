@@ -65,8 +65,29 @@ export const getControlsAndSubcontrolsColumns = ({
 
   return [
     {
-      accessorKey: 'name',
-      header: selectedObject === AccordionEnum.Control ? AccordionEnum.Control : AccordionEnum.Subcontrol,
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageRows = table.getRowModel().rows.map((row) => row.original)
+
+        const allSelected = currentPageRows.every((row) =>
+          selectedObject === AccordionEnum.Control
+            ? evidenceControls?.some((c) => c.refCode === row.refCode && c.referenceFramework === row.referenceFramework)
+            : evidenceSubcontrols?.some((c) => c.refCode === row.refCode && c.referenceFramework === row.referenceFramework),
+        )
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked) => {
+                currentPageRows.forEach((row) => {
+                  toggleChecked(row.id, row.refCode, checked === true, row.referenceFramework || undefined)
+                })
+              }}
+            />
+          </div>
+        )
+      },
       cell: ({ row }) => {
         const { id, refCode, referenceFramework } = row.original
 
@@ -76,17 +97,31 @@ export const getControlsAndSubcontrolsColumns = ({
             : !!evidenceSubcontrols?.find((c) => c.refCode === refCode && c.referenceFramework === referenceFramework)
 
         return (
-          <div className="flex items-center gap-2">
+          <div onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, refCode, val === true, referenceFramework || undefined)} />
-            <span>{refCode}</span>
           </div>
         )
+      },
+      enableResizing: false,
+    },
+
+    {
+      accessorKey: 'name',
+      header: selectedObject === AccordionEnum.Control ? AccordionEnum.Control : AccordionEnum.Subcontrol,
+      meta: {
+        className: 'max-w-[40%] w-[30%]',
+      },
+      cell: ({ row }) => {
+        const { refCode } = row.original
+        return <span className="block truncate whitespace-nowrap">{refCode}</span>
       },
     },
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => <div className="line-clamp-3 text-justify">{convertToReadOnly(row.getValue('description') as string, 0)}</div>,
+      size: 0,
+      enableResizing: false,
+      cell: ({ row }) => <div className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.getValue('description') as string, 0)}</div>,
     },
   ]
 }

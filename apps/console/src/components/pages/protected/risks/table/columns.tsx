@@ -84,8 +84,8 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       maxSize: 80,
       minSize: 80,
     },
-    { accessorKey: 'riskType', header: 'Type', size: 100 },
-    { accessorKey: 'category', header: 'Category', size: 100 },
+    { accessorKey: 'riskKindName', header: 'Type', size: 100 },
+    { accessorKey: 'riskCategoryName', header: 'Category', size: 100 },
     {
       accessorKey: 'score',
       header: 'Score',

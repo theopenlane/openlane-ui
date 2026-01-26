@@ -3,14 +3,12 @@ import { Input, InputRow } from '@repo/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
-import { Button } from '@repo/ui/button'
-import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
@@ -23,8 +21,12 @@ import TagsCard from '@/components/pages/protected/policies/create/cards/tags-ca
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Switch } from '@repo/ui/switch'
+import HelperText from './alert-box'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { useSession } from 'next-auth/react'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -44,7 +46,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const isSubmitting = isCreating || isSaving
-  const plateEditorHelper = usePlateEditor()
   const { successNotification, errorNotification } = useNotification()
   const associationsState = usePolicy((state) => state.associations)
   const policyState = usePolicy()
@@ -55,9 +56,17 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [isInitialized, setIsInitialized] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policy?.id || null)
+  const { data: discussionData } = useGetPolicyDiscussionById(policy?.id || null)
   const isPoliciesCreate = path === '/policies/create'
   const [createMultiple, setCreateMultiple] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorRef = useRef<any>(null)
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
+  const plateEditorHelper = usePlateEditor()
+
   useEffect(() => {
     if (policy && assocData) {
       const policyAssociations: TObjectAssociationMap = {
@@ -82,9 +91,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         name: policy.name,
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
-        policyType: policy.policyType ?? '',
         reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
+        internalPolicyKindName: policy.internalPolicyKindName ?? undefined,
       })
 
       setMetadata({
@@ -111,16 +120,11 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: { input: CreateInternalPolicyInput } = {
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationsState,
         },
@@ -140,7 +144,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
           details: '',
           approvalRequired: data.approvalRequired,
           status: data.status,
-          policyType: data.policyType,
+          internalPolicyKindName: data.internalPolicyKindName,
           reviewDue: data.reviewDue,
           reviewFrequency: data.reviewFrequency,
           approverID: data.approverID,
@@ -189,12 +193,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
 
       const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
@@ -228,7 +226,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         updateInternalPolicyId: policy.id,
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           ...associationInputs,
         },
@@ -254,7 +253,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   }
 
   const handleDetailsChange = (value: Value) => {
-    form.setValue('details', value)
+    form.setValue('detailsJSON', value)
   }
 
   return (
@@ -272,19 +271,13 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                 </AlertDescription>
               </Alert>
             ) : (
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Not sure what to write?</AlertTitle>
-                <AlertDescription>
-                  <p>
-                    For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer">
-                      documentation
-                    </a>
-                    .
-                  </p>
-                </AlertDescription>
-              </Alert>
+              <HelperText
+                name={form.getValues('name')}
+                editorRef={editorRef}
+                onNameChange={(newName) => {
+                  form.setValue('name', newName)
+                }}
+              />
             )}
 
             <InputRow className="w-full">
@@ -310,24 +303,31 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
             <InputRow className="w-full">
               <FormField
                 control={form.control}
-                name="details"
-                render={({ field }) => (
+                name="detailsJSON"
+                render={() => (
                   <FormItem className="w-full min-w-0">
                     <FormLabel>Policy</FormLabel>
                     <SystemTooltip
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} clearData={clearData} onClear={() => setClearData(false)} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
+                    <PlateEditor
+                      ref={editorRef}
+                      onChange={handleDetailsChange}
+                      userData={userData}
+                      entity={discussionData?.internalPolicy}
+                      clearData={clearData}
+                      isCreate={!policy?.id}
+                      onClear={() => setClearData(false)}
+                      initialValue={policy?.detailsJSON ?? policy?.details ?? (form.getValues('details') as string) ?? undefined}
+                    />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}
               />
             </InputRow>
             <div className="flex justify-between items-center">
-              <Button variant="primary" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Create Policy'}
-              </Button>
+              <SaveButton disabled={isSubmitting} title={isSubmitting ? (isEditable ? 'Saving' : 'Creating policy') : isEditable ? 'Save' : 'Save Changes'} />
               <div className="flex items-center gap-2">
                 <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>
@@ -335,7 +335,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
             </div>
           </div>
 
-          <div className="flex-shrink-0 w-[380px] space-y-4">
+          <div className="shrink-0 w-[380px] space-y-4">
             <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />

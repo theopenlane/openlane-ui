@@ -7,14 +7,6 @@ import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { Control, ControlObjective, Evidence, Group, InternalPolicy, Procedure, Program, Subcontrol, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 
-export enum TaskTypes {
-  EVIDENCE = 'Evidence',
-  RISK_REVIEW = 'Risk Review',
-  POLICY_REVIEW = 'Policy Review',
-  GAP = 'Gap',
-  OTHER = 'Other',
-}
-
 export enum TaskObjectTypes {
   CONTROL = 'Control',
   CONTROL_OBJECTIVE = 'Control Objective',

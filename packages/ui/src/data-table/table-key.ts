@@ -13,6 +13,7 @@ export enum TableKeyEnum {
   STANDARD_DETAILS_ACCORDION = 'standard-details-accordion',
   QUESTIONNAIRE = 'questionnaire',
   QUESTIONNAIRE_OVERVIEW = 'questionnaire-overview',
+  TEMPLATE = 'template',
   RISK = 'risk',
   OVERVIEW_RISK = 'overview-risk',
   SUBSCRIBE = 'subscribe',
@@ -47,4 +48,6 @@ export enum TableKeyEnum {
   TRUST_CENTER_REPORTS_AND_CERTS = 'trust-center-reports-and-certs',
   TABLE_STORIES = 'table-stories',
   TRUST_CENTER_SUBPROCESSORS = 'subprocessors',
+  CUSTOM_TAGS = 'custom-tags',
+  CUSTOM_ENUMS = 'custom-enums',
 }

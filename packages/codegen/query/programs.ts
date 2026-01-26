@@ -197,7 +197,7 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       tags
       frameworkName
       status
-      programType
+      programKindName
       programOwnerID
     }
   }
@@ -333,15 +333,15 @@ export const UPDATE_PROGRAM_MEMBERSHIP = gql`
 
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
-    totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {
+    totalControls: controls(where: { systemOwned: false, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
 
-    submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY], hasProgramsWith: [{ id: $programId }] }] }) {
+    submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
 
-    accepted: controls(where: { hasEvidenceWith: [{ statusIn: [APPROVED], hasProgramsWith: [{ id: $programId }] }] }) {
+    accepted: controls(where: { hasEvidenceWith: [{ statusIn: [AUDITOR_APPROVED], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
 
@@ -353,19 +353,19 @@ export const GET_EVIDENCE_STATS = gql`
 
 export const GET_GLOBAL_EVIDENCE_STATS = gql`
   query GetGlobalEvidenceStats {
-    totalControls: controls(where: {}) {
+    totalControls: controls(where: { systemOwned: false }) {
       totalCount
     }
 
-    submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY] }] }) {
+    submitted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR] }] }) {
       totalCount
     }
 
-    accepted: controls(where: { hasEvidenceWith: [{ statusIn: [APPROVED] }] }) {
+    accepted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [AUDITOR_APPROVED] }] }) {
       totalCount
     }
 
-    rejected: controls(where: { hasEvidenceWith: [{ statusIn: [REJECTED] }] }) {
+    rejected: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [REJECTED] }] }) {
       totalCount
     }
   }
@@ -387,7 +387,7 @@ export const GET_PROGRAM_DASHBOARD = gql`
             id
             displayName
           }
-          submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY, APPROVED] }] }) {
+          submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR, AUDITOR_APPROVED] }] }) {
             totalCount
           }
           tasks {

@@ -23,10 +23,11 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useStorageSearch(SearchKeyEnum.TASKS)
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
@@ -37,7 +38,7 @@ const TasksPage: React.FC = () => {
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.TASK, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.TASK, TaskOrderField, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,

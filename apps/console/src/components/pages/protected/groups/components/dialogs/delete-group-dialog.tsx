@@ -12,6 +12,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const DeleteGroupDialog = () => {
   const { selectedGroup, setSelectedGroup } = useGroupsStore()
@@ -56,7 +57,7 @@ const DeleteGroupDialog = () => {
           <DialogTitle className="text-2xl font-semibold">Delete group</DialogTitle>
         </DialogHeader>
 
-        <div className="flex items-start gap-3 p-4 border border-destructive-border bg-[var(--color-destructive-transparent)] rounded-lg">
+        <div className="flex items-start gap-3 p-4 border border-destructive-border bg-(--color-destructive-transparent) rounded-lg">
           <AlertTriangle className="text-destructive mt-1 flex-none" width={16} height={16} />
           <div>
             <p className="font-medium text-base text-destructive">Warning</p>
@@ -80,9 +81,7 @@ const DeleteGroupDialog = () => {
           <Button variant="destructive" onClick={handleDelete}>
             Delete this group
           </Button>
-          <Button variant="secondary" className="" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

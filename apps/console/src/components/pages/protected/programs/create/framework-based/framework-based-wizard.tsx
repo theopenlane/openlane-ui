@@ -28,11 +28,11 @@ export default function FrameworkBasedWizard() {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ Added state
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select Framework', schema: selectFrameworkSchema },
-    { id: '1', label: 'Select Categories', schema: categoriesStepSchema }, // ✅ novi korak
+    { id: '1', label: 'Select Categories', schema: categoriesStepSchema },
     { id: '2', label: 'Team Setup', schema: programInviteSchema },
     { id: '3', label: 'Program Type', schema: programTypeSchema },
   )
@@ -56,7 +56,6 @@ export default function FrameworkBasedWizard() {
       const isValid = await methods.trigger()
       if (!isValid) return
 
-      // pronađi sljedeći step
       let nextStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) + 1
       while (disabledIDs.includes(stepper.all[nextStepIndex]?.id)) {
         nextStepIndex++
@@ -95,7 +94,7 @@ export default function FrameworkBasedWizard() {
       program: {
         name: values.name || `Risk Assessment - ${currentYear}`,
         frameworkName: values.framework,
-        programType: values.programType,
+        programKindName: values.programKindName,
         startDate: today,
         endDate: oneYearFromToday,
         viewerIDs: values.viewerIDs,

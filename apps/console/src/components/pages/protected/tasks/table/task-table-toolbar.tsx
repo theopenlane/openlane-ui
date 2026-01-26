@@ -25,6 +25,8 @@ import { useBulkDeleteTask } from '@/lib/graphql-hooks/tasks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -57,6 +59,14 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteTasks } = useBulkDeleteTask()
+
+  const { enumOptions: taskKindOptions, isSuccess: isEnumOptionsSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
+
   const quickFilters: TQuickFilter[] = useMemo(() => {
     return [
       {
@@ -138,12 +148,13 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   }
 
   useEffect(() => {
-    if (filterFields || !orgMembers || !isSuccess) {
+    if (filterFields || !orgMembers || !isSuccess || !isEnumOptionsSuccess) {
       return
     }
-    const fields = getTasksFilterFields(orgMembers, programOptions)
+    const fields = getTasksFilterFields(orgMembers, programOptions, taskKindOptions ?? [])
+
     setFilterFields(fields)
-  }, [orgMembers, programOptions, filterFields, isSuccess])
+  }, [orgMembers, programOptions, filterFields, isSuccess, taskKindOptions, isEnumOptionsSuccess])
 
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
@@ -188,15 +199,11 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       props.handleClearSelectedTasks()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>

@@ -3,7 +3,7 @@ import { EditTaskFormData } from '../hooks/use-form-schema'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 import { Value } from 'platejs'
-import { TaskQuery } from '@repo/codegen/src/schema'
+import { GetTaskAssociationsQuery, TaskQuery } from '@repo/codegen/src/schema'
 
 const generateAssociationPayload = (original: TObjectAssociationMap, updated: TObjectAssociationMap) => {
   const payload: Record<string, string[]> = {}
@@ -32,7 +32,7 @@ export const buildTaskPayload = async (
 ) => {
   const details = data?.details ? await plateEditorHelper.convertToHtml(data.details as Value) : undefined
   return {
-    category: data?.category,
+    taskKindName: data?.taskKindName,
     due: data?.due ? data.due.toISOString() : undefined,
     title: data?.title,
     details,
@@ -45,28 +45,29 @@ export const buildTaskPayload = async (
   }
 }
 
-export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined) => {
+export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined, associationData: GetTaskAssociationsQuery | undefined) => {
   if (!taskData) {
     return undefined
   }
+
   return {
     displayID: taskData!.displayID,
     tags: taskData!.tags ?? undefined,
-    controlRefCodes: taskData?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-    subcontrolRefCodes: taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-    programDisplayIDs: taskData?.programs?.edges?.map((item) => item?.node?.name).filter((id): id is string => !!id) || [],
-    referenceFramework: Object.fromEntries(taskData?.controls?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
-    subcontrolReferenceFramework: Object.fromEntries(taskData?.subcontrols?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
+    controlRefCodes: associationData?.task?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+    subcontrolRefCodes: associationData?.task?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+    programDisplayIDs: associationData?.task?.programs?.edges?.map((item) => item?.node?.name).filter((id): id is string => !!id) || [],
+    referenceFramework: Object.fromEntries(associationData?.task?.controls?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
+    subcontrolReferenceFramework: Object.fromEntries(associationData?.task?.subcontrols?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
     objectAssociations: {
-      controlIDs: taskData?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-      subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-      programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      controlIDs: associationData?.task?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      subcontrolIDs: associationData?.task?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      programIDs: associationData?.task?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       taskIDs: taskData.id ? [taskData.id] : [],
     },
     objectAssociationsDisplayIDs: [
-      ...(taskData?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
-      ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
-      ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || []),
+      ...(associationData?.task?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
+      ...(associationData?.task?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
+      ...(associationData?.task?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || []),
       taskData.displayID,
     ],
   }

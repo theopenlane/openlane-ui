@@ -34,6 +34,7 @@ import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-swi
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -48,7 +49,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, ControlOrderField, [
     {
       field: ControlOrderField.ref_code,
       direction: OrderDirection.ASC,
@@ -63,7 +64,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     category: false,
     subcategory: false,
     source: false,
-    controlType: false,
     referenceFramework: false,
     delegate: false,
     createdBy: false,
@@ -72,11 +72,15 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     updatedAt: false,
     controlImplementationsDetails: false,
     desiredOutcome: false,
+    linkedProcedures: false,
+    linkedPolicies: false,
+    associatedObjects: false,
+    comments: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CONTROL, defaultVisibility))
 
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.CONTROLS)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
@@ -190,7 +194,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls }), [convertToReadOnly, userMap, selectedControls])
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+    .filter((column): column is { accessorKey: string; header: string } => typeof column.header === 'string')
     .map((column) => ({
       accessorKey: column.accessorKey,
       header: column.header,

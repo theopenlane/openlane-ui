@@ -63,11 +63,11 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     const hasCustom = selectedStandards.includes('CUSTOM')
     const normalStandards = selectedStandards.filter((id) => id !== 'CUSTOM')
 
-    if (!hasCustom && normalStandards.length === 0) {
-      return { ownerIDNEQ: '' }
-    }
+    const where: ControlWhereInput = { ownerIDNEQ: '', statusNEQ: ControlControlStatus.ARCHIVED }
 
-    const where: ControlWhereInput = { ownerIDNEQ: '' }
+    if (!hasCustom && normalStandards.length === 0) {
+      return where
+    }
 
     if (hasCustom && normalStandards.length > 0) {
       where.or = [{ referenceFrameworkIsNil: true }, { standardIDIn: normalStandards }]

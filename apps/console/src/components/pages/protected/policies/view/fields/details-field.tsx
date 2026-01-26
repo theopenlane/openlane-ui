@@ -3,18 +3,23 @@
 import React from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
-import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
+import { InternalPolicyByIdFragment, PolicyDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { Value } from 'platejs'
 
 type TDetailsFieldProps = {
   isEditing: boolean
   form: UseFormReturn<EditPolicyMetadataFormData>
   policy: InternalPolicyByIdFragment
+  discussionData?: PolicyDiscussionFieldsFragment
 }
 
-const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy }) => {
-  const plateEditorHelper = usePlateEditor()
+const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, discussionData }) => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
 
   return isEditing ? (
     <div className="w-full">
@@ -23,12 +28,30 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
       </label>
       <Controller
         control={form.control}
-        name="details"
-        render={({ field }) => <PlateEditor initialValue={policy?.details as string} onChange={field.onChange} placeholder="Write your policy description" />}
+        name="detailsJSON"
+        render={({ field }) => (
+          <PlateEditor
+            key={`${policy.id}-${isEditing ? 'edit' : 'view'}`}
+            userData={userData}
+            initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
+            entity={discussionData}
+            onChange={field.onChange}
+            placeholder="Write your policy description"
+          />
+        )}
       />
     </div>
   ) : (
-    <div className="!mt-4 min-h-[20px]">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}</div>
+    <div className="!mt-4 min-h-[20px]">
+      <PlateEditor
+        key={JSON.stringify(policy.detailsJSON ?? policy.details)}
+        userData={userData}
+        initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
+        entity={discussionData}
+        readonly={true}
+        variant="readonly"
+      />
+    </div>
   )
 }
 

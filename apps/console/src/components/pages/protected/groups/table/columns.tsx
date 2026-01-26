@@ -3,9 +3,9 @@ import { ColumnDef } from '@tanstack/react-table'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import { Group, User } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
-import { Badge } from '@repo/ui/badge'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate } from '@/utils/date'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type Params = {
   userMap?: Record<string, User>
@@ -49,10 +49,8 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
           <p>{row.getValue('description')}</p>
           {!!row.original?.tags?.length && (
             <div className="mt-2 border-t border-dashed pt-2 flex flex-wrap gap-2">
-              {row.original.tags.map((tag: string, index: number) => (
-                <Badge key={index} variant="outline">
-                  {tag}
-                </Badge>
+              {row.original.tags.map((tag: string, i: number) => (
+                <TagChip key={i} tag={tag} />
               ))}
             </div>
           )}
