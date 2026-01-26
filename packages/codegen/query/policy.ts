@@ -64,6 +64,22 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           revision
           status
           tags
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
+          procedures {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -117,6 +133,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
     reviewFrequency
     approvalRequired
     summary
+    detailsJSON
     internalPolicyKindName
     approver {
       id
@@ -323,6 +340,86 @@ export const BULK_DELETE_POLICY = gql`
   mutation DeleteBulkInternalPolicy($ids: [ID!]!) {
     deleteBulkInternalPolicy(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const POLICY_DISCUSSION_FIELDS_FRAGMENT = gql`
+  fragment PolicyDiscussionFields on InternalPolicy {
+    id
+    __typename
+    discussions {
+      edges {
+        node {
+          id
+          externalID
+          createdAt
+          comments {
+            edges {
+              node {
+                updatedBy
+                updatedAt
+                text
+                noteRef
+                isEdited
+                id
+                displayID
+                discussionID
+                createdAt
+                createdBy
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_POLICY_DISCUSSION_BY_ID = gql`
+  ${POLICY_DISCUSSION_FIELDS_FRAGMENT}
+  query GetPolicyDiscussionById($policyId: ID!) {
+    internalPolicy(id: $policyId) {
+      ...PolicyDiscussionFields
+    }
+  }
+`
+
+export const INSERT_POLICY_COMMENT = gql`
+  mutation InsertInternalPolicyComment($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
+    updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
+      internalPolicy {
+        discussions {
+          edges {
+            node {
+              id
+              externalID
+              isResolved
+              externalID
+              comments {
+                edges {
+                  node {
+                    text
+                    isEdited
+                    id
+                    noteRef
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_POLICY_COMMENT = gql`
+  mutation UpdatePolicyComment($updateInternalPolicyCommentId: ID!, $input: UpdateNoteInput!) {
+    updateInternalPolicyComment(id: $updateInternalPolicyCommentId, input: $input) {
+      internalPolicy {
+        id
+      }
     }
   }
 `

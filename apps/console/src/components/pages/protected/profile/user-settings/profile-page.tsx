@@ -16,6 +16,7 @@ import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from 
 import PasskeySection from './passkeys-section'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import DeleteUserSection from '../delete-user-section'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -248,6 +249,7 @@ const ProfilePage = () => {
       )}
 
       <PasskeySection userData={userData} />
+      <DeleteUserSection userId={userId} />
     </>
   )
 }

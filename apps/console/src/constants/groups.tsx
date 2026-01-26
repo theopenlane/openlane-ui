@@ -114,6 +114,9 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
       {
         header: 'Reference Framework',
         accessorKey: 'referenceFramework',
+        size: 200,
+        minSize: 200,
+        maxSize: 200,
       },
     ],
   },
@@ -145,16 +148,36 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
   },
 }
 
-export const generateColumns = (selectedObject: ObjectTypes | null): ColumnDef<TableDataItem>[] => {
+export const generateColumns = (selectedObject: ObjectTypes | null, items: TableDataItem[]): ColumnDef<TableDataItem>[] => {
+  const allChecked = items.length > 0 && items.every((item) => item.checked)
+
   const baseColumns: ColumnDef<TableDataItem>[] = [
     {
-      header: '',
-      accessorKey: 'checked',
-      cell: ({ row }) => <Checkbox checked={row.original.checked} onCheckedChange={() => row.original.togglePermission(row.original || '')} />,
+      id: 'checked',
+      size: 5,
+      minSize: 5,
+      maxSize: 5,
+      enableResizing: false,
+      header: () => (
+        <Checkbox
+          checked={allChecked}
+          onCheckedChange={(checked) => {
+            items.forEach((item) => {
+              if (item.checked !== checked) {
+                item.togglePermission(item)
+              }
+            })
+          }}
+        />
+      ),
+      cell: ({ row }) => <Checkbox checked={row.original.checked} onCheckedChange={() => row.original.togglePermission(row.original)} />,
     },
     {
       header: 'Name',
       accessorKey: 'name',
+      size: 200,
+      minSize: 200,
+      maxSize: 200,
     },
   ]
 

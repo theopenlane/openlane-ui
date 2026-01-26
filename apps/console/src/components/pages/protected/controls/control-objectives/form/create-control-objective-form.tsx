@@ -13,13 +13,15 @@ import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlO
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
-import { Info, Pencil, Trash2 } from 'lucide-react'
+import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { TFormData, VersionBump } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
@@ -131,24 +133,18 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
       <div className="flex justify-end gap-2">
         {isEditing ? (
           <>
-            <Button className="h-8 !px-4" icon={<Pencil />} iconPosition="left">
-              Save
-            </Button>
-            <Button variant="back" className="h-8 !px-4" type="button" onClick={onSuccess}>
-              Cancel
-            </Button>
-            <Button variant="destructive" className="h-8 !px-4" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
+            <SaveButton />
+            <CancelButton onClick={onSuccess}></CancelButton>
+            <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
             </Button>
           </>
         ) : (
           <>
-            <Button variant="secondary" className="h-8 !px-4">
+            <Button variant="secondary" className="h-8 px-4!">
               Create
             </Button>
-            <Button variant="secondary" className="h-8 !px-4" type="button" onClick={onSuccess}>
-              Cancel
-            </Button>
+            <CancelButton onClick={onSuccess}></CancelButton>
           </>
         )}
       </div>

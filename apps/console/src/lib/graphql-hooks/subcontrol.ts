@@ -9,11 +9,13 @@ import {
   GET_SUBCONTROL_BY_ID,
   GET_SUBCONTROL_BY_ID_MINIFIED,
   GET_SUBCONTROL_COMMENTS,
+  GET_SUBCONTROL_DISCUSSION_BY_ID,
   GET_SUBCONTROL_SELECT_OPTIONS,
   GET_SUBCONTROLS_BY_REFCODE,
   GET_SUBCONTROLS_PAGINATED,
   UPDATE_SUBCONTROL,
   UPDATE_SUBCONTROL_COMMENT,
+  INSERT_SUBCONTROL_PLATE_COMMENT,
 } from '@repo/codegen/query/subcontrol'
 import {
   CreateSubcontrolMutation,
@@ -27,6 +29,7 @@ import {
   GetSubcontrolByIdMinifiedQuery,
   GetSubcontrolByIdMinifiedQueryVariables,
   GetSubcontrolByIdQuery,
+  GetSubcontrolDiscussionByIdQuery,
   GetSubcontrolsByRefCodeQuery,
   GetSubcontrolSelectOptionsQuery,
   GetSubcontrolSelectOptionsQueryVariables,
@@ -36,6 +39,8 @@ import {
   SubcontrolWhereInput,
   UpdateSubcontrolMutation,
   UpdateSubcontrolMutationVariables,
+  InsertSubcontrolPlateCommentMutation,
+  InsertSubcontrolPlateCommentMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -61,7 +66,7 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
   })
 
   const edges = queryResult.data?.subcontrols?.edges ?? []
-  const subcontrol = edges.map((edge) => edge?.node) as Subcontrol[]
+  const subcontrols = edges.map((edge) => edge?.node) as Subcontrol[]
 
   const paginationMeta = {
     totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
@@ -71,7 +76,7 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
 
   return {
     ...queryResult,
-    subcontrol,
+    subcontrols,
     paginationMeta,
   }
 }
@@ -256,6 +261,28 @@ export const useUpdateSubcontrolComment = () => {
       queryClient.invalidateQueries({
         queryKey: ['subcontrolComments', data.updateSubcontrolComment.subcontrol.id],
       })
+    },
+  })
+}
+
+export const SUBCONTROL_DISCUSSION_QUERY_KEY = 'subcontrolsDiscussion'
+
+export const useGetSubcontrolDiscussionById = (subcontrolId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetSubcontrolDiscussionByIdQuery, unknown>({
+    queryKey: [SUBCONTROL_DISCUSSION_QUERY_KEY, subcontrolId],
+    queryFn: async () => client.request(GET_SUBCONTROL_DISCUSSION_BY_ID, { subcontrolId }),
+    enabled: !!subcontrolId,
+  })
+}
+
+export const useInsertSubcontrolPlateComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<InsertSubcontrolPlateCommentMutation, unknown, InsertSubcontrolPlateCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(INSERT_SUBCONTROL_PLATE_COMMENT, variables)
     },
   })
 }

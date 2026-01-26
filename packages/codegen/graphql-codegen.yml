@@ -23,7 +23,6 @@ config:
   schema: yup
 overwrite: true
 schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql
-# schema: ../../../core/internal/graphapi/clientschema/schema.graphql // if you want to generate schema from local. adjust path to core if needed
 documents: './query/**/*.ts'
 generates:
   ./src/introspectionschema.json:

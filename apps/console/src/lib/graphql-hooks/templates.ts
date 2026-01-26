@@ -83,9 +83,15 @@ export const useUpdateTemplate = () => {
   const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateTemplateMutation, unknown, UpdateTemplateMutationVariables>({
-    mutationFn: (variables) => client.request(UPDATE_TEMPLATE, variables),
+    mutationFn: async (variables) => {
+      if (variables.templateFiles) {
+        return fetchGraphQLWithUpload({ query: UPDATE_TEMPLATE, variables })
+      }
+      return client.request<UpdateTemplateMutation>(UPDATE_TEMPLATE, variables)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
+      queryClient.invalidateQueries({ queryKey: ['trustCenterNdaFiles'] })
     },
   })
 }

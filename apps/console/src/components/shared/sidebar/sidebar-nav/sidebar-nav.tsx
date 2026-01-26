@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus, Lock } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Separator as Hr } from '@repo/ui/separator'
 import { Logo } from '@repo/ui/logo'
@@ -58,6 +58,8 @@ export default function SideNav({
   const { data: session } = useSession()
   const pathname = usePathname()
   const router = useRouter()
+  const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
+  const modules = useMemo(() => session?.user?.modules ?? [], [session?.user?.modules])
 
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
@@ -65,10 +67,14 @@ export default function SideNav({
 
   useEffect(() => {
     if (!openPanel) {
-      const firstItem = navItems.filter((item): item is NavItem => 'title' in item).find((item) => item.children && item.children.length > 0)
+      const firstItem = navItems
+        .filter((item): item is NavItem => 'title' in item)
+        .filter((item) => !(featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item.plan)))
+        .find((item) => item.children && item.children.length > 0)
+
       onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
     }
-  }, [navItems, onToggleAction, openPanel])
+  }, [featureEnabled, modules, navItems, onToggleAction, openPanel])
 
   const handleNavigate = (href: string) => {
     router.push(href)
@@ -111,8 +117,6 @@ export default function SideNav({
   }
 
   const displayMenu = (navItems: (NavItem | Separator | NavHeading)[]) => {
-    const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
-    const modules = session?.user?.modules ?? []
     const activeNav = findActiveNavItem(navItems, pathname)
 
     return navItems.map((item, idx) => {
@@ -124,10 +128,6 @@ export default function SideNav({
         return <Hr className="mx-2" key={idx} />
       }
 
-      if (featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
-        return <React.Fragment key={item?.plan}></React.Fragment>
-      }
-
       if ('icon' in item && item.icon) {
         const Icon = item.icon
         const isExpandable = !!item.children
@@ -136,11 +136,14 @@ export default function SideNav({
 
         const button = (
           <div key={idx} className="relative flex w-full items-center justify-center">
-            <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className=" h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
+            <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className="h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
+
+            {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
+
             <Button
               variant="sidebar"
               onClick={() => (isExpandable ? handleTogglePanel(item) : handleNavigate(url))}
-              className={`flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
+              className={`relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
             >
               <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
               {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
@@ -174,6 +177,10 @@ export default function SideNav({
 
     const linkContent = (
       <Link
+        onClick={(e) => {
+          e.preventDefault()
+          router.push(child.href ?? '#')
+        }}
         href={child.href ?? '#'}
         className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
           secondaryExpanded ? 'px-2.5' : 'justify-center'

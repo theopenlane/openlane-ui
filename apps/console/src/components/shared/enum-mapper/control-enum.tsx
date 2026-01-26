@@ -1,17 +1,24 @@
 import {
   Archive,
+  ArrowUpFromDot,
+  BinocularsIcon,
   Circle,
   CircleDot,
   FileBadge2,
   FilePenLine,
   FileText,
   Folder,
+  FolderIcon,
+  FolderSymlink,
   FolderTree,
   Key,
   Link,
+  MessageCircle,
   RefreshCw,
   RouteOff,
   ScanEye,
+  Settings2,
+  Shapes,
   ShieldCheck,
   Stamp,
   Tag,
@@ -19,7 +26,7 @@ import {
   UsersRound,
   type LucideIcon,
 } from 'lucide-react'
-import { ControlControlStatus, ControlControlType, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
   [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
@@ -80,13 +87,6 @@ export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
   [ControlControlStatus.NOT_APPLICABLE]: 'Not applicable',
 }
 
-export const ControlTypeLabels: Record<ControlControlType, string> = {
-  [ControlControlType.CORRECTIVE]: 'Corrective',
-  [ControlControlType.DETECTIVE]: 'Detective',
-  [ControlControlType.DETERRENT]: 'Deterrent',
-  [ControlControlType.PREVENTATIVE]: 'Preventative',
-}
-
 export enum ControlsFilterIconName {
   RefCode = 'RefCode',
   Program = 'Program',
@@ -98,6 +98,7 @@ export enum ControlsFilterIconName {
   ProgramName = 'ProgramName',
   Type = 'Type',
   LinkedPolicies = 'LinkedPolicies',
+  Comments = 'Comments',
 }
 
 export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
@@ -111,6 +112,7 @@ export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
   [ControlsFilterIconName.ProgramName]: ShieldCheck,
   [ControlsFilterIconName.Type]: Tag,
   [ControlsFilterIconName.LinkedPolicies]: Link,
+  [ControlsFilterIconName.Comments]: MessageCircle,
 }
 
 // Status options for select dropdowns
@@ -136,7 +138,20 @@ export const ControlStatusFilterOptions = Object.entries(ControlControlStatus).m
   value,
 }))
 
-export const ControlControlTypeOptions = Object.values(ControlControlType).map((type) => ({
-  label: ControlTypeLabels[type],
-  value: type,
-}))
+export const sourceLabels: Record<ControlControlSource, string> = {
+  FRAMEWORK: 'Framework',
+  IMPORTED: 'Imported',
+  TEMPLATE: 'Template',
+  USER_DEFINED: 'User defined',
+}
+
+export const controlIconsMap: Record<string, React.ReactNode> = {
+  Framework: <FileBadge2 size={16} className="text-brand" />,
+  Control: <Settings2 size={16} className="text-brand" />,
+  Category: <FolderIcon size={16} className="text-brand" />,
+  Subcategory: <FolderIcon size={16} className="text-brand" />,
+  Status: <BinocularsIcon size={16} className="text-brand" />,
+  'Mapped categories': <FolderSymlink size={16} className="text-brand" />,
+  Source: <ArrowUpFromDot size={16} className="text-brand" />,
+  Type: <Shapes size={16} className="text-brand" />,
+}

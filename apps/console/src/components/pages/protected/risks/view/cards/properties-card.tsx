@@ -149,10 +149,10 @@ const FieldRow = ({
   }
 
   return (
-    <div className={`flex justify-between items-center`}>
+    <div className={`flex justify-between items-center border-b border-border pb-3`}>
       <div className="flex gap-2 w-[200px] items-center">
         {getFieldIcon(label)}
-        <span>{label}</span>
+        <span className="text-sm">{label}</span>
       </div>
       <HoverPencilWrapper showPencil={showPencil} className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
         <div

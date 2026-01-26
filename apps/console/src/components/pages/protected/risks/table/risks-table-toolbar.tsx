@@ -22,6 +22,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -151,15 +152,11 @@ const RisksTableToolbar: React.FC<TProps> = ({
                   confirmationTextVariant="destructive"
                   showInput={false}
                 />
-                <Button
-                  type="button"
-                  variant="secondary"
+                <CancelButton
                   onClick={() => {
                     handleClearSelectedControls()
                   }}
-                >
-                  Cancel
-                </Button>
+                ></CancelButton>
               </>
             )}
           </>
@@ -197,7 +194,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
             )}
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.RISK} />}
             {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-              <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             )}
