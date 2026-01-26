@@ -26,6 +26,8 @@ import {
   DELETE_CUSTOM_TYPE_ENUM,
 } from '@repo/codegen/query/custom-type-enum'
 
+export type CustomTypeEnumOption = Option & { color?: string; description?: string }
+
 export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
   const { client } = useGraphQLClient()
 
@@ -34,8 +36,8 @@ export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereIn
     queryFn: () => client.request<GetCustomTypeEnumsQuery>(GET_CUSTOM_TYPE_ENUMS, { where }),
   })
 
-  const enumOptions: (Option & { color?: string; description: string })[] =
-    query.data?.customTypeEnums?.edges?.reduce<(Option & { color?: string; description: string })[]>((acc, edge) => {
+  const enumOptions: CustomTypeEnumOption[] =
+    query.data?.customTypeEnums?.edges?.reduce<CustomTypeEnumOption[]>((acc, edge) => {
       if (edge?.node) {
         acc.push({
           value: edge.node.name,

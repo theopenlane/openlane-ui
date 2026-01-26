@@ -24,6 +24,7 @@ import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -65,6 +66,13 @@ const TasksPage: React.FC = () => {
   const searching = searchQuery !== debouncedSearch
   const [hasTasks, setHasTasks] = useState(false)
   const [selectedTasks, setSelectedTasks] = useState<{ id: string }[]>([])
+
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
 
   const whereFilter = useMemo(() => {
     if (!filters) return null
@@ -133,7 +141,7 @@ const TasksPage: React.FC = () => {
   }
 
   const emptyUserMap = {}
-  const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
+  const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks, taskKindOptions })
     .filter(
       (column): column is { accessorKey: string; header: string; meta: { exportPrefix?: string } } =>
         'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string',

@@ -27,6 +27,8 @@ import { EditableSelectFromQuery } from '../propereties-card/fields/editable-sel
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { Option } from '@repo/ui/multiple-selector'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -180,28 +182,33 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         <Controller
                           name={item.selectedObject.name as keyof BulkEditDialogFormValues}
                           control={control}
-                          render={() => (
-                            <Select
-                              value={item.selectedValue as string | undefined}
-                              onValueChange={(value) =>
-                                update(index, {
-                                  ...item,
-                                  selectedValue: value,
-                                })
-                              }
-                            >
-                              <SelectTrigger className="w-60">
-                                <SelectValue placeholder={item.selectedObject?.placeholder} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {item.selectedObject?.options?.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
+                          render={() => {
+                            const currentOptions = (item.selectedObject?.options || []) as Option[]
+                            return (
+                              <Select
+                                value={item.selectedValue as string | undefined}
+                                onValueChange={(value) =>
+                                  update(index, {
+                                    ...item,
+                                    selectedValue: value,
+                                  })
+                                }
+                              >
+                                <SelectTrigger className="w-60">
+                                  <SelectValue placeholder={item.selectedObject?.placeholder}>
+                                    <CustomTypeEnumValue value={item.selectedValue as string} options={currentOptions} placeholder={item.selectedObject?.placeholder} />
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {currentOptions.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      <CustomTypeEnumOptionChip option={option} />
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )
+                          }}
                         />
                       </div>
                     )}

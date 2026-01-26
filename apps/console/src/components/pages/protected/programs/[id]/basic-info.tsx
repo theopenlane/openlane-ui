@@ -27,6 +27,8 @@ import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -46,6 +48,13 @@ const BasicInformation = () => {
   const { userOptions } = useUserSelect({})
   const programOwnerDisplayName = programOwner?.orgMemberships.edges?.[0]?.node?.user.displayName
   const program = data?.program
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'program',
+      field: 'kind',
+    },
+  })
 
   const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
   const isEditAllowed = canEdit(permission?.roles)
@@ -175,7 +184,7 @@ const BasicInformation = () => {
           {/* Type */}
           <div className="flex border-b pb-3 items-center">
             <Label className="block w-32 shrink-0">Type</Label>
-            <span>{program?.programKindName || '-'}</span>
+            <CustomTypeEnumValue value={program?.programKindName || ''} options={enumOptions ?? []} placeholder="-" />
           </div>
           {/* Framework */}
           <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" /> {/* Tags */}

@@ -9,6 +9,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
 import { formatEnumLabel } from '@/utils/enumToLabel'
 import { cn } from '@repo/ui/lib/utils'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 interface RiskLabelProps {
   fieldName?: keyof EditRisksFormData
@@ -128,13 +129,15 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       <div ref={triggerRef}>
         <Select value={riskKindName} onValueChange={(val) => onChange?.(val)}>
           <SelectTrigger className={cn('w-40', selectFieldClassname)}>
-            <SelectValue placeholder="Select risk type" />
+            <SelectValue>
+              <CustomTypeEnumValue value={riskKindName} options={riskKindOptions ?? []} placeholder="Select risk type" />
+            </SelectValue>
           </SelectTrigger>
 
           <SelectContent ref={popoverRef}>
             {riskKindOptions?.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                <CustomTypeEnumOptionChip option={opt} />
               </SelectItem>
             ))}
           </SelectContent>
@@ -148,13 +151,15 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       <div ref={triggerRef}>
         <Select value={riskCategoryName} onValueChange={(val) => onChange?.(val)}>
           <SelectTrigger className={cn('w-40', selectFieldClassname)}>
-            <SelectValue placeholder="Select category" />
+            <SelectValue>
+              <CustomTypeEnumValue value={riskCategoryName} options={riskCategoryOptions ?? []} placeholder="Select category" />
+            </SelectValue>
           </SelectTrigger>
 
           <SelectContent ref={popoverRef}>
             {riskCategoryOptions?.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                <CustomTypeEnumOptionChip option={opt} />
               </SelectItem>
             ))}
           </SelectContent>
@@ -266,11 +271,19 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
   }
 
   if (fieldName === 'riskKindName') {
-    return <div className="text-sm flex items-center">{riskKindName || '-'}</div>
+    return (
+      <div className="text-sm flex items-center">
+        <CustomTypeEnumValue value={riskKindName} options={riskKindOptions ?? []} placeholder="-" />
+      </div>
+    )
   }
 
   if (fieldName === 'riskCategoryName') {
-    return <div className="text-sm flex items-center">{riskCategoryName || '-'}</div>
+    return (
+      <div className="text-sm flex items-center">
+        <CustomTypeEnumValue value={riskCategoryName} options={riskCategoryOptions ?? []} placeholder="-" />
+      </div>
+    )
   }
 
   return null

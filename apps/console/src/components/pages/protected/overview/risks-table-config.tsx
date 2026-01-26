@@ -72,7 +72,7 @@ export const getRiskColumns = ({ userMap }: GetRiskColumnsArgs) => {
         const user = userMap?.[row.original.createdBy ?? '']
         return user ? (
           <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -94,7 +94,7 @@ export const getRiskColumns = ({ userMap }: GetRiskColumnsArgs) => {
         const user = userMap?.[row.original.updatedBy ?? '']
         return user ? (
           <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (

@@ -12,15 +12,18 @@ import ApproverCell from './approver-cell'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { LinkedControlsCell } from './linked-controls-cell'
 import { LinkedProceduresCell } from './linked-procedures-cell'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TPoliciesColumnsProps = {
   users?: User[]
   tokens?: ApiToken[]
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  enumOptions: CustomTypeEnumOption[]
 }
 
-export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelectedPolicies }: TPoliciesColumnsProps) => {
+export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }: TPoliciesColumnsProps) => {
   const toggleSelection = (policy: { id: string }) => {
     setSelectedPolicies((prev) => {
       const exists = prev.some((c) => c.id === policy.id)
@@ -144,8 +147,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'internalPolicyKindName',
       header: 'Type',
-      size: 120,
-      cell: ({ cell }) => cell.getValue() || '-',
+      size: 160,
+      cell: ({ cell }) => <CustomTypeEnumValue value={(cell.getValue() as string) || ''} options={enumOptions ?? []} placeholder="-" />,
     },
 
     {

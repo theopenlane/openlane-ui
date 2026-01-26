@@ -1,8 +1,9 @@
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useFormContext } from 'react-hook-form'
 import { getYear } from 'date-fns'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 const currentYear = getYear(new Date())
 
@@ -36,22 +37,22 @@ const ProgramTypeSelect = () => {
                 trigger('programKindName')
 
                 if (value === 'Risk Assessment' || value === 'Gap Analysis') {
-                  const selectedLabel = enumOptions?.find((opt) => opt.value === value)?.label
-                  if (selectedLabel) {
-                    setValue('name', `${selectedLabel} - ${currentYear}`)
+                  const selectedOption = enumOptions?.find((opt) => opt.value === value)
+                  if (selectedOption?.label) {
+                    setValue('name', `${selectedOption.label} - ${currentYear}`)
                   }
                 }
               }}
               required
             >
               <SelectTrigger className="grow justify-between">
-                <SelectValue placeholder="Select Program Type" />
+                <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select Program Type" />
               </SelectTrigger>
 
               <SelectContent>
                 {enumOptions?.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                    <CustomTypeEnumOptionChip option={opt} />
                   </SelectItem>
                 ))}
               </SelectContent>
