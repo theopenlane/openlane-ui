@@ -79,24 +79,23 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: 'logo',
-      header: 'Logo',
-      meta: {
-        exportPrefix: 'subprocessor.logoFile.presignedURL',
-      },
-      cell: ({ row }) => {
-        const logo = row.original.logo
-        if (!logo) return <div className="text-muted-foreground">—</div>
-        //  eslint-disable-next-line @next/next/no-img-element
-        return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
-      },
-    },
+
     {
       accessorKey: 'name',
       header: 'Name',
       meta: {
         exportPrefix: 'subprocessor.name',
+      },
+      cell: ({ row }) => {
+        const logo = row.original.logo
+        if (!logo) return <div className="text-muted-foreground">—</div>
+        return (
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
+            <span>{row.original.name}</span>
+          </div>
+        )
       },
     },
     {
