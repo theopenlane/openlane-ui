@@ -3,10 +3,9 @@
 import React, { useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { LoaderCircle, PlusCircle, SearchIcon, Trash2 } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { SubprocessorWhereInput } from '@repo/codegen/src/schema'
@@ -14,6 +13,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
 import { subprocessorsFilterFields } from './table-config'
 import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
+import { AddExistingDialog } from './add-existing-dialog'
+import Menu from '@/components/shared/menu/menu'
 
 type TProps = {
   searching?: boolean
@@ -25,6 +27,8 @@ type TProps = {
   handleFilterChange: (arg: SubprocessorWhereInput) => void
   selectedRows: { id: string }[]
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  onExport: () => void
+  exportEnabled: boolean
 }
 
 const SubprocessorsTableToolbar: React.FC<TProps> = ({
@@ -37,18 +41,13 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   handleFilterChange,
   selectedRows,
   setSelectedRows,
+  exportEnabled,
+  onExport,
 }) => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
-
-  const handleCreateClick = () => {
-    const params = new URLSearchParams(searchParams)
-    params.set('create', 'true')
-    router.push(`?${params.toString()}`)
-  }
+  const [createdSubprocessorId, setCreatedSubprocessorId] = useState<null | string>(null)
 
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) return
@@ -90,19 +89,38 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
       />
 
       <div className="flex flex-wrap items-center justify-between gap-2 my-3 w-full">
-        <div className="flex items-center gap-2 flex-grow sm:flex-grow-0">
+        <div className="flex items-center gap-2 grow sm:grow-0`">
           <Input
             icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search subprocessors..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.currentTarget.value)}
             variant="searchTable"
-            className="w-[240px]"
+            className="w-60"
           />
         </div>
 
         {selectedRows.length === 0 ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
+            <Menu
+              closeOnSelect={true}
+              content={(close) => (
+                <>
+                  <Button
+                    size="sm"
+                    variant="transparent"
+                    className={`px-1 flex items-center justify-start space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    onClick={() => {
+                      onExport()
+                      close()
+                    }}
+                  >
+                    <DownloadIcon size={16} strokeWidth={2} />
+                    <span>Export</span>
+                  </Button>
+                </>
+              )}
+            />
             {mappedColumns && columnVisibility && setColumnVisibility && (
               <ColumnVisibilityMenu
                 mappedColumns={mappedColumns}
@@ -113,15 +131,22 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             )}
 
             <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.SUBPROCESSORS} />
-
-            <Button variant="primary" icon={<PlusCircle size={16} />} iconPosition="left" onClick={handleCreateClick}>
-              New Subprocessor
-            </Button>
+            <AddExistingDialog createdSubprocessorId={createdSubprocessorId} onClose={() => setCreatedSubprocessorId(null)} />
+            <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessorId} />
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">
             <Button variant="secondary" icon={<Trash2 size={16} />} iconPosition="left" onClick={handleBulkDelete} disabled={isDeleting}>
               Bulk Delete ({selectedRows.length})
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setSelectedRows([])
+              }}
+            >
+              Cancel
             </Button>
           </div>
         )}

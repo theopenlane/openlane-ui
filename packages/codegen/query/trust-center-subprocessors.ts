@@ -13,6 +13,7 @@ export const GET_TRUST_CENTER_SUBPROCESSORS = gql`
             logoRemoteURL
             logoFile {
               presignedURL
+              base64
             }
           }
           category
@@ -67,6 +68,19 @@ export const DELETE_TRUST_CENTER_SUBPROCESSOR = gql`
   mutation DeleteTrustCenterSubprocessor($deleteTrustCenterSubprocessorId: ID!) {
     deleteTrustCenterSubprocessor(id: $deleteTrustCenterSubprocessorId) {
       deletedID
+    }
+  }
+`
+
+export const GET_TRUST_CENTER_SUBPROCESSOR_BY_ID = gql`
+  query GetTrustCenterSubprocessorByID($trustCenterSubprocessorId: ID!) {
+    trustCenterSubprocessor(id: $trustCenterSubprocessorId) {
+      id
+      category
+      countries
+      subprocessor {
+        id
+      }
     }
   }
 `

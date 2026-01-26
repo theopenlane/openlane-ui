@@ -45,3 +45,5 @@ dist/
 # vscode
 .vscode/
 
+# next-env
+apps/console/next-env.d.ts

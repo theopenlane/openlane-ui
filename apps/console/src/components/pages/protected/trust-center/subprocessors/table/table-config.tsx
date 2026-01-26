@@ -8,6 +8,10 @@ import { CountryFlag } from '@repo/ui/country-flag'
 import { formatDate } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
+import { DeleteTrustCenterSubprocessorCell } from './delete-trust-center-subcontrol-cell'
+import { Button } from '@repo/ui/button'
+import { Pencil } from 'lucide-react'
+import Link from 'next/link'
 
 export type SubprocessorTableItem = {
   id: string
@@ -77,36 +81,27 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     },
 
     {
-      accessorKey: 'logo',
-      header: 'Logo',
-      cell: ({ row }) => {
-        const logo = row.original.logo
-        if (!logo) return <div className="text-muted-foreground">—</div>
-        //  eslint-disable-next-line @next/next/no-img-element
-        return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
-      },
-    },
-
-    {
       accessorKey: 'name',
       header: 'Name',
+      meta: {
+        exportPrefix: 'subprocessor.name',
+      },
     },
-
     {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => row.original.description || '—',
-    },
-
-    {
-      accessorKey: 'category',
-      header: 'Category',
-      cell: ({ row }) => row.original.category || '—',
+      meta: {
+        exportPrefix: 'subprocessor.description',
+      },
     },
 
     {
       accessorKey: 'countries',
       header: 'Countries',
+      meta: {
+        exportPrefix: 'countries',
+      },
       cell: ({ row }) => {
         const codes = row.original.countries ?? []
 
@@ -121,6 +116,25 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
         )
       },
       minSize: 60,
+    },
+    // {
+    //   accessorKey: 'logo',
+    //   header: 'Logo',
+    //   meta: {
+    //     exportPrefix: 'subprocessor.logoFile.base64',
+    //   },
+    //   cell: ({ row }) => {
+    //     const logo = row.original.logo
+    //     if (!logo) return <div className="text-muted-foreground">—</div>
+    //     //  eslint-disable-next-line @next/next/no-img-element
+    //     return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
+    //   },
+    // },
+
+    {
+      accessorKey: 'category',
+      header: 'Category',
+      cell: ({ row }) => row.original.category || '—',
     },
 
     {
@@ -168,6 +182,20 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
           <span className="text-muted-foreground italic">Deleted user</span>
         )
       },
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <div className="flex gap-1">
+          <Link href={`/trust-center/subprocessors?id=${row.original.id}`}>
+            <Button variant="secondary">
+              <Pencil />
+            </Button>
+          </Link>
+          <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />
+        </div>
+      ),
     },
   ]
 

@@ -16,6 +16,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TEvidenceRenewDialog = {
   controlId?: string
@@ -30,6 +33,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
   const { evidence } = useGetRenewEvidenceById(evidenceId, isOpen)
   const { mutateAsync: createEvidence, isPending: isSubmitting } = useCreateEvidence()
   const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
+  const { convertToHtml } = usePlateEditor()
 
   useEffect(() => {
     if (evidence) {
@@ -37,7 +41,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
         name: evidence.name,
         description: evidence.description ?? '',
         tags: evidence.tags ?? [],
-        collectionProcedure: evidence.collectionProcedure ?? '',
+        collectionProcedure: evidence.collectionProcedure as string,
         source: evidence.source ?? '',
         ...(evidence.url ? { url: evidence.url } : {}),
         controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
@@ -50,13 +54,16 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
   }, [evidence, form])
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    const formData = {
-      input: data,
-      evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
+    let collectionProcedure
+    if (data.collectionProcedure) {
+      collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
     }
 
     try {
-      await createEvidence(formData)
+      await createEvidence({
+        input: { ...data, collectionProcedure },
+        evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
+      })
       setIsOpen(false)
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
@@ -165,9 +172,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
           <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Create'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
-            Cancel
-          </Button>
+          <CancelButton disabled={isSubmitting} onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

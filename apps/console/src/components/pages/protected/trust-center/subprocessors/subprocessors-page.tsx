@@ -3,42 +3,43 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
-import { VisibilityState } from '@tanstack/react-table'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
-import { Panel, PanelHeader } from '@repo/ui/panel'
-import { Button } from '@repo/ui/button'
-import { Building2 } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { ExportExportFormat, ExportExportType, TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
-import { CreateTrustCenterSubprocessorSheet } from './sheet/create-trust-center-subprocessor-sheet'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import useFileExport from '@/components/shared/export/use-file-export'
+import { EditTrustCenterSubprocessorSheet } from './sheet/eidt-trust-center-subprocessor-sheet'
 
 const SubprocessorsPage = () => {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     id: false,
     createdBy: false,
     updatedAt: false,
+    updatedVy: false,
+    createdAt: false,
   })
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
+  const { handleExport } = useFileExport()
 
-  const router = useRouter()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
+  const where = {
+    ...(searchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: searchTerm }, { descriptionContainsFold: searchTerm }] }] } : {}),
+    ...(filters ?? {}),
+  }
+
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
-    where: {
-      ...(searchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: searchTerm }, { descriptionContainsFold: searchTerm }] }] } : {}),
-      ...(filters ?? {}),
-    },
+    where,
     pagination,
   })
 
@@ -88,58 +89,61 @@ const SubprocessorsPage = () => {
 
   const { columns, mappedColumns } = useMemo(() => getSubprocessorsColumns({ selectedRows, setSelectedRows, userMap }), [selectedRows, userMap])
 
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
+
+  const handleExportFile = async () => {
+    if (trustCenterSubprocessors.length === 0) {
+      return
+    }
+
+    handleExport({
+      exportType: ExportExportType.TRUST_CENTER_SUBPROCESSOR,
+      filters: JSON.stringify(where),
+      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
+      format: ExportExportFormat.CSV,
+    })
+  }
+
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Subprocessors', href: '/trust-center/subprocessors' }])
   }, [setCrumbs])
 
   if (isLoading) return <Loading />
 
-  const areFiltersOff = !searchTerm && filters && !Object.keys(filters).length
-  const showCreatePanel = areFiltersOff && tableData.length === 0
-
   return (
     <>
-      <CreateTrustCenterSubprocessorSheet />
-
-      {showCreatePanel ? (
-        <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
-          <PanelHeader heading="Subprocessors" subheading="You haven't added any subprocessors yet. Add third-party vendors that process customer data on your behalf." />
-          <Link href="/trust-center/subprocessors?create=true">
-            <Button variant="primary" icon={<Building2 size={16} />} iconPosition="left">
-              Add Subprocessor
-            </Button>
-          </Link>
-        </Panel>
-      ) : (
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Subprocessors</h2>
-          </div>
-
-          <SubprocessorsTableToolbar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            mappedColumns={mappedColumns}
-            columnVisibility={columnVisibility}
-            setColumnVisibility={setColumnVisibility}
-            handleFilterChange={handleFilterChange}
-            selectedRows={selectedRows}
-            setSelectedRows={setSelectedRows}
-          />
-
-          <DataTable
-            columns={columns}
-            data={tableData}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            paginationMeta={paginationMeta}
-            loading={isLoading}
-            columnVisibility={columnVisibility}
-            onRowClick={(row) => router.push(`/trust-center/subprocessors?id=${row.id}`)}
-            tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
-          />
+      <EditTrustCenterSubprocessorSheet />
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Subprocessors</h2>
         </div>
-      )}
+
+        <SubprocessorsTableToolbar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          mappedColumns={mappedColumns}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+          handleFilterChange={handleFilterChange}
+          selectedRows={selectedRows}
+          setSelectedRows={setSelectedRows}
+          onExport={handleExportFile}
+          exportEnabled={trustCenterSubprocessors.length === 0}
+        />
+
+        <DataTable
+          columns={columns}
+          data={tableData}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={paginationMeta}
+          loading={isLoading}
+          columnVisibility={columnVisibility}
+          tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
+        />
+      </div>
     </>
   )
 }

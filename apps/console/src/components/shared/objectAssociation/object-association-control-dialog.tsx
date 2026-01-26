@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
@@ -18,6 +17,8 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { UseFormReturn } from 'react-hook-form'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SaveButton } from '../save-button/save-button'
+import { CancelButton } from '../cancel-button.tsx/cancel-button'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -119,7 +120,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
   })
 
   const {
-    subcontrol: subcontrols,
+    subcontrols,
     paginationMeta: subcontrolsPagination,
     isLoading: subcontrolsLoading,
     isFetching: subcontrolsFetching,
@@ -217,10 +218,8 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
         />
 
         <DialogFooter>
-          <Button variant="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>Save</Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton onClick={handleSave} />
         </DialogFooter>
       </DialogContent>
     </Dialog>
