@@ -79,7 +79,7 @@ const DashboardComplianceOverview = () => {
       </CardTitle>
 
       <CardContent className="px-6 pb-6 pt-4 grid grid-cols-2 gap-4">
-        <div className="rounded-lg bg-homepage-card-item p-4 border border-homepage-card-border">
+        <div className="rounded-lg bg-homepage-card-item-transparent p-4 border border-homepage-card-border">
           <h3 className="text-sm font-medium flex items-center gap-2">Controls & Evidence</h3>
 
           <div className="grid grid-cols-2 mt-4 relative">
@@ -135,7 +135,7 @@ const DashboardComplianceOverview = () => {
           </div>
         </div>
 
-        <div className="rounded-lg bg-homepage-card-item p-4 border border-homepage-card-border">
+        <div className="rounded-lg bg-homepage-card-item-transparent p-4 border border-homepage-card-border">
           <h3 className="text-sm font-medium flex items-center gap-2">Risks & Tasks</h3>
 
           <div className="grid grid-cols-2 mt-4 relative">

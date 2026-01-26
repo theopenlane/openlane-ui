@@ -246,9 +246,10 @@
   --color-switch-bg-inactive: #ced6da;
   --color-switch-border: #09151d1f;
 
-  --color-homepage-card-item: #eff4f580;
+  --color-homepage-card-item-transparent: #eff4f580;
   --color-homepage-card-border: #09151d1f;
   --color-homepage-card: #ffffff;
+  --color-homepage-card-item: #eff4f5;
 
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #2fd2b1;
@@ -362,6 +363,7 @@
   --color-homepage-card-item: #394b58;
   --color-homepage-card-border: #394b58;
   --color-homepage-card: #233440;
+  --color-homepage-card-item-transparent: #394b58;
 
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #60e8c9;
