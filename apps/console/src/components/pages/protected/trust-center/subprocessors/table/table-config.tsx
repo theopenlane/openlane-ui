@@ -88,11 +88,10 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       },
       cell: ({ row }) => {
         const logo = row.original.logo
-        if (!logo) return <div className="text-muted-foreground">—</div>
         return (
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
+            {!!logo && <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />}
             <span>{row.original.name}</span>
           </div>
         )
