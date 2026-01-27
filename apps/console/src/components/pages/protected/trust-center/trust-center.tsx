@@ -2,7 +2,7 @@
 
 import ErrorPage from '@/components/shared/error/error-page'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
-import { TrustCenterSkeleton } from './skeleton/trust-center-skeleton'
+import { Loading } from '@/components/shared/loading/loading'
 
 type TrustCenterProps = {
   children: React.ReactNode
@@ -13,7 +13,7 @@ const TrustCenter = ({ children }: TrustCenterProps) => {
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
 
   if (isLoading) {
-    return <TrustCenterSkeleton />
+    return <Loading />
   }
 
   if (!trustCenter) {
