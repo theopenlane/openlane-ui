@@ -6,11 +6,7 @@ export const metadata: Metadata = {
 }
 
 const Page: React.FC = () => {
-  return (
-    <>
-      <BrandingPage />
-    </>
-  )
+  return <BrandingPage />
 }
 
 export default Page
