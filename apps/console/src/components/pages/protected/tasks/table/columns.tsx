@@ -9,15 +9,18 @@ import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.t
 import AssigneeCell from './assignee-cell'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
 
 type ColumnOptions = {
   userMap: Record<string, User>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  taskKindOptions: CustomTypeEnumOption[]
 }
 
-export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks }: ColumnOptions): ColumnDef<Task>[] => {
+export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }: ColumnOptions): ColumnDef<Task>[] => {
   const toggleSelection = (task: { id: string }) => {
     setSelectedTasks((prev) => {
       const exists = prev.some((c) => c.id === task.id)
@@ -74,6 +77,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       accessorKey: 'taskKindName',
       header: 'Type',
       size: 140,
+      cell: ({ cell }) => <CustomTypeEnumValue value={(cell.getValue() as string) ?? ''} options={taskKindOptions} placeholder="-" />,
     },
     {
       accessorKey: 'status',

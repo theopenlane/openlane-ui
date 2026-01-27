@@ -7,21 +7,21 @@ import { useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { FolderIcon } from 'lucide-react'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { Option } from '@repo/ui/multiple-selector'
 
 export const EditableSelect = ({
   label,
   name,
   isEditing,
   options,
-  labels,
   handleUpdate,
   isEditAllowed,
 }: {
   label: string
   name: string
   isEditing: boolean
-  options: string[]
-  labels: Record<string, string>
+  options: (Option & { color?: string; description?: string })[]
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   isEditAllowed: boolean
 }) => {
@@ -61,6 +61,7 @@ export const EditableSelect = ({
   )
 
   const isEditable = isEditAllowed && (isEditing || internalEditing)
+
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
@@ -83,12 +84,14 @@ export const EditableSelect = ({
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value] ?? ''}</SelectValue>
+                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>
+                    <CustomTypeEnumValue value={field.value} options={options} placeholder={`Select ${label.toLowerCase()}`} />
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>
-                  {options.map((opt) => (
-                    <SelectItem key={opt} value={opt}>
-                      {labels[opt]}
+                  {options.map((opt, i) => (
+                    <SelectItem key={`${opt.value}-${i}`} value={opt.value}>
+                      <CustomTypeEnumOptionChip option={opt} />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -97,7 +100,22 @@ export const EditableSelect = ({
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
-            <div onDoubleClick={isEditAllowed ? handleClick : undefined}>{labels[getValues(name)] ?? '-'}</div>
+            <div onDoubleClick={isEditAllowed ? handleClick : undefined} className="flex items-center min-h-6">
+              {(() => {
+                const val = getValues(name)
+                const option = options.find((o) => o.value === val)
+                return option ? (
+                  <CustomTypeEnumOptionChip
+                    option={{
+                      ...option,
+                      description: option.description ?? '',
+                    }}
+                  />
+                ) : (
+                  <CustomTypeEnumValue value={val ?? ''} options={options} placeholder={'-'} />
+                )
+              })()}
+            </div>
           </HoverPencilWrapper>
         )}
       </div>

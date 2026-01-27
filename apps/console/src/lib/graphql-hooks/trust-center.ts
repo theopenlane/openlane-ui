@@ -9,6 +9,7 @@ import {
   GET_TRUST_CENTER,
   GET_TRUST_CENTER_DOC_BY_ID,
   GET_TRUST_CENTER_DOCS,
+  GET_TRUST_CENTER_LAST_UPDATED,
   GET_TRUST_CENTER_POSTS,
   UPDATE_TRUST_CENTER,
   UPDATE_TRUST_CENTER_DOC,
@@ -35,6 +36,8 @@ import {
   GetTrustCenterPostsQuery,
   GetTrustCenterPostsQueryVariables,
   GetTrustCenterQuery,
+  TrustCenterLastUpdatedQuery,
+  TrustCenterLastUpdatedQueryVariables,
   UpdateTrustCenterDocMutation,
   UpdateTrustCenterDocMutationVariables,
   UpdateTrustCenterMutation,
@@ -353,5 +356,23 @@ export const useUpdateTrustCenterPost = () => {
         queryKey: ['trustCenter', 'posts'],
       })
     },
+  })
+}
+
+type UseGetTrustCenterLastUpdated = {
+  trustCenterId: string
+  enabled?: boolean
+}
+
+export const useGetTrustCenterLastUpdated = ({ trustCenterId, enabled }: UseGetTrustCenterLastUpdated) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<TrustCenterLastUpdatedQuery>({
+    queryKey: ['trustCenterLastUpdated', trustCenterId],
+    queryFn: () =>
+      client.request<TrustCenterLastUpdatedQuery, TrustCenterLastUpdatedQueryVariables>(GET_TRUST_CENTER_LAST_UPDATED, {
+        trustCenterId,
+      }),
+    enabled: !!trustCenterId || !enabled,
   })
 }

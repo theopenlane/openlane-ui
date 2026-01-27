@@ -12,15 +12,18 @@ import DelegateCell from './delegate-cell'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { LinkedControlsCell } from './linked-controls-cell'
 import { LinkedPoliciesCell } from './linked-plolicies-cell'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
 
 type TProceduresColumnsProps = {
   users?: User[]
   tokens?: ApiToken[]
   selectedProcedures: { id: string }[]
   setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  enumOptions: CustomTypeEnumOption[]
 }
 
-export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSelectedProcedures }: TProceduresColumnsProps) => {
+export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSelectedProcedures, enumOptions }: TProceduresColumnsProps) => {
   const toggleSelection = (procedure: { id: string }) => {
     setSelectedProcedures((prev) => {
       const exists = prev.some((c) => c.id === procedure.id)
@@ -147,7 +150,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'procedureKindName',
       header: 'Type',
       size: 120,
-      cell: ({ cell }) => cell.getValue() || '-',
+      cell: ({ cell }) => <CustomTypeEnumValue value={(cell.getValue() as string) || '-'} options={enumOptions ?? []} placeholder="-" />,
     },
     {
       accessorKey: 'reviewDue',

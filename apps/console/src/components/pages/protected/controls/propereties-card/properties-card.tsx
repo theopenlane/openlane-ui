@@ -18,7 +18,8 @@ import { EditableSelectFromQuery } from './fields/editable-select-from-query'
 import { AuthorityField } from './fields/authority-field'
 import { MappedCategories } from './fields/mapped-categories'
 import { Status } from './fields/status'
-import { controlIconsMap, sourceLabels } from '@/components/shared/enum-mapper/control-enum'
+import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 interface PropertiesCardProps {
   isEditing: boolean
@@ -44,9 +45,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
       field: 'kind',
     },
   })
-
-  const typeOptions = enumOptions.map((o) => o.value)
-  const typeLabels = Object.fromEntries(enumOptions.map((o) => [o.value, o.label]))
 
   const options: Option[] = groups.map((g) => ({
     label: g?.displayName || g?.name || '',
@@ -90,22 +88,13 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditAllowed={isEditAllowed} isEditing={isEditing} icon={controlIconsMap.Subcategory} handleUpdate={handleUpdate} />
         <Status data={data} isEditing={isEditing} handleUpdate={handleUpdate} />
         <MappedCategories isEditing={isEditing} data={data} />
-        <EditableSelect
-          label="Source"
-          name="source"
-          isEditing={isEditing}
-          options={Object.values(ControlControlSource).filter((s) => s !== ControlControlSource.FRAMEWORK)}
-          labels={sourceLabels}
-          handleUpdate={handleUpdate}
-          isEditAllowed={isEditAllowed}
-        />
+        <EditableSelect label="Source" name="source" isEditing={isEditing} options={enumToOptions(ControlControlSource)} handleUpdate={handleUpdate} isEditAllowed={isEditAllowed} />
         <EditableSelect
           label="Type"
           name={data?.__typename === 'Subcontrol' || isCreateSubcontrol ? 'subcontrolKindName' : 'controlKindName'}
           isEditing={isEditing}
           isEditAllowed={isEditAllowed}
-          options={typeOptions}
-          labels={typeLabels}
+          options={enumOptions}
           handleUpdate={handleUpdate}
         />
         {isEditing || data?.referenceID ? (

@@ -79,7 +79,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       header: 'Visibility',
       cell: ({ row }) => {
         return (
-          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
+          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item-transparent border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
             {row.original.visibility.split('_').join(' ').toLowerCase()}
           </div>
         )
@@ -110,7 +110,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       accessorKey: 'standard',
       header: 'Standard',
       cell: ({ row }) => {
-        return <StandardChip referenceFramework={row.original.standardShortName} />
+        return row.original.standardShortName ? <StandardChip referenceFramework={row.original.standardShortName} /> : '-'
       },
     },
     {
@@ -125,7 +125,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       size: 140,
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: '',
       cell: ({ row }) => {
         const presignedURL = row.original.file?.presignedURL || row.original.originalFile?.presignedURL || ''

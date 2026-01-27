@@ -15,6 +15,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -202,12 +203,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                         handleUpdateIfChanged('internalPolicyKindName', val, policy?.internalPolicyKindName)
                       }}
                     >
-                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+                      <SelectTrigger className="w-full">
+                        <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
+                      </SelectTrigger>
 
                       <SelectContent ref={popoverRef}>
                         {enumOptions?.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                            <CustomTypeEnumOptionChip option={option} />
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -225,7 +228,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                   if (!isEditing && editAllowed) setEditingField('internalPolicyKindName')
                 }}
               >
-                <span className="w-full block min-h-6">{policy?.internalPolicyKindName}</span>
+                <div className="w-full block min-h-6">
+                  <CustomTypeEnumValue value={policy?.internalPolicyKindName || ''} options={enumOptions ?? []}></CustomTypeEnumValue>
+                </div>
               </div>
             </HoverPencilWrapper>
           )}

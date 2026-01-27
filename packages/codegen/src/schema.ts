@@ -384,8 +384,8 @@ export interface ActionPlan extends Node {
   actionPlanKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the action_plan */
   actionPlanKindName?: Maybe<Scalars['String']['output']>
-  /** Returns the active workflow instance for this actionPlan if one is running */
-  activeWorkflowInstance?: Maybe<WorkflowInstance>
+  /** Returns active workflow instances for this actionPlan (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   /** whether approval is required for edits to the action_plan */
   approvalRequired?: Maybe<Scalars['Boolean']['output']>
   /** the group of users who are responsible for approving the action_plan */
@@ -429,6 +429,8 @@ export interface ActionPlan extends Node {
   findings: FindingConnection
   /** Indicates if this actionPlan has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this actionPlan has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** suggested improvements for the action_plan */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -458,6 +460,7 @@ export interface ActionPlan extends Node {
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   risks: RiskConnection
+  scans: ScanConnection
   /** source of the action plan */
   source?: Maybe<Scalars['String']['output']>
   /** status of the action_plan, e.g. draft, published, archived, etc. */
@@ -483,6 +486,8 @@ export interface ActionPlan extends Node {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this actionPlan across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface ActionPlanBlockedGroupsArgs {
@@ -566,6 +571,15 @@ export interface ActionPlanRisksArgs {
   where?: InputMaybe<RiskWhereInput>
 }
 
+export interface ActionPlanScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
 export interface ActionPlanTasksArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -600,6 +614,16 @@ export interface ActionPlanWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface ActionPlanWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkActionPlan mutation */
@@ -947,6 +971,9 @@ export interface ActionPlanWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -1181,10 +1208,12 @@ export interface Assessment extends Node {
   assessmentResponses: AssessmentResponseConnection
   assessmentType: AssessmentAssessmentType
   blockedGroups: GroupConnection
+  campaigns: CampaignConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: Maybe<Scalars['Map']['output']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
@@ -1192,6 +1221,7 @@ export interface Assessment extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: Maybe<Scalars['Int']['output']>
   /** tags associated with the object */
@@ -1224,6 +1254,15 @@ export interface AssessmentBlockedGroupsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface AssessmentCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
 export interface AssessmentEditorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -1231,6 +1270,24 @@ export interface AssessmentEditorsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface AssessmentIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface AssessmentPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface AssessmentViewersArgs {
@@ -1313,6 +1370,9 @@ export interface AssessmentResponse extends Node {
   assessmentID: Scalars['ID']['output']
   /** when the assessment was assigned to the user */
   assignedAt: Scalars['Time']['output']
+  campaign?: Maybe<Campaign>
+  /** the campaign this response is associated with */
+  campaignID?: Maybe<Scalars['ID']['output']>
   /** when the user completed the assessment */
   completedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -1324,7 +1384,29 @@ export interface AssessmentResponse extends Node {
   dueDate?: Maybe<Scalars['Time']['output']>
   /** the email address of the recipient */
   email: Scalars['String']['output']
+  /** the number of link clicks for the assessment email */
+  emailClickCount?: Maybe<Scalars['Int']['output']>
+  /** when a link in the assessment email was clicked by the recipient */
+  emailClickedAt?: Maybe<Scalars['Time']['output']>
+  /** when the assessment email was delivered to the recipient */
+  emailDeliveredAt?: Maybe<Scalars['Time']['output']>
+  /** additional metadata about email delivery events */
+  emailMetadata?: Maybe<Scalars['Map']['output']>
+  /** the number of times the assessment email was opened */
+  emailOpenCount?: Maybe<Scalars['Int']['output']>
+  /** when the assessment email was opened by the recipient */
+  emailOpenedAt?: Maybe<Scalars['Time']['output']>
+  entity?: Maybe<Entity>
+  /** the entity associated with this assessment response */
+  entityID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
+  identityHolder?: Maybe<IdentityHolder>
+  /** the identity holder record for the recipient */
+  identityHolderID?: Maybe<Scalars['ID']['output']>
+  /** whether this assessment response is for a test send */
+  isTest: Scalars['Boolean']['output']
+  /** the most recent email event timestamp for this assessment response */
+  lastEmailEventAt?: Maybe<Scalars['Time']['output']>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -1395,6 +1477,12 @@ export enum AssessmentResponseOrderField {
   created_at = 'created_at',
   due_date = 'due_date',
   email = 'email',
+  email_click_count = 'email_click_count',
+  email_clicked_at = 'email_clicked_at',
+  email_delivered_at = 'email_delivered_at',
+  email_open_count = 'email_open_count',
+  email_opened_at = 'email_opened_at',
+  last_email_event_at = 'last_email_event_at',
   send_attempts = 'send_attempts',
   started_at = 'started_at',
   status = 'status',
@@ -1430,6 +1518,22 @@ export interface AssessmentResponseWhereInput {
   assignedAtLTE?: InputMaybe<Scalars['Time']['input']>
   assignedAtNEQ?: InputMaybe<Scalars['Time']['input']>
   assignedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** campaign_id field predicates */
+  campaignID?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContains?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  campaignIDLT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDLTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** completed_at field predicates */
   completedAt?: InputMaybe<Scalars['Time']['input']>
   completedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -1481,8 +1585,41 @@ export interface AssessmentResponseWhereInput {
   dueDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
+  /** email_click_count field predicates */
+  emailClickCount?: InputMaybe<Scalars['Int']['input']>
+  emailClickCountGT?: InputMaybe<Scalars['Int']['input']>
+  emailClickCountGTE?: InputMaybe<Scalars['Int']['input']>
+  emailClickCountIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  emailClickCountIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  emailClickCountLT?: InputMaybe<Scalars['Int']['input']>
+  emailClickCountLTE?: InputMaybe<Scalars['Int']['input']>
+  emailClickCountNEQ?: InputMaybe<Scalars['Int']['input']>
+  emailClickCountNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  emailClickCountNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** email_clicked_at field predicates */
+  emailClickedAt?: InputMaybe<Scalars['Time']['input']>
+  emailClickedAtGT?: InputMaybe<Scalars['Time']['input']>
+  emailClickedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  emailClickedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  emailClickedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  emailClickedAtLT?: InputMaybe<Scalars['Time']['input']>
+  emailClickedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  emailClickedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  emailClickedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  emailClickedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
   emailContainsFold?: InputMaybe<Scalars['String']['input']>
+  /** email_delivered_at field predicates */
+  emailDeliveredAt?: InputMaybe<Scalars['Time']['input']>
+  emailDeliveredAtGT?: InputMaybe<Scalars['Time']['input']>
+  emailDeliveredAtGTE?: InputMaybe<Scalars['Time']['input']>
+  emailDeliveredAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  emailDeliveredAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  emailDeliveredAtLT?: InputMaybe<Scalars['Time']['input']>
+  emailDeliveredAtLTE?: InputMaybe<Scalars['Time']['input']>
+  emailDeliveredAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  emailDeliveredAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  emailDeliveredAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   emailEqualFold?: InputMaybe<Scalars['String']['input']>
   emailGT?: InputMaybe<Scalars['String']['input']>
   emailGTE?: InputMaybe<Scalars['String']['input']>
@@ -1493,12 +1630,59 @@ export interface AssessmentResponseWhereInput {
   emailLTE?: InputMaybe<Scalars['String']['input']>
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** email_open_count field predicates */
+  emailOpenCount?: InputMaybe<Scalars['Int']['input']>
+  emailOpenCountGT?: InputMaybe<Scalars['Int']['input']>
+  emailOpenCountGTE?: InputMaybe<Scalars['Int']['input']>
+  emailOpenCountIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  emailOpenCountIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  emailOpenCountLT?: InputMaybe<Scalars['Int']['input']>
+  emailOpenCountLTE?: InputMaybe<Scalars['Int']['input']>
+  emailOpenCountNEQ?: InputMaybe<Scalars['Int']['input']>
+  emailOpenCountNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  emailOpenCountNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** email_opened_at field predicates */
+  emailOpenedAt?: InputMaybe<Scalars['Time']['input']>
+  emailOpenedAtGT?: InputMaybe<Scalars['Time']['input']>
+  emailOpenedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  emailOpenedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  emailOpenedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  emailOpenedAtLT?: InputMaybe<Scalars['Time']['input']>
+  emailOpenedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  emailOpenedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  emailOpenedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  emailOpenedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_id field predicates */
+  entityID?: InputMaybe<Scalars['ID']['input']>
+  entityIDContains?: InputMaybe<Scalars['ID']['input']>
+  entityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  entityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  entityIDGT?: InputMaybe<Scalars['ID']['input']>
+  entityIDGTE?: InputMaybe<Scalars['ID']['input']>
+  entityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  entityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  entityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entityIDLT?: InputMaybe<Scalars['ID']['input']>
+  entityIDLTE?: InputMaybe<Scalars['ID']['input']>
+  entityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  entityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** assessment edge predicates */
   hasAssessment?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentWith?: InputMaybe<Array<AssessmentWhereInput>>
+  /** campaign edge predicates */
+  hasCampaign?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignWith?: InputMaybe<Array<CampaignWhereInput>>
   /** document edge predicates */
   hasDocument?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentWith?: InputMaybe<Array<DocumentDataWhereInput>>
+  /** entity edge predicates */
+  hasEntity?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityWith?: InputMaybe<Array<EntityWhereInput>>
+  /** identity_holder edge predicates */
+  hasIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -1513,6 +1697,36 @@ export interface AssessmentResponseWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identity_holder_id field predicates */
+  identityHolderID?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityHolderIDLT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDLTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_test field predicates */
+  isTest?: InputMaybe<Scalars['Boolean']['input']>
+  isTestNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_email_event_at field predicates */
+  lastEmailEventAt?: InputMaybe<Scalars['Time']['input']>
+  lastEmailEventAtGT?: InputMaybe<Scalars['Time']['input']>
+  lastEmailEventAtGTE?: InputMaybe<Scalars['Time']['input']>
+  lastEmailEventAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastEmailEventAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastEmailEventAtLT?: InputMaybe<Scalars['Time']['input']>
+  lastEmailEventAtLTE?: InputMaybe<Scalars['Time']['input']>
+  lastEmailEventAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  lastEmailEventAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastEmailEventAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<AssessmentResponseWhereInput>
   or?: InputMaybe<Array<AssessmentResponseWhereInput>>
   /** owner_id field predicates */
@@ -1634,12 +1848,21 @@ export interface AssessmentWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** template edge predicates */
   hasTemplate?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplateWith?: InputMaybe<Array<TemplateWhereInput>>
@@ -1747,30 +1970,102 @@ export interface AssessmentWhereInput {
 
 export interface Asset extends Node {
   __typename?: 'Asset'
+  accessModel?: Maybe<CustomTypeEnum>
+  /** the access_model of the asset */
+  accessModelID?: Maybe<Scalars['ID']['output']>
+  /** the access_model of the asset */
+  accessModelName?: Maybe<Scalars['String']['output']>
+  assetDataClassification?: Maybe<CustomTypeEnum>
+  /** the data_classification of the asset */
+  assetDataClassificationID?: Maybe<Scalars['ID']['output']>
+  /** the data_classification of the asset */
+  assetDataClassificationName?: Maybe<Scalars['String']['output']>
+  assetSubtype?: Maybe<CustomTypeEnum>
+  /** the subtype of the asset */
+  assetSubtypeID?: Maybe<Scalars['ID']['output']>
+  /** the subtype of the asset */
+  assetSubtypeName?: Maybe<Scalars['String']['output']>
   /** the type of the asset, e.g. technology, domain, device, etc */
   assetType: AssetAssetType
   blockedGroups: GroupConnection
   /** the categories of the asset, e.g. web server, database, etc */
   categories?: Maybe<Array<Scalars['String']['output']>>
+  connectedAssets: AssetConnection
+  connectedFrom: AssetConnection
+  /** whether the asset stores or processes PII */
+  containsPii?: Maybe<Scalars['Boolean']['output']>
   controls: ControlConnection
+  /** cost center associated with the asset */
+  costCenter?: Maybe<Scalars['String']['output']>
   /** the CPE (Common Platform Enumeration) of the asset, if applicable */
   cpe?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  criticality?: Maybe<CustomTypeEnum>
+  /** the criticality of the asset */
+  criticalityID?: Maybe<Scalars['ID']['output']>
+  /** the criticality of the asset */
+  criticalityName?: Maybe<Scalars['String']['output']>
   description?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
+  encryptionStatus?: Maybe<CustomTypeEnum>
+  /** the encryption_status of the asset */
+  encryptionStatusID?: Maybe<Scalars['ID']['output']>
+  /** the encryption_status of the asset */
+  encryptionStatusName?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the asset */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the asset */
+  environmentName?: Maybe<Scalars['String']['output']>
+  /** estimated monthly cost for the asset */
+  estimatedMonthlyCost?: Maybe<Scalars['Float']['output']>
   id: Scalars['ID']['output']
   /** unique identifier like domain, device id, etc */
   identifier?: Maybe<Scalars['String']['output']>
+  identityHolders: IdentityHolderConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the asset when no user or group is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the asset */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the asset */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name: Scalars['String']['output']
+  outOfScopePlatforms: PlatformConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** physical location of the asset, if applicable */
+  physicalLocation?: Maybe<Scalars['String']['output']>
+  platforms: PlatformConnection
+  /** purchase date for the asset */
+  purchaseDate?: Maybe<Scalars['DateTime']['output']>
+  /** the region where the asset operates or is hosted */
+  region?: Maybe<Scalars['String']['output']>
   scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the asset */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the asset */
+  scopeName?: Maybe<Scalars['String']['output']>
+  securityTier?: Maybe<CustomTypeEnum>
+  /** the security_tier of the asset */
+  securityTierID?: Maybe<Scalars['ID']['output']>
+  /** the security_tier of the asset */
+  securityTierName?: Maybe<Scalars['String']['output']>
+  /** the identifier used by the source platform for the asset */
+  sourceIdentifier?: Maybe<Scalars['String']['output']>
+  sourcePlatform?: Maybe<Platform>
+  /** the platform that sourced the asset record */
+  sourcePlatformID?: Maybe<Scalars['ID']['output']>
+  /** the source of the asset record, e.g., manual, discovered, imported, api */
+  sourceType: AssetSourceType
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
@@ -1791,6 +2086,24 @@ export interface AssetBlockedGroupsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface AssetConnectedAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface AssetConnectedFromArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
 }
 
 export interface AssetControlsArgs {
@@ -1818,6 +2131,33 @@ export interface AssetEntitiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EntityOrder>>
   where?: InputMaybe<EntityWhereInput>
+}
+
+export interface AssetIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface AssetOutOfScopePlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface AssetPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface AssetScansArgs {
@@ -1905,9 +2245,26 @@ export interface AssetOrder {
 /** Properties by which Asset connections can be ordered. */
 export enum AssetOrderField {
   ASSET_TYPE = 'ASSET_TYPE',
+  SOURCE_TYPE = 'SOURCE_TYPE',
+  contains_pii = 'contains_pii',
+  cost_center = 'cost_center',
   created_at = 'created_at',
+  estimated_monthly_cost = 'estimated_monthly_cost',
+  internal_owner = 'internal_owner',
   name = 'name',
+  physical_location = 'physical_location',
+  purchase_date = 'purchase_date',
+  region = 'region',
+  source_identifier = 'source_identifier',
   updated_at = 'updated_at',
+}
+
+/** AssetSourceType is enum for the field source_type */
+export enum AssetSourceType {
+  API = 'API',
+  DISCOVERED = 'DISCOVERED',
+  IMPORTED = 'IMPORTED',
+  MANUAL = 'MANUAL',
 }
 
 /** Return response for updateAsset mutation */
@@ -1922,12 +2279,129 @@ export interface AssetUpdatePayload {
  * Input was generated by ent.
  */
 export interface AssetWhereInput {
+  /** access_model_id field predicates */
+  accessModelID?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDContains?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDGT?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDGTE?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  accessModelIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  accessModelIDLT?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDLTE?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  accessModelIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** access_model_name field predicates */
+  accessModelName?: InputMaybe<Scalars['String']['input']>
+  accessModelNameContains?: InputMaybe<Scalars['String']['input']>
+  accessModelNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  accessModelNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  accessModelNameGT?: InputMaybe<Scalars['String']['input']>
+  accessModelNameGTE?: InputMaybe<Scalars['String']['input']>
+  accessModelNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  accessModelNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  accessModelNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  accessModelNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  accessModelNameLT?: InputMaybe<Scalars['String']['input']>
+  accessModelNameLTE?: InputMaybe<Scalars['String']['input']>
+  accessModelNameNEQ?: InputMaybe<Scalars['String']['input']>
+  accessModelNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  accessModelNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<AssetWhereInput>>
+  /** asset_data_classification_id field predicates */
+  assetDataClassificationID?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDContains?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDGT?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetDataClassificationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assetDataClassificationIDLT?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assetDataClassificationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetDataClassificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** asset_data_classification_name field predicates */
+  assetDataClassificationName?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameContains?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameGT?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameGTE?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assetDataClassificationNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assetDataClassificationNameLT?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameLTE?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameNEQ?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assetDataClassificationNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** asset_subtype_id field predicates */
+  assetSubtypeID?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDContains?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDGT?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetSubtypeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assetSubtypeIDLT?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assetSubtypeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetSubtypeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** asset_subtype_name field predicates */
+  assetSubtypeName?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameContains?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameGT?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameGTE?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assetSubtypeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assetSubtypeNameLT?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameLTE?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assetSubtypeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** asset_type field predicates */
   assetType?: InputMaybe<AssetAssetType>
   assetTypeIn?: InputMaybe<Array<AssetAssetType>>
   assetTypeNEQ?: InputMaybe<AssetAssetType>
   assetTypeNotIn?: InputMaybe<Array<AssetAssetType>>
+  /** contains_pii field predicates */
+  containsPii?: InputMaybe<Scalars['Boolean']['input']>
+  containsPiiIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  containsPiiNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  containsPiiNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** cost_center field predicates */
+  costCenter?: InputMaybe<Scalars['String']['input']>
+  costCenterContains?: InputMaybe<Scalars['String']['input']>
+  costCenterContainsFold?: InputMaybe<Scalars['String']['input']>
+  costCenterEqualFold?: InputMaybe<Scalars['String']['input']>
+  costCenterGT?: InputMaybe<Scalars['String']['input']>
+  costCenterGTE?: InputMaybe<Scalars['String']['input']>
+  costCenterHasPrefix?: InputMaybe<Scalars['String']['input']>
+  costCenterHasSuffix?: InputMaybe<Scalars['String']['input']>
+  costCenterIn?: InputMaybe<Array<Scalars['String']['input']>>
+  costCenterIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  costCenterLT?: InputMaybe<Scalars['String']['input']>
+  costCenterLTE?: InputMaybe<Scalars['String']['input']>
+  costCenterNEQ?: InputMaybe<Scalars['String']['input']>
+  costCenterNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  costCenterNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -1955,6 +2429,38 @@ export interface AssetWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** criticality_id field predicates */
+  criticalityID?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDContains?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDGT?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDGTE?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  criticalityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  criticalityIDLT?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDLTE?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  criticalityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** criticality_name field predicates */
+  criticalityName?: InputMaybe<Scalars['String']['input']>
+  criticalityNameContains?: InputMaybe<Scalars['String']['input']>
+  criticalityNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  criticalityNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  criticalityNameGT?: InputMaybe<Scalars['String']['input']>
+  criticalityNameGTE?: InputMaybe<Scalars['String']['input']>
+  criticalityNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  criticalityNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  criticalityNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  criticalityNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  criticalityNameLT?: InputMaybe<Scalars['String']['input']>
+  criticalityNameLTE?: InputMaybe<Scalars['String']['input']>
+  criticalityNameNEQ?: InputMaybe<Scalars['String']['input']>
+  criticalityNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  criticalityNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -1971,24 +2477,147 @@ export interface AssetWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** encryption_status_id field predicates */
+  encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDContains?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDGT?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDGTE?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  encryptionStatusIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  encryptionStatusIDLT?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDLTE?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  encryptionStatusIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** encryption_status_name field predicates */
+  encryptionStatusName?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameContains?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameGT?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameGTE?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  encryptionStatusNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  encryptionStatusNameLT?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameLTE?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameNEQ?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  encryptionStatusNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** estimated_monthly_cost field predicates */
+  estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostGT?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostGTE?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostIn?: InputMaybe<Array<Scalars['Float']['input']>>
+  estimatedMonthlyCostIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  estimatedMonthlyCostLT?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostLTE?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostNEQ?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostNotIn?: InputMaybe<Array<Scalars['Float']['input']>>
+  estimatedMonthlyCostNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** access_model edge predicates */
+  hasAccessModel?: InputMaybe<Scalars['Boolean']['input']>
+  hasAccessModelWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** asset_data_classification edge predicates */
+  hasAssetDataClassification?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetDataClassificationWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** asset_subtype edge predicates */
+  hasAssetSubtype?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetSubtypeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** connected_assets edge predicates */
+  hasConnectedAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasConnectedAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** connected_from edge predicates */
+  hasConnectedFrom?: InputMaybe<Scalars['Boolean']['input']>
+  hasConnectedFromWith?: InputMaybe<Array<AssetWhereInput>>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** criticality edge predicates */
+  hasCriticality?: InputMaybe<Scalars['Boolean']['input']>
+  hasCriticalityWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** encryption_status edge predicates */
+  hasEncryptionStatus?: InputMaybe<Scalars['Boolean']['input']>
+  hasEncryptionStatusWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** out_of_scope_platforms edge predicates */
+  hasOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasOutOfScopePlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** security_tier edge predicates */
+  hasSecurityTier?: InputMaybe<Scalars['Boolean']['input']>
+  hasSecurityTierWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** source_platform edge predicates */
+  hasSourcePlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasSourcePlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -2035,6 +2664,54 @@ export interface AssetWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerLT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -2067,6 +2744,150 @@ export interface AssetWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** physical_location field predicates */
+  physicalLocation?: InputMaybe<Scalars['String']['input']>
+  physicalLocationContains?: InputMaybe<Scalars['String']['input']>
+  physicalLocationContainsFold?: InputMaybe<Scalars['String']['input']>
+  physicalLocationEqualFold?: InputMaybe<Scalars['String']['input']>
+  physicalLocationGT?: InputMaybe<Scalars['String']['input']>
+  physicalLocationGTE?: InputMaybe<Scalars['String']['input']>
+  physicalLocationHasPrefix?: InputMaybe<Scalars['String']['input']>
+  physicalLocationHasSuffix?: InputMaybe<Scalars['String']['input']>
+  physicalLocationIn?: InputMaybe<Array<Scalars['String']['input']>>
+  physicalLocationIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  physicalLocationLT?: InputMaybe<Scalars['String']['input']>
+  physicalLocationLTE?: InputMaybe<Scalars['String']['input']>
+  physicalLocationNEQ?: InputMaybe<Scalars['String']['input']>
+  physicalLocationNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  physicalLocationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** purchase_date field predicates */
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  purchaseDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  purchaseDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  purchaseDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** region field predicates */
+  region?: InputMaybe<Scalars['String']['input']>
+  regionContains?: InputMaybe<Scalars['String']['input']>
+  regionContainsFold?: InputMaybe<Scalars['String']['input']>
+  regionEqualFold?: InputMaybe<Scalars['String']['input']>
+  regionGT?: InputMaybe<Scalars['String']['input']>
+  regionGTE?: InputMaybe<Scalars['String']['input']>
+  regionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  regionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  regionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  regionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  regionLT?: InputMaybe<Scalars['String']['input']>
+  regionLTE?: InputMaybe<Scalars['String']['input']>
+  regionNEQ?: InputMaybe<Scalars['String']['input']>
+  regionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  regionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** security_tier_id field predicates */
+  securityTierID?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDContains?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDGT?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDGTE?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityTierIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityTierIDLT?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDLTE?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityTierIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** security_tier_name field predicates */
+  securityTierName?: InputMaybe<Scalars['String']['input']>
+  securityTierNameContains?: InputMaybe<Scalars['String']['input']>
+  securityTierNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  securityTierNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  securityTierNameGT?: InputMaybe<Scalars['String']['input']>
+  securityTierNameGTE?: InputMaybe<Scalars['String']['input']>
+  securityTierNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  securityTierNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  securityTierNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  securityTierNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityTierNameLT?: InputMaybe<Scalars['String']['input']>
+  securityTierNameLTE?: InputMaybe<Scalars['String']['input']>
+  securityTierNameNEQ?: InputMaybe<Scalars['String']['input']>
+  securityTierNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  securityTierNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_identifier field predicates */
+  sourceIdentifier?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierContains?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierGT?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierGTE?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceIdentifierIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceIdentifierLT?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierLTE?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceIdentifierNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_platform_id field predicates */
+  sourcePlatformID?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDContains?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDGT?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  sourcePlatformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourcePlatformIDLT?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  sourcePlatformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  sourcePlatformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_type field predicates */
+  sourceType?: InputMaybe<AssetSourceType>
+  sourceTypeIn?: InputMaybe<Array<AssetSourceType>>
+  sourceTypeNEQ?: InputMaybe<AssetSourceType>
+  sourceTypeNotIn?: InputMaybe<Array<AssetSourceType>>
   /** system_internal_id field predicates */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -2133,6 +2954,1126 @@ export interface AssetWhereInput {
   websiteNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export interface Campaign extends Node {
+  __typename?: 'Campaign'
+  /** Returns active workflow instances for this campaign (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
+  assessment?: Maybe<Assessment>
+  /** the assessment associated with the campaign */
+  assessmentID?: Maybe<Scalars['ID']['output']>
+  assessmentResponses: AssessmentResponseConnection
+  blockedGroups: GroupConnection
+  campaignTargets: CampaignTargetConnection
+  /** the type of campaign */
+  campaignType: CampaignCampaignType
+  /** when the campaign completed */
+  completedAt?: Maybe<Scalars['DateTime']['output']>
+  contacts: ContactConnection
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** the description of the campaign */
+  description?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
+  /** when responses are due for the campaign */
+  dueDate?: Maybe<Scalars['DateTime']['output']>
+  editors: GroupConnection
+  entity?: Maybe<Entity>
+  /** the entity associated with the campaign */
+  entityID?: Maybe<Scalars['ID']['output']>
+  groups: GroupConnection
+  /** Indicates if this campaign has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this campaign has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
+  /** the internal owner for the campaign when no user or group is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the campaign */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the campaign */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  /** whether the campaign is active */
+  isActive: Scalars['Boolean']['output']
+  /** whether the campaign recurs on a schedule */
+  isRecurring: Scalars['Boolean']['output']
+  /** when campaign notifications were last resent */
+  lastResentAt?: Maybe<Scalars['DateTime']['output']>
+  /** when the campaign was last executed */
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>
+  /** when the campaign was launched */
+  launchedAt?: Maybe<Scalars['DateTime']['output']>
+  /** additional metadata about the campaign */
+  metadata?: Maybe<Scalars['Map']['output']>
+  /** the name of the campaign */
+  name: Scalars['String']['output']
+  /** when the campaign is scheduled to run next */
+  nextRunAt?: Maybe<Scalars['DateTime']['output']>
+  owner?: Maybe<Organization>
+  /** the ID of the organization owner of the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** the number of recipients targeted by the campaign */
+  recipientCount?: Maybe<Scalars['Int']['output']>
+  /** cron schedule to run the campaign in cron 6-field syntax, e.g. 0 0 0 * * * */
+  recurrenceCron?: Maybe<Scalars['String']['output']>
+  /** when the recurring campaign should stop running */
+  recurrenceEndAt?: Maybe<Scalars['DateTime']['output']>
+  /** the recurrence cadence for the campaign */
+  recurrenceFrequency?: Maybe<CampaignFrequency>
+  /** the recurrence interval for the campaign, combined with the recurrence frequency */
+  recurrenceInterval?: Maybe<Scalars['Int']['output']>
+  /** timezone used for the recurrence schedule */
+  recurrenceTimezone?: Maybe<Scalars['String']['output']>
+  /** the number of times campaign notifications were resent */
+  resendCount?: Maybe<Scalars['Int']['output']>
+  /** when the campaign is scheduled to start */
+  scheduledAt?: Maybe<Scalars['DateTime']['output']>
+  /** the status of the campaign */
+  status: CampaignCampaignStatus
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  template?: Maybe<Template>
+  /** the template associated with the campaign */
+  templateID?: Maybe<Scalars['ID']['output']>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  users: UserConnection
+  viewers: GroupConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this campaign across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
+}
+
+export interface CampaignAssessmentResponsesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssessmentResponseOrder>>
+  where?: InputMaybe<AssessmentResponseWhereInput>
+}
+
+export interface CampaignBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface CampaignCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
+}
+
+export interface CampaignContactsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ContactOrder>>
+  where?: InputMaybe<ContactWhereInput>
+}
+
+export interface CampaignEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface CampaignGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface CampaignIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface CampaignUsersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<UserOrder>>
+  where?: InputMaybe<UserWhereInput>
+}
+
+export interface CampaignViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface CampaignWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface CampaignWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
+}
+
+/** Return response for createBulkCampaign mutation */
+export interface CampaignBulkCreatePayload {
+  __typename?: 'CampaignBulkCreatePayload'
+  /** Created campaigns */
+  campaigns?: Maybe<Array<Campaign>>
+}
+
+/** CampaignCampaignStatus is enum for the field status */
+export enum CampaignCampaignStatus {
+  ACTIVE = 'ACTIVE',
+  CANCELED = 'CANCELED',
+  COMPLETED = 'COMPLETED',
+  DRAFT = 'DRAFT',
+  SCHEDULED = 'SCHEDULED',
+}
+
+/** CampaignCampaignType is enum for the field campaign_type */
+export enum CampaignCampaignType {
+  CUSTOM = 'CUSTOM',
+  POLICY_ATTESTATION = 'POLICY_ATTESTATION',
+  QUESTIONNAIRE = 'QUESTIONNAIRE',
+  TRAINING = 'TRAINING',
+  VENDOR_ASSESSMENT = 'VENDOR_ASSESSMENT',
+}
+
+/** A connection to a list of items. */
+export interface CampaignConnection {
+  __typename?: 'CampaignConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<CampaignEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createCampaign mutation */
+export interface CampaignCreatePayload {
+  __typename?: 'CampaignCreatePayload'
+  /** Created campaign */
+  campaign: Campaign
+}
+
+/** Return response for deleteCampaign mutation */
+export interface CampaignDeletePayload {
+  __typename?: 'CampaignDeletePayload'
+  /** Deleted campaign ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface CampaignEdge {
+  __typename?: 'CampaignEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<Campaign>
+}
+
+/** CampaignFrequency is enum for the field recurrence_frequency */
+export enum CampaignFrequency {
+  BIANNUALLY = 'BIANNUALLY',
+  MONTHLY = 'MONTHLY',
+  QUARTERLY = 'QUARTERLY',
+  YEARLY = 'YEARLY',
+}
+
+/** Ordering options for Campaign connections */
+export interface CampaignOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order Campaigns. */
+  field: CampaignOrderField
+}
+
+/** Properties by which Campaign connections can be ordered. */
+export enum CampaignOrderField {
+  CAMPAIGN_TYPE = 'CAMPAIGN_TYPE',
+  STATUS = 'STATUS',
+  completed_at = 'completed_at',
+  created_at = 'created_at',
+  due_date = 'due_date',
+  internal_owner = 'internal_owner',
+  is_active = 'is_active',
+  is_recurring = 'is_recurring',
+  last_resent_at = 'last_resent_at',
+  last_run_at = 'last_run_at',
+  launched_at = 'launched_at',
+  name = 'name',
+  next_run_at = 'next_run_at',
+  recipient_count = 'recipient_count',
+  recurrence_end_at = 'recurrence_end_at',
+  recurrence_frequency = 'recurrence_frequency',
+  recurrence_interval = 'recurrence_interval',
+  recurrence_timezone = 'recurrence_timezone',
+  resend_count = 'resend_count',
+  scheduled_at = 'scheduled_at',
+  updated_at = 'updated_at',
+}
+
+export interface CampaignTarget extends Node {
+  __typename?: 'CampaignTarget'
+  /** Returns active workflow instances for this campaignTarget (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
+  campaign: Campaign
+  /** the campaign this target belongs to */
+  campaignID: Scalars['ID']['output']
+  /** when the campaign target completed the request */
+  completedAt?: Maybe<Scalars['DateTime']['output']>
+  contact?: Maybe<Contact>
+  /** the contact associated with the campaign target */
+  contactID?: Maybe<Scalars['ID']['output']>
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** the email address targeted by the campaign */
+  email: Scalars['String']['output']
+  /** the name of the campaign target, if known */
+  fullName?: Maybe<Scalars['String']['output']>
+  group?: Maybe<Group>
+  /** the group associated with the campaign target */
+  groupID?: Maybe<Scalars['ID']['output']>
+  /** Indicates if this campaignTarget has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this campaignTarget has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  /** additional metadata about the campaign target */
+  metadata?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the ID of the organization owner of the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** when the campaign target was last sent a request */
+  sentAt?: Maybe<Scalars['DateTime']['output']>
+  /** the delivery or response status for the campaign target */
+  status: CampaignTargetAssessmentResponseStatus
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
+  /** the user associated with the campaign target */
+  userID?: Maybe<Scalars['ID']['output']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this campaignTarget across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
+}
+
+export interface CampaignTargetWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface CampaignTargetWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
+}
+
+/** CampaignTargetAssessmentResponseStatus is enum for the field status */
+export enum CampaignTargetAssessmentResponseStatus {
+  COMPLETED = 'COMPLETED',
+  NOT_STARTED = 'NOT_STARTED',
+  OVERDUE = 'OVERDUE',
+  SENT = 'SENT',
+}
+
+/** Return response for createBulkCampaignTarget mutation */
+export interface CampaignTargetBulkCreatePayload {
+  __typename?: 'CampaignTargetBulkCreatePayload'
+  /** Created campaignTargets */
+  campaignTargets?: Maybe<Array<CampaignTarget>>
+}
+
+/** A connection to a list of items. */
+export interface CampaignTargetConnection {
+  __typename?: 'CampaignTargetConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<CampaignTargetEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createCampaignTarget mutation */
+export interface CampaignTargetCreatePayload {
+  __typename?: 'CampaignTargetCreatePayload'
+  /** Created campaignTarget */
+  campaignTarget: CampaignTarget
+}
+
+/** Return response for deleteCampaignTarget mutation */
+export interface CampaignTargetDeletePayload {
+  __typename?: 'CampaignTargetDeletePayload'
+  /** Deleted campaignTarget ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface CampaignTargetEdge {
+  __typename?: 'CampaignTargetEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<CampaignTarget>
+}
+
+/** Ordering options for CampaignTarget connections */
+export interface CampaignTargetOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order CampaignTargets. */
+  field: CampaignTargetOrderField
+}
+
+/** Properties by which CampaignTarget connections can be ordered. */
+export enum CampaignTargetOrderField {
+  STATUS = 'STATUS',
+  completed_at = 'completed_at',
+  created_at = 'created_at',
+  email = 'email',
+  full_name = 'full_name',
+  sent_at = 'sent_at',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateCampaignTarget mutation */
+export interface CampaignTargetUpdatePayload {
+  __typename?: 'CampaignTargetUpdatePayload'
+  /** Updated campaignTarget */
+  campaignTarget: CampaignTarget
+}
+
+/**
+ * CampaignTargetWhereInput is used for filtering CampaignTarget objects.
+ * Input was generated by ent.
+ */
+export interface CampaignTargetWhereInput {
+  and?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** campaign_id field predicates */
+  campaignID?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContains?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDLT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDLTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** completed_at field predicates */
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  completedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  completedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  completedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** contact_id field predicates */
+  contactID?: InputMaybe<Scalars['ID']['input']>
+  contactIDContains?: InputMaybe<Scalars['ID']['input']>
+  contactIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  contactIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  contactIDGT?: InputMaybe<Scalars['ID']['input']>
+  contactIDGTE?: InputMaybe<Scalars['ID']['input']>
+  contactIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  contactIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  contactIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  contactIDLT?: InputMaybe<Scalars['ID']['input']>
+  contactIDLTE?: InputMaybe<Scalars['ID']['input']>
+  contactIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  contactIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** email field predicates */
+  email?: InputMaybe<Scalars['String']['input']>
+  emailContains?: InputMaybe<Scalars['String']['input']>
+  emailContainsFold?: InputMaybe<Scalars['String']['input']>
+  emailEqualFold?: InputMaybe<Scalars['String']['input']>
+  emailGT?: InputMaybe<Scalars['String']['input']>
+  emailGTE?: InputMaybe<Scalars['String']['input']>
+  emailHasPrefix?: InputMaybe<Scalars['String']['input']>
+  emailHasSuffix?: InputMaybe<Scalars['String']['input']>
+  emailIn?: InputMaybe<Array<Scalars['String']['input']>>
+  emailLT?: InputMaybe<Scalars['String']['input']>
+  emailLTE?: InputMaybe<Scalars['String']['input']>
+  emailNEQ?: InputMaybe<Scalars['String']['input']>
+  emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** full_name field predicates */
+  fullName?: InputMaybe<Scalars['String']['input']>
+  fullNameContains?: InputMaybe<Scalars['String']['input']>
+  fullNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  fullNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  fullNameGT?: InputMaybe<Scalars['String']['input']>
+  fullNameGTE?: InputMaybe<Scalars['String']['input']>
+  fullNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  fullNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  fullNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fullNameLT?: InputMaybe<Scalars['String']['input']>
+  fullNameLTE?: InputMaybe<Scalars['String']['input']>
+  fullNameNEQ?: InputMaybe<Scalars['String']['input']>
+  fullNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** group_id field predicates */
+  groupID?: InputMaybe<Scalars['ID']['input']>
+  groupIDContains?: InputMaybe<Scalars['ID']['input']>
+  groupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  groupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  groupIDGT?: InputMaybe<Scalars['ID']['input']>
+  groupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  groupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  groupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  groupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  groupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  groupIDLT?: InputMaybe<Scalars['ID']['input']>
+  groupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  groupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  groupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  groupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaign edge predicates */
+  hasCampaign?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** contact edge predicates */
+  hasContact?: InputMaybe<Scalars['Boolean']['input']>
+  hasContactWith?: InputMaybe<Array<ContactWhereInput>>
+  /** group edge predicates */
+  hasGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** user edge predicates */
+  hasUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<CampaignTargetWhereInput>
+  or?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** sent_at field predicates */
+  sentAt?: InputMaybe<Scalars['DateTime']['input']>
+  sentAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  sentAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  sentAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  sentAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sentAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  sentAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  sentAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  sentAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  sentAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status field predicates */
+  status?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  statusIn?: InputMaybe<Array<CampaignTargetAssessmentResponseStatus>>
+  statusNEQ?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  statusNotIn?: InputMaybe<Array<CampaignTargetAssessmentResponseStatus>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** user_id field predicates */
+  userID?: InputMaybe<Scalars['ID']['input']>
+  userIDContains?: InputMaybe<Scalars['ID']['input']>
+  userIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  userIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  userIDGT?: InputMaybe<Scalars['ID']['input']>
+  userIDGTE?: InputMaybe<Scalars['ID']['input']>
+  userIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  userIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  userIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  userIDLT?: InputMaybe<Scalars['ID']['input']>
+  userIDLTE?: InputMaybe<Scalars['ID']['input']>
+  userIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  userIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Return response for updateCampaign mutation */
+export interface CampaignUpdatePayload {
+  __typename?: 'CampaignUpdatePayload'
+  /** Updated campaign */
+  campaign: Campaign
+}
+
+/**
+ * CampaignWhereInput is used for filtering Campaign objects.
+ * Input was generated by ent.
+ */
+export interface CampaignWhereInput {
+  and?: InputMaybe<Array<CampaignWhereInput>>
+  /** assessment_id field predicates */
+  assessmentID?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assessmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaign_type field predicates */
+  campaignType?: InputMaybe<CampaignCampaignType>
+  campaignTypeIn?: InputMaybe<Array<CampaignCampaignType>>
+  campaignTypeNEQ?: InputMaybe<CampaignCampaignType>
+  campaignTypeNotIn?: InputMaybe<Array<CampaignCampaignType>>
+  /** completed_at field predicates */
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  completedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  completedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  completedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  completedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** due_date field predicates */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  dueDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dueDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  dueDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_id field predicates */
+  entityID?: InputMaybe<Scalars['ID']['input']>
+  entityIDContains?: InputMaybe<Scalars['ID']['input']>
+  entityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  entityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  entityIDGT?: InputMaybe<Scalars['ID']['input']>
+  entityIDGTE?: InputMaybe<Scalars['ID']['input']>
+  entityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  entityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  entityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entityIDLT?: InputMaybe<Scalars['ID']['input']>
+  entityIDLTE?: InputMaybe<Scalars['ID']['input']>
+  entityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  entityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessment edge predicates */
+  hasAssessment?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessment_responses edge predicates */
+  hasAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentResponsesWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
+  hasAssessmentWith?: InputMaybe<Array<AssessmentWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** campaign_targets edge predicates */
+  hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** contacts edge predicates */
+  hasContacts?: InputMaybe<Scalars['Boolean']['input']>
+  hasContactsWith?: InputMaybe<Array<ContactWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** entity edge predicates */
+  hasEntity?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityWith?: InputMaybe<Array<EntityWhereInput>>
+  /** groups edge predicates */
+  hasGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** template edge predicates */
+  hasTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  hasTemplateWith?: InputMaybe<Array<TemplateWhereInput>>
+  /** users edge predicates */
+  hasUsers?: InputMaybe<Scalars['Boolean']['input']>
+  hasUsersWith?: InputMaybe<Array<UserWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerLT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_active field predicates */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_recurring field predicates */
+  isRecurring?: InputMaybe<Scalars['Boolean']['input']>
+  isRecurringNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_resent_at field predicates */
+  lastResentAt?: InputMaybe<Scalars['DateTime']['input']>
+  lastResentAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  lastResentAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastResentAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastResentAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastResentAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  lastResentAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastResentAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  lastResentAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastResentAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_run_at field predicates */
+  lastRunAt?: InputMaybe<Scalars['DateTime']['input']>
+  lastRunAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  lastRunAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastRunAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastRunAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastRunAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  lastRunAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastRunAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  lastRunAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastRunAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** launched_at field predicates */
+  launchedAt?: InputMaybe<Scalars['DateTime']['input']>
+  launchedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  launchedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  launchedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  launchedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  launchedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  launchedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  launchedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  launchedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  launchedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** next_run_at field predicates */
+  nextRunAt?: InputMaybe<Scalars['DateTime']['input']>
+  nextRunAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  nextRunAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  nextRunAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  nextRunAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  nextRunAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  nextRunAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  nextRunAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  nextRunAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  nextRunAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  not?: InputMaybe<CampaignWhereInput>
+  or?: InputMaybe<Array<CampaignWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** recipient_count field predicates */
+  recipientCount?: InputMaybe<Scalars['Int']['input']>
+  recipientCountGT?: InputMaybe<Scalars['Int']['input']>
+  recipientCountGTE?: InputMaybe<Scalars['Int']['input']>
+  recipientCountIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  recipientCountIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  recipientCountLT?: InputMaybe<Scalars['Int']['input']>
+  recipientCountLTE?: InputMaybe<Scalars['Int']['input']>
+  recipientCountNEQ?: InputMaybe<Scalars['Int']['input']>
+  recipientCountNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  recipientCountNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** recurrence_end_at field predicates */
+  recurrenceEndAt?: InputMaybe<Scalars['DateTime']['input']>
+  recurrenceEndAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  recurrenceEndAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  recurrenceEndAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  recurrenceEndAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  recurrenceEndAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  recurrenceEndAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  recurrenceEndAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  recurrenceEndAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  recurrenceEndAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** recurrence_frequency field predicates */
+  recurrenceFrequency?: InputMaybe<CampaignFrequency>
+  recurrenceFrequencyIn?: InputMaybe<Array<CampaignFrequency>>
+  recurrenceFrequencyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  recurrenceFrequencyNEQ?: InputMaybe<CampaignFrequency>
+  recurrenceFrequencyNotIn?: InputMaybe<Array<CampaignFrequency>>
+  recurrenceFrequencyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** recurrence_interval field predicates */
+  recurrenceInterval?: InputMaybe<Scalars['Int']['input']>
+  recurrenceIntervalGT?: InputMaybe<Scalars['Int']['input']>
+  recurrenceIntervalGTE?: InputMaybe<Scalars['Int']['input']>
+  recurrenceIntervalIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  recurrenceIntervalIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  recurrenceIntervalLT?: InputMaybe<Scalars['Int']['input']>
+  recurrenceIntervalLTE?: InputMaybe<Scalars['Int']['input']>
+  recurrenceIntervalNEQ?: InputMaybe<Scalars['Int']['input']>
+  recurrenceIntervalNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  recurrenceIntervalNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** recurrence_timezone field predicates */
+  recurrenceTimezone?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneContains?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneContainsFold?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneEqualFold?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneGT?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneGTE?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneHasPrefix?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneHasSuffix?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneIn?: InputMaybe<Array<Scalars['String']['input']>>
+  recurrenceTimezoneIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  recurrenceTimezoneLT?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneLTE?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneNEQ?: InputMaybe<Scalars['String']['input']>
+  recurrenceTimezoneNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  recurrenceTimezoneNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** resend_count field predicates */
+  resendCount?: InputMaybe<Scalars['Int']['input']>
+  resendCountGT?: InputMaybe<Scalars['Int']['input']>
+  resendCountGTE?: InputMaybe<Scalars['Int']['input']>
+  resendCountIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  resendCountIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  resendCountLT?: InputMaybe<Scalars['Int']['input']>
+  resendCountLTE?: InputMaybe<Scalars['Int']['input']>
+  resendCountNEQ?: InputMaybe<Scalars['Int']['input']>
+  resendCountNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  resendCountNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scheduled_at field predicates */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>
+  scheduledAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  scheduledAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  scheduledAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  scheduledAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scheduledAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  scheduledAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  scheduledAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  scheduledAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  scheduledAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status field predicates */
+  status?: InputMaybe<CampaignCampaignStatus>
+  statusIn?: InputMaybe<Array<CampaignCampaignStatus>>
+  statusNEQ?: InputMaybe<CampaignCampaignStatus>
+  statusNotIn?: InputMaybe<Array<CampaignCampaignStatus>>
+  /** template_id field predicates */
+  templateID?: InputMaybe<Scalars['ID']['input']>
+  templateIDContains?: InputMaybe<Scalars['ID']['input']>
+  templateIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  templateIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  templateIDGT?: InputMaybe<Scalars['ID']['input']>
+  templateIDGTE?: InputMaybe<Scalars['ID']['input']>
+  templateIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  templateIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  templateIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  templateIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  templateIDLT?: InputMaybe<Scalars['ID']['input']>
+  templateIDLTE?: InputMaybe<Scalars['ID']['input']>
+  templateIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  templateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  templateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 /**
  * CloneControlInput is used to clone controls and their subcontrols
  * under an organization (ownerID)
@@ -2194,6 +4135,8 @@ export interface Contact extends Node {
   __typename?: 'Contact'
   /** the address of the contact */
   address?: Maybe<Scalars['String']['output']>
+  campaignTargets: CampaignTargetConnection
+  campaigns: CampaignConnection
   /** the company of the contact */
   company?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -2218,6 +4161,24 @@ export interface Contact extends Node {
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface ContactCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
+}
+
+export interface ContactCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
 }
 
 export interface ContactEntitiesArgs {
@@ -2427,6 +4388,12 @@ export interface ContactWhereInput {
   fullNameNEQ?: InputMaybe<Scalars['String']['input']>
   fullNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   fullNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaign_targets edge predicates */
+  hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
@@ -2534,8 +4501,8 @@ export interface ContactWhereInput {
 export interface Control extends Node {
   __typename?: 'Control'
   actionPlans: ActionPlanConnection
-  /** Returns the active workflow instance for this control if one is running */
-  activeWorkflowInstance?: Maybe<WorkflowInstance>
+  /** Returns active workflow instances for this control (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   /** additional names (ref_codes) for the control */
   aliases?: Maybe<Array<Scalars['String']['output']>>
   /** methods used to verify the control implementation during an audit */
@@ -2579,6 +4546,11 @@ export interface Control extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the control */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the control */
+  environmentName?: Maybe<Scalars['String']['output']>
   evidence: EvidenceConnection
   /** list of common evidence requests for the control */
   evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
@@ -2587,6 +4559,8 @@ export interface Control extends Node {
   findings: FindingConnection
   /** Indicates if this control has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this control has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** implementation guidance for the control */
   implementationGuidance?: Maybe<Array<Scalars['ImplementationGuidance']['output']>>
@@ -2599,6 +4573,7 @@ export interface Control extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
   procedures: ProcedureConnection
   programs: ProgramConnection
   /** the unique reference code for the control */
@@ -2618,6 +4593,11 @@ export interface Control extends Node {
   risks: RiskConnection
   scans: ScanConnection
   scheduledJobs: ScheduledJobConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the control */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the control */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<ControlControlSource>
   standard?: Maybe<Standard>
@@ -2644,6 +4624,8 @@ export interface Control extends Node {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this control across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface ControlActionPlansArgs {
@@ -2763,6 +4745,15 @@ export interface ControlNarrativesArgs {
   where?: InputMaybe<NarrativeWhereInput>
 }
 
+export interface ControlPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
 export interface ControlProceduresArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -2833,6 +4824,16 @@ export interface ControlWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface ControlWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkControl mutation */
@@ -4085,6 +6086,38 @@ export interface ControlWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -4121,6 +6154,9 @@ export interface ControlWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
@@ -4136,6 +6172,9 @@ export interface ControlWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -4154,6 +6193,9 @@ export interface ControlWhereInput {
   /** scheduled_jobs edge predicates */
   hasScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   hasScheduledJobsWith?: InputMaybe<Array<ScheduledJobWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** standard edge predicates */
   hasStandard?: InputMaybe<Scalars['Boolean']['input']>
   hasStandardWith?: InputMaybe<Array<StandardWhereInput>>
@@ -4289,6 +6331,38 @@ export interface ControlWhereInput {
   responsiblePartyIDNEQ?: InputMaybe<Scalars['ID']['input']>
   responsiblePartyIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   responsiblePartyIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<ControlControlSource>
   sourceIn?: InputMaybe<Array<ControlControlSource>>
@@ -4497,6 +6571,7 @@ export interface CreateActionPlanInput {
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the action plan */
   source?: InputMaybe<Scalars['String']['input']>
   /** status of the action_plan, e.g. draft, published, archived, etc. */
@@ -4527,12 +6602,15 @@ export interface CreateAssessmentInput {
   assessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assessmentType?: InputMaybe<AssessmentAssessmentType>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: InputMaybe<Scalars['Int']['input']>
   /** tags associated with the object */
@@ -4549,11 +6627,28 @@ export interface CreateAssessmentInput {
  */
 export interface CreateAssessmentResponseInput {
   assessmentID: Scalars['ID']['input']
+  campaignID?: InputMaybe<Scalars['ID']['input']>
   documentID?: InputMaybe<Scalars['ID']['input']>
   /** when the assessment response is due */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   /** the email address of the recipient */
   email: Scalars['String']['input']
+  /** the number of link clicks for the assessment email */
+  emailClickCount?: InputMaybe<Scalars['Int']['input']>
+  /** when a link in the assessment email was clicked by the recipient */
+  emailClickedAt?: InputMaybe<Scalars['Time']['input']>
+  /** when the assessment email was delivered to the recipient */
+  emailDeliveredAt?: InputMaybe<Scalars['Time']['input']>
+  /** additional metadata about email delivery events */
+  emailMetadata?: InputMaybe<Scalars['Map']['input']>
+  /** the number of times the assessment email was opened */
+  emailOpenCount?: InputMaybe<Scalars['Int']['input']>
+  /** when the assessment email was opened by the recipient */
+  emailOpenedAt?: InputMaybe<Scalars['Time']['input']>
+  entityID?: InputMaybe<Scalars['ID']['input']>
+  identityHolderID?: InputMaybe<Scalars['ID']['input']>
+  /** the most recent email event timestamp for this assessment response */
+  lastEmailEventAt?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -4562,25 +6657,75 @@ export interface CreateAssessmentResponseInput {
  * Input was generated by ent.
  */
 export interface CreateAssetInput {
+  accessModelID?: InputMaybe<Scalars['ID']['input']>
+  /** the access_model of the asset */
+  accessModelName?: InputMaybe<Scalars['String']['input']>
+  assetDataClassificationID?: InputMaybe<Scalars['ID']['input']>
+  /** the data_classification of the asset */
+  assetDataClassificationName?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeID?: InputMaybe<Scalars['ID']['input']>
+  /** the subtype of the asset */
+  assetSubtypeName?: InputMaybe<Scalars['String']['input']>
   /** the type of the asset, e.g. technology, domain, device, etc */
   assetType?: InputMaybe<AssetAssetType>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the categories of the asset, e.g. web server, database, etc */
   categories?: InputMaybe<Array<Scalars['String']['input']>>
+  connectedAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  connectedFromIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** whether the asset stores or processes PII */
+  containsPii?: InputMaybe<Scalars['Boolean']['input']>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** cost center associated with the asset */
+  costCenter?: InputMaybe<Scalars['String']['input']>
   /** the CPE (Common Platform Enumeration) of the asset, if applicable */
   cpe?: InputMaybe<Scalars['String']['input']>
+  criticalityID?: InputMaybe<Scalars['ID']['input']>
+  /** the criticality of the asset */
+  criticalityName?: InputMaybe<Scalars['String']['input']>
   description?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
+  /** the encryption_status of the asset */
+  encryptionStatusName?: InputMaybe<Scalars['String']['input']>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the asset */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  /** estimated monthly cost for the asset */
+  estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
   /** unique identifier like domain, device id, etc */
   identifier?: InputMaybe<Scalars['String']['input']>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the asset when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name: Scalars['String']['input']
+  outOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** physical location of the asset, if applicable */
+  physicalLocation?: InputMaybe<Scalars['String']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** purchase date for the asset */
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the region where the asset operates or is hosted */
+  region?: InputMaybe<Scalars['String']['input']>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the asset */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  securityTierID?: InputMaybe<Scalars['ID']['input']>
+  /** the security_tier of the asset */
+  securityTierName?: InputMaybe<Scalars['String']['input']>
+  /** the identifier used by the source platform for the asset */
+  sourceIdentifier?: InputMaybe<Scalars['String']['input']>
+  sourcePlatformID?: InputMaybe<Scalars['ID']['input']>
+  /** the source of the asset record, e.g., manual, discovered, imported, api */
+  sourceType?: InputMaybe<AssetSourceType>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -4591,12 +6736,112 @@ export interface CreateAssetInput {
 }
 
 /**
+ * CreateCampaignInput is used for create Campaign object.
+ * Input was generated by ent.
+ */
+export interface CreateCampaignInput {
+  assessmentID?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the type of campaign */
+  campaignType?: InputMaybe<CampaignCampaignType>
+  /** when the campaign completed */
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>
+  contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the description of the campaign */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** when responses are due for the campaign */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityID?: InputMaybe<Scalars['ID']['input']>
+  groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the internal owner for the campaign when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** whether the campaign is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the campaign recurs on a schedule */
+  isRecurring?: InputMaybe<Scalars['Boolean']['input']>
+  /** when campaign notifications were last resent */
+  lastResentAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** when the campaign was last executed */
+  lastRunAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** when the campaign was launched */
+  launchedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** additional metadata about the campaign */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  /** the name of the campaign */
+  name: Scalars['String']['input']
+  /** when the campaign is scheduled to run next */
+  nextRunAt?: InputMaybe<Scalars['DateTime']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** the number of recipients targeted by the campaign */
+  recipientCount?: InputMaybe<Scalars['Int']['input']>
+  /** cron schedule to run the campaign in cron 6-field syntax, e.g. 0 0 0 * * * */
+  recurrenceCron?: InputMaybe<Scalars['String']['input']>
+  /** when the recurring campaign should stop running */
+  recurrenceEndAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the recurrence cadence for the campaign */
+  recurrenceFrequency?: InputMaybe<CampaignFrequency>
+  /** the recurrence interval for the campaign, combined with the recurrence frequency */
+  recurrenceInterval?: InputMaybe<Scalars['Int']['input']>
+  /** timezone used for the recurrence schedule */
+  recurrenceTimezone?: InputMaybe<Scalars['String']['input']>
+  /** the number of times campaign notifications were resent */
+  resendCount?: InputMaybe<Scalars['Int']['input']>
+  /** when the campaign is scheduled to start */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the status of the campaign */
+  status?: InputMaybe<CampaignCampaignStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  templateID?: InputMaybe<Scalars['ID']['input']>
+  userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
+ * CreateCampaignTargetInput is used for create CampaignTarget object.
+ * Input was generated by ent.
+ */
+export interface CreateCampaignTargetInput {
+  campaignID: Scalars['ID']['input']
+  /** when the campaign target completed the request */
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>
+  contactID?: InputMaybe<Scalars['ID']['input']>
+  /** the email address targeted by the campaign */
+  email: Scalars['String']['input']
+  /** the name of the campaign target, if known */
+  fullName?: InputMaybe<Scalars['String']['input']>
+  groupID?: InputMaybe<Scalars['ID']['input']>
+  /** additional metadata about the campaign target */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** when the campaign target was last sent a request */
+  sentAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the delivery or response status for the campaign target */
+  status?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  userID?: InputMaybe<Scalars['ID']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
  * CreateContactInput is used for create Contact object.
  * Input was generated by ent.
  */
 export interface CreateContactInput {
   /** the address of the contact */
   address?: InputMaybe<Scalars['String']['input']>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the company of the contact */
   company?: InputMaybe<Scalars['String']['input']>
   /** the email of the contact */
@@ -4684,6 +6929,9 @@ export interface CreateControlInput {
   descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the control */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** list of common evidence requests for the control */
   evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
@@ -4699,6 +6947,7 @@ export interface CreateControlInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
@@ -4715,6 +6964,9 @@ export interface CreateControlInput {
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the control */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<ControlControlSource>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -4824,9 +7076,10 @@ export interface CreateCustomTypeEnumInput {
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** The name of the enum value, for example evidence request */
   name: Scalars['String']['input']
-  /** the kind of object the type applies to, for example task */
+  /** the kind of object the type applies to, for example task, leave empty for global enums */
   objectType: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskCategoryIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -4878,6 +7131,9 @@ export interface CreateDirectoryAccountInput {
   directorySyncRunID: Scalars['ID']['input']
   /** provider supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_account */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** stable identifier from the directory system */
   externalID: Scalars['String']['input']
   /** last name reported by the provider */
@@ -4903,6 +7159,9 @@ export interface CreateDirectoryAccountInput {
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized profile payload for change detection */
   profileHash?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_account */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** optional secondary identifier such as Azure immutable ID */
   secondaryKey?: InputMaybe<Scalars['String']['input']>
   /** cursor or ETag supplied by the source system for auditing */
@@ -4928,6 +7187,9 @@ export interface CreateDirectoryGroupInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   /** primary group email address, when applicable */
   email?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_group */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** stable identifier from the directory system */
   externalID: Scalars['String']['input']
   /** true when directory settings allow sharing outside the tenant */
@@ -4942,6 +7204,9 @@ export interface CreateDirectoryGroupInput {
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized payload for diffing */
   profileHash?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_group */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** cursor or ETag supplied by the source system for auditing */
   sourceVersion?: InputMaybe<Scalars['String']['input']>
   /** lifecycle status reported by the directory */
@@ -4959,6 +7224,9 @@ export interface CreateDirectoryMembershipInput {
   directoryAccountID: Scalars['ID']['input']
   directoryGroupID: Scalars['ID']['input']
   directorySyncRunID: Scalars['ID']['input']
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_membership */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** first time the membership was detected */
   firstSeenAt?: InputMaybe<Scalars['Time']['input']>
@@ -4974,6 +7242,9 @@ export interface CreateDirectoryMembershipInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** membership role reported by the provider */
   role?: InputMaybe<DirectoryMembershipDirectoryMembershipRole>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_membership */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** mechanism used to populate the membership (api, scim, csv, etc) */
   source?: InputMaybe<Scalars['String']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -4990,6 +7261,9 @@ export interface CreateDirectorySyncRunInput {
   deltaCount?: InputMaybe<Scalars['Int']['input']>
   directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   directoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_sync_run */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** serialized error information when the run failed */
   error?: InputMaybe<Scalars['String']['input']>
   /** total records processed during this run */
@@ -4998,6 +7272,9 @@ export interface CreateDirectorySyncRunInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** object storage file identifier for the manifest captured during the run */
   rawManifestFileID?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_sync_run */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** cursor or checkpoint returned by the provider for the next run */
   sourceCursor?: InputMaybe<Scalars['String']['input']>
   /** time the sync started */
@@ -5035,8 +7312,14 @@ export interface CreateDocumentDataInput {
   /** the json data of the document */
   data: Scalars['Map']['input']
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the document */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the document */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
@@ -5047,9 +7330,26 @@ export interface CreateDocumentDataInput {
  * Input was generated by ent.
  */
 export interface CreateEntityInput {
+  /** annual spend associated with the entity */
+  annualSpend?: InputMaybe<Scalars['Float']['input']>
+  /** whether the entity is approved for use */
+  approvedForUse?: InputMaybe<Scalars['Boolean']['input']>
+  assessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  authMethodIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** whether the contract auto-renews */
+  autoRenews?: InputMaybe<Scalars['Boolean']['input']>
+  /** billing model for the entity relationship */
+  billingModel?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** end date for the entity contract */
+  contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** when the entity contract is up for renewal */
+  contractRenewalAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** start date for the entity contract */
+  contractStartDate?: InputMaybe<Scalars['DateTime']['input']>
   /** An optional description of the entity */
   description?: InputMaybe<Scalars['String']['input']>
   /** The entity's displayed 'friendly' name */
@@ -5058,22 +7358,90 @@ export interface CreateEntityInput {
   /** domains associated with the entity */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  employerIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityRelationshipStateID?: InputMaybe<Scalars['ID']['input']>
+  /** the relationship_state of the entity */
+  entityRelationshipStateName?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusID?: InputMaybe<Scalars['ID']['input']>
+  /** the security_questionnaire_status of the entity */
+  entitySecurityQuestionnaireStatusName?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeID?: InputMaybe<Scalars['ID']['input']>
+  /** the source_type of the entity */
+  entitySourceTypeName?: InputMaybe<Scalars['String']['input']>
   entityTypeID?: InputMaybe<Scalars['ID']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the entity */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** whether the entity has an active SOC 2 report */
+  hasSoc2?: InputMaybe<Scalars['Boolean']['input']>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the entity when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** when the entity was last reviewed */
+  lastReviewedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** asset identifiers linked to the entity */
+  linkedAssetIds?: InputMaybe<Array<Scalars['String']['input']>>
+  /** external links associated with the entity */
+  links?: InputMaybe<Array<Scalars['String']['input']>>
+  /** whether MFA is enforced by the entity */
+  mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether MFA is supported by the entity */
+  mfaSupported?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the entity */
   name?: InputMaybe<Scalars['String']['input']>
+  /** when the entity is due for review */
+  nextReviewAt?: InputMaybe<Scalars['DateTime']['input']>
   note?: InputMaybe<CreateNoteInput>
   noteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  outOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** services provided by the entity */
+  providedServices?: InputMaybe<Array<Scalars['String']['input']>>
+  /** renewal risk rating for the entity */
+  renewalRisk?: InputMaybe<Scalars['String']['input']>
+  /** the cadence for reviewing the entity */
+  reviewFrequency?: InputMaybe<EntityFrequency>
+  /** who reviewed the entity when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  /** the risk rating label for the entity */
+  riskRating?: InputMaybe<Scalars['String']['input']>
+  /** the risk score for the entity */
+  riskScore?: InputMaybe<Scalars['Int']['input']>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the entity */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  /** SOC 2 reporting period end date */
+  soc2PeriodEnd?: InputMaybe<Scalars['DateTime']['input']>
+  sourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the currency of the annual spend */
+  spendCurrency?: InputMaybe<Scalars['String']['input']>
+  /** whether SSO is enforced for the entity */
+  ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
   status?: InputMaybe<Scalars['String']['input']>
+  /** status page URL for the entity */
+  statusPageURL?: InputMaybe<Scalars['String']['input']>
+  subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** number of days required for termination notice */
+  terminationNoticeDays?: InputMaybe<Scalars['Int']['input']>
+  /** the tier classification for the entity */
+  tier?: InputMaybe<Scalars['String']['input']>
+  /** vendor metadata such as additional enrichment info, company size, public, etc. */
+  vendorMetadata?: InputMaybe<Scalars['Map']['input']>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -5132,15 +7500,23 @@ export interface CreateEvidenceInput {
   creationDate?: InputMaybe<Scalars['Time']['input']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the evidence */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the evidence was automatically generated */
   isAutomated?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the evidence */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['Time']['input']>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the evidence */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** the source of the evidence, e.g. system the evidence was retrieved from (splunk, github, etc) */
   source?: InputMaybe<Scalars['String']['input']>
   /** the status of the evidence, ready, approved, needs renewal, missing artifact, rejected */
@@ -5188,6 +7564,9 @@ export interface CreateFileInput {
   detectedMimeType?: InputMaybe<Scalars['String']['input']>
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the file */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5203,6 +7582,7 @@ export interface CreateFileInput {
   organizationSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   originalTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   persistedFileSize?: InputMaybe<Scalars['Int']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the extension of the file provided */
   providedFileExtension: Scalars['String']['input']
@@ -5210,6 +7590,10 @@ export interface CreateFileInput {
   providedFileName: Scalars['String']['input']
   /** the computed size of the file in the original http request */
   providedFileSize?: InputMaybe<Scalars['Int']['input']>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the file */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   secretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the storage path is the second-level directory of the file path, typically the correlating logical object ID the file is associated with; files can be stand alone objects and not always correlated to a logical one, so this path of the tree may be empty */
   storagePath?: InputMaybe<Scalars['String']['input']>
@@ -5280,6 +7664,9 @@ export interface CreateFindingInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the finding */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the finding was last observed by the source */
   eventTime?: InputMaybe<Scalars['DateTime']['input']>
   /** exploitability score or rating for the finding */
@@ -5330,6 +7717,9 @@ export interface CreateFindingInput {
   reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the finding */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** aggregated score such as CVSS for the finding */
   score?: InputMaybe<Scalars['Float']['input']>
   /** severity label for the finding */
@@ -5381,6 +7771,11 @@ export interface CreateGroupInput {
   actionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5412,6 +7807,9 @@ export interface CreateGroupInput {
   narrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5497,6 +7895,77 @@ export interface CreateHushInput {
 }
 
 /**
+ * CreateIdentityHolderInput is used for create IdentityHolder object.
+ * Input was generated by ent.
+ */
+export interface CreateIdentityHolderInput {
+  accessPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** alternate email address for the identity holder */
+  alternateEmail?: InputMaybe<Scalars['String']['input']>
+  assessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the department or function of the identity holder */
+  department?: InputMaybe<Scalars['String']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the email address of the identity holder */
+  email: Scalars['String']['input']
+  employerID?: InputMaybe<Scalars['ID']['input']>
+  /** the end date for the identity holder, if applicable */
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the identity_holder */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  /** external identifier for the identity holder from an upstream roster */
+  externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  /** external user identifier for the identity holder */
+  externalUserID?: InputMaybe<Scalars['String']['input']>
+  /** the full name of the identity holder */
+  fullName: Scalars['String']['input']
+  /** the classification of identity holders, such as employee or contractor */
+  identityHolderType?: InputMaybe<IdentityHolderIdentityHolderType>
+  /** the internal owner for the identity holder when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** whether the identity holder record is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the identity holder record is linked to an Openlane user account */
+  isOpenlaneUser?: InputMaybe<Scalars['Boolean']['input']>
+  /** location or office for the identity holder */
+  location?: InputMaybe<Scalars['String']['input']>
+  /** additional metadata about the identity holder */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** phone number for the identity holder */
+  phoneNumber?: InputMaybe<Scalars['String']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the identity_holder */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  /** the start date for the identity holder */
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the status of the identity holder record */
+  status?: InputMaybe<IdentityHolderUserStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the team name for the identity holder */
+  team?: InputMaybe<Scalars['String']['input']>
+  templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the job title of the identity holder */
+  title?: InputMaybe<Scalars['String']['input']>
+  userID?: InputMaybe<Scalars['ID']['input']>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
  * CreateInternalPolicyInput is used for create InternalPolicy object.
  * Input was generated by ent.
  */
@@ -5524,6 +7993,9 @@ export interface CreateInternalPolicyInput {
   /** tag suggestions dismissed by the user for the policy */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the internal_policy */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -5545,6 +8017,9 @@ export interface CreateInternalPolicyInput {
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the internal_policy */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: InputMaybe<InternalPolicyDocumentStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5814,8 +8289,6 @@ export interface CreateNotificationInput {
   /** the event type this notification is related to (e.g., task.created, control.updated) */
   objectType: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** the time the notification was read */
-  readAt?: InputMaybe<Scalars['DateTime']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the title of the notification */
@@ -5870,6 +8343,8 @@ export interface CreateOrganizationInput {
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5903,6 +8378,7 @@ export interface CreateOrganizationInput {
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   impersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5925,6 +8401,7 @@ export interface CreateOrganizationInput {
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** orgs directly associated with a user */
   personalOrg?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -6042,6 +8519,113 @@ export interface CreatePersonalAccessTokenInput {
 }
 
 /**
+ * CreatePlatformInput is used for create Platform object.
+ * Input was generated by ent.
+ */
+export interface CreatePlatformInput {
+  accessModelID?: InputMaybe<Scalars['ID']['input']>
+  /** the access_model of the platform */
+  accessModelName?: InputMaybe<Scalars['String']['input']>
+  applicableFrameworkIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** business owner for the platform when no user or group is linked */
+  businessOwner?: InputMaybe<Scalars['String']['input']>
+  businessOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** the business purpose of the platform */
+  businessPurpose?: InputMaybe<Scalars['String']['input']>
+  /** whether the platform stores or processes PII */
+  containsPii?: InputMaybe<Scalars['Boolean']['input']>
+  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** cost center associated with the platform */
+  costCenter?: InputMaybe<Scalars['String']['input']>
+  criticalityID?: InputMaybe<Scalars['ID']['input']>
+  /** the criticality of the platform */
+  criticalityName?: InputMaybe<Scalars['String']['input']>
+  /** summary of platform data flows */
+  dataFlowSummary?: InputMaybe<Scalars['String']['input']>
+  /** the description of the platform boundary */
+  description?: InputMaybe<Scalars['String']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
+  /** the encryption_status of the platform */
+  encryptionStatusName?: InputMaybe<Scalars['String']['input']>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the platform */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  /** estimated monthly cost for the platform */
+  estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
+  evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** external identifier for the platform from an upstream inventory */
+  externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  generatedScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the internal owner for the platform when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** additional metadata about the platform */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  /** the name of the platform */
+  name: Scalars['String']['input']
+  outOfScopeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  outOfScopeVendorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** physical location of the platform, if applicable */
+  physicalLocation?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationID?: InputMaybe<Scalars['ID']['input']>
+  /** the data_classification of the platform */
+  platformDataClassificationName?: InputMaybe<Scalars['String']['input']>
+  platformKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the kind of the platform */
+  platformKindName?: InputMaybe<Scalars['String']['input']>
+  platformOwnerID?: InputMaybe<Scalars['ID']['input']>
+  /** purchase date for the platform */
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the region where the platform operates or is hosted */
+  region?: InputMaybe<Scalars['String']['input']>
+  riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the platform */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  /** scope statement for the platform, used for narrative justification */
+  scopeStatement?: InputMaybe<Scalars['String']['input']>
+  /** security owner for the platform when no user or group is linked */
+  securityOwner?: InputMaybe<Scalars['String']['input']>
+  securityOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  securityTierID?: InputMaybe<Scalars['ID']['input']>
+  /** the security_tier of the platform */
+  securityTierName?: InputMaybe<Scalars['String']['input']>
+  sourceAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  sourceEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the identifier used by the source system for the platform */
+  sourceIdentifier?: InputMaybe<Scalars['String']['input']>
+  /** the source of the platform record, e.g., manual, discovered, imported, api */
+  sourceType?: InputMaybe<PlatformSourceType>
+  /** the lifecycle status of the platform */
+  status?: InputMaybe<PlatformPlatformStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** technical owner for the platform when no user or group is linked */
+  technicalOwner?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** description of the platform trust boundary */
+  trustBoundaryDescription?: InputMaybe<Scalars['String']['input']>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
  * CreateProcedureInput is used for create Procedure object.
  * Input was generated by ent.
  */
@@ -6067,6 +8651,9 @@ export interface CreateProcedureInput {
   /** tag suggestions dismissed by the user for the procedure */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the procedure */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -6088,6 +8675,9 @@ export interface CreateProcedureInput {
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the procedure */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ProcedureDocumentStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -6199,6 +8789,9 @@ export interface CreateRemediationInput {
   dueAt?: InputMaybe<Scalars['DateTime']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the remediation */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** details about any errors encountered during remediation automation */
   error?: InputMaybe<Scalars['String']['input']>
   /** detailed explanation of the remediation steps */
@@ -6232,6 +8825,10 @@ export interface CreateRemediationInput {
   repositoryURI?: InputMaybe<Scalars['String']['input']>
   reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the remediation */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** system that produced the remediation record */
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the remediation, such as pending or completed */
@@ -6274,6 +8871,9 @@ export interface CreateReviewInput {
   details?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the review */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** external identifier from the integration source for the review */
   externalID?: InputMaybe<Scalars['String']['input']>
   /** external identifier from the integration source for the review */
@@ -6300,6 +8900,9 @@ export interface CreateReviewInput {
   reviewedAt?: InputMaybe<Scalars['DateTime']['input']>
   reviewerID?: InputMaybe<Scalars['ID']['input']>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the review */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** system that produced the review record */
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the review */
@@ -6340,6 +8943,9 @@ export interface CreateRiskInput {
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the risk */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -6352,6 +8958,7 @@ export interface CreateRiskInput {
   /** the name of the risk */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskCategoryID?: InputMaybe<Scalars['ID']['input']>
@@ -6361,6 +8968,9 @@ export interface CreateRiskInput {
   /** the kind of the risk */
   riskKindName?: InputMaybe<Scalars['String']['input']>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the risk */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
@@ -6378,22 +8988,57 @@ export interface CreateRiskInput {
  * Input was generated by ent.
  */
 export interface CreateScanInput {
+  actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who the scan is assigned to when no user or group is linked */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the scan */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  generatedByPlatformID?: InputMaybe<Scalars['ID']['input']>
   /** additional metadata for the scan, e.g., scan configuration, options, etc */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  /** when the scan is scheduled to run next */
+  nextScanRunAt?: InputMaybe<Scalars['DateTime']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** who performed the scan when no user or group is linked */
+  performedBy?: InputMaybe<Scalars['String']['input']>
+  performedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  performedByUserID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who reviewed the scan when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  /** when the scan was executed */
+  scanDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** cron schedule that governs the scan cadence, in cron 6-field syntax */
+  scanSchedule?: InputMaybe<Scalars['String']['input']>
   /** the type of scan, e.g., domain scan, vulnerability scan, provider scan */
   scanType?: InputMaybe<ScanScanType>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the scan */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** the status of the scan, e.g., processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
   target: Scalars['String']['input']
+  taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identifiers of vulnerabilities discovered during the scan */
+  vulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -6441,6 +9086,7 @@ export interface CreateScheduledJobRunInput {
  * Input was generated by ent.
  */
 export interface CreateStandardInput {
+  applicablePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** long description of the standard with details of what is covered */
   description?: InputMaybe<Scalars['String']['input']>
@@ -6571,6 +9217,7 @@ export interface CreateSubcontrolInput {
 export interface CreateSubprocessorInput {
   /** description of the subprocessor */
   description?: InputMaybe<Scalars['String']['input']>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
@@ -6650,16 +9297,25 @@ export interface CreateTaskInput {
   detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the due date of the task */
   due?: InputMaybe<Scalars['DateTime']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the task */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an optional external reference URL for the task */
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
+  platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the task */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -6682,10 +9338,15 @@ export interface CreateTaskInput {
  */
 export interface CreateTemplateInput {
   assessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the description of the template */
   description?: InputMaybe<Scalars['String']['input']>
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the template */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the template */
@@ -6695,6 +9356,9 @@ export interface CreateTemplateInput {
   /** the name of the template */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the template */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -6967,12 +9631,15 @@ export interface CreateUserInput {
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** The user's displayed 'friendly' name */
   displayName: Scalars['String']['input']
   email: Scalars['String']['input']
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderProfileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   impersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the last auth provider used to login */
   lastLoginProvider?: InputMaybe<UserAuthProvider>
@@ -6983,6 +9650,7 @@ export interface CreateUserInput {
   /** user password hash */
   password?: InputMaybe<Scalars['String']['input']>
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the user's role */
@@ -7055,6 +9723,9 @@ export interface CreateVulnerabilityInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the vulnerability */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** exploitability score or rating for the vulnerability */
   exploitability?: InputMaybe<Scalars['Float']['input']>
   /** external identifier from the integration source for the vulnerability */
@@ -7096,6 +9767,9 @@ export interface CreateVulnerabilityInput {
   reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the vulnerability */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** overall score such as CVSS for the vulnerability */
   score?: InputMaybe<Scalars['Float']['input']>
   /** severity label for the vulnerability */
@@ -7159,40 +9833,6 @@ export interface CreateWorkflowDefinitionInput {
   trackedFields?: InputMaybe<Array<Scalars['String']['input']>>
   /** Kind of workflow, e.g. APPROVAL, LIFECYCLE, NOTIFICATION */
   workflowKind: WorkflowDefinitionWorkflowKind
-}
-
-/**
- * CreateWorkflowEventInput is used for create WorkflowEvent object.
- * Input was generated by ent.
- */
-export interface CreateWorkflowEventInput {
-  /** Type of event, typically the action kind */
-  eventType: WorkflowEventWorkflowEventType
-  ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** Payload for the event; stored raw */
-  payload?: InputMaybe<Scalars['WorkflowEventPayload']['input']>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-  workflowInstanceID: Scalars['ID']['input']
-}
-
-/**
- * CreateWorkflowObjectRefInput is used for create WorkflowObjectRef object.
- * Input was generated by ent.
- */
-export interface CreateWorkflowObjectRefInput {
-  actionPlanID?: InputMaybe<Scalars['ID']['input']>
-  controlID?: InputMaybe<Scalars['ID']['input']>
-  directoryAccountID?: InputMaybe<Scalars['ID']['input']>
-  directoryGroupID?: InputMaybe<Scalars['ID']['input']>
-  evidenceID?: InputMaybe<Scalars['ID']['input']>
-  findingID?: InputMaybe<Scalars['ID']['input']>
-  internalPolicyID?: InputMaybe<Scalars['ID']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
-  procedureID?: InputMaybe<Scalars['ID']['input']>
-  subcontrolID?: InputMaybe<Scalars['ID']['input']>
-  taskID?: InputMaybe<Scalars['ID']['input']>
-  workflowInstanceID: Scalars['ID']['input']
 }
 
 export interface CustomDomain extends Node {
@@ -7501,11 +10141,12 @@ export interface CustomTypeEnum extends Node {
   internalPolicies: InternalPolicyConnection
   /** The name of the enum value, for example evidence request */
   name: Scalars['String']['output']
-  /** the kind of object the type applies to, for example task */
+  /** the kind of object the type applies to, for example task, leave empty for global enums */
   objectType: Scalars['String']['output']
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
   procedures: ProcedureConnection
   programs: ProgramConnection
   riskCategories: RiskConnection
@@ -7545,6 +10186,15 @@ export interface CustomTypeEnumInternalPoliciesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface CustomTypeEnumPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface CustomTypeEnumProceduresArgs {
@@ -7757,6 +10407,9 @@ export interface CustomTypeEnumWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -8301,6 +10954,11 @@ export interface DirectoryAccount extends Node {
   displayID: Scalars['String']['output']
   /** provider supplied display name */
   displayName?: Maybe<Scalars['String']['output']>
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the directory_account */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the directory_account */
+  environmentName?: Maybe<Scalars['String']['output']>
   /** stable identifier from the directory system */
   externalID: Scalars['String']['output']
   /** last name reported by the provider */
@@ -8335,6 +10993,11 @@ export interface DirectoryAccount extends Node {
   profileHash: Scalars['String']['output']
   /** object storage file identifier that holds the raw upstream payload */
   rawProfileFileID?: Maybe<Scalars['String']['output']>
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the directory_account */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the directory_account */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** optional secondary identifier such as Azure immutable ID */
   secondaryKey?: Maybe<Scalars['String']['output']>
   /** cursor or ETag supplied by the source system for auditing */
@@ -8580,6 +11243,38 @@ export interface DirectoryAccountWhereInput {
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** external_id field predicates */
   externalID?: InputMaybe<Scalars['String']['input']>
   externalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -8629,6 +11324,9 @@ export interface DirectoryAccountWhereInput {
   /** directory_sync_run edge predicates */
   hasDirectorySyncRun?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectorySyncRunWith?: InputMaybe<Array<DirectorySyncRunWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<DirectoryGroupWhereInput>>
@@ -8641,6 +11339,9 @@ export interface DirectoryAccountWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
@@ -8774,6 +11475,38 @@ export interface DirectoryAccountWhereInput {
   profileHashLTE?: InputMaybe<Scalars['String']['input']>
   profileHashNEQ?: InputMaybe<Scalars['String']['input']>
   profileHashNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** secondary_key field predicates */
   secondaryKey?: InputMaybe<Scalars['String']['input']>
   secondaryKeyContains?: InputMaybe<Scalars['String']['input']>
@@ -8859,6 +11592,11 @@ export interface DirectoryGroup extends Node {
   displayName?: Maybe<Scalars['String']['output']>
   /** primary group email address, when applicable */
   email?: Maybe<Scalars['String']['output']>
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the directory_group */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the directory_group */
+  environmentName?: Maybe<Scalars['String']['output']>
   /** stable identifier from the directory system */
   externalID: Scalars['String']['output']
   /** true when directory settings allow sharing outside the tenant */
@@ -8882,6 +11620,11 @@ export interface DirectoryGroup extends Node {
   profileHash: Scalars['String']['output']
   /** object storage file identifier containing the raw upstream payload */
   rawProfileFileID?: Maybe<Scalars['String']['output']>
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the directory_group */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the directory_group */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** cursor or ETag supplied by the source system for auditing */
   sourceVersion?: Maybe<Scalars['String']['output']>
   /** lifecycle status reported by the directory */
@@ -9098,6 +11841,38 @@ export interface DirectoryGroupWhereInput {
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   emailNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** external_id field predicates */
   externalID?: InputMaybe<Scalars['String']['input']>
   externalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -9123,6 +11898,9 @@ export interface DirectoryGroupWhereInput {
   /** directory_sync_run edge predicates */
   hasDirectorySyncRun?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectorySyncRunWith?: InputMaybe<Array<DirectorySyncRunWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** integration edge predicates */
   hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
@@ -9132,6 +11910,9 @@ export interface DirectoryGroupWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
@@ -9212,6 +11993,38 @@ export interface DirectoryGroupWhereInput {
   profileHashLTE?: InputMaybe<Scalars['String']['input']>
   profileHashNEQ?: InputMaybe<Scalars['String']['input']>
   profileHashNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source_version field predicates */
   sourceVersion?: InputMaybe<Scalars['String']['input']>
   sourceVersionContains?: InputMaybe<Scalars['String']['input']>
@@ -9278,6 +12091,11 @@ export interface DirectoryMembership extends Node {
   directorySyncRunID: Scalars['ID']['output']
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the directory_membership */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the directory_membership */
+  environmentName?: Maybe<Scalars['String']['output']>
   events: EventConnection
   /** first time the membership was detected */
   firstSeenAt?: Maybe<Scalars['Time']['output']>
@@ -9299,6 +12117,11 @@ export interface DirectoryMembership extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   /** membership role reported by the provider */
   role?: Maybe<DirectoryMembershipDirectoryMembershipRole>
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the directory_membership */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the directory_membership */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** mechanism used to populate the membership (api, scim, csv, etc) */
   source?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -9440,6 +12263,22 @@ export interface DirectoryMembershipWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** first_seen_at field predicates */
   firstSeenAt?: InputMaybe<Scalars['Time']['input']>
   firstSeenAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -9507,6 +12346,22 @@ export interface DirectoryMembershipWhereInput {
   roleNEQ?: InputMaybe<DirectoryMembershipDirectoryMembershipRole>
   roleNotIn?: InputMaybe<Array<DirectoryMembershipDirectoryMembershipRole>>
   roleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<Scalars['String']['input']>
   sourceContains?: InputMaybe<Scalars['String']['input']>
@@ -9565,6 +12420,11 @@ export interface DirectorySyncRun extends Node {
   directoryMemberships: DirectoryMembershipConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the directory_sync_run */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the directory_sync_run */
+  environmentName?: Maybe<Scalars['String']['output']>
   /** serialized error information when the run failed */
   error?: Maybe<Scalars['String']['output']>
   /** total records processed during this run */
@@ -9579,6 +12439,11 @@ export interface DirectorySyncRun extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   /** object storage file identifier for the manifest captured during the run */
   rawManifestFileID?: Maybe<Scalars['String']['output']>
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the directory_sync_run */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the directory_sync_run */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** cursor or checkpoint returned by the provider for the next run */
   sourceCursor?: Maybe<Scalars['String']['output']>
   /** time the sync started */
@@ -9756,6 +12621,38 @@ export interface DirectorySyncRunWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** error field predicates */
   error?: InputMaybe<Scalars['String']['input']>
   errorContains?: InputMaybe<Scalars['String']['input']>
@@ -9790,12 +12687,18 @@ export interface DirectorySyncRunWhereInput {
   /** directory_memberships edge predicates */
   hasDirectoryMemberships?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryMembershipsWith?: InputMaybe<Array<DirectoryMembershipWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** integration edge predicates */
   hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -9855,6 +12758,38 @@ export interface DirectorySyncRunWhereInput {
   rawManifestFileIDNEQ?: InputMaybe<Scalars['String']['input']>
   rawManifestFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   rawManifestFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source_cursor field predicates */
   sourceCursor?: InputMaybe<Scalars['String']['input']>
   sourceCursorContains?: InputMaybe<Scalars['String']['input']>
@@ -10145,11 +13080,21 @@ export interface DocumentData extends Node {
   /** the json data of the document */
   data: Scalars['Map']['output']
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the document */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the document */
+  environmentName?: Maybe<Scalars['String']['output']>
   files: FileConnection
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the document */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the document */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   template?: Maybe<Template>
@@ -10279,15 +13224,53 @@ export interface DocumentDataWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** template edge predicates */
   hasTemplate?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplateWith?: InputMaybe<Array<TemplateWhereInput>>
@@ -10320,6 +13303,38 @@ export interface DocumentDataWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -10367,9 +13382,26 @@ export interface DocumentDataWhereInput {
 
 export interface Entity extends Node {
   __typename?: 'Entity'
+  /** annual spend associated with the entity */
+  annualSpend?: Maybe<Scalars['Float']['output']>
+  /** whether the entity is approved for use */
+  approvedForUse?: Maybe<Scalars['Boolean']['output']>
+  assessmentResponses: AssessmentResponseConnection
   assets: AssetConnection
+  authMethods: CustomTypeEnumConnection
+  /** whether the contract auto-renews */
+  autoRenews?: Maybe<Scalars['Boolean']['output']>
+  /** billing model for the entity relationship */
+  billingModel?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
+  campaigns: CampaignConnection
   contacts: ContactConnection
+  /** end date for the entity contract */
+  contractEndDate?: Maybe<Scalars['DateTime']['output']>
+  /** when the entity contract is up for renewal */
+  contractRenewalAt?: Maybe<Scalars['DateTime']['output']>
+  /** start date for the entity contract */
+  contractStartDate?: Maybe<Scalars['DateTime']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the entity */
@@ -10380,31 +13412,126 @@ export interface Entity extends Node {
   /** domains associated with the entity */
   domains?: Maybe<Array<Scalars['String']['output']>>
   editors: GroupConnection
+  employerIdentityHolders: IdentityHolderConnection
+  entityRelationshipState?: Maybe<CustomTypeEnum>
+  /** the relationship_state of the entity */
+  entityRelationshipStateID?: Maybe<Scalars['ID']['output']>
+  /** the relationship_state of the entity */
+  entityRelationshipStateName?: Maybe<Scalars['String']['output']>
+  entitySecurityQuestionnaireStatus?: Maybe<CustomTypeEnum>
+  /** the security_questionnaire_status of the entity */
+  entitySecurityQuestionnaireStatusID?: Maybe<Scalars['ID']['output']>
+  /** the security_questionnaire_status of the entity */
+  entitySecurityQuestionnaireStatusName?: Maybe<Scalars['String']['output']>
+  entitySourceType?: Maybe<CustomTypeEnum>
+  /** the source_type of the entity */
+  entitySourceTypeID?: Maybe<Scalars['ID']['output']>
+  /** the source_type of the entity */
+  entitySourceTypeName?: Maybe<Scalars['String']['output']>
   entityType?: Maybe<EntityType>
   /** The type of the entity */
   entityTypeID?: Maybe<Scalars['ID']['output']>
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the entity */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the entity */
+  environmentName?: Maybe<Scalars['String']['output']>
   files: FileConnection
+  /** whether the entity has an active SOC 2 report */
+  hasSoc2?: Maybe<Scalars['Boolean']['output']>
   id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
+  integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the entity when no user or group is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the entity */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the entity */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  /** when the entity was last reviewed */
+  lastReviewedAt?: Maybe<Scalars['DateTime']['output']>
+  /** asset identifiers linked to the entity */
+  linkedAssetIds?: Maybe<Array<Scalars['String']['output']>>
+  /** external links associated with the entity */
+  links?: Maybe<Array<Scalars['String']['output']>>
+  /** whether MFA is enforced by the entity */
+  mfaEnforced?: Maybe<Scalars['Boolean']['output']>
+  /** whether MFA is supported by the entity */
+  mfaSupported?: Maybe<Scalars['Boolean']['output']>
   /** the name of the entity */
   name?: Maybe<Scalars['String']['output']>
+  /** when the entity is due for review */
+  nextReviewAt?: Maybe<Scalars['DateTime']['output']>
   notes: NoteConnection
+  outOfScopePlatforms: PlatformConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
+  /** services provided by the entity */
+  providedServices?: Maybe<Array<Scalars['String']['output']>>
+  /** renewal risk rating for the entity */
+  renewalRisk?: Maybe<Scalars['String']['output']>
+  /** the cadence for reviewing the entity */
+  reviewFrequency?: Maybe<EntityFrequency>
+  /** who reviewed the entity when no user or group is linked */
+  reviewedBy?: Maybe<Scalars['String']['output']>
+  reviewedByGroup?: Maybe<Group>
+  /** the group id that reviewed the entity */
+  reviewedByGroupID?: Maybe<Scalars['ID']['output']>
+  reviewedByUser?: Maybe<User>
+  /** the user id that reviewed the entity */
+  reviewedByUserID?: Maybe<Scalars['ID']['output']>
+  /** the risk rating label for the entity */
+  riskRating?: Maybe<Scalars['String']['output']>
+  /** the risk score for the entity */
+  riskScore?: Maybe<Scalars['Int']['output']>
   scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the entity */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the entity */
+  scopeName?: Maybe<Scalars['String']['output']>
+  /** SOC 2 reporting period end date */
+  soc2PeriodEnd?: Maybe<Scalars['DateTime']['output']>
+  sourcePlatforms: PlatformConnection
+  /** the currency of the annual spend */
+  spendCurrency?: Maybe<Scalars['String']['output']>
+  /** whether SSO is enforced for the entity */
+  ssoEnforced?: Maybe<Scalars['Boolean']['output']>
   /** status of the entity */
   status?: Maybe<Scalars['String']['output']>
+  /** status page URL for the entity */
+  statusPageURL?: Maybe<Scalars['String']['output']>
+  subprocessors: SubprocessorConnection
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  /** number of days required for termination notice */
+  terminationNoticeDays?: Maybe<Scalars['Int']['output']>
+  /** the tier classification for the entity */
+  tier?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** vendor metadata such as additional enrichment info, company size, public, etc. */
+  vendorMetadata?: Maybe<Scalars['Map']['output']>
   viewers: GroupConnection
+}
+
+export interface EntityAssessmentResponsesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssessmentResponseOrder>>
+  where?: InputMaybe<AssessmentResponseWhereInput>
 }
 
 export interface EntityAssetsArgs {
@@ -10416,6 +13543,15 @@ export interface EntityAssetsArgs {
   where?: InputMaybe<AssetWhereInput>
 }
 
+export interface EntityAuthMethodsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CustomTypeEnumOrder>>
+  where?: InputMaybe<CustomTypeEnumWhereInput>
+}
+
 export interface EntityBlockedGroupsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -10423,6 +13559,15 @@ export interface EntityBlockedGroupsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface EntityCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
 }
 
 export interface EntityContactsArgs {
@@ -10452,6 +13597,15 @@ export interface EntityEditorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface EntityEmployerIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
 export interface EntityFilesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -10459,6 +13613,24 @@ export interface EntityFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface EntityIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface EntityIntegrationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IntegrationOrder>>
+  where?: InputMaybe<IntegrationWhereInput>
 }
 
 export interface EntityNotesArgs {
@@ -10470,6 +13642,24 @@ export interface EntityNotesArgs {
   where?: InputMaybe<NoteWhereInput>
 }
 
+export interface EntityOutOfScopePlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface EntityPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
 export interface EntityScansArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -10477,6 +13667,24 @@ export interface EntityScansArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ScanOrder>>
   where?: InputMaybe<ScanWhereInput>
+}
+
+export interface EntitySourcePlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface EntitySubprocessorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubprocessorOrder>>
+  where?: InputMaybe<SubprocessorWhereInput>
 }
 
 export interface EntityViewersArgs {
@@ -10536,6 +13744,14 @@ export interface EntityEdge {
   node?: Maybe<Entity>
 }
 
+/** EntityFrequency is enum for the field review_frequency */
+export enum EntityFrequency {
+  BIANNUALLY = 'BIANNUALLY',
+  MONTHLY = 'MONTHLY',
+  QUARTERLY = 'QUARTERLY',
+  YEARLY = 'YEARLY',
+}
+
 /** Ordering options for Entity connections */
 export interface EntityOrder {
   /** The ordering direction. */
@@ -10546,10 +13762,34 @@ export interface EntityOrder {
 
 /** Properties by which Entity connections can be ordered. */
 export enum EntityOrderField {
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
+  annual_spend = 'annual_spend',
+  approved_for_use = 'approved_for_use',
+  auto_renews = 'auto_renews',
+  billing_model = 'billing_model',
+  contract_end_date = 'contract_end_date',
+  contract_renewal_at = 'contract_renewal_at',
+  contract_start_date = 'contract_start_date',
   created_at = 'created_at',
   display_name = 'display_name',
+  has_soc2 = 'has_soc2',
+  internal_owner = 'internal_owner',
+  last_reviewed_at = 'last_reviewed_at',
+  mfa_enforced = 'mfa_enforced',
+  mfa_supported = 'mfa_supported',
   name = 'name',
+  next_review_at = 'next_review_at',
+  renewal_risk = 'renewal_risk',
+  reviewed_by = 'reviewed_by',
+  risk_rating = 'risk_rating',
+  risk_score = 'risk_score',
+  soc2_period_end = 'soc2_period_end',
+  spend_currency = 'spend_currency',
+  sso_enforced = 'sso_enforced',
   status = 'status',
+  status_page_url = 'status_page_url',
+  termination_notice_days = 'termination_notice_days',
+  tier = 'tier',
   updated_at = 'updated_at',
 }
 
@@ -10816,6 +14056,76 @@ export interface EntityUpdatePayload {
  */
 export interface EntityWhereInput {
   and?: InputMaybe<Array<EntityWhereInput>>
+  /** annual_spend field predicates */
+  annualSpend?: InputMaybe<Scalars['Float']['input']>
+  annualSpendGT?: InputMaybe<Scalars['Float']['input']>
+  annualSpendGTE?: InputMaybe<Scalars['Float']['input']>
+  annualSpendIn?: InputMaybe<Array<Scalars['Float']['input']>>
+  annualSpendIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  annualSpendLT?: InputMaybe<Scalars['Float']['input']>
+  annualSpendLTE?: InputMaybe<Scalars['Float']['input']>
+  annualSpendNEQ?: InputMaybe<Scalars['Float']['input']>
+  annualSpendNotIn?: InputMaybe<Array<Scalars['Float']['input']>>
+  annualSpendNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** approved_for_use field predicates */
+  approvedForUse?: InputMaybe<Scalars['Boolean']['input']>
+  approvedForUseIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  approvedForUseNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  approvedForUseNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** auto_renews field predicates */
+  autoRenews?: InputMaybe<Scalars['Boolean']['input']>
+  autoRenewsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  autoRenewsNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  autoRenewsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** billing_model field predicates */
+  billingModel?: InputMaybe<Scalars['String']['input']>
+  billingModelContains?: InputMaybe<Scalars['String']['input']>
+  billingModelContainsFold?: InputMaybe<Scalars['String']['input']>
+  billingModelEqualFold?: InputMaybe<Scalars['String']['input']>
+  billingModelGT?: InputMaybe<Scalars['String']['input']>
+  billingModelGTE?: InputMaybe<Scalars['String']['input']>
+  billingModelHasPrefix?: InputMaybe<Scalars['String']['input']>
+  billingModelHasSuffix?: InputMaybe<Scalars['String']['input']>
+  billingModelIn?: InputMaybe<Array<Scalars['String']['input']>>
+  billingModelIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  billingModelLT?: InputMaybe<Scalars['String']['input']>
+  billingModelLTE?: InputMaybe<Scalars['String']['input']>
+  billingModelNEQ?: InputMaybe<Scalars['String']['input']>
+  billingModelNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  billingModelNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** contract_end_date field predicates */
+  contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
+  contractEndDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  contractEndDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  contractEndDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  contractEndDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  contractEndDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  contractEndDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  contractEndDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  contractEndDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  contractEndDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** contract_renewal_at field predicates */
+  contractRenewalAt?: InputMaybe<Scalars['DateTime']['input']>
+  contractRenewalAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  contractRenewalAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  contractRenewalAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  contractRenewalAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  contractRenewalAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  contractRenewalAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  contractRenewalAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  contractRenewalAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  contractRenewalAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** contract_start_date field predicates */
+  contractStartDate?: InputMaybe<Scalars['DateTime']['input']>
+  contractStartDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  contractStartDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  contractStartDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  contractStartDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  contractStartDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  contractStartDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  contractStartDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  contractStartDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  contractStartDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -10859,6 +14169,102 @@ export interface EntityWhereInput {
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_relationship_state_id field predicates */
+  entityRelationshipStateID?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDContains?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDGT?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDGTE?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityRelationshipStateIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entityRelationshipStateIDLT?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDLTE?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  entityRelationshipStateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityRelationshipStateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_relationship_state_name field predicates */
+  entityRelationshipStateName?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameContains?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameGT?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameGTE?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  entityRelationshipStateNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entityRelationshipStateNameLT?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameLTE?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameNEQ?: InputMaybe<Scalars['String']['input']>
+  entityRelationshipStateNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  entityRelationshipStateNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_security_questionnaire_status_id field predicates */
+  entitySecurityQuestionnaireStatusID?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDContains?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDGT?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDGTE?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entitySecurityQuestionnaireStatusIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entitySecurityQuestionnaireStatusIDLT?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDLTE?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  entitySecurityQuestionnaireStatusIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entitySecurityQuestionnaireStatusIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_security_questionnaire_status_name field predicates */
+  entitySecurityQuestionnaireStatusName?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameContains?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameGT?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameGTE?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  entitySecurityQuestionnaireStatusNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entitySecurityQuestionnaireStatusNameLT?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameLTE?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameNEQ?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  entitySecurityQuestionnaireStatusNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_source_type_id field predicates */
+  entitySourceTypeID?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDContains?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDGT?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entitySourceTypeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entitySourceTypeIDLT?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  entitySourceTypeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  entitySourceTypeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entity_source_type_name field predicates */
+  entitySourceTypeName?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameContains?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameGT?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameGTE?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  entitySourceTypeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  entitySourceTypeNameLT?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameLTE?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  entitySourceTypeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entity_type_id field predicates */
   entityTypeID?: InputMaybe<Scalars['ID']['input']>
   entityTypeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -10875,12 +14281,53 @@ export interface EntityWhereInput {
   entityTypeIDNEQ?: InputMaybe<Scalars['ID']['input']>
   entityTypeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessment_responses edge predicates */
+  hasAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentResponsesWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** auth_methods edge predicates */
+  hasAuthMethods?: InputMaybe<Scalars['Boolean']['input']>
+  hasAuthMethodsWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** contacts edge predicates */
   hasContacts?: InputMaybe<Scalars['Boolean']['input']>
   hasContactsWith?: InputMaybe<Array<ContactWhereInput>>
@@ -10890,21 +14337,74 @@ export interface EntityWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** employer_identity_holders edge predicates */
+  hasEmployerIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasEmployerIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** entity_relationship_state edge predicates */
+  hasEntityRelationshipState?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityRelationshipStateWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** entity_security_questionnaire_status edge predicates */
+  hasEntitySecurityQuestionnaireStatus?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitySecurityQuestionnaireStatusWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** entity_source_type edge predicates */
+  hasEntitySourceType?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitySourceTypeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** entity_type edge predicates */
   hasEntityType?: InputMaybe<Scalars['Boolean']['input']>
   hasEntityTypeWith?: InputMaybe<Array<EntityTypeWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** integrations edge predicates */
+  hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
   /** notes edge predicates */
   hasNotes?: InputMaybe<Scalars['Boolean']['input']>
   hasNotesWith?: InputMaybe<Array<NoteWhereInput>>
+  /** out_of_scope_platforms edge predicates */
+  hasOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasOutOfScopePlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** reviewed_by_group edge predicates */
+  hasReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** reviewed_by_user edge predicates */
+  hasReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByUserWith?: InputMaybe<Array<UserWhereInput>>
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** has_soc2 field predicates */
+  hasSoc2?: InputMaybe<Scalars['Boolean']['input']>
+  hasSoc2IsNil?: InputMaybe<Scalars['Boolean']['input']>
+  hasSoc2NEQ?: InputMaybe<Scalars['Boolean']['input']>
+  hasSoc2NotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_platforms edge predicates */
+  hasSourcePlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasSourcePlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** subprocessors edge predicates */
+  hasSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubprocessorsWith?: InputMaybe<Array<SubprocessorWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -10935,6 +14435,75 @@ export interface EntityWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerLT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_reviewed_at field predicates */
+  lastReviewedAt?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastReviewedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastReviewedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastReviewedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** mfa_enforced field predicates */
+  mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  mfaEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  mfaEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  mfaEnforcedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** mfa_supported field predicates */
+  mfaSupported?: InputMaybe<Scalars['Boolean']['input']>
+  mfaSupportedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  mfaSupportedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  mfaSupportedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -10951,6 +14520,17 @@ export interface EntityWhereInput {
   nameNEQ?: InputMaybe<Scalars['String']['input']>
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   nameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** next_review_at field predicates */
+  nextReviewAt?: InputMaybe<Scalars['DateTime']['input']>
+  nextReviewAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  nextReviewAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  nextReviewAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  nextReviewAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  nextReviewAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  nextReviewAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  nextReviewAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  nextReviewAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  nextReviewAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<EntityWhereInput>
   or?: InputMaybe<Array<EntityWhereInput>>
   /** owner_id field predicates */
@@ -10969,6 +14549,168 @@ export interface EntityWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** renewal_risk field predicates */
+  renewalRisk?: InputMaybe<Scalars['String']['input']>
+  renewalRiskContains?: InputMaybe<Scalars['String']['input']>
+  renewalRiskContainsFold?: InputMaybe<Scalars['String']['input']>
+  renewalRiskEqualFold?: InputMaybe<Scalars['String']['input']>
+  renewalRiskGT?: InputMaybe<Scalars['String']['input']>
+  renewalRiskGTE?: InputMaybe<Scalars['String']['input']>
+  renewalRiskHasPrefix?: InputMaybe<Scalars['String']['input']>
+  renewalRiskHasSuffix?: InputMaybe<Scalars['String']['input']>
+  renewalRiskIn?: InputMaybe<Array<Scalars['String']['input']>>
+  renewalRiskIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  renewalRiskLT?: InputMaybe<Scalars['String']['input']>
+  renewalRiskLTE?: InputMaybe<Scalars['String']['input']>
+  renewalRiskNEQ?: InputMaybe<Scalars['String']['input']>
+  renewalRiskNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  renewalRiskNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** review_frequency field predicates */
+  reviewFrequency?: InputMaybe<EntityFrequency>
+  reviewFrequencyIn?: InputMaybe<Array<EntityFrequency>>
+  reviewFrequencyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewFrequencyNEQ?: InputMaybe<EntityFrequency>
+  reviewFrequencyNotIn?: InputMaybe<Array<EntityFrequency>>
+  reviewFrequencyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by field predicates */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByContains?: InputMaybe<Scalars['String']['input']>
+  reviewedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByGT?: InputMaybe<Scalars['String']['input']>
+  reviewedByGTE?: InputMaybe<Scalars['String']['input']>
+  /** reviewed_by_group_id field predicates */
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  reviewedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  reviewedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByLT?: InputMaybe<Scalars['String']['input']>
+  reviewedByLTE?: InputMaybe<Scalars['String']['input']>
+  reviewedByNEQ?: InputMaybe<Scalars['String']['input']>
+  reviewedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by_user_id field predicates */
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** risk_rating field predicates */
+  riskRating?: InputMaybe<Scalars['String']['input']>
+  riskRatingContains?: InputMaybe<Scalars['String']['input']>
+  riskRatingContainsFold?: InputMaybe<Scalars['String']['input']>
+  riskRatingEqualFold?: InputMaybe<Scalars['String']['input']>
+  riskRatingGT?: InputMaybe<Scalars['String']['input']>
+  riskRatingGTE?: InputMaybe<Scalars['String']['input']>
+  riskRatingHasPrefix?: InputMaybe<Scalars['String']['input']>
+  riskRatingHasSuffix?: InputMaybe<Scalars['String']['input']>
+  riskRatingIn?: InputMaybe<Array<Scalars['String']['input']>>
+  riskRatingIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  riskRatingLT?: InputMaybe<Scalars['String']['input']>
+  riskRatingLTE?: InputMaybe<Scalars['String']['input']>
+  riskRatingNEQ?: InputMaybe<Scalars['String']['input']>
+  riskRatingNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  riskRatingNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** risk_score field predicates */
+  riskScore?: InputMaybe<Scalars['Int']['input']>
+  riskScoreGT?: InputMaybe<Scalars['Int']['input']>
+  riskScoreGTE?: InputMaybe<Scalars['Int']['input']>
+  riskScoreIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  riskScoreIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  riskScoreLT?: InputMaybe<Scalars['Int']['input']>
+  riskScoreLTE?: InputMaybe<Scalars['Int']['input']>
+  riskScoreNEQ?: InputMaybe<Scalars['Int']['input']>
+  riskScoreNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  riskScoreNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** soc2_period_end field predicates */
+  soc2PeriodEnd?: InputMaybe<Scalars['DateTime']['input']>
+  soc2PeriodEndGT?: InputMaybe<Scalars['DateTime']['input']>
+  soc2PeriodEndGTE?: InputMaybe<Scalars['DateTime']['input']>
+  soc2PeriodEndIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  soc2PeriodEndIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  soc2PeriodEndLT?: InputMaybe<Scalars['DateTime']['input']>
+  soc2PeriodEndLTE?: InputMaybe<Scalars['DateTime']['input']>
+  soc2PeriodEndNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  soc2PeriodEndNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  soc2PeriodEndNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** spend_currency field predicates */
+  spendCurrency?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyContains?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyContainsFold?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyEqualFold?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyGT?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyGTE?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyHasPrefix?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyHasSuffix?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyIn?: InputMaybe<Array<Scalars['String']['input']>>
+  spendCurrencyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  spendCurrencyLT?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyLTE?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyNEQ?: InputMaybe<Scalars['String']['input']>
+  spendCurrencyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  spendCurrencyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** sso_enforced field predicates */
+  ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  ssoEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  ssoEnforcedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<Scalars['String']['input']>
   statusContains?: InputMaybe<Scalars['String']['input']>
@@ -10985,6 +14727,22 @@ export interface EntityWhereInput {
   statusNEQ?: InputMaybe<Scalars['String']['input']>
   statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status_page_url field predicates */
+  statusPageURL?: InputMaybe<Scalars['String']['input']>
+  statusPageURLContains?: InputMaybe<Scalars['String']['input']>
+  statusPageURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  statusPageURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  statusPageURLGT?: InputMaybe<Scalars['String']['input']>
+  statusPageURLGTE?: InputMaybe<Scalars['String']['input']>
+  statusPageURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  statusPageURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  statusPageURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusPageURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  statusPageURLLT?: InputMaybe<Scalars['String']['input']>
+  statusPageURLLTE?: InputMaybe<Scalars['String']['input']>
+  statusPageURLNEQ?: InputMaybe<Scalars['String']['input']>
+  statusPageURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusPageURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** system_internal_id field predicates */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -11006,6 +14764,33 @@ export interface EntityWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** termination_notice_days field predicates */
+  terminationNoticeDays?: InputMaybe<Scalars['Int']['input']>
+  terminationNoticeDaysGT?: InputMaybe<Scalars['Int']['input']>
+  terminationNoticeDaysGTE?: InputMaybe<Scalars['Int']['input']>
+  terminationNoticeDaysIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  terminationNoticeDaysIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  terminationNoticeDaysLT?: InputMaybe<Scalars['Int']['input']>
+  terminationNoticeDaysLTE?: InputMaybe<Scalars['Int']['input']>
+  terminationNoticeDaysNEQ?: InputMaybe<Scalars['Int']['input']>
+  terminationNoticeDaysNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  terminationNoticeDaysNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** tier field predicates */
+  tier?: InputMaybe<Scalars['String']['input']>
+  tierContains?: InputMaybe<Scalars['String']['input']>
+  tierContainsFold?: InputMaybe<Scalars['String']['input']>
+  tierEqualFold?: InputMaybe<Scalars['String']['input']>
+  tierGT?: InputMaybe<Scalars['String']['input']>
+  tierGTE?: InputMaybe<Scalars['String']['input']>
+  tierHasPrefix?: InputMaybe<Scalars['String']['input']>
+  tierHasSuffix?: InputMaybe<Scalars['String']['input']>
+  tierIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tierIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tierLT?: InputMaybe<Scalars['String']['input']>
+  tierLTE?: InputMaybe<Scalars['String']['input']>
+  tierNEQ?: InputMaybe<Scalars['String']['input']>
+  tierNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tierNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -11398,8 +15183,8 @@ export interface EventWhereInput {
 
 export interface Evidence extends Node {
   __typename?: 'Evidence'
-  /** Returns the active workflow instance for this evidence if one is running */
-  activeWorkflowInstance?: Maybe<WorkflowInstance>
+  /** Returns active workflow instances for this evidence (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   /** description of how the evidence was collected */
   collectionProcedure?: Maybe<Scalars['String']['output']>
   comments: NoteConnection
@@ -11414,9 +15199,16 @@ export interface Evidence extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the evidence */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the evidence */
+  environmentName?: Maybe<Scalars['String']['output']>
   files: FileConnection
   /** Indicates if this evidence has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this evidence has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** whether the evidence was automatically generated */
   isAutomated?: Maybe<Scalars['Boolean']['output']>
@@ -11425,9 +15217,16 @@ export interface Evidence extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
   programs: ProgramConnection
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: Maybe<Scalars['Time']['output']>
+  scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the evidence */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the evidence */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** the source of the evidence, e.g. system the evidence was retrieved from (splunk, github, etc) */
   source?: Maybe<Scalars['String']['output']>
   /** the status of the evidence, ready, approved, needs renewal, missing artifact, rejected */
@@ -11443,6 +15242,8 @@ export interface Evidence extends Node {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this evidence across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface EvidenceCommentsArgs {
@@ -11490,6 +15291,15 @@ export interface EvidenceFilesArgs {
   where?: InputMaybe<FileWhereInput>
 }
 
+export interface EvidencePlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
 export interface EvidenceProgramsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -11497,6 +15307,15 @@ export interface EvidenceProgramsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ProgramOrder>>
   where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface EvidenceScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
 }
 
 export interface EvidenceSubcontrolsArgs {
@@ -11524,6 +15343,16 @@ export interface EvidenceWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface EvidenceWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkEvidence mutation */
@@ -11707,6 +15536,38 @@ export interface EvidenceWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
@@ -11719,15 +15580,27 @@ export interface EvidenceWhereInput {
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -11796,6 +15669,38 @@ export interface EvidenceWhereInput {
   renewalDateNEQ?: InputMaybe<Scalars['Time']['input']>
   renewalDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   renewalDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<Scalars['String']['input']>
   sourceContains?: InputMaybe<Scalars['String']['input']>
@@ -12195,6 +16100,11 @@ export interface File extends Node {
   detectedMimeType?: Maybe<Scalars['String']['output']>
   document?: Maybe<Array<DocumentData>>
   entity?: Maybe<Array<Entity>>
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the file */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the file */
+  environmentName?: Maybe<Scalars['String']['output']>
   events: EventConnection
   evidence?: Maybe<Array<Evidence>>
   groups: GroupConnection
@@ -12211,6 +16121,7 @@ export interface File extends Node {
   organizationSetting?: Maybe<Array<OrganizationSetting>>
   originalTrustCenterDoc?: Maybe<Array<TrustCenterDoc>>
   persistedFileSize?: Maybe<Scalars['Int']['output']>
+  platform?: Maybe<Array<Platform>>
   presignedURL?: Maybe<Scalars['String']['output']>
   program?: Maybe<Array<Program>>
   /** the extension of the file provided */
@@ -12219,6 +16130,12 @@ export interface File extends Node {
   providedFileName: Scalars['String']['output']
   /** the computed size of the file in the original http request */
   providedFileSize?: Maybe<Scalars['Int']['output']>
+  scan?: Maybe<Array<Scan>>
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the file */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the file */
+  scopeName?: Maybe<Scalars['String']['output']>
   secrets: HushConnection
   /** the storage path is the second-level directory of the file path, typically the correlating logical object ID the file is associated with; files can be stand alone objects and not always correlated to a logical one, so this path of the tree may be empty */
   storagePath?: Maybe<Scalars['String']['output']>
@@ -12413,6 +16330,38 @@ export interface FileWhereInput {
   detectedMimeTypeNEQ?: InputMaybe<Scalars['String']['input']>
   detectedMimeTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   detectedMimeTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** contact edge predicates */
   hasContact?: InputMaybe<Scalars['Boolean']['input']>
   hasContactWith?: InputMaybe<Array<ContactWhereInput>>
@@ -12422,6 +16371,9 @@ export interface FileWhereInput {
   /** entity edge predicates */
   hasEntity?: InputMaybe<Scalars['Boolean']['input']>
   hasEntityWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -12443,9 +16395,18 @@ export interface FileWhereInput {
   /** original_trust_center_doc edge predicates */
   hasOriginalTrustCenterDoc?: InputMaybe<Scalars['Boolean']['input']>
   hasOriginalTrustCenterDocWith?: InputMaybe<Array<TrustCenterDocWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** program edge predicates */
   hasProgram?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** scan edge predicates */
+  hasScan?: InputMaybe<Scalars['Boolean']['input']>
+  hasScanWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** secrets edge predicates */
   hasSecrets?: InputMaybe<Scalars['Boolean']['input']>
   hasSecretsWith?: InputMaybe<Array<HushWhereInput>>
@@ -12564,6 +16525,38 @@ export interface FileWhereInput {
   providedFileSizeNEQ?: InputMaybe<Scalars['Int']['input']>
   providedFileSizeNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   providedFileSizeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** storage_path field predicates */
   storagePath?: InputMaybe<Scalars['String']['input']>
   storagePathContains?: InputMaybe<Scalars['String']['input']>
@@ -12752,6 +16745,11 @@ export interface Finding extends Node {
   displayName?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the finding */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the finding */
+  environmentName?: Maybe<Scalars['String']['output']>
   /** timestamp when the finding was last observed by the source */
   eventTime?: Maybe<Scalars['DateTime']['output']>
   /** exploitability score or rating for the finding */
@@ -12805,6 +16803,11 @@ export interface Finding extends Node {
   reviews: ReviewConnection
   risks: RiskConnection
   scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the finding */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the finding */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** aggregated score such as CVSS for the finding */
   score?: Maybe<Scalars['Float']['output']>
   /** severity label for the finding */
@@ -13446,6 +17449,38 @@ export interface FindingWhereInput {
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** event_time field predicates */
   eventTime?: InputMaybe<Scalars['DateTime']['input']>
   eventTimeGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -13556,6 +17591,9 @@ export interface FindingWhereInput {
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
@@ -13580,6 +17618,9 @@ export interface FindingWhereInput {
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -13763,6 +17804,38 @@ export interface FindingWhereInput {
   resourceNameNEQ?: InputMaybe<Scalars['String']['input']>
   resourceNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   resourceNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** score field predicates */
   score?: InputMaybe<Scalars['Float']['input']>
   scoreGT?: InputMaybe<Scalars['Float']['input']>
@@ -13925,6 +17998,11 @@ export interface Group extends Node {
   actionPlanBlockedGroups: ActionPlanConnection
   actionPlanEditors: ActionPlanConnection
   actionPlanViewers: ActionPlanConnection
+  campaignBlockedGroups: CampaignConnection
+  campaignEditors: CampaignConnection
+  campaignTargets: CampaignTargetConnection
+  campaignViewers: CampaignConnection
+  campaigns: CampaignConnection
   controlBlockedGroups: ControlConnection
   controlEditors: ControlConnection
   controlImplementationBlockedGroups: ControlImplementationConnection
@@ -13969,6 +18047,9 @@ export interface Group extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   /** permissions the group provides */
   permissions: GroupPermissionConnection
+  platformBlockedGroups: PlatformConnection
+  platformEditors: PlatformConnection
+  platformViewers: PlatformConnection
   procedureBlockedGroups: ProcedureConnection
   procedureEditors: ProcedureConnection
   programBlockedGroups: ProgramConnection
@@ -14022,6 +18103,51 @@ export interface GroupActionPlanViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ActionPlanOrder>>
   where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface GroupCampaignBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
+export interface GroupCampaignEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
+export interface GroupCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
+}
+
+export interface GroupCampaignViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
+export interface GroupCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
 }
 
 export interface GroupControlBlockedGroupsArgs {
@@ -14227,6 +18353,33 @@ export interface GroupPermissionsArgs {
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
+}
+
+export interface GroupPlatformBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface GroupPlatformEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface GroupPlatformViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface GroupProcedureBlockedGroupsArgs {
@@ -15002,6 +19155,21 @@ export interface GroupWhereInput {
   /** action_plan_viewers edge predicates */
   hasActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlanViewersWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** campaign_blocked_groups edge predicates */
+  hasCampaignBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignBlockedGroupsWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** campaign_editors edge predicates */
+  hasCampaignEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignEditorsWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** campaign_targets edge predicates */
+  hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** campaign_viewers edge predicates */
+  hasCampaignViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignViewersWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** control_blocked_groups edge predicates */
   hasControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasControlBlockedGroupsWith?: InputMaybe<Array<ControlWhereInput>>
@@ -15071,6 +19239,15 @@ export interface GroupWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform_blocked_groups edge predicates */
+  hasPlatformBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformBlockedGroupsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** platform_editors edge predicates */
+  hasPlatformEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformEditorsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** platform_viewers edge predicates */
+  hasPlatformViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformViewersWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedure_blocked_groups edge predicates */
   hasProcedureBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureBlockedGroupsWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -15596,6 +19773,833 @@ export interface HushWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export interface IdentityHolder extends Node {
+  __typename?: 'IdentityHolder'
+  accessPlatforms: PlatformConnection
+  /** Returns active workflow instances for this identityHolder (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
+  /** alternate email address for the identity holder */
+  alternateEmail?: Maybe<Scalars['String']['output']>
+  assessmentResponses: AssessmentResponseConnection
+  assessments: AssessmentConnection
+  assets: AssetConnection
+  blockedGroups: GroupConnection
+  campaigns: CampaignConnection
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** the department or function of the identity holder */
+  department?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
+  editors: GroupConnection
+  /** the email address of the identity holder */
+  email: Scalars['String']['output']
+  employer?: Maybe<Entity>
+  /** the external entity this identity holder is affiliated with */
+  employerEntityID?: Maybe<Scalars['ID']['output']>
+  /** the end date for the identity holder, if applicable */
+  endDate?: Maybe<Scalars['DateTime']['output']>
+  entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the identity_holder */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the identity_holder */
+  environmentName?: Maybe<Scalars['String']['output']>
+  /** external identifier for the identity holder from an upstream roster */
+  externalReferenceID?: Maybe<Scalars['String']['output']>
+  /** external user identifier for the identity holder */
+  externalUserID?: Maybe<Scalars['String']['output']>
+  /** the full name of the identity holder */
+  fullName: Scalars['String']['output']
+  /** Indicates if this identityHolder has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this identityHolder has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  /** the classification of identity holders, such as employee or contractor */
+  identityHolderType: IdentityHolderIdentityHolderType
+  /** the internal owner for the identity holder when no user or group is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the identity holder */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the identity holder */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  /** whether the identity holder record is active */
+  isActive: Scalars['Boolean']['output']
+  /** whether the identity holder record is linked to an Openlane user account */
+  isOpenlaneUser?: Maybe<Scalars['Boolean']['output']>
+  /** location or office for the identity holder */
+  location?: Maybe<Scalars['String']['output']>
+  /** additional metadata about the identity holder */
+  metadata?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the ID of the organization owner of the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** phone number for the identity holder */
+  phoneNumber?: Maybe<Scalars['String']['output']>
+  platforms: PlatformConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the identity_holder */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the identity_holder */
+  scopeName?: Maybe<Scalars['String']['output']>
+  /** the start date for the identity holder */
+  startDate?: Maybe<Scalars['DateTime']['output']>
+  /** the status of the identity holder record */
+  status: IdentityHolderUserStatus
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  tasks: TaskConnection
+  /** the team name for the identity holder */
+  team?: Maybe<Scalars['String']['output']>
+  templates: TemplateConnection
+  /** the job title of the identity holder */
+  title?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
+  /** the user id associated with the identity holder record */
+  userID?: Maybe<Scalars['ID']['output']>
+  viewers: GroupConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this identityHolder across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
+}
+
+export interface IdentityHolderAccessPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface IdentityHolderAssessmentResponsesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssessmentResponseOrder>>
+  where?: InputMaybe<AssessmentResponseWhereInput>
+}
+
+export interface IdentityHolderAssessmentsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssessmentOrder>>
+  where?: InputMaybe<AssessmentWhereInput>
+}
+
+export interface IdentityHolderAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface IdentityHolderBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface IdentityHolderCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
+export interface IdentityHolderEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface IdentityHolderEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface IdentityHolderPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface IdentityHolderTasksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TaskOrder>>
+  where?: InputMaybe<TaskWhereInput>
+}
+
+export interface IdentityHolderTemplatesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TemplateOrder>>
+  where?: InputMaybe<TemplateWhereInput>
+}
+
+export interface IdentityHolderViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface IdentityHolderWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface IdentityHolderWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
+}
+
+/** Return response for createBulkIdentityHolder mutation */
+export interface IdentityHolderBulkCreatePayload {
+  __typename?: 'IdentityHolderBulkCreatePayload'
+  /** Created identityHolders */
+  identityHolders?: Maybe<Array<IdentityHolder>>
+}
+
+/** A connection to a list of items. */
+export interface IdentityHolderConnection {
+  __typename?: 'IdentityHolderConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<IdentityHolderEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createIdentityHolder mutation */
+export interface IdentityHolderCreatePayload {
+  __typename?: 'IdentityHolderCreatePayload'
+  /** Created identityHolder */
+  identityHolder: IdentityHolder
+}
+
+/** Return response for deleteIdentityHolder mutation */
+export interface IdentityHolderDeletePayload {
+  __typename?: 'IdentityHolderDeletePayload'
+  /** Deleted identityHolder ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface IdentityHolderEdge {
+  __typename?: 'IdentityHolderEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<IdentityHolder>
+}
+
+/** IdentityHolderIdentityHolderType is enum for the field identity_holder_type */
+export enum IdentityHolderIdentityHolderType {
+  CONTRACTOR = 'CONTRACTOR',
+  EMPLOYEE = 'EMPLOYEE',
+}
+
+/** Ordering options for IdentityHolder connections */
+export interface IdentityHolderOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order IdentityHolders. */
+  field: IdentityHolderOrderField
+}
+
+/** Properties by which IdentityHolder connections can be ordered. */
+export enum IdentityHolderOrderField {
+  IDENTITY_HOLDER_TYPE = 'IDENTITY_HOLDER_TYPE',
+  STATUS = 'STATUS',
+  alternate_email = 'alternate_email',
+  created_at = 'created_at',
+  department = 'department',
+  email = 'email',
+  end_date = 'end_date',
+  external_reference_id = 'external_reference_id',
+  external_user_id = 'external_user_id',
+  full_name = 'full_name',
+  internal_owner = 'internal_owner',
+  is_active = 'is_active',
+  is_openlane_user = 'is_openlane_user',
+  location = 'location',
+  start_date = 'start_date',
+  team = 'team',
+  title = 'title',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateIdentityHolder mutation */
+export interface IdentityHolderUpdatePayload {
+  __typename?: 'IdentityHolderUpdatePayload'
+  /** Updated identityHolder */
+  identityHolder: IdentityHolder
+}
+
+/** IdentityHolderUserStatus is enum for the field status */
+export enum IdentityHolderUserStatus {
+  ACTIVE = 'ACTIVE',
+  DEACTIVATED = 'DEACTIVATED',
+  INACTIVE = 'INACTIVE',
+  ONBOARDING = 'ONBOARDING',
+  SUSPENDED = 'SUSPENDED',
+}
+
+/**
+ * IdentityHolderWhereInput is used for filtering IdentityHolder objects.
+ * Input was generated by ent.
+ */
+export interface IdentityHolderWhereInput {
+  /** alternate_email field predicates */
+  alternateEmail?: InputMaybe<Scalars['String']['input']>
+  alternateEmailContains?: InputMaybe<Scalars['String']['input']>
+  alternateEmailContainsFold?: InputMaybe<Scalars['String']['input']>
+  alternateEmailEqualFold?: InputMaybe<Scalars['String']['input']>
+  alternateEmailGT?: InputMaybe<Scalars['String']['input']>
+  alternateEmailGTE?: InputMaybe<Scalars['String']['input']>
+  alternateEmailHasPrefix?: InputMaybe<Scalars['String']['input']>
+  alternateEmailHasSuffix?: InputMaybe<Scalars['String']['input']>
+  alternateEmailIn?: InputMaybe<Array<Scalars['String']['input']>>
+  alternateEmailIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  alternateEmailLT?: InputMaybe<Scalars['String']['input']>
+  alternateEmailLTE?: InputMaybe<Scalars['String']['input']>
+  alternateEmailNEQ?: InputMaybe<Scalars['String']['input']>
+  alternateEmailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  alternateEmailNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  and?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** department field predicates */
+  department?: InputMaybe<Scalars['String']['input']>
+  departmentContains?: InputMaybe<Scalars['String']['input']>
+  departmentContainsFold?: InputMaybe<Scalars['String']['input']>
+  departmentEqualFold?: InputMaybe<Scalars['String']['input']>
+  departmentGT?: InputMaybe<Scalars['String']['input']>
+  departmentGTE?: InputMaybe<Scalars['String']['input']>
+  departmentHasPrefix?: InputMaybe<Scalars['String']['input']>
+  departmentHasSuffix?: InputMaybe<Scalars['String']['input']>
+  departmentIn?: InputMaybe<Array<Scalars['String']['input']>>
+  departmentIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  departmentLT?: InputMaybe<Scalars['String']['input']>
+  departmentLTE?: InputMaybe<Scalars['String']['input']>
+  departmentNEQ?: InputMaybe<Scalars['String']['input']>
+  departmentNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  departmentNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** email field predicates */
+  email?: InputMaybe<Scalars['String']['input']>
+  emailContains?: InputMaybe<Scalars['String']['input']>
+  emailContainsFold?: InputMaybe<Scalars['String']['input']>
+  emailEqualFold?: InputMaybe<Scalars['String']['input']>
+  emailGT?: InputMaybe<Scalars['String']['input']>
+  emailGTE?: InputMaybe<Scalars['String']['input']>
+  emailHasPrefix?: InputMaybe<Scalars['String']['input']>
+  emailHasSuffix?: InputMaybe<Scalars['String']['input']>
+  emailIn?: InputMaybe<Array<Scalars['String']['input']>>
+  emailLT?: InputMaybe<Scalars['String']['input']>
+  emailLTE?: InputMaybe<Scalars['String']['input']>
+  emailNEQ?: InputMaybe<Scalars['String']['input']>
+  emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** employer_entity_id field predicates */
+  employerEntityID?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDContains?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDGT?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDGTE?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  employerEntityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  employerEntityIDLT?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDLTE?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  employerEntityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  employerEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** end_date field predicates */
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  endDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  endDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  endDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  endDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  endDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  endDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  endDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  endDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  endDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_reference_id field predicates */
+  externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDContains?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDGT?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalReferenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalReferenceIDLT?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalReferenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_user_id field predicates */
+  externalUserID?: InputMaybe<Scalars['String']['input']>
+  externalUserIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUserIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUserIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** full_name field predicates */
+  fullName?: InputMaybe<Scalars['String']['input']>
+  fullNameContains?: InputMaybe<Scalars['String']['input']>
+  fullNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  fullNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  fullNameGT?: InputMaybe<Scalars['String']['input']>
+  fullNameGTE?: InputMaybe<Scalars['String']['input']>
+  fullNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  fullNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  fullNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  fullNameLT?: InputMaybe<Scalars['String']['input']>
+  fullNameLTE?: InputMaybe<Scalars['String']['input']>
+  fullNameNEQ?: InputMaybe<Scalars['String']['input']>
+  fullNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** access_platforms edge predicates */
+  hasAccessPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasAccessPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** assessment_responses edge predicates */
+  hasAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentResponsesWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
+  /** assessments edge predicates */
+  hasAssessments?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentsWith?: InputMaybe<Array<AssessmentWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** employer edge predicates */
+  hasEmployer?: InputMaybe<Scalars['Boolean']['input']>
+  hasEmployerWith?: InputMaybe<Array<EntityWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** tasks edge predicates */
+  hasTasks?: InputMaybe<Scalars['Boolean']['input']>
+  hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** templates edge predicates */
+  hasTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  hasTemplatesWith?: InputMaybe<Array<TemplateWhereInput>>
+  /** user edge predicates */
+  hasUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identity_holder_type field predicates */
+  identityHolderType?: InputMaybe<IdentityHolderIdentityHolderType>
+  identityHolderTypeIn?: InputMaybe<Array<IdentityHolderIdentityHolderType>>
+  identityHolderTypeNEQ?: InputMaybe<IdentityHolderIdentityHolderType>
+  identityHolderTypeNotIn?: InputMaybe<Array<IdentityHolderIdentityHolderType>>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerLT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_active field predicates */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_openlane_user field predicates */
+  isOpenlaneUser?: InputMaybe<Scalars['Boolean']['input']>
+  isOpenlaneUserIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  isOpenlaneUserNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  isOpenlaneUserNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** location field predicates */
+  location?: InputMaybe<Scalars['String']['input']>
+  locationContains?: InputMaybe<Scalars['String']['input']>
+  locationContainsFold?: InputMaybe<Scalars['String']['input']>
+  locationEqualFold?: InputMaybe<Scalars['String']['input']>
+  locationGT?: InputMaybe<Scalars['String']['input']>
+  locationGTE?: InputMaybe<Scalars['String']['input']>
+  locationHasPrefix?: InputMaybe<Scalars['String']['input']>
+  locationHasSuffix?: InputMaybe<Scalars['String']['input']>
+  locationIn?: InputMaybe<Array<Scalars['String']['input']>>
+  locationIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  locationLT?: InputMaybe<Scalars['String']['input']>
+  locationLTE?: InputMaybe<Scalars['String']['input']>
+  locationNEQ?: InputMaybe<Scalars['String']['input']>
+  locationNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  locationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  not?: InputMaybe<IdentityHolderWhereInput>
+  or?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** phone_number field predicates */
+  phoneNumber?: InputMaybe<Scalars['String']['input']>
+  phoneNumberContains?: InputMaybe<Scalars['String']['input']>
+  phoneNumberContainsFold?: InputMaybe<Scalars['String']['input']>
+  phoneNumberEqualFold?: InputMaybe<Scalars['String']['input']>
+  phoneNumberGT?: InputMaybe<Scalars['String']['input']>
+  phoneNumberGTE?: InputMaybe<Scalars['String']['input']>
+  phoneNumberHasPrefix?: InputMaybe<Scalars['String']['input']>
+  phoneNumberHasSuffix?: InputMaybe<Scalars['String']['input']>
+  phoneNumberIn?: InputMaybe<Array<Scalars['String']['input']>>
+  phoneNumberIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  phoneNumberLT?: InputMaybe<Scalars['String']['input']>
+  phoneNumberLTE?: InputMaybe<Scalars['String']['input']>
+  phoneNumberNEQ?: InputMaybe<Scalars['String']['input']>
+  phoneNumberNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  phoneNumberNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** start_date field predicates */
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  startDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  startDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  startDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  startDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  startDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  startDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  startDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  startDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  startDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status field predicates */
+  status?: InputMaybe<IdentityHolderUserStatus>
+  statusIn?: InputMaybe<Array<IdentityHolderUserStatus>>
+  statusNEQ?: InputMaybe<IdentityHolderUserStatus>
+  statusNotIn?: InputMaybe<Array<IdentityHolderUserStatus>>
+  /** team field predicates */
+  team?: InputMaybe<Scalars['String']['input']>
+  teamContains?: InputMaybe<Scalars['String']['input']>
+  teamContainsFold?: InputMaybe<Scalars['String']['input']>
+  teamEqualFold?: InputMaybe<Scalars['String']['input']>
+  teamGT?: InputMaybe<Scalars['String']['input']>
+  teamGTE?: InputMaybe<Scalars['String']['input']>
+  teamHasPrefix?: InputMaybe<Scalars['String']['input']>
+  teamHasSuffix?: InputMaybe<Scalars['String']['input']>
+  teamIn?: InputMaybe<Array<Scalars['String']['input']>>
+  teamIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  teamLT?: InputMaybe<Scalars['String']['input']>
+  teamLTE?: InputMaybe<Scalars['String']['input']>
+  teamNEQ?: InputMaybe<Scalars['String']['input']>
+  teamNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  teamNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** title field predicates */
+  title?: InputMaybe<Scalars['String']['input']>
+  titleContains?: InputMaybe<Scalars['String']['input']>
+  titleContainsFold?: InputMaybe<Scalars['String']['input']>
+  titleEqualFold?: InputMaybe<Scalars['String']['input']>
+  titleGT?: InputMaybe<Scalars['String']['input']>
+  titleGTE?: InputMaybe<Scalars['String']['input']>
+  titleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  titleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  titleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  titleLT?: InputMaybe<Scalars['String']['input']>
+  titleLTE?: InputMaybe<Scalars['String']['input']>
+  titleNEQ?: InputMaybe<Scalars['String']['input']>
+  titleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** user_id field predicates */
+  userID?: InputMaybe<Scalars['ID']['input']>
+  userIDContains?: InputMaybe<Scalars['ID']['input']>
+  userIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  userIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  userIDGT?: InputMaybe<Scalars['ID']['input']>
+  userIDGTE?: InputMaybe<Scalars['ID']['input']>
+  userIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  userIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  userIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  userIDLT?: InputMaybe<Scalars['ID']['input']>
+  userIDLTE?: InputMaybe<Scalars['ID']['input']>
+  userIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  userIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
@@ -15607,6 +20611,12 @@ export interface Integration extends Node {
   directoryGroups: DirectoryGroupConnection
   directoryMemberships: DirectoryMembershipConnection
   directorySyncRuns: DirectorySyncRunConnection
+  entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the integration */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the integration */
+  environmentName?: Maybe<Scalars['String']['output']>
   events: EventConnection
   files: FileConnection
   findings: FindingConnection
@@ -15626,6 +20636,11 @@ export interface Integration extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   remediations: RemediationConnection
   reviews: ReviewConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the integration */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the integration */
+  scopeName?: Maybe<Scalars['String']['output']>
   secrets: HushConnection
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
@@ -15682,6 +20697,15 @@ export interface IntegrationDirectorySyncRunsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<DirectorySyncRunOrder>>
   where?: InputMaybe<DirectorySyncRunWhereInput>
+}
+
+export interface IntegrationEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
 }
 
 export interface IntegrationEventsArgs {
@@ -15833,6 +20857,38 @@ export interface IntegrationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -15848,6 +20904,12 @@ export interface IntegrationWhereInput {
   /** directory_sync_runs edge predicates */
   hasDirectorySyncRuns?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectorySyncRunsWith?: InputMaybe<Array<DirectorySyncRunWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -15866,6 +20928,9 @@ export interface IntegrationWhereInput {
   /** reviews edge predicates */
   hasReviews?: InputMaybe<Scalars['Boolean']['input']>
   hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** secrets edge predicates */
   hasSecrets?: InputMaybe<Scalars['Boolean']['input']>
   hasSecretsWith?: InputMaybe<Array<HushWhereInput>>
@@ -15966,6 +21031,38 @@ export interface IntegrationWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** system_internal_id field predicates */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -16018,8 +21115,8 @@ export interface IntegrationWhereInput {
 
 export interface InternalPolicy extends Node {
   __typename?: 'InternalPolicy'
-  /** Returns the active workflow instance for this internalPolicy if one is running */
-  activeWorkflowInstance?: Maybe<WorkflowInstance>
+  /** Returns active workflow instances for this internalPolicy (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   /** whether approval is required for edits to the policy */
   approvalRequired?: Maybe<Scalars['Boolean']['output']>
   /** the group of users who are responsible for approving the policy */
@@ -16053,11 +21150,18 @@ export interface InternalPolicy extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the internal_policy */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the internal_policy */
+  environmentName?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
   /** This will contain the most recent file id if this policy was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
   /** Indicates if this internalPolicy has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this internalPolicy has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** suggested improvements for the policy */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -16083,6 +21187,11 @@ export interface InternalPolicy extends Node {
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   risks: RiskConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the internal_policy */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the internal_policy */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: Maybe<InternalPolicyDocumentStatus>
   subcontrols: SubcontrolConnection
@@ -16103,6 +21212,8 @@ export interface InternalPolicy extends Node {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this internalPolicy across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface InternalPolicyBlockedGroupsArgs {
@@ -16229,6 +21340,16 @@ export interface InternalPolicyWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface InternalPolicyWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkInternalPolicy mutation */
@@ -16431,6 +21552,38 @@ export interface InternalPolicyWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** file_id field predicates */
   fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -16474,6 +21627,9 @@ export interface InternalPolicyWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** file edge predicates */
   hasFile?: InputMaybe<Scalars['Boolean']['input']>
   hasFileWith?: InputMaybe<Array<FileWhereInput>>
@@ -16495,6 +21651,9 @@ export interface InternalPolicyWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -16629,6 +21788,38 @@ export interface InternalPolicyWhereInput {
   revisionNEQ?: InputMaybe<Scalars['String']['input']>
   revisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   revisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<InternalPolicyDocumentStatus>
   statusIn?: InputMaybe<Array<InternalPolicyDocumentStatus>>
@@ -18963,6 +24154,10 @@ export interface Mutation {
   createBulkCSVActionPlan: ActionPlanBulkCreatePayload
   /** Create multiple new assets via file upload */
   createBulkCSVAsset: AssetBulkCreatePayload
+  /** Create multiple new campaigns via file upload */
+  createBulkCSVCampaign: CampaignBulkCreatePayload
+  /** Create multiple new campaignTargets via file upload */
+  createBulkCSVCampaignTarget: CampaignTargetBulkCreatePayload
   /** Create multiple new contacts via file upload */
   createBulkCSVContact: ContactBulkCreatePayload
   /** Create multiple new controls via file upload */
@@ -19009,6 +24204,8 @@ export interface Mutation {
   createBulkCSVGroupSetting: GroupSettingBulkCreatePayload
   /** Create multiple new hushs via file upload */
   createBulkCSVHush: HushBulkCreatePayload
+  /** Create multiple new identityHolders via file upload */
+  createBulkCSVIdentityHolder: IdentityHolderBulkCreatePayload
   /** Create multiple new internalPolicys via file upload */
   createBulkCSVInternalPolicy: InternalPolicyBulkCreatePayload
   /** Create multiple new invites via file upload */
@@ -19025,6 +24222,8 @@ export interface Mutation {
   createBulkCSVOrgMembership: OrgMembershipBulkCreatePayload
   /** Create multiple new organizationSettings via file upload */
   createBulkCSVOrganizationSetting: OrganizationSettingBulkCreatePayload
+  /** Create multiple new platforms via file upload */
+  createBulkCSVPlatform: PlatformBulkCreatePayload
   /** Create multiple new procedures via file upload */
   createBulkCSVProcedure: ProcedureBulkCreatePayload
   /** Create multiple new programs via file upload */
@@ -19069,10 +24268,10 @@ export interface Mutation {
   createBulkCSVVulnerability: VulnerabilityBulkCreatePayload
   /** Create multiple new workflowDefinitions via file upload */
   createBulkCSVWorkflowDefinition: WorkflowDefinitionBulkCreatePayload
-  /** Create multiple new workflowEvents via file upload */
-  createBulkCSVWorkflowEvent: WorkflowEventBulkCreatePayload
-  /** Create multiple new workflowObjectRefs via file upload */
-  createBulkCSVWorkflowObjectRef: WorkflowObjectRefBulkCreatePayload
+  /** Create multiple new campaigns */
+  createBulkCampaign: CampaignBulkCreatePayload
+  /** Create multiple new campaignTargets */
+  createBulkCampaignTarget: CampaignTargetBulkCreatePayload
   /** Create multiple new contacts */
   createBulkContact: ContactBulkCreatePayload
   /** Create multiple new controls */
@@ -19119,6 +24318,8 @@ export interface Mutation {
   createBulkGroupSetting: GroupSettingBulkCreatePayload
   /** Create multiple new hushs */
   createBulkHush: HushBulkCreatePayload
+  /** Create multiple new identityHolders */
+  createBulkIdentityHolder: IdentityHolderBulkCreatePayload
   /** Create multiple new internalPolicys */
   createBulkInternalPolicy: InternalPolicyBulkCreatePayload
   /** Create multiple new invites */
@@ -19135,6 +24336,8 @@ export interface Mutation {
   createBulkOrgMembership: OrgMembershipBulkCreatePayload
   /** Create multiple new organizationSettings */
   createBulkOrganizationSetting: OrganizationSettingBulkCreatePayload
+  /** Create multiple new platforms */
+  createBulkPlatform: PlatformBulkCreatePayload
   /** Create multiple new procedures */
   createBulkProcedure: ProcedureBulkCreatePayload
   /** Create multiple new programs */
@@ -19179,10 +24382,10 @@ export interface Mutation {
   createBulkVulnerability: VulnerabilityBulkCreatePayload
   /** Create multiple new workflowDefinitions */
   createBulkWorkflowDefinition: WorkflowDefinitionBulkCreatePayload
-  /** Create multiple new workflowEvents */
-  createBulkWorkflowEvent: WorkflowEventBulkCreatePayload
-  /** Create multiple new workflowObjectRefs */
-  createBulkWorkflowObjectRef: WorkflowObjectRefBulkCreatePayload
+  /** Create a new campaign */
+  createCampaign: CampaignCreatePayload
+  /** Create a new campaignTarget */
+  createCampaignTarget: CampaignTargetCreatePayload
   /** Create a new contact */
   createContact: ContactCreatePayload
   /** Create a new control */
@@ -19241,6 +24444,8 @@ export interface Mutation {
   createGroupWithMembers: GroupCreatePayload
   /** Create a new hush */
   createHush: HushCreatePayload
+  /** Create a new identityHolder */
+  createIdentityHolder: IdentityHolderCreatePayload
   /** Create a new internalPolicy */
   createInternalPolicy: InternalPolicyCreatePayload
   /** Create a new invite */
@@ -19273,6 +24478,8 @@ export interface Mutation {
   createOrganizationWithMembers: OrganizationCreatePayload
   /** Create a new personalAccessToken */
   createPersonalAccessToken: PersonalAccessTokenCreatePayload
+  /** Create a new platform */
+  createPlatform: PlatformCreatePayload
   /** Create a new procedure */
   createProcedure: ProcedureCreatePayload
   /** Create a new program */
@@ -19343,10 +24550,6 @@ export interface Mutation {
   createVulnerability: VulnerabilityCreatePayload
   /** Create a new workflowDefinition */
   createWorkflowDefinition: WorkflowDefinitionCreatePayload
-  /** Create a new workflowEvent */
-  createWorkflowEvent: WorkflowEventCreatePayload
-  /** Create a new workflowObjectRef */
-  createWorkflowObjectRef: WorkflowObjectRefCreatePayload
   /** Delete an existing apiToken */
   deleteAPIToken: ApiTokenDeletePayload
   /** Delete an existing actionPlan */
@@ -19441,6 +24644,10 @@ export interface Mutation {
   deleteBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkDeletePayload
   /** Delete multiple userSettings */
   deleteBulkUserSetting: UserSettingBulkDeletePayload
+  /** Delete an existing campaign */
+  deleteCampaign: CampaignDeletePayload
+  /** Delete an existing campaignTarget */
+  deleteCampaignTarget: CampaignTargetDeletePayload
   /** Delete an existing contact */
   deleteContact: ContactDeletePayload
   /** Delete an existing control */
@@ -19491,6 +24698,8 @@ export interface Mutation {
   deleteGroupSetting: GroupSettingDeletePayload
   /** Delete an existing hush */
   deleteHush: HushDeletePayload
+  /** Delete an existing identityHolder */
+  deleteIdentityHolder: IdentityHolderDeletePayload
   /** Delete an existing integration */
   deleteIntegration: IntegrationDeletePayload
   /** Delete an existing internalPolicy */
@@ -19523,6 +24732,8 @@ export interface Mutation {
   deleteOrganizationSetting: OrganizationSettingDeletePayload
   /** Delete an existing personalAccessToken */
   deletePersonalAccessToken: PersonalAccessTokenDeletePayload
+  /** Delete an existing platform */
+  deletePlatform: PlatformDeletePayload
   /** Delete an existing procedure */
   deleteProcedure: ProcedureDeletePayload
   /** Delete an existing program */
@@ -19579,15 +24790,10 @@ export interface Mutation {
   deleteWebauthn: WebauthnDeletePayload
   /** Delete an existing workflowDefinition */
   deleteWorkflowDefinition: WorkflowDefinitionDeletePayload
-  /** Delete an existing workflowEvent */
-  deleteWorkflowEvent: WorkflowEventDeletePayload
-  /** Delete an existing workflowObjectRef */
-  deleteWorkflowObjectRef: WorkflowObjectRefDeletePayload
   /** Publish changes from preview to live environment */
   publishTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Reject a workflow assignment and discard the proposed changes */
   rejectWorkflowAssignment: WorkflowAssignmentRejectPayload
-  sendTrustCenterNDAEmail: SendTrustCenterNdaEmailPayload
   /** Submit a response to a Trust Center NDA */
   submitTrustCenterNDAResponse: SubmitTrustCenterNdaResponsePayload
   /** Transfer ownership of an organization to another user */
@@ -19628,6 +24834,10 @@ export interface Mutation {
   updateBulkTrustCenterDoc: TrustCenterDocBulkUpdatePayload
   /** Update multiple existing trustCenterSubprocessors */
   updateBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkUpdatePayload
+  /** Update an existing campaign */
+  updateCampaign: CampaignUpdatePayload
+  /** Update an existing campaignTarget */
+  updateCampaignTarget: CampaignTargetUpdatePayload
   /** Update an existing contact */
   updateContact: ContactUpdatePayload
   /** Update an existing control */
@@ -19680,6 +24890,8 @@ export interface Mutation {
   updateGroupSetting: GroupSettingUpdatePayload
   /** Update an existing hush */
   updateHush: HushUpdatePayload
+  /** Update an existing identityHolder */
+  updateIdentityHolder: IdentityHolderUpdatePayload
   /** Update an existing internalPolicy */
   updateInternalPolicy: InternalPolicyUpdatePayload
   /** Update an existing internal policy comment */
@@ -19698,6 +24910,8 @@ export interface Mutation {
   updateMappedControl: MappedControlUpdatePayload
   /** Update an existing narrative */
   updateNarrative: NarrativeUpdatePayload
+  /** Update an existing notification */
+  updateNotification: NotificationUpdatePayload
   /** Update an existing orgMembership */
   updateOrgMembership: OrgMembershipUpdatePayload
   /** Update an existing organization */
@@ -19706,6 +24920,8 @@ export interface Mutation {
   updateOrganizationSetting: OrganizationSettingUpdatePayload
   /** Update an existing personalAccessToken */
   updatePersonalAccessToken: PersonalAccessTokenUpdatePayload
+  /** Update an existing platform */
+  updatePlatform: PlatformUpdatePayload
   /** Update an existing procedure */
   updateProcedure: ProcedureUpdatePayload
   /** Update an existing procedure comment */
@@ -19777,8 +24993,6 @@ export interface Mutation {
   updateVulnerability: VulnerabilityUpdatePayload
   /** Update an existing workflowDefinition */
   updateWorkflowDefinition: WorkflowDefinitionUpdatePayload
-  /** Update an existing workflowEvent */
-  updateWorkflowEvent: WorkflowEventUpdatePayload
   /** Trigger validation for an existing customDomain */
   validateCustomDomain: CustomDomainValidatePayload
 }
@@ -19832,6 +25046,14 @@ export interface MutationCreateBulkCsvActionPlanArgs {
 }
 
 export interface MutationCreateBulkCsvAssetArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvCampaignArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvCampaignTargetArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -19927,6 +25149,10 @@ export interface MutationCreateBulkCsvHushArgs {
   input: Scalars['Upload']['input']
 }
 
+export interface MutationCreateBulkCsvIdentityHolderArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationCreateBulkCsvInternalPolicyArgs {
   input: Scalars['Upload']['input']
 }
@@ -19956,6 +25182,10 @@ export interface MutationCreateBulkCsvOrgMembershipArgs {
 }
 
 export interface MutationCreateBulkCsvOrganizationSettingArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvPlatformArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -20047,12 +25277,12 @@ export interface MutationCreateBulkCsvWorkflowDefinitionArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvWorkflowEventArgs {
-  input: Scalars['Upload']['input']
+export interface MutationCreateBulkCampaignArgs {
+  input?: InputMaybe<Array<CreateCampaignInput>>
 }
 
-export interface MutationCreateBulkCsvWorkflowObjectRefArgs {
-  input: Scalars['Upload']['input']
+export interface MutationCreateBulkCampaignTargetArgs {
+  input?: InputMaybe<Array<CreateCampaignTargetInput>>
 }
 
 export interface MutationCreateBulkContactArgs {
@@ -20147,6 +25377,10 @@ export interface MutationCreateBulkHushArgs {
   input?: InputMaybe<Array<CreateHushInput>>
 }
 
+export interface MutationCreateBulkIdentityHolderArgs {
+  input?: InputMaybe<Array<CreateIdentityHolderInput>>
+}
+
 export interface MutationCreateBulkInternalPolicyArgs {
   input?: InputMaybe<Array<CreateInternalPolicyInput>>
 }
@@ -20177,6 +25411,10 @@ export interface MutationCreateBulkOrgMembershipArgs {
 
 export interface MutationCreateBulkOrganizationSettingArgs {
   input?: InputMaybe<Array<CreateOrganizationSettingInput>>
+}
+
+export interface MutationCreateBulkPlatformArgs {
+  input?: InputMaybe<Array<CreatePlatformInput>>
 }
 
 export interface MutationCreateBulkProcedureArgs {
@@ -20267,12 +25505,12 @@ export interface MutationCreateBulkWorkflowDefinitionArgs {
   input?: InputMaybe<Array<CreateWorkflowDefinitionInput>>
 }
 
-export interface MutationCreateBulkWorkflowEventArgs {
-  input?: InputMaybe<Array<CreateWorkflowEventInput>>
+export interface MutationCreateCampaignArgs {
+  input: CreateCampaignInput
 }
 
-export interface MutationCreateBulkWorkflowObjectRefArgs {
-  input?: InputMaybe<Array<CreateWorkflowObjectRefInput>>
+export interface MutationCreateCampaignTargetArgs {
+  input: CreateCampaignTargetInput
 }
 
 export interface MutationCreateContactArgs {
@@ -20396,6 +25634,10 @@ export interface MutationCreateHushArgs {
   input: CreateHushInput
 }
 
+export interface MutationCreateIdentityHolderArgs {
+  input: CreateIdentityHolderInput
+}
+
 export interface MutationCreateInternalPolicyArgs {
   input: CreateInternalPolicyInput
 }
@@ -20462,6 +25704,10 @@ export interface MutationCreateOrganizationWithMembersArgs {
 
 export interface MutationCreatePersonalAccessTokenArgs {
   input: CreatePersonalAccessTokenInput
+}
+
+export interface MutationCreatePlatformArgs {
+  input: CreatePlatformInput
 }
 
 export interface MutationCreateProcedureArgs {
@@ -20616,14 +25862,6 @@ export interface MutationCreateVulnerabilityArgs {
 
 export interface MutationCreateWorkflowDefinitionArgs {
   input: CreateWorkflowDefinitionInput
-}
-
-export interface MutationCreateWorkflowEventArgs {
-  input: CreateWorkflowEventInput
-}
-
-export interface MutationCreateWorkflowObjectRefArgs {
-  input: CreateWorkflowObjectRefInput
 }
 
 export interface MutationDeleteApiTokenArgs {
@@ -20814,6 +26052,14 @@ export interface MutationDeleteBulkUserSettingArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
+export interface MutationDeleteCampaignArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteCampaignTargetArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteContactArgs {
   id: Scalars['ID']['input']
 }
@@ -20914,6 +26160,10 @@ export interface MutationDeleteHushArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteIdentityHolderArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteIntegrationArgs {
   id: Scalars['ID']['input']
 }
@@ -20975,6 +26225,10 @@ export interface MutationDeleteOrganizationSettingArgs {
 }
 
 export interface MutationDeletePersonalAccessTokenArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeletePlatformArgs {
   id: Scalars['ID']['input']
 }
 
@@ -21091,21 +26345,9 @@ export interface MutationDeleteWorkflowDefinitionArgs {
   id: Scalars['ID']['input']
 }
 
-export interface MutationDeleteWorkflowEventArgs {
-  id: Scalars['ID']['input']
-}
-
-export interface MutationDeleteWorkflowObjectRefArgs {
-  id: Scalars['ID']['input']
-}
-
 export interface MutationRejectWorkflowAssignmentArgs {
   id: Scalars['ID']['input']
   reason?: InputMaybe<Scalars['String']['input']>
-}
-
-export interface MutationSendTrustCenterNdaEmailArgs {
-  input: SendTrustCenterNdaInput
 }
 
 export interface MutationSubmitTrustCenterNdaResponseArgs {
@@ -21203,6 +26445,16 @@ export interface MutationUpdateBulkTrustCenterDocArgs {
 export interface MutationUpdateBulkTrustCenterSubprocessorArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateTrustCenterSubprocessorInput
+}
+
+export interface MutationUpdateCampaignArgs {
+  id: Scalars['ID']['input']
+  input: UpdateCampaignInput
+}
+
+export interface MutationUpdateCampaignTargetArgs {
+  id: Scalars['ID']['input']
+  input: UpdateCampaignTargetInput
 }
 
 export interface MutationUpdateContactArgs {
@@ -21339,6 +26591,11 @@ export interface MutationUpdateHushArgs {
   input: UpdateHushInput
 }
 
+export interface MutationUpdateIdentityHolderArgs {
+  id: Scalars['ID']['input']
+  input: UpdateIdentityHolderInput
+}
+
 export interface MutationUpdateInternalPolicyArgs {
   id: Scalars['ID']['input']
   input: UpdateInternalPolicyInput
@@ -21387,6 +26644,11 @@ export interface MutationUpdateNarrativeArgs {
   input: UpdateNarrativeInput
 }
 
+export interface MutationUpdateNotificationArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNotificationInput
+}
+
 export interface MutationUpdateOrgMembershipArgs {
   id: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
@@ -21406,6 +26668,11 @@ export interface MutationUpdateOrganizationSettingArgs {
 export interface MutationUpdatePersonalAccessTokenArgs {
   id: Scalars['ID']['input']
   input: UpdatePersonalAccessTokenInput
+}
+
+export interface MutationUpdatePlatformArgs {
+  id: Scalars['ID']['input']
+  input: UpdatePlatformInput
 }
 
 export interface MutationUpdateProcedureArgs {
@@ -21602,11 +26869,6 @@ export interface MutationUpdateVulnerabilityArgs {
 export interface MutationUpdateWorkflowDefinitionArgs {
   id: Scalars['ID']['input']
   input: UpdateWorkflowDefinitionInput
-}
-
-export interface MutationUpdateWorkflowEventArgs {
-  id: Scalars['ID']['input']
-  input: UpdateWorkflowEventInput
 }
 
 export interface MutationValidateCustomDomainArgs {
@@ -22355,6 +27617,13 @@ export enum NotificationNotificationType {
   USER = 'USER',
 }
 
+/** Return response for updateNotification mutation */
+export interface NotificationUpdatePayload {
+  __typename?: 'NotificationUpdatePayload'
+  /** Updated notification */
+  notification: Notification
+}
+
 export interface Onboarding extends Node {
   __typename?: 'Onboarding'
   /** details given about the company during the onboarding process, including things such as company size, sector, etc */
@@ -22896,6 +28165,8 @@ export interface Organization extends Node {
   avatarRemoteURL?: Maybe<Scalars['String']['output']>
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
+  campaignTargets: CampaignTargetConnection
+  campaigns: CampaignConnection
   children: OrganizationConnection
   contacts: ContactConnection
   controlCreators: GroupConnection
@@ -22933,6 +28204,7 @@ export interface Organization extends Node {
   groupCreators: GroupConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
   integrations: IntegrationConnection
   internalPolicies: InternalPolicyConnection
   internalPolicyCreators: GroupConnection
@@ -22955,6 +28227,7 @@ export interface Organization extends Node {
   personalAccessTokens: PersonalAccessTokenConnection
   /** orgs directly associated with a user */
   personalOrg?: Maybe<Scalars['Boolean']['output']>
+  platforms: PlatformConnection
   procedureCreators: GroupConnection
   procedures: ProcedureConnection
   programCreators: GroupConnection
@@ -23061,6 +28334,24 @@ export interface OrganizationAssetsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<AssetOrder>>
   where?: InputMaybe<AssetWhereInput>
+}
+
+export interface OrganizationCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
+}
+
+export interface OrganizationCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
 }
 
 export interface OrganizationChildrenArgs {
@@ -23315,6 +28606,15 @@ export interface OrganizationGroupsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface OrganizationIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
 export interface OrganizationIntegrationsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -23457,6 +28757,15 @@ export interface OrganizationPersonalAccessTokensArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PersonalAccessTokenOrder>>
   where?: InputMaybe<PersonalAccessTokenWhereInput>
+}
+
+export interface OrganizationPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface OrganizationProcedureCreatorsArgs {
@@ -24468,6 +29777,12 @@ export interface OrganizationWhereInput {
   /** avatar_file edge predicates */
   hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** campaign_targets edge predicates */
+  hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** children edge predicates */
   hasChildren?: InputMaybe<Scalars['Boolean']['input']>
   hasChildrenWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -24552,6 +29867,9 @@ export interface OrganizationWhereInput {
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
@@ -24606,6 +29924,9 @@ export interface OrganizationWhereInput {
   /** personal_access_tokens edge predicates */
   hasPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
   hasPersonalAccessTokensWith?: InputMaybe<Array<PersonalAccessTokenWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedure_creators edge predicates */
   hasProcedureCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -25089,10 +30410,1299 @@ export interface PersonalAccessTokenWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export interface Platform extends Node {
+  __typename?: 'Platform'
+  accessModel?: Maybe<CustomTypeEnum>
+  /** the access_model of the platform */
+  accessModelID?: Maybe<Scalars['ID']['output']>
+  /** the access_model of the platform */
+  accessModelName?: Maybe<Scalars['String']['output']>
+  /** Returns active workflow instances for this platform (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
+  applicableFrameworks: StandardConnection
+  assessments: AssessmentConnection
+  assets: AssetConnection
+  blockedGroups: GroupConnection
+  /** business owner for the platform when no user or group is linked */
+  businessOwner?: Maybe<Scalars['String']['output']>
+  businessOwnerGroup?: Maybe<Group>
+  /** the business owner group id for the platform */
+  businessOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  businessOwnerUser?: Maybe<User>
+  /** the business owner user id for the platform */
+  businessOwnerUserID?: Maybe<Scalars['ID']['output']>
+  /** the business purpose of the platform */
+  businessPurpose?: Maybe<Scalars['String']['output']>
+  /** whether the platform stores or processes PII */
+  containsPii?: Maybe<Scalars['Boolean']['output']>
+  controls: ControlConnection
+  /** cost center associated with the platform */
+  costCenter?: Maybe<Scalars['String']['output']>
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  criticality?: Maybe<CustomTypeEnum>
+  /** the criticality of the platform */
+  criticalityID?: Maybe<Scalars['ID']['output']>
+  /** the criticality of the platform */
+  criticalityName?: Maybe<Scalars['String']['output']>
+  /** summary of platform data flows */
+  dataFlowSummary?: Maybe<Scalars['String']['output']>
+  /** the description of the platform boundary */
+  description?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
+  editors: GroupConnection
+  encryptionStatus?: Maybe<CustomTypeEnum>
+  /** the encryption_status of the platform */
+  encryptionStatusID?: Maybe<Scalars['ID']['output']>
+  /** the encryption_status of the platform */
+  encryptionStatusName?: Maybe<Scalars['String']['output']>
+  entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the platform */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the platform */
+  environmentName?: Maybe<Scalars['String']['output']>
+  /** estimated monthly cost for the platform */
+  estimatedMonthlyCost?: Maybe<Scalars['Float']['output']>
+  evidence: EvidenceConnection
+  /** external identifier for the platform from an upstream inventory */
+  externalReferenceID?: Maybe<Scalars['String']['output']>
+  files: FileConnection
+  generatedScans: ScanConnection
+  /** Indicates if this platform has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this platform has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
+  /** the internal owner for the platform when no user or group is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the platform */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the platform */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  /** additional metadata about the platform */
+  metadata?: Maybe<Scalars['Map']['output']>
+  /** the name of the platform */
+  name: Scalars['String']['output']
+  outOfScopeAssets: AssetConnection
+  outOfScopeVendors: EntityConnection
+  owner?: Maybe<Organization>
+  /** the ID of the organization owner of the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** physical location of the platform, if applicable */
+  physicalLocation?: Maybe<Scalars['String']['output']>
+  platformDataClassification?: Maybe<CustomTypeEnum>
+  /** the data_classification of the platform */
+  platformDataClassificationID?: Maybe<Scalars['ID']['output']>
+  /** the data_classification of the platform */
+  platformDataClassificationName?: Maybe<Scalars['String']['output']>
+  platformKind?: Maybe<CustomTypeEnum>
+  /** the kind of the platform */
+  platformKindID?: Maybe<Scalars['ID']['output']>
+  /** the kind of the platform */
+  platformKindName?: Maybe<Scalars['String']['output']>
+  platformOwner?: Maybe<User>
+  /** the id of the user who is responsible for this platform */
+  platformOwnerID?: Maybe<Scalars['ID']['output']>
+  /** purchase date for the platform */
+  purchaseDate?: Maybe<Scalars['DateTime']['output']>
+  /** the region where the platform operates or is hosted */
+  region?: Maybe<Scalars['String']['output']>
+  risks: RiskConnection
+  scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the platform */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the platform */
+  scopeName?: Maybe<Scalars['String']['output']>
+  /** scope statement for the platform, used for narrative justification */
+  scopeStatement?: Maybe<Scalars['String']['output']>
+  /** security owner for the platform when no user or group is linked */
+  securityOwner?: Maybe<Scalars['String']['output']>
+  securityOwnerGroup?: Maybe<Group>
+  /** the security owner group id for the platform */
+  securityOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  securityOwnerUser?: Maybe<User>
+  /** the security owner user id for the platform */
+  securityOwnerUserID?: Maybe<Scalars['ID']['output']>
+  securityTier?: Maybe<CustomTypeEnum>
+  /** the security_tier of the platform */
+  securityTierID?: Maybe<Scalars['ID']['output']>
+  /** the security_tier of the platform */
+  securityTierName?: Maybe<Scalars['String']['output']>
+  sourceAssets: AssetConnection
+  sourceEntities: EntityConnection
+  /** the identifier used by the source system for the platform */
+  sourceIdentifier?: Maybe<Scalars['String']['output']>
+  /** the source of the platform record, e.g., manual, discovered, imported, api */
+  sourceType: PlatformSourceType
+  /** the lifecycle status of the platform */
+  status: PlatformPlatformStatus
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  tasks: TaskConnection
+  /** technical owner for the platform when no user or group is linked */
+  technicalOwner?: Maybe<Scalars['String']['output']>
+  technicalOwnerGroup?: Maybe<Group>
+  /** the technical owner group id for the platform */
+  technicalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  technicalOwnerUser?: Maybe<User>
+  /** the technical owner user id for the platform */
+  technicalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  /** description of the platform trust boundary */
+  trustBoundaryDescription?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  viewers: GroupConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this platform across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
+}
+
+export interface PlatformApplicableFrameworksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<StandardOrder>>
+  where?: InputMaybe<StandardWhereInput>
+}
+
+export interface PlatformAssessmentsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssessmentOrder>>
+  where?: InputMaybe<AssessmentWhereInput>
+}
+
+export interface PlatformAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface PlatformBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface PlatformControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface PlatformEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface PlatformEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface PlatformEvidenceArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EvidenceOrder>>
+  where?: InputMaybe<EvidenceWhereInput>
+}
+
+export interface PlatformFilesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder>>
+  where?: InputMaybe<FileWhereInput>
+}
+
+export interface PlatformGeneratedScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface PlatformIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface PlatformOutOfScopeAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface PlatformOutOfScopeVendorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface PlatformRisksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
+}
+
+export interface PlatformScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface PlatformSourceAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface PlatformSourceEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface PlatformTasksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TaskOrder>>
+  where?: InputMaybe<TaskWhereInput>
+}
+
+export interface PlatformViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface PlatformWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface PlatformWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
+}
+
+/** Return response for createBulkPlatform mutation */
+export interface PlatformBulkCreatePayload {
+  __typename?: 'PlatformBulkCreatePayload'
+  /** Created platforms */
+  platforms?: Maybe<Array<Platform>>
+}
+
+/** A connection to a list of items. */
+export interface PlatformConnection {
+  __typename?: 'PlatformConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<PlatformEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createPlatform mutation */
+export interface PlatformCreatePayload {
+  __typename?: 'PlatformCreatePayload'
+  /** Created platform */
+  platform: Platform
+}
+
+/** Return response for deletePlatform mutation */
+export interface PlatformDeletePayload {
+  __typename?: 'PlatformDeletePayload'
+  /** Deleted platform ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface PlatformEdge {
+  __typename?: 'PlatformEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<Platform>
+}
+
+/** Ordering options for Platform connections */
+export interface PlatformOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order Platforms. */
+  field: PlatformOrderField
+}
+
+/** Properties by which Platform connections can be ordered. */
+export enum PlatformOrderField {
+  SOURCE_TYPE = 'SOURCE_TYPE',
+  STATUS = 'STATUS',
+  business_owner = 'business_owner',
+  business_purpose = 'business_purpose',
+  contains_pii = 'contains_pii',
+  cost_center = 'cost_center',
+  created_at = 'created_at',
+  estimated_monthly_cost = 'estimated_monthly_cost',
+  external_reference_id = 'external_reference_id',
+  internal_owner = 'internal_owner',
+  name = 'name',
+  physical_location = 'physical_location',
+  purchase_date = 'purchase_date',
+  region = 'region',
+  security_owner = 'security_owner',
+  source_identifier = 'source_identifier',
+  technical_owner = 'technical_owner',
+  updated_at = 'updated_at',
+}
+
+/** PlatformPlatformStatus is enum for the field status */
+export enum PlatformPlatformStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  RETIRED = 'RETIRED',
+}
+
+/** PlatformSourceType is enum for the field source_type */
+export enum PlatformSourceType {
+  API = 'API',
+  DISCOVERED = 'DISCOVERED',
+  IMPORTED = 'IMPORTED',
+  MANUAL = 'MANUAL',
+}
+
+/** Return response for updatePlatform mutation */
+export interface PlatformUpdatePayload {
+  __typename?: 'PlatformUpdatePayload'
+  /** Updated platform */
+  platform: Platform
+}
+
+/**
+ * PlatformWhereInput is used for filtering Platform objects.
+ * Input was generated by ent.
+ */
+export interface PlatformWhereInput {
+  /** access_model_id field predicates */
+  accessModelID?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDContains?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDGT?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDGTE?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  accessModelIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  accessModelIDLT?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDLTE?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  accessModelIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  accessModelIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** access_model_name field predicates */
+  accessModelName?: InputMaybe<Scalars['String']['input']>
+  accessModelNameContains?: InputMaybe<Scalars['String']['input']>
+  accessModelNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  accessModelNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  accessModelNameGT?: InputMaybe<Scalars['String']['input']>
+  accessModelNameGTE?: InputMaybe<Scalars['String']['input']>
+  accessModelNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  accessModelNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  accessModelNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  accessModelNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  accessModelNameLT?: InputMaybe<Scalars['String']['input']>
+  accessModelNameLTE?: InputMaybe<Scalars['String']['input']>
+  accessModelNameNEQ?: InputMaybe<Scalars['String']['input']>
+  accessModelNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  accessModelNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  and?: InputMaybe<Array<PlatformWhereInput>>
+  /** business_owner field predicates */
+  businessOwner?: InputMaybe<Scalars['String']['input']>
+  businessOwnerContains?: InputMaybe<Scalars['String']['input']>
+  businessOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  businessOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  businessOwnerGT?: InputMaybe<Scalars['String']['input']>
+  businessOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** business_owner_group_id field predicates */
+  businessOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  businessOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  businessOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  businessOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  businessOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  businessOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  businessOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  businessOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  businessOwnerLT?: InputMaybe<Scalars['String']['input']>
+  businessOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  businessOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  businessOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  businessOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** business_owner_user_id field predicates */
+  businessOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  businessOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  businessOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  businessOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** business_purpose field predicates */
+  businessPurpose?: InputMaybe<Scalars['String']['input']>
+  businessPurposeContains?: InputMaybe<Scalars['String']['input']>
+  businessPurposeContainsFold?: InputMaybe<Scalars['String']['input']>
+  businessPurposeEqualFold?: InputMaybe<Scalars['String']['input']>
+  businessPurposeGT?: InputMaybe<Scalars['String']['input']>
+  businessPurposeGTE?: InputMaybe<Scalars['String']['input']>
+  businessPurposeHasPrefix?: InputMaybe<Scalars['String']['input']>
+  businessPurposeHasSuffix?: InputMaybe<Scalars['String']['input']>
+  businessPurposeIn?: InputMaybe<Array<Scalars['String']['input']>>
+  businessPurposeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  businessPurposeLT?: InputMaybe<Scalars['String']['input']>
+  businessPurposeLTE?: InputMaybe<Scalars['String']['input']>
+  businessPurposeNEQ?: InputMaybe<Scalars['String']['input']>
+  businessPurposeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  businessPurposeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** contains_pii field predicates */
+  containsPii?: InputMaybe<Scalars['Boolean']['input']>
+  containsPiiIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  containsPiiNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  containsPiiNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** cost_center field predicates */
+  costCenter?: InputMaybe<Scalars['String']['input']>
+  costCenterContains?: InputMaybe<Scalars['String']['input']>
+  costCenterContainsFold?: InputMaybe<Scalars['String']['input']>
+  costCenterEqualFold?: InputMaybe<Scalars['String']['input']>
+  costCenterGT?: InputMaybe<Scalars['String']['input']>
+  costCenterGTE?: InputMaybe<Scalars['String']['input']>
+  costCenterHasPrefix?: InputMaybe<Scalars['String']['input']>
+  costCenterHasSuffix?: InputMaybe<Scalars['String']['input']>
+  costCenterIn?: InputMaybe<Array<Scalars['String']['input']>>
+  costCenterIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  costCenterLT?: InputMaybe<Scalars['String']['input']>
+  costCenterLTE?: InputMaybe<Scalars['String']['input']>
+  costCenterNEQ?: InputMaybe<Scalars['String']['input']>
+  costCenterNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  costCenterNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** criticality_id field predicates */
+  criticalityID?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDContains?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDGT?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDGTE?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  criticalityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  criticalityIDLT?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDLTE?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  criticalityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  criticalityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** criticality_name field predicates */
+  criticalityName?: InputMaybe<Scalars['String']['input']>
+  criticalityNameContains?: InputMaybe<Scalars['String']['input']>
+  criticalityNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  criticalityNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  criticalityNameGT?: InputMaybe<Scalars['String']['input']>
+  criticalityNameGTE?: InputMaybe<Scalars['String']['input']>
+  criticalityNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  criticalityNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  criticalityNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  criticalityNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  criticalityNameLT?: InputMaybe<Scalars['String']['input']>
+  criticalityNameLTE?: InputMaybe<Scalars['String']['input']>
+  criticalityNameNEQ?: InputMaybe<Scalars['String']['input']>
+  criticalityNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  criticalityNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** encryption_status_id field predicates */
+  encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDContains?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDGT?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDGTE?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  encryptionStatusIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  encryptionStatusIDLT?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDLTE?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  encryptionStatusIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  encryptionStatusIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** encryption_status_name field predicates */
+  encryptionStatusName?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameContains?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameGT?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameGTE?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  encryptionStatusNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  encryptionStatusNameLT?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameLTE?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameNEQ?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  encryptionStatusNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** estimated_monthly_cost field predicates */
+  estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostGT?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostGTE?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostIn?: InputMaybe<Array<Scalars['Float']['input']>>
+  estimatedMonthlyCostIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  estimatedMonthlyCostLT?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostLTE?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostNEQ?: InputMaybe<Scalars['Float']['input']>
+  estimatedMonthlyCostNotIn?: InputMaybe<Array<Scalars['Float']['input']>>
+  estimatedMonthlyCostNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_reference_id field predicates */
+  externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDContains?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDGT?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalReferenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalReferenceIDLT?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalReferenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalReferenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** access_model edge predicates */
+  hasAccessModel?: InputMaybe<Scalars['Boolean']['input']>
+  hasAccessModelWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** applicable_frameworks edge predicates */
+  hasApplicableFrameworks?: InputMaybe<Scalars['Boolean']['input']>
+  hasApplicableFrameworksWith?: InputMaybe<Array<StandardWhereInput>>
+  /** assessments edge predicates */
+  hasAssessments?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentsWith?: InputMaybe<Array<AssessmentWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** business_owner_group edge predicates */
+  hasBusinessOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasBusinessOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** business_owner_user edge predicates */
+  hasBusinessOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasBusinessOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** controls edge predicates */
+  hasControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** criticality edge predicates */
+  hasCriticality?: InputMaybe<Scalars['Boolean']['input']>
+  hasCriticalityWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** encryption_status edge predicates */
+  hasEncryptionStatus?: InputMaybe<Scalars['Boolean']['input']>
+  hasEncryptionStatusWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** evidence edge predicates */
+  hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
+  /** files edge predicates */
+  hasFiles?: InputMaybe<Scalars['Boolean']['input']>
+  hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** generated_scans edge predicates */
+  hasGeneratedScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasGeneratedScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** out_of_scope_assets edge predicates */
+  hasOutOfScopeAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasOutOfScopeAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** out_of_scope_vendors edge predicates */
+  hasOutOfScopeVendors?: InputMaybe<Scalars['Boolean']['input']>
+  hasOutOfScopeVendorsWith?: InputMaybe<Array<EntityWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform_data_classification edge predicates */
+  hasPlatformDataClassification?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformDataClassificationWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** platform_kind edge predicates */
+  hasPlatformKind?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** platform_owner edge predicates */
+  hasPlatformOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformOwnerWith?: InputMaybe<Array<UserWhereInput>>
+  /** risks edge predicates */
+  hasRisks?: InputMaybe<Scalars['Boolean']['input']>
+  hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** security_owner_group edge predicates */
+  hasSecurityOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasSecurityOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** security_owner_user edge predicates */
+  hasSecurityOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasSecurityOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** security_tier edge predicates */
+  hasSecurityTier?: InputMaybe<Scalars['Boolean']['input']>
+  hasSecurityTierWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** source_assets edge predicates */
+  hasSourceAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasSourceAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** source_entities edge predicates */
+  hasSourceEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasSourceEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** tasks edge predicates */
+  hasTasks?: InputMaybe<Scalars['Boolean']['input']>
+  hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** technical_owner_group edge predicates */
+  hasTechnicalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasTechnicalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** technical_owner_user edge predicates */
+  hasTechnicalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasTechnicalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerLT?: InputMaybe<Scalars['String']['input']>
+  internalOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<PlatformWhereInput>
+  or?: InputMaybe<Array<PlatformWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** physical_location field predicates */
+  physicalLocation?: InputMaybe<Scalars['String']['input']>
+  physicalLocationContains?: InputMaybe<Scalars['String']['input']>
+  physicalLocationContainsFold?: InputMaybe<Scalars['String']['input']>
+  physicalLocationEqualFold?: InputMaybe<Scalars['String']['input']>
+  physicalLocationGT?: InputMaybe<Scalars['String']['input']>
+  physicalLocationGTE?: InputMaybe<Scalars['String']['input']>
+  physicalLocationHasPrefix?: InputMaybe<Scalars['String']['input']>
+  physicalLocationHasSuffix?: InputMaybe<Scalars['String']['input']>
+  physicalLocationIn?: InputMaybe<Array<Scalars['String']['input']>>
+  physicalLocationIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  physicalLocationLT?: InputMaybe<Scalars['String']['input']>
+  physicalLocationLTE?: InputMaybe<Scalars['String']['input']>
+  physicalLocationNEQ?: InputMaybe<Scalars['String']['input']>
+  physicalLocationNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  physicalLocationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_data_classification_id field predicates */
+  platformDataClassificationID?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformDataClassificationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformDataClassificationIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformDataClassificationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformDataClassificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_data_classification_name field predicates */
+  platformDataClassificationName?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameContains?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameGT?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameGTE?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  platformDataClassificationNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformDataClassificationNameLT?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameLTE?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameNEQ?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  platformDataClassificationNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_kind_id field predicates */
+  platformKindID?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformKindIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformKindIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformKindIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformKindIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_kind_name field predicates */
+  platformKindName?: InputMaybe<Scalars['String']['input']>
+  platformKindNameContains?: InputMaybe<Scalars['String']['input']>
+  platformKindNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  platformKindNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  platformKindNameGT?: InputMaybe<Scalars['String']['input']>
+  platformKindNameGTE?: InputMaybe<Scalars['String']['input']>
+  platformKindNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  platformKindNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  platformKindNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  platformKindNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformKindNameLT?: InputMaybe<Scalars['String']['input']>
+  platformKindNameLTE?: InputMaybe<Scalars['String']['input']>
+  platformKindNameNEQ?: InputMaybe<Scalars['String']['input']>
+  platformKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  platformKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_owner_id field predicates */
+  platformOwnerID?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformOwnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformOwnerIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformOwnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** purchase_date field predicates */
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  purchaseDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  purchaseDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  purchaseDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  purchaseDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** region field predicates */
+  region?: InputMaybe<Scalars['String']['input']>
+  regionContains?: InputMaybe<Scalars['String']['input']>
+  regionContainsFold?: InputMaybe<Scalars['String']['input']>
+  regionEqualFold?: InputMaybe<Scalars['String']['input']>
+  regionGT?: InputMaybe<Scalars['String']['input']>
+  regionGTE?: InputMaybe<Scalars['String']['input']>
+  regionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  regionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  regionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  regionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  regionLT?: InputMaybe<Scalars['String']['input']>
+  regionLTE?: InputMaybe<Scalars['String']['input']>
+  regionNEQ?: InputMaybe<Scalars['String']['input']>
+  regionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  regionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** security_owner field predicates */
+  securityOwner?: InputMaybe<Scalars['String']['input']>
+  securityOwnerContains?: InputMaybe<Scalars['String']['input']>
+  securityOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  securityOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  securityOwnerGT?: InputMaybe<Scalars['String']['input']>
+  securityOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** security_owner_group_id field predicates */
+  securityOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  securityOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  securityOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  securityOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityOwnerLT?: InputMaybe<Scalars['String']['input']>
+  securityOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  securityOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  securityOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  securityOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** security_owner_user_id field predicates */
+  securityOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** security_tier_id field predicates */
+  securityTierID?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDContains?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDGT?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDGTE?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityTierIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityTierIDLT?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDLTE?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  securityTierIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  securityTierIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** security_tier_name field predicates */
+  securityTierName?: InputMaybe<Scalars['String']['input']>
+  securityTierNameContains?: InputMaybe<Scalars['String']['input']>
+  securityTierNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  securityTierNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  securityTierNameGT?: InputMaybe<Scalars['String']['input']>
+  securityTierNameGTE?: InputMaybe<Scalars['String']['input']>
+  securityTierNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  securityTierNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  securityTierNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  securityTierNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  securityTierNameLT?: InputMaybe<Scalars['String']['input']>
+  securityTierNameLTE?: InputMaybe<Scalars['String']['input']>
+  securityTierNameNEQ?: InputMaybe<Scalars['String']['input']>
+  securityTierNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  securityTierNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_identifier field predicates */
+  sourceIdentifier?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierContains?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierGT?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierGTE?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceIdentifierIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceIdentifierLT?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierLTE?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceIdentifierNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceIdentifierNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_type field predicates */
+  sourceType?: InputMaybe<PlatformSourceType>
+  sourceTypeIn?: InputMaybe<Array<PlatformSourceType>>
+  sourceTypeNEQ?: InputMaybe<PlatformSourceType>
+  sourceTypeNotIn?: InputMaybe<Array<PlatformSourceType>>
+  /** status field predicates */
+  status?: InputMaybe<PlatformPlatformStatus>
+  statusIn?: InputMaybe<Array<PlatformPlatformStatus>>
+  statusNEQ?: InputMaybe<PlatformPlatformStatus>
+  statusNotIn?: InputMaybe<Array<PlatformPlatformStatus>>
+  /** technical_owner field predicates */
+  technicalOwner?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerGT?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerGTE?: InputMaybe<Scalars['String']['input']>
+  /** technical_owner_group_id field predicates */
+  technicalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  technicalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  technicalOwnerGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  technicalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  technicalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  technicalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  technicalOwnerLT?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerLTE?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  technicalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** technical_owner_user_id field predicates */
+  technicalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  technicalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  technicalOwnerUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  technicalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export interface Procedure extends Node {
   __typename?: 'Procedure'
-  /** Returns the active workflow instance for this procedure if one is running */
-  activeWorkflowInstance?: Maybe<WorkflowInstance>
+  /** Returns active workflow instances for this procedure (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   /** whether approval is required for edits to the procedure */
   approvalRequired?: Maybe<Scalars['Boolean']['output']>
   /** the group of users who are responsible for approving the procedure */
@@ -25124,11 +31734,18 @@ export interface Procedure extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the procedure */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the procedure */
+  environmentName?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
   /** This will contain the most recent file id if this procedure was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
   /** Indicates if this procedure has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this procedure has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** suggested improvements for the procedure */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
@@ -25154,6 +31771,11 @@ export interface Procedure extends Node {
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   risks: RiskConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the procedure */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the procedure */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: Maybe<ProcedureDocumentStatus>
   subcontrols: SubcontrolConnection
@@ -25174,6 +31796,8 @@ export interface Procedure extends Node {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this procedure across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface ProcedureBlockedGroupsArgs {
@@ -25282,6 +31906,16 @@ export interface ProcedureWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface ProcedureWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkProcedure mutation */
@@ -25484,6 +32118,38 @@ export interface ProcedureWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** file_id field predicates */
   fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -25521,6 +32187,9 @@ export interface ProcedureWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** file edge predicates */
   hasFile?: InputMaybe<Scalars['Boolean']['input']>
   hasFileWith?: InputMaybe<Array<FileWhereInput>>
@@ -25542,6 +32211,9 @@ export interface ProcedureWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -25676,6 +32348,38 @@ export interface ProcedureWhereInput {
   revisionNEQ?: InputMaybe<Scalars['String']['input']>
   revisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   revisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<ProcedureDocumentStatus>
   statusIn?: InputMaybe<Array<ProcedureDocumentStatus>>
@@ -26596,6 +33300,16 @@ export interface Query {
   /** Search across Asset objects */
   assetSearch?: Maybe<AssetConnection>
   assets: AssetConnection
+  /** Look up campaign by ID */
+  campaign: Campaign
+  /** Search across Campaign objects */
+  campaignSearch?: Maybe<CampaignConnection>
+  /** Look up campaignTarget by ID */
+  campaignTarget: CampaignTarget
+  /** Search across CampaignTarget objects */
+  campaignTargetSearch?: Maybe<CampaignTargetConnection>
+  campaignTargets: CampaignTargetConnection
+  campaigns: CampaignConnection
   /** Look up contact by ID */
   contact: Contact
   /** Search across Contact objects */
@@ -26697,6 +33411,11 @@ export interface Query {
   /** Look up hush by ID */
   hush: Hush
   hushes: HushConnection
+  /** Look up identityHolder by ID */
+  identityHolder: IdentityHolder
+  /** Search across IdentityHolder objects */
+  identityHolderSearch?: Maybe<IdentityHolderConnection>
+  identityHolders: IdentityHolderConnection
   /** Look up integration by ID */
   integration: Integration
   integrations: IntegrationConnection
@@ -26766,6 +33485,11 @@ export interface Query {
   /** Look up personalAccessToken by ID */
   personalAccessToken: PersonalAccessToken
   personalAccessTokens: PersonalAccessTokenConnection
+  /** Look up platform by ID */
+  platform: Platform
+  /** Search across Platform objects */
+  platformSearch?: Maybe<PlatformConnection>
+  platforms: PlatformConnection
   /** Look up procedure by ID */
   procedure: Procedure
   /** Search across Procedure objects */
@@ -26896,6 +33620,8 @@ export interface Query {
   workflowDefinitions: WorkflowDefinitionConnection
   /** Look up workflowEvent by ID */
   workflowEvent: WorkflowEvent
+  /** Get workflow events for a workflow instance timeline */
+  workflowEventTimeline: WorkflowEventConnection
   workflowEvents: WorkflowEventConnection
   /** Look up workflowInstance by ID */
   workflowInstance: WorkflowInstance
@@ -27002,6 +33728,48 @@ export interface QueryAssetsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<AssetOrder>>
   where?: InputMaybe<AssetWhereInput>
+}
+
+export interface QueryCampaignArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryCampaignSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryCampaignTargetArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryCampaignTargetSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
+}
+
+export interface QueryCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
 }
 
 export interface QueryContactArgs {
@@ -27413,6 +34181,27 @@ export interface QueryHushesArgs {
   where?: InputMaybe<HushWhereInput>
 }
 
+export interface QueryIdentityHolderArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryIdentityHolderSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
 export interface QueryIntegrationArgs {
   id: Scalars['ID']['input']
 }
@@ -27697,6 +34486,27 @@ export interface QueryPersonalAccessTokensArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PersonalAccessTokenOrder>>
   where?: InputMaybe<PersonalAccessTokenWhereInput>
+}
+
+export interface QueryPlatformArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryPlatformSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface QueryProcedureArgs {
@@ -28243,6 +35053,17 @@ export interface QueryWorkflowEventArgs {
   id: Scalars['ID']['input']
 }
 
+export interface QueryWorkflowEventTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
+  workflowInstanceID: Scalars['ID']['input']
+}
+
 export interface QueryWorkflowEventsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -28295,6 +35116,11 @@ export interface Remediation extends Node {
   dueAt?: Maybe<Scalars['DateTime']['output']>
   editors: GroupConnection
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the remediation */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the remediation */
+  environmentName?: Maybe<Scalars['String']['output']>
   /** details about any errors encountered during remediation automation */
   error?: Maybe<Scalars['String']['output']>
   /** detailed explanation of the remediation steps */
@@ -28331,6 +35157,12 @@ export interface Remediation extends Node {
   repositoryURI?: Maybe<Scalars['String']['output']>
   reviews: ReviewConnection
   risks: RiskConnection
+  scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the remediation */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the remediation */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** system that produced the remediation record */
   source?: Maybe<Scalars['String']['output']>
   /** state of the remediation, such as pending or completed */
@@ -28470,6 +35302,15 @@ export interface RemediationRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface RemediationScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
 }
 
 export interface RemediationSubcontrolsArgs {
@@ -28643,6 +35484,38 @@ export interface RemediationWhereInput {
   dueAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
   dueAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   dueAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** error field predicates */
   error?: InputMaybe<Scalars['String']['input']>
   errorContains?: InputMaybe<Scalars['String']['input']>
@@ -28744,6 +35617,9 @@ export interface RemediationWhereInput {
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
@@ -28765,6 +35641,12 @@ export interface RemediationWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -28913,6 +35795,38 @@ export interface RemediationWhereInput {
   repositoryURINEQ?: InputMaybe<Scalars['String']['input']>
   repositoryURINotIn?: InputMaybe<Array<Scalars['String']['input']>>
   repositoryURINotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<Scalars['String']['input']>
   sourceContains?: InputMaybe<Scalars['String']['input']>
@@ -29064,6 +35978,11 @@ export interface Review extends Node {
   details?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the review */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the review */
+  environmentName?: Maybe<Scalars['String']['output']>
   /** external identifier from the integration source for the review */
   externalID?: Maybe<Scalars['String']['output']>
   /** external identifier from the integration source for the review */
@@ -29096,6 +36015,11 @@ export interface Review extends Node {
   /** identifier for the user primarily responsible for the review */
   reviewerID?: Maybe<Scalars['ID']['output']>
   risks: RiskConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the review */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the review */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** system that produced the review record */
   source?: Maybe<Scalars['String']['output']>
   /** state of the review */
@@ -29434,6 +36358,38 @@ export interface ReviewWhereInput {
   detailsNEQ?: InputMaybe<Scalars['String']['input']>
   detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** external_id field predicates */
   externalID?: InputMaybe<Scalars['String']['input']>
   externalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -29503,6 +36459,9 @@ export interface ReviewWhereInput {
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
@@ -29527,6 +36486,9 @@ export interface ReviewWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -29638,6 +36600,38 @@ export interface ReviewWhereInput {
   reviewerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   reviewerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   reviewerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<Scalars['String']['input']>
   sourceContains?: InputMaybe<Scalars['String']['input']>
@@ -29776,6 +36770,11 @@ export interface Risk extends Node {
   displayID: Scalars['String']['output']
   editors: GroupConnection
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the risk */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the risk */
+  environmentName?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   /** impact of the risk -critical, high, medium, low */
   impact?: Maybe<RiskRiskImpact>
@@ -29791,6 +36790,7 @@ export interface Risk extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
   procedures: ProcedureConnection
   programs: ProgramConnection
   riskCategory?: Maybe<CustomTypeEnum>
@@ -29804,6 +36804,11 @@ export interface Risk extends Node {
   /** the kind of the risk */
   riskKindName?: Maybe<Scalars['String']['output']>
   scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the risk */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the risk */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: Maybe<Scalars['Int']['output']>
   /** the group of users who are responsible for risk oversight */
@@ -29900,6 +36905,15 @@ export interface RiskInternalPoliciesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface RiskPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface RiskProceduresArgs {
@@ -30163,6 +37177,38 @@ export interface RiskWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -30190,12 +37236,18 @@ export interface RiskWhereInput {
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -30211,6 +37263,9 @@ export interface RiskWhereInput {
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** stakeholder edge predicates */
   hasStakeholder?: InputMaybe<Scalars['Boolean']['input']>
   hasStakeholderWith?: InputMaybe<Array<GroupWhereInput>>
@@ -30360,6 +37415,38 @@ export interface RiskWhereInput {
   riskKindNameNEQ?: InputMaybe<Scalars['String']['input']>
   riskKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   riskKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** score field predicates */
   score?: InputMaybe<Scalars['Int']['input']>
   scoreGT?: InputMaybe<Scalars['Int']['input']>
@@ -30425,29 +37512,91 @@ export interface RiskWhereInput {
 
 export interface Scan extends Node {
   __typename?: 'Scan'
+  actionPlans: ActionPlanConnection
   assets: AssetConnection
+  /** who the scan is assigned to when no user or group is linked */
+  assignedTo?: Maybe<Scalars['String']['output']>
+  assignedToGroup?: Maybe<Group>
+  /** the group id assigned to the scan */
+  assignedToGroupID?: Maybe<Scalars['ID']['output']>
+  assignedToUser?: Maybe<User>
+  /** the user id assigned to the scan */
+  assignedToUserID?: Maybe<Scalars['ID']['output']>
   blockedGroups: GroupConnection
+  controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the scan */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the scan */
+  environmentName?: Maybe<Scalars['String']['output']>
+  evidence: EvidenceConnection
+  files: FileConnection
+  generatedByPlatform?: Maybe<Platform>
+  /** the platform that generated the scan */
+  generatedByPlatformID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
   /** additional metadata for the scan, e.g., scan configuration, options, etc */
   metadata?: Maybe<Scalars['Map']['output']>
+  /** when the scan is scheduled to run next */
+  nextScanRunAt?: Maybe<Scalars['DateTime']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** who performed the scan when no user or group is linked */
+  performedBy?: Maybe<Scalars['String']['output']>
+  performedByGroup?: Maybe<Group>
+  /** the group id that performed the scan */
+  performedByGroupID?: Maybe<Scalars['ID']['output']>
+  performedByUser?: Maybe<User>
+  /** the user id that performed the scan */
+  performedByUserID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
+  remediations: RemediationConnection
+  /** who reviewed the scan when no user or group is linked */
+  reviewedBy?: Maybe<Scalars['String']['output']>
+  reviewedByGroup?: Maybe<Group>
+  /** the group id that reviewed the scan */
+  reviewedByGroupID?: Maybe<Scalars['ID']['output']>
+  reviewedByUser?: Maybe<User>
+  /** the user id that reviewed the scan */
+  reviewedByUserID?: Maybe<Scalars['ID']['output']>
+  /** when the scan was executed */
+  scanDate?: Maybe<Scalars['DateTime']['output']>
+  /** cron schedule that governs the scan cadence, in cron 6-field syntax */
+  scanSchedule?: Maybe<Scalars['String']['output']>
   /** the type of scan, e.g., domain scan, vulnerability scan, provider scan */
   scanType: ScanScanType
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the scan */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the scan */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** the status of the scan, e.g., processing, completed, failed */
   status: ScanScanStatus
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
   target: Scalars['String']['output']
+  tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
+  vulnerabilities: VulnerabilityConnection
+  /** identifiers of vulnerabilities discovered during the scan */
+  vulnerabilityIds?: Maybe<Array<Scalars['String']['output']>>
+}
+
+export interface ScanActionPlansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ActionPlanOrder>>
+  where?: InputMaybe<ActionPlanWhereInput>
 }
 
 export interface ScanAssetsArgs {
@@ -30468,6 +37617,15 @@ export interface ScanBlockedGroupsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface ScanControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
 export interface ScanEditorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -30486,6 +37644,51 @@ export interface ScanEntitiesArgs {
   where?: InputMaybe<EntityWhereInput>
 }
 
+export interface ScanEvidenceArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EvidenceOrder>>
+  where?: InputMaybe<EvidenceWhereInput>
+}
+
+export interface ScanFilesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder>>
+  where?: InputMaybe<FileWhereInput>
+}
+
+export interface ScanPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface ScanRemediationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface ScanTasksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TaskOrder>>
+  where?: InputMaybe<TaskWhereInput>
+}
+
 export interface ScanViewersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -30493,6 +37696,15 @@ export interface ScanViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface ScanVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
 }
 
 /** Return response for createBulkScan mutation */
@@ -30565,6 +37777,8 @@ export enum ScanOrderField {
   SCAN_TYPE = 'SCAN_TYPE',
   STATUS = 'STATUS',
   created_at = 'created_at',
+  next_scan_run_at = 'next_scan_run_at',
+  scan_date = 'scan_date',
   updated_at = 'updated_at',
 }
 
@@ -30597,6 +37811,54 @@ export interface ScanUpdatePayload {
  */
 export interface ScanWhereInput {
   and?: InputMaybe<Array<ScanWhereInput>>
+  /** assigned_to field predicates */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToContains?: InputMaybe<Scalars['String']['input']>
+  assignedToContainsFold?: InputMaybe<Scalars['String']['input']>
+  assignedToEqualFold?: InputMaybe<Scalars['String']['input']>
+  assignedToGT?: InputMaybe<Scalars['String']['input']>
+  assignedToGTE?: InputMaybe<Scalars['String']['input']>
+  /** assigned_to_group_id field predicates */
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToHasPrefix?: InputMaybe<Scalars['String']['input']>
+  assignedToHasSuffix?: InputMaybe<Scalars['String']['input']>
+  assignedToIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignedToIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToLT?: InputMaybe<Scalars['String']['input']>
+  assignedToLTE?: InputMaybe<Scalars['String']['input']>
+  assignedToNEQ?: InputMaybe<Scalars['String']['input']>
+  assignedToNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignedToNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assigned_to_user_id field predicates */
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -30624,24 +37886,123 @@ export interface ScanWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** generated_by_platform_id field predicates */
+  generatedByPlatformID?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDContains?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDGT?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  generatedByPlatformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  generatedByPlatformIDLT?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  generatedByPlatformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  generatedByPlatformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** action_plans edge predicates */
+  hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
+  hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** assigned_to_group edge predicates */
+  hasAssignedToGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssignedToGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** assigned_to_user edge predicates */
+  hasAssignedToUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssignedToUserWith?: InputMaybe<Array<UserWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** controls edge predicates */
+  hasControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** evidence edge predicates */
+  hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
+  /** files edge predicates */
+  hasFiles?: InputMaybe<Scalars['Boolean']['input']>
+  hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** generated_by_platform edge predicates */
+  hasGeneratedByPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasGeneratedByPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** performed_by_group edge predicates */
+  hasPerformedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasPerformedByGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** performed_by_user edge predicates */
+  hasPerformedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasPerformedByUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** remediations edge predicates */
+  hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** reviewed_by_group edge predicates */
+  hasReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** reviewed_by_user edge predicates */
+  hasReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** tasks edge predicates */
+  hasTasks?: InputMaybe<Scalars['Boolean']['input']>
+  hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** vulnerabilities edge predicates */
+  hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -30653,6 +38014,17 @@ export interface ScanWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** next_scan_run_at field predicates */
+  nextScanRunAt?: InputMaybe<Scalars['DateTime']['input']>
+  nextScanRunAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  nextScanRunAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  nextScanRunAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  nextScanRunAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  nextScanRunAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  nextScanRunAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  nextScanRunAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  nextScanRunAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  nextScanRunAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<ScanWhereInput>
   or?: InputMaybe<Array<ScanWhereInput>>
   /** owner_id field predicates */
@@ -30671,11 +38043,150 @@ export interface ScanWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** performed_by field predicates */
+  performedBy?: InputMaybe<Scalars['String']['input']>
+  performedByContains?: InputMaybe<Scalars['String']['input']>
+  performedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  performedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  performedByGT?: InputMaybe<Scalars['String']['input']>
+  performedByGTE?: InputMaybe<Scalars['String']['input']>
+  /** performed_by_group_id field predicates */
+  performedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  performedByGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  performedByGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  performedByGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  performedByGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  performedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  performedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  performedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  performedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  performedByLT?: InputMaybe<Scalars['String']['input']>
+  performedByLTE?: InputMaybe<Scalars['String']['input']>
+  performedByNEQ?: InputMaybe<Scalars['String']['input']>
+  performedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  performedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** performed_by_user_id field predicates */
+  performedByUserID?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  performedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  performedByUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  performedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  performedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by field predicates */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByContains?: InputMaybe<Scalars['String']['input']>
+  reviewedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByGT?: InputMaybe<Scalars['String']['input']>
+  reviewedByGTE?: InputMaybe<Scalars['String']['input']>
+  /** reviewed_by_group_id field predicates */
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  reviewedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  reviewedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByLT?: InputMaybe<Scalars['String']['input']>
+  reviewedByLTE?: InputMaybe<Scalars['String']['input']>
+  reviewedByNEQ?: InputMaybe<Scalars['String']['input']>
+  reviewedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by_user_id field predicates */
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scan_date field predicates */
+  scanDate?: InputMaybe<Scalars['DateTime']['input']>
+  scanDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  scanDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  scanDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  scanDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scanDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  scanDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  scanDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  scanDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  scanDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scan_type field predicates */
   scanType?: InputMaybe<ScanScanType>
   scanTypeIn?: InputMaybe<Array<ScanScanType>>
   scanTypeNEQ?: InputMaybe<ScanScanType>
   scanTypeNotIn?: InputMaybe<Array<ScanScanType>>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<ScanScanStatus>
   statusIn?: InputMaybe<Array<ScanScanStatus>>
@@ -31258,6 +38769,8 @@ export interface SearchResults {
   assessmentResponses?: Maybe<AssessmentResponseConnection>
   assessments?: Maybe<AssessmentConnection>
   assets?: Maybe<AssetConnection>
+  campaignTargets?: Maybe<CampaignTargetConnection>
+  campaigns?: Maybe<CampaignConnection>
   contacts?: Maybe<ContactConnection>
   controlObjectives?: Maybe<ControlObjectiveConnection>
   controls?: Maybe<ControlConnection>
@@ -31266,6 +38779,7 @@ export interface SearchResults {
   evidences?: Maybe<EvidenceConnection>
   findings?: Maybe<FindingConnection>
   groups?: Maybe<GroupConnection>
+  identityHolders?: Maybe<IdentityHolderConnection>
   internalPolicies?: Maybe<InternalPolicyConnection>
   invites?: Maybe<InviteConnection>
   jobRunners?: Maybe<JobRunnerConnection>
@@ -31274,6 +38788,7 @@ export interface SearchResults {
   organizations?: Maybe<OrganizationConnection>
   /** Information to aid in pagination. */
   page: PageInfo
+  platforms?: Maybe<PlatformConnection>
   procedures?: Maybe<ProcedureConnection>
   programs?: Maybe<ProgramConnection>
   remediations?: Maybe<RemediationConnection>
@@ -31303,20 +38818,9 @@ export interface SearchSnippet {
   text: Scalars['String']['output']
 }
 
-export interface SendTrustCenterNdaEmailPayload {
-  __typename?: 'SendTrustCenterNDAEmailPayload'
-  success: Scalars['Boolean']['output']
-}
-
-export interface SendTrustCenterNdaInput {
-  /** email address */
-  email: Scalars['String']['input']
-  /** trust center id */
-  trustCenterID: Scalars['ID']['input']
-}
-
 export interface Standard extends Node {
   __typename?: 'Standard'
+  applicablePlatforms: PlatformConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -31367,6 +38871,15 @@ export interface Standard extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** version of the standard */
   version?: Maybe<Scalars['String']['output']>
+}
+
+export interface StandardApplicablePlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface StandardControlsArgs {
@@ -31574,6 +39087,9 @@ export interface StandardWhereInput {
   governingBodyNEQ?: InputMaybe<Scalars['String']['input']>
   governingBodyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   governingBodyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** applicable_platforms edge predicates */
+  hasApplicablePlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasApplicablePlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
@@ -31809,8 +39325,8 @@ export interface StandardWhereInput {
 export interface Subcontrol extends Node {
   __typename?: 'Subcontrol'
   actionPlans: ActionPlanConnection
-  /** Returns the active workflow instance for this subcontrol if one is running */
-  activeWorkflowInstance?: Maybe<WorkflowInstance>
+  /** Returns active workflow instances for this subcontrol (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   /** additional names (ref_codes) for the control */
   aliases?: Maybe<Array<Scalars['String']['output']>>
   /** methods used to verify the control implementation during an audit */
@@ -31855,6 +39371,8 @@ export interface Subcontrol extends Node {
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
   /** Indicates if this subcontrol has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this subcontrol has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** implementation guidance for the control */
   implementationGuidance?: Maybe<Array<Scalars['ImplementationGuidance']['output']>>
@@ -31911,6 +39429,8 @@ export interface Subcontrol extends Node {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this subcontrol across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface SubcontrolActionPlansArgs {
@@ -32028,6 +39548,16 @@ export interface SubcontrolWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface SubcontrolWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkSubcontrol mutation */
@@ -32616,6 +40146,7 @@ export interface Subprocessor extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** description of the subprocessor */
   description?: Maybe<Scalars['String']['output']>
+  entities: EntityConnection
   id: Scalars['ID']['output']
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
@@ -32638,6 +40169,15 @@ export interface Subprocessor extends Node {
   trustCenterSubprocessors: TrustCenterSubprocessorConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface SubprocessorEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
 }
 
 export interface SubprocessorTrustCenterSubprocessorsArgs {
@@ -32777,6 +40317,9 @@ export interface SubprocessorWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
   /** logo_file edge predicates */
   hasLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   hasLogoFileWith?: InputMaybe<Array<FileWhereInput>>
@@ -33648,6 +41191,11 @@ export interface Task extends Node {
   displayID: Scalars['String']['output']
   /** the due date of the task */
   due?: Maybe<Scalars['DateTime']['output']>
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the task */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the task */
+  environmentName?: Maybe<Scalars['String']['output']>
   evidence: EvidenceConnection
   /** an optional external reference URL for the task */
   externalReferenceURL?: Maybe<Array<Scalars['String']['output']>>
@@ -33655,6 +41203,7 @@ export interface Task extends Node {
   id: Scalars['ID']['output']
   /** key to prevent duplicates for auto-generated task based on rules */
   idempotencyKey?: Maybe<Scalars['String']['output']>
+  identityHolders: IdentityHolderConnection
   internalPolicies: InternalPolicyConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
@@ -33662,9 +41211,16 @@ export interface Task extends Node {
   parent?: Maybe<Task>
   /** the parent task this task belongs to */
   parentTaskID?: Maybe<Scalars['ID']['output']>
+  platforms: PlatformConnection
   procedures: ProcedureConnection
   programs: ProgramConnection
   risks: RiskConnection
+  scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the task */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the task */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** the status of the task */
   status: TaskTaskStatus
   subcontrols: SubcontrolConnection
@@ -33748,6 +41304,15 @@ export interface TaskGroupsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface TaskIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
 export interface TaskInternalPoliciesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -33755,6 +41320,15 @@ export interface TaskInternalPoliciesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface TaskPlatformsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface TaskProceduresArgs {
@@ -33782,6 +41356,15 @@ export interface TaskRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface TaskScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
 }
 
 export interface TaskSubcontrolsArgs {
@@ -34010,6 +41593,38 @@ export interface TaskWhereInput {
   dueNEQ?: InputMaybe<Scalars['DateTime']['input']>
   dueNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   dueNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -34031,12 +41646,18 @@ export interface TaskWhereInput {
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -34046,6 +41667,9 @@ export interface TaskWhereInput {
   /** parent edge predicates */
   hasParent?: InputMaybe<Scalars['Boolean']['input']>
   hasParentWith?: InputMaybe<Array<TaskWhereInput>>
+  /** platforms edge predicates */
+  hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -34055,6 +41679,12 @@ export interface TaskWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -34128,6 +41758,38 @@ export interface TaskWhereInput {
   parentTaskIDNEQ?: InputMaybe<Scalars['ID']['input']>
   parentTaskIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   parentTaskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<TaskTaskStatus>
   statusIn?: InputMaybe<Array<TaskTaskStatus>>
@@ -34214,13 +41876,20 @@ export interface TaskWhereInput {
 export interface Template extends Node {
   __typename?: 'Template'
   assessments: AssessmentConnection
+  campaigns: CampaignConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the description of the template */
   description?: Maybe<Scalars['String']['output']>
   documents: DocumentDataConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the template */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the template */
+  environmentName?: Maybe<Scalars['String']['output']>
   files: FileConnection
   id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   /** the jsonschema object of the template */
@@ -34232,6 +41901,11 @@ export interface Template extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the template */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the template */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
@@ -34258,6 +41932,15 @@ export interface TemplateAssessmentsArgs {
   where?: InputMaybe<AssessmentWhereInput>
 }
 
+export interface TemplateCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
 export interface TemplateDocumentsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34274,6 +41957,15 @@ export interface TemplateFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface TemplateIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
 }
 
 /** Return response for createBulkTemplate mutation */
@@ -34409,18 +42101,62 @@ export interface TemplateWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** assessments edge predicates */
   hasAssessments?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentsWith?: InputMaybe<Array<AssessmentWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** documents edge predicates */
   hasDocuments?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentsWith?: InputMaybe<Array<DocumentDataWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** trust_center edge predicates */
   hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
@@ -34490,6 +42226,38 @@ export interface TemplateWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** system_internal_id field predicates */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -37373,6 +45141,7 @@ export interface UpdateActionPlanInput {
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37425,6 +45194,7 @@ export interface UpdateActionPlanInput {
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -37477,6 +45247,7 @@ export interface UpdateActionPlanInput {
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37514,14 +45285,20 @@ export interface UpdateActionPlanInput {
 export interface UpdateAssessmentInput {
   addAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearResponseDueDuration?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
@@ -37534,7 +45311,10 @@ export interface UpdateAssessmentInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: InputMaybe<Scalars['Int']['input']>
@@ -37550,47 +45330,134 @@ export interface UpdateAssessmentInput {
  * Input was generated by ent.
  */
 export interface UpdateAssetInput {
+  accessModelID?: InputMaybe<Scalars['ID']['input']>
+  /** the access_model of the asset */
+  accessModelName?: InputMaybe<Scalars['String']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addConnectedAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addConnectedFromIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendCategories?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  assetDataClassificationID?: InputMaybe<Scalars['ID']['input']>
+  /** the data_classification of the asset */
+  assetDataClassificationName?: InputMaybe<Scalars['String']['input']>
+  assetSubtypeID?: InputMaybe<Scalars['ID']['input']>
+  /** the subtype of the asset */
+  assetSubtypeName?: InputMaybe<Scalars['String']['input']>
   /** the type of the asset, e.g. technology, domain, device, etc */
   assetType?: InputMaybe<AssetAssetType>
   /** the categories of the asset, e.g. web server, database, etc */
   categories?: InputMaybe<Array<Scalars['String']['input']>>
+  clearAccessModel?: InputMaybe<Scalars['Boolean']['input']>
+  clearAccessModelName?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssetDataClassification?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssetDataClassificationName?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssetSubtype?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssetSubtypeName?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCategories?: InputMaybe<Scalars['Boolean']['input']>
+  clearConnectedAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearConnectedFrom?: InputMaybe<Scalars['Boolean']['input']>
+  clearContainsPii?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearCostCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearCpe?: InputMaybe<Scalars['Boolean']['input']>
+  clearCriticality?: InputMaybe<Scalars['Boolean']['input']>
+  clearCriticalityName?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEncryptionStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearEncryptionStatusName?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearEstimatedMonthlyCost?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentifier?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearPhysicalLocation?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearPurchaseDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearRegion?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecurityTier?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecurityTierName?: InputMaybe<Scalars['Boolean']['input']>
+  clearSourceIdentifier?: InputMaybe<Scalars['Boolean']['input']>
+  clearSourcePlatform?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearWebsite?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the asset stores or processes PII */
+  containsPii?: InputMaybe<Scalars['Boolean']['input']>
+  /** cost center associated with the asset */
+  costCenter?: InputMaybe<Scalars['String']['input']>
   /** the CPE (Common Platform Enumeration) of the asset, if applicable */
   cpe?: InputMaybe<Scalars['String']['input']>
+  criticalityID?: InputMaybe<Scalars['ID']['input']>
+  /** the criticality of the asset */
+  criticalityName?: InputMaybe<Scalars['String']['input']>
   description?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
+  /** the encryption_status of the asset */
+  encryptionStatusName?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the asset */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  /** estimated monthly cost for the asset */
+  estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
   /** unique identifier like domain, device id, etc */
   identifier?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the asset when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name?: InputMaybe<Scalars['String']['input']>
+  /** physical location of the asset, if applicable */
+  physicalLocation?: InputMaybe<Scalars['String']['input']>
+  /** purchase date for the asset */
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the region where the asset operates or is hosted */
+  region?: InputMaybe<Scalars['String']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeConnectedAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeConnectedFromIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the asset */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  securityTierID?: InputMaybe<Scalars['ID']['input']>
+  /** the security_tier of the asset */
+  securityTierName?: InputMaybe<Scalars['String']['input']>
+  /** the identifier used by the source platform for the asset */
+  sourceIdentifier?: InputMaybe<Scalars['String']['input']>
+  sourcePlatformID?: InputMaybe<Scalars['ID']['input']>
+  /** the source of the asset record, e.g., manual, discovered, imported, api */
+  sourceType?: InputMaybe<AssetSourceType>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -37600,16 +45467,171 @@ export interface UpdateAssetInput {
 }
 
 /**
+ * UpdateCampaignInput is used for update Campaign object.
+ * Input was generated by ent.
+ */
+export interface UpdateCampaignInput {
+  addAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  assessmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the type of campaign */
+  campaignType?: InputMaybe<CampaignCampaignType>
+  clearAssessment?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  clearCompletedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearContacts?: InputMaybe<Scalars['Boolean']['input']>
+  clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntity?: InputMaybe<Scalars['Boolean']['input']>
+  clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastResentAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastRunAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearLaunchedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearNextRunAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearRecipientCount?: InputMaybe<Scalars['Boolean']['input']>
+  clearRecurrenceCron?: InputMaybe<Scalars['Boolean']['input']>
+  clearRecurrenceEndAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearRecurrenceFrequency?: InputMaybe<Scalars['Boolean']['input']>
+  clearRecurrenceInterval?: InputMaybe<Scalars['Boolean']['input']>
+  clearRecurrenceTimezone?: InputMaybe<Scalars['Boolean']['input']>
+  clearResendCount?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearUsers?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  /** when the campaign completed */
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the description of the campaign */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** when responses are due for the campaign */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
+  entityID?: InputMaybe<Scalars['ID']['input']>
+  /** the internal owner for the campaign when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** whether the campaign is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the campaign recurs on a schedule */
+  isRecurring?: InputMaybe<Scalars['Boolean']['input']>
+  /** when campaign notifications were last resent */
+  lastResentAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** when the campaign was last executed */
+  lastRunAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** when the campaign was launched */
+  launchedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** additional metadata about the campaign */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  /** the name of the campaign */
+  name?: InputMaybe<Scalars['String']['input']>
+  /** when the campaign is scheduled to run next */
+  nextRunAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the number of recipients targeted by the campaign */
+  recipientCount?: InputMaybe<Scalars['Int']['input']>
+  /** cron schedule to run the campaign in cron 6-field syntax, e.g. 0 0 0 * * * */
+  recurrenceCron?: InputMaybe<Scalars['String']['input']>
+  /** when the recurring campaign should stop running */
+  recurrenceEndAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the recurrence cadence for the campaign */
+  recurrenceFrequency?: InputMaybe<CampaignFrequency>
+  /** the recurrence interval for the campaign, combined with the recurrence frequency */
+  recurrenceInterval?: InputMaybe<Scalars['Int']['input']>
+  /** timezone used for the recurrence schedule */
+  recurrenceTimezone?: InputMaybe<Scalars['String']['input']>
+  removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the number of times campaign notifications were resent */
+  resendCount?: InputMaybe<Scalars['Int']['input']>
+  /** when the campaign is scheduled to start */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the status of the campaign */
+  status?: InputMaybe<CampaignCampaignStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  templateID?: InputMaybe<Scalars['ID']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/**
+ * UpdateCampaignTargetInput is used for update CampaignTarget object.
+ * Input was generated by ent.
+ */
+export interface UpdateCampaignTargetInput {
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignID?: InputMaybe<Scalars['ID']['input']>
+  clearCompletedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearContact?: InputMaybe<Scalars['Boolean']['input']>
+  clearFullName?: InputMaybe<Scalars['Boolean']['input']>
+  clearGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearSentAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  /** when the campaign target completed the request */
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>
+  contactID?: InputMaybe<Scalars['ID']['input']>
+  /** the email address targeted by the campaign */
+  email?: InputMaybe<Scalars['String']['input']>
+  /** the name of the campaign target, if known */
+  fullName?: InputMaybe<Scalars['String']['input']>
+  groupID?: InputMaybe<Scalars['ID']['input']>
+  /** additional metadata about the campaign target */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** when the campaign target was last sent a request */
+  sentAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** the delivery or response status for the campaign target */
+  status?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  userID?: InputMaybe<Scalars['ID']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/**
  * UpdateContactInput is used for update Contact object.
  * Input was generated by ent.
  */
 export interface UpdateContactInput {
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the address of the contact */
   address?: InputMaybe<Scalars['String']['input']>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearAddress?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearCompany?: InputMaybe<Scalars['Boolean']['input']>
   clearEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
@@ -37628,6 +45650,8 @@ export interface UpdateContactInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the phone number of the contact */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the contact */
@@ -37711,6 +45735,7 @@ export interface UpdateControlInput {
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37764,6 +45789,8 @@ export interface UpdateControlInput {
   clearDescriptionJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
@@ -37773,6 +45800,7 @@ export interface UpdateControlInput {
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceFrameworkRevision?: InputMaybe<Scalars['Boolean']['input']>
@@ -37782,6 +45810,8 @@ export interface UpdateControlInput {
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStandard?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
@@ -37807,6 +45837,9 @@ export interface UpdateControlInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** structured details of the control in JSON format */
   descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the control */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** list of common evidence requests for the control */
   evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
@@ -37837,6 +45870,7 @@ export interface UpdateControlInput {
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37846,6 +45880,9 @@ export interface UpdateControlInput {
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   responsiblePartyID?: InputMaybe<Scalars['ID']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the control */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<ControlControlSource>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -37976,6 +46013,7 @@ export interface UpdateCustomTypeEnumInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskCategoryIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -37990,6 +46028,7 @@ export interface UpdateCustomTypeEnumInput {
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskCategories?: InputMaybe<Scalars['Boolean']['input']>
@@ -38009,6 +46048,7 @@ export interface UpdateCustomTypeEnumInput {
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskCategoryIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38071,6 +46111,8 @@ export interface UpdateDirectoryAccountInput {
   clearCanonicalEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearDepartment?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFamilyName?: InputMaybe<Scalars['Boolean']['input']>
   clearGivenName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -38080,6 +46122,8 @@ export interface UpdateDirectoryAccountInput {
   clearOrganizationUnit?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProfile?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSecondaryKey?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceVersion?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -38088,6 +46132,9 @@ export interface UpdateDirectoryAccountInput {
   department?: InputMaybe<Scalars['String']['input']>
   /** provider supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_account */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** last name reported by the provider */
   familyName?: InputMaybe<Scalars['String']['input']>
   /** first name reported by the provider */
@@ -38109,6 +46156,9 @@ export interface UpdateDirectoryAccountInput {
   profileHash?: InputMaybe<Scalars['String']['input']>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_account */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** optional secondary identifier such as Azure immutable ID */
   secondaryKey?: InputMaybe<Scalars['String']['input']>
   /** cursor or ETag supplied by the source system for auditing */
@@ -38131,10 +46181,14 @@ export interface UpdateDirectoryGroupInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEmail?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalSharingAllowed?: InputMaybe<Scalars['Boolean']['input']>
   clearMemberCount?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProfile?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceVersion?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
@@ -38144,6 +46198,9 @@ export interface UpdateDirectoryGroupInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   /** primary group email address, when applicable */
   email?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_group */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** true when directory settings allow sharing outside the tenant */
   externalSharingAllowed?: InputMaybe<Scalars['Boolean']['input']>
   /** member count reported by the directory */
@@ -38154,6 +46211,9 @@ export interface UpdateDirectoryGroupInput {
   /** hash of the normalized payload for diffing */
   profileHash?: InputMaybe<Scalars['String']['input']>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_group */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** cursor or ETag supplied by the source system for auditing */
   sourceVersion?: InputMaybe<Scalars['String']['input']>
   /** lifecycle status reported by the directory */
@@ -38169,6 +46229,8 @@ export interface UpdateDirectoryGroupInput {
 export interface UpdateDirectoryMembershipInput {
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstSeenAt?: InputMaybe<Scalars['Boolean']['input']>
   clearLastConfirmedRunID?: InputMaybe<Scalars['Boolean']['input']>
@@ -38176,8 +46238,13 @@ export interface UpdateDirectoryMembershipInput {
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_membership */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** first time the membership was detected */
   firstSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** sync run identifier that most recently confirmed this membership */
@@ -38191,6 +46258,9 @@ export interface UpdateDirectoryMembershipInput {
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** membership role reported by the provider */
   role?: InputMaybe<DirectoryMembershipDirectoryMembershipRole>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_membership */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** mechanism used to populate the membership (api, scim, csv, etc) */
   source?: InputMaybe<Scalars['String']['input']>
 }
@@ -38205,15 +46275,22 @@ export interface UpdateDirectorySyncRunInput {
   clearCompletedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearError?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearRawManifestFileID?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceCursor?: InputMaybe<Scalars['Boolean']['input']>
   clearStats?: InputMaybe<Scalars['Boolean']['input']>
   /** time the sync finished */
   completedAt?: InputMaybe<Scalars['Time']['input']>
   /** number of records that changed compared to the prior run */
   deltaCount?: InputMaybe<Scalars['Int']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the directory_sync_run */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** serialized error information when the run failed */
   error?: InputMaybe<Scalars['String']['input']>
   /** total records processed during this run */
@@ -38223,6 +46300,9 @@ export interface UpdateDirectorySyncRunInput {
   rawManifestFileID?: InputMaybe<Scalars['String']['input']>
   removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDirectoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the directory_sync_run */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** cursor or checkpoint returned by the provider for the next run */
   sourceCursor?: InputMaybe<Scalars['String']['input']>
   /** time the sync started */
@@ -38276,13 +46356,23 @@ export interface UpdateDocumentDataInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
   /** the json data of the document */
   data?: InputMaybe<Scalars['Map']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the document */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the document */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
@@ -38293,62 +46383,212 @@ export interface UpdateDocumentDataInput {
  * Input was generated by ent.
  */
 export interface UpdateEntityInput {
+  addAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAuthMethodIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEmployerIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** annual spend associated with the entity */
+  annualSpend?: InputMaybe<Scalars['Float']['input']>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
+  appendLinkedAssetIds?: InputMaybe<Array<Scalars['String']['input']>>
+  appendLinks?: InputMaybe<Array<Scalars['String']['input']>>
+  appendProvidedServices?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** whether the entity is approved for use */
+  approvedForUse?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the contract auto-renews */
+  autoRenews?: InputMaybe<Scalars['Boolean']['input']>
+  /** billing model for the entity relationship */
+  billingModel?: InputMaybe<Scalars['String']['input']>
+  clearAnnualSpend?: InputMaybe<Scalars['Boolean']['input']>
+  clearApprovedForUse?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearAuthMethods?: InputMaybe<Scalars['Boolean']['input']>
+  clearAutoRenews?: InputMaybe<Scalars['Boolean']['input']>
+  clearBillingModel?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearContacts?: InputMaybe<Scalars['Boolean']['input']>
+  clearContractEndDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearContractRenewalAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearContractStartDate?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
   clearDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmployerIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntityRelationshipState?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntityRelationshipStateName?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntitySecurityQuestionnaireStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntitySecurityQuestionnaireStatusName?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntitySourceType?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntitySourceTypeName?: InputMaybe<Scalars['Boolean']['input']>
   clearEntityType?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearHasSoc2?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastReviewedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearLinkedAssetIds?: InputMaybe<Scalars['Boolean']['input']>
+  clearLinks?: InputMaybe<Scalars['Boolean']['input']>
+  clearMfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  clearMfaSupported?: InputMaybe<Scalars['Boolean']['input']>
   clearName?: InputMaybe<Scalars['Boolean']['input']>
+  clearNextReviewAt?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearProvidedServices?: InputMaybe<Scalars['Boolean']['input']>
+  clearRenewalRisk?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearRiskRating?: InputMaybe<Scalars['Boolean']['input']>
+  clearRiskScore?: InputMaybe<Scalars['Boolean']['input']>
+  clearSSOEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
+  clearSoc2PeriodEnd?: InputMaybe<Scalars['Boolean']['input']>
+  clearSourcePlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearSpendCurrency?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearStatusPageURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTerminationNoticeDays?: InputMaybe<Scalars['Boolean']['input']>
+  clearTier?: InputMaybe<Scalars['Boolean']['input']>
+  clearVendorMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  /** end date for the entity contract */
+  contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** when the entity contract is up for renewal */
+  contractRenewalAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** start date for the entity contract */
+  contractStartDate?: InputMaybe<Scalars['DateTime']['input']>
   /** An optional description of the entity */
   description?: InputMaybe<Scalars['String']['input']>
   /** The entity's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
   /** domains associated with the entity */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
+  entityRelationshipStateID?: InputMaybe<Scalars['ID']['input']>
+  /** the relationship_state of the entity */
+  entityRelationshipStateName?: InputMaybe<Scalars['String']['input']>
+  entitySecurityQuestionnaireStatusID?: InputMaybe<Scalars['ID']['input']>
+  /** the security_questionnaire_status of the entity */
+  entitySecurityQuestionnaireStatusName?: InputMaybe<Scalars['String']['input']>
+  entitySourceTypeID?: InputMaybe<Scalars['ID']['input']>
+  /** the source_type of the entity */
+  entitySourceTypeName?: InputMaybe<Scalars['String']['input']>
   entityTypeID?: InputMaybe<Scalars['ID']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the entity */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  /** whether the entity has an active SOC 2 report */
+  hasSoc2?: InputMaybe<Scalars['Boolean']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the entity when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** when the entity was last reviewed */
+  lastReviewedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** asset identifiers linked to the entity */
+  linkedAssetIds?: InputMaybe<Array<Scalars['String']['input']>>
+  /** external links associated with the entity */
+  links?: InputMaybe<Array<Scalars['String']['input']>>
+  /** whether MFA is enforced by the entity */
+  mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether MFA is supported by the entity */
+  mfaSupported?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the entity */
   name?: InputMaybe<Scalars['String']['input']>
+  /** when the entity is due for review */
+  nextReviewAt?: InputMaybe<Scalars['DateTime']['input']>
   note?: InputMaybe<CreateNoteInput>
+  /** services provided by the entity */
+  providedServices?: InputMaybe<Array<Scalars['String']['input']>>
+  removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAuthMethodIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEmployerIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** renewal risk rating for the entity */
+  renewalRisk?: InputMaybe<Scalars['String']['input']>
+  /** the cadence for reviewing the entity */
+  reviewFrequency?: InputMaybe<EntityFrequency>
+  /** who reviewed the entity when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  /** the risk rating label for the entity */
+  riskRating?: InputMaybe<Scalars['String']['input']>
+  /** the risk score for the entity */
+  riskScore?: InputMaybe<Scalars['Int']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the entity */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  /** SOC 2 reporting period end date */
+  soc2PeriodEnd?: InputMaybe<Scalars['DateTime']['input']>
+  /** the currency of the annual spend */
+  spendCurrency?: InputMaybe<Scalars['String']['input']>
+  /** whether SSO is enforced for the entity */
+  ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
   status?: InputMaybe<Scalars['String']['input']>
+  /** status page URL for the entity */
+  statusPageURL?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** number of days required for termination notice */
+  terminationNoticeDays?: InputMaybe<Scalars['Int']['input']>
+  /** the tier classification for the entity */
+  tier?: InputMaybe<Scalars['String']['input']>
+  /** vendor metadata such as additional enrichment info, company size, public, etc. */
+  vendorMetadata?: InputMaybe<Scalars['Map']['input']>
 }
 
 /**
@@ -38434,7 +46674,9 @@ export interface UpdateEvidenceInput {
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38445,10 +46687,16 @@ export interface UpdateEvidenceInput {
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIsAutomated?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRenewalDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
@@ -38464,6 +46712,9 @@ export interface UpdateEvidenceInput {
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the evidence */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** whether the evidence was automatically generated */
   isAutomated?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the evidence */
@@ -38473,12 +46724,17 @@ export interface UpdateEvidenceInput {
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['Time']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the evidence */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** the source of the evidence, e.g. system the evidence was retrieved from (splunk, github, etc) */
   source?: InputMaybe<Scalars['String']['input']>
   /** the status of the evidence, ready, approved, needs renewal, missing artifact, rejected */
@@ -38526,7 +46782,9 @@ export interface UpdateFileInput {
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrganizationSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOriginalTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38539,6 +46797,8 @@ export interface UpdateFileInput {
   clearDetectedMimeType?: InputMaybe<Scalars['Boolean']['input']>
   clearDocument?: InputMaybe<Scalars['Boolean']['input']>
   clearEntity?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -38551,8 +46811,12 @@ export interface UpdateFileInput {
   clearOrganizationSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearOriginalTrustCenterDoc?: InputMaybe<Scalars['Boolean']['input']>
   clearPersistedFileSize?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatform?: InputMaybe<Scalars['Boolean']['input']>
   clearProgram?: InputMaybe<Scalars['Boolean']['input']>
   clearProvidedFileSize?: InputMaybe<Scalars['Boolean']['input']>
+  clearScan?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSecrets?: InputMaybe<Scalars['Boolean']['input']>
   clearStoragePath?: InputMaybe<Scalars['Boolean']['input']>
   clearStorageProvider?: InputMaybe<Scalars['Boolean']['input']>
@@ -38570,6 +46834,9 @@ export interface UpdateFileInput {
   detectedContentType?: InputMaybe<Scalars['String']['input']>
   /** the mime type detected by the system */
   detectedMimeType?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the file */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   lastAccessedAt?: InputMaybe<Scalars['Time']['input']>
@@ -38594,11 +46861,16 @@ export interface UpdateFileInput {
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOriginalTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the file */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** the storage path is the second-level directory of the file path, typically the correlating logical object ID the file is associated with; files can be stand alone objects and not always correlated to a logical one, so this path of the tree may be empty */
   storagePath?: InputMaybe<Scalars['String']['input']>
   /** the storage provider the file is stored in, if applicable */
@@ -38694,6 +46966,8 @@ export interface UpdateFindingInput {
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEventTime?: InputMaybe<Scalars['Boolean']['input']>
   clearExploitability?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -38722,6 +46996,8 @@ export interface UpdateFindingInput {
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearScore?: InputMaybe<Scalars['Boolean']['input']>
   clearSeverity?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
@@ -38744,6 +47020,9 @@ export interface UpdateFindingInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** display name for the finding when provided by the source */
   displayName?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the finding */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the finding was last observed by the source */
   eventTime?: InputMaybe<Scalars['DateTime']['input']>
   /** exploitability score or rating for the finding */
@@ -38805,6 +47084,9 @@ export interface UpdateFindingInput {
   reportedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** resource identifier provided by the source system */
   resourceName?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the finding */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** aggregated score such as CVSS for the finding */
   score?: InputMaybe<Scalars['Float']['input']>
   /** severity label for the finding */
@@ -38841,6 +47123,11 @@ export interface UpdateGroupInput {
   addActionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addActionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addActionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38863,6 +47150,9 @@ export interface UpdateGroupInput {
   addNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38879,6 +47169,11 @@ export interface UpdateGroupInput {
   clearActionPlanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -38903,6 +47198,9 @@ export interface UpdateGroupInput {
   clearNarrativeEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -38938,6 +47236,11 @@ export interface UpdateGroupInput {
   removeActionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38960,6 +47263,9 @@ export interface UpdateGroupInput {
   removeNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39060,6 +47366,126 @@ export interface UpdateHushInput {
 }
 
 /**
+ * UpdateIdentityHolderInput is used for update IdentityHolder object.
+ * Input was generated by ent.
+ */
+export interface UpdateIdentityHolderInput {
+  addAccessPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** alternate email address for the identity holder */
+  alternateEmail?: InputMaybe<Scalars['String']['input']>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearAccessPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearAlternateEmail?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssessments?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  clearDepartment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmployer?: InputMaybe<Scalars['Boolean']['input']>
+  clearEndDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUserID?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearIsOpenlaneUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearLocation?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
+  clearStartDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  clearTeam?: InputMaybe<Scalars['Boolean']['input']>
+  clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  clearTitle?: InputMaybe<Scalars['Boolean']['input']>
+  clearUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  /** the department or function of the identity holder */
+  department?: InputMaybe<Scalars['String']['input']>
+  /** the email address of the identity holder */
+  email?: InputMaybe<Scalars['String']['input']>
+  employerID?: InputMaybe<Scalars['ID']['input']>
+  /** the end date for the identity holder, if applicable */
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the identity_holder */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  /** external identifier for the identity holder from an upstream roster */
+  externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  /** external user identifier for the identity holder */
+  externalUserID?: InputMaybe<Scalars['String']['input']>
+  /** the full name of the identity holder */
+  fullName?: InputMaybe<Scalars['String']['input']>
+  /** the classification of identity holders, such as employee or contractor */
+  identityHolderType?: InputMaybe<IdentityHolderIdentityHolderType>
+  /** the internal owner for the identity holder when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** whether the identity holder record is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the identity holder record is linked to an Openlane user account */
+  isOpenlaneUser?: InputMaybe<Scalars['Boolean']['input']>
+  /** location or office for the identity holder */
+  location?: InputMaybe<Scalars['String']['input']>
+  /** additional metadata about the identity holder */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  /** phone number for the identity holder */
+  phoneNumber?: InputMaybe<Scalars['String']['input']>
+  removeAccessPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the identity_holder */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  /** the start date for the identity holder */
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the status of the identity holder record */
+  status?: InputMaybe<IdentityHolderUserStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the team name for the identity holder */
+  team?: InputMaybe<Scalars['String']['input']>
+  /** the job title of the identity holder */
+  title?: InputMaybe<Scalars['String']['input']>
+  userID?: InputMaybe<Scalars['ID']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/**
  * UpdateInternalPolicyInput is used for update InternalPolicy object.
  * Input was generated by ent.
  */
@@ -39108,6 +47534,8 @@ export interface UpdateInternalPolicyInput {
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -39121,6 +47549,8 @@ export interface UpdateInternalPolicyInput {
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -39145,6 +47575,9 @@ export interface UpdateInternalPolicyInput {
   dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tag suggestions dismissed by the user for the policy */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the internal_policy */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -39176,6 +47609,9 @@ export interface UpdateInternalPolicyInput {
   reviewFrequency?: InputMaybe<InternalPolicyFrequency>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the internal_policy */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: InputMaybe<InternalPolicyDocumentStatus>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -39503,6 +47939,22 @@ export interface UpdateNoteInput {
 }
 
 /**
+ * UpdateNotificationInput is used for update Notification object.
+ * Input was generated by ent.
+ */
+export interface UpdateNotificationInput {
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearReadAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** the time the notification was read */
+  readAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
  * UpdateOrgMembershipInput is used for update OrgMembership object.
  * Input was generated by ent.
  */
@@ -39525,6 +47977,8 @@ export interface UpdateOrganizationInput {
   addAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39551,6 +48005,7 @@ export interface UpdateOrganizationInput {
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39569,6 +48024,7 @@ export interface UpdateOrganizationInput {
   addOrgMembers?: InputMaybe<Array<CreateOrgMembershipInput>>
   addOrgSubscriptionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39620,6 +48076,8 @@ export interface UpdateOrganizationInput {
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearContacts?: InputMaybe<Scalars['Boolean']['input']>
   clearControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementationCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -39647,6 +48105,7 @@ export interface UpdateOrganizationInput {
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImpersonationEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
@@ -39664,6 +48123,7 @@ export interface UpdateOrganizationInput {
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearOrgSubscriptions?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -39714,6 +48174,8 @@ export interface UpdateOrganizationInput {
   removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39740,6 +48202,7 @@ export interface UpdateOrganizationInput {
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39758,6 +48221,7 @@ export interface UpdateOrganizationInput {
   removeOrgMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrgSubscriptionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -39915,6 +48379,198 @@ export interface UpdatePersonalAccessTokenInput {
 }
 
 /**
+ * UpdatePlatformInput is used for update Platform object.
+ * Input was generated by ent.
+ */
+export interface UpdatePlatformInput {
+  accessModelID?: InputMaybe<Scalars['ID']['input']>
+  /** the access_model of the platform */
+  accessModelName?: InputMaybe<Scalars['String']['input']>
+  addApplicableFrameworkIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addGeneratedScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addOutOfScopeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addOutOfScopeVendorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSourceAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSourceEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** business owner for the platform when no user or group is linked */
+  businessOwner?: InputMaybe<Scalars['String']['input']>
+  businessOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  businessOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** the business purpose of the platform */
+  businessPurpose?: InputMaybe<Scalars['String']['input']>
+  clearAccessModel?: InputMaybe<Scalars['Boolean']['input']>
+  clearAccessModelName?: InputMaybe<Scalars['Boolean']['input']>
+  clearApplicableFrameworks?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssessments?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearBusinessOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearBusinessOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearBusinessOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearBusinessPurpose?: InputMaybe<Scalars['Boolean']['input']>
+  clearContainsPii?: InputMaybe<Scalars['Boolean']['input']>
+  clearControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearCostCenter?: InputMaybe<Scalars['Boolean']['input']>
+  clearCriticality?: InputMaybe<Scalars['Boolean']['input']>
+  clearCriticalityName?: InputMaybe<Scalars['Boolean']['input']>
+  clearDataFlowSummary?: InputMaybe<Scalars['Boolean']['input']>
+  clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEncryptionStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearEncryptionStatusName?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearEstimatedMonthlyCost?: InputMaybe<Scalars['Boolean']['input']>
+  clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearGeneratedScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearOutOfScopeAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearOutOfScopeVendors?: InputMaybe<Scalars['Boolean']['input']>
+  clearPhysicalLocation?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformDataClassification?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformDataClassificationName?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformKind?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformKindName?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPurchaseDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearRegion?: InputMaybe<Scalars['Boolean']['input']>
+  clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeStatement?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecurityOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecurityOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecurityOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecurityTier?: InputMaybe<Scalars['Boolean']['input']>
+  clearSecurityTierName?: InputMaybe<Scalars['Boolean']['input']>
+  clearSourceAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearSourceEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearSourceIdentifier?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  clearTechnicalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearTechnicalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearTechnicalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustBoundaryDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the platform stores or processes PII */
+  containsPii?: InputMaybe<Scalars['Boolean']['input']>
+  /** cost center associated with the platform */
+  costCenter?: InputMaybe<Scalars['String']['input']>
+  criticalityID?: InputMaybe<Scalars['ID']['input']>
+  /** the criticality of the platform */
+  criticalityName?: InputMaybe<Scalars['String']['input']>
+  /** summary of platform data flows */
+  dataFlowSummary?: InputMaybe<Scalars['String']['input']>
+  /** the description of the platform boundary */
+  description?: InputMaybe<Scalars['String']['input']>
+  encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
+  /** the encryption_status of the platform */
+  encryptionStatusName?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the platform */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  /** estimated monthly cost for the platform */
+  estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
+  /** external identifier for the platform from an upstream inventory */
+  externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the platform when no user or group is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** additional metadata about the platform */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  /** the name of the platform */
+  name?: InputMaybe<Scalars['String']['input']>
+  /** physical location of the platform, if applicable */
+  physicalLocation?: InputMaybe<Scalars['String']['input']>
+  platformDataClassificationID?: InputMaybe<Scalars['ID']['input']>
+  /** the data_classification of the platform */
+  platformDataClassificationName?: InputMaybe<Scalars['String']['input']>
+  platformKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the kind of the platform */
+  platformKindName?: InputMaybe<Scalars['String']['input']>
+  platformOwnerID?: InputMaybe<Scalars['ID']['input']>
+  /** purchase date for the platform */
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the region where the platform operates or is hosted */
+  region?: InputMaybe<Scalars['String']['input']>
+  removeApplicableFrameworkIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeGeneratedScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeOutOfScopeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeOutOfScopeVendorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSourceAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSourceEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the platform */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  /** scope statement for the platform, used for narrative justification */
+  scopeStatement?: InputMaybe<Scalars['String']['input']>
+  /** security owner for the platform when no user or group is linked */
+  securityOwner?: InputMaybe<Scalars['String']['input']>
+  securityOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  securityOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  securityTierID?: InputMaybe<Scalars['ID']['input']>
+  /** the security_tier of the platform */
+  securityTierName?: InputMaybe<Scalars['String']['input']>
+  /** the identifier used by the source system for the platform */
+  sourceIdentifier?: InputMaybe<Scalars['String']['input']>
+  /** the source of the platform record, e.g., manual, discovered, imported, api */
+  sourceType?: InputMaybe<PlatformSourceType>
+  /** the lifecycle status of the platform */
+  status?: InputMaybe<PlatformPlatformStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** technical owner for the platform when no user or group is linked */
+  technicalOwner?: InputMaybe<Scalars['String']['input']>
+  technicalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  technicalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  /** description of the platform trust boundary */
+  trustBoundaryDescription?: InputMaybe<Scalars['String']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/**
  * UpdateProcedureInput is used for update Procedure object.
  * Input was generated by ent.
  */
@@ -39959,6 +48615,8 @@ export interface UpdateProcedureInput {
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -39972,6 +48630,8 @@ export interface UpdateProcedureInput {
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -39996,6 +48656,9 @@ export interface UpdateProcedureInput {
   dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tag suggestions dismissed by the user for the procedure */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the procedure */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -40025,6 +48688,9 @@ export interface UpdateProcedureInput {
   reviewFrequency?: InputMaybe<ProcedureFrequency>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the procedure */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ProcedureDocumentStatus>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -40164,6 +48830,7 @@ export interface UpdateRemediationInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -40178,6 +48845,8 @@ export interface UpdateRemediationInput {
   clearDueAt?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearError?: InputMaybe<Scalars['Boolean']['input']>
   clearExplanation?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -40197,6 +48866,9 @@ export interface UpdateRemediationInput {
   clearRepositoryURI?: InputMaybe<Scalars['Boolean']['input']>
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearState?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
@@ -40212,6 +48884,9 @@ export interface UpdateRemediationInput {
   completedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** timestamp when the remediation is due */
   dueAt?: InputMaybe<Scalars['DateTime']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the remediation */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** details about any errors encountered during remediation automation */
   error?: InputMaybe<Scalars['String']['input']>
   /** detailed explanation of the remediation steps */
@@ -40249,12 +48924,16 @@ export interface UpdateRemediationInput {
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source code repository URI associated with the remediation */
   repositoryURI?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the remediation */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** system that produced the remediation record */
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the remediation, such as pending or completed */
@@ -40314,6 +48993,8 @@ export interface UpdateReviewInput {
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalOwnerID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalURI?: InputMaybe<Scalars['Boolean']['input']>
@@ -40330,6 +49011,8 @@ export interface UpdateReviewInput {
   clearReviewedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewer?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearState?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
@@ -40341,6 +49024,9 @@ export interface UpdateReviewInput {
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   /** detailed notes captured during the review */
   details?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the review */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** external identifier from the integration source for the review */
   externalID?: InputMaybe<Scalars['String']['input']>
   /** external identifier from the integration source for the review */
@@ -40377,6 +49063,9 @@ export interface UpdateReviewInput {
   /** timestamp when the review was completed */
   reviewedAt?: InputMaybe<Scalars['DateTime']['input']>
   reviewerID?: InputMaybe<Scalars['ID']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the review */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** system that produced the review record */
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the review */
@@ -40407,6 +49096,7 @@ export interface UpdateRiskInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -40434,11 +49124,14 @@ export interface UpdateRiskInput {
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLikelihood?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigation?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigationJSON?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskCategory?: InputMaybe<Scalars['Boolean']['input']>
@@ -40446,6 +49139,8 @@ export interface UpdateRiskInput {
   clearRiskKind?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskKindName?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearScore?: InputMaybe<Scalars['Boolean']['input']>
   clearStakeholder?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
@@ -40460,6 +49155,9 @@ export interface UpdateRiskInput {
   details?: InputMaybe<Scalars['String']['input']>
   /** structured details of the risk in JSON format */
   detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the risk */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
@@ -40479,6 +49177,7 @@ export interface UpdateRiskInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -40491,6 +49190,9 @@ export interface UpdateRiskInput {
   riskKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the risk */
   riskKindName?: InputMaybe<Scalars['String']['input']>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the risk */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
@@ -40506,36 +49208,106 @@ export interface UpdateRiskInput {
  * Input was generated by ent.
  */
 export interface UpdateScanInput {
+  addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  appendVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
+  /** who the scan is assigned to when no user or group is linked */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
+  clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedTo?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedToGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedToUser?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearGeneratedByPlatform?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearNextScanRunAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPerformedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearPerformedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearPerformedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearScanDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearScanSchedule?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilityIds?: InputMaybe<Scalars['Boolean']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the scan */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  generatedByPlatformID?: InputMaybe<Scalars['ID']['input']>
   /** additional metadata for the scan, e.g., scan configuration, options, etc */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  /** when the scan is scheduled to run next */
+  nextScanRunAt?: InputMaybe<Scalars['DateTime']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** who performed the scan when no user or group is linked */
+  performedBy?: InputMaybe<Scalars['String']['input']>
+  performedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  performedByUserID?: InputMaybe<Scalars['ID']['input']>
+  removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who reviewed the scan when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  /** when the scan was executed */
+  scanDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** cron schedule that governs the scan cadence, in cron 6-field syntax */
+  scanSchedule?: InputMaybe<Scalars['String']['input']>
   /** the type of scan, e.g., domain scan, vulnerability scan, provider scan */
   scanType?: InputMaybe<ScanScanType>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the scan */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** the status of the scan, e.g., processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
   target?: InputMaybe<Scalars['String']['input']>
+  /** identifiers of vulnerabilities discovered during the scan */
+  vulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -40585,11 +49357,13 @@ export interface UpdateScheduledJobRunInput {
  */
 export interface UpdateStandardInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
+  addApplicablePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearApplicablePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDomains?: InputMaybe<Scalars['Boolean']['input']>
@@ -40633,6 +49407,7 @@ export interface UpdateStandardInput {
   /** the long name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeApplicablePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -40809,9 +49584,11 @@ export interface UpdateSubcontrolInput {
  * Input was generated by ent.
  */
 export interface UpdateSubprocessorInput {
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
@@ -40827,6 +49604,7 @@ export interface UpdateSubprocessorInput {
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
@@ -40909,10 +49687,13 @@ export interface UpdateTaskInput {
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -40932,14 +49713,21 @@ export interface UpdateTaskInput {
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDue?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalReferenceURL?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearParent?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTaskKind?: InputMaybe<Scalars['Boolean']['input']>
@@ -40955,6 +49743,9 @@ export interface UpdateTaskInput {
   detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the due date of the task */
   due?: InputMaybe<Scalars['DateTime']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the task */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** an optional external reference URL for the task */
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   parentID?: InputMaybe<Scalars['ID']['input']>
@@ -40965,13 +49756,19 @@ export interface UpdateTaskInput {
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the task */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
   /** indicates if the task was generated by the system */
@@ -40991,21 +49788,32 @@ export interface UpdateTaskInput {
  */
 export interface UpdateTemplateInput {
   addAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearAssessments?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearKind?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the template */
   description?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the template */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the template */
@@ -41015,8 +49823,13 @@ export interface UpdateTemplateInput {
   /** the name of the template */
   name?: InputMaybe<Scalars['String']['input']>
   removeAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the template */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -41345,11 +50158,15 @@ export interface UpdateUserInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderProfileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -41370,9 +50187,12 @@ export interface UpdateUserInput {
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolderProfiles?: InputMaybe<Scalars['Boolean']['input']>
   clearImpersonationEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearLastLoginProvider?: InputMaybe<Scalars['Boolean']['input']>
   clearLastName?: InputMaybe<Scalars['Boolean']['input']>
@@ -41380,6 +50200,7 @@ export interface UpdateUserInput {
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
   clearPassword?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformsOwned?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramsOwned?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
@@ -41408,11 +50229,15 @@ export interface UpdateUserInput {
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderProfileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -41511,6 +50336,8 @@ export interface UpdateVulnerabilityInput {
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExploitability?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalOwnerID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalURI?: InputMaybe<Scalars['Boolean']['input']>
@@ -41534,6 +50361,8 @@ export interface UpdateVulnerabilityInput {
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScope?: InputMaybe<Scalars['Boolean']['input']>
+  clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearScore?: InputMaybe<Scalars['Boolean']['input']>
   clearSeverity?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
@@ -41555,6 +50384,9 @@ export interface UpdateVulnerabilityInput {
   discoveredAt?: InputMaybe<Scalars['DateTime']['input']>
   /** display name for the vulnerability when provided */
   displayName?: InputMaybe<Scalars['String']['input']>
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  /** the environment of the vulnerability */
+  environmentName?: InputMaybe<Scalars['String']['input']>
   /** exploitability score or rating for the vulnerability */
   exploitability?: InputMaybe<Scalars['Float']['input']>
   /** external identifier from the integration source for the vulnerability */
@@ -41605,6 +50437,9 @@ export interface UpdateVulnerabilityInput {
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  /** the scope of the vulnerability */
+  scopeName?: InputMaybe<Scalars['String']['input']>
   /** overall score such as CVSS for the vulnerability */
   score?: InputMaybe<Scalars['Float']['input']>
   /** severity label for the vulnerability */
@@ -41679,23 +50514,6 @@ export interface UpdateWorkflowDefinitionInput {
   workflowKind?: InputMaybe<WorkflowDefinitionWorkflowKind>
 }
 
-/**
- * UpdateWorkflowEventInput is used for update WorkflowEvent object.
- * Input was generated by ent.
- */
-export interface UpdateWorkflowEventInput {
-  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  clearPayload?: InputMaybe<Scalars['Boolean']['input']>
-  clearTags?: InputMaybe<Scalars['Boolean']['input']>
-  /** Type of event, typically the action kind */
-  eventType?: InputMaybe<WorkflowEventWorkflowEventType>
-  /** Payload for the event; stored raw */
-  payload?: InputMaybe<Scalars['WorkflowEventPayload']['input']>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-  workflowInstanceID?: InputMaybe<Scalars['ID']['input']>
-}
-
 export interface User extends Node {
   __typename?: 'User'
   actionPlans: ActionPlanConnection
@@ -41710,6 +50528,8 @@ export interface User extends Node {
   avatarRemoteURL?: Maybe<Scalars['String']['output']>
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
+  campaignTargets: CampaignTargetConnection
+  campaigns: CampaignConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -41722,6 +50542,7 @@ export interface User extends Node {
   groupMemberships: GroupMembershipConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
+  identityHolderProfiles: IdentityHolderConnection
   /** the last auth provider used to login */
   lastLoginProvider?: Maybe<UserAuthProvider>
   lastName?: Maybe<Scalars['String']['output']>
@@ -41730,6 +50551,7 @@ export interface User extends Node {
   orgMemberships: OrgMembershipConnection
   organizations: OrganizationConnection
   personalAccessTokens: PersonalAccessTokenConnection
+  platformsOwned: PlatformConnection
   programMemberships: ProgramMembershipConnection
   programs: ProgramConnection
   programsOwned: ProgramConnection
@@ -41784,6 +50606,24 @@ export interface UserAssignerTasksArgs {
   where?: InputMaybe<TaskWhereInput>
 }
 
+export interface UserCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
+}
+
+export interface UserCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
 export interface UserEventsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41811,6 +50651,15 @@ export interface UserGroupsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface UserIdentityHolderProfilesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
 export interface UserOrgMembershipsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41836,6 +50685,15 @@ export interface UserPersonalAccessTokensArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PersonalAccessTokenOrder>>
   where?: InputMaybe<PersonalAccessTokenWhereInput>
+}
+
+export interface UserPlatformsOwnedArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<PlatformOrder>>
+  where?: InputMaybe<PlatformWhereInput>
 }
 
 export interface UserProgramMembershipsArgs {
@@ -42359,6 +51217,12 @@ export interface UserWhereInput {
   /** avatar_file edge predicates */
   hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** campaign_targets edge predicates */
+  hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -42368,6 +51232,9 @@ export interface UserWhereInput {
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** identity_holder_profiles edge predicates */
+  hasIdentityHolderProfiles?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHolderProfilesWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** org_memberships edge predicates */
   hasOrgMemberships?: InputMaybe<Scalars['Boolean']['input']>
   hasOrgMembershipsWith?: InputMaybe<Array<OrgMembershipWhereInput>>
@@ -42377,6 +51244,9 @@ export interface UserWhereInput {
   /** personal_access_tokens edge predicates */
   hasPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
   hasPersonalAccessTokensWith?: InputMaybe<Array<PersonalAccessTokenWhereInput>>
+  /** platforms_owned edge predicates */
+  hasPlatformsOwned?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformsOwnedWith?: InputMaybe<Array<PlatformWhereInput>>
   /** program_memberships edge predicates */
   hasProgramMemberships?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramMembershipsWith?: InputMaybe<Array<ProgramMembershipWhereInput>>
@@ -42591,6 +51461,11 @@ export interface Vulnerability extends Node {
   displayName?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   entities: EntityConnection
+  environment?: Maybe<CustomTypeEnum>
+  /** the environment of the vulnerability */
+  environmentID?: Maybe<Scalars['ID']['output']>
+  /** the environment of the vulnerability */
+  environmentName?: Maybe<Scalars['String']['output']>
   /** exploitability score or rating for the vulnerability */
   exploitability?: Maybe<Scalars['Float']['output']>
   /** external identifier from the integration source for the vulnerability */
@@ -42635,6 +51510,11 @@ export interface Vulnerability extends Node {
   reviews: ReviewConnection
   risks: RiskConnection
   scans: ScanConnection
+  scope?: Maybe<CustomTypeEnum>
+  /** the scope of the vulnerability */
+  scopeID?: Maybe<Scalars['ID']['output']>
+  /** the scope of the vulnerability */
+  scopeName?: Maybe<Scalars['String']['output']>
   /** overall score such as CVSS for the vulnerability */
   score?: Maybe<Scalars['Float']['output']>
   /** severity label for the vulnerability */
@@ -43020,6 +51900,38 @@ export interface VulnerabilityWhereInput {
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_id field predicates */
+  environmentID?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  environmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  environmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  environmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  environmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  environmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** environment_name field predicates */
+  environmentName?: InputMaybe<Scalars['String']['input']>
+  environmentNameContains?: InputMaybe<Scalars['String']['input']>
+  environmentNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  environmentNameGT?: InputMaybe<Scalars['String']['input']>
+  environmentNameGTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  environmentNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  environmentNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  environmentNameLT?: InputMaybe<Scalars['String']['input']>
+  environmentNameLTE?: InputMaybe<Scalars['String']['input']>
+  environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
+  environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** exploitability field predicates */
   exploitability?: InputMaybe<Scalars['Float']['input']>
   exploitabilityGT?: InputMaybe<Scalars['Float']['input']>
@@ -43098,6 +52010,9 @@ export interface VulnerabilityWhereInput {
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** environment edge predicates */
+  hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
+  hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
@@ -43125,6 +52040,9 @@ export interface VulnerabilityWhereInput {
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scope edge predicates */
+  hasScope?: InputMaybe<Scalars['Boolean']['input']>
+  hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -43243,6 +52161,38 @@ export interface VulnerabilityWhereInput {
   remediationSLANEQ?: InputMaybe<Scalars['Int']['input']>
   remediationSLANotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   remediationSLANotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_id field predicates */
+  scopeID?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContains?: InputMaybe<Scalars['ID']['input']>
+  scopeIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scopeIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeIDLT?: InputMaybe<Scalars['ID']['input']>
+  scopeIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scopeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scopeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scope_name field predicates */
+  scopeName?: InputMaybe<Scalars['String']['input']>
+  scopeNameContains?: InputMaybe<Scalars['String']['input']>
+  scopeNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  scopeNameGT?: InputMaybe<Scalars['String']['input']>
+  scopeNameGTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scopeNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scopeNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  scopeNameLT?: InputMaybe<Scalars['String']['input']>
+  scopeNameLTE?: InputMaybe<Scalars['String']['input']>
+  scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
+  scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** score field predicates */
   score?: InputMaybe<Scalars['Float']['input']>
   scoreGT?: InputMaybe<Scalars['Float']['input']>
@@ -44551,13 +53501,6 @@ export interface WorkflowEvent extends Node {
   workflowInstanceID: Scalars['ID']['output']
 }
 
-/** Return response for createBulkWorkflowEvent mutation */
-export interface WorkflowEventBulkCreatePayload {
-  __typename?: 'WorkflowEventBulkCreatePayload'
-  /** Created workflowEvents */
-  workflowEvents?: Maybe<Array<WorkflowEvent>>
-}
-
 /** A connection to a list of items. */
 export interface WorkflowEventConnection {
   __typename?: 'WorkflowEventConnection'
@@ -44567,20 +53510,6 @@ export interface WorkflowEventConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
-}
-
-/** Return response for createWorkflowEvent mutation */
-export interface WorkflowEventCreatePayload {
-  __typename?: 'WorkflowEventCreatePayload'
-  /** Created workflowEvent */
-  workflowEvent: WorkflowEvent
-}
-
-/** Return response for deleteWorkflowEvent mutation */
-export interface WorkflowEventDeletePayload {
-  __typename?: 'WorkflowEventDeletePayload'
-  /** Deleted workflowEvent ID */
-  deletedID: Scalars['ID']['output']
 }
 
 /** An edge in a connection. */
@@ -44604,13 +53533,6 @@ export interface WorkflowEventOrder {
 export enum WorkflowEventOrderField {
   created_at = 'created_at',
   updated_at = 'updated_at',
-}
-
-/** Return response for updateWorkflowEvent mutation */
-export interface WorkflowEventUpdatePayload {
-  __typename?: 'WorkflowEventUpdatePayload'
-  /** Updated workflowEvent */
-  workflowEvent: WorkflowEvent
 }
 
 /**
@@ -44750,16 +53672,19 @@ export enum WorkflowEventWorkflowEventType {
   ACTION_FAILED = 'ACTION_FAILED',
   ACTION_SKIPPED = 'ACTION_SKIPPED',
   ACTION_STARTED = 'ACTION_STARTED',
+  ASSIGNMENT_COMPLETED = 'ASSIGNMENT_COMPLETED',
   ASSIGNMENT_CREATED = 'ASSIGNMENT_CREATED',
   ASSIGNMENT_INVALIDATED = 'ASSIGNMENT_INVALIDATED',
-  ASSIGNMENT_RESOLVED = 'ASSIGNMENT_RESOLVED',
   CONDITION_EVALUATED = 'CONDITION_EVALUATED',
   DECISION = 'DECISION',
-  INSTANCE_COMPLETED = 'INSTANCE_COMPLETED',
+  EMIT_FAILED = 'EMIT_FAILED',
+  EMIT_FAILED_TERMINAL = 'EMIT_FAILED_TERMINAL',
+  EMIT_RECOVERED = 'EMIT_RECOVERED',
   INSTANCE_PAUSED = 'INSTANCE_PAUSED',
   INSTANCE_RESUMED = 'INSTANCE_RESUMED',
-  INSTANCE_TRIGGERED = 'INSTANCE_TRIGGERED',
   TRIGGER = 'TRIGGER',
+  WORKFLOW_COMPLETED = 'WORKFLOW_COMPLETED',
+  WORKFLOW_TRIGGERED = 'WORKFLOW_TRIGGERED',
 }
 
 /** Metadata for a workflow-eligible field */
@@ -44779,6 +53704,14 @@ export interface WorkflowInstance extends Node {
   actionPlan?: Maybe<ActionPlan>
   /** ID of the actionplan this workflow instance is associated with */
   actionPlanID?: Maybe<Scalars['ID']['output']>
+  /** Campaign this workflow instance is associated with */
+  campaign?: Maybe<Campaign>
+  /** ID of the campaign this workflow instance is associated with */
+  campaignID?: Maybe<Scalars['ID']['output']>
+  /** Campaign target this workflow instance is associated with */
+  campaignTarget?: Maybe<CampaignTarget>
+  /** ID of the campaign target this workflow instance is associated with */
+  campaignTargetID?: Maybe<Scalars['ID']['output']>
   /** Optional context for the workflow instance */
   context?: Maybe<Scalars['WorkflowInstanceContext']['output']>
   /** Control this workflow instance is associated with */
@@ -44798,6 +53731,10 @@ export interface WorkflowInstance extends Node {
   /** ID of the evidence this workflow instance is associated with */
   evidenceID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
+  /** Identity holder this workflow instance is associated with */
+  identityHolder?: Maybe<IdentityHolder>
+  /** ID of the identity holder this workflow instance is associated with */
+  identityHolderID?: Maybe<Scalars['ID']['output']>
   /** Internal policy this workflow instance is associated with */
   internalPolicy?: Maybe<InternalPolicy>
   /** ID of the internal policy this workflow instance is associated with */
@@ -44807,6 +53744,10 @@ export interface WorkflowInstance extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** Platform this workflow instance is associated with */
+  platform?: Maybe<Platform>
+  /** ID of the platform this workflow instance is associated with */
+  platformID?: Maybe<Scalars['ID']['output']>
   /** Procedure this workflow instance is associated with */
   procedure?: Maybe<Procedure>
   /** ID of the procedure this workflow instance is associated with */
@@ -44915,6 +53856,38 @@ export interface WorkflowInstanceWhereInput {
   actionPlanIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<WorkflowInstanceWhereInput>>
+  /** campaign_id field predicates */
+  campaignID?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContains?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  campaignIDLT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDLTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaign_target_id field predicates */
+  campaignTargetID?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDContains?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDGT?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDGTE?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  campaignTargetIDLT?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDLTE?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** control_id field predicates */
   controlID?: InputMaybe<Scalars['ID']['input']>
   controlIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -45000,18 +53973,30 @@ export interface WorkflowInstanceWhereInput {
   /** action_plan edge predicates */
   hasActionPlan?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlanWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** campaign edge predicates */
+  hasCampaign?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaign_target edge predicates */
+  hasCampaignTarget?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  hasCampaignWith?: InputMaybe<Array<CampaignWhereInput>>
   /** control edge predicates */
   hasControl?: InputMaybe<Scalars['Boolean']['input']>
   hasControlWith?: InputMaybe<Array<ControlWhereInput>>
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
+  /** identity_holder edge predicates */
+  hasIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** internal_policy edge predicates */
   hasInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedure edge predicates */
   hasProcedure?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -45041,6 +54026,22 @@ export interface WorkflowInstanceWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identity_holder_id field predicates */
+  identityHolderID?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityHolderIDLT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDLTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** internal_policy_id field predicates */
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -45086,6 +54087,22 @@ export interface WorkflowInstanceWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_id field predicates */
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  platformIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** procedure_id field predicates */
   procedureID?: InputMaybe<Scalars['ID']['input']>
   procedureIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -45203,6 +54220,14 @@ export interface WorkflowObjectRef extends Node {
   actionPlan?: Maybe<ActionPlan>
   /** ActionPlan referenced by this workflow instance */
   actionPlanID?: Maybe<Scalars['ID']['output']>
+  /** Campaign referenced by this workflow instance */
+  campaign?: Maybe<Campaign>
+  /** Campaign referenced by this workflow instance */
+  campaignID?: Maybe<Scalars['ID']['output']>
+  /** Campaign target referenced by this workflow instance */
+  campaignTarget?: Maybe<CampaignTarget>
+  /** Campaign target referenced by this workflow instance */
+  campaignTargetID?: Maybe<Scalars['ID']['output']>
   /** Control referenced by this workflow instance */
   control?: Maybe<Control>
   /** Control referenced by this workflow instance */
@@ -45232,6 +54257,10 @@ export interface WorkflowObjectRef extends Node {
   /** Finding referenced by this workflow instance */
   findingID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
+  /** Identity holder referenced by this workflow instance */
+  identityHolder?: Maybe<IdentityHolder>
+  /** Identity holder referenced by this workflow instance */
+  identityHolderID?: Maybe<Scalars['ID']['output']>
   /** Policy referenced by this workflow instance */
   internalPolicy?: Maybe<InternalPolicy>
   /** Policy referenced by this workflow instance */
@@ -45239,6 +54268,10 @@ export interface WorkflowObjectRef extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** Platform referenced by this workflow instance */
+  platform?: Maybe<Platform>
+  /** Platform referenced by this workflow instance */
+  platformID?: Maybe<Scalars['ID']['output']>
   /** Procedure referenced by this workflow instance */
   procedure?: Maybe<Procedure>
   /** Procedure referenced by this workflow instance */
@@ -45259,13 +54292,6 @@ export interface WorkflowObjectRef extends Node {
   workflowInstanceID: Scalars['ID']['output']
 }
 
-/** Return response for createBulkWorkflowObjectRef mutation */
-export interface WorkflowObjectRefBulkCreatePayload {
-  __typename?: 'WorkflowObjectRefBulkCreatePayload'
-  /** Created workflowObjectRefs */
-  workflowObjectRefs?: Maybe<Array<WorkflowObjectRef>>
-}
-
 /** A connection to a list of items. */
 export interface WorkflowObjectRefConnection {
   __typename?: 'WorkflowObjectRefConnection'
@@ -45275,20 +54301,6 @@ export interface WorkflowObjectRefConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
-}
-
-/** Return response for createWorkflowObjectRef mutation */
-export interface WorkflowObjectRefCreatePayload {
-  __typename?: 'WorkflowObjectRefCreatePayload'
-  /** Created workflowObjectRef */
-  workflowObjectRef: WorkflowObjectRef
-}
-
-/** Return response for deleteWorkflowObjectRef mutation */
-export interface WorkflowObjectRefDeletePayload {
-  __typename?: 'WorkflowObjectRefDeletePayload'
-  /** Deleted workflowObjectRef ID */
-  deletedID: Scalars['ID']['output']
 }
 
 /** An edge in a connection. */
@@ -45336,6 +54348,38 @@ export interface WorkflowObjectRefWhereInput {
   actionPlanIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
+  /** campaign_id field predicates */
+  campaignID?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContains?: InputMaybe<Scalars['ID']['input']>
+  campaignIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDGTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  campaignIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  campaignIDLT?: InputMaybe<Scalars['ID']['input']>
+  campaignIDLTE?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  campaignIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaign_target_id field predicates */
+  campaignTargetID?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDContains?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDGT?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDGTE?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  campaignTargetIDLT?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDLTE?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  campaignTargetIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** control_id field predicates */
   controlID?: InputMaybe<Scalars['ID']['input']>
   controlIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -45476,6 +54520,12 @@ export interface WorkflowObjectRefWhereInput {
   /** action_plan edge predicates */
   hasActionPlan?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlanWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** campaign edge predicates */
+  hasCampaign?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaign_target edge predicates */
+  hasCampaignTarget?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  hasCampaignWith?: InputMaybe<Array<CampaignWhereInput>>
   /** control edge predicates */
   hasControl?: InputMaybe<Scalars['Boolean']['input']>
   hasControlWith?: InputMaybe<Array<ControlWhereInput>>
@@ -45494,12 +54544,18 @@ export interface WorkflowObjectRefWhereInput {
   /** finding edge predicates */
   hasFinding?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingWith?: InputMaybe<Array<FindingWhereInput>>
+  /** identity_holder edge predicates */
+  hasIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** internal_policy edge predicates */
   hasInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** procedure edge predicates */
   hasProcedure?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureWith?: InputMaybe<Array<ProcedureWhereInput>>
@@ -45523,6 +54579,22 @@ export interface WorkflowObjectRefWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identity_holder_id field predicates */
+  identityHolderID?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityHolderIDLT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDLTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** internal_policy_id field predicates */
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -45557,6 +54629,22 @@ export interface WorkflowObjectRefWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_id field predicates */
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  platformIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** procedure_id field predicates */
   procedureID?: InputMaybe<Scalars['ID']['input']>
   procedureIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -50350,6 +59438,7 @@ export type CreateTemplateMutation = {
 export type UpdateTemplateMutationVariables = Exact<{
   updateTemplateId: Scalars['ID']['input']
   input: UpdateTemplateInput
+  templateFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdateTemplateMutation = {
@@ -50611,6 +59700,43 @@ export type UpdatePersonalAccessTokenMutation = {
   updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
 
+export type GetTrustCenterNdaFilesQueryVariables = Exact<{
+  where?: InputMaybe<TemplateWhereInput>
+}>
+
+export type GetTrustCenterNdaFilesQuery = {
+  __typename?: 'Query'
+  templates: {
+    __typename?: 'TemplateConnection'
+    edges?: Array<{
+      __typename?: 'TemplateEdge'
+      node?: {
+        __typename?: 'Template'
+        id: string
+        updatedAt?: any | null
+        files: {
+          __typename?: 'FileConnection'
+          edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; providedFileName: string; id: string; presignedURL?: string | null; updatedAt?: any | null } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustCenterNdaMutationVariables = Exact<{
+  input: CreateTrustCenterNdaInput
+  templateFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type CreateTrustCenterNdaMutation = { __typename?: 'Mutation'; createTrustCenterNDA: { __typename?: 'TrustCenterNDACreatePayload'; template: { __typename?: 'Template'; id: string } } }
+
+export type UpdateTrustCenterNdaMutationVariables = Exact<{
+  updateTrustCenterNdaId: Scalars['ID']['input']
+  templateFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterNdaMutation = { __typename?: 'Mutation'; updateTrustCenterNDA: { __typename?: 'TrustCenterNDAUpdatePayload'; template: { __typename?: 'Template'; id: string } } }
+
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTrustCenterCompliancesQuery = {
@@ -50727,7 +59853,7 @@ export type GetTrustCenterSubprocessorsQuery = {
           name: string
           description?: string | null
           logoRemoteURL?: string | null
-          logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
         }
       } | null
     } | null> | null
@@ -50839,6 +59965,7 @@ export type GetTrustCenterQuery = {
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
+          updatedAt?: any | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null
@@ -51043,7 +60170,7 @@ export type GetTrustCenterPostsQuery = {
     posts: {
       __typename?: 'NoteConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; text: string; updatedAt?: any | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; text: string; title?: string | null; updatedAt?: any | null } | null } | null> | null
     }
   }
 }
@@ -51061,6 +60188,36 @@ export type UpdateTrustCenterPostMutationVariables = Exact<{
 }>
 
 export type UpdateTrustCenterPostMutation = { __typename?: 'Mutation'; updateTrustCenterPost: { __typename?: 'TrustCenterUpdatePayload'; trustCenter: { __typename?: 'TrustCenter'; id: string } } }
+
+export type TrustCenterLastUpdatedQueryVariables = Exact<{
+  trustCenterId: Scalars['ID']['input']
+}>
+
+export type TrustCenterLastUpdatedQuery = {
+  __typename?: 'Query'
+  trustCenter: {
+    __typename?: 'TrustCenter'
+    customDomain?: { __typename?: 'CustomDomain'; cnameRecord: string; updatedAt?: any | null } | null
+    setting?: { __typename?: 'TrustCenterSetting'; updatedAt?: any | null } | null
+    trustCenterCompliances: {
+      __typename?: 'TrustCenterComplianceConnection'
+      edges?: Array<{ __typename?: 'TrustCenterComplianceEdge'; node?: { __typename?: 'TrustCenterCompliance'; updatedAt?: any | null } | null } | null> | null
+    }
+    trustCenterSubprocessors: {
+      __typename?: 'TrustCenterSubprocessorConnection'
+      edges?: Array<{ __typename?: 'TrustCenterSubprocessorEdge'; node?: { __typename?: 'TrustCenterSubprocessor'; updatedAt?: any | null } | null } | null> | null
+    }
+    trustCenterEntities: {
+      __typename?: 'TrustCenterEntityConnection'
+      edges?: Array<{ __typename?: 'TrustCenterEntityEdge'; node?: { __typename?: 'TrustCenterEntity'; updatedAt?: any | null } | null } | null> | null
+    }
+    trustCenterDocs: {
+      __typename?: 'TrustCenterDocConnection'
+      edges?: Array<{ __typename?: 'TrustCenterDocEdge'; node?: { __typename?: 'TrustCenterDoc'; updatedAt?: any | null } | null } | null> | null
+    }
+    posts: { __typename?: 'NoteConnection'; edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; updatedAt?: any | null } | null } | null> | null }
+  }
+}
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']

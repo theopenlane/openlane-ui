@@ -13,6 +13,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -157,11 +158,13 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                 <FormItem>
                   <FormControl>
                     <Select value={field.value || ''} onValueChange={(value) => field.onChange(value)} disabled={!isTypesSuccess}>
-                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+                      <SelectTrigger className="w-full">
+                        <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
+                      </SelectTrigger>
                       <SelectContent>
                         {enumOptions?.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                            <CustomTypeEnumOptionChip option={option} />
                           </SelectItem>
                         ))}
                       </SelectContent>
