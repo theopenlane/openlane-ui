@@ -25,7 +25,7 @@
     "@repo/eslint-config": "workspace:*",
     "@types/node": "latest",
     "@types/eslint": "latest",
-    "eslint": "^9.28.0",
+    "eslint": "^9.39.2",
     "react": "latest",
     "tsup": "latest",
     "typescript": "5.9.3"

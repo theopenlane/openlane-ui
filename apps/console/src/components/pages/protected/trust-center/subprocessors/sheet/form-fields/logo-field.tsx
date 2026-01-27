@@ -8,6 +8,7 @@ import { Input } from '@repo/ui/input'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 interface Props {
   onFileUpload: (file: TUploadedFile) => void
@@ -34,12 +35,6 @@ export const LogoField = ({ onFileUpload }: Props) => {
       setPreview(null)
     }
   }, [logoFile, uploadMode])
-
-  const normalizeUrl = (url?: string | null) => {
-    if (!url) return ''
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
-    return `https://${url}`
-  }
 
   return (
     <div className="space-y-4">

@@ -4,8 +4,7 @@ import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } f
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { Form } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
+import { PencilIcon, Trash2 } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canDelete, canEdit } from '@/lib/authz/utils.ts'
@@ -29,6 +28,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/risks/[id]/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TRisksPageProps = {
   riskId: string
@@ -213,12 +214,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 px-2!" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button type="submit" iconPosition="left" className="h-8 px-2!" icon={<SaveIcon />} disabled={isPending}>
-            {isPending ? 'Saving' : 'Save'}
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton disabled={isPending} isSaving={isPending} />
         </div>
       ) : (
         <div className="flex gap-2 justify-end">

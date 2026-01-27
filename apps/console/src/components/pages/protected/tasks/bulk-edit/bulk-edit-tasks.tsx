@@ -26,6 +26,9 @@ import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -196,23 +199,30 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                           <Controller
                             name={item.selectedObject.name as keyof BulkEditDialogFormValues}
                             control={control}
-                            render={() => (
+                            render={({ field }) => (
                               <Select
                                 value={item.selectedValue as string | undefined}
-                                onValueChange={(value) =>
+                                onValueChange={(value) => {
+                                  field.onChange(value)
                                   update(index, {
                                     ...item,
                                     selectedValue: value,
                                   })
-                                }
+                                }}
                               >
                                 <SelectTrigger className="w-60">
-                                  <SelectValue placeholder={item.selectedObject?.placeholder} />
+                                  <SelectValue placeholder={item.selectedObject?.placeholder}>
+                                    <CustomTypeEnumValue
+                                      value={item.selectedValue as string | undefined}
+                                      options={item.selectedObject?.options || []}
+                                      placeholder={item.selectedObject?.placeholder ?? ''}
+                                    />
+                                  </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {item.selectedObject?.options?.map((option) => (
+                                  {(item.selectedObject?.options || []).map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
+                                      <CustomTypeEnumOptionChip option={option} />
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -251,7 +261,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                   </div>
                 )
               })}
-              {fields.length < 4 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditTasks).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
@@ -269,18 +279,13 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
               ) : null}
             </div>
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

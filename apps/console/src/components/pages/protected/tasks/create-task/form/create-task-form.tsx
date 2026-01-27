@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { CreateTaskFormData } from '../../hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -27,6 +27,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TProps = {
   onSuccess: () => void
@@ -136,11 +137,17 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               />
                             </div>
                             <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className=" w-full">{field.value || 'Select'}</SelectTrigger>
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue>
+                                    <CustomTypeEnumValue value={field.value} options={taskKindOptions} placeholder="Select" />
+                                  </SelectValue>
+                                </SelectTrigger>
+                              </FormControl>
                               <SelectContent>
                                 {taskKindOptions.map((o) => (
                                   <SelectItem key={o.value} value={o.value}>
-                                    {o.value}
+                                    <CustomTypeEnumOptionChip option={o} />
                                   </SelectItem>
                                 ))}
                               </SelectContent>

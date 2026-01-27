@@ -6,6 +6,7 @@ import { Label } from '@repo/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Eye } from 'lucide-react'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 export const UploadField = ({ initialUrl }: { initialUrl?: string | null }) => {
   const { setValue } = useFormContext()
@@ -13,14 +14,6 @@ export const UploadField = ({ initialUrl }: { initialUrl?: string | null }) => {
   const [preview, setPreview] = useState<string | null>(null)
 
   const blobUrlRef = useRef<string | null>(null)
-
-  const normalizeUrl = (url?: string | null) => {
-    if (!url) return null
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
-      return url
-    }
-    return `https://${url}`
-  }
 
   useEffect(() => {
     if (initialUrl) {

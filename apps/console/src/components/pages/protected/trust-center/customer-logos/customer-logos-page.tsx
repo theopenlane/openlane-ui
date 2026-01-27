@@ -22,7 +22,6 @@ export default function CustomerLogosPage() {
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-
   const { entities } = useGetTrustCenterEntities({})
   const { mutateAsync: deleteEntity } = useDeleteTrustCenterEntity()
   const { mutateAsync: updateEntity } = useUpdateTrustCenterEntity()
@@ -30,7 +29,7 @@ export default function CustomerLogosPage() {
   const handleDelete = async () => {
     if (!entityToDelete) return
     try {
-      await deleteEntity({ deleteTrustcenterEntityId: entityToDelete })
+      await deleteEntity({ deleteTrustCenterEntityId: entityToDelete })
       successNotification({ title: 'Customer removed' })
       setEntityToDelete(null)
     } catch (error) {
@@ -42,7 +41,7 @@ export default function CustomerLogosPage() {
     try {
       await updateEntity({
         input: { url },
-        updateTrustcenterEntityId: id,
+        updateTrustCenterEntityId: id,
         logoFile: logoFile,
       })
       successNotification({ title: 'Customer updated' })

@@ -198,6 +198,11 @@
   --color-gradient-border-primary-from: rgba(255, 255, 255, 0.36);
   --color-gradient-border-primary-to: #ffffff00;
   --color-document-chip: #6b7682;
+  --color-trust-center-title: #09151d;
+  --color-trust-center-text: #99a1af;
+  --color-trust-center-created-at: #6a7282;
+  --color-trust-center-live-preview-badge-container: #60e8c926;
+  --color-trust-center-live-preview-skeleton: #09151d1a;
 
   --color-btn-primary: #9af5dc;
   --color-btn-primary-text: #052e2a;
@@ -241,9 +246,10 @@
   --color-switch-bg-inactive: #ced6da;
   --color-switch-border: #09151d1f;
 
-  --color-homepage-card-item: #eff4f580;
+  --color-homepage-card-item-transparent: #eff4f580;
   --color-homepage-card-border: #09151d1f;
   --color-homepage-card: #ffffff;
+  --color-homepage-card-item: #eff4f5;
 
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #2fd2b1;
@@ -283,6 +289,11 @@
   --color-gradient-border-top: #50616b;
   --color-toast-border: #ffffff1f;
   --color-document-chip: #ffffff;
+  --color-trust-center-title: #ffffff;
+  --color-trust-center-text: #6b7682;
+  --color-trust-center-created-at: #6a7282;
+  --color-trust-center-live-preview-badge-container: #60e8c926;
+  --color-trust-center-live-preview-skeleton: #ffffff1a;
 
   --color-primary-muted: #60e8c91f;
   --color-btn-primary: #60e8c9;
@@ -352,6 +363,7 @@
   --color-homepage-card-item: #394b58;
   --color-homepage-card-border: #394b58;
   --color-homepage-card: #233440;
+  --color-homepage-card-item-transparent: #394b58;
 
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #60e8c9;
@@ -437,6 +449,10 @@
 }
 
 @theme inline {
+  /*Trust center*/
+  --color-trust-center-red-dot: #ef4444;
+  --color-trust-center-green-dot: #10b981;
+
   /* Trial */
   --color-gold-trial: #d9ae40;
   --color-divider: #233440;
@@ -458,7 +474,7 @@
   --color-standard-ccpa: #003162;
   --color-standard-nerc: #00437a;
   --color-standard-cobit: #62c5ec;
-  --color-standard-fed: #122f4f;
+  --color-standard-fed: #f97316;
 
   /* Objects */
   --color-procedures: #60a5fa;
@@ -586,6 +602,15 @@
   --color-document-published-border: #21c55d3d;
 
   --color-infobox: #6392ff1f;
+
+  /* notifications */
+  --color-notifications-programs: #4ade80;
+  --color-notifications-tasks: #6ee7b7;
+  --color-notifications-risks: #5eead4;
+  --color-notifications-procedures: #67e8f9;
+  --color-notifications-questionnaires: #38bdf8;
+  --color-notifications-evidence: #38bdf8;
+  --color-notifications-policies: #67e8f9;
 }
 
 /* ─────────────────────────────────────────────────────────

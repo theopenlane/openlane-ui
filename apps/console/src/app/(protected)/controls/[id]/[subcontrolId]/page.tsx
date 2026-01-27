@@ -6,14 +6,14 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, XIcon, CirclePlus, PanelRightClose, InfoIcon } from 'lucide-react'
+import { PencilIcon, CirclePlus, PanelRightClose, InfoIcon } from 'lucide-react'
 import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useGetSubcontrolDiscussionById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
-import PropertiesCard from '@/components/pages/protected/controls/properties-card'
+import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
@@ -44,6 +44,8 @@ import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
 
 interface FormValues {
   refCode: string
@@ -268,12 +270,8 @@ const ControlDetailsPage: React.FC = () => {
     <div className="space-y-4">
       {isEditing && canEdit(permission?.roles) ? (
         <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button variant="secondary" type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
-            Save
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton />
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
@@ -334,7 +332,7 @@ const ControlDetailsPage: React.FC = () => {
           {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
             <div className="flex gap-2">
               {canEdit(permission?.roles) && (
-                <Button type="button" variant="secondary" className="!p-1 h-8" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
+                <Button type="button" variant="secondary" className="p-1! h-8" onClick={(e) => handleEdit(e)} aria-label="Edit subcontrol">
                   <PencilIcon size={16} strokeWidth={2} />
                 </Button>
               )}

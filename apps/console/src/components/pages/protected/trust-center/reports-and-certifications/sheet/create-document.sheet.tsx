@@ -26,6 +26,10 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { StandardField } from './form-fields/standard-field'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -36,6 +40,7 @@ const schema = z.object({
   tags: z.array(z.string()).optional(),
   file: z.instanceof(File).optional(),
   status: z.nativeEnum(TrustCenterDocWatermarkStatus).optional(),
+  standardID: z.string().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -46,6 +51,14 @@ export const CreateDocumentSheet: React.FC = () => {
   const isCreateMode = searchParams.get('create') === 'true'
   const documentId = searchParams.get('id')
   const isEditMode = !!documentId
+
+  const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'trust_center_doc',
+      field: 'kind',
+    },
+  })
 
   const { data: permission } = useAccountRoles(ObjectEnum.TRUST_CENTER_DOCUMENT, documentId)
 
@@ -106,18 +119,31 @@ export const CreateDocumentSheet: React.FC = () => {
     }
   }
 
+  const ensureCategoryExists = async (categoryName: string) => {
+    const exists = enumOptions.some((opt) => opt.value === categoryName || opt.label === categoryName)
+    if (!exists) {
+      await createEnum({
+        name: categoryName,
+        objectType: 'trust_center_doc',
+        field: 'kind',
+      })
+    }
+  }
+
   const onSubmit = async (data: FormData) => {
     try {
       if (!trustCenterID) throw new Error('Trust Center ID not found.')
 
+      await ensureCategoryExists(data.category)
+
       if (isEditMode) {
         await updateDoc({
           input: {
-            trustCenterID,
             title: data.title,
-            category: data.category,
+            trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
+            standardID: data.standardID,
           },
           updateTrustCenterDocId: documentId!,
           trustCenterDocFile: data.file,
@@ -133,11 +159,12 @@ export const CreateDocumentSheet: React.FC = () => {
         await createDoc({
           input: {
             title: data.title,
-            category: data.category,
+            trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
             trustCenterID,
             watermarkingEnabled: isWatermarkEnabled,
+            standardID: data.standardID,
           },
           trustCenterDocFile: data.file,
         })
@@ -163,11 +190,12 @@ export const CreateDocumentSheet: React.FC = () => {
     const doc = documentData?.trustCenterDoc
     reset({
       title: doc?.title ?? '',
-      category: doc?.category ?? '',
+      category: doc?.trustCenterDocKindName ?? '',
       visibility: doc?.visibility ?? TrustCenterDocTrustCenterDocumentVisibility.NOT_VISIBLE,
       tags: doc?.tags ?? [],
       file: undefined,
       status: doc?.watermarkStatus ?? undefined,
+      standardID: doc?.standardID ?? undefined,
     })
   }, [documentData, reset])
 
@@ -244,20 +272,13 @@ export const CreateDocumentSheet: React.FC = () => {
                     <>
                       {isEditing ? (
                         <>
-                          <Button
-                            className="h-8 p-2"
-                            type="button"
-                            variant="secondary"
+                          <CancelButton
                             onClick={() => {
                               setIsEditing(false)
                               prefillForm()
                             }}
-                          >
-                            Cancel
-                          </Button>
-                          <Button variant="primary" type="submit" form="document-form" className="h-8 p-2" icon={<Save />} iconPosition="left">
-                            Save
-                          </Button>
+                          ></CancelButton>
+                          <SaveButton form="document-form" />
                         </>
                       ) : (
                         <>
@@ -323,6 +344,7 @@ export const CreateDocumentSheet: React.FC = () => {
             <TitleField isEditing={isEditing || isCreateMode} />
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
+            <StandardField isEditing={isEditing || isCreateMode} />
             <TagsField isEditing={isEditing || isCreateMode} />
             {isCreateMode && (
               <div className="flex flex-col gap-2">

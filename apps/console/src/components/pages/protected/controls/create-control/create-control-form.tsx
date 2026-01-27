@@ -7,7 +7,7 @@ import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import PropertiesCard from '@/components/pages/protected/controls/properties-card'
+import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
 import {
@@ -52,6 +52,7 @@ import RelatedControls from './related-controls'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { Value } from 'platejs'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -441,9 +442,7 @@ export default function CreateControlForm() {
                 <Button variant="primary" type="submit">
                   Create
                 </Button>
-                <Button type="button" variant="secondary" onClick={onCancel}>
-                  Cancel
-                </Button>
+                <CancelButton onClick={onCancel}></CancelButton>
               </div>
               <div className="flex items-center gap-2">
                 <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />

@@ -14,6 +14,7 @@ import { SUPPORT_URL } from '@/constants'
 import Invoices from './invoices'
 import { Card } from '@repo/ui/cardpanel'
 import { CreditCard, ExternalLink } from 'lucide-react'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, emailText, paragraph, text } = billingSettingsStyles()
@@ -171,15 +172,16 @@ const BillingSettings: React.FC = () => {
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
                     <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
                   </div>
-                  {schedule ? (
-                    <Button
-                      className="self-end h-8 p-2"
-                      variant={isCanceledBySchedule ? 'secondary' : 'destructive'}
-                      disabled={canceling || schedulesLoading}
-                      onClick={() => setConfirmCancelOpen(true)}
-                    >
-                      {canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
-                    </Button>
+                  {!schedule ? (
+                    <>
+                      <CancelButton
+                        className="self-end h-8 p-2"
+                        title={canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
+                        disabled={canceling || schedulesLoading}
+                        variant={isCanceledBySchedule ? 'secondary' : 'destructive'}
+                        onClick={() => setConfirmCancelOpen(true)}
+                      ></CancelButton>
+                    </>
                   ) : (
                     <a href={`${SUPPORT_URL}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
                       Reach out to support

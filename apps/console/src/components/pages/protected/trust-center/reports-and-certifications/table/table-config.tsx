@@ -18,6 +18,7 @@ export type TTrustCenterDoc = {
   file?: GqlFile | null
   originalFile?: GqlFile | null
   watermarkStatus: TrustCenterDocWatermarkStatus
+  standardShortName: string
 }
 
 type Params = {
@@ -78,7 +79,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       header: 'Visibility',
       cell: ({ row }) => {
         return (
-          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
+          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item-transparent border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
             {row.original.visibility.split('_').join(' ').toLowerCase()}
           </div>
         )
@@ -102,13 +103,14 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+      },
+    },
+    {
+      accessorKey: 'standard',
+      header: 'Standard',
+      cell: ({ row }) => {
+        return row.original.standardShortName ? <StandardChip referenceFramework={row.original.standardShortName} /> : '-'
       },
     },
     {
@@ -123,7 +125,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       size: 140,
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: '',
       cell: ({ row }) => {
         const presignedURL = row.original.file?.presignedURL || row.original.originalFile?.presignedURL || ''
@@ -157,17 +159,18 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
   },
 ]
 
-import { Eye, Folder } from 'lucide-react'
+import { Eye, FileQuestion, Folder } from 'lucide-react'
 import { FilterField } from '@/types'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import DocumentActions from '../../actions/documents-actions'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import StandardChip from '../../../standards/shared/standard-chip'
 
 export const trustCenterDocsFilterFields: FilterField[] = [
   {
-    key: 'categoryContainsFold',
+    key: 'trustCenterDocKindNameContainsFold',
     label: 'Category',
     type: 'text',
     icon: Folder,
@@ -178,5 +181,11 @@ export const trustCenterDocsFilterFields: FilterField[] = [
     type: 'multiselect',
     options: enumToOptions(TrustCenterDocTrustCenterDocumentVisibility),
     icon: Eye,
+  },
+  {
+    key: 'hasStandardWith',
+    label: 'Standard Name',
+    type: 'text',
+    icon: FileQuestion,
   },
 ]

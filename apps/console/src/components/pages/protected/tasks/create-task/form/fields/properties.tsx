@@ -4,7 +4,7 @@ import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
 
-import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
@@ -20,6 +20,7 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -256,22 +257,28 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     setInternalEditing(null)
                   }}
                 >
-                  <SelectTrigger className="w-full">{field.value || 'Select'}</SelectTrigger>
+                  <SelectTrigger className="w-full">
+                    <SelectValue>
+                      <CustomTypeEnumValue value={field.value} options={taskKindOptions} placeholder="Select" />
+                    </SelectValue>
+                  </SelectTrigger>
                   <SelectContent ref={popoverRef}>
                     {taskKindOptions.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
-                        {o.value}
+                        <CustomTypeEnumOptionChip option={o} />
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message}</p>}
+                {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message as string}</p>}
               </div>
             )}
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>{taskData?.taskKindName || 'No category'}</p>
+            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>
+              <CustomTypeEnumValue value={taskData?.taskKindName ?? ''} options={taskKindOptions} placeholder="No category" />
+            </div>
           </HoverPencilWrapper>
         )}
       </div>

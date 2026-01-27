@@ -25,6 +25,10 @@ import {
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { Option } from '@repo/ui/multiple-selector'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditPolicies).optional(),
@@ -192,12 +196,18 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
                                 }
                               >
                                 <SelectTrigger className="w-60">
-                                  <SelectValue placeholder={item.selectedObject?.placeholder} />
+                                  <SelectValue placeholder={item.selectedObject?.placeholder}>
+                                    <CustomTypeEnumValue
+                                      value={item.selectedValue as string | undefined}
+                                      options={item.selectedObject?.options || []}
+                                      placeholder={item.selectedObject?.placeholder ?? ''}
+                                    />
+                                  </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {item.selectedObject?.options?.map((option) => (
+                                  {((item.selectedObject?.options as Option[]) || []).map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
+                                      <CustomTypeEnumOptionChip option={option} />
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -235,18 +245,13 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
               ) : null}
             </div>
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

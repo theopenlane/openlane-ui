@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { FormProvider, useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { PanelRightClose, Trash2, Check, LoaderCircle } from 'lucide-react'
+import { PanelRightClose, Trash2, LoaderCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
@@ -21,6 +21,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useCustomTypeEnum, useCreateCustomTypeEnum, useUpdateCustomTypeEnum, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enums'
 import { ENUM_GROUP_MAP } from './custom-enums-config'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -179,9 +180,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                   Delete
                 </Button>
               )}
-              <Button variant="primary" onClick={handleSubmit(onSubmit)} icon={isPending ? <LoaderCircle className="animate-spin" size={14} /> : <Check size={14} />} disabled={isPending}>
-                {isPending ? 'Saving...' : 'Save'}
-              </Button>
+              <SaveButton onClick={handleSubmit(onSubmit)} isSaving={isPending} disabled={isPending} />
             </div>
           </div>
           <div className="mt-4">

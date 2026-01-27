@@ -4,7 +4,7 @@ import React, { memo, useTransition } from 'react'
 
 interface ColorInputProps {
   label: string
-  value: string
+  value: string | undefined
   onChange: (v: string) => void
   disabled?: boolean
 }

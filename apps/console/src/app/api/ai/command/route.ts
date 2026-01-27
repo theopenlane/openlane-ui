@@ -1,4 +1,4 @@
-import { createUIMessageStream, createUIMessageStreamResponse, generateObject, streamObject, streamText, tool } from 'ai'
+import { createUIMessageStream, createUIMessageStreamResponse, generateObject, streamObject, streamText, StreamTextTransform, tool, ToolSet } from 'ai'
 
 import { google } from '@ai-sdk/google'
 
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
         // 2. STREAM TEXT USING GEMINI
         //
         const stream = streamText({
-          experimental_transform: markdownJoinerTransform(),
+          experimental_transform: markdownJoinerTransform() as StreamTextTransform<ToolSet>,
           model: selectedModel,
           prompt: '',
           tools: {

@@ -1,14 +1,7 @@
-import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  const session = await auth()
-
-  if (!session || !session?.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   const bodyData = await request.json()
 
   const fData = await secureFetch(`${process.env.API_REST_URL}/v1/resend`, {

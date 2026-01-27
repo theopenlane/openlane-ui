@@ -18,6 +18,7 @@ import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { TagsField } from './form-fields/tags-field'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const schema = z
   .object({
@@ -131,10 +132,7 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess }: { onCreateSuccess: 
             <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleClose} />
 
             <div className="flex justify-end gap-2">
-              <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
-                Cancel
-              </Button>
-
+              <CancelButton onClick={handleClose}></CancelButton>
               <Button iconPosition="left" type="button" form="subprocessor-form" onClick={handleSubmit(onSubmit)} disabled={isSubmitting || isSubmitDisabled}>
                 {isSubmitting ? 'Creating...' : 'Create'}
               </Button>

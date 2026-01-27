@@ -23,6 +23,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditEvidence).optional(),
@@ -225,7 +227,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                   </div>
                 )
               })}
-              {fields.length < 3 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditEvidence).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
@@ -243,18 +245,13 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
               ) : null}
             </div>
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

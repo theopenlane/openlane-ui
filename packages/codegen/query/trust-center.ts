@@ -47,6 +47,7 @@ export const GET_TRUST_CENTER = gql`
             overview
             title
             logoRemoteURL
+            securityContact
           }
           previewSetting {
             id
@@ -59,6 +60,7 @@ export const GET_TRUST_CENTER = gql`
             font
             backgroundColor
             secondaryBackgroundColor
+            accentColor
             logoFile {
               id
               presignedURL
@@ -69,6 +71,8 @@ export const GET_TRUST_CENTER = gql`
               presignedURL
             }
             logoRemoteURL
+            securityContact
+            updatedAt
           }
           watermarkConfig {
             id
@@ -93,6 +97,14 @@ export const UPDATE_TRUST_CENTER_SETTING = gql`
     updateTrustCenterSetting(id: $updateTrustCenterSettingId, input: $input, faviconFile: $faviconFile, logoFile: $logoFile) {
       trustCenterSetting {
         id
+        logoRemoteURL
+        faviconRemoteURL
+        faviconFile {
+          id
+        }
+        logoFile {
+          id
+        }
       }
     }
   }
@@ -114,6 +126,20 @@ export const DELETE_CUSTOM_DOMAIN = gql`
   }
 `
 
+export const VALIDATE_CUSTOM_DOMAIN = gql`
+  mutation ValidateCustomDomain($validateCustomDomainId: ID!) {
+    validateCustomDomain(id: $validateCustomDomainId) {
+      customDomain {
+        id
+        dnsVerification {
+          dnsVerificationStatus
+          dnsVerificationStatusReason
+        }
+      }
+    }
+  }
+`
+
 export const GET_TRUST_CENTER_DOCS = gql`
   query GetTrustCenterDocs($where: TrustCenterDocWhereInput, $first: Int, $orderBy: [TrustCenterDocOrder!], $after: Cursor, $before: Cursor, $last: Int) {
     trustCenters {
@@ -125,7 +151,7 @@ export const GET_TRUST_CENTER_DOCS = gql`
               node {
                 id
                 title
-                category
+                trustCenterDocKindName
                 visibility
                 tags
                 createdAt
@@ -137,6 +163,10 @@ export const GET_TRUST_CENTER_DOCS = gql`
                 }
                 originalFile {
                   presignedURL
+                }
+                standard {
+                  shortName
+                  id
                 }
               }
             }
@@ -178,7 +208,7 @@ export const GET_TRUST_CENTER_DOC_BY_ID = gql`
     trustCenterDoc(id: $trustCenterDocId) {
       id
       title
-      category
+      trustCenterDocKindName
       visibility
       tags
       file {
@@ -193,6 +223,7 @@ export const GET_TRUST_CENTER_DOC_BY_ID = gql`
       }
       watermarkingEnabled
       watermarkStatus
+      standardID
     }
   }
 `
@@ -240,6 +271,7 @@ export const GET_TRUST_CENTER_POSTS = gql`
           node {
             id
             text
+            title
             updatedAt
           }
         }
@@ -263,6 +295,55 @@ export const UPDATE_TRUST_CENTER_POST = gql`
     updateTrustCenterPost(id: $updateTrustCenterPostId, input: $input) {
       trustCenter {
         id
+      }
+    }
+  }
+`
+
+export const GET_TRUST_CENTER_LAST_UPDATED = gql`
+  query TrustCenterLastUpdated($trustCenterId: ID!) {
+    trustCenter(id: $trustCenterId) {
+      customDomain {
+        cnameRecord
+        updatedAt
+      }
+      setting {
+        updatedAt
+      }
+      trustCenterCompliances {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      trustCenterSubprocessors {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      trustCenterEntities {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      trustCenterDocs {
+        edges {
+          node {
+            updatedAt
+          }
+        }
+      }
+      posts {
+        edges {
+          node {
+            updatedAt
+          }
+        }
       }
     }
   }

@@ -15,8 +15,12 @@ import { formatDate } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Input } from '@repo/ui/input'
 
 const formSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(280),
   text: z.string().min(1, 'Update text is required').max(280),
 })
 
@@ -38,12 +42,12 @@ export default function UpdatesSection() {
 
   const createForm = useForm<UpdateFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { text: '' },
+    defaultValues: { text: '', title: '' },
   })
 
   const editForm = useForm<UpdateFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { text: '' },
+    defaultValues: { text: '', title: '' },
   })
 
   const createTextValue = createForm.watch('text')
@@ -58,7 +62,7 @@ export default function UpdatesSection() {
     try {
       await updateTrustCenter({
         updateTrustCenterId: trustCenterID,
-        input: { addPost: { text: values.text } },
+        input: { addPost: { text: values.text, title: values.title } },
       })
       successNotification({ title: 'Update published', description: 'Your trust center update has been successfully posted.' })
       createForm.reset()
@@ -72,7 +76,7 @@ export default function UpdatesSection() {
     try {
       await updatePost({
         updateTrustCenterPostId: editingPostId,
-        input: { text: values.text },
+        input: { text: values.text, title: values.title },
       })
       successNotification({ title: 'Update saved', description: 'The changes to your post have been saved.' })
       setEditingPostId(null)
@@ -93,9 +97,10 @@ export default function UpdatesSection() {
     }
   }
 
-  const startEditing = (postId: string, currentText: string) => {
+  const startEditing = (postId: string, currentText: string, currentTitle: string) => {
     setEditingPostId(postId)
     editForm.setValue('text', currentText)
+    editForm.setValue('title', currentTitle || '')
   }
 
   const cancelEditing = () => {
@@ -118,6 +123,19 @@ export default function UpdatesSection() {
 
             <Form {...createForm}>
               <form onSubmit={createForm.handleSubmit(handleCreateSubmit)} className="space-y-2">
+                <FormField
+                  control={createForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem className="mt-6">
+                      <FormLabel>Title</FormLabel>
+
+                      <FormControl>
+                        <Input placeholder="Add a title" className="bg-background" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={createForm.control}
                   name="text"
@@ -167,6 +185,8 @@ export default function UpdatesSection() {
                     <CardContent className="p-4">
                       {isBeingEdited ? (
                         <div className="space-y-3">
+                          <Label>Title</Label>
+                          <Input autoFocus className="bg-background text-sm" {...editForm.register('title')} />
                           <Label>Description</Label>
                           <Textarea autoFocus className="min-h-[100px] bg-background text-sm" {...editForm.register('text')} />
                           <div className="flex items-center justify-between">
@@ -175,22 +195,19 @@ export default function UpdatesSection() {
                               <span className={editCharsRemaining < 0 ? 'text-destructive font-medium' : ''}>{editCharsRemaining} characters remaining</span>
                             </div>
                             <div className="flex gap-2">
-                              <Button variant="secondary" onClick={cancelEditing}>
-                                Cancel
-                              </Button>
-                              <Button onClick={editForm.handleSubmit(handleUpdateSubmit)} disabled={isUpdating}>
-                                {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
-                              </Button>
+                              <CancelButton onClick={cancelEditing}></CancelButton>
+                              <SaveButton isSaving={isUpdating} onClick={editForm.handleSubmit(handleUpdateSubmit)} disabled={isUpdating} />
                             </div>
                           </div>
                         </div>
                       ) : (
                         <div className="flex flex-col">
-                          <p className="text-sm leading-relaxed flex-1">{post.text}</p>
+                          <p className="text-sm leading-relaxed flex-1">{post.title}</p>
+                          <p className="text-sm text-muted-foreground leading-relaxed flex-1">{post.text}</p>
                           <div className="flex justify-between mt-1">
                             <p className="text-muted-foreground text-sm">{formatDate(post.updatedAt)}</p>
                             <div className="flex gap-3">
-                              <button className="text-muted-foreground" onClick={() => startEditing(post.id, post.text)} disabled={!!editingPostId}>
+                              <button className="text-muted-foreground" onClick={() => startEditing(post.id, post.text, post.title ?? '')} disabled={!!editingPostId}>
                                 <Pencil size={16} />
                               </button>
                               <button className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>

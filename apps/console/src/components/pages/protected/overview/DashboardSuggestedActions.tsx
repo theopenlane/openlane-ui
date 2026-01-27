@@ -16,7 +16,7 @@ const DashboardSuggestedActions = () => {
   }
 
   const hoverClasses = 'transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:border-primary'
-  const baseClasses = 'bg-homepage-card-item border border-homepage-card-border rounded-lg p-4 flex gap-4 items-start'
+  const baseClasses = 'bg-homepage-card-item-transparent border border-homepage-card-border rounded-lg p-4 flex gap-4 items-start'
 
   return (
     <Card className="bg-homepage-card border-homepage-card-border">

@@ -10,6 +10,8 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import { useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface Props {
   initialData: TObjectAssociationMap
@@ -102,7 +104,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Set Association</Button>
+        <Button className="h-8 px-2!">Set Association</Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
@@ -128,12 +130,8 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
           ]}
         />
         <DialogFooter>
-          <Button onClick={onSave} disabled={!saveEnabled || isSaving}>
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton disabled={!saveEnabled || isSaving} onClick={onSave} isSaving={isSaving} />
+          <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

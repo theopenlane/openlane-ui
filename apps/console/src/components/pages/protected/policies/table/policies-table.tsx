@@ -33,6 +33,7 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -50,6 +51,13 @@ export const PoliciesTable = () => {
   ])
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(defaultSorting)
   const debouncedSearch = useDebounce(searchTerm, 300)
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'internal_policy',
+      field: 'kind',
+    },
+  })
 
   const where = useMemo(() => {
     const base: InternalPolicyWhereInput = {
@@ -147,7 +155,7 @@ export const PoliciesTable = () => {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.POLICY, defaultVisibility))
 
-  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies }), [users, tokens, selectedPolicies])
+  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }), [users, tokens, selectedPolicies, enumOptions])
 
   const handleRowClick = (rowData: InternalPolicy) => {
     router.push(`/policies/${rowData.id}/view`)

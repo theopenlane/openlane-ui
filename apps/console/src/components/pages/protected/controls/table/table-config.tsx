@@ -16,6 +16,8 @@ import Link from 'next/link'
 import { LinkedPoliciesCell } from './linked-policies-cell'
 import { LinkedProceduresCell } from './linked-procedures-cell'
 import AssociatedObjectsCell from './associated-objects-cell'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -110,9 +112,10 @@ type Params = {
   userMap: Record<string, User>
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
+  enumOptions: CustomTypeEnumOption[]
 }
 
-export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls }: Params): ColumnDef<ControlListFieldsFragment>[] => {
+export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls, enumOptions }: Params): ColumnDef<ControlListFieldsFragment>[] => {
   const toggleSelection = (control: { id: string; refCode: string }) => {
     setSelectedControls((prev) => {
       const exists = prev.some((c) => c.id === control.id)
@@ -258,7 +261,11 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Control Type',
       accessorKey: 'controlKindName',
       size: 120,
-      cell: ({ row }) => <div>{row.getValue('controlKindName') || '-'}</div>,
+      cell: ({ row }) => (
+        <div>
+          <CustomTypeEnumValue value={row.getValue('controlKindName') || ''} options={enumOptions} placeholder="-" />
+        </div>
+      ),
     },
     {
       header: 'Reference Framework',
