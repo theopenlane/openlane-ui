@@ -48,6 +48,7 @@ export const GET_TRUST_CENTER = gql`
             title
             logoRemoteURL
             securityContact
+            ndaApprovalRequired
           }
           previewSetting {
             id

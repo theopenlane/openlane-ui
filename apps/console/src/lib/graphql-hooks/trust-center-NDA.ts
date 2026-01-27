@@ -1,10 +1,13 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_TRUST_CENTER_NDA, GET_TRUST_CENTER_NDA_FILES, UPDATE_TRUST_CENTER_NDA } from '@repo/codegen/query/trust-center-NDA'
+import { CREATE_TRUST_CENTER_NDA, GET_NDA_REQUESTS_COUNT, GET_TRUST_CENTER_NDA_FILES, UPDATE_TRUST_CENTER_NDA } from '@repo/codegen/query/trust-center-NDA'
 import {
   CreateTrustCenterNdaMutation,
   CreateTrustCenterNdaMutationVariables,
+  GetNdaRequestCountQuery,
+  GetNdaRequestCountQueryVariables,
   GetTrustCenterNdaFilesQuery,
+  TrustCenterNdaRequestTrustCenterNdaRequestStatus,
   UpdateTrustCenterNdaMutation,
   UpdateTrustCenterNdaMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -45,7 +48,7 @@ export const useCreateTrustCenterNDA = () => {
       }),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trustCenterNdaRequests'] })
+      queryClient.invalidateQueries({ queryKey: ['trustCenterNdaFiles'] })
     },
   })
 }
@@ -63,4 +66,26 @@ export const useUpdateTrustCenterNDA = () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterNdaFiles'] })
     },
   })
+}
+
+export const useGetNDAStats = ({ ndaApprovalRequired, enabled = true }: { ndaApprovalRequired: boolean; enabled: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  const variables: GetNdaRequestCountQueryVariables = {
+    where: ndaApprovalRequired ? { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL } : { createdAtGTE: thirtyDaysAgo.toISOString() },
+  }
+
+  const queryResult = useQuery<GetNdaRequestCountQuery>({
+    queryKey: ['ndaRequestsCount', ndaApprovalRequired],
+    queryFn: () => client.request<GetNdaRequestCountQuery>(GET_NDA_REQUESTS_COUNT, variables),
+    enabled,
+  })
+
+  return {
+    ...queryResult,
+    count: queryResult.data?.trustCenterNdaRequests?.totalCount ?? 0,
+  }
 }

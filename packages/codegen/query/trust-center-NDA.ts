@@ -42,3 +42,11 @@ export const UPDATE_TRUST_CENTER_NDA = gql`
     }
   }
 `
+
+export const GET_NDA_REQUESTS_COUNT = gql`
+  query GetNDARequestCount($where: TrustCenterNDARequestWhereInput) {
+    trustCenterNdaRequests(where: $where) {
+      totalCount
+    }
+  }
+`

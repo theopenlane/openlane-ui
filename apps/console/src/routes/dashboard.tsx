@@ -32,6 +32,7 @@ import {
   Component,
   LockKeyhole,
   LayoutDashboard,
+  ChartLine,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -134,7 +135,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: FileText,
       },
       {
-        title: 'NDAs',
+        title: 'ANDAs',
         href: '/trust-center/NDAs',
         icon: LockKeyhole,
       },
@@ -146,6 +147,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
       { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
       { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
       { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
+      { title: 'Analytics', href: '/trust-center/analytics', icon: ChartLine },
     ],
   },
 ]
