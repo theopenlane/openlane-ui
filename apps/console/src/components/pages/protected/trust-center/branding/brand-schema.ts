@@ -19,6 +19,8 @@ export const brandSchema = z.object({
   faviconRemoteURL: z.string().optional().or(z.literal('')),
   logoFile: z.any().nullable().optional(),
   faviconFile: z.any().nullable().optional(),
+  companyName: z.string().optional().or(z.literal('')),
+  companyDescription: z.string().optional().or(z.literal('')),
 })
 
 export type BrandFormValues = z.infer<typeof brandSchema>
@@ -42,6 +44,8 @@ export const useBrandForm = () => {
       faviconRemoteURL: '',
       logoFile: null,
       faviconFile: null,
+      companyName: '',
+      companyDescription: '',
     },
   })
 }
