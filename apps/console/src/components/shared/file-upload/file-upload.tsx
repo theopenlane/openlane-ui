@@ -98,8 +98,10 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
           )}
 
           {uploadedFile && (
-            <div className="text-sm">
-              <div className="font-semibold">{uploadedFile.name}</div>
+            <div className="text-sm w-full max-w-[200px] overflow-hidden">
+              <div className="font-semibold truncate" title={uploadedFile.name}>
+                {uploadedFile.name}
+              </div>
               <div className="text-muted-foreground">{(uploadedFile.size! / 1024).toFixed(2)} KB</div>
             </div>
           )}
