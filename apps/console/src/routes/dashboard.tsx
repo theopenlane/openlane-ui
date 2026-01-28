@@ -135,7 +135,7 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: FileText,
       },
       {
-        title: 'ANDAs',
+        title: 'NDAs',
         href: '/trust-center/NDAs',
         icon: LockKeyhole,
       },
