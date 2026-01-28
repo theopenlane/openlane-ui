@@ -17,3 +17,18 @@ export const ReadOnlyToolbarKit = [
     },
   }),
 ]
+
+export function createReadOnlyToolbarKit(title: string) {
+  return [
+    createPlatePlugin({
+      key: 'read-only-toolbar',
+      render: {
+        beforeContainer: () => (
+          <FixedToolbar className="p-0 overflow-x-visible border-none">
+            <ReadyOnlyToolbarButtons title={title} />
+          </FixedToolbar>
+        ),
+      },
+    }),
+  ]
+}

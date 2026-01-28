@@ -2,13 +2,13 @@ default_stages: [pre-commit]
 fail_fast: true
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: jsonschema/api-docs.md
       - id: detect-private-key
   - repo: https://github.com/google/yamlfmt
-    rev: v0.15.0
+    rev: v0.21.0
     hooks:
       - id: yamlfmt
   - repo: https://github.com/crate-ci/typos

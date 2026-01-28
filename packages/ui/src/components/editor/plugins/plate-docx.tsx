@@ -8,6 +8,7 @@ type SlateText = {
   underline?: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SlateNode = any
 type Value = SlateNode[]
 
@@ -62,6 +63,7 @@ function leafToRuns(leaf: SlateText): TextRun[] {
       bold: !!leaf.bold,
       italics: !!leaf.italic,
       underline: leaf.underline ? {} : undefined,
+      font: 'Calibri',
     }),
   ]
 }
@@ -243,9 +245,20 @@ function tableNodeToTable(tableNode: any): Table {
 }
 
 export async function exportPlateValueToDocx(value: Value, opts?: { fileName?: string; title?: string }) {
-  const fileName = opts?.fileName ?? 'document.docx'
+  const fileName = opts?.fileName ?? (opts?.title ? opts.title + '.docx' : 'document.docx')
 
   const blocks: Array<Paragraph | Table> = []
+
+  // Add title as a heading if provided
+  if (opts?.title) {
+    blocks.push(
+      new Paragraph({
+        text: opts.title,
+        heading: HeadingLevel.HEADING_1,
+      }),
+    )
+  }
+
   for (const node of value ?? []) {
     blocks.push(...nodeToBlocks(node))
   }

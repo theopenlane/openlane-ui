@@ -71,7 +71,7 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
   const exportToPdf = async () => {
     const fileName = getExportFilename('pdf')
 
-    const instance = pdf(<PlatePdfDocument value={editor.children} />)
+    const instance = pdf(<PlatePdfDocument value={editor.children} title={title} />)
     const blob = await instance.toBlob()
 
     const url = URL.createObjectURL(blob)
@@ -82,7 +82,7 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
   const exportToDocx = async () => {
     const filename = getExportFilename('docx')
 
-    return exportPlateValueToDocx(editor.children as any[], { fileName: filename })
+    return exportPlateValueToDocx(editor.children as any[], { fileName: filename, title })
   }
 
   const exportToImage = async () => {

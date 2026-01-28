@@ -86,7 +86,12 @@ export const CategoryField = ({ isEditing }: Props) => {
             render={({ field }) => (
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                  <button role="combobox" aria-expanded={open} className="w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3" disabled={isLoading}>
+                  <button
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm"
+                    disabled={isLoading}
+                  >
                     <CustomTypeEnumValue value={field.value} options={allOptions} placeholder={isLoading ? 'Loading...' : 'Select or create category...'} />
 
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

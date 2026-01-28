@@ -347,6 +347,7 @@ export const BULK_DELETE_POLICY = gql`
 export const POLICY_DISCUSSION_FIELDS_FRAGMENT = gql`
   fragment PolicyDiscussionFields on InternalPolicy {
     id
+    name
     __typename
     discussions {
       edges {

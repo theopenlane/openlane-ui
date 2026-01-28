@@ -679,6 +679,8 @@ export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
 export const CONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
   fragment ControlDiscussionFields on Control {
     id
+    refCode
+    title
     __typename
     discussions {
       edges {

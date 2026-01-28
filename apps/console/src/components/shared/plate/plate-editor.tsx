@@ -40,8 +40,28 @@ export interface PlateEditorRef {
 
 const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
   ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly, isCreate }, ref) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getFirstDefinedProperty = (obj: any, keys: string[], fallback: string): string => {
+      for (const key of keys) {
+        if (obj && obj[key] != null && obj[key] !== '') {
+          return obj[key]
+        }
+      }
+      return fallback
+    }
+
+    const getPlugins = useCallback(() => {
+      if (variant === 'readonly') {
+        const title = getFirstDefinedProperty(entity, ['name', 'title', 'refCode', 'id'], 'Document')
+        return EditorKitVariant['readonly'](title) as PlatePlugin[]
+      }
+      return EditorKitVariant[variant] as PlatePlugin[]
+    }, [variant, entity])
+
+    const plugins = getPlugins()
+
     const editor = usePlateEditor({
-      plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
+      plugins,
     })
 
     const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
@@ -141,10 +161,10 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
 
     useEffect(() => {
       const instance = createPlateEditor({
-        plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
+        plugins: getPlugins(),
       })
       setPlateEditor(instance)
-    }, [variant])
+    }, [getPlugins])
 
     useEffect(() => {
       if (plateEditor && !initialValueSet) {
