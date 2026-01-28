@@ -14,6 +14,7 @@ import { CountriesField } from '../sheet/form-fields/countries-field'
 import { CategoryField } from '../sheet/form-fields/category-field'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { SquarePlus } from 'lucide-react'
+import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
@@ -23,24 +24,15 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export const AddExistingDialog = ({ createdSubprocessorId, onClose }: { createdSubprocessorId: string | null; onClose: () => void }) => {
+export const AddExistingDialog = ({ createdSubprocessor, onClose }: { createdSubprocessor: CreateSubprocessorMutation['createSubprocessor']['subprocessor'] | null; onClose: () => void }) => {
   const [open, setOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
-  const { subprocessors } = useGetSubprocessors({
-    where: { hasTrustCenterSubprocessors: false },
-  })
 
-  const subprocessorOptions = React.useMemo(
-    () =>
-      subprocessors.map((sp) => ({
-        label: sp?.name ?? '',
-        value: sp?.id ?? '',
-        logo: sp?.logoFile?.presignedURL || sp?.logoRemoteURL,
-      })) ?? [],
-    [subprocessors],
-  )
+  const { subprocessors } = useGetSubprocessors({
+    where: { or: [{ hasTrustCenterSubprocessors: false }] },
+  })
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -90,11 +82,11 @@ export const AddExistingDialog = ({ createdSubprocessorId, onClose }: { createdS
   }
 
   useEffect(() => {
-    setOpen(!!createdSubprocessorId)
-    reset({ subprocessorID: createdSubprocessorId || '' })
-  }, [createdSubprocessorId, reset])
+    setOpen(!!createdSubprocessor)
+    reset({ subprocessorID: createdSubprocessor?.id || '' })
+  }, [createdSubprocessor, reset])
 
-  if (!subprocessors.length) {
+  if (!subprocessors?.length) {
     return null
   }
 
@@ -114,7 +106,7 @@ export const AddExistingDialog = ({ createdSubprocessorId, onClose }: { createdS
 
         <FormProvider {...formMethods}>
           <form id="add-existing-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-4">
-            <SubprocessorSelectField options={subprocessorOptions} isEditing={true} />
+            <SubprocessorSelectField isEditing={true} createdSubprocessor={createdSubprocessor} />
             <CountriesField isEditing={true} />
             <CategoryField isEditing={true} />
           </form>

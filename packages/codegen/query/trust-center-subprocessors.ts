@@ -11,6 +11,7 @@ export const GET_TRUST_CENTER_SUBPROCESSORS = gql`
             name
             description
             logoRemoteURL
+            systemOwned
             logoFile {
               presignedURL
               base64
@@ -80,6 +81,14 @@ export const GET_TRUST_CENTER_SUBPROCESSOR_BY_ID = gql`
       countries
       subprocessor {
         id
+        name
+        description
+        logoRemoteURL
+        systemOwned
+        logoFile {
+          presignedURL
+          base64
+        }
       }
     }
   }

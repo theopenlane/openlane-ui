@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -12,17 +12,27 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
+import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessors'
+import { UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
 import { SubprocessorSelectField } from './form-fields/subprocessor-select-field'
 import { CategoryField } from './form-fields/category-field'
 import { CountriesField } from './form-fields/countries-field'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { NameField } from './form-fields/name-field'
+import { DescriptionField } from './form-fields/description-field'
+import { LogoField } from './form-fields/logo-field'
+import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
   category: z.string().min(1, 'Category is required'),
   countries: z.array(z.string()).min(1, 'Select at least one country'),
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().optional(),
+  uploadMode: z.enum(['file', 'url']).default('file'),
+  logoFile: z.instanceof(File).optional(),
+  logoUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
 })
 
 type FormData = z.infer<typeof schema>
@@ -37,20 +47,9 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: updateTCSubprocessor } = useUpdateTrustCenterSubprocessor()
+  const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
 
   const { data } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
-
-  const { subprocessors } = useGetSubprocessors({ where: { hasTrustCenterSubprocessors: false } })
-
-  const subprocessorOptions = useMemo(
-    () =>
-      subprocessors.map((sp) => ({
-        label: sp?.name ?? '',
-        value: sp?.id ?? '',
-        logo: sp?.logoFile?.presignedURL || sp?.logoRemoteURL,
-      })) ?? [],
-    [subprocessors],
-  )
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -58,6 +57,11 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
       subprocessorID: '',
       category: '',
       countries: [],
+      name: '',
+      description: '',
+      uploadMode: 'file',
+      logoFile: undefined,
+      logoUrl: '',
     },
   })
 
@@ -83,23 +87,79 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
   useEffect(() => {
     if (!data) return
+    const sp = data.trustCenterSubprocessor?.subprocessor
+    const existingLogoFileUrl = sp?.logoFile?.presignedURL
+    const existingLogoRemoteUrl = sp?.logoRemoteURL
+
     reset({
-      subprocessorID: data.trustCenterSubprocessor?.subprocessor?.id ?? '',
+      subprocessorID: sp?.id ?? '',
       category: data.trustCenterSubprocessor?.category ?? '',
       countries: data.trustCenterSubprocessor?.countries ?? [],
+      name: sp?.name ?? '',
+      description: sp?.description ?? '',
+      uploadMode: existingLogoRemoteUrl && !existingLogoFileUrl ? 'url' : 'file',
+      logoFile: undefined,
+      // Used by LogoField for "existing preview" (remote URL or presigned file URL)
+      logoUrl: existingLogoRemoteUrl ?? existingLogoFileUrl ?? '',
     })
   }, [data, reset])
 
-  const onSubmit = async (data: FormData) => {
+  const handleLogoUpload = (uploaded: TUploadedFile) => {
+    if (uploaded.file) {
+      formMethods.setValue('logoFile', uploaded.file, { shouldValidate: true })
+    }
+  }
+
+  const onSubmit = async (values: FormData) => {
     if (!trustCenterSubprocessorId) return
 
     try {
+      const tc = data?.trustCenterSubprocessor
+      const isSystemOwned = !!tc?.subprocessor?.systemOwned
+
+      if (!isSystemOwned) {
+        const subprocessorId = tc?.subprocessor?.id
+
+        if (subprocessorId) {
+          const trimmedName = values.name.trim()
+          const trimmedDescription = (values.description ?? '').trim()
+          const trimmedLogoUrl = (values.logoUrl ?? '').trim()
+
+          const input: UpdateSubprocessorInput = {
+            name: trimmedName,
+          }
+
+          if (trimmedDescription) {
+            input.description = trimmedDescription
+          } else {
+            input.clearDescription = true
+          }
+
+          if (values.uploadMode === 'url') {
+            if (trimmedLogoUrl) {
+              input.logoRemoteURL = trimmedLogoUrl
+              input.clearLogoFile = true
+            } else {
+              input.clearLogoRemoteURL = true
+            }
+          } else if (values.uploadMode === 'file' && values.logoFile instanceof File) {
+            input.clearLogoRemoteURL = true
+          }
+
+          await updateSubprocessor({
+            updateSubprocessorId: subprocessorId,
+            input,
+            logoFile: values.uploadMode === 'file' ? values.logoFile : undefined,
+          })
+        }
+      }
+
       await updateTCSubprocessor({
         id: trustCenterSubprocessorId,
         input: {
-          subprocessorID: data.subprocessorID,
-          category: data.category,
-          countries: data.countries,
+          subprocessorID: values.subprocessorID,
+          category: values.category,
+          countries: values.countries,
         },
       })
 
@@ -154,9 +214,17 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
         <FormProvider {...formMethods}>
           <form id="tc-subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
-            <SubprocessorSelectField options={subprocessorOptions} isEditing />
+            <SubprocessorSelectField isEditing={false} selectedSubprocessor={data?.trustCenterSubprocessor?.subprocessor} />
             <CategoryField isEditing />
             <CountriesField isEditing />
+
+            {!data?.trustCenterSubprocessor?.subprocessor?.systemOwned && (
+              <>
+                <NameField isEditing />
+                <LogoField onFileUpload={handleLogoUpload} />
+                <DescriptionField isEditing />
+              </>
+            )}
           </form>
         </FormProvider>
       </SheetContent>

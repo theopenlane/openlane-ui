@@ -7,19 +7,44 @@ import { FormField, FormItem, FormControl, FormLabel } from '@repo/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
-
-type SubprocessorOption = {
-  label: string
-  value: string
-  logo?: string | null
-}
+import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
+import { useDebounce } from '@uidotdev/usehooks'
+import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 interface SubprocessorSelectFieldProps {
-  options: SubprocessorOption[]
   isEditing: boolean
+  createdSubprocessor?: CreateSubprocessorMutation['createSubprocessor']['subprocessor'] | null
+  selectedSubprocessor?: {
+    id?: string | null
+    name?: string | null
+    logoFile?: { presignedURL?: string | null } | null
+    logoRemoteURL?: string | null
+  } | null
 }
 
-export const SubprocessorSelectField = ({ options, isEditing }: SubprocessorSelectFieldProps) => {
+export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, selectedSubprocessor }: SubprocessorSelectFieldProps) => {
+  const [open, setOpen] = useState(false)
+  const [keyword, setKeyword] = useState('')
+
+  const debouncedKeyword = useDebounce(keyword, 300)
+
+  const { subprocessors } = useGetSubprocessors({
+    where: {
+      hasTrustCenterSubprocessors: false,
+      nameContainsFold: debouncedKeyword,
+    },
+  })
+
+  const subprocessorOptions = useMemo(
+    () =>
+      subprocessors?.map((sp) => ({
+        label: sp?.name ?? '',
+        value: sp?.id ?? '',
+        logo: sp?.logoFile?.presignedURL || sp?.logoRemoteURL,
+      })) ?? [],
+    [subprocessors],
+  )
+
   const {
     control,
     setValue,
@@ -27,10 +52,27 @@ export const SubprocessorSelectField = ({ options, isEditing }: SubprocessorSele
     formState: { errors },
   } = useFormContext()
 
-  const [open, setOpen] = useState(false)
   const selectedValue = watch('subprocessorID')
 
-  const selectedOption = useMemo(() => options.find((opt) => opt.value === selectedValue), [options, selectedValue])
+  const selectedOption = useMemo(() => {
+    if (createdSubprocessor && selectedValue === createdSubprocessor.id) {
+      return {
+        label: createdSubprocessor.name,
+        value: createdSubprocessor.id,
+        logo: createdSubprocessor.logoFile?.presignedURL || createdSubprocessor.logoRemoteURL,
+      }
+    }
+
+    if (selectedSubprocessor && selectedValue === selectedSubprocessor.id) {
+      return {
+        label: selectedSubprocessor.name ?? '',
+        value: selectedSubprocessor.id ?? '',
+        logo: selectedSubprocessor.logoFile?.presignedURL || selectedSubprocessor.logoRemoteURL,
+      }
+    }
+
+    return subprocessorOptions.find((opt) => opt.value === selectedValue)
+  }, [subprocessorOptions, selectedValue, createdSubprocessor, selectedSubprocessor])
 
   return (
     <FormField
@@ -39,6 +81,7 @@ export const SubprocessorSelectField = ({ options, isEditing }: SubprocessorSele
       render={() => (
         <FormItem>
           <FormLabel>Subprocessor</FormLabel>
+
           <FormControl>
             {isEditing ? (
               <Popover open={open} onOpenChange={setOpen}>
@@ -54,13 +97,16 @@ export const SubprocessorSelectField = ({ options, isEditing }: SubprocessorSele
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </div>
                 </PopoverTrigger>
+
                 <PopoverContent className="p-0 border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width)" align="start">
-                  <Command shouldFilter>
-                    <CommandInput placeholder="Search subprocessors..." />
+                  <Command shouldFilter={false}>
+                    <CommandInput placeholder="Search subprocessors..." value={keyword} onValueChange={setKeyword} />
+
                     <CommandList>
                       <CommandEmpty>No subprocessor found.</CommandEmpty>
+
                       <CommandGroup>
-                        {options.map((option) => (
+                        {subprocessorOptions.map((option) => (
                           <CommandItem
                             key={option.value}
                             value={option.label}
@@ -71,10 +117,12 @@ export const SubprocessorSelectField = ({ options, isEditing }: SubprocessorSele
                             className="flex items-center gap-2 cursor-pointer"
                           >
                             <Check className={cn('h-4 w-4', selectedValue === option.value ? 'opacity-100' : 'opacity-0')} />
+
                             {option.logo && (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={option.logo} alt="" className="h-5 w-5 rounded object-contain shrink-0" />
                             )}
+
                             <span className="truncate">{option.label}</span>
                           </CommandItem>
                         ))}
@@ -93,6 +141,7 @@ export const SubprocessorSelectField = ({ options, isEditing }: SubprocessorSele
               </div>
             )}
           </FormControl>
+
           {errors.subprocessorID && <p className="text-red-500 text-sm mt-1">{String(errors.subprocessorID.message)}</p>}
         </FormItem>
       )}
