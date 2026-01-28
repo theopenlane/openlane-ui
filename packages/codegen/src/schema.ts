@@ -59766,6 +59766,12 @@ export type UpdateTrustCenterNdaMutationVariables = Exact<{
 
 export type UpdateTrustCenterNdaMutation = { __typename?: 'Mutation'; updateTrustCenterNDA: { __typename?: 'TrustCenterNDAUpdatePayload'; template: { __typename?: 'Template'; id: string } } }
 
+export type GetNdaRequestCountQueryVariables = Exact<{
+  where?: InputMaybe<TrustCenterNdaRequestWhereInput>
+}>
+
+export type GetNdaRequestCountQuery = { __typename?: 'Query'; trustCenterNdaRequests: { __typename?: 'TrustCenterNDARequestConnection'; totalCount: number } }
+
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTrustCenterCompliancesQuery = {
@@ -59960,6 +59966,7 @@ export type GetTrustCenterQuery = {
         __typename?: 'TrustCenter'
         id: string
         slug?: string | null
+        pirschDomainID?: string | null
         customDomain?: {
           __typename?: 'CustomDomain'
           id: string
@@ -59992,6 +59999,7 @@ export type GetTrustCenterQuery = {
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
+          ndaApprovalRequired?: boolean | null
           logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         } | null

@@ -7,6 +7,7 @@ export const GET_TRUST_CENTER = gql`
         node {
           id
           slug
+          pirschDomainID
           customDomain {
             id
             cnameRecord
@@ -50,6 +51,7 @@ export const GET_TRUST_CENTER = gql`
             title
             logoRemoteURL
             securityContact
+            ndaApprovalRequired
           }
           previewSetting {
             id
