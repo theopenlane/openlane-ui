@@ -19,6 +19,7 @@ import { LogoField } from './form-fields/logo-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { TagsField } from './form-fields/tags-field'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 const schema = z
   .object({
@@ -48,7 +49,11 @@ const schema = z
 
 type FormData = z.infer<typeof schema>
 
-export const CreateSubprocessorSheet = ({ onCreateSuccess }: { onCreateSuccess: (id: string) => void }) => {
+interface CreateSubprocessorSheetProps {
+  onCreateSuccess: (subprocessor: CreateSubprocessorMutation['createSubprocessor']['subprocessor']) => void
+}
+
+export const CreateSubprocessorSheet = ({ onCreateSuccess }: CreateSubprocessorSheetProps) => {
   const [open, setOpen] = useState(false)
 
   const { successNotification, errorNotification } = useNotification()
@@ -109,7 +114,10 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess }: { onCreateSuccess: 
       })
 
       handleClose()
-      onCreateSuccess(resp.createSubprocessor.subprocessor.id)
+
+      if (resp.createSubprocessor?.subprocessor) {
+        onCreateSuccess(resp.createSubprocessor.subprocessor)
+      }
     } catch (error) {
       errorNotification({
         title: 'Error Creating Subprocessor',

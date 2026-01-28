@@ -5,6 +5,11 @@ export const CREATE_SUBPROCESSOR = gql`
     createSubprocessor(input: $input, logoFile: $logoFile) {
       subprocessor {
         id
+        name
+        logoFile {
+          presignedURL
+        }
+        logoRemoteURL
       }
     }
   }

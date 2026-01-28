@@ -2,7 +2,6 @@
 
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { Loading } from '@/components/shared/loading/loading'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -25,6 +24,7 @@ const SubprocessorsPage = () => {
     updatedAt: false,
     updatedVy: false,
     createdAt: false,
+    description: false,
   })
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
@@ -109,8 +109,6 @@ const SubprocessorsPage = () => {
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Subprocessors', href: '/trust-center/subprocessors' }])
   }, [setCrumbs])
-
-  if (isLoading) return <Loading />
 
   return (
     <>
