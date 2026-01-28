@@ -12,7 +12,7 @@ interface AnalyticsCardsProps {
 }
 
 export default function AnalyticsCards({ ndaApprovalRequired, pirschDomainID }: AnalyticsCardsProps) {
-  const { data: visitorData, isLoading: isLoadingVisitors } = useAnalytics(pirschDomainID)
+  const { data: visitorData, isLoading: isLoadingVisitors, isError: isErrorVisitors } = useAnalytics(pirschDomainID)
 
   const { count: ndaCount, isLoading: isLoadingNDA } = useGetNDAStats({
     ndaApprovalRequired: !!ndaApprovalRequired,
@@ -48,6 +48,10 @@ export default function AnalyticsCards({ ndaApprovalRequired, pirschDomainID }: 
       icon: <PenTool size={20} />,
     },
   ]
+
+  if (isErrorVisitors || isLoadingVisitors) {
+    return null
+  }
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
