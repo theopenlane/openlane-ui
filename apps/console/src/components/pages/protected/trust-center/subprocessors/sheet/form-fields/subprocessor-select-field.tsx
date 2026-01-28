@@ -33,6 +33,11 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
       hasTrustCenterSubprocessors: false,
       nameContainsFold: debouncedKeyword,
     },
+    pagination: {
+      page: 1,
+      pageSize: 20,
+      query: { first: 20 },
+    },
   })
 
   const subprocessorOptions = useMemo(

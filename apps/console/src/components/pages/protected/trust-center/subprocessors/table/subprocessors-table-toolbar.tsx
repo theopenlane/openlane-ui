@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
+import { ChevronDown, DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -13,9 +13,11 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
 import { subprocessorsFilterFields } from './table-config'
 import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 
 type TProps = {
   searching?: boolean
@@ -45,9 +47,15 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   onExport,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [createSheetOpen, setCreateSheetOpen] = useState(false)
+  const [addExistingOpen, setAddExistingOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
   const [createdSubprocessor, setCreatedSubprocessor] = useState<null | CreateSubprocessorMutation['createSubprocessor']['subprocessor']>(null)
+  const { subprocessors } = useGetSubprocessors({
+    where: { or: [{ hasTrustCenterSubprocessors: false }] },
+  })
+  const hasAvailableSubprocessors = (subprocessors?.length ?? 0) > 0
 
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) return
@@ -131,8 +139,19 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             )}
 
             <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.SUBPROCESSORS} />
-            <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} />
-            <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessor} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>
+                  Create
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {hasAvailableSubprocessors && <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Existing subprocessor</DropdownMenuItem>}
+                <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} open={addExistingOpen} onOpenChange={setAddExistingOpen} />
+            <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessor} open={createSheetOpen} onOpenChange={setCreateSheetOpen} />
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">

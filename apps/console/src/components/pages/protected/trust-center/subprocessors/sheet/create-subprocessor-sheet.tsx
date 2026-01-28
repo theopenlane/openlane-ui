@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PanelRightClose, SquarePlus } from 'lucide-react'
+import { PanelRightClose } from 'lucide-react'
 
 import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from '@repo/ui/sheet'
@@ -51,10 +51,15 @@ type FormData = z.infer<typeof schema>
 
 interface CreateSubprocessorSheetProps {
   onCreateSuccess: (subprocessor: CreateSubprocessorMutation['createSubprocessor']['subprocessor']) => void
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (value: boolean) => void
 }
 
-export const CreateSubprocessorSheet = ({ onCreateSuccess }: CreateSubprocessorSheetProps) => {
+export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: controlledOpen, onOpenChange }: CreateSubprocessorSheetProps) => {
   const [open, setOpen] = useState(false)
+  const isControlled = typeof controlledOpen === 'boolean'
+  const resolvedOpen = isControlled ? controlledOpen : open
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createSubprocessor } = useCreateSubprocessor()
@@ -87,13 +92,17 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess }: CreateSubprocessorS
   }
 
   const handleClose = () => {
-    setOpen(false)
-    reset()
+    handleOpenChange(false)
   }
 
-  const onOpenChange = (value: boolean) => {
-    setOpen(value)
-    if (!value) reset()
+  const handleOpenChange = (value: boolean) => {
+    if (!isControlled) {
+      setOpen(value)
+    }
+    onOpenChange?.(value)
+    if (!value) {
+      reset()
+    }
   }
 
   const onSubmit = async (data: FormData) => {
@@ -127,12 +136,8 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess }: CreateSubprocessorS
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetTrigger asChild>
-        <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left">
-          Create Subprocessor
-        </Button>
-      </SheetTrigger>
+    <Sheet open={resolvedOpen} onOpenChange={handleOpenChange}>
+      {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
 
       <SheetContent>
         <SheetHeader>
@@ -155,7 +160,7 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess }: CreateSubprocessorS
         <FormProvider {...formMethods}>
           <form id="subprocessor-form" className="space-y-6">
             <NameField isEditing />
-            <LogoField onFileUpload={handleLogoUpload} />
+            <LogoField onFileUpload={handleLogoUpload} isEditing />
             <DescriptionField isEditing />
             <TagsField isEditing />
           </form>

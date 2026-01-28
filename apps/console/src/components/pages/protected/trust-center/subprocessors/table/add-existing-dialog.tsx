@@ -8,12 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { SubprocessorSelectField } from '../sheet/form-fields/subprocessor-select-field'
 import { CountriesField } from '../sheet/form-fields/countries-field'
 import { CategoryField } from '../sheet/form-fields/category-field'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { SquarePlus } from 'lucide-react'
 import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 const schema = z.object({
@@ -24,15 +22,25 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export const AddExistingDialog = ({ createdSubprocessor, onClose }: { createdSubprocessor: CreateSubprocessorMutation['createSubprocessor']['subprocessor'] | null; onClose: () => void }) => {
+export const AddExistingDialog = ({
+  createdSubprocessor,
+  onClose,
+  trigger,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  createdSubprocessor: CreateSubprocessorMutation['createSubprocessor']['subprocessor'] | null
+  onClose: () => void
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (value: boolean) => void
+}) => {
   const [open, setOpen] = useState(false)
+  const isControlled = typeof controlledOpen === 'boolean'
+  const resolvedOpen = isControlled ? controlledOpen : open
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
-
-  const { subprocessors } = useGetSubprocessors({
-    where: { or: [{ hasTrustCenterSubprocessors: false }] },
-  })
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -49,8 +57,11 @@ export const AddExistingDialog = ({ createdSubprocessor, onClose }: { createdSub
     formState: { isSubmitting },
   } = formMethods
 
-  const onOpenChange = (value: boolean) => {
-    setOpen(value)
+  const handleOpenChange = (value: boolean) => {
+    if (!isControlled) {
+      setOpen(value)
+    }
+    onOpenChange?.(value)
     if (!value) {
       onClose()
       reset()
@@ -72,7 +83,7 @@ export const AddExistingDialog = ({ createdSubprocessor, onClose }: { createdSub
         description: 'The subprocessor has been added to your Trust Center.',
       })
 
-      onOpenChange(false)
+      handleOpenChange(false)
     } catch (error) {
       errorNotification({
         title: 'Error Adding Subprocessor',
@@ -82,21 +93,16 @@ export const AddExistingDialog = ({ createdSubprocessor, onClose }: { createdSub
   }
 
   useEffect(() => {
-    setOpen(!!createdSubprocessor)
+    if (!isControlled) {
+      setOpen(!!createdSubprocessor)
+    }
+    onOpenChange?.(!!createdSubprocessor)
     reset({ subprocessorID: createdSubprocessor?.id || '' })
-  }, [createdSubprocessor, reset])
-
-  if (!subprocessors?.length) {
-    return null
-  }
+  }, [createdSubprocessor, isControlled, onOpenChange, reset])
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button icon={<SquarePlus size={16} />} iconPosition="left" variant="secondary">
-          Add Existing
-        </Button>
-      </DialogTrigger>
+    <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent className="max-w-xl">
         <DialogHeader>
@@ -113,7 +119,7 @@ export const AddExistingDialog = ({ createdSubprocessor, onClose }: { createdSub
         </FormProvider>
 
         <DialogFooter className="gap-2">
-          <Button variant="secondary" onClick={() => onOpenChange(false)} type="button">
+          <Button variant="secondary" onClick={() => handleOpenChange(false)} type="button">
             Back
           </Button>
           <Button type="submit" form="add-existing-form" disabled={isSubmitting} variant="primary">
