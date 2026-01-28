@@ -17,6 +17,7 @@ import { BrandingAssetsSection } from './sections/branding-assets-section'
 import { FormProvider } from 'react-hook-form'
 import { BrandFormValues, useBrandForm } from './brand-schema'
 import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
+import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -65,6 +66,8 @@ const BrandPage: React.FC = () => {
         faviconRemoteURL: previewSetting.faviconRemoteURL ?? '',
         logoFile: null,
         faviconFile: null,
+        companyName: previewSetting.companyName ?? '',
+        companyDescription: previewSetting.companyDescription ?? '',
       })
     }
   }, [previewSetting, reset])
@@ -102,6 +105,8 @@ const BrandPage: React.FC = () => {
         overview: values.overview,
         securityContact: values.securityContact || null,
         clearSecurityContact: !values.securityContact,
+        companyName: values.companyName,
+        companyDescription: values.companyDescription,
       },
     }
 
@@ -191,7 +196,7 @@ const BrandPage: React.FC = () => {
               <TabsTrigger value="published">Published</TabsTrigger>
             </TabsList>
           </Tabs>
-
+          <BrandingCompanyInfoSection isReadOnly={isReadOnly} setting={setting} />
           <BrandingTextSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.text} setting={setting} />
 
           <BrandingThemeSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.theme} setting={setting} />

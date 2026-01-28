@@ -59987,6 +59987,8 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          companyName?: string | null
+          companyDescription?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
@@ -60006,6 +60008,8 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          companyName?: string | null
+          companyDescription?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
