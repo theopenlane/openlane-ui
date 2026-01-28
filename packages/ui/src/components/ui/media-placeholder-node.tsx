@@ -133,7 +133,7 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, function Placehol
         <div className={cn('flex cursor-pointer items-center rounded-xs bg-muted p-3 pr-9 select-none hover:bg-primary/10')} onClick={() => !loading && openFilePicker()} contentEditable={false}>
           <div className="relative mr-3 flex text-muted-foreground/80 [&_svg]:size-6">{currentContent.icon}</div>
           <div className="text-sm text-muted-foreground flex-1 min-w-0">
-            <div className="truncate" title={loading ? uploadingFile?.name : undefined}>
+            <div className="truncate max-w-[240px]" title={loading ? uploadingFile?.name : undefined}>
               {loading ? uploadingFile?.name : currentContent.content}
             </div>
 

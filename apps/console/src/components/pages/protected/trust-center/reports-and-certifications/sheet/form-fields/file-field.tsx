@@ -36,7 +36,7 @@ export const FileField = ({ onFileUpload, uploadedFile }: Props) => {
                   </div>
                 </div>
                 <div className="min-w-0">
-                  <div className="font-medium text-sm leading-5 truncate" title={uploadedFile.name}>
+                  <div className="font-medium text-sm leading-5 truncate max-w-[240px]" title={uploadedFile.name}>
                     {uploadedFile.name}
                   </div>
                   <div className="text-xs font-normal leading-4 text-muted-foreground">Size: {Math.round(uploadedFile.size! / 1024)} KB</div>

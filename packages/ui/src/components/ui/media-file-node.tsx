@@ -29,7 +29,7 @@ export const FileElement = withHOC(ResizableProvider, function FileElement(props
       >
         <div className="flex items-center gap-1 p-1 flex-1 min-w-0">
           <FileUp className="size-5 shrink-0" />
-          <div className="truncate" title={name}>
+          <div className="truncate max-w-[240px]" title={name}>
             {name}
           </div>
         </div>

@@ -90,7 +90,7 @@ export const DocumentUploadDialog: React.FC<TDocumentUploadDialog> = ({ document
                 <FileUp className="w-8 h-8" />
               </div>
               <div className="min-w-0">
-                <div className="font-semibold truncate" title={file.name}>
+                <div className="font-semibold truncate max-w-[240px]" title={file.name}>
                   {file.name}
                 </div>
                 <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
