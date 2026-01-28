@@ -39,6 +39,7 @@ import { BasicFixedToolbarKit } from '@repo/ui/components/editor/plugins/basic-f
 import { BasicFloatingToolbarKit } from '@repo/ui/components/editor/plugins/basic-floating-toolbar-kit.tsx'
 import { MinimalisticFixedToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-fixed-toolbar-kit.tsx'
 import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-floating-toolbar-kit.tsx'
+import { ReadOnlyToolbarKit } from './plugins/read-only-toolbar-kit'
 
 export const EditorKit = [
   /*
@@ -92,7 +93,7 @@ export const BasicKit = [...EditorKit, ...BasicFixedToolbarKit, ...BasicFloating
 
 export const AdvancedKit = [...EditorKit, ...FixedToolbarKit, ...FloatingToolbarKit]
 
-export const ReadonlyKit = [...EditorKit]
+export const ReadonlyKit = [...EditorKit, ...ReadOnlyToolbarKit]
 
 export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>
 
