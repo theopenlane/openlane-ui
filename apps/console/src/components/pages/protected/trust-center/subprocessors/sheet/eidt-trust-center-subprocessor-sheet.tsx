@@ -15,7 +15,6 @@ import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } f
 import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessors'
 import { UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
-import { SubprocessorSelectField } from './form-fields/subprocessor-select-field'
 import { CategoryField } from './form-fields/category-field'
 import { CountriesField } from './form-fields/countries-field'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -68,6 +67,8 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { handleSubmit, reset, formState } = formMethods
   const { isSubmitting } = formState
 
+  const isEditable = !data?.trustCenterSubprocessor?.subprocessor?.systemOwned
+
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen)
 
@@ -99,7 +100,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
       description: sp?.description ?? '',
       uploadMode: existingLogoRemoteUrl && !existingLogoFileUrl ? 'url' : 'file',
       logoFile: undefined,
-      // Used by LogoField for "existing preview" (remote URL or presigned file URL)
       logoUrl: existingLogoRemoteUrl ?? existingLogoFileUrl ?? '',
     })
   }, [data, reset])
@@ -187,7 +187,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
         <SheetHeader>
           <div className="flex justify-between">
             <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-
             <div className="flex justify-start gap-2 items-center">
               <div className="flex gap-3">
                 <Button
@@ -205,7 +204,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
                 >
                   Copy link
                 </Button>
-
                 <SaveButton isSaving={isSubmitting} form="tc-subprocessor-form" />
               </div>
             </div>
@@ -214,17 +212,11 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
         <FormProvider {...formMethods}>
           <form id="tc-subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
-            <SubprocessorSelectField isEditing={false} selectedSubprocessor={data?.trustCenterSubprocessor?.subprocessor} />
-            <CategoryField isEditing />
+            <NameField isEditing={false} />
+            <DescriptionField isEditing={isEditable} />
             <CountriesField isEditing />
-
-            {!data?.trustCenterSubprocessor?.subprocessor?.systemOwned && (
-              <>
-                <NameField isEditing />
-                <LogoField onFileUpload={handleLogoUpload} />
-                <DescriptionField isEditing />
-              </>
-            )}
+            <CategoryField isEditing />
+            <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} />
           </form>
         </FormProvider>
       </SheetContent>

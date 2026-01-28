@@ -12,9 +12,10 @@ import { normalizeUrl } from '@/utils/normalizeUrl'
 
 interface Props {
   onFileUpload: (file: TUploadedFile) => void
+  isEditing: boolean
 }
 
-export const LogoField = ({ onFileUpload }: Props) => {
+export const LogoField = ({ onFileUpload, isEditing }: Props) => {
   const {
     watch,
     setValue,
@@ -46,24 +47,26 @@ export const LogoField = ({ onFileUpload }: Props) => {
 
   return (
     <div className="space-y-4">
-      <RadioGroup defaultValue="file" value={uploadMode} onValueChange={(value) => setValue('uploadMode', value)} className="flex gap-4">
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="file" id="file" />
-          <Label htmlFor="file" className="font-normal cursor-pointer">
-            Upload File
-          </Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="url" id="url" />
-          <Label htmlFor="url" className="font-normal cursor-pointer">
-            Enter URL
-          </Label>
-        </div>
-      </RadioGroup>
+      {isEditing && (
+        <RadioGroup defaultValue="file" value={uploadMode} onValueChange={(value) => setValue('uploadMode', value)} className="flex gap-4">
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="file" id="file" />
+            <Label htmlFor="file" className="font-normal cursor-pointer">
+              Upload File
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="url" id="url" />
+            <Label htmlFor="url" className="font-normal cursor-pointer">
+              Enter URL
+            </Label>
+          </div>
+        </RadioGroup>
+      )}
 
       <div className="flex gap-7 pt-2">
         <div>
-          <Label className="mb-2 block text-sm">Preview</Label>
+          <Label className="mb-2 block text-sm"> {isEditing ? 'Preview' : 'Logo'}</Label>
           <div className="flex h-[110px] w-[110px] items-center justify-center rounded-md border border-muted bg-background overflow-hidden">
             {previewSrc ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -77,27 +80,29 @@ export const LogoField = ({ onFileUpload }: Props) => {
           </div>
         </div>
 
-        <div className="flex-1">
-          {uploadMode === 'file' ? (
-            <>
-              <Label className="mb-2 block text-sm">Upload Logo</Label>
-              <FileUpload
-                onFileUpload={onFileUpload}
-                acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
-                acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
-                maxFileSizeInMb={5}
-                multipleFiles={false}
-              />
-              {errors.logoFile && <p className="text-red-500 text-sm mt-1">{String(errors.logoFile.message)}</p>}
-            </>
-          ) : (
-            <>
-              <Label className="mb-2 block text-sm">Logo URL</Label>
-              <Input {...register('logoUrl')} placeholder="https://example.com/logo.png" className="w-full" />
-              {errors.logoUrl && <p className="text-red-500 text-sm mt-1">{String(errors.logoUrl.message)}</p>}
-            </>
-          )}
-        </div>
+        {isEditing && (
+          <div className="flex-1">
+            {uploadMode === 'file' ? (
+              <>
+                <Label className="mb-2 block text-sm">Upload Logo</Label>
+                <FileUpload
+                  onFileUpload={onFileUpload}
+                  acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
+                  acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
+                  maxFileSizeInMb={5}
+                  multipleFiles={false}
+                />
+                {errors.logoFile && <p className="text-red-500 text-sm mt-1">{String(errors.logoFile.message)}</p>}
+              </>
+            ) : (
+              <>
+                <Label className="mb-2 block text-sm">Logo URL</Label>
+                <Input {...register('logoUrl')} placeholder="https://example.com/logo.png" className="w-full" />
+                {errors.logoUrl && <p className="text-red-500 text-sm mt-1">{String(errors.logoUrl.message)}</p>}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
