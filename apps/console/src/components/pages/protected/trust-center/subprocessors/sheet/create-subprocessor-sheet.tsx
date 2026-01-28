@@ -155,7 +155,7 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess }: CreateSubprocessorS
         <FormProvider {...formMethods}>
           <form id="subprocessor-form" className="space-y-6">
             <NameField isEditing />
-            <LogoField onFileUpload={handleLogoUpload} />
+            <LogoField onFileUpload={handleLogoUpload} isEditing />
             <DescriptionField isEditing />
             <TagsField isEditing />
           </form>
