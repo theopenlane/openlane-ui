@@ -16,6 +16,7 @@ import { EditorStatic } from './editor-static'
 import { ToolbarButton } from './toolbar'
 import { pdf } from '@react-pdf/renderer'
 import { PlatePdfDocument } from '../editor/plugins/plate-pdf'
+import { exportPlateValueToDocx } from '../editor/plugins/plate-docx'
 
 const siteUrl = 'https://platejs.org'
 
@@ -76,6 +77,12 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
     const url = URL.createObjectURL(blob)
 
     downloadFile(url, fileName)
+  }
+
+  const exportToDocx = async () => {
+    const filename = getExportFilename('docx')
+
+    return exportPlateValueToDocx(editor.children as any[], { fileName: filename })
   }
 
   const exportToImage = async () => {
@@ -146,6 +153,7 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportToDocx}>Export as DOCX</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToImage}>Export as Image</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToMarkdown}>Export as Markdown</DropdownMenuItem>
         </DropdownMenuGroup>
