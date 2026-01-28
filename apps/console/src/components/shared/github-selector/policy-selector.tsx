@@ -49,7 +49,7 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
       const allFiles: GitHubItem[] = []
       await Promise.all(
         POLICY_DIRECTORIES.map(async (dir) => {
-          const response = await fetch(`${GITHUB_API_BASE}/${POLICY_REPO}/contents/${dir.path}?ref=feat-dongatotemplates`)
+          const response = await fetch(`${GITHUB_API_BASE}/${POLICY_REPO}/contents/${dir.path}?ref=main`)
           if (!response.ok) {
             // just log the error and continue
             console.error('Failed to fetch templates from GitHub:', response.statusText)
