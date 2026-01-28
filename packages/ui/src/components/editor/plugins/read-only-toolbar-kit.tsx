@@ -3,7 +3,7 @@
 import { createPlatePlugin } from 'platejs/react'
 
 import { FixedToolbar } from '@repo/ui/components/ui/fixed-toolbar.tsx'
-import { ReadyOnlyToolbarButtons } from '@repo/ui/components/ui/readonly-toolbar-buttons.tsx'
+import { ReadOnlyToolbarButtons } from '@repo/ui/components/ui/readonly-toolbar-buttons.tsx'
 
 export const ReadOnlyToolbarKit = [
   createPlatePlugin({
@@ -11,7 +11,7 @@ export const ReadOnlyToolbarKit = [
     render: {
       beforeContainer: () => (
         <FixedToolbar className="p-0 overflow-x-visible border-none">
-          <ReadyOnlyToolbarButtons />
+          <ReadOnlyToolbarButtons />
         </FixedToolbar>
       ),
     },
@@ -25,7 +25,7 @@ export function createReadOnlyToolbarKit(title: string) {
       render: {
         beforeContainer: () => (
           <FixedToolbar className="p-0 overflow-x-visible border-none">
-            <ReadyOnlyToolbarButtons title={title} />
+            <ReadOnlyToolbarButtons title={title} />
           </FixedToolbar>
         ),
       },

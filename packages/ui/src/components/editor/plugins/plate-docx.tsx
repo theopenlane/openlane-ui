@@ -1,6 +1,8 @@
 import { Document, HeadingLevel, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType, ExternalHyperlink } from 'docx'
 import { saveAs } from 'file-saver'
 
+const defaultFont = 'Calibri'
+
 type SlateText = {
   text: string
   bold?: boolean
@@ -63,7 +65,7 @@ function leafToRuns(leaf: SlateText): TextRun[] {
       bold: !!leaf.bold,
       italics: !!leaf.italic,
       underline: leaf.underline ? {} : undefined,
-      font: 'Calibri',
+      font: defaultFont,
     }),
   ]
 }
@@ -96,7 +98,7 @@ function childrenToRuns(children: any[]): (TextRun | ExternalHyperlink)[] {
       out.push(
         new ExternalHyperlink({
           link: child.url,
-          children: linkRuns.length ? linkRuns : [new TextRun({ text: child.url })],
+          children: linkRuns.length ? linkRuns : [new TextRun({ text: child.url, font: defaultFont })],
         }),
       )
       continue
@@ -209,6 +211,7 @@ function tableNodeToTable(tableNode: any): Table {
                 if (isHeader && r instanceof TextRun) {
                   return new TextRun({
                     bold: true,
+                    font: defaultFont,
                   })
                 }
                 return r
@@ -226,7 +229,7 @@ function tableNodeToTable(tableNode: any): Table {
       }
 
       if (!cellParagraphs.length) {
-        cellParagraphs.push(new Paragraph({ children: [new TextRun('')] }))
+        cellParagraphs.push(new Paragraph({ children: [new TextRun({ text: '', font: defaultFont })] }))
       }
 
       return new TableCell({
@@ -267,7 +270,7 @@ export async function exportPlateValueToDocx(value: Value, opts?: { fileName?: s
     sections: [
       {
         properties: {},
-        children: blocks.length ? blocks : [new Paragraph({ children: [new TextRun('')] })],
+        children: blocks.length ? blocks : [new Paragraph({ children: [new TextRun({ text: '', font: defaultFont })] })],
       },
     ],
   })
