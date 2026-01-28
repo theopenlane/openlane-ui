@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react'
+import React, { useEffect, useState, useImperativeHandle, forwardRef, useCallback } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Value, TElement, KEYS } from 'platejs'
