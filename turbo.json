@@ -30,8 +30,7 @@
         "NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED",
         "GOOGLE_AI_MODEL_NAME",
         "GOOGLE_GENERATIVE_AI_API_KEY",
-        "PIRSCH_SECRET",
-        "PIRSCH_CLIENT_ID"
+        "PIRSCH_SECRET"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },
