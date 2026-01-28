@@ -14,12 +14,19 @@ import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 
 import { EditorStatic } from './editor-static'
 import { ToolbarButton } from './toolbar'
+import { pdf } from '@react-pdf/renderer'
+import { PlatePdfDocument } from '../editor/plugins/plate-pdf'
 
 const siteUrl = 'https://platejs.org'
 
-export function ExportToolbarButton(props: DropdownMenuProps) {
+export function ExportToolbarButton({ title = 'document', ...props }: DropdownMenuProps & { title?: string }) {
   const editor = useEditorRef()
   const [open, setOpen] = React.useState(false)
+
+  const getExportFilename = (ext: string) => {
+    const date = new Date().toISOString().slice(0, 10)
+    return `${title}-${date}.${ext}`
+  }
 
   const getCanvas = async () => {
     const { default: html2canvas } = await import('html2canvas-pro')
@@ -61,27 +68,19 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
   }
 
   const exportToPdf = async () => {
-    const canvas = await getCanvas()
+    const fileName = getExportFilename('pdf')
 
-    const PDFLib = await import('pdf-lib')
-    const pdfDoc = await PDFLib.PDFDocument.create()
-    const page = pdfDoc.addPage([canvas.width, canvas.height])
-    const imageEmbed = await pdfDoc.embedPng(canvas.toDataURL('PNG'))
-    const { height, width } = imageEmbed.scale(1)
-    page.drawImage(imageEmbed, {
-      height,
-      width,
-      x: 0,
-      y: 0,
-    })
-    const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true })
+    const instance = pdf(<PlatePdfDocument value={editor.children} />)
+    const blob = await instance.toBlob()
 
-    await downloadFile(pdfBase64, 'plate.pdf')
+    const url = URL.createObjectURL(blob)
+
+    downloadFile(url, fileName)
   }
 
   const exportToImage = async () => {
     const canvas = await getCanvas()
-    await downloadFile(canvas.toDataURL('image/png'), 'plate.png')
+    await downloadFile(canvas.toDataURL('image/png'), getExportFilename('png'))
   }
 
   const exportToHtml = async () => {
@@ -126,13 +125,13 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
 
     const url = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`
 
-    await downloadFile(url, 'plate.html')
+    await downloadFile(url, getExportFilename('html'))
   }
 
   const exportToMarkdown = async () => {
     const md = editor.getApi(MarkdownPlugin).markdown.serialize()
     const url = `data:text/markdown;charset=utf-8,${encodeURIComponent(md)}`
-    await downloadFile(url, 'plate.md')
+    await downloadFile(url, getExportFilename('md'))
   }
 
   return (
