@@ -1,4 +1,4 @@
-import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType, ExternalHyperlink } from 'docx'
+import { Document, HeadingLevel, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType, ExternalHyperlink } from 'docx'
 import { saveAs } from 'file-saver'
 
 type SlateText = {
@@ -34,7 +34,7 @@ function getHeadingLevel(node: any): 1 | 2 | 3 | 4 | 5 | 6 | null {
   return null
 }
 
-function headingLevelToDocx(level: 1 | 2 | 3 | 4 | 5 | 6): HeadingLevel {
+function headingLevelToDocx(level: 1 | 2 | 3 | 4 | 5 | 6): (typeof HeadingLevel)[keyof typeof HeadingLevel] {
   switch (level) {
     case 1:
       return HeadingLevel.HEADING_1
@@ -204,9 +204,10 @@ function tableNodeToTable(tableNode: any): Table {
           cellParagraphs.push(
             new Paragraph({
               children: (childrenToRuns(n.children) as any).map((r: any) => {
-                // Bold header text
                 if (isHeader && r instanceof TextRun) {
-                  return new TextRun({ ...r['options'], bold: true })
+                  return new TextRun({
+                    bold: true,
+                  })
                 }
                 return r
               }),
