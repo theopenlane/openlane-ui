@@ -8,10 +8,11 @@ import { useAnalytics } from '@/lib/query-hooks/analytics'
 
 interface AnalyticsCardsProps {
   ndaApprovalRequired: boolean | null | undefined
+  pirschDomainID?: string | null
 }
 
-export default function AnalyticsCards({ ndaApprovalRequired }: AnalyticsCardsProps) {
-  const { data: visitorData, isLoading: isLoadingVisitors } = useAnalytics()
+export default function AnalyticsCards({ ndaApprovalRequired, pirschDomainID }: AnalyticsCardsProps) {
+  const { data: visitorData, isLoading: isLoadingVisitors } = useAnalytics(pirschDomainID)
 
   const { count: ndaCount, isLoading: isLoadingNDA } = useGetNDAStats({
     ndaApprovalRequired: !!ndaApprovalRequired,

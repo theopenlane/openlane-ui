@@ -4,13 +4,16 @@ import { auth } from '@/lib/auth/auth'
 
 const BASE_URL = 'https://api.pirsch.io/api/v1'
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const token = process.env.PIRSCH_SECRET
-  const domainId = 'l4dnLwng0G'
-  if (!token || !domainId) return NextResponse.json({ error: 'Missing Pirsch credentials' }, { status: 500 })
+  const { searchParams } = new URL(request.url)
+  const domainId = searchParams.get('pirschDomainID')?.trim() ?? ''
+
+  if (!token) return NextResponse.json({ error: 'Missing Pirsch credentials' }, { status: 500 })
+  if (!domainId) return NextResponse.json({ error: 'Missing Pirsch domain ID' }, { status: 400 })
 
   const to = new Date()
   const from = subDays(to, 30)

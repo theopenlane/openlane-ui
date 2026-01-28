@@ -3,17 +3,20 @@
 import React from 'react'
 import { Globe, Plus } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+// import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 
 export default function AnalyticsPage() {
   const { resolvedTheme } = useTheme()
-  const { data: trustCenterData } = useGetTrustCenter()
-  const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
 
-  const accessLink = trustCenter?.pirschAccessLink
+  //todo: connect this once we have a trust center pirsch access link and remove env variable
+  // const { data: trustCenterData } = useGetTrustCenter()
+  // const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
+  // const accessLink = trustCenter?.pirschAccessLink
   // || process.env.NEXT_PUBLIC_ANALYTICS_ACCESS_LINK || ''
+
+  const accessLink = process.env.NEXT_PUBLIC_ANALYTICS_ACCESS_LINK
   const mode = resolvedTheme === 'dark' ? 'dark' : 'light'
 
   if (!accessLink) {

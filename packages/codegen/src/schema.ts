@@ -59945,6 +59945,7 @@ export type GetTrustCenterQuery = {
         __typename?: 'TrustCenter'
         id: string
         slug?: string | null
+        pirschDomainID?: string | null
         customDomain?: {
           __typename?: 'CustomDomain'
           id: string

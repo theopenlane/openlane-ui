@@ -60,7 +60,7 @@ const OverviewPage: React.FC = () => {
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-[1232px] grid gap-6">
         <PageHeading heading="Overview" />
-        <AnalyticsCards ndaApprovalRequired={trustCenter?.setting?.ndaApprovalRequired} />
+        <AnalyticsCards ndaApprovalRequired={trustCenter?.setting?.ndaApprovalRequired} pirschDomainID={trustCenter?.pirschDomainID} />
         <div className="flex gap-3">
           <div className="flex flex-col gap-3 basis-[65%]">
             <div className="flex-1">
