@@ -64,9 +64,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ eviden
                     <File size={12} />
                     <span className="font-medium">{isImage ? 'Image' : 'File'}</span>
                   </div>
-                  <span className={`pl-3 text-brand text-xs hover:underline truncate block ${borderClass}`} title={item?.node?.providedFileName ?? ''}>
-                    {item?.node?.providedFileName}
-                  </span>
+                  <span className={`pl-3 text-brand text-xs hover:underline ${borderClass}`}>{item?.node?.providedFileName}</span>
                 </Fragment>
               )
             })}

@@ -85,14 +85,12 @@ export const DocumentUploadDialog: React.FC<TDocumentUploadDialog> = ({ document
 
         {uploadedFiles.map((file, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
-            <div className="flex items-center flex-1 min-w-0">
+            <div className="flex items-center">
               <div className="mr-2">
                 <FileUp className="w-8 h-8" />
               </div>
-              <div className="min-w-0">
-                <div className="font-semibold truncate" title={file.name}>
-                  {file.name}
-                </div>
+              <div>
+                <div className="font-semibold">{file.name}</div>
                 <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
               </div>
             </div>
