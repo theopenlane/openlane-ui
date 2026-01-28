@@ -4,15 +4,67 @@ import { auth } from '@/lib/auth/auth'
 
 const BASE_URL = 'https://api.pirsch.io/api/v1'
 
+type PirschTokenCache = {
+  token: string | null
+  expiresAtMs: number
+}
+
+let pirschTokenCache: PirschTokenCache = {
+  token: null,
+  expiresAtMs: 0,
+}
+
+async function getPirschAccessToken() {
+  const clientId = process.env.PIRSCH_CLIENT_ID
+  const clientSecret = process.env.PIRSCH_SECRET
+
+  if (!clientId || !clientSecret) {
+    return { token: null, error: 'Missing Pirsch credentials' }
+  }
+
+  const now = Date.now()
+  if (pirschTokenCache.token && pirschTokenCache.expiresAtMs > now + 30_000) {
+    return { token: pirschTokenCache.token, error: null }
+  }
+
+  const res = await fetch(`${BASE_URL}/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+    cache: 'no-store',
+  })
+
+  if (!res.ok) {
+    const errorText = await res.text()
+    console.error('Pirsch token error:', errorText)
+    return { token: null, error: 'Failed to fetch Pirsch token' }
+  }
+
+  const data: { access_token?: string; expires_at?: string } = await res.json()
+  const token = data.access_token?.trim()
+  const expiresAtMs = data.expires_at ? Date.parse(data.expires_at) : 0
+
+  if (!token || !expiresAtMs || Number.isNaN(expiresAtMs)) {
+    console.error('Pirsch token payload invalid:', data)
+    return { token: null, error: 'Invalid Pirsch token response' }
+  }
+
+  pirschTokenCache = { token, expiresAtMs }
+  return { token, error: null }
+}
+
 export async function GET(request: Request) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const token = process.env.PIRSCH_SECRET
+  const { token, error } = await getPirschAccessToken()
   const { searchParams } = new URL(request.url)
   const domainId = searchParams.get('pirschDomainID')?.trim() ?? ''
 
-  if (!token) return NextResponse.json({ error: 'Missing Pirsch credentials' }, { status: 500 })
+  if (!token) return NextResponse.json({ error: error ?? 'Missing Pirsch credentials' }, { status: 500 })
   if (!domainId) return NextResponse.json({ error: 'Missing Pirsch domain ID' }, { status: 400 })
 
   const to = new Date()
@@ -27,11 +79,11 @@ export async function GET(request: Request) {
   try {
     const [resStats, resDuration] = await Promise.all([
       fetch(`${BASE_URL}/statistics/visitor?${query}`, {
-        headers: { Authorization: `${token}` },
+        headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store',
       }),
       fetch(`${BASE_URL}/statistics/duration/session?${query}`, {
-        headers: { Authorization: `${token}` },
+        headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store',
       }),
     ])

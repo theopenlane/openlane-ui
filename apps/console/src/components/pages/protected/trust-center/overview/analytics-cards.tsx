@@ -73,7 +73,7 @@ const CardItem: React.FC<CardItemProps> = ({ title, value, icon }) => (
     <CardContent className="pt-6">
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-btn-secondary border border-muted text-muted-foreground">{icon}</div>
       <p className="text-sm font-medium text-muted-foreground">{title}</p>
-      <h3 className="mt-2 text-2xl font-bold text-white">{value}</h3>
+      <h3 className="mt-2 text-2xl font-bold">{value}</h3>
     </CardContent>
   </Card>
 )
