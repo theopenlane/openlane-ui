@@ -52,16 +52,11 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
 
     const getPlugins = useCallback(() => {
       const title = getFirstDefinedProperty(entity, ['name', 'title', 'refCode', 'id'], 'Document')
-      if (typeof EditorKitVariant[variant] === 'function') {
-        return EditorKitVariant[variant](title) as PlatePlugin[]
-      }
-      return EditorKitVariant[variant] as PlatePlugin[]
+      return EditorKitVariant[variant](title) as PlatePlugin[]
     }, [variant, entity])
 
-    const plugins = getPlugins()
-
     const editor = usePlateEditor({
-      plugins,
+      plugins: getPlugins(),
     })
 
     const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)

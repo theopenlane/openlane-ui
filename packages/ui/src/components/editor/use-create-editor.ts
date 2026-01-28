@@ -100,9 +100,9 @@ export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>
 export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal' | 'readonly'
 
 export const EditorKitVariant = {
-  minimal: MinimalisticKit,
-  basic: BasicKit,
-  standard: AdvancedKit,
-  advanced: AdvancedKit,
-  readonly: (title: string) => [...EditorKit, ...createReadOnlyToolbarKit(title)],
+  minimal: (_title?: string) => MinimalisticKit,
+  basic: (title?: string) => BasicKit,
+  standard: (title?: string) => AdvancedKit,
+  advanced: (title?: string) => AdvancedKit,
+  readonly: (title?: string) => [...EditorKit, ...createReadOnlyToolbarKit(title ?? 'Document')],
 }
