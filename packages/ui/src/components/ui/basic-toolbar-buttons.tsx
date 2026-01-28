@@ -1,7 +1,5 @@
 'use client'
 
-import * as React from 'react'
-
 import { BaselineIcon, BoldIcon, Code2Icon, ItalicIcon, PaintBucketIcon, UnderlineIcon } from 'lucide-react'
 import { KEYS } from 'platejs'
 import { useEditorReadOnly } from 'platejs/react'
@@ -19,8 +17,9 @@ import { MarkToolbarButton } from './mark-toolbar-button'
 import { TableToolbarButton } from './table-toolbar-button'
 import { ToggleToolbarButton } from './toggle-toolbar-button'
 import { ToolbarGroup } from './toolbar'
-import { TurnIntoToolbarButton } from './turn-into-toolbar-button'
 import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import { ExportToolbarButton } from './export-toolbar-button'
+import { ImportToolbarButton } from './import-toolbar-button'
 
 export function BasicToolbarButtons() {
   const readOnly = useEditorReadOnly()
@@ -37,11 +36,10 @@ export function BasicToolbarButtons() {
 
           <ToolbarGroup>
             <InsertToolbarButton />
-            <TurnIntoToolbarButton />
-            <FontSizeToolbarButton />
           </ToolbarGroup>
 
           <ToolbarGroup>
+            <FontSizeToolbarButton />
             <MarkToolbarButton nodeType={KEYS.bold} tooltip={`Bold (${suffix}+B)`}>
               <BoldIcon />
             </MarkToolbarButton>
@@ -85,6 +83,11 @@ export function BasicToolbarButtons() {
             <LineHeightToolbarButton />
             <OutdentToolbarButton />
             <IndentToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup>
+            <ExportToolbarButton />
+            <ImportToolbarButton />
           </ToolbarGroup>
         </>
       )}

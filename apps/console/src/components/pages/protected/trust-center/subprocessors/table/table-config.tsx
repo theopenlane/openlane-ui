@@ -76,8 +76,10 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
         )
       },
       size: 20,
+      maxSize: 20,
       enableSorting: false,
       enableHiding: false,
+      enableResizing: false,
     },
 
     {
@@ -85,6 +87,17 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       header: 'Name',
       meta: {
         exportPrefix: 'subprocessor.name',
+      },
+      minSize: 80,
+      cell: ({ row }) => {
+        const logo = row.original.logo
+        return (
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {!!logo && <img src={logo} alt={row.original.name} width={32} height={32} className="rounded-md object-contain bg-white border" />}
+            <span>{row.original.name}</span>
+          </div>
+        )
       },
     },
     {
@@ -94,8 +107,8 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       meta: {
         exportPrefix: 'subprocessor.description',
       },
+      minSize: 160,
     },
-
     {
       accessorKey: 'countries',
       header: 'Countries',
@@ -115,44 +128,33 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
           </div>
         )
       },
-      minSize: 60,
+      minSize: 80,
     },
-    // {
-    //   accessorKey: 'logo',
-    //   header: 'Logo',
-    //   meta: {
-    //     exportPrefix: 'subprocessor.logoFile.base64',
-    //   },
-    //   cell: ({ row }) => {
-    //     const logo = row.original.logo
-    //     if (!logo) return <div className="text-muted-foreground">—</div>
-    //     //  eslint-disable-next-line @next/next/no-img-element
-    //     return <img src={logo} alt={row.original.name} width={32} height={32} className="rounded object-contain bg-white border" />
-    //   },
-    // },
 
     {
       accessorKey: 'category',
       header: 'Category',
       cell: ({ row }) => row.original.category || '—',
+      minSize: 80,
     },
 
     {
       accessorKey: 'createdAt',
       header: 'Created At',
+      minSize: 100,
       cell: ({ row }) => (row.original.createdAt ? formatDate(row.original.createdAt) : '—'),
-      size: 100,
     },
 
     {
       header: 'Created By',
       accessorKey: 'createdBy',
+      minSize: 100,
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
 
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -164,18 +166,20 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
+      minSize: 100,
       cell: ({ row }) => (row.original.updatedAt ? formatDate(row.original.updatedAt) : '—'),
     },
 
     {
       header: 'Updated By',
       accessorKey: 'updatedBy',
+      minSize: 100,
       cell: ({ row }) => {
         const user = userMap[row.original.updatedBy ?? '']
 
         return user ? (
           <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            <Avatar entity={user} className="w-6 h-6" />
             <p>{user.displayName}</p>
           </div>
         ) : (
@@ -187,7 +191,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       id: 'actions',
       header: '',
       cell: ({ row }) => (
-        <div className="flex gap-1">
+        <div className="flex gap-1 justify-end">
           <Link href={`/trust-center/subprocessors?id=${row.original.id}`}>
             <Button variant="secondary">
               <Pencil />
@@ -196,6 +200,8 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
           <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />
         </div>
       ),
+      maxSize: 30,
+      size: 30,
     },
   ]
 
