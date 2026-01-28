@@ -1,6 +1,5 @@
 'use client'
 
-import { Loading } from '@/components/shared/loading/loading'
 import { TrustCenterPreviewSetting, TrustCenterSetting, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
@@ -17,6 +16,8 @@ import { BrandingThemeSection } from './sections/branding-theme-section'
 import { BrandingAssetsSection } from './sections/branding-assets-section'
 import { FormProvider } from 'react-hook-form'
 import { BrandFormValues, useBrandForm } from './brand-schema'
+import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
+import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -65,6 +66,8 @@ const BrandPage: React.FC = () => {
         faviconRemoteURL: previewSetting.faviconRemoteURL ?? '',
         logoFile: null,
         faviconFile: null,
+        companyName: previewSetting.companyName ?? '',
+        companyDescription: previewSetting.companyDescription ?? '',
       })
     }
   }, [previewSetting, reset])
@@ -102,6 +105,8 @@ const BrandPage: React.FC = () => {
         overview: values.overview,
         securityContact: values.securityContact || null,
         clearSecurityContact: !values.securityContact,
+        companyName: values.companyName,
+        companyDescription: values.companyDescription,
       },
     }
 
@@ -169,7 +174,7 @@ const BrandPage: React.FC = () => {
     })
   }
 
-  if (isLoading) return <Loading />
+  if (isLoading) return <TrustCenterSkeleton />
   if (error || !setting) return <div className="p-6 text-red-600">Error loading settings.</div>
 
   const isReadOnly = activeTab === 'published'
@@ -191,7 +196,7 @@ const BrandPage: React.FC = () => {
               <TabsTrigger value="published">Published</TabsTrigger>
             </TabsList>
           </Tabs>
-
+          <BrandingCompanyInfoSection isReadOnly={isReadOnly} setting={setting} />
           <BrandingTextSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.text} setting={setting} />
 
           <BrandingThemeSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.theme} setting={setting} />

@@ -8,7 +8,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
-import { SubprocessorWhereInput } from '@repo/codegen/src/schema'
+import { CreateSubprocessorMutation, SubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
 import { subprocessorsFilterFields } from './table-config'
@@ -47,7 +47,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
-  const [createdSubprocessorId, setCreatedSubprocessorId] = useState<null | string>(null)
+  const [createdSubprocessor, setCreatedSubprocessor] = useState<null | CreateSubprocessorMutation['createSubprocessor']['subprocessor']>(null)
 
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) return
@@ -131,8 +131,8 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             )}
 
             <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.SUBPROCESSORS} />
-            <AddExistingDialog createdSubprocessorId={createdSubprocessorId} onClose={() => setCreatedSubprocessorId(null)} />
-            <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessorId} />
+            <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} />
+            <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessor} />
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">

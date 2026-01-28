@@ -59069,7 +59069,13 @@ export type CreateSubprocessorMutationVariables = Exact<{
   logoFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
-export type CreateSubprocessorMutation = { __typename?: 'Mutation'; createSubprocessor: { __typename?: 'SubprocessorCreatePayload'; subprocessor: { __typename?: 'Subprocessor'; id: string } } }
+export type CreateSubprocessorMutation = {
+  __typename?: 'Mutation'
+  createSubprocessor: {
+    __typename?: 'SubprocessorCreatePayload'
+    subprocessor: { __typename?: 'Subprocessor'; id: string; name: string; logoRemoteURL?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+  }
+}
 
 export type UpdateSubprocessorMutationVariables = Exact<{
   updateSubprocessorId: Scalars['ID']['input']
@@ -59882,6 +59888,7 @@ export type GetTrustCenterSubprocessorsQuery = {
           name: string
           description?: string | null
           logoRemoteURL?: string | null
+          systemOwned?: boolean | null
           logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
         }
       } | null
@@ -59930,7 +59937,21 @@ export type GetTrustCenterSubprocessorByIdQueryVariables = Exact<{
 
 export type GetTrustCenterSubprocessorByIdQuery = {
   __typename?: 'Query'
-  trustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessor'; id: string; category: string; countries?: Array<string> | null; subprocessor: { __typename?: 'Subprocessor'; id: string } }
+  trustCenterSubprocessor: {
+    __typename?: 'TrustCenterSubprocessor'
+    id: string
+    category: string
+    countries?: Array<string> | null
+    subprocessor: {
+      __typename?: 'Subprocessor'
+      id: string
+      name: string
+      description?: string | null
+      logoRemoteURL?: string | null
+      systemOwned?: boolean | null
+      logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
+    }
+  }
 }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
@@ -59973,6 +59994,8 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          companyName?: string | null
+          companyDescription?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
@@ -59993,6 +60016,8 @@ export type GetTrustCenterQuery = {
           backgroundColor?: string | null
           secondaryBackgroundColor?: string | null
           accentColor?: string | null
+          companyName?: string | null
+          companyDescription?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null

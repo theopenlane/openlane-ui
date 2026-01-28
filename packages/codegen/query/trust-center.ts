@@ -36,6 +36,8 @@ export const GET_TRUST_CENTER = gql`
             backgroundColor
             secondaryBackgroundColor
             accentColor
+            companyName
+            companyDescription
             logoFile {
               id
               presignedURL
@@ -63,6 +65,8 @@ export const GET_TRUST_CENTER = gql`
             backgroundColor
             secondaryBackgroundColor
             accentColor
+            companyName
+            companyDescription
             logoFile {
               id
               presignedURL
