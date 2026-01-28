@@ -2,22 +2,7 @@
   {
     "route": "/assets",
     "name": "Assets",
-    "hidden": true
-  },
-  {
-    "route": "/assets/domains",
-    "name": "Domains",
-    "hidden": true
-  },
-  {
-    "route": "/assets/ip-addresses",
-    "name": "Ip Addresses",
-    "hidden": true
-  },
-  {
-    "route": "/assets/servers",
-    "name": "Servers",
-    "hidden": true
+    "hidden": false
   },
   {
     "route": "/controls",

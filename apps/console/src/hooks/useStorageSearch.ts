@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 export enum SearchKeyEnum {
+  ASSETS = 'assets',
   CONTROLS = 'controls',
   TASKS = 'tasks',
   POLICIES = 'policies',

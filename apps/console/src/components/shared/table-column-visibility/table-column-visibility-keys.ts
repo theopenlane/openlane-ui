@@ -1,4 +1,5 @@
 export enum TableColumnVisibilityKeysEnum {
+  ASSET = 'asset',
   TASK = 'task',
   CONTROL = 'control',
   EVIDENCE = 'evidence',

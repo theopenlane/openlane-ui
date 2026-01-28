@@ -7,6 +7,11 @@ import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
 
+export type BulkEditDialogProps = {
+  selected: { id: string }[]
+  setSelected: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+}
+
 export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
@@ -42,11 +47,23 @@ export interface BulkEditDialogFormValues {
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence
+  selectOptionEnum:
+    | SelectOptionBulkEditControls
+    | SelectOptionBulkEditPolicies
+    | SelectOptionBulkEditProcedures
+    | SelectOptionBulkEditRisks
+    | SelectOptionBulkEditTasks
+    | SelectOptionBulkEditEvidence
+    | SelectOptionBulkEdit
   name: string
   placeholder: string
   options?: Option[]
   inputType: InputType
+}
+
+// SelectOptionBulkEdit is a placeholder no-op enum
+export enum SelectOptionBulkEdit {
+  Noop = 'Noop',
 }
 
 export enum SelectOptionBulkEditControls {
@@ -104,7 +121,15 @@ export enum InputType {
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence | undefined
+  value:
+    | SelectOptionBulkEditControls
+    | SelectOptionBulkEditPolicies
+    | SelectOptionBulkEditProcedures
+    | SelectOptionBulkEditRisks
+    | SelectOptionBulkEditTasks
+    | SelectOptionBulkEditEvidence
+    | SelectOptionBulkEdit
+    | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | undefined
   selectedDate?: Date | null
@@ -127,6 +152,11 @@ const clearValueMap: Record<string, string> = {
 
 export const getMappedClearValue = (key: string): string => {
   return clearValueMap[key]
+}
+
+// getAllSelectOptionsForBulkEdit is a placeholder no-op function
+export const getAllSelectOptionsForBulkEdit = (): SelectOptionSelectedObject[] => {
+  return []
 }
 
 export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {

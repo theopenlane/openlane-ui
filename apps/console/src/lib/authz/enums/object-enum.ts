@@ -1,5 +1,7 @@
 export enum ObjectEnum {
+  ASSET = 'asset',
   ACTION_PLAN = 'action_plan',
+  CAMPAIGN = 'campaign',
   CONTACT = 'contact',
   CONTROL = 'control',
   CONTROL_IMPLEMENTATION = 'control_implementation',
@@ -9,6 +11,7 @@ export enum ObjectEnum {
   EXPORT = 'export',
   FILE = 'file',
   GROUP = 'group',
+  IDENTITY_HOLDER = 'identity_holder',
   JOB_RUNNER = 'job_runner',
   JOB_TEMPLATE = 'job_template',
   MAPPED_CONTROL = 'mapped_control',
@@ -16,6 +19,7 @@ export enum ObjectEnum {
   NOTE = 'note',
   ORGANIZATION = 'organization',
   POLICY = 'internal_policy',
+  PLATFORM = 'platform',
   PROCEDURE = 'procedure',
   PROGRAM = 'program',
   RISK = 'risk',
@@ -27,4 +31,5 @@ export enum ObjectEnum {
   TRUST_CENTER = 'trust_center',
   TRUST_CENTER_SETTING = 'trust_center_setting',
   TRUST_CENTER_DOCUMENT = 'trust_center_doc',
+  VENDOR = 'vendor',
 }

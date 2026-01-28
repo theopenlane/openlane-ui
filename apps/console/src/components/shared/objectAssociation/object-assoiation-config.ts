@@ -96,6 +96,7 @@ export type AllObjectQueriesData = {
 export type AllObjectQueriesDataKey = keyof AllObjectQueriesData
 
 export enum ObjectTypeObjects {
+  ASSET = 'Asset',
   CONTROL = 'Control',
   SUB_CONTROL = 'Subcontrol',
   CONTROL_OBJECTIVE = 'Control Objective',

@@ -1,4 +1,5 @@
 export enum TableKeyEnum {
+  ASSET = 'asset',
   TASK = 'task',
   CONTROL = 'control',
   EVIDENCE = 'evidence',

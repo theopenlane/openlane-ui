@@ -30,6 +30,7 @@ import {
   Megaphone,
   Paintbrush,
   Component,
+  Package,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -87,9 +88,9 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         icon: Workflow,
       },
       {
-        title: 'Standards Catalog',
-        href: '/standards',
-        icon: FileBadge2,
+        title: 'Assets',
+        href: '/assets',
+        icon: Package,
       },
       {
         title: 'Questionnaires',
@@ -100,6 +101,11 @@ export const topNavigationItems = (session?: Session): (NavItem | Separator | Na
         title: 'Risks',
         href: '/risks',
         icon: AlertTriangle,
+      },
+      {
+        title: 'Standards Catalog',
+        href: '/standards',
+        icon: FileBadge2,
       },
     ],
   },
