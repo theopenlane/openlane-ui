@@ -29,14 +29,16 @@ export const FileField = ({ onFileUpload, uploadedFile }: Props) => {
         <>
           <Card className="w-full p-2 shadow-[0px_1px_2px_0px_#09151D0A]">
             <div className="flex gap-2 p-2 items-center justify-between">
-              <div className="flex gap-5 p-2">
+              <div className="flex gap-5 p-2 flex-1 min-w-0">
                 <div className="flex items-start justify-between">
                   <div className="p-2 rounded-md bg-border border border-muted flex items-center justify-center">
                     <FileText size={16} />
                   </div>
                 </div>
-                <div>
-                  <div className="font-medium text-sm leading-5">{uploadedFile.name}</div>
+                <div className="min-w-0">
+                  <div className="font-medium text-sm leading-5 truncate" title={uploadedFile.name}>
+                    {uploadedFile.name}
+                  </div>
                   <div className="text-xs font-normal leading-4 text-muted-foreground">Size: {Math.round(uploadedFile.size! / 1024)} KB</div>
                 </div>
               </div>

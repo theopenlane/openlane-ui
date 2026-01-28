@@ -27,9 +27,11 @@ export const FileElement = withHOC(ResizableProvider, function FileElement(props
         role="button"
         target="_blank"
       >
-        <div className="flex items-center gap-1 p-1">
-          <FileUp className="size-5" />
-          <div>{name}</div>
+        <div className="flex items-center gap-1 p-1 flex-1 min-w-0">
+          <FileUp className="size-5 shrink-0" />
+          <div className="truncate" title={name}>
+            {name}
+          </div>
         </div>
 
         <Caption align="left">
