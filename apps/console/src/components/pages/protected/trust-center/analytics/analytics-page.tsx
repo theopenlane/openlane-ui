@@ -1,11 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Globe, Plus } from 'lucide-react'
 import { useTheme } from 'next-themes'
 // import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export default function AnalyticsPage() {
   const { resolvedTheme } = useTheme()
@@ -19,6 +20,11 @@ export default function AnalyticsPage() {
   const accessLink = process.env.NEXT_PUBLIC_ANALYTICS_ACCESS_LINK
   const mode = resolvedTheme === 'dark' ? 'dark' : 'light'
 
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Analytics', href: '/trust-center/analytics' }])
+  }, [setCrumbs])
   if (!accessLink) {
     return (
       <div className="relative w-full h-[600px]">
