@@ -75,6 +75,7 @@ export const useCreateTrustCenterSubprocessor = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
+      queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
     },
   })
 }

@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { SubprocessorSelectField } from '../sheet/form-fields/subprocessor-select-field'
 import { CountriesField } from '../sheet/form-fields/countries-field'
 import { CategoryField } from '../sheet/form-fields/category-field'
@@ -42,10 +41,6 @@ export const AddExistingDialog = ({
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
-
-  const { subprocessors } = useGetSubprocessors({
-    where: { or: [{ hasTrustCenterSubprocessors: false }] },
-  })
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -104,10 +99,6 @@ export const AddExistingDialog = ({
     onOpenChange?.(!!createdSubprocessor)
     reset({ subprocessorID: createdSubprocessor?.id || '' })
   }, [createdSubprocessor, isControlled, onOpenChange, reset])
-
-  if (!subprocessors?.length) {
-    return null
-  }
 
   return (
     <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>

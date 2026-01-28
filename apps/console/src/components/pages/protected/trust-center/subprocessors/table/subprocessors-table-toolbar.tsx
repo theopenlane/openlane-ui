@@ -13,6 +13,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
 import { subprocessorsFilterFields } from './table-config'
 import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -51,6 +52,10 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
   const [createdSubprocessor, setCreatedSubprocessor] = useState<null | CreateSubprocessorMutation['createSubprocessor']['subprocessor']>(null)
+  const { subprocessors } = useGetSubprocessors({
+    where: { or: [{ hasTrustCenterSubprocessors: false }] },
+  })
+  const hasAvailableSubprocessors = (subprocessors?.length ?? 0) > 0
 
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) return
@@ -141,7 +146,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Existing subprocessor</DropdownMenuItem>
+                {hasAvailableSubprocessors && <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Existing subprocessor</DropdownMenuItem>}
                 <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
