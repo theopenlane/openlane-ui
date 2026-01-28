@@ -120,7 +120,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
 
                             {option.logo && (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={option.logo} alt="" className="h-5 w-5 rounded object-contain shrink-0" />
+                              <img src={option.logo} alt="" className="h-5 w-5 rounded-md object-contain shrink-0" />
                             )}
 
                             <span className="truncate">{option.label}</span>
