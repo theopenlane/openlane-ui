@@ -2,10 +2,13 @@
 
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import SectionWarning from '../section-warning'
-import { useFormContext } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { BrandFormValues } from '../brand-schema'
 import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { RenderBrandField } from '../../shared/render-field'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from 'platejs'
 
 interface BrandingTextSectionProps {
   isReadOnly: boolean
@@ -16,8 +19,10 @@ interface BrandingTextSectionProps {
 export const BrandingTextSection = ({ isReadOnly, hasWarning, setting }: BrandingTextSectionProps) => {
   const {
     register,
+    control,
     formState: { errors },
   } = useFormContext<BrandFormValues>()
+  const { convertToReadOnly } = usePlateEditor()
 
   return (
     <Card>
@@ -36,7 +41,17 @@ export const BrandingTextSection = ({ isReadOnly, hasWarning, setting }: Brandin
 
           <div className="flex flex-col gap-3">
             <p className="text-base font-medium">Overview</p>
-            <RenderBrandField name="overview" label="Overview" component="textarea" isReadOnly={isReadOnly} setting={setting} register={register} />
+            {isReadOnly ? (
+              <div className="rounded-md border border-input bg-background px-3 py-2">
+                {setting?.overview ? convertToReadOnly(setting.overview, 0, { padding: 0 }) : <p className="text-sm text-muted-foreground italic">No information provided</p>}
+              </div>
+            ) : (
+              <Controller
+                control={control}
+                name="overview"
+                render={({ field }) => <PlateEditor initialValue={field.value as string | Value} onChange={(value) => field.onChange(value)} placeholder="Overview" />}
+              />
+            )}
             {!isReadOnly && errors.overview && <p className="text-xs text-red-500">{errors.overview.message}</p>}
           </div>
         </div>
