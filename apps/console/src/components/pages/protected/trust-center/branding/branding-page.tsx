@@ -18,6 +18,8 @@ import { FormProvider } from 'react-hook-form'
 import { BrandFormValues, useBrandForm } from './brand-schema'
 import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
 import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from 'platejs'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -27,6 +29,7 @@ export enum InputTypeEnum {
 const BrandPage: React.FC = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { updateTrustCenterSetting } = useHandleUpdateSetting()
+  const { convertToHtml } = usePlateEditor()
 
   const { data, isLoading, error } = useGetTrustCenter()
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
@@ -90,6 +93,9 @@ const BrandPage: React.FC = () => {
     const targetSettingId = action === 'preview' ? previewSetting?.id : setting?.id
     if (!targetSettingId) return
 
+    const overviewValue = values.overview
+    const overview = typeof overviewValue === 'string' ? overviewValue : overviewValue ? await convertToHtml(overviewValue as Value) : ''
+
     const payload: UpdateTrustCenterSettingsArgs = {
       id: targetSettingId,
       input: {
@@ -102,7 +108,7 @@ const BrandPage: React.FC = () => {
         font: values.font,
         themeMode: values.themeMode,
         title: values.title,
-        overview: values.overview,
+        overview,
         securityContact: values.securityContact || null,
         clearSecurityContact: !values.securityContact,
         companyName: values.companyName,

@@ -2,10 +2,11 @@ import { z } from 'zod'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Value } from 'platejs'
 
 export const brandSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
-  overview: z.string().optional(),
+  overview: z.custom<Value | string>().optional(),
   securityContact: z.string().email('Invalid email format').optional().or(z.literal('')),
   primaryColor: z.string().optional(),
   foregroundColor: z.string().optional(),
