@@ -1,9 +1,10 @@
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import UrlInput from '../../shared/url-input'
-import { Eye, InfoIcon } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { InputTypeEnum } from './branding-assets-section'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface FileConfigs {
   types: string[]
@@ -47,15 +48,10 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
             )}
           </div>
 
-          {typeof isImageValidSize === 'boolean' && !isImageValidSize && (
-            <div className="border border-document-draft-border bg-infobox rounded-md p-4 mb-6 mt-6 w-[300px]">
-              <div className="flex items-start gap-2">
-                <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
-                <div>
-                  <p className="text-sm">This favicon exceeds recommended dimensions and may not display correctly or at all in some browsers. Recommended size: 32x32 or 64x64.</p>
-                </div>
-              </div>
-            </div>
+          {isImageValidSize === false && (
+            <Callout className="w-[300px] mt-5" variant="warning" title="File size">
+              <p className="text-sm">This favicon exceeds recommended dimensions and may not display correctly or at all in some browsers. Recommended size: 32x32 or 64x64.</p>
+            </Callout>
           )}
         </div>
 
