@@ -3,6 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
+import { CheckCheck, XIcon } from 'lucide-react'
 
 export type NdaRequestRow = {
   id: string
@@ -75,10 +76,10 @@ export const getNdaRequestColumns = ({
 
         return (
           <div className="flex items-center gap-2 justify-end" onClick={(event) => event.stopPropagation()} onMouseDown={(event) => event.stopPropagation()}>
-            <Button loading={isApproving} disabled={isApproving || isDenying} onClick={() => onApprove?.(requestId)}>
+            <Button loading={isApproving} disabled={isApproving || isDenying} onClick={() => onApprove?.(requestId)} icon={<CheckCheck size={16} />} iconPosition="left">
               Approve
             </Button>
-            <Button variant="secondary" loading={isDenying} disabled={isApproving || isDenying} onClick={() => onDeny?.(requestId)}>
+            <Button variant="secondary" loading={isDenying} disabled={isApproving || isDenying} onClick={() => onDeny?.(requestId)} icon={<XIcon size={16} />} iconPosition="left">
               Deny
             </Button>
           </div>
