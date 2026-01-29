@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import { FileText, Loader2, Eye, RefreshCw, FileUp, Plus } from 'lucide-react'
+import { FileText, Loader2, Eye, RefreshCw, FileUp, Plus, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { NDAUploadDialog } from './components/NDA-upload-dialog'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
@@ -10,13 +10,23 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { formatDate } from '@/utils/date'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Switch } from '@repo/ui/switch'
+import { Label } from '@repo/ui/label'
+import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
+import NdaRequestsTable from './table/nda-requests-table.tsx'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { data: trustCenterData } = useGetTrustCenter()
+  const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
+  const trustCenterSetting = trustCenter?.setting
+  const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'NDAs', href: '/trust-center/NDAs' }])
@@ -121,6 +131,53 @@ const NDAsPage = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        <div className="mt-4">
+          <h3 className="text-lg font-medium">Access Rules</h3>
+          <Card className="mt-3">
+            <CardContent className="space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Require approval before NDA signing</Label>
+                  <p className="mt-1 text-sm text-muted-foreground">When enabled, users must be approved before receiving the NDA signing link.</p>
+                </div>
+                <Switch
+                  checked={ndaApprovalRequired}
+                  onCheckedChange={(checked) => {
+                    if (!trustCenterSetting?.id) return
+                    updateTrustCenterSetting({
+                      id: trustCenterSetting.id,
+                      input: { ndaApprovalRequired: checked },
+                    })
+                  }}
+                  disabled={isUpdatingSetting || !trustCenterSetting?.id}
+                />
+              </div>
+              {ndaApprovalRequired ? (
+                <div className="rounded-md border border-nda-approval-info-border bg-nda-approval-info-bg px-4 py-3 text-sm text-nda-approval-info-text">
+                  <div className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 mr-3 rounded-full bg-nda-approval-info-dot shadow-[0_0_0_4px_var(--color-nda-approval-info-dot-shadow)]" />
+                    <span>Approval requests will appear in the Requests queue.</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="border border-document-draft-border bg-infobox rounded-md p-3">
+                  <div className="flex items-start gap-2 text-sm">
+                    <InfoIcon className="text-brand-100 shrink-0 mt-0.5 text-info" size={16} />
+                    <div>Approval required: OFF — Auto-send NDA immediately upon request</div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        <div className="mt-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-medium">NDA Requests</h3>
+          </div>
+
+          <NdaRequestsTable ndaApprovalRequired={ndaApprovalRequired} />
+        </div>
       </div>
     </div>
   )

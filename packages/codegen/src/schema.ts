@@ -9443,6 +9443,8 @@ export interface CreateTrustCenterInput {
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch access link */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
   /** Pirsch domain ID */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   /** Pirsch ID code */
@@ -42344,6 +42346,8 @@ export interface TrustCenter extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** Pirsch access link */
+  pirschAccessLink?: Maybe<Scalars['String']['output']>
   /** Pirsch domain ID */
   pirschDomainID?: Maybe<Scalars['String']['output']>
   /** Pirsch ID code */
@@ -44989,6 +44993,22 @@ export interface TrustCenterWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** pirsch_access_link field predicates */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkContains?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkContainsFold?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkEqualFold?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkGT?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkGTE?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschAccessLinkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pirschAccessLinkLT?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkLTE?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkNEQ?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschAccessLinkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** pirsch_domain_id field predicates */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   pirschDomainIDContains?: InputMaybe<Scalars['String']['input']>
@@ -49957,6 +49977,7 @@ export interface UpdateTrustCenterInput {
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPirschAccessLink?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschIdentificationCode?: InputMaybe<Scalars['Boolean']['input']>
   clearPosts?: InputMaybe<Scalars['Boolean']['input']>
@@ -49977,6 +49998,8 @@ export interface UpdateTrustCenterInput {
   /** delete a post from the trust center feed */
   deletePost?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch access link */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
   /** Pirsch domain ID */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   /** Pirsch ID code */
@@ -53710,6 +53733,23 @@ export enum WorkflowEventWorkflowEventType {
   WORKFLOW_TRIGGERED = 'WORKFLOW_TRIGGERED',
 }
 
+/** WorkflowFieldDiff describes a proposed change for a single field. */
+export interface WorkflowFieldDiff {
+  __typename?: 'WorkflowFieldDiff'
+  /** Current field value */
+  currentValue?: Maybe<Scalars['Any']['output']>
+  /** Unified diff for the field (when applicable) */
+  diff?: Maybe<Scalars['String']['output']>
+  /** Field name (snake_case) */
+  field: Scalars['String']['output']
+  /** Human-friendly field label when available */
+  label?: Maybe<Scalars['String']['output']>
+  /** Proposed field value */
+  proposedValue?: Maybe<Scalars['Any']['output']>
+  /** Field type metadata when available */
+  type?: Maybe<Scalars['String']['output']>
+}
+
 /** Metadata for a workflow-eligible field */
 export interface WorkflowFieldMetadata {
   __typename?: 'WorkflowFieldMetadata'
@@ -53775,6 +53815,11 @@ export interface WorkflowInstance extends Node {
   procedure?: Maybe<Procedure>
   /** ID of the procedure this workflow instance is associated with */
   procedureID?: Maybe<Scalars['ID']['output']>
+  /**
+   * Precomputed proposal preview (diff + values) for approval workflows.
+   * Only available to editors/owners of the target object.
+   */
+  proposalPreview?: Maybe<WorkflowProposalPreview>
   /** Current state of the workflow instance */
   state: WorkflowInstanceWorkflowInstanceState
   /** Subcontrol this workflow instance is associated with */
@@ -54774,6 +54819,35 @@ export interface WorkflowObjectTypeMetadata {
   type: Scalars['String']['output']
 }
 
+/** WorkflowProposalPreview describes the proposed changes alongside current values and diffs. */
+export interface WorkflowProposalPreview {
+  __typename?: 'WorkflowProposalPreview'
+  /** Current values for the proposed fields */
+  currentValues?: Maybe<Scalars['Map']['output']>
+  /** Field-level diffs for the proposed changes */
+  diffs: Array<WorkflowFieldDiff>
+  /** Stable key representing the approval domain for this proposal */
+  domainKey: Scalars['String']['output']
+  /** ID of the workflow proposal */
+  proposalID: Scalars['ID']['output']
+  /** Proposed changes for the approval domain */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
+  /** Current state of the proposal */
+  state: WorkflowProposalState
+  /** Timestamp when the proposal was submitted */
+  submittedAt?: Maybe<Scalars['DateTime']['output']>
+  /** User who submitted the proposal */
+  submittedByUserID?: Maybe<Scalars['ID']['output']>
+}
+
+export enum WorkflowProposalState {
+  APPLIED = 'APPLIED',
+  DRAFT = 'DRAFT',
+  REJECTED = 'REJECTED',
+  SUBMITTED = 'SUBMITTED',
+  SUPERSEDED = 'SUPERSEDED',
+}
+
 export type CreateAssessmentMutationVariables = Exact<{
   input: CreateAssessmentInput
 }>
@@ -55737,6 +55811,8 @@ export type GetExistingControlsForOrganizationQuery = {
 export type ControlDiscussionFieldsFragment = {
   __typename: 'Control'
   id: string
+  refCode: string
+  title?: string | null
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -55779,6 +55855,8 @@ export type GetControlDiscussionByIdQuery = {
   control: {
     __typename: 'Control'
     id: string
+    refCode: string
+    title?: string | null
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -57389,6 +57467,7 @@ export type DeleteBulkInternalPolicyMutation = { __typename?: 'Mutation'; delete
 export type PolicyDiscussionFieldsFragment = {
   __typename: 'InternalPolicy'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -57431,6 +57510,7 @@ export type GetPolicyDiscussionByIdQuery = {
   internalPolicy: {
     __typename: 'InternalPolicy'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -57764,6 +57844,7 @@ export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkP
 export type ProcedureDiscussionFieldsFragment = {
   __typename: 'Procedure'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -57806,6 +57887,7 @@ export type GetProcedureDiscussionByIdQuery = {
   procedure: {
     __typename: 'Procedure'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -58395,6 +58477,7 @@ export type GetOpenRiskCountQuery = { __typename?: 'Query'; risks: { __typename?
 export type RiskDiscussionFieldsFragment = {
   __typename: 'Risk'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -58437,6 +58520,7 @@ export type GetRiskDiscussionByIdQuery = {
   risk: {
     __typename: 'Risk'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -58957,6 +59041,8 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
 export type SubcontrolDiscussionFieldsFragment = {
   __typename: 'Subcontrol'
   id: string
+  refCode: string
+  title?: string | null
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -58999,6 +59085,8 @@ export type GetSubcontrolDiscussionByIdQuery = {
   subcontrol: {
     __typename: 'Subcontrol'
     id: string
+    refCode: string
+    title?: string | null
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -59771,6 +59859,48 @@ export type GetNdaRequestCountQueryVariables = Exact<{
 }>
 
 export type GetNdaRequestCountQuery = { __typename?: 'Query'; trustCenterNdaRequests: { __typename?: 'TrustCenterNDARequestConnection'; totalCount: number } }
+
+export type GetTrustCenterNdaRequestsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterNdaRequestOrder> | TrustCenterNdaRequestOrder>
+  where?: InputMaybe<TrustCenterNdaRequestWhereInput>
+}>
+
+export type GetTrustCenterNdaRequestsQuery = {
+  __typename?: 'Query'
+  trustCenterNdaRequests: {
+    __typename?: 'TrustCenterNDARequestConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+    edges?: Array<{
+      __typename?: 'TrustCenterNDARequestEdge'
+      node?: {
+        __typename?: 'TrustCenterNDARequest'
+        id: string
+        firstName: string
+        lastName: string
+        companyName?: string | null
+        email: string
+        createdAt?: any | null
+        updatedAt?: any | null
+        status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type UpdateTrustCenterNdaRequestMutationVariables = Exact<{
+  updateTrustCenterNdaRequestId: Scalars['ID']['input']
+  input: UpdateTrustCenterNdaRequestInput
+}>
+
+export type UpdateTrustCenterNdaRequestMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestUpdatePayload'; trustCenterNDARequest: { __typename?: 'TrustCenterNDARequest'; id: string } }
+}
 
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 

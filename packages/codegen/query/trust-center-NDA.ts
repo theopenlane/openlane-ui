@@ -50,3 +50,39 @@ export const GET_NDA_REQUESTS_COUNT = gql`
     }
   }
 `
+
+export const GET_TRUST_CENTER_NDA_REQUESTS = gql`
+  query GetTrustCenterNDARequests($after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [TrustCenterNDARequestOrder!], $where: TrustCenterNDARequestWhereInput) {
+    trustCenterNdaRequests(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy, where: $where) {
+      totalCount
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      edges {
+        node {
+          id
+          firstName
+          lastName
+          companyName
+          email
+          createdAt
+          updatedAt
+          status
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER_NDA_REQUEST = gql`
+  mutation UpdateTrustCenterNDARequest($updateTrustCenterNdaRequestId: ID!, $input: UpdateTrustCenterNDARequestInput!) {
+    updateTrustCenterNDARequest(id: $updateTrustCenterNdaRequestId, input: $input) {
+      trustCenterNDARequest {
+        id
+      }
+    }
+  }
+`
