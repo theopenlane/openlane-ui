@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 import { useCreateTrustCenterDoc, useDeleteTrustCenterDoc, useGetTrustCenter, useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
@@ -30,6 +31,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { StandardField } from './form-fields/standard-field'
+import { Callout } from '@/components/shared/callout/callout'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -96,6 +98,7 @@ export const CreateDocumentSheet: React.FC = () => {
   })
 
   const { handleSubmit, reset, formState } = formMethods
+  const visibilityValue = formMethods.watch('visibility')
   const { isSubmitting } = formState
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -344,6 +347,14 @@ export const CreateDocumentSheet: React.FC = () => {
             <TitleField isEditing={isEditing || isCreateMode} />
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
+            {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && (
+              <Callout variant="warning" compact>
+                <span>Protected documents require a NDA to be uploaded. </span>
+                <Link href="/trust-center/NDAs" target="_blank" rel="noreferrer" className="underline">
+                  Upload NDA
+                </Link>
+              </Callout>
+            )}
             <StandardField isEditing={isEditing || isCreateMode} />
             <TagsField isEditing={isEditing || isCreateMode} />
             {isCreateMode && (
