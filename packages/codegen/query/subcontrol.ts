@@ -316,6 +316,8 @@ export const GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION = gql`
 export const SUBCONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
   fragment SubcontrolDiscussionFields on Subcontrol {
     id
+    refCode
+    title
     __typename
     discussions {
       edges {

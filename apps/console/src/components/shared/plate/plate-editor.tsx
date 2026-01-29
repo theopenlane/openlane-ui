@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react'
+import React, { useEffect, useState, useImperativeHandle, forwardRef, useCallback } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Value, TElement, KEYS } from 'platejs'
@@ -40,8 +40,23 @@ export interface PlateEditorRef {
 
 const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
   ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly, isCreate }, ref) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getFirstDefinedProperty = (obj: any, keys: string[], fallback: string): string => {
+      for (const key of keys) {
+        if (obj && obj[key] != null && obj[key] !== '') {
+          return obj[key]
+        }
+      }
+      return fallback
+    }
+
+    const getPlugins = useCallback(() => {
+      const title = getFirstDefinedProperty(entity, ['name', 'title', 'refCode', 'id'], 'Document')
+      return EditorKitVariant[variant](title) as PlatePlugin[]
+    }, [variant, entity])
+
     const editor = usePlateEditor({
-      plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
+      plugins: getPlugins(),
     })
 
     const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
@@ -141,10 +156,10 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
 
     useEffect(() => {
       const instance = createPlateEditor({
-        plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
+        plugins: getPlugins(),
       })
       setPlateEditor(instance)
-    }, [variant])
+    }, [getPlugins])
 
     useEffect(() => {
       if (plateEditor && !initialValueSet) {

@@ -1,10 +1,16 @@
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet, Link } from '@react-pdf/renderer'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Value = any[]
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 11, lineHeight: 1.45 },
+  page: {
+    fontFamily: 'Helvetica',
+    padding: 40,
+    fontSize: 11,
+    lineHeight: 1.45,
+  },
   block: { marginBottom: 10 },
   h1: { fontSize: 20, fontWeight: 700, marginBottom: 12 },
   h2: { fontSize: 16, fontWeight: 700, marginBottom: 10 },
@@ -40,6 +46,8 @@ const styles = StyleSheet.create({
 })
 
 type Leaf = { text: string; bold?: boolean; italic?: boolean; underline?: boolean }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Node = any
 
 function PdfLeaf({ leaf }: { leaf: Leaf }) {
@@ -166,10 +174,11 @@ function PdfNode({ node }: { node: any }) {
   }
 }
 
-export function PlatePdfDocument({ value }: { value: Value }) {
+export function PlatePdfDocument({ value, title }: { value: Value; title?: string }) {
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
+        {title && <Text style={styles.h1}>{title}</Text>}
         {value.map((node, i) => (
           <PdfNode key={i} node={node} />
         ))}

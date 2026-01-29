@@ -309,6 +309,7 @@ export const BULK_DELETE_PROCEDURE = gql`
 export const PROCEDURE_DISCUSSION_FIELDS_FRAGMENT = gql`
   fragment ProcedureDiscussionFields on Procedure {
     id
+    name
     __typename
     discussions {
       edges {

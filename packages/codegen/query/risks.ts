@@ -215,6 +215,7 @@ export const GET_RISK_OPEN_AND_IDENTIFIED_COUNT = gql`
 export const RISK_DISCUSSION_FIELDS_FRAGMENT = gql`
   fragment RiskDiscussionFields on Risk {
     id
+    name
     __typename
     discussions {
       edges {
