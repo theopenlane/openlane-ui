@@ -24,9 +24,10 @@ export type TTrustCenterDoc = {
 type Params = {
   selectedDocs: { id: string }[]
   setSelectedDocs: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  hasNdaTemplate: boolean
 }
 
-export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Params) => {
+export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNdaTemplate }: Params) => {
   const toggleSelection = (doc: { id: string }) => {
     setSelectedDocs((prev) => {
       const exists = prev.some((d) => d.id === doc.id)
@@ -78,9 +79,30 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs }: Para
       accessorKey: 'visibility',
       header: 'Visibility',
       cell: ({ row }) => {
+        const isProtected = row.original.visibility === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED
+        const showNdaWarning = isProtected && !hasNdaTemplate
         return (
-          <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item-transparent border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
-            {row.original.visibility.split('_').join(' ').toLowerCase()}
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item-transparent border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
+              {row.original.visibility.split('_').join(' ').toLowerCase()}
+            </div>
+            {showNdaWarning && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="text-warning" onClick={(event) => event.stopPropagation()} aria-label="Protected document requires NDA">
+                      <AlertTriangle className="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-sm">
+                    <span>Protected documents require a NDA to be uploaded. </span>
+                    <Link href="/trust-center/NDAs" target="_blank" rel="noreferrer" className="underline">
+                      Upload NDA
+                    </Link>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         )
       },
@@ -159,9 +181,11 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
   },
 ]
 
-import { Eye, FileQuestion, Folder } from 'lucide-react'
+import { AlertTriangle, Eye, FileQuestion, Folder } from 'lucide-react'
+import Link from 'next/link'
 import { FilterField } from '@/types'
 import { Checkbox } from '@repo/ui/checkbox'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import DocumentActions from '../../actions/documents-actions'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'

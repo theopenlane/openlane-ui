@@ -7,6 +7,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
 import { TrustCenterDocWatermarkStatus, TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -64,6 +65,8 @@ const ReportsAndCertificationsPage = () => {
     },
     pagination,
   })
+  const { latestFile: latestNdaFile } = useGetTrustCenterNDAFiles()
+  const hasNdaTemplate = Boolean(latestNdaFile)
   const handleFilterChange = useCallback((newFilters: TrustCenterDocWhereInput) => {
     setFilters(newFilters)
     setPagination((prev) => ({
@@ -91,7 +94,7 @@ const ReportsAndCertificationsPage = () => {
     [docs],
   )
 
-  const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs }), [selectedDocs])
+  const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs, hasNdaTemplate }), [selectedDocs, hasNdaTemplate])
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Documents', href: '/trust-center/reports-and-certifications' }])
