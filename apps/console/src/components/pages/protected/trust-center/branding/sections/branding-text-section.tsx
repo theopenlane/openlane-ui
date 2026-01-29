@@ -42,7 +42,7 @@ export const BrandingTextSection = ({ isReadOnly, hasWarning, setting }: Brandin
           <div className="flex flex-col gap-3">
             <p className="text-base font-medium">Overview</p>
             {isReadOnly ? (
-              <div className="rounded-md border border-input bg-background px-3 py-2">
+              <div className="rounded-md px-3 py-2">
                 {setting?.overview ? convertToReadOnly(setting.overview, 0, { padding: 0 }) : <p className="text-sm text-muted-foreground italic">No information provided</p>}
               </div>
             ) : (
