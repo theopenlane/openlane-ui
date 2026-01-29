@@ -4,11 +4,13 @@ import UrlInput from '../../shared/url-input'
 import { Eye } from 'lucide-react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { InputTypeEnum } from './branding-assets-section'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface FileConfigs {
   types: string[]
   shortTypes: string[]
   maxSize: number
+  note?: string
 }
 
 interface AssetInputGroupProps {
@@ -22,9 +24,10 @@ interface AssetInputGroupProps {
   isReadOnly: boolean
   normalizeUrl: (url?: string | null) => string | null
   fileConfigs: FileConfigs
+  isImageValidSize?: boolean | null
 }
 
-export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, inputType, setInputType, isReadOnly, normalizeUrl, fileConfigs }: AssetInputGroupProps) => {
+export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, inputType, setInputType, isReadOnly, normalizeUrl, fileConfigs, isImageValidSize }: AssetInputGroupProps) => {
   const options = [
     { label: 'Upload File', value: InputTypeEnum.FILE },
     { label: 'Enter URL', value: InputTypeEnum.URL },
@@ -44,6 +47,12 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
               <Eye className="h-6 w-6 text-muted-foreground" />
             )}
           </div>
+
+          {isImageValidSize === false && (
+            <Callout className="w-[300px] mt-5" variant="warning" title="File size">
+              <p className="text-sm">This favicon exceeds recommended dimensions and may not display correctly or at all in some browsers. Recommended size: 32x32 or 64x64.</p>
+            </Callout>
+          )}
         </div>
 
         {!isReadOnly && (
@@ -58,6 +67,7 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
                     acceptedFileTypesShort={fileConfigs.shortTypes}
                     maxFileSizeInMb={fileConfigs.maxSize}
                     multipleFiles={false}
+                    note={fileConfigs.note}
                   />
                 </div>
               </>
