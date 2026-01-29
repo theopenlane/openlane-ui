@@ -23,7 +23,7 @@ interface BrandingAssetsSectionProps {
 export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssetsSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()
   const { data } = useGetTrustCenter()
-
+  const [isImageValidSize, setImageIsValidSize] = useState<boolean | null>(null)
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const previewSetting = trustCenter?.previewSetting
   const setting = trustCenter?.setting
@@ -73,6 +73,9 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
       setValue('logoFile', uploadedFile.file, { shouldDirty: true })
       setValue('logoRemoteURL', '', { shouldDirty: true })
     } else {
+      const isValidSize =
+        uploadedFile.width !== undefined && uploadedFile.height !== undefined && uploadedFile.width >= 32 && uploadedFile.height >= 32 && uploadedFile.width <= 120 && uploadedFile.height <= 120
+      setImageIsValidSize(isValidSize)
       setValue('faviconFile', uploadedFile.file, { shouldDirty: true })
       setValue('faviconRemoteURL', '', { shouldDirty: true })
     }
@@ -92,7 +95,7 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
           <AssetInputGroup
             label="Logo"
             preview={logoPreview}
-            link={isReadOnly ? setting?.logoRemoteURL ?? '' : formValues.logoRemoteURL ?? ''}
+            link={isReadOnly ? (setting?.logoRemoteURL ?? '') : (formValues.logoRemoteURL ?? '')}
             setLink={(v) => {
               if (isReadOnly) return
               setValue('logoRemoteURL', v, { shouldDirty: true })
@@ -114,7 +117,7 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
           <AssetInputGroup
             label="Favicon"
             preview={faviconPreview}
-            link={isReadOnly ? setting?.faviconRemoteURL ?? '' : formValues.faviconRemoteURL ?? ''}
+            link={isReadOnly ? (setting?.faviconRemoteURL ?? '') : (formValues.faviconRemoteURL ?? '')}
             setLink={(v) => {
               if (isReadOnly) return
               setValue('faviconRemoteURL', v, { shouldDirty: true })
@@ -128,7 +131,9 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
               types: ['image/x-icon', 'image/png', 'image/jpeg', 'image/vnd.microsoft.icon'],
               shortTypes: ['ICO', 'PNG', 'JPG'],
               maxSize: 1,
+              note: 'Recommended size: 32x32 or 64x64 · Max dimensions: 120x120',
             }}
+            isImageValidSize={isImageValidSize}
           />
         </div>
       </CardContent>

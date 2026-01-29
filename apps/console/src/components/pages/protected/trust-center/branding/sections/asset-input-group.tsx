@@ -1,7 +1,7 @@
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import UrlInput from '../../shared/url-input'
-import { Eye } from 'lucide-react'
+import { Eye, InfoIcon } from 'lucide-react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { InputTypeEnum } from './branding-assets-section'
 
@@ -9,6 +9,7 @@ interface FileConfigs {
   types: string[]
   shortTypes: string[]
   maxSize: number
+  note?: string
 }
 
 interface AssetInputGroupProps {
@@ -22,9 +23,10 @@ interface AssetInputGroupProps {
   isReadOnly: boolean
   normalizeUrl: (url?: string | null) => string | null
   fileConfigs: FileConfigs
+  isImageValidSize?: boolean | null
 }
 
-export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, inputType, setInputType, isReadOnly, normalizeUrl, fileConfigs }: AssetInputGroupProps) => {
+export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, inputType, setInputType, isReadOnly, normalizeUrl, fileConfigs, isImageValidSize }: AssetInputGroupProps) => {
   const options = [
     { label: 'Upload File', value: InputTypeEnum.FILE },
     { label: 'Enter URL', value: InputTypeEnum.URL },
@@ -44,6 +46,17 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
               <Eye className="h-6 w-6 text-muted-foreground" />
             )}
           </div>
+
+          {typeof isImageValidSize === 'boolean' && !isImageValidSize && (
+            <div className="border border-document-draft-border bg-infobox rounded-md p-4 mb-6 mt-6 w-[300px]">
+              <div className="flex items-start gap-2">
+                <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
+                <div>
+                  <p className="text-sm">This favicon exceeds recommended dimensions and may not display correctly or at all in some browsers. Recommended size: 32x32 or 64x64.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {!isReadOnly && (
@@ -58,6 +71,7 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
                     acceptedFileTypesShort={fileConfigs.shortTypes}
                     maxFileSizeInMb={fileConfigs.maxSize}
                     multipleFiles={false}
+                    note={fileConfigs.note}
                   />
                 </div>
               </>

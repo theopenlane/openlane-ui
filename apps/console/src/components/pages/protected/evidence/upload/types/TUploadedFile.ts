@@ -7,4 +7,6 @@ export type TUploadedFile = {
   id?: string | number
   category?: string | null
   createdAt?: string
+  width?: number
+  height?: number
 }

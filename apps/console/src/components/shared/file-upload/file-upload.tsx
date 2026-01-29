@@ -13,6 +13,7 @@ type TProps = {
   acceptedFileTypesShort: string[]
   multipleFiles: boolean
   acceptedFilesClass?: string
+  note?: string
 }
 
 const FileUpload: React.FC<TProps> = (props: TProps) => {
@@ -44,13 +45,40 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
       validFiles.forEach((file) => {
         const reader = new FileReader()
 
-        reader.onload = () => {
-          const fileUrl = reader.result as string
-          const newFile: TUploadedFile = { name: file.name, size: file.size, url: fileUrl, type: 'file', file: file }
-          if (!props.multipleFiles) {
-            setUploadedFile(newFile)
+        if (file.type.startsWith('image/')) {
+          reader.onload = () => {
+            const fileUrl = reader.result as string
+
+            const img = new Image()
+            img.onload = () => {
+              const newFile: TUploadedFile = {
+                name: file.name,
+                size: file.size,
+                url: fileUrl,
+                type: 'file',
+                file: file,
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+              }
+
+              if (!props.multipleFiles) {
+                setUploadedFile(newFile)
+              }
+
+              props.onFileUpload(newFile)
+            }
+
+            img.src = fileUrl
           }
-          props.onFileUpload(newFile)
+        } else {
+          reader.onload = () => {
+            const fileUrl = reader.result as string
+            const newFile: TUploadedFile = { name: file.name, size: file.size, url: fileUrl, type: 'file', file: file }
+            if (!props.multipleFiles) {
+              setUploadedFile(newFile)
+            }
+            props.onFileUpload(newFile)
+          }
         }
 
         reader.readAsDataURL(file)
@@ -94,6 +122,7 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
               <p className="text-sm font-normal leading-5 text-muted-foreground">
                 Accepted: {props.acceptedFileTypesShort.join(', ')} (Max file size: {MAX_FILE_SIZE_IN_MB}MB)
               </p>
+              {props.note && <p className="text-sm font-normal leading-5 text-muted-foreground">{props.note}</p>}
             </div>
           )}
 
