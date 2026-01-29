@@ -3,7 +3,8 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
-import { CheckCheck, XIcon } from 'lucide-react'
+import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
+import { FilterField } from '@/types'
 
 export type NdaRequestRow = {
   id: string
@@ -12,7 +13,8 @@ export type NdaRequestRow = {
   companyName: string
   email: string
   createdAt: string
-  updatedAt?: string
+  approvedAt?: string
+  signedAt?: string
 }
 
 type NdaRequestColumnOptions = {
@@ -49,18 +51,18 @@ export const getNdaRequestColumns = ({
 
   if (showApprovedOn) {
     columns.push({
-      accessorKey: 'updatedAt',
+      accessorKey: 'approvedAt',
       header: 'Approved On',
-      cell: ({ row }) => (row.original.updatedAt ? formatDate(row.original.updatedAt) : '-'),
+      cell: ({ row }) => (row.original.approvedAt ? formatDate(row.original.approvedAt) : '-'),
       size: 120,
     })
   }
 
   if (showSignedOn) {
     columns.push({
-      accessorKey: 'updatedAt',
+      accessorKey: 'signedAt',
       header: 'Signed On',
-      cell: ({ row }) => (row.original.updatedAt ? formatDate(row.original.updatedAt) : '-'),
+      cell: ({ row }) => (row.original.signedAt ? formatDate(row.original.signedAt) : '-'),
       size: 120,
     })
   }
@@ -91,3 +93,24 @@ export const getNdaRequestColumns = ({
 
   return columns
 }
+
+export const ndaRequestsFilterFields: FilterField[] = [
+  {
+    key: 'companyNameContainsFold',
+    label: 'Company Name',
+    type: 'text',
+    icon: Building2,
+  },
+  {
+    key: 'createdAt',
+    label: 'Created At',
+    type: 'dateRange',
+    icon: Calendar,
+  },
+  {
+    key: 'emailContainsFold',
+    label: 'Email',
+    type: 'text',
+    icon: Mail,
+  },
+]

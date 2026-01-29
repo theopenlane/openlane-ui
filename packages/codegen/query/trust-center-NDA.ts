@@ -69,7 +69,8 @@ export const GET_TRUST_CENTER_NDA_REQUESTS = gql`
           companyName
           email
           createdAt
-          updatedAt
+          approvedAt
+          signedAt
           status
         }
       }

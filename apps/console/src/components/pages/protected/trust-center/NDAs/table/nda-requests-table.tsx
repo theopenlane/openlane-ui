@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -10,26 +10,28 @@ import { DEFAULT_NDA_REQUESTS_ORDER, useGetTrustCenterNdaRequests, useUpdateTrus
 import NdaRequestsTableToolbar from './nda-requests-table-toolbar'
 import { getNdaRequestColumns, NdaRequestRow } from './table-config'
 import { useNotification } from '@/hooks/useNotification'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useDebounce } from '@uidotdev/usehooks'
 
-type Props = {
-  ndaApprovalRequired: boolean
-}
-
-const NdaRequestsTable: React.FC<Props> = ({ ndaApprovalRequired }) => {
+const NdaRequestsTable = () => {
   const [activeTab, setActiveTab] = useState<'requested' | 'approved' | 'signed'>('requested')
   const [searchTerm, setSearchTerm] = useState('')
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
   const [actionLoadingType, setActionLoadingType] = useState<'approve' | 'deny' | null>(null)
+  const [approveAllLoading, setApproveAllLoading] = useState(false)
+  const [approveAllDialogOpen, setApproveAllDialogOpen] = useState(false)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_NDA_REQUESTS, DEFAULT_PAGINATION))
+  const [filters, setFilters] = useState<TrustCenterNdaRequestWhereInput | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateNdaRequest } = useUpdateTrustCenterNdaRequest()
+  const debouncedSearch = useDebounce(searchTerm, 300)
 
   const status = useMemo<TrustCenterNdaRequestTrustCenterNdaRequestStatus>(() => {
     if (activeTab === 'signed') return TrustCenterNdaRequestTrustCenterNdaRequestStatus.SIGNED
     if (activeTab === 'approved') return TrustCenterNdaRequestTrustCenterNdaRequestStatus.APPROVED
-    return ndaApprovalRequired ? TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL : TrustCenterNdaRequestTrustCenterNdaRequestStatus.REQUESTED
-  }, [activeTab, ndaApprovalRequired])
+    return TrustCenterNdaRequestTrustCenterNdaRequestStatus.REQUESTED
+  }, [activeTab])
 
   useEffect(() => {
     setPagination((prev) => ({
@@ -42,13 +44,14 @@ const NdaRequestsTable: React.FC<Props> = ({ ndaApprovalRequired }) => {
   const whereFilter = useMemo<TrustCenterNdaRequestWhereInput>(
     () => ({
       status,
-      ...(searchTerm
+      ...(debouncedSearch
         ? {
-            or: [{ firstNameContainsFold: searchTerm }, { lastNameContainsFold: searchTerm }, { companyNameContainsFold: searchTerm }, { emailContainsFold: searchTerm }],
+            or: [{ firstNameContainsFold: debouncedSearch }, { lastNameContainsFold: debouncedSearch }, { companyNameContainsFold: debouncedSearch }, { emailContainsFold: debouncedSearch }],
           }
         : {}),
+      ...(filters ?? {}),
     }),
-    [status, searchTerm],
+    [status, debouncedSearch, filters],
   )
 
   const { requests, paginationMeta, isFetching } = useGetTrustCenterNdaRequests({
@@ -66,7 +69,8 @@ const NdaRequestsTable: React.FC<Props> = ({ ndaApprovalRequired }) => {
         companyName: request.companyName ?? '-',
         email: request.email ?? '-',
         createdAt: request.createdAt ?? '',
-        updatedAt: request.updatedAt ?? '',
+        approvedAt: request.approvedAt ?? '',
+        signedAt: request.signedAt ?? '',
       })),
     [requests],
   )
@@ -105,7 +109,7 @@ const NdaRequestsTable: React.FC<Props> = ({ ndaApprovalRequired }) => {
           try {
             await updateNdaRequest({
               updateTrustCenterNdaRequestId: id,
-              input: { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.REQUESTED },
+              input: { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.DECLINED },
             })
             successNotification({
               title: 'NDA Denied',
@@ -136,9 +140,66 @@ const NdaRequestsTable: React.FC<Props> = ({ ndaApprovalRequired }) => {
     }))
   }
 
+  const handleFilterChange = useCallback((newFilters: TrustCenterNdaRequestWhereInput) => {
+    setFilters(newFilters)
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+      query: { first: prev.pageSize },
+    }))
+  }, [])
+
+  const handleApproveAll = useCallback(async () => {
+    if (requests.length === 0) return
+    setApproveAllLoading(true)
+    try {
+      await Promise.all(
+        requests.map((request) =>
+          updateNdaRequest({
+            updateTrustCenterNdaRequestId: request.id,
+            input: { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.APPROVED },
+          }),
+        ),
+      )
+      successNotification({
+        title: 'NDA Requests Approved',
+        description: 'All NDA requests on this page have been approved.',
+      })
+    } catch (error) {
+      errorNotification({
+        title: 'Approve All Failed',
+        description: parseErrorMessage(error),
+      })
+    } finally {
+      setApproveAllLoading(false)
+      setApproveAllDialogOpen(false)
+    }
+  }, [errorNotification, requests, successNotification, updateNdaRequest])
+
   return (
     <div>
-      <NdaRequestsTableToolbar activeTab={activeTab} onTabChange={setActiveTab} searchTerm={searchTerm} setSearchTerm={handleSearchTermChange} />
+      <ConfirmationDialog
+        open={approveAllDialogOpen}
+        onOpenChange={setApproveAllDialogOpen}
+        onConfirm={handleApproveAll}
+        title="Approve all NDA requests?"
+        description={
+          <>
+            This will approve <b>{requests.length}</b> NDA request{requests.length === 1 ? '' : 's'} on the current page.
+          </>
+        }
+        confirmationText="Approve all"
+      />
+      <NdaRequestsTableToolbar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        searchTerm={searchTerm}
+        setSearchTerm={handleSearchTermChange}
+        onFilterChange={handleFilterChange}
+        onApproveAllRequest={() => setApproveAllDialogOpen(true)}
+        approveAllLoading={approveAllLoading}
+        approveAllDisabled={requests.length === 0}
+      />
       <DataTable
         columns={columns}
         data={tableData}
