@@ -22,7 +22,7 @@ config:
     Upload: any
   schema: yup
 overwrite: true
-schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql
+schema: https://raw.githubusercontent.com/theopenlane/core/feat-ISS-1429/internal/graphapi/clientschema/schema.graphql
 documents: './query/**/*.ts'
 generates:
   ./src/introspectionschema.json:

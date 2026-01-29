@@ -9443,6 +9443,8 @@ export interface CreateTrustCenterInput {
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch access link */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
   /** Pirsch domain ID */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   /** Pirsch ID code */
@@ -9581,13 +9583,14 @@ export interface CreateTrustCenterSettingInput {
  */
 export interface CreateTrustCenterSubprocessorInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** Category of the subprocessor, e.g. 'Data Warehouse' or 'Infrastructure Hosting' */
-  category: Scalars['String']['input']
   /** country codes or country where the subprocessor is located */
   countries?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorID: Scalars['ID']['input']
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindName?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -42344,6 +42347,8 @@ export interface TrustCenter extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** Pirsch access link */
+  pirschAccessLink?: Maybe<Scalars['String']['output']>
   /** Pirsch domain ID */
   pirschDomainID?: Maybe<Scalars['String']['output']>
   /** Pirsch ID code */
@@ -44258,8 +44263,6 @@ export interface TrustCenterSettingWhereInput {
 export interface TrustCenterSubprocessor extends Node {
   __typename?: 'TrustCenterSubprocessor'
   blockedGroups: GroupConnection
-  /** Category of the subprocessor, e.g. 'Data Warehouse' or 'Infrastructure Hosting' */
-  category: Scalars['String']['output']
   /** country codes or country where the subprocessor is located */
   countries?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -44272,6 +44275,11 @@ export interface TrustCenterSubprocessor extends Node {
   trustCenter?: Maybe<TrustCenter>
   /** ID of the trust center */
   trustCenterID?: Maybe<Scalars['ID']['output']>
+  trustCenterSubprocessorKind?: Maybe<CustomTypeEnum>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindID?: Maybe<Scalars['ID']['output']>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindName?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -44378,20 +44386,6 @@ export interface TrustCenterSubprocessorUpdatePayload {
  */
 export interface TrustCenterSubprocessorWhereInput {
   and?: InputMaybe<Array<TrustCenterSubprocessorWhereInput>>
-  /** category field predicates */
-  category?: InputMaybe<Scalars['String']['input']>
-  categoryContains?: InputMaybe<Scalars['String']['input']>
-  categoryContainsFold?: InputMaybe<Scalars['String']['input']>
-  categoryEqualFold?: InputMaybe<Scalars['String']['input']>
-  categoryGT?: InputMaybe<Scalars['String']['input']>
-  categoryGTE?: InputMaybe<Scalars['String']['input']>
-  categoryHasPrefix?: InputMaybe<Scalars['String']['input']>
-  categoryHasSuffix?: InputMaybe<Scalars['String']['input']>
-  categoryIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryLT?: InputMaybe<Scalars['String']['input']>
-  categoryLTE?: InputMaybe<Scalars['String']['input']>
-  categoryNEQ?: InputMaybe<Scalars['String']['input']>
-  categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -44430,6 +44424,9 @@ export interface TrustCenterSubprocessorWhereInput {
   hasSubprocessorWith?: InputMaybe<Array<SubprocessorWhereInput>>
   /** trust_center edge predicates */
   hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_subprocessor_kind edge predicates */
+  hasTrustCenterSubprocessorKind?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterSubprocessorKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
@@ -44474,6 +44471,38 @@ export interface TrustCenterSubprocessorWhereInput {
   trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
   trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_subprocessor_kind_id field predicates */
+  trustCenterSubprocessorKindID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterSubprocessorKindIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterSubprocessorKindIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterSubprocessorKindIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_subprocessor_kind_name field predicates */
+  trustCenterSubprocessorKindName?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameContains?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameGT?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameGTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterSubprocessorKindNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterSubprocessorKindNameLT?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameLTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameNEQ?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterSubprocessorKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -44989,6 +45018,22 @@ export interface TrustCenterWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** pirsch_access_link field predicates */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkContains?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkContainsFold?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkEqualFold?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkGT?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkGTE?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschAccessLinkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pirschAccessLinkLT?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkLTE?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkNEQ?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschAccessLinkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** pirsch_domain_id field predicates */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   pirschDomainIDContains?: InputMaybe<Scalars['String']['input']>
@@ -49957,6 +50002,7 @@ export interface UpdateTrustCenterInput {
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPirschAccessLink?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschIdentificationCode?: InputMaybe<Scalars['Boolean']['input']>
   clearPosts?: InputMaybe<Scalars['Boolean']['input']>
@@ -49977,6 +50023,8 @@ export interface UpdateTrustCenterInput {
   /** delete a post from the trust center feed */
   deletePost?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch access link */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
   /** Pirsch domain ID */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   /** Pirsch ID code */
@@ -50120,18 +50168,21 @@ export interface UpdateTrustCenterSubprocessorInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendCountries?: InputMaybe<Array<Scalars['String']['input']>>
-  /** Category of the subprocessor, e.g. 'Data Warehouse' or 'Infrastructure Hosting' */
-  category?: InputMaybe<Scalars['String']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCountries?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterSubprocessorKind?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterSubprocessorKindName?: InputMaybe<Scalars['Boolean']['input']>
   /** country codes or country where the subprocessor is located */
   countries?: InputMaybe<Array<Scalars['String']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorID?: InputMaybe<Scalars['ID']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindName?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -53710,6 +53761,23 @@ export enum WorkflowEventWorkflowEventType {
   WORKFLOW_TRIGGERED = 'WORKFLOW_TRIGGERED',
 }
 
+/** WorkflowFieldDiff describes a proposed change for a single field. */
+export interface WorkflowFieldDiff {
+  __typename?: 'WorkflowFieldDiff'
+  /** Current field value */
+  currentValue?: Maybe<Scalars['Any']['output']>
+  /** Unified diff for the field (when applicable) */
+  diff?: Maybe<Scalars['String']['output']>
+  /** Field name (snake_case) */
+  field: Scalars['String']['output']
+  /** Human-friendly field label when available */
+  label?: Maybe<Scalars['String']['output']>
+  /** Proposed field value */
+  proposedValue?: Maybe<Scalars['Any']['output']>
+  /** Field type metadata when available */
+  type?: Maybe<Scalars['String']['output']>
+}
+
 /** Metadata for a workflow-eligible field */
 export interface WorkflowFieldMetadata {
   __typename?: 'WorkflowFieldMetadata'
@@ -53775,6 +53843,11 @@ export interface WorkflowInstance extends Node {
   procedure?: Maybe<Procedure>
   /** ID of the procedure this workflow instance is associated with */
   procedureID?: Maybe<Scalars['ID']['output']>
+  /**
+   * Precomputed proposal preview (diff + values) for approval workflows.
+   * Only available to editors/owners of the target object.
+   */
+  proposalPreview?: Maybe<WorkflowProposalPreview>
   /** Current state of the workflow instance */
   state: WorkflowInstanceWorkflowInstanceState
   /** Subcontrol this workflow instance is associated with */
@@ -54774,6 +54847,35 @@ export interface WorkflowObjectTypeMetadata {
   type: Scalars['String']['output']
 }
 
+/** WorkflowProposalPreview describes the proposed changes alongside current values and diffs. */
+export interface WorkflowProposalPreview {
+  __typename?: 'WorkflowProposalPreview'
+  /** Current values for the proposed fields */
+  currentValues?: Maybe<Scalars['Map']['output']>
+  /** Field-level diffs for the proposed changes */
+  diffs: Array<WorkflowFieldDiff>
+  /** Stable key representing the approval domain for this proposal */
+  domainKey: Scalars['String']['output']
+  /** ID of the workflow proposal */
+  proposalID: Scalars['ID']['output']
+  /** Proposed changes for the approval domain */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
+  /** Current state of the proposal */
+  state: WorkflowProposalState
+  /** Timestamp when the proposal was submitted */
+  submittedAt?: Maybe<Scalars['DateTime']['output']>
+  /** User who submitted the proposal */
+  submittedByUserID?: Maybe<Scalars['ID']['output']>
+}
+
+export enum WorkflowProposalState {
+  APPLIED = 'APPLIED',
+  DRAFT = 'DRAFT',
+  REJECTED = 'REJECTED',
+  SUBMITTED = 'SUBMITTED',
+  SUPERSEDED = 'SUPERSEDED',
+}
+
 export type CreateAssessmentMutationVariables = Exact<{
   input: CreateAssessmentInput
 }>
@@ -55737,6 +55839,8 @@ export type GetExistingControlsForOrganizationQuery = {
 export type ControlDiscussionFieldsFragment = {
   __typename: 'Control'
   id: string
+  refCode: string
+  title?: string | null
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -55779,6 +55883,8 @@ export type GetControlDiscussionByIdQuery = {
   control: {
     __typename: 'Control'
     id: string
+    refCode: string
+    title?: string | null
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -57389,6 +57495,7 @@ export type DeleteBulkInternalPolicyMutation = { __typename?: 'Mutation'; delete
 export type PolicyDiscussionFieldsFragment = {
   __typename: 'InternalPolicy'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -57431,6 +57538,7 @@ export type GetPolicyDiscussionByIdQuery = {
   internalPolicy: {
     __typename: 'InternalPolicy'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -57764,6 +57872,7 @@ export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkP
 export type ProcedureDiscussionFieldsFragment = {
   __typename: 'Procedure'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -57806,6 +57915,7 @@ export type GetProcedureDiscussionByIdQuery = {
   procedure: {
     __typename: 'Procedure'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -58395,6 +58505,7 @@ export type GetOpenRiskCountQuery = { __typename?: 'Query'; risks: { __typename?
 export type RiskDiscussionFieldsFragment = {
   __typename: 'Risk'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -58437,6 +58548,7 @@ export type GetRiskDiscussionByIdQuery = {
   risk: {
     __typename: 'Risk'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -58957,6 +59069,8 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
 export type SubcontrolDiscussionFieldsFragment = {
   __typename: 'Subcontrol'
   id: string
+  refCode: string
+  title?: string | null
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -58999,6 +59113,8 @@ export type GetSubcontrolDiscussionByIdQuery = {
   subcontrol: {
     __typename: 'Subcontrol'
     id: string
+    refCode: string
+    title?: string | null
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -59876,7 +59992,7 @@ export type GetTrustCenterSubprocessorsQuery = {
       node?: {
         __typename?: 'TrustCenterSubprocessor'
         id: string
-        category: string
+        trustCenterSubprocessorKindName?: string | null
         countries?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
@@ -59940,7 +60056,7 @@ export type GetTrustCenterSubprocessorByIdQuery = {
   trustCenterSubprocessor: {
     __typename?: 'TrustCenterSubprocessor'
     id: string
-    category: string
+    trustCenterSubprocessorKindName?: string | null
     countries?: Array<string> | null
     subprocessor: {
       __typename?: 'Subprocessor'

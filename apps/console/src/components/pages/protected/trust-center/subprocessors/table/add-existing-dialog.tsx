@@ -73,7 +73,7 @@ export const AddExistingDialog = ({
       await createTCSubprocessor({
         input: {
           subprocessorID: data.subprocessorID,
-          category: data.category,
+          trustCenterSubprocessorKindName: data.category,
           countries: data.countries,
         },
       })

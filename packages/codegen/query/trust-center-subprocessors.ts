@@ -17,7 +17,7 @@ export const GET_TRUST_CENTER_SUBPROCESSORS = gql`
               base64
             }
           }
-          category
+          trustCenterSubprocessorKindName
           countries
           createdAt
           createdBy
@@ -77,7 +77,7 @@ export const GET_TRUST_CENTER_SUBPROCESSOR_BY_ID = gql`
   query GetTrustCenterSubprocessorByID($trustCenterSubprocessorId: ID!) {
     trustCenterSubprocessor(id: $trustCenterSubprocessorId) {
       id
-      category
+      trustCenterSubprocessorKindName
       countries
       subprocessor {
         id
