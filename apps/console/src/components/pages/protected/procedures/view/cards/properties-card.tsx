@@ -60,8 +60,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
 
   useEscapeKey(() => {
     if (editingField) {
-      const value = procedure?.[editingField]
-      form.setValue(editingField, value || '')
+      const value = procedure?.[editingField as 'status' | 'procedureKindName' | 'reviewDue']
+      form.setValue(editingField as 'status' | 'procedureKindName' | 'reviewDue', value || '')
       setEditingField(null)
     }
   })
