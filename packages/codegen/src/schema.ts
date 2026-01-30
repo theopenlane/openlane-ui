@@ -2954,6 +2954,13 @@ export interface AssetWhereInput {
   websiteNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** Return response for approveNDARequests or denyNDARequests mutation */
+export interface BulkUpdateStatusPayload {
+  __typename?: 'BulkUpdateStatusPayload'
+  /** Updated nda request IDs */
+  totalUpdated: Scalars['Int']['output']
+}
+
 export interface Campaign extends Node {
   __typename?: 'Campaign'
   /** Returns active workflow instances for this campaign (RUNNING or PAUSED) */
@@ -9443,6 +9450,8 @@ export interface CreateTrustCenterInput {
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch access link */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
   /** Pirsch domain ID */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   /** Pirsch ID code */
@@ -9478,9 +9487,14 @@ export interface CreateTrustCenterNdaInput {
 export interface CreateTrustCenterNdaRequestInput {
   /** access level requested */
   accessLevel?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel>
+  /** timestamp when the request was approved */
+  approvedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** ID of the user who approved the request */
+  approvedByUserID?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** company name of the requester */
   companyName?: InputMaybe<Scalars['String']['input']>
+  documentID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** email address of the requester */
   email: Scalars['String']['input']
@@ -9490,6 +9504,8 @@ export interface CreateTrustCenterNdaRequestInput {
   lastName: Scalars['String']['input']
   /** reason for the NDA request */
   reason?: InputMaybe<Scalars['String']['input']>
+  /** timestamp when the NDA was signed */
+  signedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -24130,6 +24146,8 @@ export interface MappedControlWhereInput {
 
 export interface Mutation {
   __typename?: 'Mutation'
+  /** Update multiple existing nda requests as approved */
+  approveNDARequests: BulkUpdateStatusPayload
   /** Approve a workflow assignment and apply the proposed changes */
   approveWorkflowAssignment: WorkflowAssignmentApprovePayload
   /** Create multiple new controls via a clone from a standard using a CSV */
@@ -24792,6 +24810,8 @@ export interface Mutation {
   deleteWebauthn: WebauthnDeletePayload
   /** Delete an existing workflowDefinition */
   deleteWorkflowDefinition: WorkflowDefinitionDeletePayload
+  /** Update multiple existing nda requests as approved */
+  denyNDARequests: BulkUpdateStatusPayload
   /** Publish changes from preview to live environment */
   publishTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Reject a workflow assignment and discard the proposed changes */
@@ -24997,6 +25017,10 @@ export interface Mutation {
   updateWorkflowDefinition: WorkflowDefinitionUpdatePayload
   /** Trigger validation for an existing customDomain */
   validateCustomDomain: CustomDomainValidatePayload
+}
+
+export interface MutationApproveNdaRequestsArgs {
+  ids: Array<Scalars['ID']['input']>
 }
 
 export interface MutationApproveWorkflowAssignmentArgs {
@@ -26345,6 +26369,10 @@ export interface MutationDeleteWebauthnArgs {
 
 export interface MutationDeleteWorkflowDefinitionArgs {
   id: Scalars['ID']['input']
+}
+
+export interface MutationDenyNdaRequestsArgs {
+  ids: Array<Scalars['ID']['input']>
 }
 
 export interface MutationRejectWorkflowAssignmentArgs {
@@ -42344,6 +42372,8 @@ export interface TrustCenter extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** Pirsch access link */
+  pirschAccessLink?: Maybe<Scalars['String']['output']>
   /** Pirsch domain ID */
   pirschDomainID?: Maybe<Scalars['String']['output']>
   /** Pirsch ID code */
@@ -43360,11 +43390,19 @@ export interface TrustCenterNdaRequest extends Node {
   __typename?: 'TrustCenterNDARequest'
   /** access level requested */
   accessLevel?: Maybe<TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel>
+  /** timestamp when the request was approved */
+  approvedAt?: Maybe<Scalars['DateTime']['output']>
+  /** ID of the user who approved the request */
+  approvedByUserID?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
   /** company name of the requester */
   companyName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** the signed NDA document data */
+  document?: Maybe<DocumentData>
+  /** ID of the signed NDA document data */
+  documentDataID?: Maybe<Scalars['ID']['output']>
   editors: GroupConnection
   /** email address of the requester */
   email: Scalars['String']['output']
@@ -43375,6 +43413,8 @@ export interface TrustCenterNdaRequest extends Node {
   lastName: Scalars['String']['output']
   /** reason for the NDA request */
   reason?: Maybe<Scalars['String']['output']>
+  /** timestamp when the NDA was signed */
+  signedAt?: Maybe<Scalars['DateTime']['output']>
   /** status of the NDA request */
   status?: Maybe<TrustCenterNdaRequestTrustCenterNdaRequestStatus>
   /** tags associated with the object */
@@ -43478,6 +43518,7 @@ export enum TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel {
 /** TrustCenterNDARequestTrustCenterNDARequestStatus is enum for the field status */
 export enum TrustCenterNdaRequestTrustCenterNdaRequestStatus {
   APPROVED = 'APPROVED',
+  DECLINED = 'DECLINED',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
   REQUESTED = 'REQUESTED',
   SIGNED = 'SIGNED',
@@ -43503,6 +43544,33 @@ export interface TrustCenterNdaRequestWhereInput {
   accessLevelNotIn?: InputMaybe<Array<TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel>>
   accessLevelNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<TrustCenterNdaRequestWhereInput>>
+  /** approved_at field predicates */
+  approvedAt?: InputMaybe<Scalars['DateTime']['input']>
+  approvedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  approvedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  approvedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  approvedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  approvedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  approvedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  approvedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  approvedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  approvedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** approved_by_user_id field predicates */
+  approvedByUserID?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDContains?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDGT?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  approvedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  approvedByUserIDLT?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  approvedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  approvedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** company_name field predicates */
   companyName?: InputMaybe<Scalars['String']['input']>
   companyNameContains?: InputMaybe<Scalars['String']['input']>
@@ -43546,6 +43614,22 @@ export interface TrustCenterNdaRequestWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** document_data_id field predicates */
+  documentDataID?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDContains?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDGT?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDGTE?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  documentDataIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  documentDataIDLT?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDLTE?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  documentDataIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  documentDataIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
@@ -43577,6 +43661,9 @@ export interface TrustCenterNdaRequestWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** document edge predicates */
+  hasDocument?: InputMaybe<Scalars['Boolean']['input']>
+  hasDocumentWith?: InputMaybe<Array<DocumentDataWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -43629,6 +43716,17 @@ export interface TrustCenterNdaRequestWhereInput {
   reasonNEQ?: InputMaybe<Scalars['String']['input']>
   reasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   reasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** signed_at field predicates */
+  signedAt?: InputMaybe<Scalars['DateTime']['input']>
+  signedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  signedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  signedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  signedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  signedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  signedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  signedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  signedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  signedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestStatus>
   statusIn?: InputMaybe<Array<TrustCenterNdaRequestTrustCenterNdaRequestStatus>>
@@ -44989,6 +45087,22 @@ export interface TrustCenterWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** pirsch_access_link field predicates */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkContains?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkContainsFold?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkEqualFold?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkGT?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkGTE?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschAccessLinkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pirschAccessLinkLT?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkLTE?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkNEQ?: InputMaybe<Scalars['String']['input']>
+  pirschAccessLinkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  pirschAccessLinkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** pirsch_domain_id field predicates */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   pirschDomainIDContains?: InputMaybe<Scalars['String']['input']>
@@ -49957,6 +50071,7 @@ export interface UpdateTrustCenterInput {
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearPirschAccessLink?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschIdentificationCode?: InputMaybe<Scalars['Boolean']['input']>
   clearPosts?: InputMaybe<Scalars['Boolean']['input']>
@@ -49977,6 +50092,8 @@ export interface UpdateTrustCenterInput {
   /** delete a post from the trust center feed */
   deletePost?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** Pirsch access link */
+  pirschAccessLink?: InputMaybe<Scalars['String']['input']>
   /** Pirsch domain ID */
   pirschDomainID?: InputMaybe<Scalars['String']['input']>
   /** Pirsch ID code */
@@ -50014,16 +50131,25 @@ export interface UpdateTrustCenterNdaRequestInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** timestamp when the request was approved */
+  approvedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** ID of the user who approved the request */
+  approvedByUserID?: InputMaybe<Scalars['String']['input']>
   clearAccessLevel?: InputMaybe<Scalars['Boolean']['input']>
+  clearApprovedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearApprovedByUserID?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
+  clearDocument?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearSignedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterDocs?: InputMaybe<Scalars['Boolean']['input']>
   /** company name of the requester */
   companyName?: InputMaybe<Scalars['String']['input']>
+  documentID?: InputMaybe<Scalars['ID']['input']>
   /** email address of the requester */
   email?: InputMaybe<Scalars['String']['input']>
   /** first name of the requester */
@@ -50035,6 +50161,8 @@ export interface UpdateTrustCenterNdaRequestInput {
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** timestamp when the NDA was signed */
+  signedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** status of the NDA request */
   status?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestStatus>
   /** tags associated with the object */
@@ -53710,6 +53838,23 @@ export enum WorkflowEventWorkflowEventType {
   WORKFLOW_TRIGGERED = 'WORKFLOW_TRIGGERED',
 }
 
+/** WorkflowFieldDiff describes a proposed change for a single field. */
+export interface WorkflowFieldDiff {
+  __typename?: 'WorkflowFieldDiff'
+  /** Current field value */
+  currentValue?: Maybe<Scalars['Any']['output']>
+  /** Unified diff for the field (when applicable) */
+  diff?: Maybe<Scalars['String']['output']>
+  /** Field name (snake_case) */
+  field: Scalars['String']['output']
+  /** Human-friendly field label when available */
+  label?: Maybe<Scalars['String']['output']>
+  /** Proposed field value */
+  proposedValue?: Maybe<Scalars['Any']['output']>
+  /** Field type metadata when available */
+  type?: Maybe<Scalars['String']['output']>
+}
+
 /** Metadata for a workflow-eligible field */
 export interface WorkflowFieldMetadata {
   __typename?: 'WorkflowFieldMetadata'
@@ -53775,6 +53920,11 @@ export interface WorkflowInstance extends Node {
   procedure?: Maybe<Procedure>
   /** ID of the procedure this workflow instance is associated with */
   procedureID?: Maybe<Scalars['ID']['output']>
+  /**
+   * Precomputed proposal preview (diff + values) for approval workflows.
+   * Only available to editors/owners of the target object.
+   */
+  proposalPreview?: Maybe<WorkflowProposalPreview>
   /** Current state of the workflow instance */
   state: WorkflowInstanceWorkflowInstanceState
   /** Subcontrol this workflow instance is associated with */
@@ -54774,6 +54924,35 @@ export interface WorkflowObjectTypeMetadata {
   type: Scalars['String']['output']
 }
 
+/** WorkflowProposalPreview describes the proposed changes alongside current values and diffs. */
+export interface WorkflowProposalPreview {
+  __typename?: 'WorkflowProposalPreview'
+  /** Current values for the proposed fields */
+  currentValues?: Maybe<Scalars['Map']['output']>
+  /** Field-level diffs for the proposed changes */
+  diffs: Array<WorkflowFieldDiff>
+  /** Stable key representing the approval domain for this proposal */
+  domainKey: Scalars['String']['output']
+  /** ID of the workflow proposal */
+  proposalID: Scalars['ID']['output']
+  /** Proposed changes for the approval domain */
+  proposedChanges?: Maybe<Scalars['Map']['output']>
+  /** Current state of the proposal */
+  state: WorkflowProposalState
+  /** Timestamp when the proposal was submitted */
+  submittedAt?: Maybe<Scalars['DateTime']['output']>
+  /** User who submitted the proposal */
+  submittedByUserID?: Maybe<Scalars['ID']['output']>
+}
+
+export enum WorkflowProposalState {
+  APPLIED = 'APPLIED',
+  DRAFT = 'DRAFT',
+  REJECTED = 'REJECTED',
+  SUBMITTED = 'SUBMITTED',
+  SUPERSEDED = 'SUPERSEDED',
+}
+
 export type CreateAssessmentMutationVariables = Exact<{
   input: CreateAssessmentInput
 }>
@@ -55737,6 +55916,8 @@ export type GetExistingControlsForOrganizationQuery = {
 export type ControlDiscussionFieldsFragment = {
   __typename: 'Control'
   id: string
+  refCode: string
+  title?: string | null
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -55779,6 +55960,8 @@ export type GetControlDiscussionByIdQuery = {
   control: {
     __typename: 'Control'
     id: string
+    refCode: string
+    title?: string | null
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -57389,6 +57572,7 @@ export type DeleteBulkInternalPolicyMutation = { __typename?: 'Mutation'; delete
 export type PolicyDiscussionFieldsFragment = {
   __typename: 'InternalPolicy'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -57431,6 +57615,7 @@ export type GetPolicyDiscussionByIdQuery = {
   internalPolicy: {
     __typename: 'InternalPolicy'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -57764,6 +57949,7 @@ export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkP
 export type ProcedureDiscussionFieldsFragment = {
   __typename: 'Procedure'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -57806,6 +57992,7 @@ export type GetProcedureDiscussionByIdQuery = {
   procedure: {
     __typename: 'Procedure'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -58395,6 +58582,7 @@ export type GetOpenRiskCountQuery = { __typename?: 'Query'; risks: { __typename?
 export type RiskDiscussionFieldsFragment = {
   __typename: 'Risk'
   id: string
+  name: string
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -58437,6 +58625,7 @@ export type GetRiskDiscussionByIdQuery = {
   risk: {
     __typename: 'Risk'
     id: string
+    name: string
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -58957,6 +59146,8 @@ export type GetExistingSubcontrolsForOrganizationQuery = {
 export type SubcontrolDiscussionFieldsFragment = {
   __typename: 'Subcontrol'
   id: string
+  refCode: string
+  title?: string | null
   discussions: {
     __typename?: 'DiscussionConnection'
     edges?: Array<{
@@ -58999,6 +59190,8 @@ export type GetSubcontrolDiscussionByIdQuery = {
   subcontrol: {
     __typename: 'Subcontrol'
     id: string
+    refCode: string
+    title?: string | null
     discussions: {
       __typename?: 'DiscussionConnection'
       edges?: Array<{
@@ -59996,6 +60189,7 @@ export type GetTrustCenterQuery = {
           accentColor?: string | null
           companyName?: string | null
           companyDescription?: string | null
+          companyDomain?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
@@ -60018,6 +60212,7 @@ export type GetTrustCenterQuery = {
           accentColor?: string | null
           companyName?: string | null
           companyDescription?: string | null
+          companyDomain?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null

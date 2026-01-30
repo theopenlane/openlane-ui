@@ -71,6 +71,7 @@ const BrandPage: React.FC = () => {
         faviconFile: null,
         companyName: previewSetting.companyName ?? '',
         companyDescription: previewSetting.companyDescription ?? '',
+        companyDomain: previewSetting.companyDomain ?? '',
       })
     }
   }, [previewSetting, reset])
@@ -81,14 +82,13 @@ const BrandPage: React.FC = () => {
 
   const hasPreviewDifference = useMemo(() => {
     if (!setting || !previewSetting) return null
-    const companyInfoDiff = setting.companyName !== previewSetting.companyName || setting.companyDescription !== previewSetting.companyDescription
+    const companyInfoDiff =
+      setting.companyName !== previewSetting.companyName || setting.companyDescription !== previewSetting.companyDescription || setting.companyDomain !== previewSetting.companyDomain
     const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
     const themeDiff = setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || setting.primaryColor !== previewSetting.primaryColor
     const assetDiff = setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL
     return { companyInfo: companyInfoDiff, text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff }
   }, [setting, previewSetting])
-
-  console.log(hasPreviewDifference)
 
   const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
 
@@ -116,6 +116,10 @@ const BrandPage: React.FC = () => {
         clearSecurityContact: !values.securityContact,
         companyName: values.companyName,
         companyDescription: values.companyDescription,
+        companyDomain: values.companyDomain,
+        clearCompanyDomain: !values.companyDomain,
+        clearCompanyDescription: !values.companyDescription,
+        clearCompanyName: !values.companyName,
       },
     }
 
@@ -179,6 +183,9 @@ const BrandPage: React.FC = () => {
         logoRemoteURL: setting.logoRemoteURL,
         faviconFileID: setting.faviconFile?.id,
         faviconRemoteURL: setting.faviconRemoteURL,
+        companyName: setting.companyName,
+        companyDescription: setting.companyDescription,
+        companyDomain: setting.companyDomain,
       },
     })
   }
