@@ -232,6 +232,11 @@
   --tip-text: #0e937c;
   --tip-background: rgba(154, 245, 220, 0.24);
   --tip-border: rgba(154, 245, 220, 0.48);
+  --color-nda-approval-info-border: rgba(154, 245, 220, 0.48);
+  --color-nda-approval-info-bg: rgba(154, 245, 220, 0.24);
+  --color-nda-approval-info-text: #0e937c;
+  --color-nda-approval-info-dot: #0e937c;
+  --color-nda-approval-info-dot-shadow: rgba(14, 147, 124, 0.2);
 
   --inverted-muted-foreground: #9aa5b0;
   --text-informational: #798695;
@@ -315,6 +320,11 @@
   --tip-text: #60e8c9;
   --tip-background: rgba(96, 232, 201, 0.12);
   --tip-border: rgba(96, 232, 201, 0.32);
+  --color-nda-approval-info-border: rgba(154, 245, 220, 0.24);
+  --color-nda-approval-info-bg: rgba(154, 245, 220, 0.12);
+  --color-nda-approval-info-text: #9af5dc;
+  --color-nda-approval-info-dot: #9af5dc;
+  --color-nda-approval-info-dot-shadow: rgba(154, 245, 220, 0.2);
 
   --inverted-muted-foreground: #6b7682;
   --color-toast-success: linear-gradient(273deg, rgba(33, 197, 93, 0) 54.63%, rgba(33, 197, 93, 0.08) 77.12%, rgba(33, 197, 93, 0.16) 99.61%), #233440;

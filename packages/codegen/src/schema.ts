@@ -59965,6 +59965,48 @@ export type GetNdaRequestCountQueryVariables = Exact<{
 
 export type GetNdaRequestCountQuery = { __typename?: 'Query'; trustCenterNdaRequests: { __typename?: 'TrustCenterNDARequestConnection'; totalCount: number } }
 
+export type GetTrustCenterNdaRequestsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterNdaRequestOrder> | TrustCenterNdaRequestOrder>
+  where?: InputMaybe<TrustCenterNdaRequestWhereInput>
+}>
+
+export type GetTrustCenterNdaRequestsQuery = {
+  __typename?: 'Query'
+  trustCenterNdaRequests: {
+    __typename?: 'TrustCenterNDARequestConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+    edges?: Array<{
+      __typename?: 'TrustCenterNDARequestEdge'
+      node?: {
+        __typename?: 'TrustCenterNDARequest'
+        id: string
+        firstName: string
+        lastName: string
+        companyName?: string | null
+        email: string
+        createdAt?: any | null
+        updatedAt?: any | null
+        status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type UpdateTrustCenterNdaRequestMutationVariables = Exact<{
+  updateTrustCenterNdaRequestId: Scalars['ID']['input']
+  input: UpdateTrustCenterNdaRequestInput
+}>
+
+export type UpdateTrustCenterNdaRequestMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestUpdatePayload'; trustCenterNDARequest: { __typename?: 'TrustCenterNDARequest'; id: string } }
+}
+
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTrustCenterCompliancesQuery = {
