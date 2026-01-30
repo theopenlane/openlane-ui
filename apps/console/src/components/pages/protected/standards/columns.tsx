@@ -48,31 +48,34 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
           </div>
         )
       },
-      size: 50,
+      meta: {
+        className: 'max-w-[2%] w-[2%]',
+      },
+      enableResizing: false,
     },
     {
       accessorKey: 'refCode',
       header: 'Ref Code',
       cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
+      meta: {
+        className: 'max-w-[5%] w-[5%]',
+      },
     },
     {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
-    },
-    {
-      accessorKey: 'subcategory',
-      header: 'Subdomain',
-    },
-    {
-      accessorKey: 'mappedCategories',
-      header: 'Mapped Categories',
-      cell: (info) => (info.getValue() as string[])?.join(', '),
+      meta: {
+        className: 'max-w-[50%] w-[50%]',
+      },
     },
     {
       accessorKey: 'subcontrols.totalCount',
       header: '# of Subcontrols',
       cell: (info) => info.row.original.subcontrols.totalCount,
+      meta: {
+        className: 'max-w-[5%] w-[5%]',
+      },
     },
   ]
 }
