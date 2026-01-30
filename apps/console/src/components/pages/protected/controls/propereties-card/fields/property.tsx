@@ -2,7 +2,7 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import StandardChip from '../../../standards/shared/standard-chip'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 
-export const Property = ({ label, value }: { label: string; value?: string | null }) => (
+export const Property = ({ label, value, onPencilClick }: { label: string; value?: string | null; onPencilClick?: () => void }) => (
   <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3">
     <div className="flex items-start gap-2">
       <div className="pt-0.5">{controlIconsMap[label]}</div>
@@ -14,7 +14,7 @@ export const Property = ({ label, value }: { label: string; value?: string | nul
           <StandardChip referenceFramework={value ?? ''} />
         </div>
       ) : (
-        <HoverPencilWrapper>
+        <HoverPencilWrapper onPencilClick={onPencilClick}>
           <div className="text-sm whitespace-pre-line">{value || '-'}</div>
         </HoverPencilWrapper>
       )}

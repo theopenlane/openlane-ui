@@ -20,10 +20,21 @@ type TTagsCardProps = {
   isEditing: boolean
   editAllowed: boolean
   handleUpdate?: (val: UpdateProcedureInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
-  const [internalEditing, setInternalEditing] = useState(false)
+const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
+  const [internalInternalEditing, setInternalInternalEditing] = useState(false)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const internalEditing = isControlled ? activeField === 'tags' : internalInternalEditing
+  const setInternalEditing = (value: boolean) => {
+    if (isControlled) {
+      setActiveField?.(value ? 'tags' : null)
+    } else {
+      setInternalInternalEditing(value)
+    }
+  }
   const { tagOptions } = useGetTags()
 
   const tags = form.watch('tags')
@@ -102,7 +113,15 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
               />
             </InputRow>
           ) : (
-            <HoverPencilWrapper showPencil={editAllowed} className={`flex gap-2 flex-wrap w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+            <HoverPencilWrapper
+              showPencil={editAllowed}
+              className={`flex gap-2 flex-wrap w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              onPencilClick={() => {
+                if (!isEditing && editAllowed) {
+                  setInternalEditing(true)
+                }
+              }}
+            >
               <div
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) {

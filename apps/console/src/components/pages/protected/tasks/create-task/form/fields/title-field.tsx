@@ -82,7 +82,7 @@ const TitleField: React.FC<TitleFieldProps> = ({ isEditing, isEditAllowed = true
           )}
         />
       ) : (
-        <HoverPencilWrapper className={'pr-5'} showPencil={isEditAllowed}>
+        <HoverPencilWrapper className={'pr-5'} showPencil={isEditAllowed} onPencilClick={handleDoubleClick}>
           {initialValue || 'No title'}
         </HoverPencilWrapper>
       )}

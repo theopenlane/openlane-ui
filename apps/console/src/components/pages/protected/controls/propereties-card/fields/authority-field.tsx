@@ -23,11 +23,11 @@ export const AuthorityField = ({
   fieldKey: 'controlOwnerID' | 'delegateID'
   icon: React.ReactNode
   value: Group | undefined
-  editingKey: 'owner' | 'delegate'
+  editingKey: string
   isEditing: boolean
   isEditAllowed: boolean
-  editingField: 'owner' | 'delegate' | null
-  setEditingField: React.Dispatch<React.SetStateAction<'owner' | 'delegate' | null>>
+  editingField: string | null
+  setEditingField: (field: string | null) => void
   options: Option[]
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
 }) => {
@@ -64,7 +64,11 @@ export const AuthorityField = ({
           )}
         />
       ) : (
-        <HoverPencilWrapper>
+        <HoverPencilWrapper
+          onPencilClick={() => {
+            if (!isEditing && isEditAllowed) setEditingField(editingKey)
+          }}
+        >
           <TooltipProvider disableHoverableContent>
             <Tooltip>
               <TooltipTrigger

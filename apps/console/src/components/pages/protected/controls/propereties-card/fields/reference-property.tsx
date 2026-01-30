@@ -14,6 +14,9 @@ export const ReferenceProperty = ({
   value,
   isEditing,
   handleUpdate,
+  activeField,
+  setActiveField,
+  fieldId,
 }: {
   name: string
   label: string
@@ -21,26 +24,36 @@ export const ReferenceProperty = ({
   value?: string | null
   isEditing: boolean
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
+  fieldId?: string
 }) => {
   const { control } = useFormContext()
   const { successNotification } = useNotification()
   const [internalEditing, setInternalEditing] = useState(false)
+  const resolvedFieldId = fieldId ?? name
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const isActive = isControlled ? activeField === resolvedFieldId : internalEditing
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const editing = isEditing || internalEditing
+  const editing = isEditing || isActive
 
   const handleClick = () => {
     if (!isEditing) {
-      setInternalEditing(true)
+      if (isControlled) {
+        setActiveField?.(resolvedFieldId)
+      } else {
+        setInternalEditing(true)
+      }
     }
   }
 
   useEffect(() => {
-    if (internalEditing && inputRef.current) {
+    if (isActive && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [internalEditing])
+  }, [isActive])
 
   const handleCopy = () => {
     if (!value) return
@@ -85,7 +98,11 @@ export const ReferenceProperty = ({
                     handleUpdate?.({ [name]: trimmed })
                   }
                   field.onChange(trimmed)
-                  setInternalEditing(false)
+                  if (isControlled) {
+                    setActiveField?.(null)
+                  } else {
+                    setInternalEditing(false)
+                  }
                 }}
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === 'Enter') {
@@ -96,7 +113,7 @@ export const ReferenceProperty = ({
             )}
           />
         ) : (
-          <HoverPencilWrapper>
+          <HoverPencilWrapper onPencilClick={handleClick}>
             {value ? (
               <div className="flex items-center gap-2 cursor-pointer" onDoubleClick={handleClick}>
                 <span>{value}</span>

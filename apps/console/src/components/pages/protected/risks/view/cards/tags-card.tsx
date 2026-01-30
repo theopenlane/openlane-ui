@@ -20,10 +20,21 @@ type TTagsCardProps = {
   isEditing: boolean
   isEditAllowed?: boolean
   handleUpdate?: (val: UpdateRiskInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllowed = true, handleUpdate }) => {
-  const [internalEditing, setInternalEditing] = useState(false)
+const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllowed = true, handleUpdate, activeField, setActiveField }) => {
+  const [internalInternalEditing, setInternalInternalEditing] = useState(false)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const internalEditing = isControlled ? activeField === 'tags' : internalInternalEditing
+  const setInternalEditing = (value: boolean) => {
+    if (isControlled) {
+      setActiveField?.(value ? 'tags' : null)
+    } else {
+      setInternalInternalEditing(value)
+    }
+  }
   const { tagOptions } = useGetTags()
 
   const tags = form.watch('tags')
@@ -103,7 +114,15 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                 />
               </InputRow>
             ) : (
-              <HoverPencilWrapper showPencil={isEditAllowed} className={`flex gap-2 w-full flex-wrap ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+              <HoverPencilWrapper
+                showPencil={isEditAllowed}
+                className={`flex gap-2 w-full flex-wrap ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                onPencilClick={() => {
+                  if (!isEditing && isEditAllowed) {
+                    setInternalEditing(true)
+                  }
+                }}
+              >
                 <div
                   className="w-full"
                   onDoubleClick={() => {

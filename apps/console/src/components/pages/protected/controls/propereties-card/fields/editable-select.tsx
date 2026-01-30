@@ -17,6 +17,9 @@ export const EditableSelect = ({
   options,
   handleUpdate,
   isEditAllowed,
+  activeField,
+  setActiveField,
+  fieldId,
 }: {
   label: string
   name: string
@@ -24,22 +27,42 @@ export const EditableSelect = ({
   options: (Option & { color?: string; description?: string })[]
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   isEditAllowed: boolean
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
+  fieldId?: string
 }) => {
   const { control, getValues } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
+  const resolvedFieldId = fieldId ?? name
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const isActive = isControlled ? activeField === resolvedFieldId : internalEditing
 
   const handleClick = () => {
-    if (!isEditing && isEditAllowed) setInternalEditing(true)
+    if (!isEditing && isEditAllowed) {
+      if (isControlled) {
+        setActiveField?.(resolvedFieldId)
+      } else {
+        setInternalEditing(true)
+      }
+    }
+  }
+
+  const closeEditing = () => {
+    if (isControlled) {
+      setActiveField?.(null)
+    } else {
+      setInternalEditing(false)
+    }
   }
 
   const handleChange = (value: string) => {
     if (getValues(name) === value) {
-      setInternalEditing(false)
+      closeEditing()
       return
     }
     if (!isEditing) {
       handleUpdate?.({ [name]: value })
-      setInternalEditing(false)
+      closeEditing()
     }
   }
 
@@ -47,20 +70,20 @@ export const EditableSelect = ({
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEscapeKey(() => {
-    if (internalEditing) setInternalEditing(false)
+    if (isActive) closeEditing()
   })
 
   useClickOutsideWithPortal(
     () => {
-      if (internalEditing) setInternalEditing(false)
+      if (isActive) closeEditing()
     },
     {
       refs: { triggerRef, popoverRef },
-      enabled: internalEditing,
+      enabled: isActive,
     },
   )
 
-  const isEditable = isEditAllowed && (isEditing || internalEditing)
+  const isEditable = isEditAllowed && (isEditing || isActive)
 
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -99,7 +122,7 @@ export const EditableSelect = ({
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+          <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onPencilClick={isEditAllowed ? handleClick : undefined}>
             <div onDoubleClick={isEditAllowed ? handleClick : undefined} className="flex items-center min-h-6">
               {(() => {
                 const val = getValues(name)

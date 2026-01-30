@@ -7,27 +7,56 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ControlIconMapper16, controlIconsMap, ControlStatusLabels, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
-export const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: Control | Subcontrol; handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void }) => {
+export const Status = ({
+  isEditing,
+  data,
+  handleUpdate,
+  activeField,
+  setActiveField,
+  fieldId,
+}: {
+  isEditing: boolean
+  data?: Control | Subcontrol
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
+  fieldId?: string
+}) => {
   const { control, getValues } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
+  const resolvedFieldId = fieldId ?? 'status'
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const isActive = isControlled ? activeField === resolvedFieldId : internalEditing
 
-  const editing = isEditing || internalEditing
+  const editing = isEditing || isActive
 
   const handleChange = (val: ControlControlStatus | SubcontrolControlStatus) => {
     if (getValues('status') === val) {
-      setInternalEditing(false)
+      if (isControlled) {
+        setActiveField?.(null)
+      } else {
+        setInternalEditing(false)
+      }
       return
     }
     if (!isEditing) {
       handleUpdate?.({ status: val })
     }
 
-    setInternalEditing(false)
+    if (isControlled) {
+      setActiveField?.(null)
+    } else {
+      setInternalEditing(false)
+    }
   }
 
   const handleClick = () => {
     if (!isEditing) {
-      setInternalEditing(true)
+      if (isControlled) {
+        setActiveField?.(resolvedFieldId)
+      } else {
+        setInternalEditing(true)
+      }
     }
   }
 
@@ -35,16 +64,28 @@ export const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; 
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEscapeKey(() => {
-    if (internalEditing) setInternalEditing(false)
+    if (isActive) {
+      if (isControlled) {
+        setActiveField?.(null)
+      } else {
+        setInternalEditing(false)
+      }
+    }
   })
 
   useClickOutsideWithPortal(
     () => {
-      if (internalEditing) setInternalEditing(false)
+      if (isActive) {
+        if (isControlled) {
+          setActiveField?.(null)
+        } else {
+          setInternalEditing(false)
+        }
+      }
     },
     {
       refs: { triggerRef, popoverRef },
-      enabled: internalEditing,
+      enabled: isActive,
     },
   )
 
@@ -81,7 +122,7 @@ export const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; 
             )}
           />
         ) : (
-          <HoverPencilWrapper>
+          <HoverPencilWrapper onPencilClick={handleClick}>
             <div className="flex items-center space-x-2 cursor-pointer" onDoubleClick={handleClick}>
               {ControlIconMapper16[data?.status as ControlControlStatus]}
               <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>

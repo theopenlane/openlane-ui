@@ -45,6 +45,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const { successNotification, errorNotification } = useNotification()
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
+  const [editingField, setEditingField] = useState<string | null>(null)
   const { data: permission } = useAccountRoles(ObjectEnum.RISK, riskId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
@@ -203,9 +204,19 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
       <Card className="p-4 mt-2! flex flex-col gap-4">
-        <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
-        <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
-        <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
+        <AuthorityCard
+          form={form}
+          stakeholder={risk.stakeholder}
+          delegate={risk.delegate}
+          isEditing={isEditing}
+          handleUpdate={handleUpdateField}
+          isEditAllowed={editAllowed}
+          risk={risk}
+          activeField={editingField}
+          setActiveField={setEditingField}
+        />
+        <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} activeField={editingField} setActiveField={setEditingField} />
+        <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} activeField={editingField} setActiveField={setEditingField} />
       </Card>
     </>
   )

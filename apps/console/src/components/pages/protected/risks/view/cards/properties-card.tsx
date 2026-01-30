@@ -17,23 +17,37 @@ type TPropertiesCardProps = {
   isEditAllowed?: boolean
   handleUpdate?: (val: UpdateRiskInput) => void
   isCreate?: boolean
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
 type Fields = 'riskKindName' | 'riskCategoryName' | 'score' | 'impact' | 'likelihood' | 'status'
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, isEditing, isEditAllowed = true, handleUpdate }) => {
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, isEditing, isEditAllowed = true, handleUpdate, activeField, setActiveField }) => {
   const { control } = form
-  const [editingField, setEditingField] = useState<Fields | null>(null)
+  const [internalEditingField, setInternalEditingField] = useState<Fields | null>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
 
   const toggleEditing = (field: Fields) => {
-    if (!isEditing && isEditAllowed) setEditingField(field)
+    if (!isEditing && isEditAllowed) {
+      if (isControlled) {
+        setActiveField?.(field)
+      } else {
+        setInternalEditingField(field)
+      }
+    }
   }
 
   useEscapeKey(() => {
     if (editingField) {
-      const value = risk?.[editingField]
-      form.setValue(editingField, value || '')
-      setEditingField(null)
+      const value = risk?.[editingField as Fields]
+      form.setValue(editingField as Fields, value || '')
+      if (isControlled) {
+        setActiveField?.(null)
+      } else {
+        setInternalEditingField(null)
+      }
     }
   })
 
@@ -66,16 +80,30 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
 
                     if (!isEditing && handleUpdate) {
                       handleUpdate({ [fieldName]: val } as UpdateRiskInput)
-                      setEditingField(null)
+                      if (isControlled) {
+                        setActiveField?.(null)
+                      } else {
+                        setInternalEditingField(null)
+                      }
                     }
                   }}
                   onMouseUp={(val) => {
                     if (!isEditing && handleUpdate) {
                       handleUpdate({ [fieldName]: val } as UpdateRiskInput)
-                      setEditingField(null)
+                      if (isControlled) {
+                        setActiveField?.(null)
+                      } else {
+                        setInternalEditingField(null)
+                      }
                     }
                   }}
-                  onClose={() => setEditingField(null)}
+                  onClose={() => {
+                    if (isControlled) {
+                      setActiveField?.(null)
+                    } else {
+                      setInternalEditingField(null)
+                    }
+                  }}
                 />
                 {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
               </div>
@@ -154,7 +182,13 @@ const FieldRow = ({
         {getFieldIcon(label)}
         <span className="text-sm">{label}</span>
       </div>
-      <HoverPencilWrapper showPencil={showPencil} className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      <HoverPencilWrapper
+        showPencil={showPencil}
+        className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        onPencilClick={() => {
+          if (isEditAllowed && onDoubleClick) onDoubleClick()
+        }}
+      >
         <div
           onDoubleClick={() => {
             if (isEditAllowed && onDoubleClick) onDoubleClick()
