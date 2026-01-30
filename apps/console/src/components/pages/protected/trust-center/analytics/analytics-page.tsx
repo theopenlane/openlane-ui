@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect } from 'react'
-import { Globe, Plus } from 'lucide-react'
+import { Globe, Plus, Info } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { Button } from '@repo/ui/button'
@@ -50,8 +50,8 @@ export default function AnalyticsPage() {
           <h3 className="text-sm font-medium mb-1">Unlock analytics</h3>
           <p className="text-sm text-muted-foreground mb-6">Analytics is not currently available for you domain. If this continues, please reach out to support.</p>
           <Link href={SUPPORT_EMAIL}>
-            <Button icon={<Plus size={16} />} iconPosition="left">
-              Reach out to support
+            <Button icon={<Info size={16} />} iconPosition="left">
+              Contact Support
             </Button>
           </Link>
         </div>
