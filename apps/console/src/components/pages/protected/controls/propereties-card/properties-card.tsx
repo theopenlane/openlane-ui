@@ -35,8 +35,9 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const path = usePathname()
   const isCreateSubcontrol = path.includes('/create-subcontrol')
 
-  const [editingField, setEditingField] = useState<'owner' | 'delegate' | null>(null)
-  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
+  const [editingField, setEditingField] = useState<string | null>(null)
+  const isGroupEditing = editingField === 'owner' || editingField === 'delegate'
+  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
   const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
 
   const { enumOptions } = useGetCustomTypeEnums({
@@ -84,11 +85,41 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
 
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
         {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={controlIconsMap.Control} />}
-        <EditableSelectFromQuery label="Category" name="category" isEditAllowed={isEditAllowed} isEditing={isEditing} icon={controlIconsMap.Category} handleUpdate={handleUpdate} />
-        <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditAllowed={isEditAllowed} isEditing={isEditing} icon={controlIconsMap.Subcategory} handleUpdate={handleUpdate} />
-        <Status data={data} isEditing={isEditing} handleUpdate={handleUpdate} />
-        <MappedCategories isEditing={isEditing} data={data} />
-        <EditableSelect label="Source" name="source" isEditing={isEditing} options={enumToOptions(ControlControlSource)} handleUpdate={handleUpdate} isEditAllowed={isEditAllowed} />
+        <EditableSelectFromQuery
+          label="Category"
+          name="category"
+          isEditAllowed={isEditAllowed}
+          isEditing={isEditing}
+          icon={controlIconsMap.Category}
+          handleUpdate={handleUpdate}
+          activeField={editingField}
+          setActiveField={setEditingField}
+          fieldId="category"
+        />
+        <EditableSelectFromQuery
+          label="Subcategory"
+          name="subcategory"
+          isEditAllowed={isEditAllowed}
+          isEditing={isEditing}
+          icon={controlIconsMap.Subcategory}
+          handleUpdate={handleUpdate}
+          activeField={editingField}
+          setActiveField={setEditingField}
+          fieldId="subcategory"
+        />
+        <Status data={data} isEditing={isEditing} handleUpdate={handleUpdate} activeField={editingField} setActiveField={setEditingField} fieldId="status" />
+        <MappedCategories isEditing={isEditing} data={data} activeField={editingField} setActiveField={setEditingField} fieldId="mappedCategories" />
+        <EditableSelect
+          label="Source"
+          name="source"
+          isEditing={isEditing}
+          options={enumToOptions(ControlControlSource)}
+          handleUpdate={handleUpdate}
+          isEditAllowed={isEditAllowed}
+          activeField={editingField}
+          setActiveField={setEditingField}
+          fieldId="source"
+        />
         <EditableSelect
           label="Type"
           name={data?.__typename === 'Subcontrol' || isCreateSubcontrol ? 'subcontrolKindName' : 'controlKindName'}
@@ -96,6 +127,9 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           isEditAllowed={isEditAllowed}
           options={enumOptions}
           handleUpdate={handleUpdate}
+          activeField={editingField}
+          setActiveField={setEditingField}
+          fieldId={data?.__typename === 'Subcontrol' || isCreateSubcontrol ? 'subcontrolKindName' : 'controlKindName'}
         />
         {isEditing || data?.referenceID ? (
           <ReferenceProperty
@@ -105,6 +139,9 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             tooltip="Internal reference id of the control, used to map across internal systems"
             value={data?.referenceID}
             isEditing={isEditing}
+            activeField={editingField}
+            setActiveField={setEditingField}
+            fieldId="referenceID"
           />
         ) : null}
         {isEditing || data?.auditorReferenceID ? (
@@ -115,6 +152,9 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             tooltip="Reference ID used by auditor, may vary from defined reference code from standard"
             value={data?.auditorReferenceID}
             isEditing={isEditing}
+            activeField={editingField}
+            setActiveField={setEditingField}
+            fieldId="auditorReferenceID"
           />
         ) : null}
       </div>

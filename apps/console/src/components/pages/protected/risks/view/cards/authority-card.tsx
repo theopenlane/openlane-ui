@@ -21,11 +21,17 @@ type TAuthorityCardProps = {
   handleUpdate?: (val: UpdateRiskInput) => void
   inputClassName?: string
   risk?: RiskFieldsFragment
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeholder, delegate, isEditAllowed = true, handleUpdate, inputClassName, risk }) => {
-  const [editingField, setEditingField] = useState<'stakeholder' | 'delegate' | null>(null)
-  const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeholder, delegate, isEditAllowed = true, handleUpdate, inputClassName, risk, activeField, setActiveField }) => {
+  const [internalEditingField, setInternalEditingField] = useState<'stakeholder' | 'delegate' | null>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
+  const setEditingField = isControlled ? setActiveField : setInternalEditingField
+  const isGroupEditing = editingField === 'stakeholder' || editingField === 'delegate'
+  const { data } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
   const options: Option[] = groups.map((g) => ({
@@ -85,7 +91,13 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+            onPencilClick={() => {
+              if (!isEditing && isEditAllowed) setEditingField(editingKey)
+            }}
+          >
             <TooltipProvider disableHoverableContent>
               <Tooltip>
                 <TooltipTrigger

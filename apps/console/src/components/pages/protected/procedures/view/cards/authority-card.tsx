@@ -22,10 +22,15 @@ type TAuthorityCardProps = {
   handleUpdate?: (val: UpdateProcedureInput) => void
   inputClassName?: string
   isCreate?: boolean
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreate, approver, delegate, editAllowed, handleUpdate, inputClassName }) => {
-  const [editingField, setEditingField] = useState<'approver' | 'delegate' | null>(null)
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreate, approver, delegate, editAllowed, handleUpdate, inputClassName, activeField, setActiveField }) => {
+  const [internalEditingField, setInternalEditingField] = useState<'approver' | 'delegate' | null>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
+  const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
   const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
@@ -56,7 +61,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-hel text-sm">{label}</span>
+                  <span className="cursor-help text-sm">{label}</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -92,7 +97,15 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
         ) : (
           <TooltipProvider disableHoverableContent>
             <Tooltip>
-              <HoverPencilWrapper showPencil={editAllowed} className={`min-w-40 w-full bg-unset`}>
+              <HoverPencilWrapper
+                showPencil={editAllowed}
+                className={`min-w-40 w-full bg-unset`}
+                onPencilClick={() => {
+                  if (!isEditing && editAllowed) {
+                    setEditingField(editingKey)
+                  }
+                }}
+              >
                 <TooltipTrigger
                   type="button"
                   onDoubleClick={() => {

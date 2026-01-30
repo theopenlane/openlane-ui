@@ -78,7 +78,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
     </div>
   ) : (
     <>
-      <HoverPencilWrapper showPencil={editAllowed} className={`inline-block ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      <HoverPencilWrapper showPencil={editAllowed} className={`inline-block ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onPencilClick={editAllowed ? handleClick : undefined}>
         <h1
           onDoubleClick={() => {
             if (editAllowed) handleClick()

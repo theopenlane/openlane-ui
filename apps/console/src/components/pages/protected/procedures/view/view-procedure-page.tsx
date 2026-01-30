@@ -51,6 +51,7 @@ const ViewProcedurePage: React.FC = () => {
   const procedure = data?.procedure
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
+  const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
@@ -293,10 +294,27 @@ const ViewProcedurePage: React.FC = () => {
       {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
       <Card className="p-4">
         <h3 className="text-lg font-medium mb-2">Properties</h3>
-        <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
-        <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+        <AuthorityCard
+          form={form}
+          approver={procedure.approver}
+          delegate={procedure.delegate}
+          isEditing={isEditing}
+          editAllowed={editAllowed}
+          handleUpdate={handleUpdateField}
+          activeField={editingField}
+          setActiveField={setEditingField}
+        />
+        <PropertiesCard
+          form={form}
+          isEditing={isEditing}
+          procedure={procedure}
+          editAllowed={editAllowed}
+          handleUpdate={handleUpdateField}
+          activeField={editingField}
+          setActiveField={setEditingField}
+        />
         <HistoricalCard procedure={procedure} />
-        <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+        <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} activeField={editingField} setActiveField={setEditingField} />
       </Card>
     </>
   )

@@ -20,6 +20,9 @@ export const EditableSelectFromQuery = ({
   iconAndLabelVisible = true,
   hasGap = true,
   gridColWidth = '140',
+  activeField,
+  setActiveField,
+  fieldId,
 }: {
   label: string
   name: string
@@ -30,12 +33,18 @@ export const EditableSelectFromQuery = ({
   iconAndLabelVisible?: boolean
   hasGap?: boolean
   gridColWidth?: string
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
+  fieldId?: string
 }) => {
   const { control } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
   const isCategory = name === 'category'
-  const { data: categoriesData } = useGetControlCategories({ enabled: isEditing || internalEditing })
-  const { data: subcategoriesData } = useGetControlSubcategories({ enabled: isEditing || internalEditing })
+  const resolvedFieldId = fieldId ?? name
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const isActive = isControlled ? activeField === resolvedFieldId : internalEditing
+  const { data: categoriesData } = useGetControlCategories({ enabled: isEditing || isActive })
+  const { data: subcategoriesData } = useGetControlSubcategories({ enabled: isEditing || isActive })
   const { getValues } = useFormContext()
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
@@ -48,16 +57,28 @@ export const EditableSelectFromQuery = ({
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEscapeKey(() => {
-    if (internalEditing) setInternalEditing(false)
+    if (isActive) {
+      if (isControlled) {
+        setActiveField?.(null)
+      } else {
+        setInternalEditing(false)
+      }
+    }
   })
 
   useClickOutsideWithPortal(
     () => {
-      if (internalEditing) setInternalEditing(false)
+      if (isActive) {
+        if (isControlled) {
+          setActiveField?.(null)
+        } else {
+          setInternalEditing(false)
+        }
+      }
     },
     {
       refs: { triggerRef, popoverRef },
-      enabled: internalEditing,
+      enabled: isActive,
     },
   )
 
@@ -75,11 +96,15 @@ export const EditableSelectFromQuery = ({
           name={name}
           control={control}
           render={({ field }) => {
-            const editing = isEditAllowed && (isEditing || internalEditing)
+            const editing = isEditAllowed && (isEditing || isActive)
 
             const handleChange = (val: string) => {
               if (getValues(name) === val) {
-                setInternalEditing(false)
+                if (isControlled) {
+                  setActiveField?.(null)
+                } else {
+                  setInternalEditing(false)
+                }
                 return
               }
               if (!isEditing) {
@@ -87,15 +112,37 @@ export const EditableSelectFromQuery = ({
               }
 
               field.onChange(val)
-              setInternalEditing(false)
+              if (isControlled) {
+                setActiveField?.(null)
+              } else {
+                setInternalEditing(false)
+              }
             }
             if (!editing) {
               return (
-                <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                <HoverPencilWrapper
+                  showPencil={isEditAllowed}
+                  className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}
+                  onPencilClick={() => {
+                    if (isEditAllowed) {
+                      if (isControlled) {
+                        setActiveField?.(resolvedFieldId)
+                      } else {
+                        setInternalEditing(true)
+                      }
+                    }
+                  }}
+                >
                   <span
                     className="w-full block"
                     onDoubleClick={() => {
-                      if (isEditAllowed) setInternalEditing(true)
+                      if (isEditAllowed) {
+                        if (isControlled) {
+                          setActiveField?.(resolvedFieldId)
+                        } else {
+                          setInternalEditing(true)
+                        }
+                      }
                     }}
                   >
                     {field.value || '-'}

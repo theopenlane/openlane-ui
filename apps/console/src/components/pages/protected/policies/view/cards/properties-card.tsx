@@ -23,10 +23,15 @@ type TPropertiesCardProps = {
   isEditing: boolean
   editAllowed: boolean
   handleUpdate?: (val: UpdateInternalPolicyInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate }) => {
-  const [editingField, setEditingField] = useState<null | 'status' | 'internalPolicyKindName' | 'reviewDue'>(null)
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
+  const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'internalPolicyKindName' | 'reviewDue'>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
+  const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
@@ -55,10 +60,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
   const isReviewDue = editingField === 'reviewDue'
 
   useEscapeKey(() => {
-    if (editingField) {
+    if (editingField && (editingField === 'status' || editingField === 'internalPolicyKindName' || editingField === 'reviewDue')) {
       const value = policy?.[editingField]
       form.setValue(editingField, value || '')
-      setEditingField(null)
+      if (isControlled) {
+        setActiveField?.(null)
+      } else {
+        setInternalEditingField(null)
+      }
     }
   })
 
@@ -129,7 +138,15 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <HoverPencilWrapper showPencil={editAllowed} className={`w-full  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+            <HoverPencilWrapper
+              showPencil={editAllowed}
+              className={`w-full  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              onPencilClick={() => {
+                if (!isEditing && editAllowed) {
+                  setEditingField('status')
+                }
+              }}
+            >
               <div
                 className="flex items-center space-x-2 w-full text-sm"
                 onDoubleClick={() => {
@@ -222,7 +239,13 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate text-sm`}>
+            <HoverPencilWrapper
+              showPencil={editAllowed}
+              className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate text-sm`}
+              onPencilClick={() => {
+                if (!isEditing && editAllowed) setEditingField('internalPolicyKindName')
+              }}
+            >
               <div
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) setEditingField('internalPolicyKindName')
@@ -281,7 +304,13 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               )}
             />
           ) : (
-            <HoverPencilWrapper showPencil={editAllowed} className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate text-sm`}>
+            <HoverPencilWrapper
+              showPencil={editAllowed}
+              className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate text-sm`}
+              onPencilClick={() => {
+                if (!isEditing && editAllowed) setEditingField('reviewDue')
+              }}
+            >
               <div
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) setEditingField('reviewDue')

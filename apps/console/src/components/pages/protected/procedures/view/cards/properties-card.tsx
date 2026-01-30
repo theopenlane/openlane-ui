@@ -22,10 +22,15 @@ type TPropertiesCardProps = {
   isEditing: boolean
   editAllowed: boolean
   handleUpdate?: (val: UpdateProcedureInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
-  const [editingField, setEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue'>(null)
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
+  const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue'>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
+  const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {

@@ -85,7 +85,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, isEditAllowed = tru
       />
     </div>
   ) : (
-    <HoverPencilWrapper showPencil={isEditAllowed} className={`w-fit pr-5 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+    <HoverPencilWrapper showPencil={isEditAllowed} className={`w-fit pr-5 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onPencilClick={isEditAllowed ? handleClick : undefined}>
       <PageHeading className="w-fit grow-0 mb-0" heading={form.getValues('name')} onDoubleClick={isEditAllowed ? handleClick : undefined} />
     </HoverPencilWrapper>
   )

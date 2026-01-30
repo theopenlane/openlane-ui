@@ -159,7 +159,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}
+          >
             <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>{taskData?.assignee?.displayName || 'Unassigned'}</p>
           </HoverPencilWrapper>
         )}
@@ -193,7 +197,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}
+          >
             <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}>{formatDate(taskData?.due) || 'No due date'}</p>
           </HoverPencilWrapper>
         )}
@@ -232,7 +240,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}
+          >
             <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>{taskData?.status ? TaskStatusMapper[taskData.status] : 'No status'}</div>
           </HoverPencilWrapper>
         )}
@@ -275,7 +287,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}
+          >
             <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>
               <CustomTypeEnumValue value={taskData?.taskKindName ?? ''} options={taskKindOptions} placeholder="No category" />
             </div>
@@ -311,7 +327,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}
+          >
             <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}>{renderTags()}</div>
           </HoverPencilWrapper>
         )}
