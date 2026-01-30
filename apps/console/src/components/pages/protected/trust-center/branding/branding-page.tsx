@@ -81,11 +81,14 @@ const BrandPage: React.FC = () => {
 
   const hasPreviewDifference = useMemo(() => {
     if (!setting || !previewSetting) return null
+    const companyInfoDiff = setting.companyName !== previewSetting.companyName || setting.companyDescription !== previewSetting.companyDescription
     const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
     const themeDiff = setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || setting.primaryColor !== previewSetting.primaryColor
     const assetDiff = setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL
-    return { text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff }
+    return { companyInfo: companyInfoDiff, text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff }
   }, [setting, previewSetting])
+
+  console.log(hasPreviewDifference)
 
   const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
 
@@ -202,8 +205,8 @@ const BrandPage: React.FC = () => {
               <TabsTrigger value="published">Published</TabsTrigger>
             </TabsList>
           </Tabs>
-          <BrandingCompanyInfoSection isReadOnly={isReadOnly} setting={setting} />
-          <BrandingTextSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.text} setting={setting} />
+          <BrandingCompanyInfoSection hasWarning={hasPreviewDifference?.companyInfo} isReadOnly={isReadOnly} setting={setting} />
+          <BrandingTextSection hasWarning={hasPreviewDifference?.text} isReadOnly={isReadOnly} setting={setting} />
 
           <BrandingThemeSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.theme} setting={setting} />
 

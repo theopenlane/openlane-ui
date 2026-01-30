@@ -3,13 +3,15 @@ import { BrandFormValues } from '../brand-schema'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { RenderBrandField } from '../../shared/render-field'
 import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import SectionWarning from '../section-warning'
 
 interface BrandingCompanyInfoSectionProps {
   isReadOnly: boolean
   setting: TrustCenterSetting
+  hasWarning?: boolean
 }
 
-export const BrandingCompanyInfoSection = ({ isReadOnly, setting }: BrandingCompanyInfoSectionProps) => {
+export const BrandingCompanyInfoSection = ({ isReadOnly, setting, hasWarning }: BrandingCompanyInfoSectionProps) => {
   const {
     register,
     formState: { errors },
@@ -18,6 +20,7 @@ export const BrandingCompanyInfoSection = ({ isReadOnly, setting }: BrandingComp
   return (
     <Card>
       <CardContent>
+        {hasWarning && <SectionWarning />}
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">
             <p className="text-base font-medium">Company Info</p>
