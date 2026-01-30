@@ -5,6 +5,7 @@ import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ExternalLink, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useSnapshot } from '@/lib/query-hooks/snapshot'
 
 export interface LivePreviewTrustCenter {
   customDomain?: {
@@ -23,6 +24,12 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
   const normalizedUrl = normalizeUrl(cnameRecord)
   const [isLive, setIsLive] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const [showModal, setShowModal] = useState(false)
+
+  const snapshotData = useSnapshot({ url: normalizedUrl || '' })
+  const snapshot = snapshotData.data
+  const snapshotLoading = snapshotData?.status === 'pending'
 
   useEffect(() => {
     if (!normalizedUrl) return
@@ -49,6 +56,7 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
         setIsLoading(false)
       }
     }
+
     checkForSite()
   }, [normalizedUrl])
 
@@ -63,12 +71,38 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
               <div className="w-2.5 h-2.5 rounded-full bg-tasks" />
               <div className="w-2.5 h-2.5 rounded-full bg-trust-center-green-dot" />
             </div>
-            <div className="flex-1 pl-2 rounded-md h-6 bg-background text-trust-center-text">{normalizedUrl || 'https://meow.comply.theopenlane.net'}</div>
+            <div className="flex-1 pl-2 rounded-md h-6 bg-background text-trust-center-text">{normalizedUrl || 'domain not available'}</div>
           </div>
           <div className="flex-1 gap-2 flex flex-col items-center justify-center h-full">
-            <div className="flex items-center justify-center h-12 w-12 rounded-md bg-trust-center-live-preview-badge-container">{<Shield className="text-primary"></Shield>}</div>
-            <div className="h-2 w-[140px] rounded-md bg-trust-center-live-preview-skeleton mt-2"></div>
-            <div className="h-2 w-[180px] rounded-md bg-trust-center-live-preview-skeleton mt-1"></div>
+            {snapshotLoading ? (
+              <div className="w-full h-[140px] flex flex-col items-center justify-center bg-muted border rounded-b-md animate-pulse">
+                <Shield size={40} className="text-muted-foreground opacity-50" />
+                <div className="text-sm text-muted-foreground mt-2">Loading...</div>
+              </div>
+            ) : snapshot?.data?.image ? (
+              <>
+                <div className="w-full h-[140px] overflow-hidden rounded-b-md border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`data:image/png;base64,${snapshot.data.image}`}
+                    alt="Live site preview"
+                    className="w-full h-auto object-top object-cover cursor-zoom-in"
+                    onClick={() => setShowModal(true)}
+                  />
+                </div>
+                {showModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowModal(false)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`data:image/png;base64,${snapshot.data.image}`} alt="Zoomed live site preview" className="rounded-md max-h-[90vh] max-w-[90vw] border-2 border-white shadow-lg" />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center gap-2">
+                <Shield size={48} className="text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Snapshot not available</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex justify-between">
