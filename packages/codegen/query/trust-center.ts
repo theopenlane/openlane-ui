@@ -8,6 +8,7 @@ export const GET_TRUST_CENTER = gql`
           id
           slug
           pirschDomainID
+          pirschAccessLink
           customDomain {
             id
             cnameRecord

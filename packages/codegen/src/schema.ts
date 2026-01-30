@@ -9498,6 +9498,7 @@ export interface CreateTrustCenterNdaRequestInput {
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** email address of the requester */
   email: Scalars['String']['input']
+  fileID?: InputMaybe<Scalars['ID']['input']>
   /** first name of the requester */
   firstName: Scalars['String']['input']
   /** last name of the requester */
@@ -26554,6 +26555,7 @@ export interface MutationUpdateDiscussionArgs {
 }
 
 export interface MutationUpdateDocumentDataArgs {
+  documentDataFile?: InputMaybe<Scalars['Upload']['input']>
   id: Scalars['ID']['input']
   input: UpdateDocumentDataInput
 }
@@ -43406,6 +43408,10 @@ export interface TrustCenterNdaRequest extends Node {
   editors: GroupConnection
   /** email address of the requester */
   email: Scalars['String']['output']
+  /** the template file at the time the NDA was signed */
+  file?: Maybe<File>
+  /** ID of the template file at the time the NDA was signed */
+  fileID?: Maybe<Scalars['ID']['output']>
   /** first name of the requester */
   firstName: Scalars['String']['output']
   id: Scalars['ID']['output']
@@ -43644,6 +43650,22 @@ export interface TrustCenterNdaRequestWhereInput {
   emailLTE?: InputMaybe<Scalars['String']['input']>
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** file_id field predicates */
+  fileID?: InputMaybe<Scalars['ID']['input']>
+  fileIDContains?: InputMaybe<Scalars['ID']['input']>
+  fileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDGT?: InputMaybe<Scalars['ID']['input']>
+  fileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  fileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fileIDLT?: InputMaybe<Scalars['ID']['input']>
+  fileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  fileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** first_name field predicates */
   firstName?: InputMaybe<Scalars['String']['input']>
   firstNameContains?: InputMaybe<Scalars['String']['input']>
@@ -43667,6 +43689,9 @@ export interface TrustCenterNdaRequestWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** file edge predicates */
+  hasFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasFileWith?: InputMaybe<Array<FileWhereInput>>
   /** trust_center edge predicates */
   hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   /** trust_center_docs edge predicates */
@@ -50142,6 +50167,7 @@ export interface UpdateTrustCenterNdaRequestInput {
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
   clearDocument?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearReason?: InputMaybe<Scalars['Boolean']['input']>
   clearSignedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
@@ -50152,6 +50178,7 @@ export interface UpdateTrustCenterNdaRequestInput {
   documentID?: InputMaybe<Scalars['ID']['input']>
   /** email address of the requester */
   email?: InputMaybe<Scalars['String']['input']>
+  fileID?: InputMaybe<Scalars['ID']['input']>
   /** first name of the requester */
   firstName?: InputMaybe<Scalars['String']['input']>
   /** last name of the requester */
@@ -59990,7 +60017,8 @@ export type GetTrustCenterNdaRequestsQuery = {
         companyName?: string | null
         email: string
         createdAt?: any | null
-        updatedAt?: any | null
+        approvedAt?: string | null
+        signedAt?: string | null
         status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
       } | null
     } | null> | null
@@ -60202,6 +60230,7 @@ export type GetTrustCenterQuery = {
         id: string
         slug?: string | null
         pirschDomainID?: string | null
+        pirschAccessLink?: string | null
         customDomain?: {
           __typename?: 'CustomDomain'
           id: string
