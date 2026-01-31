@@ -24,6 +24,7 @@ import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { hasNoModules } from '@/lib/auth/utils/modules'
 
 export type PanelKey = 'compliance' | 'trust center' | null
 
@@ -64,6 +65,7 @@ export default function SideNav({
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
   const isCreateProgramAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram)
+  const billingExpired = hasNoModules(session)
 
   useEffect(() => {
     if (!openPanel) {
@@ -294,7 +296,7 @@ export default function SideNav({
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
-          {isOrganizationSelected && !session?.user?.isOnboarding && (
+          {isOrganizationSelected && !session?.user?.isOnboarding && !billingExpired && (
             <>
               <Hr className="mx-2" />
               <div className={`flex w-full gap-2 px-2 ${!primaryExpanded ? 'flex-col' : ''}`}>
