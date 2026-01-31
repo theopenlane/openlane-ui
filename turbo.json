@@ -31,7 +31,9 @@
         "GOOGLE_AI_MODEL_NAME",
         "GOOGLE_GENERATIVE_AI_API_KEY",
         "PIRSCH_SECRET",
-        "PIRSCH_CLIENT_ID"
+        "PIRSCH_CLIENT_ID",
+        "GCS_LOG_BUCKET",
+        "AI_SYSTEM_INSTRUCTION"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { DashboardLayout } from '@/components/layouts/dashboard/dashboard'
 import { auth } from '@/lib/auth/auth'
 import { sessionCookieName } from '@repo/dally/auth'
-import { getDashboardData, OrganizationsData } from '../api/getDashboardData/route'
+import { getDashboardData } from '../api/getDashboardData/route'
 import { cookies } from 'next/headers'
 import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 
@@ -15,8 +15,6 @@ interface OrganizationEdge {
   node: OrganizationNode
 }
 
-let currentOrganizationId: string
-let dashboardData: OrganizationsData | null
 export async function generateMetadata(): Promise<Metadata> {
   const session = await auth()
   const cookieStore = await cookies()
@@ -26,10 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const organizationId = session?.user?.activeOrganizationId
 
   if (cookieSession?.value && token) {
-    if (organizationId !== currentOrganizationId) {
-      currentOrganizationId = organizationId
-      dashboardData = await getDashboardData(token, cookieSession?.value)
-    }
+    const dashboardData = await getDashboardData(token, cookieSession?.value)
+
     if (dashboardData) {
       const organizations: OrganizationEdge[] = dashboardData.organizations.edges
       const org = organizations.find(({ node }) => node.id === organizationId)

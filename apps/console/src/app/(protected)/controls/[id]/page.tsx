@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon } from 'lucide-react'
+import { Check, CirclePlus, Copy, CopyPlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, Sparkles, XIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/propereties-card/properties-card.tsx'
@@ -45,6 +45,8 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Textarea } from '@repo/ui/textarea'
 
 interface FormValues {
   refCode: string
@@ -67,6 +69,15 @@ interface SheetData {
   refCode: string
   content: React.ReactNode
 }
+
+interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
+}
+
+const MAX_CHAT_HISTORY = 10 // Adjust this number as needed
+const CHAT_STORAGE_KEY = 'control-chat-history'
 
 const initialDataObj = {
   refCode: '',
@@ -95,6 +106,14 @@ const ControlDetailsPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
+
+  const [showAskAIDialog, setShowAskAIDialog] = useState(false)
+  const [aiPrompt, setAiPrompt] = useState('')
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
+  const [isLoadingAI, setIsLoadingAI] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
@@ -102,6 +121,38 @@ const ControlDetailsPage: React.FC = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { data: associationsData } = useGetControlAssociationsById(id)
+
+  useEffect(() => {
+    const loadChatHistory = () => {
+      try {
+        const stored = localStorage.getItem(`${CHAT_STORAGE_KEY}-${id}`)
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          // Convert timestamp strings back to Date objects
+          const history = parsed.map((msg: ChatMessage) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }))
+          setChatHistory(history)
+        }
+      } catch (error) {
+        console.error('Failed to load chat history:', error)
+      }
+    }
+    loadChatHistory()
+  }, [id])
+
+  useEffect(() => {
+    if (chatHistory.length > 0) {
+      try {
+        // Keep only the last MAX_CHAT_HISTORY messages
+        const trimmedHistory = chatHistory.slice(-MAX_CHAT_HISTORY)
+        localStorage.setItem(`${CHAT_STORAGE_KEY}-${id}`, JSON.stringify(trimmedHistory))
+      } catch (error) {
+        console.error('Failed to save chat history:', error)
+      }
+    }
+  }, [chatHistory, id])
 
   const memoizedSections = useMemo(() => {
     if (!associationsData?.control || !data) return {}
@@ -218,6 +269,121 @@ const ControlDetailsPage: React.FC = () => {
     }
   }
 
+  const handleAskAI = async () => {
+    if (!aiPrompt.trim()) {
+      errorNotification({
+        title: 'Please enter a prompt',
+      })
+      return
+    }
+
+    if (!data?.control) {
+      errorNotification({
+        title: 'Control data not available',
+      })
+      return
+    }
+
+    // Add user message to chat
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: aiPrompt,
+      timestamp: new Date(),
+    }
+    setChatHistory((prev) => [...prev, userMessage])
+    setAiPrompt('')
+    setIsLoadingAI(true)
+
+    try {
+      const response = await fetch('/api/suggestions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          context: {
+            background: "Control Details for the provided request, use this information to answer the user's question or provide suggestions.",
+            control: {
+              refCode: data.control.refCode,
+              title: data.control.title || data.control.refCode,
+              framework: data.control.referenceFramework,
+              description: data.control.description,
+            },
+            organization: {
+              organizationName: currentOrganization?.node?.displayName,
+            },
+            conversationHistory: chatHistory.map((msg) => ({
+              role: msg.role,
+              content: msg.content,
+            })),
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI suggestions')
+      }
+
+      const responseData = await response.json()
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: responseData.text || 'No response received',
+        timestamp: new Date(),
+      }
+      setChatHistory((prev) => [...prev, assistantMessage])
+    } catch (error) {
+      errorNotification({
+        title: 'Failed to get AI suggestions',
+        description: error instanceof Error ? error.message : 'An error occurred',
+      })
+    } finally {
+      setIsLoadingAI(false)
+    }
+  }
+
+  const handleCopyMessage = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy message:', error)
+      errorNotification({
+        title: 'Failed to copy message',
+      })
+    }
+  }
+
+  const handleCloseAIDialog = () => {
+    setShowAskAIDialog(false)
+    setAiPrompt('')
+    setIsCopied(false)
+  }
+
+  const handleClearChat = () => {
+    setChatHistory([])
+    try {
+      localStorage.removeItem(`${CHAT_STORAGE_KEY}-${id}`)
+    } catch (error) {
+      console.error('Failed to clear chat history:', error)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleAskAI()
+    }
+  }
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [chatHistory])
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -266,6 +432,9 @@ const ControlDetailsPage: React.FC = () => {
       )}
       {!isEditing && (
         <div className="flex gap-2 justify-end">
+          <Button variant="secondary" className="h-8 !px-2" onClick={() => setShowAskAIDialog(true)} icon={<Sparkles size={16} />}>
+            Ask AI
+          </Button>
           <Menu
             trigger={CreateBtn}
             content={
@@ -459,6 +628,81 @@ const ControlDetailsPage: React.FC = () => {
           <div className="py-4">{sheetData?.content}</div>
         </SheetContent>
       </Sheet>
+
+      <Dialog open={showAskAIDialog} onOpenChange={setShowAskAIDialog}>
+        <DialogContent className="max-w-3xl h-[600px] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles size={20} />
+              Ask AI about this Control
+            </DialogTitle>
+            <DialogDescription>Ask questions or get suggestions about {control?.refCode}</DialogDescription>
+          </DialogHeader>
+
+          <div ref={scrollRef} className="flex-1 overflow-y-auto pr-4">
+            <div className="space-y-4 py-4">
+              {chatHistory.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">
+                  <Sparkles size={40} className="mx-auto mb-2 opacity-50" />
+                  <p>Start a conversation by asking a question about this control</p>
+                </div>
+              ) : (
+                chatHistory.map((message, index) => (
+                  <div key={index} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 whitespace-pre-wrap break-words">{message.content}</div>
+                        {message.role === 'assistant' && (
+                          <Button type="button" variant="outline" size="sm" className="h-6 w-6 p-0 shrink-0" onClick={() => handleCopyMessage(message.content)}>
+                            {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                          </Button>
+                        )}
+                      </div>
+                      <div className="text-xs opacity-70 mt-1">{message.timestamp.toLocaleTimeString()}</div>
+                    </div>
+                  </div>
+                ))
+              )}
+              {isLoadingAI && (
+                <div className="flex gap-3 justify-start">
+                  <div className="max-w-[80%] rounded-lg p-3 bg-muted">
+                    <div className="flex items-center gap-2">
+                      <div className="animate-pulse">Thinking...</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t pt-4 space-y-2">
+            <Textarea
+              placeholder="Ask a question... (Press Enter to send, Shift+Enter for new line)"
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
+              rows={3}
+              className="w-full resize-none"
+              disabled={isLoadingAI}
+            />
+            <div className="flex justify-between items-center">
+              <Button type="button" variant="outline" size="sm" onClick={handleCloseAIDialog}>
+                Close
+              </Button>
+              <div className="flex gap-2">
+                {chatHistory.length > 0 && (
+                  <Button type="button" variant="outline" size="sm" onClick={handleClearChat}>
+                    Clear Chat
+                  </Button>
+                )}
+                <Button type="button" onClick={handleAskAI} disabled={isLoadingAI || !aiPrompt.trim()} size="sm">
+                  {isLoadingAI ? 'Sending...' : 'Send'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <EvidenceDetailsSheet controlId={id} />
     </>
