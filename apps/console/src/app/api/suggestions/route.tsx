@@ -10,22 +10,24 @@ const AI_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 let vertexAI: VertexAI | null = null
 let storage: Storage | null = null
 
+const b64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_B64 as string
+const json = Buffer.from(b64, 'base64').toString('utf8')
+const creds = JSON.parse(json)
+
 // Initialize with credentials
 if (AI_ENABLED && process.env.GOOGLE_AI_PROJECT_ID) {
   vertexAI = new VertexAI({
     project: process.env.GOOGLE_AI_PROJECT_ID || '',
     location: process.env.GOOGLE_AI_REGION,
     googleAuthOptions: {
-      credentials: process.env.GOOGLE_CREDENTIALS ? JSON.parse(process.env.GOOGLE_CREDENTIALS) : undefined,
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      credentials: creds,
     },
   })
 
   // Initialize Storage client
   storage = new Storage({
     projectId: process.env.GOOGLE_AI_PROJECT_ID,
-    credentials: process.env.GOOGLE_CREDENTIALS ? JSON.parse(process.env.GOOGLE_CREDENTIALS) : undefined,
-    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    credentials: creds,
   })
 }
 
