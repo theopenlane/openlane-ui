@@ -151,12 +151,10 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
         { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
         { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
         { title: 'Analytics', href: '/trust-center/analytics', icon: ChartLine },
-
       ],
     },
   ]
 }
-
 
 export const bottomNavigationItems = (session: Session | null, orgPermission?: TData): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = hasNoModules(session)
@@ -176,11 +174,13 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Authentication',
           href: '/organization-settings/authentication',
+          hidden: billingExpired,
           icon: GlobeLock,
         },
         {
           title: 'Custom Data',
           href: '/organization-settings/custom-data',
+          hidden: billingExpired,
           icon: Tag,
         },
         {
