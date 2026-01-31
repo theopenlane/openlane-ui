@@ -17,7 +17,7 @@ if (AI_ENABLED && process.env.GOOGLE_AI_PROJECT_ID) {
     location: process.env.GOOGLE_AI_REGION,
     googleAuthOptions: {
       credentials: process.env.GOOGLE_CREDENTIALS ? JSON.parse(process.env.GOOGLE_CREDENTIALS) : undefined,
-      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
     },
   })
 
@@ -25,7 +25,7 @@ if (AI_ENABLED && process.env.GOOGLE_AI_PROJECT_ID) {
   storage = new Storage({
     projectId: process.env.GOOGLE_AI_PROJECT_ID,
     credentials: process.env.GOOGLE_CREDENTIALS ? JSON.parse(process.env.GOOGLE_CREDENTIALS) : undefined,
-    keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
   })
 }
 
