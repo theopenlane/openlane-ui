@@ -56,7 +56,12 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
       setSessionCookie(options.session)
 
       const attestationResponse = await startRegistration({
-        useAutoRegister: true,
+        // useAutoRegister enables Chrome's conditional passkey creation.
+        // This requires stricter user-activation + privacy guarantees and
+        // frequently fails with NotAllowedError in settings / multi-step flows.
+        // This will cause failures if you change which passkey you want to use
+        // from the initial prompt to the system prompt.
+        useAutoRegister: false,
         optionsJSON: options.publicKey,
       })
 
