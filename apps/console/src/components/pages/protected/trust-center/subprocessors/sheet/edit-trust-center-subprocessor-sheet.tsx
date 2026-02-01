@@ -25,7 +25,6 @@ import { TUploadedFile } from '@/components/pages/protected/evidence/upload/type
 import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const schema = z.object({
-  subprocessorID: z.string().min(1, 'Please select a subprocessor'),
   category: z.string().min(1, 'Category is required'),
   countries: z.array(z.string()).min(1, 'Select at least one country'),
   name: z.string().min(1, 'Name is required'),
@@ -62,7 +61,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      subprocessorID: '',
       category: '',
       countries: [],
       name: '',
@@ -102,7 +100,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
     const existingLogoRemoteUrl = sp?.logoRemoteURL
 
     reset({
-      subprocessorID: sp?.id ?? '',
       category: data.trustCenterSubprocessor?.trustCenterSubprocessorKindName ?? '',
       countries: data.trustCenterSubprocessor?.countries ?? [],
       name: sp?.name ?? '',
@@ -180,7 +177,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
       await updateTCSubprocessor({
         id: trustCenterSubprocessorId,
         input: {
-          subprocessorID: values.subprocessorID,
           trustCenterSubprocessorKindName: values.category,
           countries: values.countries,
         },
