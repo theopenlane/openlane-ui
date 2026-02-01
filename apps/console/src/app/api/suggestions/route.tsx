@@ -144,6 +144,7 @@ async function getContext(prompt: string): Promise<string> {
     project: process.env.GOOGLE_AI_PROJECT_ID,
     location: process.env.GOOGLE_AI_REGION,
     apiEndpoint: `${process.env.GOOGLE_AI_REGION}-aiplatform.googleapis.com`,
+    credentials: creds,
   })
 
   const parent = `projects/${process.env.GOOGLE_AI_PROJECT_ID}/locations/${process.env.GOOGLE_AI_REGION}`
@@ -173,9 +174,5 @@ async function getContext(prompt: string): Promise<string> {
 const toText = (v: unknown): string => {
   if (v == null) return 'None'
   if (typeof v === 'string') return v
-  try {
-    return JSON.stringify(v, null, 2)
-  } catch {
-    return String(v)
-  }
+  return String(v)
 }
