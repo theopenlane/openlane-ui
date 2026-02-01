@@ -80,7 +80,6 @@ export const AddExistingDialog = ({
   const ensureCategoryExists = async (categoryName: string) => {
     const exists = enumOptions.some((opt) => opt.value === categoryName || opt.label === categoryName)
 
-    console.log('Category exists:', exists)
     if (!exists) {
       await createEnum({
         name: categoryName,

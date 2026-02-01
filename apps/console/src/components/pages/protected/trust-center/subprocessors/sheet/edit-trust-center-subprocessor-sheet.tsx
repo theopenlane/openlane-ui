@@ -122,7 +122,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const ensureCategoryExists = async (categoryName: string) => {
     const exists = enumOptions.some((opt) => opt.value === categoryName || opt.label === categoryName)
 
-    console.log('Category exists:', exists)
     if (!exists) {
       await createEnum({
         name: categoryName,
@@ -135,7 +134,6 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const onSubmit = async (values: FormData) => {
     if (!trustCenterSubprocessorId) return
 
-    console.log('Ensuring category exists for:', values.category)
     await ensureCategoryExists(values.category)
 
     try {
