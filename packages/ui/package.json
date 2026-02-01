@@ -168,12 +168,12 @@
     "pdf-lib": "^1.17.1",
     "platejs": "^49.1.5",
     "prismjs": "^1.29.0",
-    "react": "19.2.1",
+    "react": "19.2.4",
     "react-circle-flags": "^0.0.25",
     "react-day-picker": "^9.8.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
-    "react-dom": "19.2.1",
+    "react-dom": "19.2.4",
     "react-hook-form": "^7.54.2",
     "react-lite-youtube-embed": "^2.5.1",
     "react-player": "^3.3.1",
@@ -198,7 +198,7 @@
     "@tailwindui/react": "latest",
     "@types/eslint": "latest",
     "@types/node": "^24.0.0",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
@@ -210,7 +210,7 @@
     "typescript": "^5"
   },
   "overrides": {
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3"
   }
 }

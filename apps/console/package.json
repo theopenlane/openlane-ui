@@ -54,8 +54,8 @@
     "next-navigation-guard": "^0.2.0",
     "next-themes": "^0.4.0",
     "qrcode.react": "^4.2.0",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "react-dropzone": "^14.2.3",
     "react-easy-crop": "^5.0.7",
     "react-force-graph-2d": "^1.28.0",
@@ -82,13 +82,13 @@
     "postcss": "^8.4.24",
     "tailwind-variants": "^0.3.1",
     "@types/node": "^24.0.0",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "tailwindcss": "^4.1.13",
     "typescript": "^5"
   },
   "overrides": {
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3"
   }
 }
