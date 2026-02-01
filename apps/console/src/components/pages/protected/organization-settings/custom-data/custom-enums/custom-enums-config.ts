@@ -1,5 +1,5 @@
 import { CustomTypeEnumWhereInput } from '@repo/codegen/src/schema'
-import { Drill, LucideIcon, Eye, CopyCheck, SlidersHorizontal, TriangleAlert, FolderOpen, Compass, ScrollText, FileText } from 'lucide-react'
+import { Drill, LucideIcon, Eye, CopyCheck, SlidersHorizontal, TriangleAlert, FolderOpen, Compass, ScrollText, FileText, Server } from 'lucide-react'
 
 export type EnumGroupConfig = {
   label: string
@@ -60,6 +60,12 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
     objectType: 'trust_center_doc',
     field: 'kind',
     icon: FileText,
+  },
+  'Trust Center Subprocessor Kinds': {
+    label: 'Trust Center Subprocessor Kinds',
+    objectType: 'trust_center_subprocessor',
+    field: 'kind',
+    icon: Server,
   },
 }
 

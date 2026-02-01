@@ -14,7 +14,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
-import { EditTrustCenterSubprocessorSheet } from './sheet/eidt-trust-center-subprocessor-sheet'
+import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
