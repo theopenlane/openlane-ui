@@ -146,7 +146,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {hasAvailableSubprocessors && <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Existing subprocessor</DropdownMenuItem>}
+                {hasAvailableSubprocessors && <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>}
                 <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
