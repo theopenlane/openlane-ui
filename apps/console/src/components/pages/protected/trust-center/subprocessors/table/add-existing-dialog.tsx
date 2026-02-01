@@ -13,6 +13,7 @@ import { CountriesField } from '../sheet/form-fields/countries-field'
 import { CategoryField } from '../sheet/form-fields/category-field'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
 import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
+import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
@@ -42,6 +43,14 @@ export const AddExistingDialog = ({
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
 
+  const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'trust_center_subprocessor',
+      field: 'kind',
+    },
+  })
+
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -68,8 +77,23 @@ export const AddExistingDialog = ({
     }
   }
 
+  const ensureCategoryExists = async (categoryName: string) => {
+    const exists = enumOptions.some((opt) => opt.value === categoryName || opt.label === categoryName)
+
+    console.log('Category exists:', exists)
+    if (!exists) {
+      await createEnum({
+        name: categoryName,
+        objectType: 'trust_center_subprocessor',
+        field: 'kind',
+      })
+    }
+  }
+
   const onSubmit = async (data: FormData) => {
     try {
+      await ensureCategoryExists(data.category)
+
       await createTCSubprocessor({
         input: {
           subprocessorID: data.subprocessorID,

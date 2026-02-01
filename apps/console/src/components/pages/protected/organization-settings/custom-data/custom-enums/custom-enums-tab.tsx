@@ -134,7 +134,7 @@ const CustomEnumsTab: FC = () => {
         <div className="flex items-center justify-between gap-3 w-full">
           <div className="flex items-center gap-3">
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="h-9 w-[220px] bg-card capitalize">
+              <SelectTrigger className="h-9 w-[300px] bg-card capitalize">
                 <SelectValue>
                   <div className="flex items-center gap-2">
                     {(() => {

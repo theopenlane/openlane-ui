@@ -22,6 +22,7 @@ import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
@@ -49,6 +50,14 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
 
   const { data } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
+
+  const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'trust_center_subprocessor',
+      field: 'kind',
+    },
+  })
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -110,8 +119,24 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
     }
   }
 
+  const ensureCategoryExists = async (categoryName: string) => {
+    const exists = enumOptions.some((opt) => opt.value === categoryName || opt.label === categoryName)
+
+    console.log('Category exists:', exists)
+    if (!exists) {
+      await createEnum({
+        name: categoryName,
+        objectType: 'trust_center_subprocessor',
+        field: 'kind',
+      })
+    }
+  }
+
   const onSubmit = async (values: FormData) => {
     if (!trustCenterSubprocessorId) return
+
+    console.log('Ensuring category exists for:', values.category)
+    await ensureCategoryExists(values.category)
 
     try {
       const tc = data?.trustCenterSubprocessor
