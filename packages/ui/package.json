@@ -91,7 +91,7 @@
     "@ariakit/react": "^0.4.17",
     "@emoji-mart/data": "1.2.1",
     "@faker-js/faker": "^9.9.0",
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.0.0",
     "@platejs/ai": "^52.0.1",
     "@platejs/autoformat": "^49.0.0",
     "@platejs/basic-nodes": "^49.0.0",
