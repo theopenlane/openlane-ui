@@ -217,7 +217,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
 
 export const subprocessorsFilterFields: FilterField[] = [
   {
-    key: 'category',
+    key: 'trustCenterSubprocessorKindNameContainsFold',
     label: 'Category',
     type: 'text',
     icon: SubprocessorsFilterIcons.Category,

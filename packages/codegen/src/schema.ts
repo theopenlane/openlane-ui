@@ -9598,13 +9598,14 @@ export interface CreateTrustCenterSettingInput {
  */
 export interface CreateTrustCenterSubprocessorInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** Category of the subprocessor, e.g. 'Data Warehouse' or 'Infrastructure Hosting' */
-  category: Scalars['String']['input']
   /** country codes or country where the subprocessor is located */
   countries?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorID: Scalars['ID']['input']
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindName?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -44381,8 +44382,6 @@ export interface TrustCenterSettingWhereInput {
 export interface TrustCenterSubprocessor extends Node {
   __typename?: 'TrustCenterSubprocessor'
   blockedGroups: GroupConnection
-  /** Category of the subprocessor, e.g. 'Data Warehouse' or 'Infrastructure Hosting' */
-  category: Scalars['String']['output']
   /** country codes or country where the subprocessor is located */
   countries?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -44395,6 +44394,11 @@ export interface TrustCenterSubprocessor extends Node {
   trustCenter?: Maybe<TrustCenter>
   /** ID of the trust center */
   trustCenterID?: Maybe<Scalars['ID']['output']>
+  trustCenterSubprocessorKind?: Maybe<CustomTypeEnum>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindID?: Maybe<Scalars['ID']['output']>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindName?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -44501,20 +44505,6 @@ export interface TrustCenterSubprocessorUpdatePayload {
  */
 export interface TrustCenterSubprocessorWhereInput {
   and?: InputMaybe<Array<TrustCenterSubprocessorWhereInput>>
-  /** category field predicates */
-  category?: InputMaybe<Scalars['String']['input']>
-  categoryContains?: InputMaybe<Scalars['String']['input']>
-  categoryContainsFold?: InputMaybe<Scalars['String']['input']>
-  categoryEqualFold?: InputMaybe<Scalars['String']['input']>
-  categoryGT?: InputMaybe<Scalars['String']['input']>
-  categoryGTE?: InputMaybe<Scalars['String']['input']>
-  categoryHasPrefix?: InputMaybe<Scalars['String']['input']>
-  categoryHasSuffix?: InputMaybe<Scalars['String']['input']>
-  categoryIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryLT?: InputMaybe<Scalars['String']['input']>
-  categoryLTE?: InputMaybe<Scalars['String']['input']>
-  categoryNEQ?: InputMaybe<Scalars['String']['input']>
-  categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -44553,6 +44543,9 @@ export interface TrustCenterSubprocessorWhereInput {
   hasSubprocessorWith?: InputMaybe<Array<SubprocessorWhereInput>>
   /** trust_center edge predicates */
   hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_subprocessor_kind edge predicates */
+  hasTrustCenterSubprocessorKind?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterSubprocessorKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
@@ -44597,6 +44590,38 @@ export interface TrustCenterSubprocessorWhereInput {
   trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
   trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_subprocessor_kind_id field predicates */
+  trustCenterSubprocessorKindID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterSubprocessorKindIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterSubprocessorKindIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterSubprocessorKindIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_subprocessor_kind_name field predicates */
+  trustCenterSubprocessorKindName?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameContains?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameGT?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameGTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterSubprocessorKindNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterSubprocessorKindNameLT?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameLTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameNEQ?: InputMaybe<Scalars['String']['input']>
+  trustCenterSubprocessorKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterSubprocessorKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -50275,18 +50300,21 @@ export interface UpdateTrustCenterSubprocessorInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendCountries?: InputMaybe<Array<Scalars['String']['input']>>
-  /** Category of the subprocessor, e.g. 'Data Warehouse' or 'Infrastructure Hosting' */
-  category?: InputMaybe<Scalars['String']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCountries?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterSubprocessorKind?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterSubprocessorKindName?: InputMaybe<Scalars['Boolean']['input']>
   /** country codes or country where the subprocessor is located */
   countries?: InputMaybe<Array<Scalars['String']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorID?: InputMaybe<Scalars['ID']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterSubprocessorKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the kind of the trust_center_subprocessor */
+  trustCenterSubprocessorKindName?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -60139,7 +60167,7 @@ export type GetTrustCenterSubprocessorsQuery = {
       node?: {
         __typename?: 'TrustCenterSubprocessor'
         id: string
-        category: string
+        trustCenterSubprocessorKindName?: string | null
         countries?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
@@ -60203,7 +60231,7 @@ export type GetTrustCenterSubprocessorByIdQuery = {
   trustCenterSubprocessor: {
     __typename?: 'TrustCenterSubprocessor'
     id: string
-    category: string
+    trustCenterSubprocessorKindName?: string | null
     countries?: Array<string> | null
     subprocessor: {
       __typename?: 'Subprocessor'

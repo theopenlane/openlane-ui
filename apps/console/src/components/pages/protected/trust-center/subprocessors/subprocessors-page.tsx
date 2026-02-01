@@ -77,7 +77,7 @@ const SubprocessorsPage = () => {
         name: item?.subprocessor?.name ?? '',
         description: item?.subprocessor?.description ?? '',
         logo: item?.subprocessor?.logoFile?.presignedURL ?? item?.subprocessor?.logoRemoteURL ?? null,
-        category: item?.category ?? '',
+        category: item?.trustCenterSubprocessorKindName ?? '',
         countries: item?.countries ?? [],
         createdAt: item?.createdAt ?? null,
         createdBy: item?.createdBy ?? null,

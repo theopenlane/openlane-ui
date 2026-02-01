@@ -94,7 +94,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
     reset({
       subprocessorID: sp?.id ?? '',
-      category: data.trustCenterSubprocessor?.category ?? '',
+      category: data.trustCenterSubprocessor?.trustCenterSubprocessorKindName ?? '',
       countries: data.trustCenterSubprocessor?.countries ?? [],
       name: sp?.name ?? '',
       description: sp?.description ?? '',
@@ -158,7 +158,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
         id: trustCenterSubprocessorId,
         input: {
           subprocessorID: values.subprocessorID,
-          category: values.category,
+          trustCenterSubprocessorKindName: values.category,
           countries: values.countries,
         },
       })
