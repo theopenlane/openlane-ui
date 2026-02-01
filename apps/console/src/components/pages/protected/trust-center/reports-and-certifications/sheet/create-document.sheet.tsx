@@ -32,6 +32,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { StandardField } from './form-fields/standard-field'
 import { Callout } from '@/components/shared/callout/callout'
+import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -82,6 +83,9 @@ export const CreateDocumentSheet: React.FC = () => {
     trustCenterDocId: documentId || '',
     enabled: !!documentId,
   })
+
+  const { latestFile: latestNdaFile } = useGetTrustCenterNDAFiles()
+  const hasNdaTemplate = Boolean(latestNdaFile)
 
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
   const watermarkEnabled = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.isEnabled ?? null
@@ -347,7 +351,7 @@ export const CreateDocumentSheet: React.FC = () => {
             <TitleField isEditing={isEditing || isCreateMode} />
             <CategoryField isEditing={isEditing || isCreateMode} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
-            {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && (
+            {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
               <Callout variant="warning" compact>
                 <span>Protected documents require a NDA to be uploaded. </span>
                 <Link href="/trust-center/NDAs" target="_blank" rel="noreferrer" className="underline">
