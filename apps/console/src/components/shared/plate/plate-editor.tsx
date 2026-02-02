@@ -31,6 +31,7 @@ export type TPlateEditorProps = {
   userData?: GetUserProfileQuery
   readonly?: boolean
   isCreate?: boolean
+  toolbarClassName?: string
 }
 
 export interface PlateEditorRef {
@@ -39,7 +40,7 @@ export interface PlateEditorRef {
 }
 
 const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
-  ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly, isCreate }, ref) => {
+  ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly, isCreate, toolbarClassName }, ref) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const getFirstDefinedProperty = (obj: any, keys: string[], fallback: string): string => {
       for (const key of keys) {
@@ -52,8 +53,8 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
 
     const getPlugins = useCallback(() => {
       const title = getFirstDefinedProperty(entity, ['name', 'title', 'refCode', 'id'], 'Document')
-      return EditorKitVariant[variant](title) as PlatePlugin[]
-    }, [variant, entity])
+      return EditorKitVariant[variant]({ title, toolbarClassName }) as PlatePlugin[]
+    }, [variant, entity, toolbarClassName])
 
     const editor = usePlateEditor({
       plugins: getPlugins(),

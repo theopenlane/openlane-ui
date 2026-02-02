@@ -1,5 +1,7 @@
+'use client'
+
 import React, { memo } from 'react'
-import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { GetInternalPolicyAssociationsByIdQuery } from '@repo/codegen/src/schema.ts'
 import { AlignLeft, Clock, User } from 'lucide-react'
 
@@ -11,31 +13,33 @@ type LinkedProceduresProps = {
 
 type ProcedureNode = NonNullable<NonNullable<ProcedureEdges>[number]>['node']
 
-const ProcedureItem = memo(({ node }: { node: NonNullable<ProcedureNode> }) => (
-  <div className="space-y-3">
-    <div className="flex items-center gap-2 text-muted-foreground">
-      <User size={16} />
-      <span>Name</span>
-    </div>
-    <p>{node.name}</p>
+const ProcedureItem = memo(({ node }: { node: NonNullable<ProcedureNode> }) => {
+  const { convertToReadOnly } = usePlateEditor()
 
-    <div className="flex items-center gap-2 text-muted-foreground">
-      <Clock size={16} />
-      <span>Type</span>
-    </div>
-    <p>{node.procedureKindName || 'Procedure'}</p>
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <User size={16} />
+        <span>Name</span>
+      </div>
+      <p>{node.name}</p>
 
-    <div className="flex items-center gap-2 text-muted-foreground">
-      <AlignLeft size={16} />
-      <span>Description</span>
-    </div>
-    <div className="min-h-5">
-      <PlateEditor initialValue={node.detailsJSON ? node.detailsJSON : node.details ?? undefined} readonly={true} variant="basic" />
-    </div>
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Clock size={16} />
+        <span>Type</span>
+      </div>
+      <p>{node.procedureKindName || 'Procedure'}</p>
 
-    <hr className="border-border mt-4" />
-  </div>
-))
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <AlignLeft size={16} />
+        <span>Description</span>
+      </div>
+      <div className="min-h-5">{convertToReadOnly(node.detailsJSON ? node.detailsJSON : node.details ?? '')}</div>
+
+      <hr className="border-border mt-4" />
+    </div>
+  )
+})
 
 ProcedureItem.displayName = 'ProcedureItem'
 

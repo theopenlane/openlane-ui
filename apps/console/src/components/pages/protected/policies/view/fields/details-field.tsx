@@ -50,6 +50,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
         entity={discussionData}
         readonly={true}
         variant="readonly"
+        toolbarClassName="-mt-40"
       />
     </div>
   )
