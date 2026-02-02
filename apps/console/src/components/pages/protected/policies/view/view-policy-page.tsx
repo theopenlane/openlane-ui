@@ -314,9 +314,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           <TabsTrigger className="relative max-w-26 text-start" value="policy">
             Policy
           </TabsTrigger>
-          <TabsTrigger value="procedures" className="relative max-w-26 flex text-start items-center gap-2">
+          <TabsTrigger value="procedures" className="relative max-w-28 flex text-start items-center gap-2">
             Procedures
-            {procedureCount > 0 && <span className="inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-brand text-white">{procedureCount}</span>}
+            {procedureCount > 0 && <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs rounded-full bg-card bg-rounded">{procedureCount}</span>}
           </TabsTrigger>
         </TabsList>
 
