@@ -1,20 +1,24 @@
 'use client'
 
+import { cn } from '@repo/ui/lib/utils'
 import { ToolbarGroup } from './toolbar'
 import { ExportToolbarButton } from './export-toolbar-button'
 import { CommentToolbarButton } from './comment-toolbar-button'
 
-export function ReadOnlyToolbarButtons({ title = 'Document' }: { title?: string }) {
+type ReadOnlyToolbarButtonsProps = {
+  title?: string
+  className?: string
+}
+
+export function ReadOnlyToolbarButtons({ title = 'Document', className }: ReadOnlyToolbarButtonsProps) {
   return (
-    <div className="flex justify-end w-full bg-none mt-[-7rem] border-none">
-      <>
-        <ToolbarGroup>
-          <ExportToolbarButton title={title} />
-        </ToolbarGroup>
-        <ToolbarGroup>
-          <CommentToolbarButton />
-        </ToolbarGroup>
-      </>
+    <div className={cn('flex justify-end w-full bg-none mt-[-7rem] border-none', className)}>
+      <ToolbarGroup>
+        <ExportToolbarButton title={title} />
+      </ToolbarGroup>
+      <ToolbarGroup>
+        <CommentToolbarButton />
+      </ToolbarGroup>
     </div>
   )
 }
