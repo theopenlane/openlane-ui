@@ -22,7 +22,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
   const { data: userData } = useGetCurrentUser(userId)
 
   return isEditing ? (
-    <div className="w-full">
+    <div className="w-full relative">
       <label htmlFor="policy" className="block text-sm font-medium text-muted-foreground mb-1">
         Policy
       </label>
@@ -33,7 +33,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
           <PlateEditor
             key={`${policy.id}-${isEditing ? 'edit' : 'view'}`}
             userData={userData}
-            initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
+            initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : policy?.details ?? undefined}
             entity={discussionData}
             onChange={field.onChange}
             placeholder="Write your policy description"
@@ -42,11 +42,11 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
       />
     </div>
   ) : (
-    <div className="!mt-4 min-h-[20px]">
+    <div className="min-h-5">
       <PlateEditor
         key={JSON.stringify(policy.detailsJSON ?? policy.details)}
         userData={userData}
-        initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
+        initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : policy?.details ?? undefined}
         entity={discussionData}
         readonly={true}
         variant="readonly"

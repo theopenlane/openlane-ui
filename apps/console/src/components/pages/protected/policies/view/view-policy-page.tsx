@@ -6,6 +6,7 @@ import DetailsField from '@/components/pages/protected/policies/view/fields/deta
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
 import { LockOpen, PencilIcon, Trash2 } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
@@ -35,6 +36,7 @@ import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import LinkedProcedures from './fields/linked-procedures'
 
 type TViewPolicyPage = {
   policyId: string
@@ -65,6 +67,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
   const plateEditorHelper = usePlateEditor()
+  const [activeTab, setActiveTab] = useState<'policy' | 'procedures'>('policy')
+
+  const procedureCount = assocData?.internalPolicy?.procedures?.totalCount ?? 0
+  const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
 
   const memoizedSections = useMemo(() => {
     if (!assocData) return {}
@@ -301,7 +307,27 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
+
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'policy' | 'procedures')} variant="underline">
+        <TabsList className="relative flex justify-start w-full">
+          <div className="absolute -bottom-0.5 left-1 right-0 h-px bg-border" />
+          <TabsTrigger className="relative max-w-26 text-start" value="policy">
+            Policy
+          </TabsTrigger>
+          <TabsTrigger value="procedures" className="relative max-w-26 flex text-start items-center gap-2">
+            Procedures
+            {procedureCount > 0 && <span className="inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-brand text-white">{procedureCount}</span>}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="policy">
+          <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
+        </TabsContent>
+
+        <TabsContent value="procedures">
+          <LinkedProcedures procedures={procedures} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 
