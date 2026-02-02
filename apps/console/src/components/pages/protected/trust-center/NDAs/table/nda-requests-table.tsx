@@ -14,7 +14,11 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDebounce } from '@uidotdev/usehooks'
 
-const NdaRequestsTable = () => {
+type NdaRequestsTableProps = {
+  requireApproval: boolean
+}
+
+const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
   const [activeTab, setActiveTab] = useState<'requested' | 'approved' | 'signed'>('requested')
   const [searchTerm, setSearchTerm] = useState('')
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
@@ -78,8 +82,8 @@ const NdaRequestsTable = () => {
   const columns = useMemo(
     () =>
       getNdaRequestColumns({
-        showActions: activeTab === 'requested',
-        showApprovedOn: activeTab === 'approved',
+        showActions: requireApproval && activeTab === 'requested',
+        showApprovedOn: requireApproval && activeTab === 'approved',
         showSignedOn: activeTab === 'signed',
         onApprove: async (id) => {
           setActionLoadingId(id)
@@ -128,7 +132,7 @@ const NdaRequestsTable = () => {
         actionLoadingId,
         actionLoadingType,
       }),
-    [activeTab, actionLoadingId, actionLoadingType, errorNotification, successNotification, updateNdaRequest],
+    [activeTab, actionLoadingId, actionLoadingType, errorNotification, requireApproval, successNotification, updateNdaRequest],
   )
 
   const handleSearchTermChange = (value: string) => {
@@ -199,6 +203,7 @@ const NdaRequestsTable = () => {
         onApproveAllRequest={() => setApproveAllDialogOpen(true)}
         approveAllLoading={approveAllLoading}
         approveAllDisabled={requests.length === 0}
+        requireApproval={requireApproval}
       />
       <DataTable
         columns={columns}
