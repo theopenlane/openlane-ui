@@ -53,7 +53,7 @@ const BrandPage: React.FC = () => {
 
   useEffect(() => {
     if (previewSetting) {
-      reset({
+      const values = {
         title: previewSetting.title ?? '',
         overview: previewSetting.overview ?? '',
         securityContact: previewSetting.securityContact ?? '',
@@ -72,9 +72,15 @@ const BrandPage: React.FC = () => {
         companyName: previewSetting.companyName ?? '',
         companyDescription: previewSetting.companyDescription ?? '',
         companyDomain: previewSetting.companyDomain ?? '',
-      })
+      }
+      reset(values)
+      const timeoutId = setTimeout(() => {
+        const currentValues = methods.getValues()
+        reset(currentValues)
+      }, 0)
+      return () => clearTimeout(timeoutId)
     }
-  }, [previewSetting, reset])
+  }, [previewSetting, reset, methods])
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Branding', href: '/trust-center/branding' }])
@@ -87,7 +93,7 @@ const BrandPage: React.FC = () => {
     const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
     const themeDiff = setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || setting.primaryColor !== previewSetting.primaryColor
     const assetDiff = setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL
-    return { companyInfo: companyInfoDiff, text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff }
+    return { companyInfo: companyInfoDiff, text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff || companyInfoDiff }
   }, [setting, previewSetting])
 
   const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
@@ -112,14 +118,10 @@ const BrandPage: React.FC = () => {
         themeMode: values.themeMode,
         title: values.title,
         overview,
-        securityContact: values.securityContact || null,
-        clearSecurityContact: !values.securityContact,
-        companyName: values.companyName,
-        companyDescription: values.companyDescription,
-        companyDomain: values.companyDomain,
-        clearCompanyDomain: !values.companyDomain,
-        clearCompanyDescription: !values.companyDescription,
-        clearCompanyName: !values.companyName,
+        ...(values.securityContact ? { securityContact: values.securityContact } : { clearSecurityContact: true }),
+        ...(values.companyName ? { companyName: values.companyName } : { clearCompanyName: true }),
+        ...(values.companyDescription ? { companyDescription: values.companyDescription } : { clearCompanyDescription: true }),
+        ...(values.companyDomain ? { companyDomain: values.companyDomain } : { clearCompanyDomain: true }),
       },
     }
 
@@ -169,8 +171,7 @@ const BrandPage: React.FC = () => {
       input: {
         title: setting.title,
         overview: setting.overview,
-        securityContact: setting.securityContact || null,
-        clearSecurityContact: !setting.securityContact,
+        ...(setting.securityContact ? { securityContact: setting.securityContact } : { clearSecurityContact: true }),
         primaryColor: setting.primaryColor,
         foregroundColor: setting.foregroundColor,
         backgroundColor: setting.backgroundColor,
@@ -179,13 +180,19 @@ const BrandPage: React.FC = () => {
         secondaryBackgroundColor: setting.secondaryBackgroundColor,
         font: setting.font,
         themeMode: setting.themeMode,
-        logoFileID: setting.logoFile?.id,
-        logoRemoteURL: setting.logoRemoteURL,
-        faviconFileID: setting.faviconFile?.id,
-        faviconRemoteURL: setting.faviconRemoteURL,
-        companyName: setting.companyName,
-        companyDescription: setting.companyDescription,
-        companyDomain: setting.companyDomain,
+        ...(setting.logoFile?.id
+          ? { logoFileID: setting.logoFile.id, clearLogoRemoteURL: true }
+          : setting.logoRemoteURL
+          ? { logoRemoteURL: setting.logoRemoteURL, clearLogoFile: true }
+          : { clearLogoFile: true, clearLogoRemoteURL: true }),
+        ...(setting.faviconFile?.id
+          ? { faviconFileID: setting.faviconFile.id, clearFaviconRemoteURL: true }
+          : setting.faviconRemoteURL
+          ? { faviconRemoteURL: setting.faviconRemoteURL, clearFaviconFile: true }
+          : { clearFaviconFile: true, clearFaviconRemoteURL: true }),
+        ...(setting.companyName ? { companyName: setting.companyName } : { clearCompanyName: true }),
+        ...(setting.companyDescription ? { companyDescription: setting.companyDescription } : { clearCompanyDescription: true }),
+        ...(setting.companyDomain ? { companyDomain: setting.companyDomain } : { clearCompanyDomain: true }),
       },
     })
   }

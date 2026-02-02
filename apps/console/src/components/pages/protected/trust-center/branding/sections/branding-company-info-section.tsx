@@ -27,11 +27,6 @@ export const BrandingCompanyInfoSection = ({ isReadOnly, setting, hasWarning }: 
           </div>
 
           <div className="flex flex-col gap-3">
-            <p className="text-base font-medium">Trust Center Title</p>
-            <RenderBrandField name="title" label="Trust Center Title" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
-          </div>
-
-          <div className="flex flex-col gap-3">
             <p className="text-base font-medium">Name</p>
             <RenderBrandField name="companyName" label="Company Name" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
 
