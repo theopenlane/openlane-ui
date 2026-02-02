@@ -140,6 +140,15 @@ export interface ApiTokenBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkAPIToken mutation */
+export interface ApiTokenBulkUpdatePayload {
+  __typename?: 'APITokenBulkUpdatePayload'
+  /** Updated apiTokens */
+  apiTokens?: Maybe<Array<ApiToken>>
+  /** IDs of the updated apiTokens */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface ApiTokenConnection {
   __typename?: 'APITokenConnection'
@@ -2200,6 +2209,15 @@ export interface AssetBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkAsset mutation */
+export interface AssetBulkUpdatePayload {
+  __typename?: 'AssetBulkUpdatePayload'
+  /** Updated assets */
+  assets?: Maybe<Array<Asset>>
+  /** IDs of the updated assets */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface AssetConnection {
   __typename?: 'AssetConnection'
@@ -3199,6 +3217,15 @@ export interface CampaignCreatePayload {
   campaign: Campaign
 }
 
+/** Return response for createCampaignWithTargets mutation */
+export interface CampaignCreateWithTargetsPayload {
+  __typename?: 'CampaignCreateWithTargetsPayload'
+  /** Created campaign */
+  campaign: Campaign
+  /** Created campaign targets */
+  campaignTargets?: Maybe<Array<CampaignTarget>>
+}
+
 /** Return response for deleteCampaign mutation */
 export interface CampaignDeletePayload {
   __typename?: 'CampaignDeletePayload'
@@ -3221,6 +3248,17 @@ export enum CampaignFrequency {
   MONTHLY = 'MONTHLY',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
+}
+
+/** Return response for launchCampaign mutation */
+export interface CampaignLaunchPayload {
+  __typename?: 'CampaignLaunchPayload'
+  /** Updated campaign */
+  campaign: Campaign
+  /** Number of targets queued for send */
+  queuedCount: Scalars['Int']['output']
+  /** Number of targets skipped */
+  skippedCount: Scalars['Int']['output']
 }
 
 /** Ordering options for Campaign connections */
@@ -3628,6 +3666,17 @@ export interface CampaignTargetWhereInput {
   workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
   workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Return response for sendCampaignTestEmail mutation */
+export interface CampaignTestEmailPayload {
+  __typename?: 'CampaignTestEmailPayload'
+  /** Campaign used for the test send */
+  campaign: Campaign
+  /** Number of emails queued for send */
+  queuedCount: Scalars['Int']['output']
+  /** Number of emails skipped */
+  skippedCount: Scalars['Int']['output']
 }
 
 /** Return response for updateCampaign mutation */
@@ -5080,6 +5129,15 @@ export interface ControlImplementationBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkControlImplementation mutation */
+export interface ControlImplementationBulkUpdatePayload {
+  __typename?: 'ControlImplementationBulkUpdatePayload'
+  /** Updated controlImplementations */
+  controlImplementations?: Maybe<Array<ControlImplementation>>
+  /** IDs of the updated controlImplementations */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface ControlImplementationConnection {
   __typename?: 'ControlImplementationConnection'
@@ -5519,6 +5577,15 @@ export interface ControlObjectiveBulkDeletePayload {
   __typename?: 'ControlObjectiveBulkDeletePayload'
   /** Deleted controlObjective IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkControlObjective mutation */
+export interface ControlObjectiveBulkUpdatePayload {
+  __typename?: 'ControlObjectiveBulkUpdatePayload'
+  /** Updated controlObjectives */
+  controlObjectives?: Maybe<Array<ControlObjective>>
+  /** IDs of the updated controlObjectives */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -6838,6 +6905,14 @@ export interface CreateCampaignTargetInput {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/** Input for createCampaignWithTargets mutation */
+export interface CreateCampaignWithTargetsInput {
+  /** values of the campaign */
+  campaign: CreateCampaignInput
+  /** list of targets to create for the campaign */
+  targets?: InputMaybe<Array<CreateCampaignTargetInput>>
 }
 
 /**
@@ -9584,6 +9659,8 @@ export interface CreateTrustCenterSettingInput {
   secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** email address for security contact */
   securityContact?: InputMaybe<Scalars['String']['input']>
+  /** URL to the company's status page */
+  statusPageURL?: InputMaybe<Scalars['String']['input']>
   /** Theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -9895,6 +9972,15 @@ export interface CustomDomainBulkDeletePayload {
   __typename?: 'CustomDomainBulkDeletePayload'
   /** Deleted customDomain IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkCustomDomain mutation */
+export interface CustomDomainBulkUpdatePayload {
+  __typename?: 'CustomDomainBulkUpdatePayload'
+  /** Updated customDomains */
+  customDomains?: Maybe<Array<CustomDomain>>
+  /** IDs of the updated customDomains */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -10641,6 +10727,15 @@ export interface DnsVerificationBulkDeletePayload {
   __typename?: 'DNSVerificationBulkDeletePayload'
   /** Deleted dnsVerification IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkDNSVerification mutation */
+export interface DnsVerificationBulkUpdatePayload {
+  __typename?: 'DNSVerificationBulkUpdatePayload'
+  /** Updated dnsVerifications */
+  dnsVerifications?: Maybe<Array<DnsVerification>>
+  /** IDs of the updated dnsVerifications */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -13156,6 +13251,15 @@ export interface DocumentDataBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkDocumentData mutation */
+export interface DocumentDataBulkUpdatePayload {
+  __typename?: 'DocumentDataBulkUpdatePayload'
+  /** Updated documentDatas */
+  documentData?: Maybe<Array<DocumentData>>
+  /** IDs of the updated documentDatas */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface DocumentDataConnection {
   __typename?: 'DocumentDataConnection'
@@ -13730,6 +13834,15 @@ export interface EntityBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkEntity mutation */
+export interface EntityBulkUpdatePayload {
+  __typename?: 'EntityBulkUpdatePayload'
+  /** Updated entitys */
+  entities?: Maybe<Array<Entity>>
+  /** IDs of the updated entitys */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface EntityConnection {
   __typename?: 'EntityConnection'
@@ -13857,6 +13970,15 @@ export interface EntityTypeBulkDeletePayload {
   __typename?: 'EntityTypeBulkDeletePayload'
   /** Deleted entityType IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkEntityType mutation */
+export interface EntityTypeBulkUpdatePayload {
+  __typename?: 'EntityTypeBulkUpdatePayload'
+  /** Updated entityTypes */
+  entityTypes?: Maybe<Array<EntityType>>
+  /** IDs of the updated entityTypes */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -14987,6 +15109,15 @@ export interface EventBulkDeletePayload {
   __typename?: 'EventBulkDeletePayload'
   /** Deleted event IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkEvent mutation */
+export interface EventBulkUpdatePayload {
+  __typename?: 'EventBulkUpdatePayload'
+  /** Updated events */
+  events?: Maybe<Array<Event>>
+  /** IDs of the updated events */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -18533,6 +18664,15 @@ export interface GroupBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkGroup mutation */
+export interface GroupBulkUpdatePayload {
+  __typename?: 'GroupBulkUpdatePayload'
+  /** Updated groups */
+  groups?: Maybe<Array<Group>>
+  /** IDs of the updated groups */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface GroupConnection {
   __typename?: 'GroupConnection'
@@ -18612,6 +18752,15 @@ export interface GroupMembershipBulkDeletePayload {
   __typename?: 'GroupMembershipBulkDeletePayload'
   /** Deleted groupMembership IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkGroupMembership mutation */
+export interface GroupMembershipBulkUpdatePayload {
+  __typename?: 'GroupMembershipBulkUpdatePayload'
+  /** Updated groupMemberships */
+  groupMemberships?: Maybe<Array<GroupMembership>>
+  /** IDs of the updated groupMemberships */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -18913,6 +19062,15 @@ export interface GroupSettingBulkDeletePayload {
   __typename?: 'GroupSettingBulkDeletePayload'
   /** Deleted groupSetting IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkGroupSetting mutation */
+export interface GroupSettingBulkUpdatePayload {
+  __typename?: 'GroupSettingBulkUpdatePayload'
+  /** Updated groupSettings */
+  groupSettings?: Maybe<Array<GroupSetting>>
+  /** IDs of the updated groupSettings */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -21977,6 +22135,15 @@ export interface InviteBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkInvite mutation */
+export interface InviteBulkUpdatePayload {
+  __typename?: 'InviteBulkUpdatePayload'
+  /** Updated invites */
+  invites?: Maybe<Array<Invite>>
+  /** IDs of the updated invites */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface InviteConnection {
   __typename?: 'InviteConnection'
@@ -23336,6 +23503,15 @@ export interface JobTemplateBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkJobTemplate mutation */
+export interface JobTemplateBulkUpdatePayload {
+  __typename?: 'JobTemplateBulkUpdatePayload'
+  /** Updated jobTemplates */
+  jobTemplates?: Maybe<Array<JobTemplate>>
+  /** IDs of the updated jobTemplates */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface JobTemplateConnection {
   __typename?: 'JobTemplateConnection'
@@ -23582,6 +23758,16 @@ export interface JobTemplateWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** Input for launchCampaign mutation */
+export interface LaunchCampaignInput {
+  /** ID of the campaign */
+  campaignID: Scalars['ID']['input']
+  /** Whether to resend emails to previously-sent targets */
+  resend?: InputMaybe<Scalars['Boolean']['input']>
+  /** Optional time to schedule the campaign launch or resend */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>
+}
+
 export interface MappableDomain extends Node {
   __typename?: 'MappableDomain'
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -23619,6 +23805,15 @@ export interface MappableDomainBulkDeletePayload {
   __typename?: 'MappableDomainBulkDeletePayload'
   /** Deleted mappableDomain IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkMappableDomain mutation */
+export interface MappableDomainBulkUpdatePayload {
+  __typename?: 'MappableDomainBulkUpdatePayload'
+  /** Updated mappableDomains */
+  mappableDomains?: Maybe<Array<MappableDomain>>
+  /** IDs of the updated mappableDomains */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -23883,6 +24078,15 @@ export interface MappedControlBulkDeletePayload {
   __typename?: 'MappedControlBulkDeletePayload'
   /** Deleted mappedControl IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkMappedControl mutation */
+export interface MappedControlBulkUpdatePayload {
+  __typename?: 'MappedControlBulkUpdatePayload'
+  /** Updated mappedControls */
+  mappedControls?: Maybe<Array<MappedControl>>
+  /** IDs of the updated mappedControls */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -24408,6 +24612,10 @@ export interface Mutation {
   createCampaign: CampaignCreatePayload
   /** Create a new campaignTarget */
   createCampaignTarget: CampaignTargetCreatePayload
+  /** Create a new campaign with associated targets */
+  createCampaignWithTargets: CampaignCreateWithTargetsPayload
+  /** Create a new campaign with associated targets via file upload */
+  createCampaignWithTargetsCSV: CampaignCreateWithTargetsPayload
   /** Create a new contact */
   createContact: ContactCreatePayload
   /** Create a new control */
@@ -24814,10 +25022,16 @@ export interface Mutation {
   deleteWorkflowDefinition: WorkflowDefinitionDeletePayload
   /** Update multiple existing nda requests as approved */
   denyNDARequests: BulkUpdateStatusPayload
+  /** Launch a campaign and send emails to its targets */
+  launchCampaign: CampaignLaunchPayload
   /** Publish changes from preview to live environment */
   publishTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Reject a workflow assignment and discard the proposed changes */
   rejectWorkflowAssignment: WorkflowAssignmentRejectPayload
+  /** Resend a campaign to only incomplete targets */
+  resendCampaignIncompleteTargets: CampaignLaunchPayload
+  /** Send a test email for a campaign without creating campaign targets */
+  sendCampaignTestEmail: CampaignTestEmailPayload
   /** Submit a response to a Trust Center NDA */
   submitTrustCenterNDAResponse: SubmitTrustCenterNdaResponsePayload
   /** Transfer ownership of an organization to another user */
@@ -24830,34 +25044,166 @@ export interface Mutation {
   updateAssessment: AssessmentUpdatePayload
   /** Update an existing asset */
   updateAsset: AssetUpdatePayload
+  /** Update multiple existing apiTokens */
+  updateBulkAPIToken: ApiTokenBulkUpdatePayload
   /** Update multiple existing actionPlans */
   updateBulkActionPlan: ActionPlanBulkUpdatePayload
+  /** Update multiple existing assets */
+  updateBulkAsset: AssetBulkUpdatePayload
+  /** Update multiple existing apiTokens via file upload */
+  updateBulkCSVAPIToken: ApiTokenBulkUpdatePayload
+  /** Update multiple existing actionPlans via file upload */
+  updateBulkCSVActionPlan: ActionPlanBulkUpdatePayload
+  /** Update multiple existing assets via file upload */
+  updateBulkCSVAsset: AssetBulkUpdatePayload
+  /** Update multiple existing contacts via file upload */
+  updateBulkCSVContact: ContactBulkUpdatePayload
   /** Update multiple existing controls with a CSV upload, must include the ID or refCode and referenceFramework */
   updateBulkCSVControl: ControlBulkUpdatePayload
+  /** Update multiple existing controlImplementations via file upload */
+  updateBulkCSVControlImplementation: ControlImplementationBulkUpdatePayload
+  /** Update multiple existing controlObjectives via file upload */
+  updateBulkCSVControlObjective: ControlObjectiveBulkUpdatePayload
+  /** Update multiple existing customDomains via file upload */
+  updateBulkCSVCustomDomain: CustomDomainBulkUpdatePayload
+  /** Update multiple existing dnsVerifications via file upload */
+  updateBulkCSVDNSVerification: DnsVerificationBulkUpdatePayload
+  /** Update multiple existing documentDatas via file upload */
+  updateBulkCSVDocumentData: DocumentDataBulkUpdatePayload
+  /** Update multiple existing entitys via file upload */
+  updateBulkCSVEntity: EntityBulkUpdatePayload
+  /** Update multiple existing entityTypes via file upload */
+  updateBulkCSVEntityType: EntityTypeBulkUpdatePayload
+  /** Update multiple existing events via file upload */
+  updateBulkCSVEvent: EventBulkUpdatePayload
+  /** Update multiple existing evidences via file upload */
+  updateBulkCSVEvidence: EvidenceBulkUpdatePayload
+  /** Update multiple existing groups via file upload */
+  updateBulkCSVGroup: GroupBulkUpdatePayload
+  /** Update multiple existing groupMemberships via file upload */
+  updateBulkCSVGroupMembership: GroupMembershipBulkUpdatePayload
+  /** Update multiple existing groupSettings via file upload */
+  updateBulkCSVGroupSetting: GroupSettingBulkUpdatePayload
+  /** Update multiple existing hushs via file upload */
+  updateBulkCSVHush: HushBulkUpdatePayload
+  /** Update multiple existing internalPolicys via file upload */
+  updateBulkCSVInternalPolicy: InternalPolicyBulkUpdatePayload
+  /** Update multiple existing invites via file upload */
+  updateBulkCSVInvite: InviteBulkUpdatePayload
+  /** Update multiple existing jobTemplates via file upload */
+  updateBulkCSVJobTemplate: JobTemplateBulkUpdatePayload
+  /** Update multiple existing mappableDomains via file upload */
+  updateBulkCSVMappableDomain: MappableDomainBulkUpdatePayload
+  /** Update multiple existing mappedControls via file upload */
+  updateBulkCSVMappedControl: MappedControlBulkUpdatePayload
+  /** Update multiple existing narratives via file upload */
+  updateBulkCSVNarrative: NarrativeBulkUpdatePayload
+  /** Update multiple existing orgMemberships via file upload */
+  updateBulkCSVOrgMembership: OrgMembershipBulkUpdatePayload
+  /** Update multiple existing organizationSettings via file upload */
+  updateBulkCSVOrganizationSetting: OrganizationSettingBulkUpdatePayload
+  /** Update multiple existing procedures via file upload */
+  updateBulkCSVProcedure: ProcedureBulkUpdatePayload
+  /** Update multiple existing programs via file upload */
+  updateBulkCSVProgram: ProgramBulkUpdatePayload
+  /** Update multiple existing programMemberships via file upload */
+  updateBulkCSVProgramMembership: ProgramMembershipBulkUpdatePayload
+  /** Update multiple existing risks via file upload */
+  updateBulkCSVRisk: RiskBulkUpdatePayload
+  /** Update multiple existing scans via file upload */
+  updateBulkCSVScan: ScanBulkUpdatePayload
+  /** Update multiple existing scheduledJobs via file upload */
+  updateBulkCSVScheduledJob: ScheduledJobBulkUpdatePayload
+  /** Update multiple existing subcontrols via file upload */
+  updateBulkCSVSubcontrol: SubcontrolBulkUpdatePayload
+  /** Update multiple existing subprocessors via file upload */
+  updateBulkCSVSubprocessor: SubprocessorBulkUpdatePayload
+  /** Update multiple existing tasks via file upload */
+  updateBulkCSVTask: TaskBulkUpdatePayload
+  /** Update multiple existing templates via file upload */
+  updateBulkCSVTemplate: TemplateBulkUpdatePayload
+  /** Update multiple existing trustCenterCompliances via file upload */
+  updateBulkCSVTrustCenterCompliance: TrustCenterComplianceBulkUpdatePayload
+  /** Update multiple existing trustCenterDocs via file upload */
+  updateBulkCSVTrustCenterDoc: TrustCenterDocBulkUpdatePayload
+  /** Update multiple existing trustCenterSubprocessors via file upload */
+  updateBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkUpdatePayload
+  /** Update multiple existing userSettings via file upload */
+  updateBulkCSVUserSetting: UserSettingBulkUpdatePayload
   /** Update multiple existing contacts */
   updateBulkContact: ContactBulkUpdatePayload
   /** Update multiple existing controls */
   updateBulkControl: ControlBulkUpdatePayload
+  /** Update multiple existing controlImplementations */
+  updateBulkControlImplementation: ControlImplementationBulkUpdatePayload
+  /** Update multiple existing controlObjectives */
+  updateBulkControlObjective: ControlObjectiveBulkUpdatePayload
+  /** Update multiple existing customDomains */
+  updateBulkCustomDomain: CustomDomainBulkUpdatePayload
+  /** Update multiple existing dnsVerifications */
+  updateBulkDNSVerification: DnsVerificationBulkUpdatePayload
+  /** Update multiple existing documentDatas */
+  updateBulkDocumentData: DocumentDataBulkUpdatePayload
+  /** Update multiple existing entitys */
+  updateBulkEntity: EntityBulkUpdatePayload
+  /** Update multiple existing entityTypes */
+  updateBulkEntityType: EntityTypeBulkUpdatePayload
+  /** Update multiple existing events */
+  updateBulkEvent: EventBulkUpdatePayload
   /** Update multiple existing evidence */
   updateBulkEvidence: EvidenceBulkUpdatePayload
+  /** Update multiple existing groups */
+  updateBulkGroup: GroupBulkUpdatePayload
+  /** Update multiple existing groupMemberships */
+  updateBulkGroupMembership: GroupMembershipBulkUpdatePayload
+  /** Update multiple existing groupSettings */
+  updateBulkGroupSetting: GroupSettingBulkUpdatePayload
   /** Update multiple existing hushs */
   updateBulkHush: HushBulkUpdatePayload
   /** Update multiple existing internalPolicys */
   updateBulkInternalPolicy: InternalPolicyBulkUpdatePayload
+  /** Update multiple existing invites */
+  updateBulkInvite: InviteBulkUpdatePayload
+  /** Update multiple existing jobTemplates */
+  updateBulkJobTemplate: JobTemplateBulkUpdatePayload
+  /** Update multiple existing mappableDomains */
+  updateBulkMappableDomain: MappableDomainBulkUpdatePayload
+  /** Update multiple existing mappedControls */
+  updateBulkMappedControl: MappedControlBulkUpdatePayload
+  /** Update multiple existing narratives */
+  updateBulkNarrative: NarrativeBulkUpdatePayload
+  /** Update multiple existing orgMemberships */
+  updateBulkOrgMembership: OrgMembershipBulkUpdatePayload
+  /** Update multiple existing organizationSettings */
+  updateBulkOrganizationSetting: OrganizationSettingBulkUpdatePayload
   /** Update multiple existing procedures */
   updateBulkProcedure: ProcedureBulkUpdatePayload
+  /** Update multiple existing programs */
+  updateBulkProgram: ProgramBulkUpdatePayload
+  /** Update multiple existing programMemberships */
+  updateBulkProgramMembership: ProgramMembershipBulkUpdatePayload
   /** Update multiple existing risks */
   updateBulkRisk: RiskBulkUpdatePayload
   /** Update multiple existing scans */
   updateBulkScan: ScanBulkUpdatePayload
+  /** Update multiple existing scheduledJobs */
+  updateBulkScheduledJob: ScheduledJobBulkUpdatePayload
+  /** Update multiple existing subcontrols */
+  updateBulkSubcontrol: SubcontrolBulkUpdatePayload
   /** Update multiple existing subprocessors */
   updateBulkSubprocessor: SubprocessorBulkUpdatePayload
   /** Update multiple existing tasks */
   updateBulkTask: TaskBulkUpdatePayload
+  /** Update multiple existing templates */
+  updateBulkTemplate: TemplateBulkUpdatePayload
+  /** Update multiple existing trustCenterCompliances */
+  updateBulkTrustCenterCompliance: TrustCenterComplianceBulkUpdatePayload
   /** Update multiple existing trust center docs */
   updateBulkTrustCenterDoc: TrustCenterDocBulkUpdatePayload
   /** Update multiple existing trustCenterSubprocessors */
   updateBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkUpdatePayload
+  /** Update multiple existing userSettings */
+  updateBulkUserSetting: UserSettingBulkUpdatePayload
   /** Update an existing campaign */
   updateCampaign: CampaignUpdatePayload
   /** Update an existing campaignTarget */
@@ -25539,6 +25885,15 @@ export interface MutationCreateCampaignArgs {
 
 export interface MutationCreateCampaignTargetArgs {
   input: CreateCampaignTargetInput
+}
+
+export interface MutationCreateCampaignWithTargetsArgs {
+  input: CreateCampaignWithTargetsInput
+}
+
+export interface MutationCreateCampaignWithTargetsCsvArgs {
+  campaign: CreateCampaignInput
+  targets: Scalars['Upload']['input']
 }
 
 export interface MutationCreateContactArgs {
@@ -26377,9 +26732,21 @@ export interface MutationDenyNdaRequestsArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
+export interface MutationLaunchCampaignArgs {
+  input: LaunchCampaignInput
+}
+
 export interface MutationRejectWorkflowAssignmentArgs {
   id: Scalars['ID']['input']
   reason?: InputMaybe<Scalars['String']['input']>
+}
+
+export interface MutationResendCampaignIncompleteTargetsArgs {
+  input: ResendCampaignIncompleteInput
+}
+
+export interface MutationSendCampaignTestEmailArgs {
+  input: SendCampaignTestEmailInput
 }
 
 export interface MutationSubmitTrustCenterNdaResponseArgs {
@@ -26410,12 +26777,178 @@ export interface MutationUpdateAssetArgs {
   input: UpdateAssetInput
 }
 
+export interface MutationUpdateBulkApiTokenArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateApiTokenInput
+}
+
 export interface MutationUpdateBulkActionPlanArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateActionPlanInput
 }
 
+export interface MutationUpdateBulkAssetArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateAssetInput
+}
+
+export interface MutationUpdateBulkCsvapiTokenArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvActionPlanArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvAssetArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvContactArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationUpdateBulkCsvControlArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvControlImplementationArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvControlObjectiveArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvCustomDomainArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvdnsVerificationArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvDocumentDataArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvEntityArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvEntityTypeArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvEventArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvEvidenceArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvGroupArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvGroupMembershipArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvGroupSettingArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvHushArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvInternalPolicyArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvInviteArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvJobTemplateArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvMappableDomainArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvMappedControlArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvNarrativeArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvOrgMembershipArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvOrganizationSettingArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvProcedureArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvProgramArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvProgramMembershipArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvRiskArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvScanArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvScheduledJobArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvSubcontrolArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvSubprocessorArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvTaskArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvTemplateArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvTrustCenterComplianceArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvTrustCenterDocArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvTrustCenterSubprocessorArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationUpdateBulkCsvUserSettingArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -26429,9 +26962,64 @@ export interface MutationUpdateBulkControlArgs {
   input: UpdateControlInput
 }
 
+export interface MutationUpdateBulkControlImplementationArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateControlImplementationInput
+}
+
+export interface MutationUpdateBulkControlObjectiveArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateControlObjectiveInput
+}
+
+export interface MutationUpdateBulkCustomDomainArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateCustomDomainInput
+}
+
+export interface MutationUpdateBulkDnsVerificationArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateDnsVerificationInput
+}
+
+export interface MutationUpdateBulkDocumentDataArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateDocumentDataInput
+}
+
+export interface MutationUpdateBulkEntityArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateEntityInput
+}
+
+export interface MutationUpdateBulkEntityTypeArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateEntityTypeInput
+}
+
+export interface MutationUpdateBulkEventArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateEventInput
+}
+
 export interface MutationUpdateBulkEvidenceArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateEvidenceInput
+}
+
+export interface MutationUpdateBulkGroupArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateGroupInput
+}
+
+export interface MutationUpdateBulkGroupMembershipArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateGroupMembershipInput
+}
+
+export interface MutationUpdateBulkGroupSettingArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateGroupSettingInput
 }
 
 export interface MutationUpdateBulkHushArgs {
@@ -26444,9 +27032,54 @@ export interface MutationUpdateBulkInternalPolicyArgs {
   input: UpdateInternalPolicyInput
 }
 
+export interface MutationUpdateBulkInviteArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateInviteInput
+}
+
+export interface MutationUpdateBulkJobTemplateArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateJobTemplateInput
+}
+
+export interface MutationUpdateBulkMappableDomainArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateMappableDomainInput
+}
+
+export interface MutationUpdateBulkMappedControlArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateMappedControlInput
+}
+
+export interface MutationUpdateBulkNarrativeArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateNarrativeInput
+}
+
+export interface MutationUpdateBulkOrgMembershipArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateOrgMembershipInput
+}
+
+export interface MutationUpdateBulkOrganizationSettingArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateOrganizationSettingInput
+}
+
 export interface MutationUpdateBulkProcedureArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateProcedureInput
+}
+
+export interface MutationUpdateBulkProgramArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateProgramInput
+}
+
+export interface MutationUpdateBulkProgramMembershipArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateProgramMembershipInput
 }
 
 export interface MutationUpdateBulkRiskArgs {
@@ -26459,6 +27092,16 @@ export interface MutationUpdateBulkScanArgs {
   input: UpdateScanInput
 }
 
+export interface MutationUpdateBulkScheduledJobArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateScheduledJobInput
+}
+
+export interface MutationUpdateBulkSubcontrolArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateSubcontrolInput
+}
+
 export interface MutationUpdateBulkSubprocessorArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateSubprocessorInput
@@ -26469,6 +27112,16 @@ export interface MutationUpdateBulkTaskArgs {
   input: UpdateTaskInput
 }
 
+export interface MutationUpdateBulkTemplateArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateTemplateInput
+}
+
+export interface MutationUpdateBulkTrustCenterComplianceArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateTrustCenterComplianceInput
+}
+
 export interface MutationUpdateBulkTrustCenterDocArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateTrustCenterDocInput
@@ -26477,6 +27130,11 @@ export interface MutationUpdateBulkTrustCenterDocArgs {
 export interface MutationUpdateBulkTrustCenterSubprocessorArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateTrustCenterSubprocessorInput
+}
+
+export interface MutationUpdateBulkUserSettingArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateUserSettingInput
 }
 
 export interface MutationUpdateCampaignArgs {
@@ -27018,6 +27676,15 @@ export interface NarrativeBulkDeletePayload {
   __typename?: 'NarrativeBulkDeletePayload'
   /** Deleted narrative IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkNarrative mutation */
+export interface NarrativeBulkUpdatePayload {
+  __typename?: 'NarrativeBulkUpdatePayload'
+  /** Updated narratives */
+  narratives?: Maybe<Array<Narrative>>
+  /** IDs of the updated narratives */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -27788,6 +28455,15 @@ export interface OrgMembershipBulkDeletePayload {
   __typename?: 'OrgMembershipBulkDeletePayload'
   /** Deleted orgMembership IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkOrgMembership mutation */
+export interface OrgMembershipBulkUpdatePayload {
+  __typename?: 'OrgMembershipBulkUpdatePayload'
+  /** Updated orgMemberships */
+  orgMemberships?: Maybe<Array<OrgMembership>>
+  /** IDs of the updated orgMemberships */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -29266,6 +29942,15 @@ export interface OrganizationSettingBulkDeletePayload {
   __typename?: 'OrganizationSettingBulkDeletePayload'
   /** Deleted organizationSetting IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkOrganizationSetting mutation */
+export interface OrganizationSettingBulkUpdatePayload {
+  __typename?: 'OrganizationSettingBulkUpdatePayload'
+  /** Updated organizationSettings */
+  organizationSettings?: Maybe<Array<OrganizationSetting>>
+  /** IDs of the updated organizationSettings */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -32723,6 +33408,15 @@ export interface ProgramBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkProgram mutation */
+export interface ProgramBulkUpdatePayload {
+  __typename?: 'ProgramBulkUpdatePayload'
+  /** Updated programs */
+  programs?: Maybe<Array<Program>>
+  /** IDs of the updated programs */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface ProgramConnection {
   __typename?: 'ProgramConnection'
@@ -32783,6 +33477,15 @@ export interface ProgramMembershipBulkDeletePayload {
   __typename?: 'ProgramMembershipBulkDeletePayload'
   /** Deleted programMembership IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkProgramMembership mutation */
+export interface ProgramMembershipBulkUpdatePayload {
+  __typename?: 'ProgramMembershipBulkUpdatePayload'
+  /** Updated programMemberships */
+  programMemberships?: Maybe<Array<ProgramMembership>>
+  /** IDs of the updated programMemberships */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -35990,6 +36693,14 @@ export interface RemediationWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** Input for resendCampaignIncompleteTargets mutation */
+export interface ResendCampaignIncompleteInput {
+  /** ID of the campaign */
+  campaignID: Scalars['ID']['input']
+  /** Optional time to schedule the resend for incomplete targets */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>
+}
+
 export interface Review extends Node {
   __typename?: 'Review'
   actionPlans: ActionPlanConnection
@@ -38328,6 +39039,15 @@ export interface ScheduledJobBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkScheduledJob mutation */
+export interface ScheduledJobBulkUpdatePayload {
+  __typename?: 'ScheduledJobBulkUpdatePayload'
+  /** Updated scheduledJobs */
+  scheduledJobs?: Maybe<Array<ScheduledJob>>
+  /** IDs of the updated scheduledJobs */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface ScheduledJobConnection {
   __typename?: 'ScheduledJobConnection'
@@ -38849,6 +39569,14 @@ export interface SearchSnippet {
   field: Scalars['String']['output']
   /** The matched text with surrounding context (with highlighting markers if applicable) */
   text: Scalars['String']['output']
+}
+
+/** Input for sendCampaignTestEmail mutation */
+export interface SendCampaignTestEmailInput {
+  /** ID of the campaign */
+  campaignID: Scalars['ID']['input']
+  /** List of recipient emails to send the test to */
+  emails: Array<Scalars['String']['input']>
 }
 
 export interface Standard extends Node {
@@ -39605,6 +40333,15 @@ export interface SubcontrolBulkDeletePayload {
   __typename?: 'SubcontrolBulkDeletePayload'
   /** Deleted subcontrol IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkSubcontrol mutation */
+export interface SubcontrolBulkUpdatePayload {
+  __typename?: 'SubcontrolBulkUpdatePayload'
+  /** Updated subcontrols */
+  subcontrols?: Maybe<Array<Subcontrol>>
+  /** IDs of the updated subcontrols */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -42015,6 +42752,15 @@ export interface TemplateBulkDeletePayload {
   deletedIDs: Array<Scalars['ID']['output']>
 }
 
+/** Return response for updateBulkTemplate mutation */
+export interface TemplateBulkUpdatePayload {
+  __typename?: 'TemplateBulkUpdatePayload'
+  /** Updated templates */
+  templates?: Maybe<Array<Template>>
+  /** IDs of the updated templates */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface TemplateConnection {
   __typename?: 'TemplateConnection'
@@ -42536,6 +43282,15 @@ export interface TrustCenterComplianceBulkDeletePayload {
   __typename?: 'TrustCenterComplianceBulkDeletePayload'
   /** Deleted trustCenterCompliance IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkTrustCenterCompliance mutation */
+export interface TrustCenterComplianceBulkUpdatePayload {
+  __typename?: 'TrustCenterComplianceBulkUpdatePayload'
+  /** Updated trustCenterCompliances */
+  trustCenterCompliances?: Maybe<Array<TrustCenterCompliance>>
+  /** IDs of the updated trustCenterCompliances */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -43878,6 +44633,8 @@ export interface TrustCenterSetting extends Node {
   secondaryForegroundColor?: Maybe<Scalars['String']['output']>
   /** email address for security contact */
   securityContact?: Maybe<Scalars['String']['output']>
+  /** URL to the company's status page */
+  statusPageURL?: Maybe<Scalars['String']['output']>
   /** Theme mode for the trust center */
   themeMode?: Maybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -44311,6 +45068,22 @@ export interface TrustCenterSettingWhereInput {
   securityContactNEQ?: InputMaybe<Scalars['String']['input']>
   securityContactNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   securityContactNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status_page_url field predicates */
+  statusPageURL?: InputMaybe<Scalars['String']['input']>
+  statusPageURLContains?: InputMaybe<Scalars['String']['input']>
+  statusPageURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  statusPageURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  statusPageURLGT?: InputMaybe<Scalars['String']['input']>
+  statusPageURLGTE?: InputMaybe<Scalars['String']['input']>
+  statusPageURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  statusPageURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  statusPageURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusPageURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  statusPageURLLT?: InputMaybe<Scalars['String']['input']>
+  statusPageURLLTE?: InputMaybe<Scalars['String']['input']>
+  statusPageURLNEQ?: InputMaybe<Scalars['String']['input']>
+  statusPageURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusPageURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** theme_mode field predicates */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   themeModeIn?: InputMaybe<Array<TrustCenterSettingTrustCenterThemeMode>>
@@ -50251,6 +51024,7 @@ export interface UpdateTrustCenterSettingInput {
   clearSecondaryBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearSecondaryForegroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearSecurityContact?: InputMaybe<Scalars['Boolean']['input']>
+  clearStatusPageURL?: InputMaybe<Scalars['Boolean']['input']>
   clearThemeMode?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterID?: InputMaybe<Scalars['Boolean']['input']>
@@ -50284,6 +51058,8 @@ export interface UpdateTrustCenterSettingInput {
   secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** email address for security contact */
   securityContact?: InputMaybe<Scalars['String']['input']>
+  /** URL to the company's status page */
+  statusPageURL?: InputMaybe<Scalars['String']['input']>
   /** Theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -50303,15 +51079,12 @@ export interface UpdateTrustCenterSubprocessorInput {
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCountries?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterSubprocessorKind?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterSubprocessorKindName?: InputMaybe<Scalars['Boolean']['input']>
   /** country codes or country where the subprocessor is located */
   countries?: InputMaybe<Array<Scalars['String']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  subprocessorID?: InputMaybe<Scalars['ID']['input']>
-  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   trustCenterSubprocessorKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the trust_center_subprocessor */
   trustCenterSubprocessorKindName?: InputMaybe<Scalars['String']['input']>
@@ -51071,6 +51844,15 @@ export interface UserSettingBulkDeletePayload {
   __typename?: 'UserSettingBulkDeletePayload'
   /** Deleted userSetting IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkUserSetting mutation */
+export interface UserSettingBulkUpdatePayload {
+  __typename?: 'UserSettingBulkUpdatePayload'
+  /** IDs of the updated userSettings */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+  /** Updated userSettings */
+  userSettings?: Maybe<Array<UserSetting>>
 }
 
 /** A connection to a list of items. */

@@ -180,7 +180,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
       await updateTCSubprocessor({
         id: trustCenterSubprocessorId,
         input: {
-          subprocessorID: values.subprocessorID,
+          trustCenterSubprocessorKindID: values.subprocessorID,
           trustCenterSubprocessorKindName: values.category,
           countries: values.countries,
         },
