@@ -176,7 +176,7 @@ const NDAsPage = () => {
             <h3 className="text-lg font-medium">NDA Requests</h3>
           </div>
 
-          <NdaRequestsTable />
+          <NdaRequestsTable requireApproval={ndaApprovalRequired} />
         </div>
       </div>
     </div>

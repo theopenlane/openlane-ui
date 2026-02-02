@@ -20,18 +20,30 @@ type Props = {
   onApproveAllRequest?: () => void
   approveAllLoading?: boolean
   approveAllDisabled?: boolean
+  requireApproval: boolean
 }
 
-const NdaRequestsTableToolbar: React.FC<Props> = ({ activeTab, onTabChange, searchTerm, setSearchTerm, onFilterChange, onApproveAll, onApproveAllRequest, approveAllLoading, approveAllDisabled }) => {
-  const showApproveAll = activeTab === 'requested'
+const NdaRequestsTableToolbar: React.FC<Props> = ({
+  activeTab,
+  onTabChange,
+  searchTerm,
+  setSearchTerm,
+  onFilterChange,
+  onApproveAll,
+  onApproveAllRequest,
+  approveAllLoading,
+  approveAllDisabled,
+  requireApproval,
+}) => {
+  const showApproveAll = requireApproval && activeTab === 'requested'
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 my-3 w-full">
       <div className="flex flex-wrap items-center gap-3 grow sm:grow-0">
         <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as typeof activeTab)}>
-          <TabsList className="grid w-full max-w-[320px] grid-cols-3">
+          <TabsList className={`grid w-full max-w-[320px] ${requireApproval ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <TabsTrigger value="requested">Requested</TabsTrigger>
-            <TabsTrigger value="approved">Approved</TabsTrigger>
+            {requireApproval && <TabsTrigger value="approved">Approved</TabsTrigger>}
             <TabsTrigger value="signed">Signed</TabsTrigger>
           </TabsList>
         </Tabs>
