@@ -17,6 +17,7 @@ import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
+import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-multiselect-field'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -292,6 +293,12 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
               ))}
             </div>
           )
+
+        case 'dropdownSearchMultiselect': {
+          const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
+          return <DropdownSearchMultiselect field={field} value={selected} onChange={(val) => handleChange(field.key, val)} />
+        }
+
         default:
           return null
       }
