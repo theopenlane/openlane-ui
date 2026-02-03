@@ -45,6 +45,15 @@ export const BrandingCompanyInfoSection = ({ isReadOnly, setting, hasWarning }: 
             <RenderBrandField name="securityContact" label="security@company.com" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
             {!isReadOnly && errors.securityContact && <p className="text-xs text-red-500">{errors.securityContact.message}</p>}
           </div>
+
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium">Status Page URL</p>
+              <p className="text-sm text-inverted-muted-foreground">Optional link to your public status page</p>
+            </div>
+            <RenderBrandField name="statusPageURL" label="https://status.example.com" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
+            {!isReadOnly && errors.statusPageURL && <p className="text-xs text-red-500">{errors.statusPageURL.message}</p>}
+          </div>
         </div>
       </CardContent>
     </Card>

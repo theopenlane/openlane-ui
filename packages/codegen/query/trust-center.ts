@@ -40,6 +40,7 @@ export const GET_TRUST_CENTER = gql`
             companyName
             companyDescription
             companyDomain
+            statusPageURL
             logoFile {
               id
               presignedURL
@@ -70,6 +71,7 @@ export const GET_TRUST_CENTER = gql`
             companyName
             companyDescription
             companyDomain
+            statusPageURL
             logoFile {
               id
               presignedURL
