@@ -1,27 +1,37 @@
-import { AI_SYSTEM_INSTRUCTION, CONTROL_FRAMEWORK_INSTRUCTION, TEMPERATURE, MAX_OUTPUT_TOKENS, GEMINI_MODEL_NAME } from '@/constants/ai'
 import { auth } from '@/lib/auth/auth'
 import { Tool, VertexAI } from '@google-cloud/vertexai'
 import { NextRequest, NextResponse } from 'next/server'
 import { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import { Storage } from '@google-cloud/storage'
+import {
+  aiEnabled,
+  googleAPIKey,
+  googleAIRegion,
+  googleProjectID,
+  aiLogBucket,
+  aiSystemInstruction,
+  controlSystemInstruction,
+  temperature,
+  maxOutputTokens,
+  geminiModelName,
+  ragCorpusID,
+} from '@repo/dally/ai'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-const AI_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
-
 let vertexAI: VertexAI | null = null
 let storage: Storage | null = null
 
-const b64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_B64 as string
+const b64 = googleAPIKey
 const json = Buffer.from(b64, 'base64').toString('utf8')
 const creds = JSON.parse(json)
 
 // Initialize with credentials
-if (AI_ENABLED && process.env.GOOGLE_AI_PROJECT_ID) {
+if (aiEnabled && googleProjectID && googleAPIKey) {
   vertexAI = new VertexAI({
-    project: process.env.GOOGLE_AI_PROJECT_ID || '',
-    location: process.env.GOOGLE_AI_REGION,
+    project: googleProjectID,
+    location: googleAIRegion,
     googleAuthOptions: {
       credentials: creds,
     },
@@ -29,19 +39,19 @@ if (AI_ENABLED && process.env.GOOGLE_AI_PROJECT_ID) {
 
   // Initialize Storage client
   storage = new Storage({
-    projectId: process.env.GOOGLE_AI_PROJECT_ID,
+    projectId: googleProjectID,
     credentials: creds,
   })
 }
 
 async function logQuestionToBucket(prompt: string, context: string, response?: string, error?: string) {
-  if (!storage || !process.env.GCS_LOG_BUCKET) {
-    console.warn('Storage not initialized or GCS_LOG_BUCKET not set')
+  if (!storage || !aiLogBucket) {
+    console.warn('Storage not initialized or ai_log_bucket not set')
     return
   }
 
   try {
-    const bucket = storage.bucket(process.env.GCS_LOG_BUCKET)
+    const bucket = storage.bucket(aiLogBucket)
     const timestamp = new Date().toISOString()
     const fileName = `questions/${timestamp.replace(/:/g, '-')}-${Date.now()}.json`
 
@@ -61,13 +71,13 @@ async function logQuestionToBucket(prompt: string, context: string, response?: s
       },
     })
   } catch (err) {
-    console.error('Failed to log to GCS bucket:', err)
+    console.error('Failed to log to bucket:', err)
   }
 }
 
 export async function POST(req: NextRequest) {
   // Return early if AI is not enabled
-  if (!AI_ENABLED || !vertexAI) {
+  if (!aiEnabled || !vertexAI) {
     return new Response(JSON.stringify({ error: 'AI suggestions are not enabled' }), { status: 503 })
   }
 
@@ -81,22 +91,21 @@ export async function POST(req: NextRequest) {
 
     // Configure additional context for RAG if corpus ID is provided
     const tools: Tool[] = []
-    if (process.env.GOOGLE_RAG_CORPUS_ID) {
+    if (ragCorpusID) {
       contextData = await getContext(prompt)
     }
 
     const model = vertexAI.getGenerativeModel({
-      model: GEMINI_MODEL_NAME,
+      model: geminiModelName,
       generationConfig: {
-        temperature: TEMPERATURE,
-        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        temperature: temperature,
+        maxOutputTokens: maxOutputTokens,
       },
-      systemInstruction: AI_SYSTEM_INSTRUCTION + '\n' + CONTROL_FRAMEWORK_INSTRUCTION,
+      systemInstruction: aiSystemInstruction + '\n' + controlSystemInstruction,
       tools,
     })
 
-    // Your env var text stays untouched:
-    const RULES = process.env.AI_SYSTEM_INSTRUCTION ?? '' // whatever you already have
+    const RULES = aiSystemInstruction ?? ''
 
     const mergedUserText = [
       RULES, // unchanged
@@ -125,7 +134,11 @@ export async function POST(req: NextRequest) {
       console.warn('response finished with reason:', response.candidates?.[0]?.finishReason)
     }
 
-    await logQuestionToBucket(prompt, context, text)
+    try {
+      await logQuestionToBucket(prompt, context, text)
+    } catch (loggingError) {
+      console.log('Failed to log question to bucket:', loggingError)
+    }
 
     return new Response(JSON.stringify({ text }), {
       headers: {
@@ -141,16 +154,16 @@ export async function POST(req: NextRequest) {
 }
 
 async function getContext(prompt: string): Promise<string> {
-  const ragCorpus = `projects/${process.env.GOOGLE_AI_PROJECT_ID}/locations/${process.env.GOOGLE_AI_REGION}/ragCorpora/${process.env.GOOGLE_RAG_CORPUS_ID}`
+  const ragCorpus = `projects/${googleProjectID}/locations/${googleAIRegion}/ragCorpora/${ragCorpusID}`
 
   const ragClient = new VertexRagServiceClient({
-    project: process.env.GOOGLE_AI_PROJECT_ID,
-    location: process.env.GOOGLE_AI_REGION,
-    apiEndpoint: `${process.env.GOOGLE_AI_REGION}-aiplatform.googleapis.com`,
+    project: googleProjectID,
+    location: googleAIRegion,
+    apiEndpoint: `${googleAIRegion}-aiplatform.googleapis.com`,
     credentials: creds,
   })
 
-  const parent = `projects/${process.env.GOOGLE_AI_PROJECT_ID}/locations/${process.env.GOOGLE_AI_REGION}`
+  const parent = `projects/${googleProjectID}/locations/${googleAIRegion}`
 
   const [response] = await ragClient.retrieveContexts({
     parent,

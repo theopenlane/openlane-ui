@@ -14,7 +14,8 @@
   "exports": {
     "./auth": "./src/index.ts",
     "./user": "./src/lib/user.ts",
-    "./chat": "./src/lib/chat.ts"
+    "./chat": "./src/lib/chat.ts",
+    "./ai": "./src/lib/ai.ts"
   },
   "peerDependencies": {
     "react": "latest"

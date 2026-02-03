@@ -9,6 +9,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev --parallel",
+    "debug": "turbo debug",
     "type-check": "turbo type-check",
     "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/console/node_modules && rm -rf ./apps/storybook/.next && rm -rf ./apps/storybook/node_modules",
     "turbo-clean": "turbo clean",

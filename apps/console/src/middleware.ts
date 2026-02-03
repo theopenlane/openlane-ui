@@ -75,7 +75,7 @@ export default auth(async (req) => {
   }
 
   if (noModules && !isOnboarding) {
-    //we are excluding personal org with !isOnboarding
+    //users with no modules who are not in onboarding are restricted to specific settings pages
     return noModulesAllowedPages.includes(path) ? NextResponse.next() : NextResponse.redirect(new URL('/organization-settings/billing', req.url))
   }
 

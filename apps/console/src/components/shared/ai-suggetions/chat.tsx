@@ -75,7 +75,7 @@ const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, co
   useEffect(() => {
     if (!suggestionsLoading && suggestions) {
       try {
-        const response = suggestions ? JSON.parse(suggestions) : null
+        const response = JSON.parse(suggestions)
         const assistantMessage: ChatMessage = {
           role: 'assistant',
           content: response ? response.text : 'No response received',

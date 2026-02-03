@@ -1,6 +1,5 @@
 import { AIAssistButton } from '@/components/shared/ai-suggetions/button'
 import { AISuggestionsPanel } from '@/components/shared/ai-suggetions/panel'
-import { AI_POLICY_PROMPT } from '@/constants/ai'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { useNotification } from '@/hooks/useNotification'
 import { useAISuggestions } from '@/hooks/useGetAISuggestions'
@@ -17,6 +16,7 @@ import { Input } from '@repo/ui/input'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
+import { policyPrompt } from '@repo/dally/ai'
 
 const AI_SUGGESTIONS_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 
@@ -86,7 +86,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
       additionalContext: context,
     }
 
-    getAISuggestions('policy', AI_POLICY_PROMPT(policyName), baseContext)
+    getAISuggestions('policy', policyPrompt(policyName), baseContext)
   }
 
   const handleSubmitName = (e: React.FormEvent) => {
@@ -120,7 +120,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
         description: 'Policy has been successfully created from template',
       })
 
-      router.push(`/ policies / ${policyId}/view`)
+      router.push(`/policies/${policyId}/view`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -130,6 +130,13 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
 
       setIsCreatingFromTemplate(false)
     }
+  }
+
+  let parsedSuggestions = { text: '' }
+  try {
+    parsedSuggestions = JSON.parse(suggestions)
+  } catch (e) {
+    console.error('Failed to parse AI suggestions:', e)
   }
 
   return (
@@ -191,15 +198,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
 
             {/* AI Suggestions Panel */}
             {AI_SUGGESTIONS_ENABLED
-              ? activeSection === 'policy' && (
-                  <AISuggestionsPanel
-                    suggestions={suggestions ? JSON.parse(suggestions) : { text: '' }}
-                    loading={loading}
-                    onDismiss={clearSuggestions}
-                    onInsert={handleInsertIntoEditor}
-                    variant="inline"
-                  />
-                )
+              ? activeSection === 'policy' && <AISuggestionsPanel suggestions={parsedSuggestions} loading={loading} onDismiss={clearSuggestions} onInsert={handleInsertIntoEditor} variant="inline" />
               : null}
           </div>
         )}
