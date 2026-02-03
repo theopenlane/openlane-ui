@@ -34,7 +34,7 @@ type THelperProps = {
 const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
   const { data: sessionData } = useSession()
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId)
   const router = useRouter()
   const [isHelperOpen, setIsAIHelperOpen] = useState(true)
 
