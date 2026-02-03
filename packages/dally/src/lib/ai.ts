@@ -2,7 +2,7 @@
 // enable or disable AI features
 export const aiEnabled = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 
-// configuration for the vertex ai client, used for fined-tuned model requests
+// configuration for the vertex ai client, used for fine-tuned model requests
 export const googleAPIKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_B64 || ''
 export const googleProjectID = process.env.GOOGLE_AI_PROJECT_ID || ''
 export const googleAIRegion = process.env.GOOGLE_AI_REGION || ''

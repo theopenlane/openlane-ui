@@ -22,13 +22,14 @@ export const maxDuration = 60
 
 let vertexAI: VertexAI | null = null
 let storage: Storage | null = null
-
-const b64 = googleAPIKey
-const json = Buffer.from(b64, 'base64').toString('utf8')
-const creds = JSON.parse(json)
+let ragClient: VertexRagServiceClient | null = null
 
 // Initialize with credentials
 if (aiEnabled && googleProjectID && googleAPIKey) {
+  const b64 = googleAPIKey
+  const json = Buffer.from(b64, 'base64').toString('utf8')
+  const creds = JSON.parse(json)
+
   vertexAI = new VertexAI({
     project: googleProjectID,
     location: googleAIRegion,
@@ -40,6 +41,13 @@ if (aiEnabled && googleProjectID && googleAPIKey) {
   // Initialize Storage client
   storage = new Storage({
     projectId: googleProjectID,
+    credentials: creds,
+  })
+
+  ragClient = new VertexRagServiceClient({
+    project: googleProjectID,
+    location: googleAIRegion,
+    apiEndpoint: `${googleAIRegion}-aiplatform.googleapis.com`,
     credentials: creds,
   })
 }
@@ -155,17 +163,10 @@ export async function POST(req: NextRequest) {
 
 async function getContext(prompt: string): Promise<string> {
   const ragCorpus = `projects/${googleProjectID}/locations/${googleAIRegion}/ragCorpora/${ragCorpusID}`
-
-  const ragClient = new VertexRagServiceClient({
-    project: googleProjectID,
-    location: googleAIRegion,
-    apiEndpoint: `${googleAIRegion}-aiplatform.googleapis.com`,
-    credentials: creds,
-  })
-
   const parent = `projects/${googleProjectID}/locations/${googleAIRegion}`
 
-  const [response] = await ragClient.retrieveContexts({
+  // ragclient will exist here because aiEnabled check is done before calling this function
+  const [response] = await ragClient!.retrieveContexts({
     parent,
     query: {
       text: prompt,

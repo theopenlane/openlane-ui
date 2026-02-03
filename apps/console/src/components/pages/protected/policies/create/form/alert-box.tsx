@@ -244,7 +244,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
                   <textarea
                     value={additionalContext}
                     onChange={(e) => setAdditionalContext(e.target.value)}
-                    placeholder=""
+                    placeholder="E.g., specific systems, teams, regulations, or requirements this policy should cover."
                     className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-h-[80px]"
                   />
                 </div>
