@@ -175,7 +175,9 @@ const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, co
             <Sparkles size={20} />
             Ask Lane about this {object.type}
           </DialogTitle>
-          <div className="text-xs text-muted-foreground pl-7 pb-1">Lane helps you navigate trust and compliance</div>
+          <div className="text-xs text-muted-foreground pl-7 pb-1">
+            AI-assisted answers to help you navigate trust and compliance for this {object.type}. They are meant as guidance, not a substitute for review.
+          </div>
         </DialogHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto pr-4">
