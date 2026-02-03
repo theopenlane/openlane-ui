@@ -61083,6 +61083,7 @@ export type GetTrustCenterQuery = {
           companyName?: string | null
           companyDescription?: string | null
           companyDomain?: string | null
+          statusPageURL?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
@@ -61106,6 +61107,7 @@ export type GetTrustCenterQuery = {
           companyName?: string | null
           companyDescription?: string | null
           companyDomain?: string | null
+          statusPageURL?: string | null
           faviconRemoteURL?: string | null
           logoRemoteURL?: string | null
           securityContact?: string | null
