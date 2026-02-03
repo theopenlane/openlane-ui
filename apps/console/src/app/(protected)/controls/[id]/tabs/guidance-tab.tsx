@@ -1,38 +1,30 @@
-'use client'
-
 import React from 'react'
 import { Card } from '@repo/ui/cardpanel'
-import { PanelRightOpenIcon } from 'lucide-react'
-import { Button } from '@repo/ui/button'
 
-export interface AssessmentMethod {
+interface ImplementationGuidance {
+  referenceId: string
+  guidance: string[]
+}
+
+interface AssessmentMethod {
   id: string
-  type: string
   method: string
 }
 
-export interface AssessmentObjective {
+interface AssessmentObjective {
   id: string
-  class: string
   objective: string
 }
 
-export interface ExampleEvidence {
-  documentationType: string
-  description: string
+interface GuidanceTabProps {
+  implementationGuidance?: ImplementationGuidance[] | null
+  controlQuestions?: string[] | null
+  assessmentMethods?: AssessmentMethod[] | string[] | null
+  assessmentObjectives?: AssessmentObjective[] | string[] | null
 }
 
-interface InfoCardWithSheetProps {
-  implementationGuidance: { referenceId: string; guidance: string[] }[] | null | undefined
-  exampleEvidence: string | ExampleEvidence[] | null | undefined
-  controlQuestions: string[] | null | undefined
-  assessmentMethods: AssessmentMethod[] | string | string[] | null | undefined
-  assessmentObjectives: AssessmentObjective[] | string | string[] | null | undefined
-  showInfoDetails: (title: string, content: React.ReactNode) => void
-}
-
-const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGuidance, exampleEvidence, controlQuestions, assessmentMethods, assessmentObjectives, showInfoDetails }) => {
-  const infoItems: {
+const GuidanceTab: React.FC<GuidanceTabProps> = ({ implementationGuidance, controlQuestions, assessmentMethods, assessmentObjectives }) => {
+  const guidanceItems: {
     label: string
     hasData: boolean
     render: () => React.ReactNode
@@ -58,28 +50,6 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
         ),
     },
     {
-      label: 'Evidence examples',
-      hasData: Array.isArray(exampleEvidence) ? exampleEvidence.length > 0 : !!exampleEvidence,
-      render: () =>
-        Array.isArray(exampleEvidence) ? (
-          <ul className="rich-text text-sm text-muted-foreground">
-            {exampleEvidence.map((item, i) => (
-              <li key={i}>
-                <p className="font-medium">{item.documentationType}</p>
-                <div className="rich-text" dangerouslySetInnerHTML={{ __html: item.description }} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div
-            className="rich-text text-sm text-muted-foreground"
-            dangerouslySetInnerHTML={{
-              __html: typeof exampleEvidence === 'string' ? exampleEvidence : 'No evidence examples provided.',
-            }}
-          />
-        ),
-    },
-    {
       label: 'Control questions',
       hasData: !!controlQuestions?.length,
       render: () =>
@@ -99,7 +69,7 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
       render: () =>
         Array.isArray(assessmentMethods) ? (
           <div className="space-y-4">
-            {assessmentMethods.map((item, i) =>
+            {(assessmentMethods as AssessmentMethod[] | string[]).map((item, i) =>
               typeof item === 'string' ? (
                 <div key={i} className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item }} />
               ) : (
@@ -120,7 +90,7 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
       render: () =>
         Array.isArray(assessmentObjectives) ? (
           <div className="space-y-4">
-            {assessmentObjectives.map((item, i) =>
+            {(assessmentObjectives as AssessmentObjective[] | string[]).map((item, i) =>
               typeof item === 'string' ? (
                 <div key={i} className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item }} />
               ) : (
@@ -139,27 +109,24 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
     },
   ]
 
+  const hasGuidanceData = guidanceItems.some((item) => item.hasData)
+
+  if (!hasGuidanceData) {
+    return <p className="text-text-informational italic">No guidance available.</p>
+  }
+
   return (
-    <Card className="p-4 rounded-xl shadow-xs">
-      <h3 className="text-lg font-medium mb-4">Info</h3>
-      <div>
-        {infoItems
-          .filter((item) => item.hasData)
-          .map((item, index) => (
-            <InfoRow key={item.label} label={item.label} isFirst={index === 0} onClick={() => showInfoDetails(item.label, item.render())} />
-          ))}
-      </div>
-    </Card>
+    <div className="space-y-6">
+      {guidanceItems
+        .filter((item) => item.hasData)
+        .map((item) => (
+          <Card key={item.label} className="p-4">
+            <h3 className="text-base font-semibold mb-2">{item.label}</h3>
+            {item.render()}
+          </Card>
+        ))}
+    </div>
   )
 }
 
-export default InfoCardWithSheet
-
-const InfoRow: React.FC<{ label: string; isFirst?: boolean; onClick: () => void }> = ({ label, isFirst, onClick }) => (
-  <div className={`flex items-center justify-between m-0 py-2.5 ${!isFirst ? 'border-t border-border' : ''}`}>
-    <span className="text-sm">{label}</span>
-    <Button type="button" className="h-8 !px-2" variant="secondary" icon={<PanelRightOpenIcon size={16} />} iconPosition="left" onClick={onClick}>
-      Show
-    </Button>
-  </div>
-)
+export default GuidanceTab

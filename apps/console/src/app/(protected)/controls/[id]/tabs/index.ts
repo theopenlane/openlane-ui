@@ -1,0 +1,6 @@
+export { default as ImplementationTab } from './implementation-tab'
+export { default as ObjectivesTab } from './objectives-tab'
+export { default as EvidenceTab } from './evidence-tab'
+export { default as LinkedControlsTab } from './linked-controls-tab'
+export { default as GuidanceTab } from './guidance-tab'
+export { default as DocumentationTab } from './documentation-tab'
