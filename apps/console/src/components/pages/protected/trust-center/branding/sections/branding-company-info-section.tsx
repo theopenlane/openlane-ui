@@ -52,7 +52,6 @@ export const BrandingCompanyInfoSection = ({ isReadOnly, setting, hasWarning }: 
               <p className="text-sm text-inverted-muted-foreground">Optional link to your public status page</p>
             </div>
             <RenderBrandField name="statusPageURL" label="https://status.example.com" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
-            {!isReadOnly && errors.statusPageURL && <p className="text-xs text-red-500">{errors.statusPageURL.message}</p>}
           </div>
         </div>
       </CardContent>
