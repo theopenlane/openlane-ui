@@ -150,7 +150,7 @@ export const CreateDocumentSheet: React.FC = () => {
             trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
-            standardID: data.standardID,
+            ...(data.standardID != null ? { standardID: data.standardID } : { clearStandard: true }),
           },
           updateTrustCenterDocId: documentId!,
           trustCenterDocFile: data.file,
