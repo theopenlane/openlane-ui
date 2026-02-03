@@ -24,6 +24,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
   return isEditing ? (
     <div className="w-full relative">
       <label htmlFor="policy" className="block text-sm font-medium text-muted-foreground mb-1">
+        Policy
       </label>
       <Controller
         control={form.control}
