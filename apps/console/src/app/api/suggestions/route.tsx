@@ -5,6 +5,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import { Storage } from '@google-cloud/storage'
 
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
 const AI_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 
 let vertexAI: VertexAI | null = null
