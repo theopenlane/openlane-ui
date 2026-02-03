@@ -51,4 +51,9 @@ export enum TableKeyEnum {
   TRUST_CENTER_SUBPROCESSORS = 'subprocessors',
   CUSTOM_TAGS = 'custom-tags',
   CUSTOM_ENUMS = 'custom-enums',
+  CONTROL_DOC_PROCEDURES = 'control-doc-procedures',
+  CONTROL_DOC_POLICIES = 'control-doc-policies',
+  CONTROL_DOC_TASKS = 'control-doc-tasks',
+  CONTROL_DOC_PROGRAMS = 'control-doc-programs',
+  CONTROL_DOC_RISKS = 'control-doc-risks',
 }

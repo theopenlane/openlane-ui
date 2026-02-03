@@ -8,7 +8,6 @@ import { useParams } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { CreateButton } from '@/components/shared/create-button/create-button'
 import EvidenceCreateSheet from './evidence-create-sheet'
 import { CustomEvidenceControl } from './evidence-sheet-config'
 
@@ -20,7 +19,6 @@ type Props = {
 const EvidenceTable = ({ evidences, control }: Props) => {
   const { subcontrolId } = useParams()
   const isSubcontrol = !!subcontrolId
-  const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
   const router = useSmartRouter()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
@@ -41,31 +39,27 @@ const EvidenceTable = ({ evidences, control }: Props) => {
   }
 
   return (
-    <div className="mt-8 space-y-4">
+    <div className="mt-6 space-y-4">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <>
-            <CreateButton type="evidence" onClick={() => setIsSheetOpen(true)} />
-            <EvidenceCreateSheet
-              open={isSheetOpen}
-              onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
-              onOpenChange={setIsSheetOpen}
-              formData={control}
-              controlParam={[controlParam]}
-              excludeObjectTypes={[
-                ObjectTypeObjects.EVIDENCE,
-                ObjectTypeObjects.RISK,
-                ObjectTypeObjects.PROCEDURE,
-                ObjectTypeObjects.GROUP,
-                ObjectTypeObjects.INTERNAL_POLICY,
-                ObjectTypeObjects.CONTROL,
-                ObjectTypeObjects.SUB_CONTROL,
-                ObjectTypeObjects.PROGRAM,
-              ]}
-              defaultSelectedObject={ObjectTypeObjects.TASK}
-            />
-          </>
+          <EvidenceCreateSheet
+            open={isSheetOpen}
+            onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
+            onOpenChange={setIsSheetOpen}
+            formData={control}
+            controlParam={[controlParam]}
+            excludeObjectTypes={[
+              ObjectTypeObjects.EVIDENCE,
+              ObjectTypeObjects.RISK,
+              ObjectTypeObjects.PROCEDURE,
+              ObjectTypeObjects.GROUP,
+              ObjectTypeObjects.INTERNAL_POLICY,
+              ObjectTypeObjects.CONTROL,
+              ObjectTypeObjects.SUB_CONTROL,
+              ObjectTypeObjects.PROGRAM,
+            ]}
+            defaultSelectedObject={ObjectTypeObjects.TASK}
+          />
         </div>
       </div>
 

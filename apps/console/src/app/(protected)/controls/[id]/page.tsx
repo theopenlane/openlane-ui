@@ -10,7 +10,7 @@ import { CopyPlus, InfoIcon, PencilIcon, MoreHorizontal, Trash2 } from 'lucide-r
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/propereties-card/properties-card.tsx'
-import { Control, ControlControlSource, ControlControlStatus, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { Control, ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
@@ -31,13 +31,11 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
-import { ImplementationTab, ObjectivesTab, EvidenceTab, LinkedControlsTab, GuidanceTab, DocumentationTab } from './tabs'
-import QuickActions from './components/quick-actions'
+import { ControlTabs, QuickActions } from './components'
 
 interface FormValues {
   refCode: string
@@ -75,7 +73,6 @@ const ControlDetailsPage: React.FC = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
-  const [activeTab, setActiveTab] = useState('implementation')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
@@ -395,57 +392,7 @@ const ControlDetailsPage: React.FC = () => {
         }}
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} variant="underline">
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="implementation">Implementations</TabsTrigger>
-            <TabsTrigger value="objectives">Objectives</TabsTrigger>
-            <TabsTrigger value="evidence">Evidence</TabsTrigger>
-            <TabsTrigger value="linked-controls">Linked Controls</TabsTrigger>
-            <TabsTrigger value="guidance">Guidance</TabsTrigger>
-            <TabsTrigger value="documentation">Documentation</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="implementation" className="space-y-6">
-          <ImplementationTab />
-        </TabsContent>
-
-        <TabsContent value="objectives" className="space-y-6">
-          <ObjectivesTab />
-        </TabsContent>
-
-        <TabsContent value="evidence" className="space-y-6">
-          <EvidenceTab
-            evidenceFormData={evidenceFormData}
-            evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
-            exampleEvidence={control.exampleEvidence as string | { documentationType: string; description: string }[] | null}
-          />
-        </TabsContent>
-
-        <TabsContent value="linked-controls" className="space-y-6">
-          <LinkedControlsTab
-            subcontrols={control.subcontrols?.edges || []}
-            totalCount={control.subcontrols.totalCount}
-            refCode={control.refCode}
-            referenceFramework={control.referenceFramework}
-            canCreateMappedControl={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)}
-          />
-        </TabsContent>
-
-        <TabsContent value="guidance" className="space-y-6">
-          <GuidanceTab
-            implementationGuidance={control.implementationGuidance as { referenceId: string; guidance: string[] }[] | null}
-            controlQuestions={control.controlQuestions as string[] | null}
-            assessmentMethods={control.assessmentMethods as { id: string; method: string }[] | string[] | null}
-            assessmentObjectives={control.assessmentObjectives as { id: string; objective: string }[] | string[] | null}
-          />
-        </TabsContent>
-
-        <TabsContent value="documentation" className="space-y-6">
-          <DocumentationTab procedures={associationsData?.control?.procedures} internalPolicies={associationsData?.control?.internalPolicies} />
-        </TabsContent>
-      </Tabs>
+      <ControlTabs control={control as Control} evidenceFormData={evidenceFormData} canCreateMappedControl={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
     </div>
   )
 

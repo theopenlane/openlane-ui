@@ -20,7 +20,7 @@ interface LinkedControlsTabProps {
 
 const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, totalCount, refCode, referenceFramework, canCreateMappedControl }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-6">
       <SubcontrolsTable subcontrols={subcontrols} totalCount={totalCount} />
       <RelatedControls
         canCreate={canCreateMappedControl}

@@ -57,6 +57,7 @@ const BrandPage: React.FC = () => {
         title: previewSetting.title ?? '',
         overview: previewSetting.overview ?? '',
         securityContact: previewSetting.securityContact ?? '',
+        statusPageURL: previewSetting.statusPageURL ?? '',
         primaryColor: previewSetting.primaryColor ?? '#f0f0e0',
         foregroundColor: previewSetting.foregroundColor ?? '#f0f0e0',
         backgroundColor: previewSetting.backgroundColor ?? '#f0f0e0',
@@ -89,7 +90,10 @@ const BrandPage: React.FC = () => {
   const hasPreviewDifference = useMemo(() => {
     if (!setting || !previewSetting) return null
     const companyInfoDiff =
-      setting.companyName !== previewSetting.companyName || setting.companyDescription !== previewSetting.companyDescription || setting.companyDomain !== previewSetting.companyDomain
+      setting.companyName !== previewSetting.companyName ||
+      setting.companyDescription !== previewSetting.companyDescription ||
+      setting.companyDomain !== previewSetting.companyDomain ||
+      setting.statusPageURL !== previewSetting.statusPageURL
     const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
     const themeDiff = setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || setting.primaryColor !== previewSetting.primaryColor
     const assetDiff = setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL
@@ -119,6 +123,7 @@ const BrandPage: React.FC = () => {
         title: values.title,
         overview,
         ...(values.securityContact ? { securityContact: values.securityContact } : { clearSecurityContact: true }),
+        ...(values.statusPageURL ? { statusPageURL: values.statusPageURL } : { clearStatusPageURL: true }),
         ...(values.companyName ? { companyName: values.companyName } : { clearCompanyName: true }),
         ...(values.companyDescription ? { companyDescription: values.companyDescription } : { clearCompanyDescription: true }),
         ...(values.companyDomain ? { companyDomain: values.companyDomain } : { clearCompanyDomain: true }),
@@ -172,6 +177,7 @@ const BrandPage: React.FC = () => {
         title: setting.title,
         overview: setting.overview,
         ...(setting.securityContact ? { securityContact: setting.securityContact } : { clearSecurityContact: true }),
+        ...(setting.statusPageURL ? { statusPageURL: setting.statusPageURL } : { clearStatusPageURL: true }),
         primaryColor: setting.primaryColor,
         foregroundColor: setting.foregroundColor,
         backgroundColor: setting.backgroundColor,

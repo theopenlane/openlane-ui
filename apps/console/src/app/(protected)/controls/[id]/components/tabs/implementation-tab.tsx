@@ -1,23 +1,19 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
+import { ArrowRight, ChevronsDownUp, List, Settings2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import { Accordion } from '@radix-ui/react-accordion'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet'
 import { useNotification } from '@/hooks/useNotification'
-import { canCreate } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ImplementationItem } from '@/components/pages/protected/controls/control-implementation/implementation-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const ImplementationTab: React.FC = () => {
-  const searchParams = useSearchParams()
   const { id } = useParams<{ id: string }>()
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
@@ -32,9 +28,6 @@ const ImplementationTab: React.FC = () => {
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
-
-  const { data: orgPermission } = useOrganizationRoles()
-  const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation)
 
   const toggleAll = () => {
     if (!edges) return
@@ -94,13 +87,6 @@ const ImplementationTab: React.FC = () => {
     handleImplementationsUpdate()
   }, [handleImplementationsUpdate])
 
-  useEffect(() => {
-    const shouldOpen = createAllowed && searchParams.get('create') === 'true'
-    if (shouldOpen) {
-      setShowCreateSheet(true)
-    }
-  }, [createAllowed, searchParams])
-
   if (isLoading) {
     return <Loading />
   }
@@ -133,18 +119,14 @@ const ImplementationTab: React.FC = () => {
         }}
         editData={editData}
       />
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2.5 items-center">
-          <Button type="button" className="h-8 px-2!" variant="secondary" onClick={toggleAll}>
-            <div className="flex">
-              <List size={16} />
-              <ChevronsDownUp size={16} />
-            </div>
-          </Button>
+      <Button type="button" className="h-8 px-2! mt-4" variant="secondary" onClick={toggleAll}>
+        <div className="flex">
+          <List size={16} />
+          <ChevronsDownUp size={16} />
         </div>
-      </div>
-      <div className="space-y-4 mt-6">
-        <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full mt-6">
+      </Button>
+      <div className="space-y-4">
+        <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full">
           {edges.map((edge, idx) => (
             <ImplementationItem
               key={edge.node.id}

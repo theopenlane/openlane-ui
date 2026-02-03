@@ -112,11 +112,11 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({ implementationGuidance, contr
   const hasGuidanceData = guidanceItems.some((item) => item.hasData)
 
   if (!hasGuidanceData) {
-    return <p className="text-text-informational italic">No guidance available.</p>
+    return <p className="text-text-informational italic mt-6">No guidance available.</p>
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-6">
       {guidanceItems
         .filter((item) => item.hasData)
         .map((item) => (

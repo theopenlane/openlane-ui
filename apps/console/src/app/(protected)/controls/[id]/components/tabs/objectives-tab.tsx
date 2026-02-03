@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
+import { ArrowRight, ChevronsDownUp, List, Settings2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import { Accordion } from '@radix-ui/react-accordion'
@@ -18,7 +18,6 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const ObjectivesTab: React.FC = () => {
-  const searchParams = useSearchParams()
   const { id } = useParams<{ id: string }>()
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
@@ -102,13 +101,6 @@ const ObjectivesTab: React.FC = () => {
     handleControlObjectivesUpdate()
   }, [handleControlObjectivesUpdate])
 
-  useEffect(() => {
-    const shouldOpen = createAllowed && searchParams.get('create') === 'true'
-    if (shouldOpen) {
-      setShowCreateSheet(true)
-    }
-  }, [createAllowed, searchParams])
-
   if (isLoading) {
     return <Loading />
   }
@@ -117,25 +109,17 @@ const ObjectivesTab: React.FC = () => {
     return (
       <>
         <CreateControlObjectiveSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
-        <div className="flex justify-between items-center">
-          <h3 className="text-base font-semibold">Control Objectives</h3>
-          {createAllowed && (
-            <Button variant="secondary" className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-              Create
-            </Button>
-          )}
-        </div>
-        <div className="flex gap-4 items-center">
-          <div className="flex gap-2 items-center">
-            <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
-            <p>Show archived</p>
-          </div>
-          <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
+        <div className="flex gap-4 items-center mt-6">
+          <Button type="button" className="h-8 px-2!" variant="secondary" onClick={toggleAll}>
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
             </div>
           </Button>
+          <div className="flex gap-2 items-center">
+            <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
+            <p>Show archived</p>
+          </div>
         </div>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
@@ -163,27 +147,20 @@ const ObjectivesTab: React.FC = () => {
         }}
         editData={editData}
       />
-      <div className="flex justify-between items-center">
-        <h3 className="text-base font-semibold">Control Objectives</h3>
-        {createAllowed && (
-          <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-            Create
-          </Button>
-        )}
-      </div>
-      <div className="flex gap-4 items-center">
-        <div className="flex gap-2 items-center">
-          <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} /> <p>Show archived</p>
-        </div>
-        <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
+
+      <div className="flex gap-4 items-center mt-6">
+        <Button type="button" className="h-8 px-2!" variant="secondary" onClick={toggleAll}>
           <div className="flex">
             <List size={16} />
             <ChevronsDownUp size={16} />
           </div>
         </Button>
+        <div className="flex gap-2 items-center">
+          <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} /> <p>Show archived</p>
+        </div>
       </div>
-      <div className="space-y-4 mt-6">
-        <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full mt-6">
+      <div className="space-y-4">
+        <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full">
           {edges.map(({ node }) => (
             <ObjectiveItem
               key={node.id}

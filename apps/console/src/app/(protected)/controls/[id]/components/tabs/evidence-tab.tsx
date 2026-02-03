@@ -58,7 +58,7 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidences, 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-6">
       <ControlEvidenceTable control={evidenceFormData} evidences={evidences} />
       {hasExampleEvidence && (
         <Card className="p-4">
