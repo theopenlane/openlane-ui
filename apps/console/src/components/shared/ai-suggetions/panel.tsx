@@ -33,7 +33,7 @@ export function AISuggestionsPanel({ suggestions, loading = false, onDismiss, on
 
   return (
     <div className={containerClass}>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-purple-400" />
           <span className="text-sm font-medium opacity-70">{loading ? 'Generating suggestions...' : 'AI Suggestions'}</span>
@@ -82,6 +82,12 @@ export function AISuggestionsPanel({ suggestions, loading = false, onDismiss, on
             </button>
           )}
         </div>
+      </div>
+      <div>
+        <span className="flex items-left text-xs text-muted mb-3">
+          <br />
+          AI-generated draft. Please review and edit for accuracy before publishing.
+        </span>
       </div>
 
       <div className="text-sm whitespace-pre-wrap bg-secondary rounded p-3 max-h-64 overflow-y-auto">
