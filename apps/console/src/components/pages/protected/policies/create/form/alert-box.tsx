@@ -16,9 +16,7 @@ import { Input } from '@repo/ui/input'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { policyPrompt } from '@repo/dally/ai'
-
-const AI_SUGGESTIONS_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
+import { aiEnabled, policyPrompt } from '@repo/dally/ai'
 
 // Define the editor ref type
 interface EditorRef {
@@ -60,7 +58,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
   }
 
   const handleGenerateClick = () => {
-    if (!AI_SUGGESTIONS_ENABLED) return
+    if (!aiEnabled) return
 
     // If no name is provided, show dialog
     const policyNameToUse = tempPolicyName || name || ''
@@ -74,7 +72,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
   }
 
   const generatePolicy = (policyName: string, context: string) => {
-    if (!AI_SUGGESTIONS_ENABLED) return
+    if (!aiEnabled) return
 
     const baseContext = {
       organization: {
@@ -133,10 +131,12 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
   }
 
   let parsedSuggestions = { text: '' }
-  try {
-    parsedSuggestions = JSON.parse(suggestions)
-  } catch (e) {
-    console.error('Failed to parse AI suggestions:', e)
+  if (!loading && suggestions) {
+    try {
+      parsedSuggestions = JSON.parse(suggestions)
+    } catch (e) {
+      console.error('Failed to parse AI suggestions:', e)
+    }
   }
 
   return (
@@ -145,7 +145,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
         {/* Header */}
         <button type="button" onClick={() => setIsAIHelperOpen(!isHelperOpen)} className="w-full flex items-center justify-between px-4 pt-4 pb-2 transition-colors">
           <div className="flex items-center gap-3">
-            {AI_SUGGESTIONS_ENABLED ? (
+            {aiEnabled ? (
               <div className="shrink-0 w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-purple-400" />
               </div>
@@ -157,7 +157,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
             <div className="flex text-left">
               <p className="text-base font-semibold">Need help getting started?</p>
               {!isHelperOpen &&
-                (AI_SUGGESTIONS_ENABLED ? <p className="ml-2 opacity-70">Let AI help you draft your policy</p> : <p className="ml-2 opacity-70">Explore templates and documentation for guidance</p>)}
+                (aiEnabled ? <p className="ml-2 opacity-70">Let AI help you draft your policy</p> : <p className="ml-2 opacity-70">Explore templates and documentation for guidance</p>)}
             </div>
           </div>
 
@@ -167,7 +167,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
         {/* Collapsible content */}
         {isHelperOpen && (
           <div className="ml-12 px-4 pb-6 space-y-3">
-            {AI_SUGGESTIONS_ENABLED ? (
+            {aiEnabled ? (
               <p className="text-sm opacity-70">Let AI help you draft your policy, or explore our templates and documentation for guidance and best-practice examples.</p>
             ) : (
               <p className="pb-2 text-sm opacity-70">Explore our templates for ideas and use the documentation to learn how to tailor policies to your organization.</p>
@@ -175,7 +175,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
 
             {/* Action buttons */}
             <div className="flex items-center gap-3">
-              {AI_SUGGESTIONS_ENABLED && <AIAssistButton onGetSuggestions={handleGenerateClick} loading={loading && activeSection === 'policy'} label="Generate with AI" variant="primary" />}
+              {aiEnabled && <AIAssistButton onGetSuggestions={handleGenerateClick} loading={loading && activeSection === 'policy'} label="Generate with AI" variant="primary" />}
 
               <Button
                 type="button"
@@ -197,14 +197,14 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
             </div>
 
             {/* AI Suggestions Panel */}
-            {AI_SUGGESTIONS_ENABLED
+            {aiEnabled
               ? activeSection === 'policy' && <AISuggestionsPanel suggestions={parsedSuggestions} loading={loading} onDismiss={clearSuggestions} onInsert={handleInsertIntoEditor} variant="inline" />
               : null}
           </div>
         )}
       </div>
 
-      {AI_SUGGESTIONS_ENABLED &&
+      {aiEnabled &&
         showNameDialog &&
         createPortal(
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">

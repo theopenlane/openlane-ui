@@ -18,7 +18,8 @@ export const aiSystemInstruction = process.env.AI_SYSTEM_INSTRUCTION?.trimEnd() 
 export const controlSystemInstruction =
   process.env.CONTROL_FRAMEWORK_INSTRUCTION?.trimEnd() ?? 'When referencing controls, always use their ref codes with their framework (e.g., "SOC 2 - CC1.1"). Do not use internal identifiers.'
 
-export const policyPrompt = (policyName: string) => `Generate a formal policy document for "${policyName}" based on the following requirements.\n\n` + (process.env.AI_POLICY_PROMPT?.trimEnd() ?? '')
+export const policyPrompt = (policyName: string) =>
+  `Generate a formal policy document for "${policyName}" based on the following requirements.\n\n` + (process.env.NEXT_PUBLIC_AI_POLICY_PROMPT?.trimEnd() ?? '')
 
 export const temperature = process.env.TEMPERATURE ? parseFloat(process.env.TEMPERATURE) : 0.1
-export const maxOutputTokens = process.env.MAX_OUTPUT_TOKENS ? parseInt(process.env.MAX_OUTPUT_TOKENS) : 1500
+export const maxOutputTokens = process.env.MAX_OUTPUT_TOKENS ? parseInt(process.env.MAX_OUTPUT_TOKENS) : 5000
