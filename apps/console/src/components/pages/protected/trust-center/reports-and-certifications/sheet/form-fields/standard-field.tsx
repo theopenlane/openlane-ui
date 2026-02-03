@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { cn } from '@repo/ui/lib/utils'
@@ -33,13 +33,29 @@ export const StandardField = ({ isEditing }: Props) => {
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <button
+                  type="button"
                   role="combobox"
                   aria-expanded={open}
-                  className="w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm"
                   disabled={isLoading}
+                  className="w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm"
                 >
-                  {field.value ? selectedStandard?.label || 'Unknown Standard' : 'Select a standard...'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <span className="truncate">{field.value ? selectedStandard?.label || 'Unknown Standard' : 'Select a standard...'}</span>
+
+                  <span className="flex items-center gap-2">
+                    {field.value && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          field.onChange(undefined) // or null
+                          setOpen(false)
+                        }}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </span>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
