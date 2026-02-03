@@ -7,11 +7,11 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon } from 'lucide-react'
-import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
-import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
-import PropertiesCard from '../../../../components/pages/protected/controls/propereties-card/properties-card.tsx'
-import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
+import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon, Sparkles } from 'lucide-react'
+import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
+import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
+import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
+import InfoCard from '@/components/pages/protected/controls/info-card.tsx'
 import { Control, ControlControlSource, ControlControlStatus, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
@@ -45,6 +45,9 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
+import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 
 interface FormValues {
   refCode: string
@@ -82,6 +85,10 @@ const initialDataObj = {
 }
 
 const ControlDetailsPage: React.FC = () => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+  const { data: userData } = useGetCurrentUser(userId)
+
   const { id } = useParams<{ id: string }>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading, isError } = useGetControlById(id)
@@ -95,6 +102,9 @@ const ControlDetailsPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
+
+  const [showAskAIDialog, setShowAskAIDialog] = useState(false)
+
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
@@ -266,6 +276,9 @@ const ControlDetailsPage: React.FC = () => {
       )}
       {!isEditing && (
         <div className="flex gap-2 justify-end">
+          <Button variant="secondary" className="h-8 !px-2" onClick={() => setShowAskAIDialog(true)} icon={<Sparkles size={16} />}>
+            Ask AI
+          </Button>
           <Menu
             trigger={CreateBtn}
             content={
@@ -459,6 +472,31 @@ const ControlDetailsPage: React.FC = () => {
           <div className="py-4">{sheetData?.content}</div>
         </SheetContent>
       </Sheet>
+
+      <AIChat
+        open={showAskAIDialog}
+        onOpenChange={setShowAskAIDialog}
+        providedContext={{
+          control: {
+            refCode: control.refCode,
+            title: control.title,
+            framework: control.referenceFramework,
+            description: control.description,
+          },
+          organization: {
+            organizationName: currentOrganization?.node?.displayName,
+          },
+          user: {
+            name: userData?.user?.displayName,
+          },
+          background: "Control Details for the provided request, use this information to answer the user's question or provide suggestions.",
+        }}
+        contextKey={control.id}
+        object={{
+          type: 'control',
+          name: control.refCode,
+        }}
+      />
 
       <EvidenceDetailsSheet controlId={id} />
     </>
