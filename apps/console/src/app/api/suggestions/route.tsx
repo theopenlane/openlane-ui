@@ -1,4 +1,4 @@
-import { AI_SYSTEM_INSTRUCTION, TEMPERATURE, MAX_OUTPUT_TOKENS, GEMINI_MODEL_NAME } from '@/constants/ai'
+import { AI_SYSTEM_INSTRUCTION, CONTROL_FRAMEWORK_INSTRUCTION, TEMPERATURE, MAX_OUTPUT_TOKENS, GEMINI_MODEL_NAME } from '@/constants/ai'
 import { auth } from '@/lib/auth/auth'
 import { Tool, VertexAI } from '@google-cloud/vertexai'
 import { NextRequest, NextResponse } from 'next/server'
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         temperature: TEMPERATURE,
         maxOutputTokens: MAX_OUTPUT_TOKENS,
       },
-      systemInstruction: AI_SYSTEM_INSTRUCTION,
+      systemInstruction: AI_SYSTEM_INSTRUCTION + '\n' + CONTROL_FRAMEWORK_INSTRUCTION,
       tools,
     })
 

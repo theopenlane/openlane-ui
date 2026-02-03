@@ -15,6 +15,8 @@ import { useRouter } from 'next/navigation'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
 import { Input } from '@repo/ui/input'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useSession } from 'next-auth/react'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const AI_SUGGESTIONS_ENABLED = process.env.NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED === 'true'
 
@@ -32,12 +34,16 @@ type THelperProps = {
 }
 
 const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
+  const { data: sessionData } = useSession()
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
   const router = useRouter()
   const [isHelperOpen, setIsAIHelperOpen] = useState(true)
+
   const [showNameDialog, setShowNameDialog] = useState(false)
   const [tempPolicyName, setTempPolicyName] = useState('')
+  const [additionalContext, setAdditionalContext] = useState('')
 
-  // template browser things
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
   const [isCreatingFromTemplate, setIsCreatingFromTemplate] = useState(false)
 
@@ -48,7 +54,8 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
 
   // Insert AI suggestions into the editor
   const handleInsertIntoEditor = (text: string) => {
-    editorRef.current.insertContent(text, true)
+    const trimmed = text.replace(/^\s+/, '')
+    editorRef.current.insertContent(trimmed, true)
     clearSuggestions()
   }
 
@@ -56,23 +63,30 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
     if (!AI_SUGGESTIONS_ENABLED) return
 
     // If no name is provided, show dialog
-    if (!name || name.trim() === '') {
+    const policyNameToUse = tempPolicyName || name || ''
+    if (!policyNameToUse || policyNameToUse.trim() === '') {
       setShowNameDialog(true)
       setTempPolicyName('')
     } else {
       // Use existing name
-      generatePolicy(name)
+      generatePolicy(policyNameToUse, additionalContext)
     }
   }
 
-  const generatePolicy = (policyName: string) => {
+  const generatePolicy = (policyName: string, context: string) => {
     if (!AI_SUGGESTIONS_ENABLED) return
 
-    getAISuggestions(
-      'policy',
-      AI_POLICY_PROMPT(policyName),
-      // TODO: add additional context if, such as linked controls, organization name, etc.
-    )
+    const baseContext = {
+      organization: {
+        organizationName: currentOrganization?.node?.displayName,
+      },
+      user: {
+        name: sessionData?.user?.name || '',
+      },
+      additionalContext: context,
+    }
+
+    getAISuggestions('policy', AI_POLICY_PROMPT(policyName), baseContext)
   }
 
   const handleSubmitName = (e: React.FormEvent) => {
@@ -89,7 +103,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
     }
 
     // Generate policy
-    generatePolicy(tempPolicyName.trim())
+    generatePolicy(tempPolicyName.trim(), additionalContext)
 
     // Close dialog
     setShowNameDialog(false)
@@ -106,7 +120,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
         description: 'Policy has been successfully created from template',
       })
 
-      router.push(`/policies/${policyId}/view`)
+      router.push(`/ policies / ${policyId}/view`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -177,7 +191,15 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
 
             {/* AI Suggestions Panel */}
             {AI_SUGGESTIONS_ENABLED
-              ? activeSection === 'policy' && <AISuggestionsPanel suggestions={suggestions} loading={loading} onDismiss={clearSuggestions} onInsert={handleInsertIntoEditor} variant="inline" />
+              ? activeSection === 'policy' && (
+                  <AISuggestionsPanel
+                    suggestions={suggestions ? JSON.parse(suggestions) : { text: '' }}
+                    loading={loading}
+                    onDismiss={clearSuggestions}
+                    onInsert={handleInsertIntoEditor}
+                    variant="inline"
+                  />
+                )
               : null}
           </div>
         )}
@@ -194,17 +216,16 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
                   <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center">
                     <Sparkles className="h-5 w-5 text-primary-400" />
                   </div>
-                  <h3 className="text-lg font-semibold">Name Your Policy</h3>
+                  <h3 className="text-lg font-semibold">Policy Details</h3>
                 </div>
                 <Button variant="icon" type="button" onClick={() => setShowNameDialog(false)} className="transition-colors">
                   <X className="h-5 w-5" />
                 </Button>
               </div>
 
-              {/* Content */}
               <form onSubmit={handleSubmitName} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm mb-2">Policy Name</label>
+                  <label className="block text-sm font-medium mb-2">Policy Name</label>
                   <Input
                     type="text"
                     value={tempPolicyName}
@@ -216,6 +237,20 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
                 </div>
 
                 <p className="text-sm opacity-70">Give your policy a descriptive name. AI will use this to generate relevant content.</p>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Additional Context <span className="opacity-60"> (optional)</span>
+                  </label>
+                  <textarea
+                    value={additionalContext}
+                    onChange={(e) => setAdditionalContext(e.target.value)}
+                    placeholder=""
+                    className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-h-[80px]"
+                  />
+                </div>
+
+                <p className="text-sm opacity-70">Provide any extra details or requirement to use within the policy</p>
 
                 {/* Actions */}
                 <div className="flex gap-3 pt-2">
