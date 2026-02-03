@@ -43,9 +43,8 @@ import { createReadOnlyToolbarKit } from './plugins/read-only-toolbar-kit.tsx'
 
 export const EditorKit = [
   /*
-  Copilot and AI kit needs to be manually implemented
-  ...CopilotKit,
-  ...AIKit,*/
+  Copilot kit needs to be manually implemented
+  ...CopilotKit, */
   // Elements
   ...AIKit,
   ...BasicBlocksKit,

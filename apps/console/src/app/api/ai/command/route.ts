@@ -14,6 +14,8 @@ import { auth } from '@/lib/auth/auth'
 
 const DEFAULT_MODEL = 'gemini-2.5-flash'
 
+// api/ai/command is used for AI-powered commands within the editor, such as commenting, editing, and generating content.
+// this is different than the ai/suggestions endpoint, which is used for generating suggestions based on context outside of the editor and is from the fine-tuned model.
 export async function POST(req: NextRequest) {
   const session = await auth()
 
@@ -50,7 +52,9 @@ export async function POST(req: NextRequest) {
         if (!toolName) {
           const { text: AIToolName } = await generateText({
             model: selectedModel,
-            output: Output.text(),
+            output: Output.choice({
+              options: isSelecting ? ['generate', 'edit', 'comment'] : ['generate', 'comment'],
+            }),
             prompt: getChooseToolPrompt(messagesRaw),
           })
 
