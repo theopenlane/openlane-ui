@@ -78,7 +78,5 @@ Only use controls references from the following frameworks:
 - FedRamp Moderate
 - NIST 800-171
 
-Never include SCF, HiTrust, or any other frameworks not listed above.
-
 When providing an organization control, just give the description not all related details such as control type, testing procedures, etc.
 `.trim()
