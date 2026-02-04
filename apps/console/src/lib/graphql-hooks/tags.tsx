@@ -18,6 +18,7 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { GET_TAGS, GET_ALL_TAG_DEFINITIONS_PAGINATED, CREATE_TAG_DEFINITION, UPDATE_TAG_DEFINITION, DELETE_TAG_DEFINITION, GET_TAG_DEFINITION_DETAILS } from '@repo/codegen/query/tags'
+import { useMemo } from 'react'
 
 export const useGetTags = () => {
   const { client } = useGraphQLClient()
@@ -27,11 +28,14 @@ export const useGetTags = () => {
     queryFn: () => client.request<GetTagsQuery>(GET_TAGS),
   })
 
-  const tagOptions: Option[] =
-    query.data?.tagDefinitions?.edges?.map((edge) => ({
-      value: edge?.node?.name || '',
-      label: edge?.node?.name || '',
-    })) ?? []
+  const tagOptions: Option[] = useMemo(
+    () =>
+      query.data?.tagDefinitions?.edges?.map((edge) => ({
+        value: edge?.node?.name || '',
+        label: edge?.node?.name || '',
+      })) ?? [],
+    [query.data?.tagDefinitions?.edges],
+  )
 
   return {
     ...query,

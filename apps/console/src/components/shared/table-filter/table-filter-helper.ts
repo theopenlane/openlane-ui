@@ -140,6 +140,13 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       case 'radio':
         andConditions.push({ [key]: val as boolean } as Condition)
         break
+
+      case 'dropdownSearchMultiselect': {
+        const valuesArray = Array.isArray(val) ? val : []
+        if (valuesArray.length === 0) break
+        andConditions.push({ [key]: valuesArray } as Condition)
+        break
+      }
     }
   }
 

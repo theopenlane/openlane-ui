@@ -20,6 +20,7 @@ import { BulkEditEvidenceDialog } from '../bulk-edit/bulk-edit-evidence'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -67,7 +68,11 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
     },
     enabled: Boolean(currentOrgId),
   })
-  const filterFields = useMemo(() => getEvidenceFilterableFields(standardOptions), [standardOptions])
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
+
+  const filterFields = useMemo(() => getEvidenceFilterableFields(standardOptions, tagOptions), [standardOptions, tagOptions])
+
   const handleBulkDelete = async () => {
     if (selectedEvidence.length === 0) {
       errorNotification({

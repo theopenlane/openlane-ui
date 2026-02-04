@@ -39,7 +39,7 @@ export const StandardField = ({ isEditing }: Props) => {
                   disabled={isLoading}
                   className="w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm"
                 >
-                  <span className="truncate">{field.value ? selectedStandard?.label || 'Unknown Standard' : 'Select a standard...'}</span>
+                  <span className="truncate">{field.value ? selectedStandard?.label || 'Select a standard...' : 'Select a standard...'}</span>
 
                   <span className="flex items-center gap-2">
                     {field.value && (
