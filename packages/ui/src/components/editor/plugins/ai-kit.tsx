@@ -2,7 +2,7 @@
 
 import { withAIBatch } from '@platejs/ai'
 import { AIChatPlugin, AIPlugin, applyAISuggestions, streamInsertChunk, useChatChunk } from '@platejs/ai/react'
-import { getPluginType, KEYS, PathApi } from 'platejs'
+import { getPluginType, KEYS } from 'platejs'
 import { usePluginOption } from 'platejs/react'
 
 import { AILoadingBar, AIMenu } from '@repo/ui/components/ui/ai-menu.tsx'
@@ -11,6 +11,8 @@ import { AIAnchorElement, AILeaf } from '@repo/ui/components/ui/ai-node.tsx'
 import { useChat } from '../use-chat'
 import { CursorOverlayKit } from './cursor-overlay-kit'
 import { MarkdownKit } from './markdown-kit'
+import { SuggestionPlugin } from '@platejs/suggestion/react'
+import { SuggestionLeaf } from '@repo/ui/components/ui/suggestion-node.tsx'
 
 export const aiChatPlugin = AIChatPlugin.extend({
   options: {
@@ -34,6 +36,8 @@ export const aiChatPlugin = AIChatPlugin.extend({
       onChunk: ({ chunk, isFirst, nodes, text: content }) => {
         if (isFirst && mode === 'insert') {
           editor.tf.withoutSaving(() => {
+            const path = editor.selection?.anchor?.path
+            editor.tf.deleteFragment()
             editor.tf.insertNodes(
               {
                 children: [{ text: '' }],
@@ -41,7 +45,8 @@ export const aiChatPlugin = AIChatPlugin.extend({
                 type: getPluginType(editor, KEYS.aiChat),
               },
               {
-                at: PathApi.next(editor.selection!.focus.path.slice(0, 1)),
+                at: path,
+                select: true,
               },
             )
           })
@@ -87,4 +92,4 @@ export const aiChatPlugin = AIChatPlugin.extend({
   },
 })
 
-export const AIKit = [...CursorOverlayKit, ...MarkdownKit, AIPlugin.withComponent(AILeaf), aiChatPlugin]
+export const AIKit = [...CursorOverlayKit, ...MarkdownKit, SuggestionPlugin.withComponent(SuggestionLeaf), AIPlugin.withComponent(AILeaf), aiChatPlugin]

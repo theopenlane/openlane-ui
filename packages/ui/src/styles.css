@@ -218,6 +218,8 @@
   --color-btn-primary-text: #052e2a;
   --color-btn-primary-text-disabled: #052e2a70;
   --color-btn-primary-hover: #60e8c8;
+  --color-chat-user-text: #052e2a;
+  --color-chat-assistant-text: #6b7682;
 
   --color-btn-secondary: #ffffff;
   --color-btn-secondary-hover: #ffffff;
@@ -315,6 +317,8 @@
   --color-btn-primary-hover: #9af5dd;
   --color-btn-primary-text: #052e2a;
   --color-btn-primary-text-disabled: #052e2a70;
+  --color-chat-user-text: #052e2a;
+  --color-chat-assistant-text: #ffffff;
 
   --color-btn-secondary: #394b58;
   --color-btn-secondary-hover: #4c5e69;

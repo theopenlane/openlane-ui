@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getRisksFilterFields } from '@/components/pages/protected/risks/table/table-config'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
@@ -100,7 +99,6 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
           searchValue={search}
           onSearchChange={setSearch}
           filterFields={filterFields ?? undefined}
-          filterKey={TableFilterKeysEnum.CONTROL_DOC_RISK}
           onFilterChange={setFilters}
         />
       }

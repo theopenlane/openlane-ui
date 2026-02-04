@@ -6,10 +6,11 @@ import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussi
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Button } from '@repo/ui/button'
-import { CopyPlus, InfoIcon, PencilIcon, MoreHorizontal, Trash2 } from 'lucide-react'
-import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
-import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
-import PropertiesCard from '../../../../components/pages/protected/controls/propereties-card/properties-card.tsx'
+import { CopyPlus, InfoIcon, MoreHorizontal, PanelRightClose, PencilIcon, Sparkles, Trash2 } from 'lucide-react'
+import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
+import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
+import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
+import InfoCard from '@/components/pages/protected/controls/info-card.tsx'
 import { Control, ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
@@ -36,6 +37,10 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { ControlTabs, QuickActions } from './components'
+import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 
 interface FormValues {
   refCode: string
@@ -54,6 +59,11 @@ interface FormValues {
   controlKindName?: string
 }
 
+interface SheetData {
+  refCode: string
+  content: React.ReactNode
+}
+
 const initialDataObj = {
   refCode: '',
   description: '',
@@ -68,6 +78,10 @@ const initialDataObj = {
 }
 
 const ControlDetailsPage: React.FC = () => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+  const { data: userData } = useGetCurrentUser(userId)
+
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
@@ -79,6 +93,9 @@ const ControlDetailsPage: React.FC = () => {
   const { data: orgPermission } = useOrganizationRoles()
 
   const { successNotification, errorNotification } = useNotification()
+  const [showAskAIDialog, setShowAskAIDialog] = useState(false)
+  const [showSheet, setShowSheet] = useState<boolean>(false)
+  const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: deleteControl } = useDeleteControl()
@@ -188,6 +205,20 @@ const ControlDetailsPage: React.FC = () => {
     }
   }
 
+  const showInfoDetails = (refCode: string, content: React.ReactNode) => {
+    setSheetData({ refCode, content })
+    setShowSheet(true)
+  }
+
+  const handleSheetClose = (open: boolean) => {
+    if (!open) {
+      setShowSheet(false)
+      setTimeout(() => {
+        setSheetData(null)
+      }, 300)
+    }
+  }
+
   const handleDeleteControl = async () => {
     if (!id) return
 
@@ -243,6 +274,7 @@ const ControlDetailsPage: React.FC = () => {
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control = data?.control
   const isVerified = control.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
+  const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
 
   const menuComponent = (
     <div className="space-y-4">
@@ -254,6 +286,9 @@ const ControlDetailsPage: React.FC = () => {
       )}
       {!isEditing && (
         <div className="flex gap-2 justify-end">
+          <Button variant="secondary" className="h-8 !px-2" onClick={() => setShowAskAIDialog(true)} icon={<Sparkles size={16} />}>
+            Ask AI
+          </Button>
           {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
             <div className="flex gap-2">
               {canEdit(permission?.roles) && (
@@ -392,7 +427,7 @@ const ControlDetailsPage: React.FC = () => {
         }}
       />
 
-      <ControlTabs control={control as Control} evidenceFormData={evidenceFormData} canCreateMappedControl={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} />
+      <ControlTabs control={control as Control} evidenceFormData={evidenceFormData} />
     </div>
   )
 
@@ -402,6 +437,16 @@ const ControlDetailsPage: React.FC = () => {
 
       <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} canEdit={canEdit(permission?.roles)} />
       <ControlCommentsCard />
+      {hasInfoData && (
+        <InfoCard
+          implementationGuidance={control.implementationGuidance}
+          exampleEvidence={control.exampleEvidence}
+          controlQuestions={control.controlQuestions}
+          assessmentMethods={control.assessmentMethods}
+          assessmentObjectives={control.assessmentObjectives}
+          showInfoDetails={showInfoDetails}
+        />
+      )}
     </>
   )
 
@@ -417,6 +462,44 @@ const ControlDetailsPage: React.FC = () => {
       </FormProvider>
 
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
+
+      <Sheet open={showSheet} onOpenChange={handleSheetClose}>
+        <SheetContent
+          header={
+            <SheetHeader>
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <SheetTitle>{sheetData?.refCode}</SheetTitle>
+            </SheetHeader>
+          }
+        >
+          <div className="py-4">{sheetData?.content}</div>
+        </SheetContent>
+      </Sheet>
+
+      <AIChat
+        open={showAskAIDialog}
+        onOpenChange={setShowAskAIDialog}
+        providedContext={{
+          control: {
+            refCode: control.refCode,
+            title: control.title,
+            framework: control.referenceFramework,
+            description: control.description,
+          },
+          organization: {
+            organizationName: currentOrganization?.node?.displayName,
+          },
+          user: {
+            name: userData?.user?.displayName,
+          },
+          background: "Control Details for the provided request, use this information to answer the user's question or provide suggestions.",
+        }}
+        contextKey={control.id}
+        object={{
+          type: 'control',
+          name: control.refCode,
+        }}
+      />
 
       <EvidenceDetailsSheet controlId={id} />
 

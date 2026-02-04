@@ -83,6 +83,12 @@ const QuickActions: React.FC<QuickActionsProps> = ({ controlId, evidenceFormData
       icon: <CheckCircle2 size={16} />,
     },
     {
+      id: 'create-subcontrol',
+      label: 'Create Subcontrol',
+      icon: <PlusSquare size={16} />,
+      href: `/controls/${controlId}/create-subcontrol`,
+    },
+    {
       id: 'map-control',
       label: 'Map Control',
       icon: <GitBranch size={16} />,

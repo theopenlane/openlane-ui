@@ -8,7 +8,7 @@ export const brandSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
   overview: z.custom<Value | string>().optional(),
   securityContact: z.string().email('Invalid email format').optional().or(z.literal('')),
-  statusPageURL: z.string().url('Invalid URL format').optional().or(z.literal('')),
+  statusPageURL: z.string().optional(),
   primaryColor: z.string().optional(),
   foregroundColor: z.string().optional(),
   backgroundColor: z.string().optional(),

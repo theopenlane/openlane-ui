@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { Evidence, EvidenceOrderField, EvidenceWhereInput, GetEvidenceListQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+import { Evidence, EvidenceOrder, EvidenceOrderField, EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -28,7 +28,7 @@ export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
-  const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
+  const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.EVIDENCE)
   const { replace } = useSmartRouter()
@@ -42,18 +42,11 @@ export const EvidenceTable = () => {
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>(defaultSorting)
+  const [orderBy, setOrderBy] = useState<EvidenceOrder[] | undefined>(() => (Array.isArray(defaultSorting) ? defaultSorting : defaultSorting ? [defaultSorting] : undefined))
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    if (!filters) {
-      return {
-        ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
-        ...(debouncedSearch ? { nameContainsFold: debouncedSearch } : {}),
-      }
-    }
-
     const result = whereGenerator<EvidenceWhereInput>(filters, (key, value) => {
       if (key === 'satisfiesFramework' && Array.isArray(value) && value.length > 0) {
         return {
@@ -64,20 +57,19 @@ export const EvidenceTable = () => {
       return { [key]: value } as EvidenceWhereInput
     })
 
-    const conditions: EvidenceWhereInput = {
+    return {
       ...result,
       ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
       ...(debouncedSearch ? { nameContainsFold: debouncedSearch } : {}),
     }
-
-    return conditions
   }, [filters, programId, debouncedSearch])
 
-  const orderByFilter = useMemo(() => {
-    return orderBy || undefined
+  const orderByFilter = useMemo<EvidenceOrder | EvidenceOrder[] | undefined>(() => {
+    if (!orderBy || orderBy.length === 0) return undefined
+    return orderBy
   }, [orderBy])
 
-  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
+  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: true })
   const defaultVisibility: VisibilityState = {
     id: false,
     collectionProcedure: false,

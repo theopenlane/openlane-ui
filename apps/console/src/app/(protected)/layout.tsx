@@ -30,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       currentOrganizationId = organizationId
       dashboardData = await getDashboardData(token, cookieSession?.value)
     }
+
     if (dashboardData) {
       const organizations: OrganizationEdge[] = dashboardData.organizations.edges
       const org = organizations.find(({ node }) => node.id === organizationId)

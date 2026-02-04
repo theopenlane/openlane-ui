@@ -1,7 +1,6 @@
 import React from 'react'
 import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
 import { Card } from '@repo/ui/cardpanel'
-import type { EvidenceEdge } from '@repo/codegen/src/schema.ts'
 
 interface ExampleEvidence {
   documentationType: string
@@ -24,11 +23,11 @@ interface EvidenceFormData {
 
 interface EvidenceTabProps {
   evidenceFormData: EvidenceFormData
-  evidences: EvidenceEdge[]
   exampleEvidence?: ExampleEvidence[] | string | null
+  subcontrolIds?: string[]
 }
 
-const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidences, exampleEvidence }) => {
+const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, exampleEvidence, subcontrolIds }) => {
   const hasExampleEvidence = Array.isArray(exampleEvidence) ? exampleEvidence.length > 0 : !!exampleEvidence
 
   const renderExampleEvidence = () => {
@@ -59,7 +58,7 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidences, 
 
   return (
     <div className="space-y-6 mt-6">
-      <ControlEvidenceTable control={evidenceFormData} evidences={evidences} />
+      <ControlEvidenceTable control={evidenceFormData} subcontrolIds={subcontrolIds} />
       {hasExampleEvidence && (
         <Card className="p-4">
           <h3 className="text-base font-semibold mb-2">Evidence examples</h3>

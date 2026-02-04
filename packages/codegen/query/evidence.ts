@@ -240,6 +240,7 @@ export const GET_EVIDENCE_LIST = gql`
       edges {
         node {
           id
+          displayID
           isAutomated
           name
           status
@@ -275,6 +276,28 @@ export const GET_EVIDENCE_LIST = gql`
               }
             }
           }
+        }
+      }
+    }
+  }
+`
+
+export const GET_EVIDENCE_LIST_LIGHT = gql`
+  query GetEvidenceListLight($last: Int, $before: Cursor, $first: Int, $after: Cursor, $orderBy: [EvidenceOrder!], $where: EvidenceWhereInput) {
+    evidences(last: $last, before: $before, first: $first, after: $after, orderBy: $orderBy, where: $where) {
+      totalCount
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      edges {
+        node {
+          id
+          displayID
+          name
+          updatedAt
         }
       }
     }

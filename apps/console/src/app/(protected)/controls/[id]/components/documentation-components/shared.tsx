@@ -29,8 +29,13 @@ export const buildAssociationFilter = (controlId: string, subcontrolIds: string[
   return { hasControlsWith: [{ id: controlId }] }
 }
 
+const isEmptyCondition = (value: unknown): boolean => {
+  if (!value || typeof value !== 'object') return true
+  return Object.keys(value as Record<string, unknown>).length === 0
+}
+
 export const mergeWhere = <T extends { and?: T[] | null | undefined }>(conditions: Array<T | null | undefined>): T => {
-  const valid = conditions.filter(Boolean) as T[]
+  const valid = conditions.filter((condition) => condition && !isEmptyCondition(condition)) as T[]
   if (valid.length === 0) return {} as T
   if (valid.length === 1) return valid[0]
   return { and: valid } as T
@@ -76,7 +81,7 @@ export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearc
         className="w-full max-w-[320px]"
       />
     </div>
-    {filterFields && filterKey && onFilterChange && (
+    {filterFields && onFilterChange && (
       <div className="flex items-center justify-end">
         <TableFilter filterFields={filterFields} pageKey={filterKey} onFilterChange={onFilterChange} />
       </div>

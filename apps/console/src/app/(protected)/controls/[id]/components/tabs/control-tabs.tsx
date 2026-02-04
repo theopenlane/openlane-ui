@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import type { Control, EvidenceEdge } from '@repo/codegen/src/schema'
+import type { Control } from '@repo/codegen/src/schema'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import ImplementationTab from './implementation-tab'
 import ObjectivesTab from './objectives-tab'
@@ -29,16 +29,15 @@ type EvidenceFormData = {
 type ControlTabsProps = {
   control: Control
   evidenceFormData: EvidenceFormData
-  canCreateMappedControl: boolean
 }
 
-const ControlTabs: React.FC<ControlTabsProps> = ({ control, evidenceFormData, canCreateMappedControl }) => {
+const ControlTabs: React.FC<ControlTabsProps> = ({ control, evidenceFormData }) => {
   const [activeTab, setActiveTab] = useState('implementation')
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
 
-  const evidences = useMemo(() => control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || [], [control.evidence?.edges])
+  const subcontrolIds = useMemo(() => (control.subcontrols?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => !!id), [control.subcontrols?.edges])
 
   useEffect(() => {
     const container = tabsScrollRef.current
@@ -109,17 +108,15 @@ const ControlTabs: React.FC<ControlTabsProps> = ({ control, evidenceFormData, ca
       </TabsContent>
 
       <TabsContent value="evidence" className="space-y-6">
-        <EvidenceTab evidenceFormData={evidenceFormData} evidences={evidences} exampleEvidence={control.exampleEvidence as string | { documentationType: string; description: string }[] | null} />
+        <EvidenceTab
+          evidenceFormData={evidenceFormData}
+          subcontrolIds={subcontrolIds}
+          exampleEvidence={control.exampleEvidence as string | { documentationType: string; description: string }[] | null}
+        />
       </TabsContent>
 
       <TabsContent value="linked-controls" className="space-y-6">
-        <LinkedControlsTab
-          subcontrols={control.subcontrols?.edges || []}
-          totalCount={control.subcontrols.totalCount}
-          refCode={control.refCode}
-          referenceFramework={control.referenceFramework}
-          canCreateMappedControl={canCreateMappedControl}
-        />
+        <LinkedControlsTab controlId={control.id} subcontrols={control.subcontrols?.edges || []} refCode={control.refCode} referenceFramework={control.referenceFramework} />
       </TabsContent>
 
       <TabsContent value="guidance" className="space-y-6">
@@ -132,7 +129,7 @@ const ControlTabs: React.FC<ControlTabsProps> = ({ control, evidenceFormData, ca
       </TabsContent>
 
       <TabsContent value="documentation" className="space-y-6">
-        <DocumentationTab controlId={control.id} subcontrolIds={(control.subcontrols?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => !!id)} />
+        <DocumentationTab controlId={control.id} subcontrolIds={subcontrolIds} />
       </TabsContent>
     </Tabs>
   )

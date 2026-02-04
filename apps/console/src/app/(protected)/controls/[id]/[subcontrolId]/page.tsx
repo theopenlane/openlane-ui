@@ -6,8 +6,8 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, CirclePlus, PanelRightClose, InfoIcon } from 'lucide-react'
-import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
+import { PencilIcon, CirclePlus, PanelRightClose, InfoIcon, Sparkles } from 'lucide-react'
+import { Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useGetSubcontrolDiscussionById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
@@ -46,6 +46,9 @@ import ControlCommentsCard from '@/components/pages/protected/controls/comments-
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
+import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { useSession } from 'next-auth/react'
 
 interface FormValues {
   refCode: string
@@ -83,6 +86,10 @@ const initialDataObj = {
 }
 
 const ControlDetailsPage: React.FC = () => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+  const { data: userData } = useGetCurrentUser(userId)
+
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { subcontrolId, id } = useParams<{ subcontrolId: string; id: string }>()
 
@@ -107,6 +114,8 @@ const ControlDetailsPage: React.FC = () => {
   const { data: orgPermission } = useOrganizationRoles()
 
   const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)
+
+  const [showAskAIDialog, setShowAskAIDialog] = useState(false)
 
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
@@ -275,6 +284,9 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
+          <Button variant="secondary" className="h-8 !px-2" onClick={() => setShowAskAIDialog(true)} icon={<Sparkles size={16} />}>
+            Ask AI
+          </Button>
           <Menu
             trigger={CreateBtn}
             content={
@@ -395,7 +407,6 @@ const ControlDetailsPage: React.FC = () => {
             ...(subcontrol.refCode ? [subcontrol.refCode] : []),
           ],
         }}
-        evidences={subcontrol.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
       />
     </div>
   )
@@ -444,6 +455,31 @@ const ControlDetailsPage: React.FC = () => {
           <div className="py-4">{sheetData?.content}</div>
         </SheetContent>
       </Sheet>
+
+      <AIChat
+        open={showAskAIDialog}
+        onOpenChange={setShowAskAIDialog}
+        providedContext={{
+          control: {
+            refCode: subcontrol.refCode,
+            title: subcontrol.title,
+            framework: subcontrol.referenceFramework,
+            description: subcontrol.description,
+          },
+          organization: {
+            organizationName: currentOrganization?.node?.displayName,
+          },
+          user: {
+            name: userData?.user?.displayName,
+          },
+          background: "Subcontrol Details for the provided request, use this information to answer the user's question or provide suggestions.",
+        }}
+        contextKey={subcontrol.id}
+        object={{
+          type: 'subcontrol',
+          name: subcontrol.refCode,
+        }}
+      />
 
       <EvidenceDetailsSheet controlId={subcontrolId} />
 

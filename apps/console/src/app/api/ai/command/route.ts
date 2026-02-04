@@ -1,5 +1,4 @@
-import { createUIMessageStream, createUIMessageStreamResponse, generateObject, streamObject, streamText, StreamTextTransform, tool, ToolSet } from 'ai'
-
+import { createUIMessageStream, createUIMessageStreamResponse, generateText, Output, streamText, StreamTextTransform, tool, ToolSet } from 'ai'
 import { google } from '@ai-sdk/google'
 
 import { NextResponse, type NextRequest } from 'next/server'
@@ -13,17 +12,10 @@ import { z } from 'zod'
 import { getChooseToolPrompt, getCommentPrompt, getEditPrompt, getGeneratePrompt } from './prompts'
 import { auth } from '@/lib/auth/auth'
 
-// -----------------------------
-// CONFIG
-// -----------------------------
-
-// Default Gemini model
 const DEFAULT_MODEL = 'gemini-2.5-flash'
 
-// -----------------------------
-// MAIN ROUTE
-// -----------------------------
-
+// api/ai/command is used for AI-powered commands within the editor, such as commenting, editing, and generating content.
+// this is different than the ai/suggestions endpoint, which is used for generating suggestions based on context outside of the editor and is from the fine-tuned model.
 export async function POST(req: NextRequest) {
   const session = await auth()
 
@@ -47,7 +39,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing GOOGLE_GENERATIVE_AI_API_KEY.' }, { status: 401 })
   }
 
-  // Build Gemini model
   const buildModel = (name: string) => google(name)
 
   const selectedModel = buildModel(model || DEFAULT_MODEL)
@@ -58,14 +49,12 @@ export async function POST(req: NextRequest) {
       execute: async ({ writer }) => {
         let toolName = toolNameParam
 
-        //
-        // 1. CHOOSE TOOL WITH GEMINI
-        //
         if (!toolName) {
-          const { object: AIToolName } = await generateObject({
-            enum: isSelecting ? ['generate', 'edit', 'comment'] : ['generate', 'comment'],
+          const { text: AIToolName } = await generateText({
             model: selectedModel,
-            output: 'enum',
+            output: Output.choice({
+              options: isSelecting ? ['generate', 'edit', 'comment'] : ['generate', 'comment'],
+            }),
             prompt: getChooseToolPrompt(messagesRaw),
           })
 
@@ -77,9 +66,6 @@ export async function POST(req: NextRequest) {
           toolName = AIToolName
         }
 
-        //
-        // 2. STREAM TEXT USING GEMINI
-        //
         const stream = streamText({
           experimental_transform: markdownJoinerTransform() as StreamTextTransform<ToolSet>,
           model: selectedModel,
@@ -93,9 +79,6 @@ export async function POST(req: NextRequest) {
           },
 
           prepareStep: async (step) => {
-            //
-            // COMMENT TOOL
-            //
             if (toolName === 'comment') {
               return {
                 ...step,
@@ -103,9 +86,6 @@ export async function POST(req: NextRequest) {
               }
             }
 
-            //
-            // EDIT TOOL
-            //
             if (toolName === 'edit') {
               const editPrompt = getEditPrompt(editor, {
                 isSelecting,
@@ -120,9 +100,6 @@ export async function POST(req: NextRequest) {
               }
             }
 
-            //
-            // GENERATE TOOL
-            //
             if (toolName === 'generate') {
               const generatePrompt = getGeneratePrompt(editor, {
                 messages: messagesRaw,
@@ -149,10 +126,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// -----------------------------
-// COMMENT TOOL — PURE GEMINI
-// -----------------------------
-
 const getCommentTool = (
   editor: SlateEditor,
   {
@@ -170,19 +143,21 @@ const getCommentTool = (
     description: 'Comment on the content',
     inputSchema: z.object({}),
     execute: async () => {
-      const { elementStream } = streamObject({
+      const { elementStream } = streamText({
         model,
-        output: 'array',
+        output: Output.array({
+          element: z
+            .object({
+              blockId: z.string().describe('The id of the starting block. If the comment spans multiple blocks, use the id of the first block.'),
+              comment: z.string().describe('A brief comment or explanation.'),
+              content: z.string().describe(`The original document fragment. If spanning blocks, separate by two \\n\\n.`),
+            })
+            .describe('A single comment'),
+        }),
+
         prompt: getCommentPrompt(editor, {
           messages: messagesRaw,
         }),
-        schema: z
-          .object({
-            blockId: z.string().describe('The id of the starting block. If the comment spans multiple blocks, use the id of the first block.'),
-            comment: z.string().describe('A brief comment or explanation.'),
-            content: z.string().describe(`The original document fragment. If spanning blocks, separate by two \\n\\n.`),
-          })
-          .describe('A single comment'),
       })
 
       for await (const comment of elementStream) {

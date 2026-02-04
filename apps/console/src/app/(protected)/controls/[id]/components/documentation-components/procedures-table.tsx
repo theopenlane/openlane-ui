@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
 import { useDocumentationProcedures } from '@/lib/graphql-hooks/documentation'
@@ -96,7 +95,6 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
           searchValue={search}
           onSearchChange={setSearch}
           filterFields={filterFields ?? undefined}
-          filterKey={TableFilterKeysEnum.CONTROL_DOC_PROCEDURE}
           onFilterChange={setFilters}
         />
       }

@@ -137,14 +137,16 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
       insertContent: (text: string, clearBeforeInsert?: boolean) => {
         if (!editor) return
 
-        // Clear existing content if requested
-        if (clearBeforeInsert) {
-          editor.tf.reset()
-        }
-
         // @ts-expect-error fix bad typing from platejs
         // Deserialize markdown to Slate nodes
         const nodes = (editor.api.markdown?.deserialize?.(text) ?? []) as Value
+
+        // Clear existing content if requested and insert new content
+        if (clearBeforeInsert) {
+          editor.tf.reset()
+          editor.children = nodes
+          return
+        }
 
         // Insert at current selection
         editor.tf.insertNodes(nodes, {

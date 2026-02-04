@@ -1,9 +1,8 @@
-// components/AISuggestionsPanel.tsx
 import { Sparkles, Copy, Check, X, PlusCircle } from 'lucide-react'
 import { useState } from 'react'
 
 interface AISuggestionsPanelProps {
-  suggestions: string
+  suggestions: { text: string }
   loading?: boolean
   onDismiss?: () => void
   onInsert?: (text: string) => void
@@ -15,14 +14,14 @@ export function AISuggestionsPanel({ suggestions, loading = false, onDismiss, on
   const [inserted, setInserted] = useState(false)
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(suggestions)
+    await navigator.clipboard.writeText(suggestions.text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleInsert = () => {
     if (onInsert) {
-      onInsert(suggestions)
+      onInsert(suggestions.text)
       setInserted(true)
       setTimeout(() => setInserted(false), 2000)
     }
@@ -34,14 +33,14 @@ export function AISuggestionsPanel({ suggestions, loading = false, onDismiss, on
 
   return (
     <div className={containerClass}>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-purple-400" />
           <span className="text-sm font-medium opacity-70">{loading ? 'Generating suggestions...' : 'AI Suggestions'}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          {suggestions && !loading && (
+          {suggestions.text && !loading && (
             <>
               {/* Insert Button */}
               {onInsert && (
@@ -84,14 +83,20 @@ export function AISuggestionsPanel({ suggestions, loading = false, onDismiss, on
           )}
         </div>
       </div>
+      <div>
+        <span className="flex items-left text-xs text-muted mb-3">
+          <br />
+          AI-generated draft. Please review and edit for accuracy before publishing.
+        </span>
+      </div>
 
       <div className="text-sm whitespace-pre-wrap bg-secondary rounded p-3 max-h-64 overflow-y-auto">
-        {loading && !suggestions ? (
+        {loading && !suggestions.text ? (
           <div className="flex items-center gap-2">
             <div className="animate-pulse opacity-70">encrypting brilliance... stand by</div>
           </div>
         ) : (
-          suggestions
+          suggestions.text
         )}
       </div>
     </div>
