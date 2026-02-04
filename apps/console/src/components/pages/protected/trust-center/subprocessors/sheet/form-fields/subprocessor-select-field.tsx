@@ -30,7 +30,6 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
 
   const { subprocessors } = useGetSubprocessors({
     where: {
-      hasTrustCenterSubprocessors: false,
       nameContainsFold: debouncedKeyword,
     },
     pagination: {

@@ -33,6 +33,6 @@ repos:
       - id: eslint-console
         name: eslint check for console app
         language: node
-        entry: npx eslint --config apps/console/eslint.config.js --max-warnings=0
+        entry: npx eslint --config apps/console/eslint.config.js --max-warnings=0 --fix
         pass_filenames: true
         files: ^apps/console/.*\.(js|jsx|ts|tsx)$

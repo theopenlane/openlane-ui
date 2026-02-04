@@ -37,6 +37,11 @@ tasks:
     desc: build all apps and package
     cmd: bun run build
 
+  build:dev:
+    dir: apps/console
+    desc: build console in dev mode with debug info
+    cmd: bun run debug
+
   install:
     desc: install the dependencies listed in package.json
     cmds:
