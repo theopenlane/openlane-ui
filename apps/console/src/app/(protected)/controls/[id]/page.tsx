@@ -5,19 +5,17 @@ import { useParams, useRouter } from 'next/navigation'
 import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
-import { Button } from '@repo/ui/button'
-import { CopyPlus, InfoIcon, MoreHorizontal, PanelRightClose, PencilIcon, Sparkles, Trash2 } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
-import InfoCard from '@/components/pages/protected/controls/info-card.tsx'
 import { Control, ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
-import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
-import Menu from '@/components/shared/menu/menu.tsx'
+import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
 import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -25,22 +23,19 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Loading from './loading.tsx'
 import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
-import { ControlTabs, QuickActions } from './components'
+import ControlTabs from '@/components/pages/protected/controls/tabs/tabs.tsx'
+import QuickActions from '@/components/pages/protected/controls/quick-actions/quick-actions.tsx'
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 
 interface FormValues {
   refCode: string
@@ -57,11 +52,6 @@ interface FormValues {
   auditorReferenceID?: string
   title: string
   controlKindName?: string
-}
-
-interface SheetData {
-  refCode: string
-  content: React.ReactNode
 }
 
 const initialDataObj = {
@@ -94,8 +84,6 @@ const ControlDetailsPage: React.FC = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const [showAskAIDialog, setShowAskAIDialog] = useState(false)
-  const [showSheet, setShowSheet] = useState<boolean>(false)
-  const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: deleteControl } = useDeleteControl()
@@ -205,20 +193,6 @@ const ControlDetailsPage: React.FC = () => {
     }
   }
 
-  const showInfoDetails = (refCode: string, content: React.ReactNode) => {
-    setSheetData({ refCode, content })
-    setShowSheet(true)
-  }
-
-  const handleSheetClose = (open: boolean) => {
-    if (!open) {
-      setShowSheet(false)
-      setTimeout(() => {
-        setSheetData(null)
-      }, 300)
-    }
-  }
-
   const handleDeleteControl = async () => {
     if (!id) return
 
@@ -274,87 +248,6 @@ const ControlDetailsPage: React.FC = () => {
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control = data?.control
   const isVerified = control.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
-  const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
-
-  const menuComponent = (
-    <div className="space-y-4">
-      {isEditing && (
-        <div className="flex gap-2 justify-end">
-          <CancelButton onClick={handleCancel}></CancelButton>
-          <SaveButton />
-        </div>
-      )}
-      {!isEditing && (
-        <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="h-8 !px-2" onClick={() => setShowAskAIDialog(true)} icon={<Sparkles size={16} />}>
-            Ask AI
-          </Button>
-          {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
-            <div className="flex gap-2">
-              {canEdit(permission?.roles) && (
-                <Button type="button" variant="secondary" onClick={(e) => handleEdit(e)} aria-label="Edit control" icon={<PencilIcon size={16} strokeWidth={2} />} iconPosition="left">
-                  Edit
-                </Button>
-              )}
-            </div>
-          )}
-          <Menu
-            trigger={
-              <Button type="button" variant="secondary" className="h-8 px-2">
-                <MoreHorizontal size={16} />
-              </Button>
-            }
-            content={
-              <>
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControl) && (
-                  <Link href={`/controls/${id}/clone-control?mapControlId=${id}`}>
-                    <button className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer">
-                      <CopyPlus size={16} strokeWidth={2} />
-                      <span>Clone Control</span>
-                    </button>
-                  </Link>
-                )}
-                {canDelete(permission?.roles) && (
-                  <button onClick={() => setIsDeleteDialogOpen(true)} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                    <Trash2 size={16} strokeWidth={2} />
-                    <span>Delete</span>
-                  </button>
-                )}
-              </>
-            }
-          />
-        </div>
-      )}
-    </div>
-  )
-
-  const evidenceControlParam = {
-    id: control.id,
-    referenceFramework: {
-      [control?.id ?? 'default']: control?.referenceFramework ?? '',
-    },
-    controlRefCodes: [control?.refCode],
-  }
-
-  const evidenceFormData = {
-    displayID: control?.refCode,
-    controlID: control.id,
-    controlRefCodes: [control?.refCode],
-    referenceFramework: {
-      [control?.id ?? 'default']: control?.referenceFramework ?? '',
-    },
-    programDisplayIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
-    objectAssociations: {
-      controlIDs: [control?.id],
-      programIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    },
-    objectAssociationsDisplayIDs: [
-      ...((associationsData?.control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-      ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-      ...(control.refCode ? [control.refCode] : []),
-    ],
-  }
 
   const mainContent = (
     <div className="space-y-6 p-2">
@@ -375,7 +268,18 @@ const ControlDetailsPage: React.FC = () => {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">{menuComponent}</div>
+        <div className="flex items-center gap-2">
+          <ControlHeaderActions
+            controlId={id}
+            isEditing={isEditing}
+            onEdit={handleEdit}
+            onCancel={handleCancel}
+            onDeleteClick={() => setIsDeleteDialogOpen(true)}
+            onAskAI={() => setShowAskAIDialog(true)}
+            permissionRoles={permission?.roles}
+            orgPermissionRoles={orgPermission?.roles}
+          />
+        </div>
       </div>
       {isEditing && isSourceFramework && (
         <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
@@ -413,21 +317,9 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <QuickActions
-        controlId={id}
-        evidenceFormData={evidenceFormData}
-        evidenceControlParam={evidenceControlParam}
-        taskInitialData={{
-          programIDs: (associationsData?.control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-          procedureIDs: (associationsData?.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-          internalPolicyIDs: (associationsData?.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-          controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-          riskIDs: (associationsData?.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-          controlIDs: [id],
-        }}
-      />
+      <QuickActions kind="control" controlId={id} control={control} />
 
-      <ControlTabs control={control as Control} evidenceFormData={evidenceFormData} />
+      <ControlTabs kind="control" control={control as Control} />
     </div>
   )
 
@@ -437,16 +329,6 @@ const ControlDetailsPage: React.FC = () => {
 
       <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} canEdit={canEdit(permission?.roles)} />
       <ControlCommentsCard />
-      {hasInfoData && (
-        <InfoCard
-          implementationGuidance={control.implementationGuidance}
-          exampleEvidence={control.exampleEvidence}
-          controlQuestions={control.controlQuestions}
-          assessmentMethods={control.assessmentMethods}
-          assessmentObjectives={control.assessmentObjectives}
-          showInfoDetails={showInfoDetails}
-        />
-      )}
     </>
   )
 
@@ -462,19 +344,6 @@ const ControlDetailsPage: React.FC = () => {
       </FormProvider>
 
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
-
-      <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-        <SheetContent
-          header={
-            <SheetHeader>
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-              <SheetTitle>{sheetData?.refCode}</SheetTitle>
-            </SheetHeader>
-          }
-        >
-          <div className="py-4">{sheetData?.content}</div>
-        </SheetContent>
-      </Sheet>
 
       <AIChat
         open={showAskAIDialog}

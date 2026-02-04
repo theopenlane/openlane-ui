@@ -70,7 +70,7 @@ export const ControlImplementationCard = ({ obj }: Props) => {
       <div className="w-px bg-border self-stretch mx-6" />
 
       {/* Controls/Subcontrols */}
-      <div className="w-[350px] flex-shrink-0">
+      <div className="w-[350px] shrink-0">
         <div className="flex justify-between items-center mb-2">
           <p className="text-lg">Controls</p>
           <LinkControlsModal

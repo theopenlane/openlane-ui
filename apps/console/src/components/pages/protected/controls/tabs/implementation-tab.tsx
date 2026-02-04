@@ -14,7 +14,8 @@ import { ImplementationItem } from '@/components/pages/protected/controls/contro
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ImplementationTab: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
+  const isSubcontrol = !!subcontrolId
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [existingIds, setExistingIds] = useState<string[]>([])
@@ -23,7 +24,7 @@ const ImplementationTab: React.FC = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const { data, isLoading } = useGetAllControlImplementations({
-    hasControlsWith: [{ id }],
+    ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
   })
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
@@ -97,7 +98,7 @@ const ImplementationTab: React.FC = () => {
         <CreateControlImplementationSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
-          <p className="mb-2 text-sm">No Implementations found for this Control.</p>
+          <p className="mb-2 text-sm">No Implementations found for this {isSubcontrol ? 'Subcontrol' : 'Control'}.</p>
           <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
             <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
               Create a new one

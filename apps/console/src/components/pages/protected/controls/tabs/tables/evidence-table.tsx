@@ -9,12 +9,12 @@ import { useParams } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import EvidenceCreateSheet from './evidence-create-sheet'
-import { CustomEvidenceControl } from './evidence-sheet-config'
+import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
+import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { SearchFilterBar, mergeWhere } from '@/app/(protected)/controls/[id]/components/documentation-components/shared'
+import { SearchFilterBar, mergeWhere } from '@/components/pages/protected/controls/tabs/documentation-components/shared'
 import { EvidenceOrder, EvidenceOrderField, EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
@@ -123,7 +123,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     () => [
       {
         accessorKey: 'displayID',
-        header: 'ID',
+        header: () => <span className="whitespace-nowrap">ID</span>,
         cell: ({ row }) => (
           <button type="button" className="text-blue-500 hover:underline" onClick={() => evidenceSheetHandler(row.original.id)}>
             {row.original.displayID}
@@ -133,12 +133,12 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
       },
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: () => <span className="whitespace-nowrap">Name</span>,
         cell: ({ row }) => <span className="truncate">{row.original.name}</span>,
       },
       {
         accessorKey: 'updatedAt',
-        header: 'Last Updated',
+        header: () => <span className="whitespace-nowrap">Last Updated</span>,
         cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSince(row.original.updatedAt)}</span>,
         size: 140,
       },

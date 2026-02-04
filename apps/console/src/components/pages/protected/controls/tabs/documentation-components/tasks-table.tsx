@@ -18,7 +18,7 @@ import type { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTa
 import { AssociationSection, SearchFilterBar, buildAssociationFilter, getBaseColumns, mergeWhere } from './shared'
 
 type TasksTableProps = {
-  controlId: string
+  controlId?: string
   subcontrolIds: string[]
 }
 

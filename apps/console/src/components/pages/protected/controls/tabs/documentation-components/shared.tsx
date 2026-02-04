@@ -19,14 +19,22 @@ export type AssociationRow = {
   href: string
 }
 
-export const buildAssociationFilter = (controlId: string, subcontrolIds: string[]) => {
-  if (subcontrolIds.length > 0) {
+export const buildAssociationFilter = (controlId?: string, subcontrolIds: string[] = []) => {
+  if (controlId && subcontrolIds.length > 0) {
     return {
       or: [{ hasControlsWith: [{ id: controlId }] }, { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }],
     }
   }
 
-  return { hasControlsWith: [{ id: controlId }] }
+  if (controlId) {
+    return { hasControlsWith: [{ id: controlId }] }
+  }
+
+  if (subcontrolIds.length > 0) {
+    return { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }
+  }
+
+  return {}
 }
 
 const isEmptyCondition = (value: unknown): boolean => {
@@ -44,7 +52,7 @@ export const mergeWhere = <T extends { and?: T[] | null | undefined }>(condition
 export const getBaseColumns = (): ColumnDef<AssociationRow>[] => [
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: () => <span className="whitespace-nowrap">Name</span>,
     cell: ({ row }) => (
       <Link href={row.original.href} className="text-blue-500 hover:underline">
         {row.original.name}
@@ -53,7 +61,7 @@ export const getBaseColumns = (): ColumnDef<AssociationRow>[] => [
   },
   {
     accessorKey: 'updatedAt',
-    header: 'Last Updated',
+    header: () => <span className="whitespace-nowrap">Last Updated</span>,
     cell: ({ row }) => <span className="whitespace-nowrap">{formatTimeSince(row.original.updatedAt)}</span>,
     size: 140,
   },

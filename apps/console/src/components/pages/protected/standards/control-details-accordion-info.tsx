@@ -3,7 +3,23 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
-import { AssessmentMethod, AssessmentObjective, ExampleEvidence } from '../controls/info-card'
+
+export interface AssessmentMethod {
+  id: string
+  type: string
+  method: string
+}
+
+export interface AssessmentObjective {
+  id: string
+  class: string
+  objective: string
+}
+
+export interface ExampleEvidence {
+  documentationType: string
+  description: string
+}
 
 interface AccordionInfoProps {
   implementationGuidance: { referenceId: string; guidance: string[] }[] | null | undefined
@@ -127,7 +143,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
               <div className="flex items-center gap-2">
                 <span className="text-base font-medium">{item.label}</span>
               </div>
-              <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+              <ChevronDown size={22} className="text-brand transform transition-transform group-data-[state=open]:rotate-0" />
             </button>
           </AccordionTrigger>
           <AccordionContent className="pt-2">{item.render()}</AccordionContent>

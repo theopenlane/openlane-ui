@@ -1,28 +1,15 @@
 import React from 'react'
-import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/controls/tabs/tables/evidence-table'
 import { Card } from '@repo/ui/cardpanel'
+import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 
 interface ExampleEvidence {
   documentationType: string
   description: string
 }
 
-interface EvidenceFormData {
-  displayID?: string
-  controlID: string
-  controlRefCodes: string[]
-  referenceFramework: Record<string, string>
-  programDisplayIDs: string[]
-  objectAssociations: {
-    controlIDs: string[]
-    programIDs: string[]
-    controlObjectiveIDs: string[]
-  }
-  objectAssociationsDisplayIDs: string[]
-}
-
 interface EvidenceTabProps {
-  evidenceFormData: EvidenceFormData
+  evidenceFormData: TFormEvidenceData
   exampleEvidence?: ExampleEvidence[] | string | null
   subcontrolIds?: string[]
 }

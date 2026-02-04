@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
+import SubcontrolsTable from '@/components/pages/protected/controls/tabs/tables/subcontrols-table'
 import { DataTable } from '@repo/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
-import { SearchFilterBar } from '@/app/(protected)/controls/[id]/components/documentation-components/shared'
+import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/documentation-components/shared'
 import type { FilterField, WhereCondition } from '@/types'
+import { extractFilterValues } from '@/components/pages/protected/controls/table-filter/extract-filter-values'
 import { FileBadge2, Layers, Link2 } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import Link from 'next/link'
@@ -24,8 +26,9 @@ interface SubcontrolEdge {
 }
 
 interface LinkedControlsTabProps {
-  subcontrols: (SubcontrolEdge | null)[]
-  controlId: string
+  subcontrols?: (SubcontrolEdge | null)[]
+  controlId?: string
+  subcontrolId?: string
   refCode: string
   referenceFramework?: string | null
 }
@@ -37,50 +40,60 @@ type MappedControlRow = {
   mappingType: MappedControlMappingType
   relation?: string | null
   source: MappedControlMappingSource
+  nodeType: 'Control' | 'Subcontrol'
 }
 
 type MappingTypeFilter = 'all' | MappedControlMappingType
 type MappingSourceFilter = 'all' | MappedControlMappingSource
 
-const extractFilterValues = (condition?: WhereCondition): Record<string, unknown> => {
-  if (!condition) return {}
-  if ('and' in condition && Array.isArray(condition.and)) {
-    return condition.and.reduce<Record<string, unknown>>((acc, entry) => {
-      Object.entries(entry as Record<string, unknown>).forEach(([key, value]) => {
-        if (key !== 'and' && key !== 'or') acc[key] = value
-      })
-      return acc
-    }, {})
-  }
-  return Object.entries(condition as Record<string, unknown>).reduce<Record<string, unknown>>((acc, [key, value]) => {
-    if (key !== 'and' && key !== 'or') acc[key] = value
-    return acc
-  }, {})
-}
-
-const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, controlId, refCode, referenceFramework }) => {
+const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, controlId, subcontrolId, refCode, referenceFramework }) => {
+  const isSubcontrolMode = !!subcontrolId
   const mappedControlWhere = useMemo(() => {
     const withFilter = { refCode, referenceFramework }
-    const suggestedControlWhere = {
-      and: [
-        { source: MappedControlMappingSource.SUGGESTED },
-        {
-          or: [{ hasFromControlsWith: [withFilter] }, { hasToControlsWith: [withFilter] }],
-        },
-      ],
+    const suggestedControlWhere = isSubcontrolMode
+      ? {
+          and: [
+            { source: MappedControlMappingSource.SUGGESTED },
+            {
+              or: [{ hasFromSubcontrolsWith: [withFilter] }, { hasToSubcontrolsWith: [withFilter] }],
+            },
+          ],
+        }
+      : {
+          and: [
+            { source: MappedControlMappingSource.SUGGESTED },
+            {
+              or: [{ hasFromControlsWith: [withFilter] }, { hasToControlsWith: [withFilter] }],
+            },
+          ],
+        }
+
+    if (isSubcontrolMode && subcontrolId) {
+      return {
+        or: [
+          suggestedControlWhere,
+          {
+            or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }],
+          },
+        ],
+      }
     }
 
-    return {
-      or: [
-        suggestedControlWhere,
-        {
-          or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }],
-        },
-      ],
+    if (controlId) {
+      return {
+        or: [
+          suggestedControlWhere,
+          {
+            or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }],
+          },
+        ],
+      }
     }
-  }, [controlId, refCode, referenceFramework])
 
-  const { data: mappedControlsData } = useGetMappedControls({ where: mappedControlWhere, enabled: !!controlId })
+    return suggestedControlWhere
+  }, [controlId, subcontrolId, refCode, referenceFramework, isSubcontrolMode])
+
+  const { data: mappedControlsData } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
 
   const mappedControls = useMemo<MappedControlRow[]>(() => {
     const rows: MappedControlRow[] = []
@@ -94,15 +107,44 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, cont
       const mappingSource = node.source ?? MappedControlMappingSource.SUGGESTED
       const fromControls = node.fromControls?.edges?.map((e) => e?.node).filter(Boolean) ?? []
       const toControls = node.toControls?.edges?.map((e) => e?.node).filter(Boolean) ?? []
+      const fromSubcontrols = node.fromSubcontrols?.edges?.map((e) => e?.node).filter(Boolean) ?? []
+      const toSubcontrols = node.toSubcontrols?.edges?.map((e) => e?.node).filter(Boolean) ?? []
 
-      const isFrom = fromControls.some((control) => control?.id === controlId || control?.refCode === refCode)
-      const isTo = toControls.some((control) => control?.id === controlId || control?.refCode === refCode)
+      const isFrom = isSubcontrolMode
+        ? fromSubcontrols.some((sub) => sub?.id === subcontrolId || sub?.refCode === refCode)
+        : fromControls.some((control) => control?.id === controlId || control?.refCode === refCode)
+      const isTo = isSubcontrolMode
+        ? toSubcontrols.some((sub) => sub?.id === subcontrolId || sub?.refCode === refCode)
+        : toControls.some((control) => control?.id === controlId || control?.refCode === refCode)
+
+      if (!isFrom && !isTo) return
+
+      if (!isSubcontrolMode) {
+        const oppositeControls = isFrom ? toControls : isTo ? fromControls : []
+        oppositeControls.forEach((control) => {
+          if (!control?.refCode) return
+          const key = `Control-${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
+          if (seen.has(key)) return
+          seen.add(key)
+          rows.push({
+            id: key,
+            refCode: control.refCode,
+            referenceFramework: control.referenceFramework,
+            mappingType: node.mappingType,
+            relation: node.relation,
+            source: mappingSource,
+            nodeType: 'Control',
+          })
+        })
+        return
+      }
 
       const oppositeControls = isFrom ? toControls : isTo ? fromControls : []
+      const oppositeSubcontrols = isFrom ? toSubcontrols : isTo ? fromSubcontrols : []
 
       oppositeControls.forEach((control) => {
         if (!control?.refCode) return
-        const key = `${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
+        const key = `Control-${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
         if (seen.has(key)) return
         seen.add(key)
         rows.push({
@@ -112,15 +154,56 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, cont
           mappingType: node.mappingType,
           relation: node.relation,
           source: mappingSource,
+          nodeType: 'Control',
+        })
+      })
+
+      oppositeSubcontrols.forEach((subcontrol) => {
+        if (!subcontrol?.refCode) return
+        const key = `Subcontrol-${subcontrol.refCode}-${subcontrol.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
+        if (seen.has(key)) return
+        seen.add(key)
+        rows.push({
+          id: key,
+          refCode: subcontrol.refCode,
+          referenceFramework: subcontrol.referenceFramework,
+          mappingType: node.mappingType,
+          relation: node.relation,
+          source: mappingSource,
+          nodeType: 'Subcontrol',
         })
       })
     })
 
     return rows
-  }, [mappedControlsData, controlId, refCode])
+  }, [mappedControlsData, controlId, subcontrolId, refCode, isSubcontrolMode])
 
-  const controlRefCodes = useMemo(() => Array.from(new Set(mappedControls.map((row) => row.refCode).filter(Boolean))), [mappedControls])
+  const controlRefCodes = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          mappedControls
+            .filter((row) => row.nodeType === 'Control')
+            .map((row) => row.refCode)
+            .filter(Boolean),
+        ),
+      ),
+    [mappedControls],
+  )
+  const subcontrolRefCodes = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          mappedControls
+            .filter((row) => row.nodeType === 'Subcontrol')
+            .map((row) => row.refCode)
+            .filter(Boolean),
+        ),
+      ),
+    [mappedControls],
+  )
   const { data: refcodeData } = useGetControlsByRefCode({ refCodeIn: controlRefCodes, enabled: controlRefCodes.length > 0 })
+  const { data: subcontrolRefcodeData } = useGetSubcontrolsByRefCode({ refCodeIn: subcontrolRefCodes, enabled: subcontrolRefCodes.length > 0 })
 
   const controlLinkMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -135,6 +218,19 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, cont
     return map
   }, [refcodeData])
 
+  const subcontrolLinkMap = useMemo(() => {
+    const map = new Map<string, string>()
+    subcontrolRefcodeData?.subcontrols?.edges?.forEach((edge) => {
+      const node = edge?.node
+      if (!node?.refCode) return
+      const href = node.systemOwned ? `/standards/${node.control?.standardID}?controlId=${node.id}` : `/controls/${node.controlID}/${node.id}`
+      if (!map.has(node.refCode) || !node.systemOwned) {
+        map.set(node.refCode, href)
+      }
+    })
+    return map
+  }, [subcontrolRefcodeData])
+
   const customMappedControls = useMemo(() => mappedControls.filter((row) => !row.referenceFramework || row.referenceFramework === 'CUSTOM'), [mappedControls])
   const frameworkMappedControls = useMemo(() => mappedControls.filter((row) => row.referenceFramework && row.referenceFramework !== 'CUSTOM'), [mappedControls])
 
@@ -142,9 +238,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, cont
     () => [
       {
         accessorKey: 'refCode',
-        header: 'Ref Code',
+        header: () => <span className="whitespace-nowrap">Ref Code</span>,
         cell: ({ row }) => {
-          const href = controlLinkMap.get(row.original.refCode)
+          const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(row.original.refCode) : controlLinkMap.get(row.original.refCode)
           if (!href) return row.original.refCode
           return (
             <Link href={href} className="text-blue-500 hover:underline">
@@ -155,31 +251,31 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ subcontrols, cont
       },
       {
         accessorKey: 'referenceFramework',
-        header: 'Framework',
+        header: () => <span className="whitespace-nowrap">Framework</span>,
         cell: ({ row }) => (row.original.referenceFramework ? <StandardChip referenceFramework={row.original.referenceFramework} /> : <span className="text-muted-foreground">Custom</span>),
       },
       {
         accessorKey: 'mappingType',
-        header: 'Mapping Type',
+        header: () => <span className="whitespace-nowrap">Mapping Type</span>,
         cell: ({ row }) => formatEnumLabel(row.original.mappingType),
       },
       {
         accessorKey: 'relation',
-        header: 'Relation',
+        header: () => <span className="whitespace-nowrap">Relation</span>,
         cell: ({ row }) => row.original.relation || '-',
       },
       {
         accessorKey: 'source',
-        header: 'Source',
+        header: () => <span className="whitespace-nowrap">Source</span>,
         cell: ({ row }) => formatEnumLabel(row.original.source),
       },
     ],
-    [controlLinkMap],
+    [controlLinkMap, subcontrolLinkMap],
   )
 
   return (
     <div className="space-y-6 mt-6">
-      <SubcontrolsTable subcontrols={subcontrols} />
+      {!isSubcontrolMode && subcontrols && <SubcontrolsTable subcontrols={subcontrols} />}
       <MappedControlsTable title="Mapped Controls (Non-framework)" rows={customMappedControls} columns={mappedColumns} searchPlaceholder="Search mapped controls" showFrameworkFilter={false} />
       <MappedControlsTable title="Mapped Controls (Framework)" rows={frameworkMappedControls} columns={mappedColumns} searchPlaceholder="Search framework mapped controls" showFrameworkFilter />
     </div>

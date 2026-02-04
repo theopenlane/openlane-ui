@@ -10,7 +10,7 @@ import type { TPagination } from '@repo/ui/pagination-types'
 import { AssociationSection, SearchFilterBar, buildAssociationFilter, getBaseColumns, mergeWhere } from './shared'
 
 type ProgramsTableProps = {
-  controlId: string
+  controlId?: string
   subcontrolIds: string[]
 }
 

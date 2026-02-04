@@ -40,8 +40,6 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
   const [sheetOpen, setSheetOpen] = useState(false)
   const path = usePathname()
 
-  // fetch suggested mapped controls, which are the ones created by the system based on control references
-  // we cannot use the control ID because this is unique to the control and not the refCode for the control within the organization
   const withFilter = { refCode: refCode, referenceFramework: sourceFramework }
   const suggestedControlWhere = {
     and: [
@@ -169,7 +167,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
     })
   })
 
-  const filteredGrouped = Object.fromEntries(
+  const filteredGrouped: GroupedControls = Object.fromEntries(
     Object.entries(grouped)
       .filter(([framework]) => {
         if (filterFramework === 'custom') return framework === 'CUSTOM'
@@ -181,7 +179,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
         return [framework, filteredNodes]
       })
       .filter(([, nodes]) => nodes.length > 0),
-  )
+  ) as GroupedControls
 
   const allControlRefCodes = Object.values(filteredGrouped)
     .flatMap((nodes) => nodes.filter((n) => n.type === 'Control').map((n) => n.refCode))

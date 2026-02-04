@@ -15,7 +15,7 @@ import type { TPagination } from '@repo/ui/pagination-types'
 import { AssociationSection, SearchFilterBar, buildAssociationFilter, getBaseColumns, mergeWhere } from './shared'
 
 type RisksTableProps = {
-  controlId: string
+  controlId?: string
   subcontrolIds: string[]
 }
 

@@ -32,7 +32,7 @@ const getNodes = <T>(connection?: Connection<T> | null): T[] => (connection?.edg
 
 const getPaginationMeta = (connection?: Connection<unknown> | null, isLoading?: boolean): TPaginationMeta => ({
   totalCount: connection?.totalCount ?? 0,
-  pageInfo: connection?.pageInfo,
+  pageInfo: connection?.pageInfo ?? undefined,
   isLoading,
 })
 

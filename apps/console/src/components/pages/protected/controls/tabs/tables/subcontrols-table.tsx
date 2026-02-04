@@ -13,10 +13,11 @@ import { DataTable } from '@repo/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { SearchFilterBar } from '@/app/(protected)/controls/[id]/components/documentation-components/shared'
+import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/documentation-components/shared'
 import type { FilterField, WhereCondition } from '@/types'
 import { FileText } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
+import { extractFilterValues } from '@/components/pages/protected/controls/table-filter/extract-filter-values'
 
 type Props = {
   subcontrols: ({
@@ -46,22 +47,6 @@ const subcontrolsFilterFields: FilterField[] = [
     ],
   },
 ]
-
-const extractFilterValues = (condition?: WhereCondition): Record<string, unknown> => {
-  if (!condition) return {}
-  if ('and' in condition && Array.isArray(condition.and)) {
-    return condition.and.reduce<Record<string, unknown>>((acc, entry) => {
-      Object.entries(entry as Record<string, unknown>).forEach(([key, value]) => {
-        if (key !== 'and' && key !== 'or') acc[key] = value
-      })
-      return acc
-    }, {})
-  }
-  return Object.entries(condition as Record<string, unknown>).reduce<Record<string, unknown>>((acc, [key, value]) => {
-    if (key !== 'and' && key !== 'or') acc[key] = value
-    return acc
-  }, {})
-}
 
 const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
   const { id } = useParams<{ id: string }>()
@@ -114,7 +99,7 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
     () => [
       {
         accessorKey: 'refCode',
-        header: 'Ref Code',
+        header: () => <span className="whitespace-nowrap">Ref Code</span>,
         cell: ({ row }) => (
           <Link href={`/controls/${id}/${row.original.id}`} className="text-blue-500 hover:underline">
             {row.original.refCode}
@@ -123,7 +108,7 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
       },
       {
         accessorKey: 'description',
-        header: 'Description',
+        header: () => <span className="whitespace-nowrap">Description</span>,
         cell: ({ row }) => <span className="block max-w-[700px] truncate">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</span>,
       },
     ],

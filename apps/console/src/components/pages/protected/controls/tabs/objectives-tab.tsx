@@ -18,7 +18,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const ObjectivesTab: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
+  const isSubcontrol = !!subcontrolId
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [existingIds, setExistingIds] = useState<string[]>([])
@@ -31,7 +32,7 @@ const ObjectivesTab: React.FC = () => {
   const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
 
   const { data, isLoading } = useGetAllControlObjectives({
-    hasControlsWith: [{ id }],
+    ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
     ...(archivedChecked ? {} : { statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED }),
   })
 
@@ -123,7 +124,7 @@ const ObjectivesTab: React.FC = () => {
         </div>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
-          <p className="mb-2 text-sm">No Objective found for this Control.</p>
+          <p className="mb-2 text-sm">No Objective found for this {isSubcontrol ? 'Subcontrol' : 'Control'}.</p>
           {createAllowed && (
             <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
               <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
