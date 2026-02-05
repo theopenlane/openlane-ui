@@ -16,13 +16,10 @@ import type { FilterField, WhereCondition } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { extractFilterValues } from '@/components/pages/protected/controls/table-filter/extract-filter-values'
 import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow } from './subcontrols-table-config'
-import type { SubcontrolsPaginatedNode } from './types'
+import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
+import type { SubcontrolControlSource, SubcontrolWhereInput } from '@repo/codegen/src/schema'
 
-type Props = {
-  subcontrols: SubcontrolsPaginatedNode[]
-}
-
-const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
+const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { convertToReadOnly } = usePlateEditor()
   const { data: orgPermission } = useOrganizationRoles()
@@ -32,10 +29,55 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
+  const filterValues = useMemo(() => extractFilterValues(filters), [filters])
+  const typeFilter = useMemo(() => (filterValues.typeIn ?? []) as string[] | string, [filterValues.typeIn])
+  const sourceFilter = useMemo(() => (filterValues.sourceIn ?? []) as string[] | string, [filterValues.sourceIn])
+  const categoryFilter = useMemo(() => (filterValues.categoryContainsFold ?? '') as string, [filterValues.categoryContainsFold])
+  const subcategoryFilter = useMemo(() => (filterValues.subcategoryContainsFold ?? '') as string, [filterValues.subcategoryContainsFold])
+
+  const where = useMemo<SubcontrolWhereInput>(() => {
+    const conditions: SubcontrolWhereInput[] = [{ controlID: id }]
+
+    if (Array.isArray(typeFilter) && typeFilter.length > 0) {
+      conditions.push({ subcontrolKindNameIn: typeFilter })
+    }
+
+    if (Array.isArray(sourceFilter) && sourceFilter.length > 0) {
+      conditions.push({ sourceIn: sourceFilter as SubcontrolControlSource[] })
+    }
+
+    if (categoryFilter.trim()) {
+      conditions.push({ categoryContainsFold: categoryFilter.trim() })
+    }
+
+    if (subcategoryFilter.trim()) {
+      conditions.push({ subcategoryContainsFold: subcategoryFilter.trim() })
+    }
+
+    const searchText = debouncedSearch.trim()
+    if (searchText) {
+      conditions.push({
+        or: [{ refCodeContainsFold: searchText }, { descriptionContainsFold: searchText }],
+      })
+    }
+
+    if (conditions.length === 1) {
+      return conditions[0]
+    }
+
+    return { and: conditions }
+  }, [id, typeFilter, sourceFilter, categoryFilter, subcategoryFilter, debouncedSearch])
+
+  const { subcontrols, paginationMeta, isLoading } = useGetSubcontrolsPaginated({
+    where,
+    pagination,
+    enabled: Boolean(id),
+  })
+
   const cleanedSubcontrols = useMemo<SubcontrolRow[]>(
     () =>
       subcontrols
-        .filter((node): node is SubcontrolsPaginatedNode => !!node?.id && typeof node.refCode === 'string')
+        .filter((node): node is typeof node & { id: string; refCode: string } => !!node?.id && typeof node.refCode === 'string')
         .map((node) => ({
           id: node.id,
           refCode: node.refCode,
@@ -48,13 +90,6 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
         })),
     [subcontrols],
   )
-
-  const normalizedSearch = debouncedSearch.trim().toLowerCase()
-  const filterValues = useMemo(() => extractFilterValues(filters), [filters])
-  const typeFilter = useMemo(() => (filterValues.typeIn ?? []) as string[] | string, [filterValues.typeIn])
-  const sourceFilter = useMemo(() => (filterValues.sourceIn ?? []) as string[] | string, [filterValues.sourceIn])
-  const categoryFilter = useMemo(() => (filterValues.categoryContainsFold ?? '') as string, [filterValues.categoryContainsFold])
-  const subcategoryFilter = useMemo(() => (filterValues.subcategoryContainsFold ?? '') as string, [filterValues.subcategoryContainsFold])
 
   const typeOptions = useMemo(() => {
     const options = new Set<string>()
@@ -74,35 +109,6 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
 
   const subcontrolsFilterFields = useMemo<FilterField[]>(() => getSubcontrolsFilterFields(typeOptions, sourceOptions), [sourceOptions, typeOptions])
 
-  const filteredSubcontrols = useMemo(() => {
-    const normalizedCategory = categoryFilter.trim().toLowerCase()
-    const normalizedSubcategory = subcategoryFilter.trim().toLowerCase()
-
-    return cleanedSubcontrols.filter((row) => {
-      if (Array.isArray(typeFilter) && typeFilter.length > 0 && !typeFilter.includes(row.type ?? '')) return false
-      if (!Array.isArray(typeFilter) && typeFilter !== 'all' && row.type !== typeFilter) return false
-
-      if (Array.isArray(sourceFilter) && sourceFilter.length > 0 && !sourceFilter.includes(row.source ?? '')) return false
-      if (!Array.isArray(sourceFilter) && sourceFilter !== 'all' && row.source !== sourceFilter) return false
-
-      if (normalizedCategory && !(row.category ?? '').toLowerCase().includes(normalizedCategory)) return false
-
-      if (normalizedSubcategory && !(row.subcategory ?? '').toLowerCase().includes(normalizedSubcategory)) return false
-
-      if (!normalizedSearch) return true
-
-      const descriptionText = row.description ? row.description.replace(/<[^>]*>/g, '').toLowerCase() : ''
-      return (
-        row.refCode.toLowerCase().includes(normalizedSearch) ||
-        descriptionText.includes(normalizedSearch) ||
-        (row.type ?? '').toLowerCase().includes(normalizedSearch) ||
-        (row.source ?? '').toLowerCase().includes(normalizedSearch) ||
-        (row.category ?? '').toLowerCase().includes(normalizedSearch) ||
-        (row.subcategory ?? '').toLowerCase().includes(normalizedSearch)
-      )
-    })
-  }, [cleanedSubcontrols, typeFilter, sourceFilter, categoryFilter, subcategoryFilter, normalizedSearch])
-
   useEffect(() => {
     setPagination((prev) => ({
       ...prev,
@@ -110,11 +116,6 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
       query: { first: prev.pageSize },
     }))
   }, [searchQuery, filters])
-
-  const pagedSubcontrols = useMemo(() => {
-    const start = (pagination.page - 1) * pagination.pageSize
-    return filteredSubcontrols.slice(start, start + pagination.pageSize)
-  }, [filteredSubcontrols, pagination.page, pagination.pageSize])
 
   const columns = useMemo(() => getSubcontrolsColumns(id, convertToReadOnly), [convertToReadOnly, id])
 
@@ -138,10 +139,11 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
 
       <DataTable
         columns={columns}
-        data={pagedSubcontrols}
+        data={cleanedSubcontrols}
+        loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}
-        paginationMeta={{ totalCount: filteredSubcontrols.length }}
+        paginationMeta={paginationMeta}
         noResultsText="No subcontrols found."
         tableKey={undefined}
       />

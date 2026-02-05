@@ -63288,6 +63288,9 @@ export type GetSubcontrolSelectOptionsQuery = {
 export type GetSubcontrolsPaginatedQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
 }>
 
 export type GetSubcontrolsPaginatedQuery = {

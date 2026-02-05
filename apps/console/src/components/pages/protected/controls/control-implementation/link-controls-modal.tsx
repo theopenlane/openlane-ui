@@ -142,7 +142,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId, 
         />
         <DialogFooter>
           <SaveButton disabled={!saveEnabled || isSaving} onClick={onSave} isSaving={isSaving} />
-          <CancelButton onClick={() => setOpen(false)}></CancelButton>
+          <CancelButton onClick={() => setDialogOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

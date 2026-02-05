@@ -85,6 +85,41 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
   }
 }
 
+type UseGetSubcontrolsPaginatedArgs = {
+  where?: SubcontrolWhereInput
+  pagination?: TPagination | null
+  enabled?: boolean
+}
+
+export const useGetSubcontrolsPaginated = ({ where, pagination, enabled = true }: UseGetSubcontrolsPaginatedArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetSubcontrolsPaginatedQuery, unknown>({
+    queryKey: ['subcontrols', 'paginated', where, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request<GetSubcontrolsPaginatedQuery, GetSubcontrolsPaginatedQueryVariables>(GET_SUBCONTROLS_PAGINATED, {
+        where,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.subcontrols?.edges ?? []
+  const subcontrols = edges.map((edge) => edge?.node) as Subcontrol[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
+    pageInfo: queryResult.data?.subcontrols?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    subcontrols,
+    paginationMeta,
+  }
+}
+
 export const useGetSubcontrolById = (subcontrolId?: string | null) => {
   const { client } = useGraphQLClient()
 

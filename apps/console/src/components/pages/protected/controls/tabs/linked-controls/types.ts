@@ -1,8 +1,3 @@
-import type { GetSubcontrolsPaginatedQuery } from '@repo/codegen/src/schema'
-
-export type SubcontrolsPaginatedEdge = NonNullable<NonNullable<NonNullable<GetSubcontrolsPaginatedQuery['subcontrols']>['edges']>[number]>
-export type SubcontrolsPaginatedNode = NonNullable<SubcontrolsPaginatedEdge['node']>
-
 export type LinkedControlDetails = {
   description?: string | null
   status?: string | null

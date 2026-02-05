@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import SubcontrolsTable from './subcontrols-table'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/controls'
-import { useAllSubcontrolsGrouped, useGetSubcontrolsByRefCode, type SubcontrolsByRefcodeNode } from '@/lib/graphql-hooks/subcontrol'
+import { useGetSubcontrolsByRefCode, type SubcontrolsByRefcodeNode } from '@/lib/graphql-hooks/subcontrol'
 import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import MappedControlsTable from './mapped-controls-table'
@@ -35,10 +35,6 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   }, [controlId, subcontrolId, isSubcontrolMode])
 
   const { data: mappedControlsData } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
-  const { allSubcontrols } = useAllSubcontrolsGrouped({
-    where: !isSubcontrolMode && controlId ? { controlID: controlId } : undefined,
-    enabled: !isSubcontrolMode && Boolean(controlId),
-  })
 
   const mappedControls = useMemo<MappedControlRow[]>(() => {
     const rows: MappedControlRow[] = []
@@ -214,7 +210,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
 
   return (
     <div className="space-y-6 mt-6">
-      {!isSubcontrolMode && <SubcontrolsTable subcontrols={allSubcontrols} />}
+      {!isSubcontrolMode && <SubcontrolsTable />}
       <MappedControlsTable title="Organization Controls" rows={customMappedControls} columns={baseMappedColumns} searchPlaceholder="Search organization controls" showFrameworkFilter={false} />
       <MappedControlsTable title="Framework Mappings" rows={frameworkMappedControls} columns={frameworkMappedColumns} searchPlaceholder="Search framework mappings" showFrameworkFilter />
     </div>
