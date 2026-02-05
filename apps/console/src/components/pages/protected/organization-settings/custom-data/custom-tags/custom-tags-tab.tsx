@@ -21,7 +21,7 @@ import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-
 import { VisibilityState } from '@tanstack/react-table'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { canDelete, canEdit } from '@/lib/authz/utils'
 
 const DEFAULT_TAGS_COLUMN_VISIBILITY: VisibilityState = {
   type: false,
@@ -110,6 +110,7 @@ const CustomTagsTab: FC = () => {
   }
 
   const canEditTags = canEdit(permission?.roles)
+  const canDeleteTags = canDelete(permission?.roles)
 
   const { columns, mappedColumns } = useGetCustomTagColumns({
     tags: tags,
@@ -122,6 +123,7 @@ const CustomTagsTab: FC = () => {
     },
     userMap,
     canEditTags,
+    canDeleteTags,
   })
 
   return (
