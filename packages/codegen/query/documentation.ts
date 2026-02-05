@@ -50,7 +50,18 @@ export const GET_DOCUMENTATION_TASKS = gql`
         node {
           id
           title
+          taskKindName
+          status
+          due
           updatedAt
+          assignee {
+            id
+            displayName
+            avatarRemoteURL
+            avatarFile {
+              presignedURL
+            }
+          }
         }
       }
       pageInfo {

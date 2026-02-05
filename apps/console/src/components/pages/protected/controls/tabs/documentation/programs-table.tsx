@@ -7,7 +7,7 @@ import { useDocumentationPrograms } from '@/lib/graphql-hooks/documentation'
 import { OrderDirection, ProgramOrderField } from '@repo/codegen/src/schema'
 import type { ProgramOrder, ProgramWhereInput } from '@repo/codegen/src/schema'
 import type { TPagination } from '@repo/ui/pagination-types'
-import { AssociationSection, SearchFilterBar, buildAssociationFilter, getBaseColumns, mergeWhere } from './shared'
+import { AssociationSection, SearchFilterBar, buildAssociationFilter, getBaseColumns, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 
 type ProgramsTableProps = {
   controlId?: string

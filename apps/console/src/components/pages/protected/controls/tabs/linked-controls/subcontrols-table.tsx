@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -10,43 +9,18 @@ import { CreateButton } from '@/components/shared/create-button/create-button'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { DataTable } from '@repo/ui/data-table'
-import type { ColumnDef } from '@tanstack/react-table'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/documentation-components/shared'
+import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import type { FilterField, WhereCondition } from '@/types'
-import { FileText } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { extractFilterValues } from '@/components/pages/protected/controls/table-filter/extract-filter-values'
+import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow } from './subcontrols-table-config'
+import type { SubcontrolsPaginatedNode } from './types'
 
 type Props = {
-  subcontrols: ({
-    node?: {
-      refCode: string
-      description?: string | null
-      id: string
-    } | null
-  } | null)[]
+  subcontrols: SubcontrolsPaginatedNode[]
 }
-
-type SubcontrolRow = {
-  id: string
-  refCode: string
-  description?: string | null
-}
-
-const subcontrolsFilterFields: FilterField[] = [
-  {
-    key: 'hasDescription',
-    label: 'Description',
-    type: 'radio',
-    icon: FileText,
-    radioOptions: [
-      { value: true, label: 'Has description' },
-      { value: false, label: 'No description' },
-    ],
-  },
-]
 
 const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
   const { id } = useParams<{ id: string }>()
@@ -61,26 +35,73 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
   const cleanedSubcontrols = useMemo<SubcontrolRow[]>(
     () =>
       subcontrols
-        .filter((edge): edge is { node: { id: string; refCode: string; description?: string | null } } => !!edge?.node && typeof edge.node.id === 'string' && typeof edge.node.refCode === 'string')
-        .map(({ node }) => ({ id: node.id, refCode: node.refCode, description: node.description })),
+        .filter((node): node is SubcontrolsPaginatedNode => !!node?.id && typeof node.refCode === 'string')
+        .map((node) => ({
+          id: node.id,
+          refCode: node.refCode,
+          description: node.description,
+          status: node.status,
+          type: node.subcontrolKindName,
+          source: node.source,
+          category: node.category,
+          subcategory: node.subcategory,
+        })),
     [subcontrols],
   )
 
   const normalizedSearch = debouncedSearch.trim().toLowerCase()
   const filterValues = useMemo(() => extractFilterValues(filters), [filters])
-  const hasDescriptionFilter = typeof filterValues.hasDescription === 'boolean' ? (filterValues.hasDescription as boolean) : undefined
+  const typeFilter = useMemo(() => (filterValues.typeIn ?? []) as string[] | string, [filterValues.typeIn])
+  const sourceFilter = useMemo(() => (filterValues.sourceIn ?? []) as string[] | string, [filterValues.sourceIn])
+  const categoryFilter = useMemo(() => (filterValues.categoryContainsFold ?? '') as string, [filterValues.categoryContainsFold])
+  const subcategoryFilter = useMemo(() => (filterValues.subcategoryContainsFold ?? '') as string, [filterValues.subcategoryContainsFold])
+
+  const typeOptions = useMemo(() => {
+    const options = new Set<string>()
+    cleanedSubcontrols.forEach((row) => {
+      if (row.type) options.add(row.type)
+    })
+    return Array.from(options).sort()
+  }, [cleanedSubcontrols])
+
+  const sourceOptions = useMemo(() => {
+    const options = new Set<string>()
+    cleanedSubcontrols.forEach((row) => {
+      if (row.source) options.add(row.source)
+    })
+    return Array.from(options).sort()
+  }, [cleanedSubcontrols])
+
+  const subcontrolsFilterFields = useMemo<FilterField[]>(() => getSubcontrolsFilterFields(typeOptions, sourceOptions), [sourceOptions, typeOptions])
 
   const filteredSubcontrols = useMemo(() => {
+    const normalizedCategory = categoryFilter.trim().toLowerCase()
+    const normalizedSubcategory = subcategoryFilter.trim().toLowerCase()
+
     return cleanedSubcontrols.filter((row) => {
-      if (hasDescriptionFilter === true && !row.description) return false
-      if (hasDescriptionFilter === false && row.description) return false
+      if (Array.isArray(typeFilter) && typeFilter.length > 0 && !typeFilter.includes(row.type ?? '')) return false
+      if (!Array.isArray(typeFilter) && typeFilter !== 'all' && row.type !== typeFilter) return false
+
+      if (Array.isArray(sourceFilter) && sourceFilter.length > 0 && !sourceFilter.includes(row.source ?? '')) return false
+      if (!Array.isArray(sourceFilter) && sourceFilter !== 'all' && row.source !== sourceFilter) return false
+
+      if (normalizedCategory && !(row.category ?? '').toLowerCase().includes(normalizedCategory)) return false
+
+      if (normalizedSubcategory && !(row.subcategory ?? '').toLowerCase().includes(normalizedSubcategory)) return false
 
       if (!normalizedSearch) return true
 
       const descriptionText = row.description ? row.description.replace(/<[^>]*>/g, '').toLowerCase() : ''
-      return row.refCode.toLowerCase().includes(normalizedSearch) || descriptionText.includes(normalizedSearch)
+      return (
+        row.refCode.toLowerCase().includes(normalizedSearch) ||
+        descriptionText.includes(normalizedSearch) ||
+        (row.type ?? '').toLowerCase().includes(normalizedSearch) ||
+        (row.source ?? '').toLowerCase().includes(normalizedSearch) ||
+        (row.category ?? '').toLowerCase().includes(normalizedSearch) ||
+        (row.subcategory ?? '').toLowerCase().includes(normalizedSearch)
+      )
     })
-  }, [cleanedSubcontrols, hasDescriptionFilter, normalizedSearch])
+  }, [cleanedSubcontrols, typeFilter, sourceFilter, categoryFilter, subcategoryFilter, normalizedSearch])
 
   useEffect(() => {
     setPagination((prev) => ({
@@ -95,25 +116,7 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols }) => {
     return filteredSubcontrols.slice(start, start + pagination.pageSize)
   }, [filteredSubcontrols, pagination.page, pagination.pageSize])
 
-  const columns = useMemo<ColumnDef<SubcontrolRow>[]>(
-    () => [
-      {
-        accessorKey: 'refCode',
-        header: () => <span className="whitespace-nowrap">Ref Code</span>,
-        cell: ({ row }) => (
-          <Link href={`/controls/${id}/${row.original.id}`} className="text-blue-500 hover:underline">
-            {row.original.refCode}
-          </Link>
-        ),
-      },
-      {
-        accessorKey: 'description',
-        header: () => <span className="whitespace-nowrap">Description</span>,
-        cell: ({ row }) => <span className="block max-w-[700px] truncate">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</span>,
-      },
-    ],
-    [convertToReadOnly, id],
-  )
+  const columns = useMemo(() => getSubcontrolsColumns(id, convertToReadOnly), [convertToReadOnly, id])
 
   return (
     <div className="mt-8 space-y-4">

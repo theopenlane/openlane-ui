@@ -160,7 +160,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         <CreateTaskDialog
           key={action.id}
           trigger={
-            <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon}>
+            <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
               {action.label}
             </Button>
           }
@@ -183,7 +183,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       }
       return (
         <Link key={action.id} href={action.href}>
-          <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon}>
+          <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
             {action.label}
           </Button>
         </Link>
@@ -200,7 +200,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     }
 
     return (
-      <Button key={action.id} type="button" variant="secondary" className="h-8 px-3" icon={action.icon} onClick={action.onClick}>
+      <Button key={action.id} type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left" onClick={action.onClick}>
         {action.label}
       </Button>
     )

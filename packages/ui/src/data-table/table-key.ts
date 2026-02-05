@@ -56,4 +56,5 @@ export enum TableKeyEnum {
   CONTROL_DOC_TASKS = 'control-doc-tasks',
   CONTROL_DOC_PROGRAMS = 'control-doc-programs',
   CONTROL_DOC_RISKS = 'control-doc-risks',
+  CONTROL_ACTIVITY_TASKS = 'control-activity-tasks',
 }

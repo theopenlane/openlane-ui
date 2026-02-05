@@ -2,28 +2,28 @@
 
 import React, { useMemo, useState } from 'react'
 import { Tabs, TabsContent } from '@repo/ui/tabs'
-import type { Control, Subcontrol } from '@repo/codegen/src/schema'
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import ImplementationTab from '@/components/pages/protected/controls/tabs/implementation-tab'
-import ObjectivesTab from '@/components/pages/protected/controls/tabs/objectives-tab'
-import EvidenceTab from '@/components/pages/protected/controls/tabs/evidence-tab'
-import LinkedControlsTab from '@/components/pages/protected/controls/tabs/linked-controls-tab'
-import GuidanceTab from '@/components/pages/protected/controls/tabs/guidance-tab'
-import DocumentationTab from '@/components/pages/protected/controls/tabs/documentation-tab'
+import ImplementationTab from '@/components/pages/protected/controls/tabs/implementation/implementation-tab'
+import ObjectivesTab from '@/components/pages/protected/controls/tabs/objectives/objectives-tab'
+import EvidenceTab from '@/components/pages/protected/controls/tabs/evidence/evidence-tab'
+import LinkedControlsTab from '@/components/pages/protected/controls/tabs/linked-controls/linked-controls-tab'
+import GuidanceTab from '@/components/pages/protected/controls/tabs/guidance/guidance-tab'
+import DocumentationTab from '@/components/pages/protected/controls/tabs/documentation/documentation-tab'
+import ActivityTab from '@/components/pages/protected/controls/tabs/activity/activity-tab'
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
 import ControlTabsList from '@/components/pages/protected/controls/tabs/control-tabs-list'
-import { useGetControlAssociationsById } from '@/lib/graphql-hooks/controls'
-import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
+import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolAssociationsById, type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 
 type ControlTabsProps = {
   kind: 'control'
-  control: Control
+  control: ControlByIdNode
 }
 
 type SubcontrolTabsProps = {
   kind: 'subcontrol'
-  subcontrol: Subcontrol
+  subcontrol: SubcontrolByIdNode
 }
 
 type TabsProps = ControlTabsProps | SubcontrolTabsProps
@@ -41,9 +41,8 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     return (control?.subcontrols?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => Boolean(id))
   }, [isSubcontrol, control?.subcontrols?.edges, subcontrol])
 
-  const exampleEvidence = isSubcontrol ? subcontrol?.exampleEvidence : control?.exampleEvidence
+  const evidenceRequests = isSubcontrol ? (subcontrol as { evidenceRequests?: unknown } | undefined)?.evidenceRequests : (control as { evidenceRequests?: unknown } | undefined)?.evidenceRequests
   const refCode = (isSubcontrol ? subcontrol?.refCode : control?.refCode) ?? ''
-  const referenceFramework = isSubcontrol ? subcontrol?.referenceFramework : control?.referenceFramework
 
   const evidenceFormData = useMemo<TFormEvidenceData>(() => {
     if (isSubcontrol) {
@@ -68,17 +67,11 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       </TabsContent>
 
       <TabsContent value="evidence" className="space-y-6">
-        <EvidenceTab evidenceFormData={evidenceFormData} subcontrolIds={subcontrolIds} exampleEvidence={exampleEvidence as string | { documentationType: string; description: string }[] | null} />
+        <EvidenceTab evidenceFormData={evidenceFormData} subcontrolIds={subcontrolIds} evidenceRequests={evidenceRequests as { documentationType?: string; description?: string }[] | null} />
       </TabsContent>
 
       <TabsContent value="linked-controls" className="space-y-6">
-        <LinkedControlsTab
-          controlId={isSubcontrol ? undefined : control?.id}
-          subcontrols={isSubcontrol ? undefined : control?.subcontrols?.edges || []}
-          subcontrolId={isSubcontrol ? subcontrol?.id : undefined}
-          refCode={refCode}
-          referenceFramework={referenceFramework}
-        />
+        <LinkedControlsTab controlId={isSubcontrol ? undefined : control?.id} subcontrolId={isSubcontrol ? subcontrol?.id : undefined} refCode={refCode} />
       </TabsContent>
 
       <TabsContent value="guidance" className="space-y-6">
@@ -92,6 +85,10 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
       <TabsContent value="documentation" className="space-y-6">
         <DocumentationTab controlId={isSubcontrol ? subcontrol?.control?.id ?? '' : control?.id ?? ''} subcontrolIds={subcontrolIds} />
+      </TabsContent>
+
+      <TabsContent value="activity" className="space-y-6">
+        <ActivityTab controlId={isSubcontrol ? subcontrol?.control?.id ?? '' : control?.id ?? ''} subcontrolIds={subcontrolIds} />
       </TabsContent>
     </Tabs>
   )

@@ -4,48 +4,48 @@ import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
-import { useDocumentationPolicies } from '@/lib/graphql-hooks/documentation'
-import { InternalPolicyDocumentStatus, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import type { GetInternalPoliciesListQueryVariables, InternalPolicyWhereInput } from '@repo/codegen/src/schema'
+import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
+import { useDocumentationProcedures } from '@/lib/graphql-hooks/documentation'
+import { OrderDirection, ProcedureDocumentStatus, ProcedureOrderField } from '@repo/codegen/src/schema'
+import type { GetProceduresListQueryVariables, ProcedureWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
-import { AssociationSection, SearchFilterBar, buildAssociationFilter, getBaseColumns, mergeWhere } from './shared'
+import { AssociationSection, SearchFilterBar, buildAssociationFilter, getBaseColumns, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 
-type PoliciesTableProps = {
+type ProceduresTableProps = {
   controlId?: string
   subcontrolIds: string[]
 }
 
-const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds }) => {
+const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrolIds }) => {
   const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
   const columns = useMemo(() => getBaseColumns(), [])
 
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
-  const filterFields = usePoliciesFilters()
+  const filterFields = useProceduresFilters()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const where = useMemo(() => {
-    const base: InternalPolicyWhereInput = {
+    const base: ProcedureWhereInput = {
       nameContainsFold: debouncedSearch,
     }
 
-    const result = whereGenerator<InternalPolicyWhereInput>(filters as InternalPolicyWhereInput, (key, value) => {
+    const result = whereGenerator<ProcedureWhereInput>(filters as ProcedureWhereInput, (key, value) => {
       if (key === 'hasControlsWith') {
-        return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
+        return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
       }
       if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as InternalPolicyWhereInput
+        return { hasProgramsWith: [{ idIn: value }] } as ProcedureWhereInput
       }
       if (key === 'hasSubcontrolsWith') {
-        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] }
+        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
       }
-      return { [key]: value }
+      return { [key]: value } as ProcedureWhereInput
     })
 
-    const hasStatusCondition = (obj: InternalPolicyWhereInput): boolean => {
+    const hasStatusCondition = (obj: ProcedureWhereInput): boolean => {
       if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true
       if (Array.isArray(obj.and) && obj.and.some(hasStatusCondition)) return true
       if (Array.isArray(obj.or) && obj.or.some(hasStatusCondition)) return true
@@ -53,15 +53,15 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
     }
 
     if (!hasStatusCondition(result)) {
-      result.statusNotIn = [InternalPolicyDocumentStatus.ARCHIVED]
+      result.statusNotIn = [ProcedureDocumentStatus.ARCHIVED]
     }
 
-    return mergeWhere<InternalPolicyWhereInput>([associationFilter as InternalPolicyWhereInput, base, result])
+    return mergeWhere<ProcedureWhereInput>([associationFilter as ProcedureWhereInput, base, result])
   }, [filters, debouncedSearch, associationFilter])
 
-  const orderBy = useMemo<GetInternalPoliciesListQueryVariables['orderBy']>(() => [{ field: InternalPolicyOrderField.updated_at, direction: OrderDirection.DESC }], [])
+  const orderBy = useMemo<GetProceduresListQueryVariables['orderBy']>(() => [{ field: ProcedureOrderField.updated_at, direction: OrderDirection.DESC }], [])
 
-  const { policies, paginationMeta, isLoading } = useDocumentationPolicies({
+  const { procedures, paginationMeta, isLoading } = useDocumentationProcedures({
     where,
     orderBy,
     pagination,
@@ -70,18 +70,18 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
 
   const rows = useMemo(
     () =>
-      policies.map((policy) => ({
-        id: policy.id,
-        name: policy.name,
-        updatedAt: policy.updatedAt,
-        href: `/policies/${policy.id}/view`,
+      procedures.map((procedure) => ({
+        id: procedure.id,
+        name: procedure.name,
+        updatedAt: procedure.updatedAt,
+        href: `/procedures/${procedure.id}/view`,
       })),
-    [policies],
+    [procedures],
   )
 
   return (
     <AssociationSection
-      title="Internal Policies"
+      title="Procedures"
       rows={rows}
       columns={columns}
       loading={isLoading}
@@ -90,7 +90,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
       paginationMeta={paginationMeta}
       searchBar={
         <SearchFilterBar
-          placeholder="Search policies"
+          placeholder="Search procedures"
           isSearching={search !== debouncedSearch}
           searchValue={search}
           onSearchChange={setSearch}
@@ -102,4 +102,4 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
   )
 }
 
-export default PoliciesTable
+export default ProceduresTable

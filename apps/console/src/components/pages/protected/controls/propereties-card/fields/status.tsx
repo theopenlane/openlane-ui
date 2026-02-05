@@ -1,6 +1,8 @@
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { Control, ControlControlStatus, Subcontrol, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { ControlControlStatus, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -16,7 +18,7 @@ export const Status = ({
   fieldId,
 }: {
   isEditing: boolean
-  data?: Control | Subcontrol
+  data?: ControlByIdNode | SubcontrolByIdNode
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   activeField?: string | null
   setActiveField?: (field: string | null) => void

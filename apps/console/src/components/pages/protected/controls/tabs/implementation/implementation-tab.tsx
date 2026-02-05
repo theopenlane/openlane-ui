@@ -4,8 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronsDownUp, List, Settings2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { ArrowRight, Settings2 } from 'lucide-react'
 import { Loading } from '@/components/shared/loading/loading'
 import { Accordion } from '@radix-ui/react-accordion'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet'
@@ -29,15 +28,6 @@ const ImplementationTab: React.FC = () => {
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
-
-  const toggleAll = () => {
-    if (!edges) return
-
-    const allIds = edges.map((edge) => edge.node.id)
-    const hasAllExpanded = allIds.every((itemId) => expandedItems.includes(itemId))
-
-    setExpandedItems(hasAllExpanded ? [] : allIds)
-  }
 
   const expandFirstImplementation = (ids: string[]) => {
     if (ids.length > 0) {
@@ -120,12 +110,6 @@ const ImplementationTab: React.FC = () => {
         }}
         editData={editData}
       />
-      <Button type="button" className="h-8 px-2! mt-4" variant="secondary" onClick={toggleAll}>
-        <div className="flex">
-          <List size={16} />
-          <ChevronsDownUp size={16} />
-        </div>
-      </Button>
       <div className="space-y-4">
         <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full">
           {edges.map((edge, idx) => (

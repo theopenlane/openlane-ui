@@ -10,10 +10,10 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
+import { SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useGetSubcontrolDiscussionById, useUpdateSubcontrol, useDeleteSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
+import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useGetSubcontrolDiscussionById, useUpdateSubcontrol, useDeleteSubcontrol, SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
@@ -30,7 +30,6 @@ import ObjectAssociationSwitch from '@/components/shared/object-association/obje
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from './loading.tsx'
 import { useAccountRoles } from '@/lib/query-hooks/permissions.ts'
-import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
@@ -255,7 +254,7 @@ const ControlDetailsPage: React.FC = () => {
     return <Loading />
   }
   if (isError || !data?.subcontrol) return <div className="p-4 text-red-500">Subcontrol not found</div>
-  const subcontrol = data?.subcontrol
+  const subcontrol: SubcontrolByIdNode = data.subcontrol
   const isVerified = subcontrol.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
 
   const mainContent = (
@@ -324,7 +323,7 @@ const ControlDetailsPage: React.FC = () => {
 
       <QuickActions kind="subcontrol" controlId={id} subcontrolId={subcontrolId} subcontrol={subcontrol} />
 
-      <ControlTabs kind="subcontrol" subcontrol={subcontrol as Subcontrol} />
+      <ControlTabs kind="subcontrol" subcontrol={subcontrol} />
     </div>
   )
 
@@ -332,8 +331,7 @@ const ControlDetailsPage: React.FC = () => {
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch controlId={subcontrol.control?.id} sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
 
-      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} canEdit={canEdit(permission?.roles)} />
-      <ControlCommentsCard />
+      <PropertiesCard data={subcontrol} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </>
   )
 

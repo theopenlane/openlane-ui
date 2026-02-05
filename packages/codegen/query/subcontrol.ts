@@ -39,6 +39,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       descriptionJSON
       implementationGuidance
       exampleEvidence
+      evidenceRequests
       controlQuestions
       assessmentMethods
       assessmentObjectives
@@ -220,6 +221,10 @@ export const GET_SUBCONTROLS_PAGINATED = gql`
           __typename
           id
           refCode
+          description
+          status
+          subcontrolKindName
+          source
           category
           subcategory
           referenceFramework
@@ -259,6 +264,12 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
         node {
           id
           refCode
+          description
+          status
+          subcontrolKindName
+          source
+          category
+          subcategory
           systemOwned
           controlID
           control {

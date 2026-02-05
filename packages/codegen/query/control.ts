@@ -150,6 +150,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     descriptionJSON
     implementationGuidance
     exampleEvidence
+    evidenceRequests
     controlQuestions
     assessmentMethods
     assessmentObjectives
@@ -202,6 +203,11 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           refCode
           description
           displayID
+          status
+          subcontrolKindName
+          source
+          category
+          subcategory
         }
       }
     }
@@ -555,6 +561,12 @@ export const GET_CONTROLS_BY_REFCODE = gql`
         node {
           id
           refCode
+          description
+          status
+          controlKindName
+          source
+          category
+          subcategory
           referenceFramework
           standardID
           ownerID

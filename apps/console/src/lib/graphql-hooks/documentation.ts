@@ -81,7 +81,7 @@ export const useDocumentationProcedures = ({ where, orderBy, pagination, enabled
   }
 }
 
-type DocTasksQuery = { tasks: Connection<Pick<Task, 'id' | 'title' | 'updatedAt'>> }
+type DocTasksQuery = { tasks: Connection<Pick<Task, 'id' | 'title' | 'taskKindName' | 'status' | 'due' | 'updatedAt' | 'assignee'>> }
 export const useDocumentationTasks = ({ where, orderBy, pagination, enabled = true }: UseDocListArgs<TaskWhereInput, TaskOrder>) => {
   const { client } = useGraphQLClient()
 

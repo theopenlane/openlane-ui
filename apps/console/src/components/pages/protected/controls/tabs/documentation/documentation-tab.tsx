@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import PoliciesTable from './documentation-components/policies-table'
-import ProceduresTable from './documentation-components/procedures-table'
-import TasksTable from './documentation-components/tasks-table'
-import ProgramsTable from './documentation-components/programs-table'
-import RisksTable from './documentation-components/risks-table'
+import PoliciesTable from './policies-table'
+import ProceduresTable from './procedures-table'
+import TasksTable from './tasks-table'
+import ProgramsTable from './programs-table'
+import RisksTable from './risks-table'
 
 type DocumentationTabProps = {
   controlId?: string

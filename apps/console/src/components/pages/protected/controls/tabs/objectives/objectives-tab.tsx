@@ -4,8 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronsDownUp, List, Settings2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { ArrowRight, Settings2 } from 'lucide-react'
 import { Loading } from '@/components/shared/loading/loading'
 import { Accordion } from '@radix-ui/react-accordion'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -39,15 +38,6 @@ const ObjectivesTab: React.FC = () => {
   const edges = data?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
 
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
-
-  const toggleAll = () => {
-    if (!edges) return
-
-    const allIds = edges.map((edge) => edge.node.id)
-    const hasAllExpanded = allIds.every((itemId) => expandedItems.includes(itemId))
-
-    setExpandedItems(hasAllExpanded ? [] : allIds)
-  }
 
   const expandFirstObjective = (ids: string[]) => {
     if (ids.length > 0) {
@@ -110,17 +100,9 @@ const ObjectivesTab: React.FC = () => {
     return (
       <>
         <CreateControlObjectiveSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
-        <div className="flex gap-4 items-center mt-6">
-          <Button type="button" className="h-8 px-2!" variant="secondary" onClick={toggleAll}>
-            <div className="flex">
-              <List size={16} />
-              <ChevronsDownUp size={16} />
-            </div>
-          </Button>
-          <div className="flex gap-2 items-center">
-            <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
-            <p>Show archived</p>
-          </div>
+        <div className="flex gap-2 items-center mt-6">
+          <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
+          <p>Show archived</p>
         </div>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
@@ -149,16 +131,9 @@ const ObjectivesTab: React.FC = () => {
         editData={editData}
       />
 
-      <div className="flex gap-4 items-center mt-6">
-        <Button type="button" className="h-8 px-2!" variant="secondary" onClick={toggleAll}>
-          <div className="flex">
-            <List size={16} />
-            <ChevronsDownUp size={16} />
-          </div>
-        </Button>
-        <div className="flex gap-2 items-center">
-          <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} /> <p>Show archived</p>
-        </div>
+      <div className="flex gap-2 items-center mt-6">
+        <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
+        <p>Show archived</p>
       </div>
       <div className="space-y-4">
         <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full">

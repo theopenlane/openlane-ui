@@ -88,6 +88,10 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useEffect, useMemo } from 'react'
 
+export type ControlByIdNode = GetControlByIdQuery['control']
+export type ControlsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetControlsByRefCodeQuery['controls']>['edges']>[number]>
+export type ControlsByRefcodeNode = NonNullable<ControlsByRefcodeEdge['node']>
+
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
   pagination?: TPagination | null

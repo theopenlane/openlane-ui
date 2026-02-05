@@ -10,6 +10,7 @@ const CONTROL_TABS = [
   { value: 'linked-controls', label: 'Linked Controls' },
   { value: 'guidance', label: 'Guidance' },
   { value: 'documentation', label: 'Documentation' },
+  { value: 'activity', label: 'Activity' },
 ]
 
 const ControlTabsList: React.FC = () => (

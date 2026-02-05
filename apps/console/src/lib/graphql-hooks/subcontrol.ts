@@ -46,6 +46,10 @@ import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
 import { GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables, UpdateSubcontrolCommentMutation, UpdateSubcontrolCommentMutationVariables } from '@repo/codegen/src/schema'
 
+export type SubcontrolByIdNode = GetSubcontrolByIdQuery['subcontrol']
+export type SubcontrolsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetSubcontrolsByRefCodeQuery['subcontrols']>['edges']>[number]>
+export type SubcontrolsByRefcodeNode = NonNullable<SubcontrolsByRefcodeEdge['node']>
+
 type UseGetAllSubcontrolsArgs = {
   where?: GetAllSubcontrolsQueryVariables['where']
   pagination?: TPagination | null

@@ -1,12 +1,10 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
-import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useParams } from 'next/navigation'
-import { formatDateSince } from '@/utils/date'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
@@ -14,22 +12,15 @@ import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evi
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { SearchFilterBar, mergeWhere } from '@/components/pages/protected/controls/tabs/documentation-components/shared'
+import { SearchFilterBar, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import { EvidenceOrder, EvidenceOrderField, EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
-import { EvidenceStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/evidence-enum'
+import { getEvidenceColumns, getEvidenceFilterFields, type EvidenceRow } from './evidence-table-config'
 
 type Props = {
   control: TFormEvidenceData
   subcontrolIds?: string[]
-}
-
-type EvidenceRow = {
-  id: string
-  displayID: string
-  name: string
-  updatedAt?: string | null
 }
 
 const buildAssociationFilter = (controlId?: string, subcontrolIds?: string[]) => {
@@ -71,15 +62,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     return buildAssociationFilter(control.controlID, subcontrolIds)
   }, [control.controlID, control.subcontrolID, subcontrolIds])
 
-  const filterFields = useMemo<FilterField[]>(
-    () => [
-      { key: 'nameContainsFold', label: 'Name', type: 'text', icon: FilterIcons.Name },
-      { key: 'statusIn', label: 'Status', type: 'multiselect', options: EvidenceStatusOptions, icon: FilterIcons.Status },
-      { key: 'creationDate', label: 'Created', type: 'dateRange', icon: FilterIcons.Date },
-      { key: 'renewalDate', label: 'Renewed', type: 'dateRange', icon: FilterIcons.Date },
-    ],
-    [],
-  )
+  const filterFields = useMemo<FilterField[]>(() => getEvidenceFilterFields(), [])
 
   const where = useMemo(() => {
     const base: EvidenceWhereInput = debouncedSearch ? { nameContainsFold: debouncedSearch } : {}
@@ -119,32 +102,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     __typename: isSubcontrol ? 'Subcontrol' : 'Control',
   }
 
-  const columns = useMemo<ColumnDef<EvidenceRow>[]>(
-    () => [
-      {
-        accessorKey: 'displayID',
-        header: () => <span className="whitespace-nowrap">ID</span>,
-        cell: ({ row }) => (
-          <button type="button" className="text-blue-500 hover:underline" onClick={() => evidenceSheetHandler(row.original.id)}>
-            {row.original.displayID}
-          </button>
-        ),
-        size: 140,
-      },
-      {
-        accessorKey: 'name',
-        header: () => <span className="whitespace-nowrap">Name</span>,
-        cell: ({ row }) => <span className="truncate">{row.original.name}</span>,
-      },
-      {
-        accessorKey: 'updatedAt',
-        header: () => <span className="whitespace-nowrap">Last Updated</span>,
-        cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSince(row.original.updatedAt)}</span>,
-        size: 140,
-      },
-    ],
-    [evidenceSheetHandler],
-  )
+  const columns = useMemo(() => getEvidenceColumns(evidenceSheetHandler), [evidenceSheetHandler])
 
   const rows = useMemo<EvidenceRow[]>(
     () =>

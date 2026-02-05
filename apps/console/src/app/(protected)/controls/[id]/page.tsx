@@ -2,14 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { InfoIcon } from 'lucide-react'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
-import { Control, ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
@@ -24,7 +24,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import Loading from './loading.tsx'
-import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Badge } from '@repo/ui/badge'
@@ -246,7 +245,7 @@ const ControlDetailsPage: React.FC = () => {
     return <Loading />
   }
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
-  const control = data?.control
+  const control: ControlByIdNode = data?.control
   const isVerified = control.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
 
   const mainContent = (
@@ -319,7 +318,7 @@ const ControlDetailsPage: React.FC = () => {
 
       <QuickActions kind="control" controlId={id} control={control} />
 
-      <ControlTabs kind="control" control={control as Control} />
+      <ControlTabs kind="control" control={control} />
     </div>
   )
 
@@ -327,8 +326,7 @@ const ControlDetailsPage: React.FC = () => {
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch controlId={data?.control.id} sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
 
-      <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} canEdit={canEdit(permission?.roles)} />
-      <ControlCommentsCard />
+      <PropertiesCard data={control} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </>
   )
 

@@ -59912,7 +59912,21 @@ export type GetControlsByRefCodeQuery = {
     __typename?: 'ControlConnection'
     edges?: Array<{
       __typename?: 'ControlEdge'
-      node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null; standardID?: string | null; ownerID?: string | null; systemOwned?: boolean | null } | null
+      node?: {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        description?: string | null
+        status?: string | null
+        controlKindName?: string | null
+        source?: string | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+        standardID?: string | null
+        ownerID?: string | null
+        systemOwned?: boolean | null
+      } | null
     } | null> | null
   }
 }
@@ -63281,7 +63295,19 @@ export type GetSubcontrolsPaginatedQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null; controlID: string } | null
+      node?: {
+        __typename: 'Subcontrol'
+        id: string
+        refCode: string
+        description?: string | null
+        status?: string | null
+        subcontrolKindName?: string | null
+        source?: string | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+        controlID: string
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
   }
@@ -63316,7 +63342,20 @@ export type GetSubcontrolsByRefCodeQuery = {
     __typename?: 'SubcontrolConnection'
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; systemOwned?: boolean | null; controlID: string; control: { __typename?: 'Control'; standardID?: string | null } } | null
+      node?: {
+        __typename?: 'Subcontrol'
+        id: string
+        refCode: string
+        description?: string | null
+        status?: string | null
+        subcontrolKindName?: string | null
+        source?: string | null
+        category?: string | null
+        subcategory?: string | null
+        systemOwned?: boolean | null
+        controlID: string
+        control: { __typename?: 'Control'; standardID?: string | null }
+      } | null
     } | null> | null
   }
 }
