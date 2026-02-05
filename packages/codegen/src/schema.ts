@@ -59181,6 +59181,7 @@ export type ControlImplementationFieldsFragment = {
   status?: ControlImplementationDocumentStatus | null
   implementationDate?: any | null
   verified?: boolean | null
+  verificationDate?: any | null
   controls: {
     __typename?: 'ControlConnection'
     edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; description?: string | null; referenceFramework?: string | null } | null } | null> | null
@@ -59218,6 +59219,7 @@ export type GetAllControlImplementationsQuery = {
         status?: ControlImplementationDocumentStatus | null
         implementationDate?: any | null
         verified?: boolean | null
+        verificationDate?: any | null
         controls: {
           __typename?: 'ControlConnection'
           edges?: Array<{

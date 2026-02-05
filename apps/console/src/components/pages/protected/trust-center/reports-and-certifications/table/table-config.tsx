@@ -83,9 +83,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNda
         const showNdaWarning = isProtected && !hasNdaTemplate
         return (
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-1 justify-center rounded-sm text-document-chip bg-homepage-card-item-transparent border border-switch-bg-inactive h-5 py-2 px-1.5 font-normal text-xs leading-4">
-              {row.original.visibility.split('_').join(' ').toLowerCase()}
-            </div>
+            <Badge variant="document">{row.original.visibility.split('_').join(' ').toLowerCase()}</Badge>
             {showNdaWarning && (
               <TooltipProvider>
                 <Tooltip>
@@ -185,6 +183,7 @@ import { AlertTriangle, Eye, FileQuestion, Folder } from 'lucide-react'
 import Link from 'next/link'
 import { FilterField } from '@/types'
 import { Checkbox } from '@repo/ui/checkbox'
+import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import DocumentActions from '../../actions/documents-actions'

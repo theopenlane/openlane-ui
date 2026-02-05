@@ -5,7 +5,6 @@ import { Card } from '@repo/ui/cardpanel'
 import { ControlImplementationDocumentStatus, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { CheckCircle, XCircle } from 'lucide-react'
-import { LinkControlsModal } from './link-controls-modal'
 import { formatDate } from '@/utils/date'
 import { ControlImplementationIconMap } from '@/components/shared/enum-mapper/control-enum'
 import { Popover } from '@repo/ui/popover'
@@ -38,29 +37,25 @@ export const ControlImplementationCard = ({ obj }: Props) => {
         {/* Status */}
         <div className="flex items-start border-b p-2">
           <div className="min-w-48 ">Status</div>
-          <div>{renderStatusIcon(obj?.status)}</div>
+          <div className="flex flex-1 items-center gap-3">
+            {renderStatusIcon(obj?.status)}
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              {obj.verified ? <CheckCircle size={16} className="text-green-500" /> : <XCircle size={16} className="text-destructive" />}
+              {obj.verified ? 'Verified' : 'Not verified'}
+            </span>
+          </div>
         </div>
 
-        {/* Implementation Date */}
+        {/* Effective Date (Implementation Date) */}
         <div className="flex items-start border-b p-2">
-          <div className="min-w-48 ">Implementation Date</div>
+          <div className="min-w-48 ">Effective Date</div>
           <div className="flex items-center gap-1 text-muted-foreground">{obj.implementationDate ? formatDate(obj.implementationDate) : '—'}</div>
         </div>
 
-        {/* Verified */}
+        {/* Verified Date */}
         <div className="flex items-start border-b p-2">
-          <div className="min-w-48 ">Verified</div>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            {obj.verified ? (
-              <>
-                <CheckCircle size={16} className="text-green-500 mt-0.5" />
-              </>
-            ) : (
-              <>
-                <XCircle size={16} className="text-destructive mt-0.5" />
-              </>
-            )}
-          </div>
+          <div className="min-w-48 ">Verified Date</div>
+          <div className="flex items-center gap-1 text-muted-foreground">{obj.verificationDate ? formatDate(obj.verificationDate) : '—'}</div>
         </div>
 
         {/* Details */}
@@ -73,13 +68,6 @@ export const ControlImplementationCard = ({ obj }: Props) => {
       <div className="w-[350px] shrink-0">
         <div className="flex justify-between items-center mb-2">
           <p className="text-lg">Controls</p>
-          <LinkControlsModal
-            updateControlImplementationId={obj.id}
-            initialData={{
-              controlIDs: obj.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
-              subcontrolIDs: obj.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
-            }}
-          />
         </div>
 
         {!!obj.controls?.edges?.length && (

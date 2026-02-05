@@ -35,6 +35,7 @@ import QuickActions from '@/components/pages/protected/controls/quick-actions/qu
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { formatEnumLabel } from '@/utils/enumToLabel.ts'
 
 interface FormValues {
   refCode: string
@@ -310,9 +311,7 @@ const ControlDetailsPage: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-2">Source</p>
-          <Badge variant="secondary" className="capitalize">
-            {control.source?.toLowerCase() ?? 'custom'}
-          </Badge>
+          <Badge variant="document">{formatEnumLabel(control.source ?? 'custom')}</Badge>
         </div>
       </div>
 
