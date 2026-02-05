@@ -48,7 +48,7 @@ export const useDocumentationPolicies = ({ where, orderBy, pagination, enabled =
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<DocPoliciesQuery>({
-    queryKey: ['documentation-policies', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['policies', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () => client.request(GET_DOCUMENTATION_POLICIES, { where, orderBy, ...pagination?.query }),
     enabled,
   })
@@ -67,7 +67,7 @@ export const useDocumentationProcedures = ({ where, orderBy, pagination, enabled
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<DocProceduresQuery>({
-    queryKey: ['documentation-procedures', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['procedures', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () => client.request(GET_DOCUMENTATION_PROCEDURES, { where, orderBy, ...pagination?.query }),
     enabled,
   })
@@ -86,7 +86,7 @@ export const useDocumentationTasks = ({ where, orderBy, pagination, enabled = tr
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<DocTasksQuery>({
-    queryKey: ['documentation-tasks', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['tasks', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () => client.request(GET_DOCUMENTATION_TASKS, { where, orderBy, ...pagination?.query }),
     enabled,
   })
@@ -105,7 +105,7 @@ export const useDocumentationPrograms = ({ where, orderBy, pagination, enabled =
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<DocProgramsQuery>({
-    queryKey: ['documentation-programs', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['programs', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () => client.request(GET_DOCUMENTATION_PROGRAMS, { where, orderBy, ...pagination?.query }),
     enabled,
   })
@@ -124,7 +124,7 @@ export const useDocumentationRisks = ({ where, orderBy, pagination, enabled = tr
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<DocRisksQuery>({
-    queryKey: ['documentation-risks', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['risks', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () => client.request(GET_DOCUMENTATION_RISKS, { where, orderBy, ...pagination?.query }),
     enabled,
   })

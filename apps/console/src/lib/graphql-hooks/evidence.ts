@@ -72,7 +72,6 @@ type TInvalidateClient = { invalidateQueries: (args: { queryKey: unknown[] }) =>
 
 const invalidateEvidenceQueries = (queryClient: TInvalidateClient) => {
   queryClient.invalidateQueries({ queryKey: ['evidences'] })
-  queryClient.invalidateQueries({ queryKey: ['evidences-light'] })
 }
 
 export function useCreateEvidence() {
@@ -274,7 +273,7 @@ export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = 
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetEvidenceListLightQuery, unknown>({
-    queryKey: ['evidences-light', orderBy, pagination?.page, pagination?.pageSize, where],
+    queryKey: ['evidences', 'light', orderBy, pagination?.page, pagination?.pageSize, where],
     queryFn: async () =>
       client.request(GET_EVIDENCE_LIST_LIGHT, {
         where,
