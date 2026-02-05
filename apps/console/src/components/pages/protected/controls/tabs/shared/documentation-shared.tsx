@@ -71,8 +71,8 @@ type SearchFilterBarProps = {
   isSearching: boolean
   searchValue: string
   onSearchChange: (value: string) => void
-  filterFields?: FilterField[] | null
-  onFilterChange?: (filters: WhereCondition) => void
+  filterFields: FilterField[] | null
+  onFilterChange: (filters: WhereCondition) => void
 }
 
 export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearchChange, filterFields, onFilterChange }: SearchFilterBarProps) => (
@@ -87,7 +87,7 @@ export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearc
         className="w-full max-w-[320px]"
       />
     </div>
-    {filterFields && onFilterChange && (
+    {filterFields && (
       <div className="flex items-center justify-end">
         <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />
       </div>

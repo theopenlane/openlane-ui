@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -14,10 +14,11 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import type { FilterField, WhereCondition } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
-import { extractFilterValues } from '@/components/pages/protected/controls/table-filter/extract-filter-values'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow } from './subcontrols-table-config'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
-import type { SubcontrolControlSource, SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { SubcontrolControlSource, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 
 const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -28,45 +29,28 @@ const SubcontrolsTable: React.FC = () => {
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'control',
+      field: 'kind',
+    },
+  })
 
-  const filterValues = useMemo(() => extractFilterValues(filters), [filters])
-  const typeFilter = useMemo(() => (filterValues.typeIn ?? []) as string[] | string, [filterValues.typeIn])
-  const sourceFilter = useMemo(() => (filterValues.sourceIn ?? []) as string[] | string, [filterValues.sourceIn])
-  const categoryFilter = useMemo(() => (filterValues.categoryContainsFold ?? '') as string, [filterValues.categoryContainsFold])
-  const subcategoryFilter = useMemo(() => (filterValues.subcategoryContainsFold ?? '') as string, [filterValues.subcategoryContainsFold])
+  const filterWhere = useMemo(() => {
+    return whereGenerator<SubcontrolWhereInput>(filters as SubcontrolWhereInput, (key, value) => {
+      return { [key]: value } as SubcontrolWhereInput
+    })
+  }, [filters])
 
   const where = useMemo<SubcontrolWhereInput>(() => {
-    const conditions: SubcontrolWhereInput[] = [{ controlID: id }]
-
-    if (Array.isArray(typeFilter) && typeFilter.length > 0) {
-      conditions.push({ subcontrolKindNameIn: typeFilter })
-    }
-
-    if (Array.isArray(sourceFilter) && sourceFilter.length > 0) {
-      conditions.push({ sourceIn: sourceFilter as SubcontrolControlSource[] })
-    }
-
-    if (categoryFilter.trim()) {
-      conditions.push({ categoryContainsFold: categoryFilter.trim() })
-    }
-
-    if (subcategoryFilter.trim()) {
-      conditions.push({ subcategoryContainsFold: subcategoryFilter.trim() })
-    }
-
     const searchText = debouncedSearch.trim()
-    if (searchText) {
-      conditions.push({
-        or: [{ refCodeContainsFold: searchText }, { descriptionContainsFold: searchText }],
-      })
+    return {
+      ...filterWhere,
+      ...(id ? { controlID: id } : {}),
+      ...(searchText ? { or: [{ refCodeContainsFold: searchText }, { descriptionContainsFold: searchText }] } : {}),
     }
-
-    if (conditions.length === 1) {
-      return conditions[0]
-    }
-
-    return { and: conditions }
-  }, [id, typeFilter, sourceFilter, categoryFilter, subcategoryFilter, debouncedSearch])
+  }, [id, filterWhere, debouncedSearch])
 
   const { subcontrols, paginationMeta, isLoading } = useGetSubcontrolsPaginated({
     where,
@@ -91,23 +75,20 @@ const SubcontrolsTable: React.FC = () => {
     [subcontrols],
   )
 
-  const typeOptions = useMemo(() => {
-    const options = new Set<string>()
-    cleanedSubcontrols.forEach((row) => {
-      if (row.type) options.add(row.type)
-    })
-    return Array.from(options).sort()
-  }, [cleanedSubcontrols])
+  const typeOptions = useMemo(() => enumOptions.map((option) => option.value).sort(), [enumOptions])
+  const sourceOptions = useMemo(() => Object.values(SubcontrolControlSource).sort(), [])
 
-  const sourceOptions = useMemo(() => {
-    const options = new Set<string>()
-    cleanedSubcontrols.forEach((row) => {
-      if (row.source) options.add(row.source)
+  useEffect(() => {
+    const fields = getSubcontrolsFilterFields(typeOptions, sourceOptions)
+    setFilterFields((prev) => {
+      const isSame = prev && JSON.stringify(prev) === JSON.stringify(fields)
+      return isSame ? prev : fields
     })
-    return Array.from(options).sort()
-  }, [cleanedSubcontrols])
+  }, [sourceOptions, typeOptions])
 
-  const subcontrolsFilterFields = useMemo<FilterField[]>(() => getSubcontrolsFilterFields(typeOptions, sourceOptions), [sourceOptions, typeOptions])
+  const handleFilterChange = useCallback((nextFilters: WhereCondition) => {
+    setFilters(nextFilters)
+  }, [])
 
   useEffect(() => {
     setPagination((prev) => ({
@@ -133,8 +114,8 @@ const SubcontrolsTable: React.FC = () => {
         isSearching={searchQuery !== debouncedSearch}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
-        filterFields={subcontrolsFilterFields}
-        onFilterChange={setFilters}
+        filterFields={filterFields}
+        onFilterChange={handleFilterChange}
       />
 
       <DataTable

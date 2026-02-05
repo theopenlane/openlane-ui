@@ -108,9 +108,11 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     () =>
       evidences.map((evidence) => ({
         id: evidence.id,
-        displayID: evidence.displayID ?? evidence.id,
         name: evidence.name ?? 'Untitled',
+        status: evidence.status,
+        source: evidence.source,
         updatedAt: evidence.updatedAt,
+        updatedBy: evidence.updatedBy,
       })),
     [evidences],
   )

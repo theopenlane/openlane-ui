@@ -29,7 +29,7 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [orgMembers, setOrgMembers] = useState<TOrgMembers[]>([])
-  const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
+  const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { enumOptions: taskKindOptions, isSuccess: taskKindsReady } = useGetCustomTypeEnums({

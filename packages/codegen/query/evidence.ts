@@ -297,7 +297,10 @@ export const GET_EVIDENCE_LIST_LIGHT = gql`
           id
           displayID
           name
+          status
+          source
           updatedAt
+          updatedBy
         }
       }
     }

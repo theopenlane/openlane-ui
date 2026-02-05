@@ -45,7 +45,7 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
 
 export const getSubcontrolsFilterFields = (typeOptions: string[], sourceOptions: string[]): FilterField[] => [
   {
-    key: 'typeIn',
+    key: 'subcontrolKindNameIn',
     label: 'Type',
     type: 'multiselect',
     icon: Tag,
