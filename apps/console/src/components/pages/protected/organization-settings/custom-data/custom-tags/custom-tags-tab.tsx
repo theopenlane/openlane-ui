@@ -20,6 +20,8 @@ import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
 import { VisibilityState } from '@tanstack/react-table'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canDelete, canEdit } from '@/lib/authz/utils'
 
 const DEFAULT_TAGS_COLUMN_VISIBILITY: VisibilityState = {
   type: false,
@@ -32,6 +34,7 @@ const DEFAULT_TAGS_COLUMN_VISIBILITY: VisibilityState = {
 const CustomTagsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
+  const { data: permission } = useOrganizationRoles()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CUSTOM_TAGS, DEFAULT_TAGS_COLUMN_VISIBILITY))
 
   const [searchValue, setSearchValue] = useState('')
@@ -106,6 +109,9 @@ const CustomTagsTab: FC = () => {
     }
   }
 
+  const canEditTags = canEdit(permission?.roles)
+  const canDeleteTags = canDelete(permission?.roles)
+
   const { columns, mappedColumns } = useGetCustomTagColumns({
     tags: tags,
     selected,
@@ -116,6 +122,8 @@ const CustomTagsTab: FC = () => {
       setTagToDelete(tag ? { id: tag.id, name: tag.name } : null)
     },
     userMap,
+    canEditTags,
+    canDeleteTags,
   })
 
   return (
@@ -134,9 +142,11 @@ const CustomTagsTab: FC = () => {
           variant="searchTable"
         />
 
-        <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
-          Create Tag
-        </Button>
+        {canEditTags && (
+          <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
+            Create Tag
+          </Button>
+        )}
       </div>
 
       <div className="rounded-xl border bg-card">

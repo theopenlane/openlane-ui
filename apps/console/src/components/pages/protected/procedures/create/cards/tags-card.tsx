@@ -9,6 +9,8 @@ import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -17,6 +19,8 @@ type TTagsCardProps = {
 const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
   const [tagValues, setTagValues] = useState<Option[]>([])
   const { tagOptions } = useGetTags()
+  const { data: permission } = useOrganizationRoles()
+  const canCreateTags = canEdit(permission?.roles)
 
   useEffect(() => {
     if (form.getValues('tags')) {
@@ -53,7 +57,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
                         options={tagOptions}
                         className="w-full"
                         placeholder="Add tag..."
-                        creatable
+                        creatable={canCreateTags}
                         value={tagValues}
                         onChange={(selectedOptions) => {
                           const options = selectedOptions.map((option) => option.value)
