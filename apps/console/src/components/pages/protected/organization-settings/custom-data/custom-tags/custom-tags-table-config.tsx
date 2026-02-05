@@ -22,6 +22,7 @@ type ColumnsParams = {
   onEdit?: (id: string) => void
   onDelete?: (id: string) => void
   userMap?: Record<string, User>
+  canEditTags?: boolean
 }
 
 export const normalizeColor = (color?: string | null) => {
@@ -29,7 +30,7 @@ export const normalizeColor = (color?: string | null) => {
   return color.startsWith('#') ? color : `#${color}`
 }
 
-export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, onDelete, userMap }: ColumnsParams) => {
+export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, onDelete, userMap, canEditTags = true }: ColumnsParams) => {
   const { mutateAsync: updateTag } = useUpdateTag()
 
   const columns = useMemo<ColumnDef<TagDefinition>[]>(() => {
@@ -89,7 +90,7 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
           <ColorCell
             id={row.original.id}
             initialColor={normalizeColor(row.original.color)}
-            disabled={!!row.original.systemOwned}
+            disabled={!!row.original.systemOwned || !canEditTags}
             onSave={async (id, color) => {
               await updateTag({
                 updateTagDefinitionId: id,
@@ -144,32 +145,36 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
         cell: ({ cell }) => <span className="text-sm">{formatDateSince(cell.getValue() as string)}</span>,
         size: 130,
       },
-      {
-        id: 'actions',
-        header: 'Actions',
-        cell: ({ row }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="-mr-2" variant="secondary">
-                <MoreHorizontal className="h-4 w-4 text-brand" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-40">
-              <DropdownMenuItem onClick={() => onEdit?.(row.original.id)}>
-                <Pencil className="h-4 w-4 mr-2" />
-                Edit Tag
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete?.(row.original.id)}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Tag
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
-        size: 40,
-      },
+      ...(canEditTags
+        ? [
+            {
+              id: 'actions',
+              header: 'Actions',
+              cell: ({ row }: { row: { original: TagDefinition } }) => (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="-mr-2" variant="secondary">
+                      <MoreHorizontal className="h-4 w-4 text-brand" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-40">
+                    <DropdownMenuItem onClick={() => onEdit?.(row.original.id)}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit Tag
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete?.(row.original.id)}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Tag
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ),
+              size: 40,
+            },
+          ]
+        : []),
     ]
-  }, [tags, selected, setSelected, onEdit, onDelete, userMap, updateTag])
+  }, [tags, selected, setSelected, onEdit, onDelete, userMap, updateTag, canEditTags])
 
   const mappedColumns = useMemo(() => {
     return columns
