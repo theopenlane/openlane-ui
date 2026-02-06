@@ -155,6 +155,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     assessmentMethods
     assessmentObjectives
     testingProcedures
+    references
     displayID
     source
     controlKindName

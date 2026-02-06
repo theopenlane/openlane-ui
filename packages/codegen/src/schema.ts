@@ -58959,19 +58959,20 @@ export interface WorkflowObjectTypeMetadata {
   type: Scalars['String']['output']
 }
 
-/** WorkflowProposal stores staged changes for a workflow approval domain. */
-export interface WorkflowProposal {
+export interface WorkflowProposal extends Node {
   __typename?: 'WorkflowProposal'
-  /** Hash of the proposed changes that were approved */
+  /** Hash of the proposed changes that satisfied approvals (what was approved) */
   approvedHash?: Maybe<Scalars['String']['output']>
-  /** Staged field updates for this domain */
+  /** Staged field updates for this domain; applied only after approval */
   changes?: Maybe<Scalars['Map']['output']>
-  /** Creation timestamp */
-  createdAt: Scalars['Time']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
   /** Stable key representing the approval domain for this proposal */
   domainKey: Scalars['String']['output']
-  /** ID of the workflow proposal */
   id: Scalars['ID']['output']
+  owner?: Maybe<Organization>
+  /** the ID of the organization owner of the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
   /**
    * Precomputed proposal preview (diff + values) for approval workflows.
    * Only available to editors/owners of the target object.
@@ -58979,14 +58980,18 @@ export interface WorkflowProposal {
   preview?: Maybe<WorkflowProposalPreview>
   /** Hash of the current proposed changes for approval verification */
   proposedHash?: Maybe<Scalars['String']['output']>
+  /** Monotonic revision counter; incremented on edits */
+  revision: Scalars['Int']['output']
   /** Current state of the proposal */
-  state: WorkflowProposalState
+  state: WorkflowProposalWorkflowProposalState
   /** Timestamp when this proposal was submitted for approval */
   submittedAt?: Maybe<Scalars['Time']['output']>
   /** User who submitted this proposal for approval */
   submittedByUserID?: Maybe<Scalars['ID']['output']>
-  /** Last update timestamp */
-  updatedAt: Scalars['Time']['output']
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
   /** WorkflowObjectRef record that identifies the target object for this proposal */
   workflowObjectRefID: Scalars['ID']['output']
 }
@@ -59039,6 +59044,15 @@ export interface WorkflowProposalWithdrawPayload {
   __typename?: 'WorkflowProposalWithdrawPayload'
   /** Withdrawn workflow proposal */
   workflowProposal: WorkflowProposal
+}
+
+/** WorkflowProposalWorkflowProposalState is enum for the field state */
+export enum WorkflowProposalWorkflowProposalState {
+  APPLIED = 'APPLIED',
+  DRAFT = 'DRAFT',
+  REJECTED = 'REJECTED',
+  SUBMITTED = 'SUBMITTED',
+  SUPERSEDED = 'SUPERSEDED',
 }
 
 export type CreateAssessmentMutationVariables = Exact<{
@@ -59461,9 +59475,12 @@ export type ControlDetailsFieldsFragment = {
   descriptionJSON?: Array<any> | null
   implementationGuidance?: Array<any> | null
   exampleEvidence?: Array<any> | null
+  evidenceRequests?: Array<any> | null
   controlQuestions?: Array<string> | null
   assessmentMethods?: Array<any> | null
   assessmentObjectives?: Array<any> | null
+  testingProcedures?: Array<any> | null
+  references?: Array<any> | null
   displayID: string
   source?: ControlControlSource | null
   controlKindName?: string | null
@@ -59492,7 +59509,21 @@ export type ControlDetailsFieldsFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: {
+        __typename: 'Subcontrol'
+        id: string
+        refCode: string
+        description?: string | null
+        displayID: string
+        status?: SubcontrolControlStatus | null
+        subcontrolKindName?: string | null
+        source?: SubcontrolControlSource | null
+        category?: string | null
+        subcategory?: string | null
+      } | null
+    } | null> | null
   }
   delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
@@ -59592,9 +59623,12 @@ export type GetControlByIdQuery = {
     descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
+    evidenceRequests?: Array<any> | null
     controlQuestions?: Array<string> | null
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
+    testingProcedures?: Array<any> | null
+    references?: Array<any> | null
     displayID: string
     source?: ControlControlSource | null
     controlKindName?: string | null
@@ -59626,7 +59660,21 @@ export type GetControlByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: {
+          __typename: 'Subcontrol'
+          id: string
+          refCode: string
+          description?: string | null
+          displayID: string
+          status?: SubcontrolControlStatus | null
+          subcontrolKindName?: string | null
+          source?: SubcontrolControlSource | null
+          category?: string | null
+          subcategory?: string | null
+        } | null
+      } | null> | null
     }
     delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
     controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
@@ -59919,9 +59967,9 @@ export type GetControlsByRefCodeQuery = {
         id: string
         refCode: string
         description?: string | null
-        status?: string | null
+        status?: ControlControlStatus | null
         controlKindName?: string | null
-        source?: string | null
+        source?: ControlControlSource | null
         category?: string | null
         subcategory?: string | null
         referenceFramework?: string | null
@@ -60284,7 +60332,18 @@ export type GetDocumentationPoliciesQuery = {
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; updatedAt?: any | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: {
+        __typename?: 'InternalPolicy'
+        id: string
+        name: string
+        status?: InternalPolicyDocumentStatus | null
+        updatedBy?: string | null
+        updatedAt?: any | null
+        approver?: { __typename?: 'Group'; id: string; displayName: string } | null
+      } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
@@ -60303,7 +60362,18 @@ export type GetDocumentationProceduresQuery = {
   procedures: {
     __typename?: 'ProcedureConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; updatedAt?: any | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'ProcedureEdge'
+      node?: {
+        __typename?: 'Procedure'
+        id: string
+        name: string
+        status?: ProcedureDocumentStatus | null
+        updatedBy?: string | null
+        updatedAt?: any | null
+        approver?: { __typename?: 'Group'; id: string; displayName: string } | null
+      } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
@@ -60322,7 +60392,19 @@ export type GetDocumentationTasksQuery = {
   tasks: {
     __typename?: 'TaskConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; updatedAt?: any | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'TaskEdge'
+      node?: {
+        __typename?: 'Task'
+        id: string
+        title: string
+        taskKindName?: string | null
+        status: TaskTaskStatus
+        due?: string | null
+        updatedAt?: any | null
+        assignee?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+      } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
@@ -60617,7 +60699,19 @@ export type GetEvidenceListLightQuery = {
     __typename?: 'EvidenceConnection'
     totalCount: number
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
-    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; updatedAt?: any | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'EvidenceEdge'
+      node?: {
+        __typename?: 'Evidence'
+        id: string
+        displayID: string
+        name: string
+        status?: EvidenceEvidenceStatus | null
+        source?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
   }
 }
 
@@ -63158,9 +63252,12 @@ export type GetSubcontrolByIdQuery = {
     descriptionJSON?: Array<any> | null
     implementationGuidance?: Array<any> | null
     exampleEvidence?: Array<any> | null
+    evidenceRequests?: Array<any> | null
     controlQuestions?: Array<string> | null
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
+    testingProcedures?: Array<any> | null
+    references?: Array<any> | null
     displayID: string
     source?: SubcontrolControlSource | null
     subcontrolKindName?: string | null
@@ -63305,9 +63402,9 @@ export type GetSubcontrolsPaginatedQuery = {
         id: string
         refCode: string
         description?: string | null
-        status?: string | null
+        status?: SubcontrolControlStatus | null
         subcontrolKindName?: string | null
-        source?: string | null
+        source?: SubcontrolControlSource | null
         category?: string | null
         subcategory?: string | null
         referenceFramework?: string | null
@@ -63352,9 +63449,9 @@ export type GetSubcontrolsByRefCodeQuery = {
         id: string
         refCode: string
         description?: string | null
-        status?: string | null
+        status?: SubcontrolControlStatus | null
         subcontrolKindName?: string | null
-        source?: string | null
+        source?: SubcontrolControlSource | null
         category?: string | null
         subcategory?: string | null
         systemOwned?: boolean | null

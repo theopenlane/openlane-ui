@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
+import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
 import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -92,7 +93,7 @@ const ControlDetailsPage: React.FC = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { data: associationsData } = useGetControlAssociationsById(id)
-  const [hasScrollbar, setHasScrollbar] = useState(false)
+  const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
   const memoizedSections = useMemo(() => {
     if (!associationsData?.control || !data) return {}
@@ -243,44 +244,6 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.control, form])
 
-  useEffect(() => {
-    let rafId = 0
-    const checkScrollbar = () => {
-      const container = document.querySelector('[data-scroll-container="main"]') as HTMLElement | null
-      if (!container) {
-        const root = document.documentElement
-        setHasScrollbar(root.scrollHeight > root.clientHeight)
-        return
-      }
-      setHasScrollbar(container.scrollHeight > container.clientHeight)
-    }
-
-    const scheduleCheck = () => {
-      if (rafId) return
-      rafId = window.requestAnimationFrame(() => {
-        rafId = 0
-        checkScrollbar()
-      })
-    }
-
-    const container = document.querySelector('[data-scroll-container="main"]') as HTMLElement | null
-    const resizeObserver = container ? new ResizeObserver(scheduleCheck) : null
-
-    if (container) {
-      resizeObserver?.observe(container)
-    }
-
-    checkScrollbar()
-    window.addEventListener('resize', scheduleCheck)
-    return () => {
-      window.removeEventListener('resize', scheduleCheck)
-      resizeObserver?.disconnect()
-      if (rafId) {
-        cancelAnimationFrame(rafId)
-      }
-    }
-  }, [isEditing, data?.control, associationsData?.control])
-
   if (isLoading) {
     return <Loading />
   }
@@ -379,7 +342,7 @@ const ControlDetailsPage: React.FC = () => {
             slideOpen={isEditing}
             minWidth={430}
             collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-8"
+            collapsedButtonClassName="-translate-x-4"
             hasScrollbar={hasScrollbar}
           >
             {mainContent}

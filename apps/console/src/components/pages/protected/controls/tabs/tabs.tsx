@@ -44,6 +44,19 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
   const evidenceRequests = isSubcontrol ? (subcontrol as { evidenceRequests?: unknown } | undefined)?.evidenceRequests : (control as { evidenceRequests?: unknown } | undefined)?.evidenceRequests
   const refCode = (isSubcontrol ? subcontrol?.refCode : control?.refCode) ?? ''
 
+  const testingProcedures = useMemo(() => {
+    const raw = (isSubcontrol ? subcontrol?.testingProcedures : control?.testingProcedures) as
+      | { referenceId: string; procedures: string[] }
+      | { referenceId: string; procedures: string[] }[]
+      | null
+      | undefined
+    if (!raw) return null
+    if (Array.isArray(raw)) return raw.flatMap((p) => p?.procedures ?? [])
+    return raw.procedures ?? []
+  }, [isSubcontrol, subcontrol?.testingProcedures, control?.testingProcedures])
+
+  const references = (isSubcontrol ? subcontrol?.references : control?.references) as { name: string; url?: string }[] | null | undefined
+
   const evidenceFormData = useMemo<TFormEvidenceData>(() => {
     if (isSubcontrol) {
       return buildSubcontrolEvidenceData(subcontrol ?? null, subcontrolAssociationsData)
@@ -79,8 +92,9 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
           implementationGuidance={(isSubcontrol ? subcontrol?.implementationGuidance : control?.implementationGuidance) as { referenceId: string; guidance: string[] }[] | null}
           controlQuestions={(isSubcontrol ? subcontrol?.controlQuestions : control?.controlQuestions) as string[] | null}
           assessmentMethods={(isSubcontrol ? subcontrol?.assessmentMethods : control?.assessmentMethods) as { id: string; type: 'EXAMINE' | 'INTERVIEW' | 'TEST'; method: string }[] | null}
-          assessmentObjectives={(isSubcontrol ? subcontrol?.assessmentObjectives : control?.assessmentObjectives) as { class: string; id: string; prose: string }[] | null}
-          testingProcedures={(isSubcontrol ? subcontrol?.testingProcedures : control?.testingProcedures) as { items: string[] } | null}
+          assessmentObjectives={(isSubcontrol ? subcontrol?.assessmentObjectives : control?.assessmentObjectives) as { class: string; id: string; objective: string }[] | null}
+          testingProcedures={testingProcedures}
+          references={references}
           refCode={refCode}
           controlId={control?.id}
           subcontrolId={subcontrol?.id}

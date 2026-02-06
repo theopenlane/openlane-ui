@@ -44,6 +44,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       assessmentMethods
       assessmentObjectives
       testingProcedures
+      references
       displayID
       source
       subcontrolKindName

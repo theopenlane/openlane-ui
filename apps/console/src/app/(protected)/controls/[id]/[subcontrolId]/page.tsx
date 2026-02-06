@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
+import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
@@ -80,7 +81,6 @@ const ControlDetailsPage: React.FC = () => {
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const [showAskAIDialog, setShowAskAIDialog] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [hasScrollbar, setHasScrollbar] = useState(false)
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
@@ -96,6 +96,7 @@ const ControlDetailsPage: React.FC = () => {
   const { data: discussionData } = useGetSubcontrolDiscussionById(subcontrolId)
 
   const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)
+  const hasScrollbar = useHasScrollbar([isEditing, data?.subcontrol, associationsData?.subcontrol])
 
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
@@ -251,44 +252,6 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.subcontrol, form])
 
-  useEffect(() => {
-    let rafId = 0
-    const checkScrollbar = () => {
-      const container = document.querySelector('[data-scroll-container="main"]') as HTMLElement | null
-      if (!container) {
-        const root = document.documentElement
-        setHasScrollbar(root.scrollHeight > root.clientHeight)
-        return
-      }
-      setHasScrollbar(container.scrollHeight > container.clientHeight)
-    }
-
-    const scheduleCheck = () => {
-      if (rafId) return
-      rafId = window.requestAnimationFrame(() => {
-        rafId = 0
-        checkScrollbar()
-      })
-    }
-
-    const container = document.querySelector('[data-scroll-container="main"]') as HTMLElement | null
-    const resizeObserver = container ? new ResizeObserver(scheduleCheck) : null
-
-    if (container) {
-      resizeObserver?.observe(container)
-    }
-
-    checkScrollbar()
-    window.addEventListener('resize', scheduleCheck)
-    return () => {
-      window.removeEventListener('resize', scheduleCheck)
-      resizeObserver?.disconnect()
-      if (rafId) {
-        cancelAnimationFrame(rafId)
-      }
-    }
-  }, [isEditing, data?.subcontrol, associationsData?.subcontrol])
-
   if (isLoading) {
     return <Loading />
   }
@@ -385,7 +348,7 @@ const ControlDetailsPage: React.FC = () => {
             slideOpen={isEditing}
             minWidth={430}
             collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-2"
+            collapsedButtonClassName="-translate-x-4"
             hasScrollbar={hasScrollbar}
           >
             {mainContent}
