@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { CreateTaskFormData } from '../../hooks/use-form-schema'
@@ -51,6 +51,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const [associations, setAssociations] = useState<TObjectAssociationMap>(props.initialData ?? {})
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+  const wasOpenRef = useRef(false)
   const { tagOptions } = useGetTags()
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
@@ -77,8 +78,12 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   }, [form, props.initialValues, props.isOpen])
 
   useEffect(() => {
-    if (!props.isOpen) return
-    setAssociations(props.initialData ?? {})
+    const isOpening = !wasOpenRef.current && Boolean(props.isOpen)
+    if (isOpening) {
+      setAssociations(props.initialData ?? {})
+      setAssociationResetTrigger((prev) => prev + 1)
+    }
+    wasOpenRef.current = Boolean(props.isOpen)
   }, [props.initialData, props.isOpen])
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
