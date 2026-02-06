@@ -86,13 +86,17 @@ const EvidenceCommentsCard = () => {
 
   return (
     <Card className="p-4">
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <p className="text-lg font-semibold">Comments</p>
-          {totalComments > 0 && <span className="text-sm text-muted-foreground">({totalComments})</span>}
+          {totalComments > 0 && <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs rounded-full bg-secondary bg-rounded">{totalComments}</span>}
         </div>
-      </div>
 
+        <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
+          See All
+        </Button>
+      </div>
+      <p className="text-gray-500 mb-3">Latest Comment</p>
       {hasData && latestComment ? (
         <div className="flex items-start gap-3 mb-3">
           <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
@@ -113,12 +117,6 @@ const EvidenceCommentsCard = () => {
       ) : (
         <p className="text-sm text-muted-foreground mb-3">No comments yet</p>
       )}
-
-      <div className="flex justify-end">
-        <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
-          Open
-        </Button>
-      </div>
 
       <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
         <SheetContent
