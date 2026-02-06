@@ -48,7 +48,7 @@ export const useDocumentationPolicies = ({ where, orderBy, pagination, enabled =
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<DocPoliciesQuery>({
-    queryKey: ['policies', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['internalPolicies', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () => client.request(GET_DOCUMENTATION_POLICIES, { where, orderBy, ...pagination?.query }),
     enabled,
   })

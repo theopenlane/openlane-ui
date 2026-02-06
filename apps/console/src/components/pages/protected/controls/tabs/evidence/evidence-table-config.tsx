@@ -28,7 +28,7 @@ export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap
     accessorKey: 'name',
     header: () => <span className="whitespace-nowrap">Name</span>,
     cell: ({ row }) => (
-      <button type="button" className="text-blue-500 hover:underline truncate" onClick={() => onOpenEvidence(row.original.id)}>
+      <button type="button" className="text-blue-500 hover:underline truncate whitespace-nowrap" onClick={() => onOpenEvidence(row.original.id)}>
         {row.original.name}
       </button>
     ),
@@ -52,7 +52,7 @@ export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap
   {
     accessorKey: 'source',
     header: () => <span className="whitespace-nowrap">Source</span>,
-    cell: ({ row }) => <span className="truncate">{row.original.source || '-'}</span>,
+    cell: ({ row }) => <span className="truncate whitespace-nowrap">{row.original.source || '-'}</span>,
     size: 180,
   },
   {
@@ -74,7 +74,7 @@ export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap
       }
 
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 whitespace-nowrap">
           {token ? <KeyRound size={16} /> : <Avatar entity={user} className="w-6 h-6" />}
           <span>{token ? token.name : user?.displayName || '-'}</span>
         </div>

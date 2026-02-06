@@ -113,7 +113,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
         accessorKey: 'name',
         header: () => <span className="whitespace-nowrap">Name</span>,
         cell: ({ row }) => (
-          <Link href={row.original.href} className="text-blue-500 hover:underline">
+          <Link href={row.original.href} className="text-blue-500 hover:underline whitespace-nowrap">
             {row.original.name}
           </Link>
         ),
@@ -142,7 +142,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
       {
         accessorKey: 'approver',
         header: () => <span className="whitespace-nowrap">Approver</span>,
-        cell: ({ row }) => <span className="truncate">{row.original.approver?.displayName ?? '-'}</span>,
+        cell: ({ row }) => <span className="truncate whitespace-nowrap">{row.original.approver?.displayName ?? '-'}</span>,
         size: 160,
       },
       {
@@ -158,7 +158,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
           }
 
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 whitespace-nowrap">
               {token ? <KeyRound size={16} /> : <Avatar entity={user} className="w-6 h-6" />}
               <span>{token ? token.name : user?.displayName || '-'}</span>
             </div>

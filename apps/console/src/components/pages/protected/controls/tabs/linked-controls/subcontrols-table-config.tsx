@@ -25,9 +25,6 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
         {row.original.refCode}
       </Link>
     ),
-    size: 120,
-    minSize: 120,
-    maxSize: 120,
   },
   {
     accessorKey: 'description',

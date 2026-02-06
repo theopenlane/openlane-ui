@@ -14,6 +14,7 @@ import AddAssociationBtn from '@/components/shared/object-association/add-associ
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useQueryClient } from '@tanstack/react-query'
 
 type SetObjectAssociationDialogProps = {
   trigger?: React.ReactNode
@@ -25,6 +26,7 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const isControl = subcontrolId ? false : !!id
   const isSubcontrol = !!subcontrolId
+  const queryClient = useQueryClient()
 
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
@@ -125,6 +127,23 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
           updateSubcontrolId: subcontrolId!,
           input: associationInputs,
         })
+      }
+
+      const policyAssociationsChanged = (added.internalPolicyIDs?.length ?? 0) > 0 || (removed.internalPolicyIDs?.length ?? 0) > 0
+      const procedureAssociationsChanged = (added.procedureIDs?.length ?? 0) > 0 || (removed.procedureIDs?.length ?? 0) > 0
+
+      if (subcontrolId) {
+        queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['controls'] })
+      }
+
+      if (policyAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      }
+
+      if (procedureAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['procedures'] })
       }
 
       successNotification({ title: `${isControl ? 'Control' : 'Subcontrol'} updated` })

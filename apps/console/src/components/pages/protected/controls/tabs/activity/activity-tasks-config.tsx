@@ -56,7 +56,7 @@ export const getActivityTaskColumns = (taskKindOptions: TaskKindOption[] = [], o
     accessorKey: 'title',
     header: () => <span className="whitespace-nowrap">Title</span>,
     cell: ({ row }) => (
-      <button type="button" className="text-blue-500 hover:underline cursor-pointer" onClick={() => onTaskOpen?.(row.original.id)}>
+      <button type="button" className="text-blue-500 text-left hover:underline  whitespace-nowrap" onClick={() => onTaskOpen?.(row.original.id)}>
         {row.original.title}
       </button>
     ),
@@ -90,7 +90,7 @@ export const getActivityTaskColumns = (taskKindOptions: TaskKindOption[] = [], o
         return <span className="text-muted-foreground">Not assigned</span>
       }
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 whitespace-nowrap">
           <Avatar entity={assignee} className="w-6 h-6" />
           <span>{assignee.displayName}</span>
         </div>
