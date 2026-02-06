@@ -1,6 +1,7 @@
 export type NormalizedObject = {
   id: string
   refCode?: string
+  displayID?: string
   controlId?: string
   name?: string
   title?: string

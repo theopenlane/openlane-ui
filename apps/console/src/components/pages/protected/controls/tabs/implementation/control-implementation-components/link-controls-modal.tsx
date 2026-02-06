@@ -16,16 +16,29 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 interface Props {
   initialData: TObjectAssociationMap
   updateControlImplementationId: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  hideTrigger?: boolean
+  trigger?: React.ReactNode
 }
 
-export function LinkControlsModal({ initialData, updateControlImplementationId }: Props) {
+export function LinkControlsModal({ initialData, updateControlImplementationId, open, onOpenChange, hideTrigger, trigger }: Props) {
   const { subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const isSubcontrol = !!subcontrolId
 
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const [saveEnabled, setSaveEnabled] = useState(false)
   const [associations, setAssociations] = useState(initialData)
   const [isSaving, setIsSaving] = useState(false)
+
+  const isControlled = typeof open === 'boolean'
+  const dialogOpen = isControlled ? open : internalOpen
+  const setDialogOpen = (nextOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  }
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: update } = useUpdateControlImplementation()
@@ -81,7 +94,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
       })
 
       successNotification({ title: 'Associations updated successfully.' })
-      setOpen(false)
+      setDialogOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -98,14 +111,12 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
       setAssociations(initialData)
       setSaveEnabled(false)
     }
-    setOpen(isOpen)
+    setDialogOpen(isOpen)
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger asChild>
-        <Button className="h-8 px-2!">Set Association</Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
+      {!hideTrigger && <DialogTrigger asChild>{trigger ?? <Button className="h-8 px-2!">Set Association</Button>}</DialogTrigger>}
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Associate Related Objects</DialogTitle>
@@ -131,7 +142,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
         />
         <DialogFooter>
           <SaveButton disabled={!saveEnabled || isSaving} onClick={onSave} isSaving={isSaving} />
-          <CancelButton onClick={() => setOpen(false)}></CancelButton>
+          <CancelButton onClick={() => setDialogOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

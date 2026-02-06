@@ -28,13 +28,14 @@ const formSchema = z.object({
 export type CreateTaskFormData = z.infer<typeof formSchema>
 export type EditTaskFormData = z.infer<typeof formSchema>
 
-const useFormSchema = () => {
+const useFormSchema = (defaultValues?: Partial<CreateTaskFormData>) => {
   return {
     form: useForm<CreateTaskFormData>({
       resolver: zodResolver(formSchema),
       defaultValues: {
         title: '',
         tags: [],
+        ...defaultValues,
       },
     }),
   }

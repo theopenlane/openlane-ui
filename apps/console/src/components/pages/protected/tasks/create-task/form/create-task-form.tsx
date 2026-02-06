@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { CreateTaskFormData } from '../../hooks/use-form-schema'
@@ -35,13 +35,15 @@ type TProps = {
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
+  initialValues?: Partial<CreateTaskFormData>
+  isOpen?: boolean
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const plateEditorHelper = usePlateEditor()
   const { formInput } = dialogStyles()
   const [tagValues, setTagValues] = useState<Option[]>([])
-  const { form } = useFormSchema()
+  const { form } = useFormSchema(props.initialValues)
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
@@ -56,6 +58,22 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       field: 'kind',
     },
   })
+
+  useEffect(() => {
+    if (!props.isOpen || !props.initialValues) return
+
+    const nextTags = props.initialValues.tags ?? []
+    form.reset({
+      title: '',
+      tags: [],
+      ...props.initialValues,
+    })
+    setTagValues(nextTags.map((tag) => ({ value: tag, label: tag })))
+
+    if (props.initialValues.details) {
+      form.setValue('details', props.initialValues.details)
+    }
+  }, [form, props.initialValues, props.isOpen])
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -192,7 +210,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                                 content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                               />
                             </div>
-                            <PlateEditor onChange={handleDetailsChange} placeholder="Write your task details" />
+                            <PlateEditor onChange={handleDetailsChange} placeholder="Write your task details" initialValue={props.initialValues?.details} />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}

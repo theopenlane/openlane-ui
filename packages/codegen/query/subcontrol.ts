@@ -39,9 +39,12 @@ export const GET_SUBCONTROL_BY_ID = gql`
       descriptionJSON
       implementationGuidance
       exampleEvidence
+      evidenceRequests
       controlQuestions
       assessmentMethods
       assessmentObjectives
+      testingProcedures
+      references
       displayID
       source
       subcontrolKindName
@@ -212,14 +215,18 @@ export const GET_SUBCONTROL_SELECT_OPTIONS = gql`
 `
 
 export const GET_SUBCONTROLS_PAGINATED = gql`
-  query GetSubcontrolsPaginated($where: SubcontrolWhereInput, $after: Cursor) {
-    subcontrols(where: $where, after: $after) {
+  query GetSubcontrolsPaginated($where: SubcontrolWhereInput, $after: Cursor, $before: Cursor, $first: Int, $last: Int) {
+    subcontrols(where: $where, after: $after, before: $before, first: $first, last: $last) {
       totalCount
       edges {
         node {
           __typename
           id
           refCode
+          description
+          status
+          subcontrolKindName
+          source
           category
           subcategory
           referenceFramework
@@ -259,6 +266,12 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
         node {
           id
           refCode
+          description
+          status
+          subcontrolKindName
+          source
+          category
+          subcategory
           systemOwned
           controlID
           control {

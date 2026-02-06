@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { CircleUser, CircleArrowRight } from 'lucide-react'
-import { Control, ControlControlSource, Subcontrol, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { ControlControlSource, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 
 import { Group } from '@repo/codegen/src/schema'
 import { Option } from '@repo/ui/multiple-selector'
@@ -20,13 +20,24 @@ import { MappedCategories } from './fields/mapped-categories'
 import { Status } from './fields/status'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 
-interface PropertiesCardProps {
+type ControlPropertiesCardProps = {
   isEditing: boolean
-  data?: Control | Subcontrol
-  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  data?: ControlByIdNode
+  handleUpdate?: (val: UpdateControlInput) => void
   canEdit: boolean
 }
+
+type SubcontrolPropertiesCardProps = {
+  isEditing: boolean
+  data?: SubcontrolByIdNode
+  handleUpdate?: (val: UpdateSubcontrolInput) => void
+  canEdit: boolean
+}
+
+type PropertiesCardProps = ControlPropertiesCardProps | SubcontrolPropertiesCardProps
 
 const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handleUpdate, canEdit }) => {
   const isSourceFramework = data?.source === ControlControlSource.FRAMEWORK
@@ -34,6 +45,18 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const authorityEditAllowed = canEdit
   const path = usePathname()
   const isCreateSubcontrol = path.includes('/create-subcontrol')
+
+  const handleUpdateAdapter = useCallback(
+    (val: UpdateControlInput | UpdateSubcontrolInput) => {
+      if (!handleUpdate) return
+      if (data?.__typename === 'Subcontrol') {
+        ;(handleUpdate as (input: UpdateSubcontrolInput) => void)(val as UpdateSubcontrolInput)
+        return
+      }
+      ;(handleUpdate as (input: UpdateControlInput) => void)(val as UpdateControlInput)
+    },
+    [data?.__typename, handleUpdate],
+  )
 
   const [editingField, setEditingField] = useState<string | null>(null)
   const isGroupEditing = editingField === 'owner' || editingField === 'delegate'
@@ -67,7 +90,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           editingField={editingField}
           setEditingField={setEditingField}
           options={options}
-          handleUpdate={handleUpdate}
+          handleUpdate={handleUpdateAdapter}
         />
         <AuthorityField
           label="Delegate"
@@ -80,7 +103,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           editingField={editingField}
           setEditingField={setEditingField}
           options={options}
-          handleUpdate={handleUpdate}
+          handleUpdate={handleUpdateAdapter}
         />
 
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
@@ -91,7 +114,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           isEditAllowed={isEditAllowed}
           isEditing={isEditing}
           icon={controlIconsMap.Category}
-          handleUpdate={handleUpdate}
+          handleUpdate={handleUpdateAdapter}
           activeField={editingField}
           setActiveField={setEditingField}
           fieldId="category"
@@ -102,19 +125,19 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           isEditAllowed={isEditAllowed}
           isEditing={isEditing}
           icon={controlIconsMap.Subcategory}
-          handleUpdate={handleUpdate}
+          handleUpdate={handleUpdateAdapter}
           activeField={editingField}
           setActiveField={setEditingField}
           fieldId="subcategory"
         />
-        <Status data={data} isEditing={isEditing} handleUpdate={handleUpdate} activeField={editingField} setActiveField={setEditingField} fieldId="status" />
+        <Status data={data} isEditing={isEditing} handleUpdate={handleUpdateAdapter} activeField={editingField} setActiveField={setEditingField} fieldId="status" />
         <MappedCategories isEditing={isEditing} data={data} activeField={editingField} setActiveField={setEditingField} fieldId="mappedCategories" />
         <EditableSelect
           label="Source"
           name="source"
           isEditing={isEditing}
           options={enumToOptions(ControlControlSource)}
-          handleUpdate={handleUpdate}
+          handleUpdate={handleUpdateAdapter}
           isEditAllowed={isEditAllowed}
           activeField={editingField}
           setActiveField={setEditingField}
@@ -126,14 +149,14 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           isEditing={isEditing}
           isEditAllowed={isEditAllowed}
           options={enumOptions}
-          handleUpdate={handleUpdate}
+          handleUpdate={handleUpdateAdapter}
           activeField={editingField}
           setActiveField={setEditingField}
           fieldId={data?.__typename === 'Subcontrol' || isCreateSubcontrol ? 'subcontrolKindName' : 'controlKindName'}
         />
         {isEditing || data?.referenceID ? (
           <ReferenceProperty
-            handleUpdate={handleUpdate}
+            handleUpdate={handleUpdateAdapter}
             name="referenceID"
             label="Ref ID"
             tooltip="Internal reference id of the control, used to map across internal systems"
@@ -146,7 +169,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         ) : null}
         {isEditing || data?.auditorReferenceID ? (
           <ReferenceProperty
-            handleUpdate={handleUpdate}
+            handleUpdate={handleUpdateAdapter}
             name="auditorReferenceID"
             label="Auditor ID"
             tooltip="Reference ID used by auditor, may vary from defined reference code from standard"

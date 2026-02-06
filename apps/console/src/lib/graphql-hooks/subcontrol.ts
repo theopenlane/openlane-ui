@@ -46,6 +46,10 @@ import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
 import { GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables, UpdateSubcontrolCommentMutation, UpdateSubcontrolCommentMutationVariables } from '@repo/codegen/src/schema'
 
+export type SubcontrolByIdNode = GetSubcontrolByIdQuery['subcontrol']
+export type SubcontrolsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetSubcontrolsByRefCodeQuery['subcontrols']>['edges']>[number]>
+export type SubcontrolsByRefcodeNode = NonNullable<SubcontrolsByRefcodeEdge['node']>
+
 type UseGetAllSubcontrolsArgs = {
   where?: GetAllSubcontrolsQueryVariables['where']
   pagination?: TPagination | null
@@ -59,6 +63,41 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
     queryKey: ['subcontrols', where, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
       client.request<GetAllSubcontrolsQuery, GetAllSubcontrolsQueryVariables>(GET_ALL_SUBCONTROLS, {
+        where,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.subcontrols?.edges ?? []
+  const subcontrols = edges.map((edge) => edge?.node) as Subcontrol[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
+    pageInfo: queryResult.data?.subcontrols?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    subcontrols,
+    paginationMeta,
+  }
+}
+
+type UseGetSubcontrolsPaginatedArgs = {
+  where?: SubcontrolWhereInput
+  pagination?: TPagination | null
+  enabled?: boolean
+}
+
+export const useGetSubcontrolsPaginated = ({ where, pagination, enabled = true }: UseGetSubcontrolsPaginatedArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetSubcontrolsPaginatedQuery, unknown>({
+    queryKey: ['subcontrols', 'paginated', where, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request<GetSubcontrolsPaginatedQuery, GetSubcontrolsPaginatedQueryVariables>(GET_SUBCONTROLS_PAGINATED, {
         where,
         ...pagination?.query,
       }),
