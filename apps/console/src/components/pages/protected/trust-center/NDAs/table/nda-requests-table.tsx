@@ -34,8 +34,8 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
   const status = useMemo<TrustCenterNdaRequestTrustCenterNdaRequestStatus>(() => {
     if (activeTab === 'signed') return TrustCenterNdaRequestTrustCenterNdaRequestStatus.SIGNED
     if (activeTab === 'approved') return TrustCenterNdaRequestTrustCenterNdaRequestStatus.APPROVED
-    return TrustCenterNdaRequestTrustCenterNdaRequestStatus.REQUESTED
-  }, [activeTab])
+    return requireApproval ? TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL : TrustCenterNdaRequestTrustCenterNdaRequestStatus.REQUESTED
+  }, [activeTab, requireApproval])
 
   useEffect(() => {
     setPagination((prev) => ({
