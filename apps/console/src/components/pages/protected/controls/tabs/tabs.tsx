@@ -78,8 +78,13 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
         <GuidanceTab
           implementationGuidance={(isSubcontrol ? subcontrol?.implementationGuidance : control?.implementationGuidance) as { referenceId: string; guidance: string[] }[] | null}
           controlQuestions={(isSubcontrol ? subcontrol?.controlQuestions : control?.controlQuestions) as string[] | null}
-          assessmentMethods={(isSubcontrol ? subcontrol?.assessmentMethods : control?.assessmentMethods) as { id: string; method: string }[] | string[] | null}
-          assessmentObjectives={(isSubcontrol ? subcontrol?.assessmentObjectives : control?.assessmentObjectives) as { id: string; objective: string }[] | string[] | null}
+          assessmentMethods={(isSubcontrol ? subcontrol?.assessmentMethods : control?.assessmentMethods) as { id: string; type: 'EXAMINE' | 'INTERVIEW' | 'TEST'; method: string }[] | null}
+          assessmentObjectives={(isSubcontrol ? subcontrol?.assessmentObjectives : control?.assessmentObjectives) as { class: string; id: string; prose: string }[] | null}
+          testingProcedures={(isSubcontrol ? subcontrol?.testingProcedures : control?.testingProcedures) as { items: string[] } | null}
+          refCode={refCode}
+          controlId={control?.id}
+          subcontrolId={subcontrol?.id}
+          isSubcontrol={isSubcontrol}
         />
       </TabsContent>
 

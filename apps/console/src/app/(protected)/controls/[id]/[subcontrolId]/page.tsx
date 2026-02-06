@@ -80,6 +80,7 @@ const ControlDetailsPage: React.FC = () => {
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const [showAskAIDialog, setShowAskAIDialog] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [hasScrollbar, setHasScrollbar] = useState(false)
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
@@ -250,6 +251,44 @@ const ControlDetailsPage: React.FC = () => {
     }
   }, [data?.subcontrol, form])
 
+  useEffect(() => {
+    let rafId = 0
+    const checkScrollbar = () => {
+      const container = document.querySelector('[data-scroll-container="main"]') as HTMLElement | null
+      if (!container) {
+        const root = document.documentElement
+        setHasScrollbar(root.scrollHeight > root.clientHeight)
+        return
+      }
+      setHasScrollbar(container.scrollHeight > container.clientHeight)
+    }
+
+    const scheduleCheck = () => {
+      if (rafId) return
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0
+        checkScrollbar()
+      })
+    }
+
+    const container = document.querySelector('[data-scroll-container="main"]') as HTMLElement | null
+    const resizeObserver = container ? new ResizeObserver(scheduleCheck) : null
+
+    if (container) {
+      resizeObserver?.observe(container)
+    }
+
+    checkScrollbar()
+    window.addEventListener('resize', scheduleCheck)
+    return () => {
+      window.removeEventListener('resize', scheduleCheck)
+      resizeObserver?.disconnect()
+      if (rafId) {
+        cancelAnimationFrame(rafId)
+      }
+    }
+  }, [isEditing, data?.subcontrol, associationsData?.subcontrol])
+
   if (isLoading) {
     return <Loading />
   }
@@ -258,7 +297,7 @@ const ControlDetailsPage: React.FC = () => {
   const isVerified = subcontrol.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
 
   const mainContent = (
-    <div className="space-y-6 p-2">
+    <div className="space-y-6">
       <div className="flex justify-between items-start gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3 flex-wrap">
@@ -340,7 +379,15 @@ const ControlDetailsPage: React.FC = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Subcontrols - ${data.subcontrol.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430}>
+          <SlideBarLayout
+            sidebarTitle="Details"
+            sidebarContent={sidebarContent}
+            slideOpen={isEditing}
+            minWidth={430}
+            collapsedContentClassName="pr-6"
+            collapsedButtonClassName="-translate-x-2"
+            hasScrollbar={hasScrollbar}
+          >
             {mainContent}
           </SlideBarLayout>
         </form>

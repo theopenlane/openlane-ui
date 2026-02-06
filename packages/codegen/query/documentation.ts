@@ -8,6 +8,12 @@ export const GET_DOCUMENTATION_POLICIES = gql`
         node {
           id
           name
+          status
+          updatedBy
+          approver {
+            id
+            displayName
+          }
           updatedAt
         }
       }
@@ -29,6 +35,12 @@ export const GET_DOCUMENTATION_PROCEDURES = gql`
         node {
           id
           name
+          status
+          updatedBy
+          approver {
+            id
+            displayName
+          }
           updatedAt
         }
       }

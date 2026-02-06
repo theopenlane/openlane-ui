@@ -14,6 +14,9 @@ import type { FilterField, WhereCondition } from '@/types'
 export type AssociationRow = {
   id: string
   name: string
+  status?: string | null
+  approver?: { displayName?: string | null } | null
+  updatedBy?: string | null
   updatedAt?: string | null
   href: string
 }

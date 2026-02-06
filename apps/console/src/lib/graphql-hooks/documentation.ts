@@ -43,7 +43,7 @@ type UseDocListArgs<TWhere, TOrder> = {
   enabled?: boolean
 }
 
-type DocPoliciesQuery = { internalPolicies: Connection<Pick<InternalPolicy, 'id' | 'name' | 'updatedAt'>> }
+type DocPoliciesQuery = { internalPolicies: Connection<Pick<InternalPolicy, 'id' | 'name' | 'status' | 'updatedBy' | 'approver' | 'updatedAt'>> }
 export const useDocumentationPolicies = ({ where, orderBy, pagination, enabled = true }: UseDocListArgs<InternalPolicyWhereInput, InternalPolicyOrder>) => {
   const { client } = useGraphQLClient()
 
@@ -62,7 +62,7 @@ export const useDocumentationPolicies = ({ where, orderBy, pagination, enabled =
   }
 }
 
-type DocProceduresQuery = { procedures: Connection<Pick<Procedure, 'id' | 'name' | 'updatedAt'>> }
+type DocProceduresQuery = { procedures: Connection<Pick<Procedure, 'id' | 'name' | 'status' | 'updatedBy' | 'approver' | 'updatedAt'>> }
 export const useDocumentationProcedures = ({ where, orderBy, pagination, enabled = true }: UseDocListArgs<ProcedureWhereInput, ProcedureOrder>) => {
   const { client } = useGraphQLClient()
 

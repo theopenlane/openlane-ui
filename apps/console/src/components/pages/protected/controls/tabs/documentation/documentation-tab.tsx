@@ -3,9 +3,6 @@
 import React from 'react'
 import PoliciesTable from './policies-table'
 import ProceduresTable from './procedures-table'
-import TasksTable from './tasks-table'
-import ProgramsTable from './programs-table'
-import RisksTable from './risks-table'
 
 type DocumentationTabProps = {
   controlId?: string
@@ -21,9 +18,6 @@ const DocumentationTab: React.FC<DocumentationTabProps> = ({ controlId, subcontr
     <div className="space-y-6 mt-6">
       <ProceduresTable controlId={controlId} subcontrolIds={subcontrolIds} />
       <PoliciesTable controlId={controlId} subcontrolIds={subcontrolIds} />
-      <TasksTable controlId={controlId} subcontrolIds={subcontrolIds} />
-      <ProgramsTable controlId={controlId} subcontrolIds={subcontrolIds} />
-      <RisksTable controlId={controlId} subcontrolIds={subcontrolIds} />
     </div>
   )
 }
