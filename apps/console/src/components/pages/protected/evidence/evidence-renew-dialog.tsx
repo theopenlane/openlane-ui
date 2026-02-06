@@ -69,6 +69,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       }
       queryClient.invalidateQueries({ queryKey: ['evidences'] })
+      queryClient.invalidateQueries({ queryKey: ['evidences-light'] })
       successNotification({
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,

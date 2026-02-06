@@ -1,14 +1,13 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
+import { useDeleteControlImplementation, useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
+import { ArrowRight, CirclePlus, Settings2 } from 'lucide-react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
-import { Accordion } from '@radix-ui/react-accordion'
 import CreateControlImplementationSheet from './create-control-implementation-sheet'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -27,9 +26,6 @@ const ControlImplementationPage = () => {
   const id = params?.id as string
   const subcontrolId = params?.subcontrolId as string | undefined
   const [showCreateSheet, setShowCreateSheet] = useState(false)
-  const [expandedItems, setExpandedItems] = useState<string[]>([])
-  const [existingIds, setExistingIds] = useState<string[]>([])
-  const [isInitialized, setIsInitialized] = useState(false)
   const [editData, setEditData] = useState<ControlImplementationFieldsFragment | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
@@ -44,56 +40,19 @@ const ControlImplementationPage = () => {
   const { data: subcontrolData, isLoading: isSubcontrolLoading } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
+  const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
 
   const { data: orgPermission } = useOrganizationRoles()
   const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation)
 
-  const toggleAll = () => {
-    if (!edges) return
-
-    const allIds = edges.map((edge) => edge.node.id)
-    const hasAllExpanded = allIds.every((id) => expandedItems.includes(id))
-
-    setExpandedItems(hasAllExpanded ? [] : allIds)
-  }
-
-  const expandFirstImplementation = (ids: string[]) => {
-    if (ids.length > 0) {
-      setExpandedItems([ids[0]])
-    }
-  }
-
-  const detectAndExpandNewImplementations = (currentIds: string[], existingIds: string[]) => {
-    const newIds = currentIds.filter((id) => !existingIds.includes(id))
-    if (newIds.length > 0) {
-      setExistingIds(currentIds)
-      setExpandedItems((prev) => [...prev, ...newIds])
-    }
-  }
-
-  const handleImplementationsUpdate = useCallback(() => {
-    if (!edges?.length) return
-
-    const currentIds = edges.map((e) => e.node.id)
-
-    if (!isInitialized) {
-      setExistingIds(currentIds)
-      expandFirstImplementation(currentIds)
-      setIsInitialized(true)
-      return
-    }
-
-    detectAndExpandNewImplementations(currentIds, existingIds)
-  }, [edges, existingIds, isInitialized])
-
-  const handleMarkVerified = async (id: string) => {
+  const handleMarkVerified = async (id: string, verified: boolean) => {
     try {
       await updateImplementation({
         updateControlImplementationId: id,
-        input: { verified: true },
+        input: { verified },
       })
-      successNotification({ title: 'Marked as verified' })
+      successNotification({ title: verified ? 'Marked as verified' : 'Marked as not verified' })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -103,9 +62,18 @@ const ControlImplementationPage = () => {
     }
   }
 
-  useEffect(() => {
-    handleImplementationsUpdate()
-  }, [handleImplementationsUpdate])
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteImplementation({ deleteControlImplementationId: id })
+      successNotification({ title: 'Control Implementation deleted' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
 
   useEffect(() => {
     const shouldOpen = createAllowed && searchParams.get('create') === 'true'
@@ -167,36 +135,26 @@ const ControlImplementationPage = () => {
       />
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Implementations" />
-        <div className="flex gap-2.5 items-center">
-          <Button type="button" className="h-8 px-2!" variant="secondary" onClick={toggleAll}>
-            <div className="flex">
-              <List size={16} />
-              <ChevronsDownUp size={16} />
-            </div>
+        {createAllowed && (
+          <Button variant="secondary" className="h-8 px-2!" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+            Create
           </Button>
-          {createAllowed && (
-            <Button variant="secondary" className="h-8 px-2!" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-              Create
-            </Button>
-          )}
-        </div>
+        )}
       </div>
       <div className="space-y-4 mt-6">
-        <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full mt-6">
-          {edges.map((edge, i) => (
-            <ImplementationItem
-              key={edge.node.id}
-              idx={i}
-              node={edge.node}
-              onEdit={(n) => {
-                setEditData(n)
-                setShowCreateSheet(true)
-              }}
-              onMarkVerified={handleMarkVerified}
-              isUpdating={isPending}
-            />
-          ))}
-        </Accordion>
+        {edges.map((edge) => (
+          <ImplementationItem
+            key={edge.node.id}
+            node={edge.node}
+            onEdit={(n) => {
+              setEditData(n)
+              setShowCreateSheet(true)
+            }}
+            onMarkVerified={handleMarkVerified}
+            onDelete={handleDelete}
+            isUpdating={isPending}
+          />
+        ))}
       </div>
     </div>
   )

@@ -14,7 +14,12 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
-export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveData: ControlObjectiveFieldsFragment }) {
+type LinkControlsModalProps = {
+  controlObjectiveData: ControlObjectiveFieldsFragment
+  'aria-label'?: string
+}
+
+export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabel }: LinkControlsModalProps) {
   const params = useParams()
   const isSubcontrol: string | undefined = params.subcontrolId as string
 
@@ -115,7 +120,7 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8">
+        <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8" aria-label={ariaLabel}>
           Link Controls
         </Button>
       </DialogTrigger>
