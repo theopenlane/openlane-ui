@@ -306,11 +306,13 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                 name="detailsJSON"
                 render={() => (
                   <FormItem className="w-full min-w-0">
-                    <FormLabel>Policy</FormLabel>
-                    <SystemTooltip
-                      icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                      content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                    />
+                    <div className="flex items-center">
+                      <FormLabel>Policy</FormLabel>
+                      <SystemTooltip
+                        icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                        content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                      />
+                    </div>
                     <PlateEditor
                       ref={editorRef}
                       onChange={handleDetailsChange}

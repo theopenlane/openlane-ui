@@ -13,6 +13,8 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 type TTagsCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -36,6 +38,8 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
     }
   }
   const { tagOptions } = useGetTags()
+  const { data: permission } = useOrganizationRoles()
+  const canCreateTags = canEdit(permission?.roles)
 
   const tags = form.watch('tags')
   const tagValues = useMemo(() => {
@@ -99,7 +103,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                           options={tagOptions}
                           className="w-full"
                           placeholder="Add tag..."
-                          creatable
+                          creatable={canCreateTags}
                           value={tagValues}
                           onChange={(selectedOptions) => {
                             const newTags = selectedOptions.map((opt) => opt.value)
