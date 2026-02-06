@@ -157,7 +157,7 @@ const NDAsPage = () => {
                 <div className="rounded-md border border-nda-approval-info-border bg-nda-approval-info-bg px-4 py-3 text-sm text-nda-approval-info-text">
                   <div className="flex items-center gap-2">
                     <span className="h-1.5 w-1.5 mr-3 rounded-full bg-nda-approval-info-dot shadow-[0_0_0_4px_var(--color-nda-approval-info-dot-shadow)]" />
-                    <span>Approval requests will appear in the Requests queue.</span>
+                    <span>Approval requests will appear in the Needs Approval queue.</span>
                   </div>
                 </div>
               ) : (
