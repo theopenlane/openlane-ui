@@ -16,8 +16,6 @@ import useFormSchema, { TFormData } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { SetObjectAssociationDialog } from '../set-object-association-dialog'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'
@@ -33,8 +31,6 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   const { data: subcontrolData, isLoading } = useGetSubcontrolById((subcontrolId as string) || null)
   const loading = isLoadingControl || isLoading
   const [defaultValuesSet, setDefaultValuesSet] = useState(false)
-  const initialAssociations: TObjectAssociationMap = subcontrolId ? { subcontrolIDs: [subcontrolId as string] } : { controlIDs: [id as string] }
-  const [associations, setAssociations] = useState<TObjectAssociationMap>(initialAssociations)
   const { convertToHtml } = usePlateEditor()
   const { form } = useFormSchema()
   const { handleSubmit, control, reset } = form
@@ -70,11 +66,6 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       details,
     }
 
-    const creationPayload = {
-      ...basePayload,
-      ...associations,
-    }
-
     if (isEditing) {
       updateImplementation(
         {
@@ -95,18 +86,24 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
         },
       )
     } else {
-      createImplementation(creationPayload, {
-        onSuccess: () => {
-          successNotification({ title: 'Control Implementation created' })
-          onSuccess()
+      createImplementation(
+        {
+          ...basePayload,
+          ...(isSubcontrol ? { subcontrolIDs: [subcontrolId as string] } : { controlIDs: [id as string] }),
         },
-        onError: () => {
-          errorNotification({
-            title: 'Create failed',
-            description: 'Could not create control implementation. Please try again.',
-          })
+        {
+          onSuccess: () => {
+            successNotification({ title: 'Control Implementation created' })
+            onSuccess()
+          },
+          onError: () => {
+            errorNotification({
+              title: 'Create failed',
+              description: 'Could not create control implementation. Please try again.',
+            })
+          },
         },
-      })
+      )
     }
   }
 
@@ -178,19 +175,12 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
             }}
           />
         </div>
-        <div className="border-b flex items-center py-2.5">
+        <div className="flex items-center py-2.5">
           <Label className="min-w-36">Date Implemented</Label>
           <div className="w-48">
             <Controller name="implementationDate" control={form.control} render={({ field }) => <CalendarPopover field={field} disabledFrom={new Date()} defaultToday />} />
           </div>
         </div>
-
-        {!isEditing && (
-          <div className="flex items-center py-2.5">
-            <Label className="min-w-36">Controls</Label>
-            <SetObjectAssociationDialog initialData={associations} setAssociations={setAssociations} />
-          </div>
-        )}
       </div>
     </form>
   )

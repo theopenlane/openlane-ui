@@ -14,11 +14,12 @@ interface Props {
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
   initialValues?: Partial<CreateTaskFormData>
+  hideObjectAssociation?: boolean
   trigger?: React.ReactElement
   className?: string
 }
 
-const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, initialValues, trigger, className }: Props) => {
+const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, initialValues, hideObjectAssociation, trigger, className }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleSuccess = () => {
@@ -38,7 +39,7 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent>
+      <DialogContent className={hideObjectAssociation ? 'max-w-4xl' : ''}>
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>
         </DialogHeader>
@@ -48,6 +49,7 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
           initialData={initialData}
           objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
           initialValues={initialValues}
+          hideObjectAssociation={hideObjectAssociation}
           isOpen={isOpen}
           onSuccess={handleSuccess}
         />

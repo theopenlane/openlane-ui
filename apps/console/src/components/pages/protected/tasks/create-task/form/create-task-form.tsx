@@ -36,6 +36,7 @@ type TProps = {
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
   initialValues?: Partial<CreateTaskFormData>
+  hideObjectAssociation?: boolean
   isOpen?: boolean
 }
 
@@ -48,7 +49,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
-  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
+  const [associations, setAssociations] = useState<TObjectAssociationMap>(props.initialData ?? {})
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
   const { tagOptions } = useGetTags()
 
@@ -74,6 +75,11 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       form.setValue('details', props.initialValues.details)
     }
   }, [form, props.initialValues, props.isOpen])
+
+  useEffect(() => {
+    if (!props.isOpen) return
+    setAssociations(props.initialData ?? {})
+  }, [props.initialData, props.isOpen])
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -136,7 +142,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       <Grid>
         <GridRow columns={4}>
           <GridCell className="col-span-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className={props.hideObjectAssociation ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-2 gap-4'}>
               <div className="col-span-1">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 gap-4">
@@ -307,26 +313,28 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                   </form>
                 </Form>
               </div>
-              <div className="col-span-1">
-                <Panel>
-                  <PanelHeader heading="Object association" noBorder />
-                  <p>Associating objects will allow users with access to the object to see the created task.</p>
-                  {props.objectAssociationsDisplayIDs && (
-                    <HeadsUpDisplay
-                      accordionLabel={'Show programs linked to this task'}
-                      descriptionText={'This requested task you are creating will be automatically linked to the associated task. We have pre-selected the object association below'}
-                      displayIDs={props.objectAssociationsDisplayIDs}
-                    ></HeadsUpDisplay>
-                  )}
-                  <ObjectAssociation
-                    key={associationResetTrigger}
-                    defaultSelectedObject={props.defaultSelectedObject}
-                    excludeObjectTypes={props.excludeObjectTypes}
-                    initialData={props.initialData}
-                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                  />
-                </Panel>
-              </div>
+              {!props.hideObjectAssociation && (
+                <div className="col-span-1">
+                  <Panel>
+                    <PanelHeader heading="Object association" noBorder />
+                    <p>Associating objects will allow users with access to the object to see the created task.</p>
+                    {props.objectAssociationsDisplayIDs && (
+                      <HeadsUpDisplay
+                        accordionLabel={'Show programs linked to this task'}
+                        descriptionText={'This requested task you are creating will be automatically linked to the associated task. We have pre-selected the object association below'}
+                        displayIDs={props.objectAssociationsDisplayIDs}
+                      ></HeadsUpDisplay>
+                    )}
+                    <ObjectAssociation
+                      key={associationResetTrigger}
+                      defaultSelectedObject={props.defaultSelectedObject}
+                      excludeObjectTypes={props.excludeObjectTypes}
+                      initialData={props.initialData}
+                      onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                    />
+                  </Panel>
+                </div>
+              )}
             </div>
           </GridCell>
         </GridRow>
