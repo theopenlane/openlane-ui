@@ -4,6 +4,8 @@ import { Label } from '@repo/ui/label'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 interface Props {
   isEditing: boolean
@@ -18,6 +20,8 @@ export const TagsField = ({ isEditing }: Props) => {
 
   const tags = watch('tags') || []
   const { tagOptions } = useGetTags()
+  const { data: permission } = useOrganizationRoles()
+  const canCreateTags = canEdit(permission?.roles)
 
   return (
     <div className="flex flex-col gap-2">
@@ -30,7 +34,7 @@ export const TagsField = ({ isEditing }: Props) => {
             render={({ field }) => (
               <MultipleSelector
                 options={tagOptions}
-                creatable
+                creatable={canCreateTags}
                 value={(field.value ?? []).map((tag: string) => ({ value: tag, label: tag }))}
                 onChange={(selected) => field.onChange(selected.map((s) => s.value))}
               />

@@ -20,6 +20,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useCreateTag, useUpdateTag, useDeleteTag, useGetTagDetails } from '@/lib/graphql-hooks/tags'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -34,6 +36,8 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   const params = useSearchParams()
   const { replace } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
+  const { data: permission } = useOrganizationRoles()
+  const canEditTags = canEdit(permission?.roles)
 
   const isCreate = params.get('create') === 'true'
   const id = params.get('id')
@@ -155,13 +159,13 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
                 Copy link
               </Button>
 
-              {isEditMode && (
+              {isEditMode && canEditTags && (
                 <Button variant="secondary" onClick={() => setDeleteDialogOpen(true)} icon={<Trash2 size={14} />} disabled={isPending}>
                   Delete
                 </Button>
               )}
 
-              <SaveButton onClick={handleSubmit(onSubmit)} isSaving={isPending} disabled={isPending} />
+              {canEditTags && <SaveButton onClick={handleSubmit(onSubmit)} isSaving={isPending} disabled={isPending} />}
             </div>
           </div>
 
@@ -180,20 +184,20 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
             <form className="p-6 space-y-6">
               <div className="space-y-2">
                 <Label>Name</Label>
-                <Input {...formMethods.register('name')} disabled={isPending || isEditMode} placeholder="e.g. High Priority" />
+                <Input {...formMethods.register('name')} disabled={isPending || isEditMode || !canEditTags} placeholder="e.g. High Priority" />
                 {isEditMode && <p className="text-[11px] text-muted-foreground italic">Name cannot be changed after creation.</p>}
               </div>
 
               <div className="space-y-2">
                 <Label>Aliases</Label>
-                <Input {...formMethods.register('aliases')} disabled={isPending} placeholder="e.g. Critical, Urgent" />
+                <Input {...formMethods.register('aliases')} disabled={isPending || !canEditTags} placeholder="e.g. Critical, Urgent" />
               </div>
 
-              <ColorInput label="Select Color" value={colorField.value} onChange={colorField.onChange} disabled={isPending} />
+              <ColorInput label="Select Color" value={colorField.value} onChange={colorField.onChange} disabled={isPending || !canEditTags} />
 
               <div className="space-y-2">
                 <Label>Description</Label>
-                <Textarea {...formMethods.register('description')} disabled={isPending} placeholder="Description..." />
+                <Textarea {...formMethods.register('description')} disabled={isPending || !canEditTags} placeholder="Description..." />
               </div>
             </form>
           </FormProvider>
