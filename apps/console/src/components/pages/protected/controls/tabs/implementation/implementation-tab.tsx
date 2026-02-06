@@ -1,107 +1,56 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { useParams } from 'next/navigation'
-import { useDeleteControlImplementation, useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
-import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, Settings2 } from 'lucide-react'
+import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementations'
+import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
+import { ControlImplementationFieldsFragment, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
-import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet'
-import { useNotification } from '@/hooks/useNotification'
-import { ImplementationItem } from '@/components/pages/protected/controls/control-implementation/implementation-item'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { FileCheck } from 'lucide-react'
+import ControlImplementations from '@/components/pages/protected/controls/tabs/implementation/control-implementations'
+import ControlObjectives from '@/components/pages/protected/controls/tabs/implementation/control-objectives'
 
 const ImplementationTab: React.FC = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
-  const isSubcontrol = !!subcontrolId
-  const [showCreateSheet, setShowCreateSheet] = useState(false)
-  const [editData, setEditData] = useState<ControlImplementationFieldsFragment | null>(null)
 
-  const { successNotification, errorNotification } = useNotification()
-  const { data, isLoading } = useGetAllControlImplementations({
+  const { data: implementationsData, isLoading: isImplementationsLoading } = useGetAllControlImplementations({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
   })
 
-  const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
-  const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
-  const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
+  const { data: objectivesData, isLoading: isObjectivesLoading } = useGetAllControlObjectives({
+    ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
+    statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED,
+  })
 
-  const handleMarkVerified = async (implementationId: string) => {
-    try {
-      await updateImplementation({
-        updateControlImplementationId: implementationId,
-        input: { verified: true },
-      })
-      successNotification({ title: 'Marked as verified' })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+  const implementationEdges = implementationsData?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
 
-  const handleDelete = async (implementationId: string) => {
-    try {
-      await deleteImplementation({ deleteControlImplementationId: implementationId })
-      successNotification({ title: 'Control Implementation deleted' })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+  const objectiveEdges = objectivesData?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
+
+  const isLoading = isImplementationsLoading || isObjectivesLoading
+  const hasData = Boolean(implementationEdges?.length || objectiveEdges?.length)
 
   if (isLoading) {
     return <Loading />
   }
 
-  if (!edges?.length) {
+  if (!hasData) {
     return (
-      <>
-        <CreateControlImplementationSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
-        <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
-          <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
-          <p className="mb-2 text-sm">No Implementations found for this {isSubcontrol ? 'Subcontrol' : 'Control'}.</p>
-          <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
-            <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
-              Create a new one
-            </p>
-            <ArrowRight className="mt-0.5" size={16} />
+      <div className="flex min-h-[60vh] items-center justify-center px-6 text-center">
+        <div className="max-w-[520px] space-y-3">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center text-muted-foreground">
+            <FileCheck className="h-6 w-6" aria-hidden="true" />
           </div>
+          <p className="text-sm font-medium text-foreground">It looks like there are no items to display</p>
+          <p className="text-sm text-muted-foreground">To begin tracking requests, activate approval workflows in the settings. After activation, all pending approvals will be listed here.</p>
         </div>
-      </>
+      </div>
     )
   }
 
   return (
-    <div>
-      <CreateControlImplementationSheet
-        open={showCreateSheet}
-        onOpenChange={(open) => {
-          setShowCreateSheet(open)
-          if (!open) setEditData(null)
-        }}
-        editData={editData}
-      />
-      <div className="space-y-6">
-        {edges.map((edge) => (
-          <ImplementationItem
-            key={edge.node.id}
-            node={edge.node}
-            onEdit={(node) => {
-              setEditData(node)
-              setShowCreateSheet(true)
-            }}
-            onMarkVerified={handleMarkVerified}
-            onDelete={handleDelete}
-            isUpdating={isPending}
-          />
-        ))}
-      </div>
+    <div className="mt-6 space-y-6">
+      <ControlImplementations edges={implementationEdges} />
+      <ControlObjectives edges={objectiveEdges} />
     </div>
   )
 }

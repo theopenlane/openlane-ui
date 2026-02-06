@@ -7,13 +7,13 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import Link from 'next/link'
 import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
-import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
-import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
+import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
 import type { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import QuickActionsBar, { type QuickActionItem } from '@/components/pages/protected/controls/quick-actions/quick-actions-bar'
 import { useGetControlAssociationsById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
+import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
 
 type ControlLike = {
   id?: string | null

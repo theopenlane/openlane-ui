@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { MoreHorizontal } from 'lucide-react'
+import { CheckCircle2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ControlImplementationCard } from './control-implementation-card'
 import { canEdit } from '@/lib/authz/utils'
@@ -26,13 +26,12 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
   const isMenuDisabled = !isEditAllowed || isUpdating || permLoading
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <span />
+    <div className="space-y-4">
+      <div className="flex items-center justify-end">
         <Menu
           closeOnSelect
           trigger={
-            <Button type="button" variant="secondary" className="h-8 px-2">
+            <Button type="button" variant="secondary" className="h-8 px-2" aria-label="Implementation actions">
               <span className="sr-only">Implementation actions</span>
               <MoreHorizontal size={16} />
             </Button>
@@ -41,53 +40,52 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
             <>
               <button
                 type="button"
-                className="text-left text-sm"
+                className="flex items-center gap-2"
                 onClick={() => {
                   onMarkVerified(node.id)
                   close()
                 }}
                 disabled={isMenuDisabled || Boolean(node.verified)}
               >
+                <CheckCircle2 size={16} />
                 Mark Verified
               </button>
               <button
                 type="button"
-                className="text-left text-sm"
+                className="flex items-center gap-2"
                 onClick={() => {
                   onEdit(node)
                   close()
                 }}
                 disabled={isMenuDisabled}
               >
+                <Pencil size={16} />
                 Edit
               </button>
               <button
                 type="button"
-                className="text-left text-sm"
-                onClick={() => {
-                  setAssociationsOpen(true)
-                  close()
-                }}
-                disabled={isMenuDisabled}
-              >
-                Set Associations
-              </button>
-              <button
-                type="button"
-                className="text-left text-sm text-destructive"
+                className="flex items-center gap-2 text-destructive"
                 onClick={() => {
                   onDelete(node.id)
                   close()
                 }}
                 disabled={isMenuDisabled}
               >
+                <Trash2 size={16} />
                 Delete
               </button>
             </>
           )}
         />
       </div>
-      <ControlImplementationCard obj={node} />
+      <ControlImplementationCard
+        obj={node}
+        actions={
+          <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isMenuDisabled} aria-label="Set associations">
+            Set Associations
+          </Button>
+        }
+      />
       <LinkControlsModal
         updateControlImplementationId={node.id}
         hideTrigger

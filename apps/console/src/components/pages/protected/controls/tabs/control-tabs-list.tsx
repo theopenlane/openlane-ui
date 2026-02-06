@@ -5,7 +5,6 @@ import { TabsList, TabsTrigger } from '@repo/ui/tabs'
 
 const CONTROL_TABS = [
   { value: 'implementation', label: 'Implementations', className: 'px-0' },
-  { value: 'objectives', label: 'Objectives' },
   { value: 'evidence', label: 'Evidence' },
   { value: 'linked-controls', label: 'Linked Controls' },
   { value: 'guidance', label: 'Guidance' },

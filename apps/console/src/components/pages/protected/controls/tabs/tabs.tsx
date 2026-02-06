@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react'
 import { Tabs, TabsContent } from '@repo/ui/tabs'
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import ImplementationTab from '@/components/pages/protected/controls/tabs/implementation/implementation-tab'
-import ObjectivesTab from '@/components/pages/protected/controls/tabs/objectives/objectives-tab'
 import EvidenceTab from '@/components/pages/protected/controls/tabs/evidence/evidence-tab'
 import LinkedControlsTab from '@/components/pages/protected/controls/tabs/linked-controls/linked-controls-tab'
 import GuidanceTab from '@/components/pages/protected/controls/tabs/guidance/guidance-tab'
@@ -73,10 +72,6 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
       <TabsContent value="implementation" className="space-y-6">
         <ImplementationTab />
-      </TabsContent>
-
-      <TabsContent value="objectives" className="space-y-6">
-        <ObjectivesTab />
       </TabsContent>
 
       <TabsContent value="evidence" className="space-y-6">
