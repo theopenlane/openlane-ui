@@ -12,8 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useGetSubcontrolComments } from '@/lib/graphql-hooks/subcontrol'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
-
-const MAX_AVATARS = 5
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { formatDateTime } from '@/utils/date'
 
 const ControlCommentsCard = () => {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -23,9 +23,10 @@ const ControlCommentsCard = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
   const { data: controlComments } = useGetControlComments(subcontrolId ? undefined : id)
   const { data: subcontrolComments } = useGetSubcontrolComments(subcontrolId ? subcontrolId : undefined)
+  const plateEditorHelper = usePlateEditor()
 
   const commentsData = subcontrolId ? subcontrolComments?.subcontrol?.comments?.edges : controlComments?.control?.comments?.edges
-
+  const totalComments = commentsData?.length ?? 0
   const hasData = commentsData && commentsData.length > 0
 
   const userIds = useMemo(() => (hasData ? Array.from(new Set(commentsData.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'))) : []), [commentsData, hasData])
@@ -37,13 +38,17 @@ const ControlCommentsCard = () => {
     enabled: userIds.length > 0,
   })
 
-  const { visibleUsers, extraCount } = useMemo(() => {
-    const usersEdge = userData?.orgMemberships?.edges?.map((edge) => edge) || []
-    const allUsers = usersEdge.map((e) => e?.node?.user).filter(Boolean)
-    const visible = allUsers.slice(0, MAX_AVATARS)
-    const remaining = Math.max(0, allUsers.length - MAX_AVATARS)
-    return { visibleUsers: visible, extraCount: remaining }
-  }, [userData])
+  const latestComment = useMemo(() => {
+    if (!hasData) return null
+    const sorted = [...commentsData].sort((a, b) => new Date(b?.node?.createdAt).getTime() - new Date(a?.node?.createdAt).getTime())
+    return sorted[0]?.node ?? null
+  }, [commentsData, hasData])
+
+  const latestCommentUser = useMemo(() => {
+    if (!latestComment || !userData?.orgMemberships?.edges) return null
+    const membership = userData.orgMemberships.edges.find((edge) => edge?.node?.user?.id === latestComment.createdBy)
+    return membership?.node?.user ?? null
+  }, [latestComment, userData])
 
   const handleOpenSheet = () => {
     router.push(subcontrolId ? `/controls/${id}/${subcontrolId}?showComments=true` : `/controls/${id}/?showComments=true`)
@@ -83,31 +88,38 @@ const ControlCommentsCard = () => {
 
   return (
     <Card className="p-4">
-      <div className="flex justify-between items-center mb-5">
-        <p className="text-lg font-semibold">Comments</p>
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center gap-2">
+          <p className="text-lg font-semibold">Comments</p>
+          {totalComments > 0 && <span className="text-sm text-muted-foreground">({totalComments})</span>}
+        </div>
+      </div>
+
+      {hasData && latestComment ? (
+        <div className="flex items-start gap-3 mb-3">
+          <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
+            {latestCommentUser?.avatarFile?.presignedURL || latestCommentUser?.avatarRemoteURL ? (
+              <AvatarImage src={(latestCommentUser.avatarFile?.presignedURL || latestCommentUser.avatarRemoteURL)!} alt={latestCommentUser?.displayName || 'User'} />
+            ) : (
+              <AvatarFallback>{latestCommentUser?.displayName?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
+            )}
+          </Avatar>
+          <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <p className="text-sm font-medium truncate">{latestCommentUser?.displayName || 'Unknown'}</p>
+              <p className="text-xs text-muted-foreground whitespace-nowrap">{formatDateTime(latestComment.createdAt)}</p>
+            </div>
+            <div className="text-sm text-muted-foreground line-clamp-2 overflow-hidden mt-0.5">{plateEditorHelper.convertToReadOnly(latestComment.text, 0, { padding: 0 })}</div>
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground mb-3">No comments yet</p>
+      )}
+
+      <div className="flex justify-end">
         <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
           Open
         </Button>
-      </div>
-
-      <div className="flex items-center gap-1 flex-wrap">
-        {hasData && visibleUsers.length > 0 ? (
-          <>
-            {visibleUsers.map((user) => {
-              const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
-              const initials = user?.displayName?.slice(0, 2).toUpperCase() || '?'
-
-              return (
-                <Avatar key={user?.id} className="h-8 w-8 border border-border" title={user?.displayName}>
-                  {avatarUrl ? <AvatarImage src={avatarUrl} alt={user?.displayName || 'User'} /> : <AvatarFallback>{initials}</AvatarFallback>}
-                </Avatar>
-              )
-            })}
-            {extraCount > 0 && <span className="text-xs text-muted-foreground font-medium ml-1">+{extraCount} more</span>}
-          </>
-        ) : (
-          <p className="text-sm text-muted-foreground">No comments yet</p>
-        )}
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
