@@ -21,13 +21,13 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
 
-  const handleMarkVerified = async (implementationId: string) => {
+  const handleMarkVerified = async (implementationId: string, verified: boolean) => {
     try {
       await updateImplementation({
         updateControlImplementationId: implementationId,
-        input: { verified: true },
+        input: { verified },
       })
-      successNotification({ title: 'Marked as verified' })
+      successNotification({ title: verified ? 'Marked as verified' : 'Marked as not verified' })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

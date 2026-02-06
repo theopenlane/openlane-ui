@@ -9,6 +9,10 @@ import MappedControlsTable from './mapped-controls-table'
 import type { MappedControlRow } from './mapped-controls-types'
 import { getMappedControlsBaseColumns, getMappedControlsFrameworkColumns } from './mapped-controls-config'
 import type { LinkedControlDetails } from './types'
+import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
+import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
 
 export type LinkedControlsTabProps = {
   controlId?: string
@@ -34,7 +38,13 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     return undefined
   }, [controlId, subcontrolId, isSubcontrolMode])
 
-  const { data: mappedControlsData } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
+  const { data: mappedControlsData, isLoading: isMappedControlsLoading } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
+
+  const { paginationMeta: subcontrolsPaginationMeta, isLoading: isSubcontrolsLoading } = useGetSubcontrolsPaginated({
+    where: controlId ? { controlID: controlId } : undefined,
+    pagination: DEFAULT_PAGINATION,
+    enabled: Boolean(controlId) && !isSubcontrolMode,
+  })
 
   const mappedControls = useMemo<MappedControlRow[]>(() => {
     const rows: MappedControlRow[] = []
@@ -207,9 +217,20 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
 
   const baseMappedColumns = useMemo(() => getMappedControlsBaseColumns(controlLinkMap, subcontrolLinkMap, convertToReadOnly), [controlLinkMap, subcontrolLinkMap, convertToReadOnly])
   const frameworkMappedColumns = useMemo(() => getMappedControlsFrameworkColumns(baseMappedColumns), [baseMappedColumns])
+  const hasSubcontrols = (subcontrolsPaginationMeta?.totalCount ?? 0) > 0
+  const hasMappedControls = customMappedControls.length > 0 || frameworkMappedControls.length > 0
+  const isLoading = isMappedControlsLoading || (!isSubcontrolMode && isSubcontrolsLoading)
+
+  if (isLoading) {
+    return <TableSkeleton />
+  }
+
+  if (!hasMappedControls && (isSubcontrolMode || !hasSubcontrols)) {
+    return <EmptyTabState description="Link this control to related controls to show relationships or shared coverage. Linked controls will appear here." />
+  }
 
   return (
-    <div className="space-y-6 mt-6">
+    <div className="space-y-6">
       {!isSubcontrolMode && <SubcontrolsTable />}
       <MappedControlsTable title="Organization Controls" rows={customMappedControls} columns={baseMappedColumns} searchPlaceholder="Search organization controls" showFrameworkFilter={false} />
       <MappedControlsTable title="Framework Mappings" rows={frameworkMappedControls} columns={frameworkMappedColumns} searchPlaceholder="Search framework mappings" showFrameworkFilter />

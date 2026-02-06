@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -8,12 +9,14 @@ import { useDocumentationTasks } from '@/lib/graphql-hooks/documentation'
 import type { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
 import { OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { buildAssociationFilter, mergeWhere, SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { mergeWhere, SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import type { TPagination } from '@repo/ui/pagination-types'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { useSession } from 'next-auth/react'
 import { getActivityTaskColumns, getActivityTaskFilterFields, type ActivityTaskRow } from './activity-tasks-config'
+import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
+import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
 
 type ActivityTasksSectionProps = {
   controlId?: string
@@ -21,8 +24,19 @@ type ActivityTasksSectionProps = {
 }
 
 const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, subcontrolIds }) => {
+  const { subcontrolId } = useParams<{ subcontrolId?: string }>()
+  const isSubcontrolPage = Boolean(subcontrolId)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { data: session } = useSession()
-  const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
+  const associationFilter = useMemo(() => {
+    if (isSubcontrolPage) {
+      return subcontrolIds.length > 0 ? { hasSubcontrolsWith: [{ idIn: subcontrolIds }] } : {}
+    }
+
+    return controlId ? { hasControlsWith: [{ id: controlId }] } : {}
+  }, [controlId, isSubcontrolPage, subcontrolIds])
 
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
@@ -99,7 +113,25 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
     setPagination(DEFAULT_PAGINATION)
   }, [])
 
-  const columns = useMemo(() => getActivityTaskColumns(taskKindOptions ?? []), [taskKindOptions])
+  const handleTaskOpen = useCallback(
+    (taskId: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('taskId', taskId)
+      router.push(`${pathname}?${params.toString()}`)
+    },
+    [pathname, router, searchParams],
+  )
+
+  const columns = useMemo(() => getActivityTaskColumns(taskKindOptions ?? [], handleTaskOpen), [handleTaskOpen, taskKindOptions])
+  const hasSearchOrFilters = search.trim().length > 0 || Object.keys(filters).length > 0
+
+  if (isLoading) {
+    return <TableSkeleton />
+  }
+
+  if (!hasSearchOrFilters && (tasks?.length ?? 0) === 0) {
+    return <EmptyTabState description="Use tasks to track work related to this control. Add a task to get started." />
+  }
 
   return (
     <div className="space-y-3">
@@ -113,7 +145,7 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
       />
       <DataTable<ActivityTaskRow, unknown>
         columns={columns}
-        data={tasks as ActivityTaskRow[]}
+        data={(tasks ?? []) as ActivityTaskRow[]}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}

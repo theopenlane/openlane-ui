@@ -46,13 +46,13 @@ const ControlImplementationPage = () => {
   const { data: orgPermission } = useOrganizationRoles()
   const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation)
 
-  const handleMarkVerified = async (id: string) => {
+  const handleMarkVerified = async (id: string, verified: boolean) => {
     try {
       await updateImplementation({
         updateControlImplementationId: id,
-        input: { verified: true },
+        input: { verified },
       })
-      successNotification({ title: 'Marked as verified' })
+      successNotification({ title: verified ? 'Marked as verified' : 'Marked as not verified' })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

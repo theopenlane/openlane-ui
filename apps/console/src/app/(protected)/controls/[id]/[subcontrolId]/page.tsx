@@ -34,9 +34,11 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { formatEnumLabel } from '@/utils/enumToLabel.ts'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import ControlTabs from '@/components/pages/protected/controls/tabs/tabs.tsx'
 import QuickActions from '@/components/pages/protected/controls/quick-actions/quick-actions.tsx'
+import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 
 interface FormValues {
   refCode: string
@@ -178,9 +180,9 @@ const ControlDetailsPage: React.FC = () => {
     if (!subcontrolId) return
 
     try {
-      router.push(`/controls/${id}`)
       await deleteSubcontrol({ deleteSubcontrolId: subcontrolId })
       successNotification({ title: 'Subcontrol deleted successfully.' })
+      router.push(`/controls/${id}`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -317,9 +319,7 @@ const ControlDetailsPage: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-2">Source</p>
-          <Badge variant="secondary" className="capitalize">
-            {subcontrol.source?.toLowerCase() ?? 'custom'}
-          </Badge>
+          <Badge variant="document">{formatEnumLabel(subcontrol.source ?? 'custom')}</Badge>
         </div>
       </div>
 
@@ -384,6 +384,7 @@ const ControlDetailsPage: React.FC = () => {
       />
 
       <EvidenceDetailsSheet controlId={subcontrolId} />
+      <TaskDetailsSheet queryParamKey="taskId" />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

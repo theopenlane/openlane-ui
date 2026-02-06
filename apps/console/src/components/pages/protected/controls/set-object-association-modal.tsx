@@ -15,7 +15,13 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
-export function SetObjectAssociationDialog() {
+type SetObjectAssociationDialogProps = {
+  trigger?: React.ReactNode
+  defaultSelectedObject?: ObjectTypeObjects
+  allowedObjectTypes?: ObjectTypeObjects[]
+}
+
+export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, allowedObjectTypes }: SetObjectAssociationDialogProps) {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const isControl = subcontrolId ? false : !!id
   const isSubcontrol = !!subcontrolId
@@ -27,6 +33,7 @@ export function SetObjectAssociationDialog() {
   const [isSaving, setIsSaving] = useState(false)
   const [open, setOpen] = useState(false)
   const [saveEnabled, setSaveEnabled] = useState(false)
+  const [objectAssociationKey, setObjectAssociationKey] = useState(0)
 
   const { errorNotification, successNotification } = useNotification()
   const { data: controlAssociationsData } = useGetControlAssociationsById(id)
@@ -134,6 +141,9 @@ export function SetObjectAssociationDialog() {
   }
 
   const handleDialogChange = (isOpen: boolean) => {
+    if (isOpen) {
+      setObjectAssociationKey((prev) => prev + 1)
+    }
     if (!isOpen) {
       setAssociations({})
     }
@@ -142,19 +152,20 @@ export function SetObjectAssociationDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger>
-        <AddAssociationBtn />
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger ?? <AddAssociationBtn />}</DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Associate Related Objects</DialogTitle>
         </DialogHeader>
 
         <ObjectAssociation
+          key={`${objectAssociationKey}-${defaultSelectedObject ?? 'none'}`}
           onIdChange={(updatedMap) => {
             setSaveEnabled(saveEnabled)
             setAssociations(updatedMap)
           }}
+          defaultSelectedObject={defaultSelectedObject}
+          allowedObjectTypes={allowedObjectTypes}
           initialData={initialData}
           excludeObjectTypes={[
             ObjectTypeObjects.EVIDENCE,

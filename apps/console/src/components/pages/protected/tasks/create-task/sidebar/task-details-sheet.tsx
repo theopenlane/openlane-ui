@@ -31,7 +31,11 @@ import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
 
-const TaskDetailsSheet = () => {
+type TaskDetailsSheetProps = {
+  queryParamKey?: string
+}
+
+const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id' }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<keyof EditTaskFormData | null>(null)
   const queryClient = useQueryClient()
@@ -43,7 +47,7 @@ const TaskDetailsSheet = () => {
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
 
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+  const id = searchParams.get(queryParamKey)
   const { data: permission } = useAccountRoles(ObjectEnum.TASK, id)
   const isEditAllowed = canEdit(permission?.roles)
   const { data, isLoading: fetching } = useTask(id as string)
@@ -110,7 +114,7 @@ const TaskDetailsSheet = () => {
 
   const handleCloseParams = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('id')
+    newSearchParams.delete(queryParamKey)
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
     setIsEditing(false)
   }

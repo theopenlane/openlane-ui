@@ -520,13 +520,9 @@ export const useUpdateControlComment = () => {
 
 export const useDeleteNote = () => {
   const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
 
   return useMutation<DeleteNoteMutation, unknown, DeleteNoteMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_NOTE, variables),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['controlComments', data.deleteNote.deletedID] })
-    },
   })
 }
 

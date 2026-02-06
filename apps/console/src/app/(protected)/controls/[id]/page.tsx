@@ -37,6 +37,7 @@ import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { formatEnumLabel } from '@/utils/enumToLabel.ts'
+import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 
 interface FormValues {
   refCode: string
@@ -199,9 +200,9 @@ const ControlDetailsPage: React.FC = () => {
     if (!id) return
 
     try {
-      router.push('/controls')
       await deleteControl({ deleteControlId: id })
       successNotification({ title: 'Control deleted successfully.' })
+      router.push('/controls')
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -378,6 +379,7 @@ const ControlDetailsPage: React.FC = () => {
       />
 
       <EvidenceDetailsSheet controlId={id} />
+      <TaskDetailsSheet queryParamKey="taskId" />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

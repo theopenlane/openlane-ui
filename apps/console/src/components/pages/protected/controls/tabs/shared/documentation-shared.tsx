@@ -1,14 +1,12 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import type { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
-import { formatTimeSince } from '@/utils/date'
 import type { FilterField, WhereCondition } from '@/types'
 
 export type AssociationRow = {
@@ -51,24 +49,6 @@ export const mergeWhere = <T extends { and?: T[] | null | undefined }>(condition
   return { and: valid } as T
 }
 
-export const getBaseColumns = (): ColumnDef<AssociationRow>[] => [
-  {
-    accessorKey: 'name',
-    header: () => <span className="whitespace-nowrap">Name</span>,
-    cell: ({ row }) => (
-      <Link href={row.original.href} className="text-blue-500 hover:underline">
-        {row.original.name}
-      </Link>
-    ),
-  },
-  {
-    accessorKey: 'updatedAt',
-    header: () => <span className="whitespace-nowrap">Last Updated</span>,
-    cell: ({ row }) => <span className="whitespace-nowrap">{formatTimeSince(row.original.updatedAt)}</span>,
-    size: 140,
-  },
-]
-
 type SearchFilterBarProps = {
   placeholder: string
   isSearching: boolean
@@ -76,9 +56,10 @@ type SearchFilterBarProps = {
   onSearchChange: (value: string) => void
   filterFields: FilterField[] | null
   onFilterChange: (filters: WhereCondition) => void
+  actionButtons?: React.ReactNode
 }
 
-export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearchChange, filterFields, onFilterChange }: SearchFilterBarProps) => (
+export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearchChange, filterFields, onFilterChange, actionButtons }: SearchFilterBarProps) => (
   <div className="flex items-center justify-between gap-2 w-full">
     <div className="flex items-center gap-2 flex-1">
       <Input
@@ -90,11 +71,10 @@ export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearc
         className="w-full max-w-[320px]"
       />
     </div>
-    {filterFields && (
-      <div className="flex items-center justify-end">
-        <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />
-      </div>
-    )}
+    <div className="flex items-center justify-end gap-2">
+      {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />}
+      {actionButtons}
+    </div>
   </div>
 )
 

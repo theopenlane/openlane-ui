@@ -174,7 +174,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       if (inMenu) {
         return (
           <Link key={action.id} href={action.href}>
-            <button className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer w-full">
+            <button type="button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer w-full">
               {action.icon}
               <span>{action.label}</span>
             </button>

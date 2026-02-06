@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Task } from '@repo/codegen/src/schema'
 import { TaskTaskStatus } from '@repo/codegen/src/schema'
@@ -52,14 +51,14 @@ export const getActivityTaskFilterFields = (taskKindOptions: TaskKindOption[] = 
   },
 ]
 
-export const getActivityTaskColumns = (taskKindOptions: TaskKindOption[] = []): ColumnDef<ActivityTaskRow>[] => [
+export const getActivityTaskColumns = (taskKindOptions: TaskKindOption[] = [], onTaskOpen?: (taskId: string) => void): ColumnDef<ActivityTaskRow>[] => [
   {
     accessorKey: 'title',
     header: () => <span className="whitespace-nowrap">Title</span>,
     cell: ({ row }) => (
-      <Link href={`/tasks?id=${row.original.id}`} className="text-blue-500 hover:underline">
+      <button type="button" className="text-blue-500 hover:underline cursor-pointer" onClick={() => onTaskOpen?.(row.original.id)}>
         {row.original.title}
-      </Link>
+      </button>
     ),
   },
   {

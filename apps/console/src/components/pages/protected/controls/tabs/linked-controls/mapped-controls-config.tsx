@@ -20,28 +20,39 @@ export const getMappedControlsBaseColumns = (
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => {
       const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(row.original.refCode) : controlLinkMap.get(row.original.refCode)
-      if (!href) return row.original.refCode
+      if (!href) return <span className="block whitespace-nowrap">{row.original.refCode}</span>
       return (
-        <Link href={href} className="text-blue-500 hover:underline">
+        <Link href={href} className="block whitespace-nowrap text-blue-500 hover:underline">
           {row.original.refCode}
         </Link>
       )
     },
+    size: 120,
+    minSize: 120,
+    maxSize: 120,
   },
   {
     accessorKey: 'description',
     header: () => <span className="whitespace-nowrap">Description</span>,
-    cell: ({ row }) => <span className="block max-w-[700px] truncate">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</span>,
+    cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
+    size: 0,
+    minSize: 320,
   },
   {
     accessorKey: 'status',
     header: () => <span className="whitespace-nowrap">Status</span>,
     cell: ({ row }) => (row.original.status ? formatEnumLabel(row.original.status) : '-'),
+    size: 120,
+    minSize: 120,
+    maxSize: 120,
   },
   {
     accessorKey: 'type',
     header: () => <span className="whitespace-nowrap">Type</span>,
     cell: ({ row }) => (row.original.type ? formatEnumLabel(row.original.type) : '-'),
+    size: 120,
+    minSize: 120,
+    maxSize: 120,
   },
 ]
 
@@ -51,6 +62,9 @@ export const getMappedControlsFrameworkColumns = (baseColumns: ColumnDef<MappedC
     accessorKey: 'referenceFramework',
     header: () => <span className="whitespace-nowrap">Framework</span>,
     cell: ({ row }) => (row.original.referenceFramework ? <StandardChip referenceFramework={row.original.referenceFramework} /> : <span className="text-muted-foreground">Custom</span>),
+    size: 160,
+    minSize: 160,
+    maxSize: 160,
   },
 ]
 

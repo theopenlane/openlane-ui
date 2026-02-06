@@ -6,7 +6,9 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
+import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal'
 import { useDocumentationPolicies } from '@/lib/graphql-hooks/documentation'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { InternalPolicyDocumentStatus, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import type { GetInternalPoliciesListQueryVariables, InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'
@@ -15,8 +17,9 @@ import { AssociationSection, SearchFilterBar, buildAssociationFilter, mergeWhere
 import { ColumnDef } from '@tanstack/react-table'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Button } from '@repo/ui/button'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { KeyRound } from 'lucide-react'
+import { KeyRound, Plus } from 'lucide-react'
 import { formatTimeSince } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
@@ -201,6 +204,17 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
           onSearchChange={setSearch}
           filterFields={filteredFields}
           onFilterChange={setFilters}
+          actionButtons={
+            <SetObjectAssociationDialog
+              defaultSelectedObject={ObjectTypeObjects.INTERNAL_POLICY}
+              allowedObjectTypes={[ObjectTypeObjects.INTERNAL_POLICY]}
+              trigger={
+                <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
+                  Add Policy
+                </Button>
+              }
+            />
+          }
         />
       }
     />

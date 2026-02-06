@@ -22,12 +22,13 @@ const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap, refCodes: Partial<Record<string, string[]>>) => void
   excludeObjectTypes?: ObjectTypeObjects[]
+  allowedObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   refCodeInitialData?: TObjectAssociationMap
   defaultSelectedObject?: ObjectTypeObjects
 }
 
-const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }: Props) => {
+const ObjectAssociation = ({ onIdChange, excludeObjectTypes, allowedObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }: Props) => {
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
@@ -81,6 +82,7 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
             <SelectTrigger className="w-full">{selectedObject || 'Select object'}</SelectTrigger>
             <SelectContent>
               {Object.values(ObjectTypeObjects)
+                .filter((option) => !allowedObjectTypes || allowedObjectTypes.includes(option))
                 .filter((option) => !excludeObjectTypes?.includes(option))
                 .map((option) => (
                   <SelectItem key={option} value={option}>

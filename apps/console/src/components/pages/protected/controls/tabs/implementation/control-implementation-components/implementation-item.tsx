@@ -14,7 +14,7 @@ import { LinkControlsModal } from './link-controls-modal'
 type Props = {
   node: ControlImplementationFieldsFragment
   onEdit: (node: ControlImplementationFieldsFragment) => void
-  onMarkVerified: (id: string) => void
+  onMarkVerified: (id: string, verified: boolean) => void
   onDelete: (id: string) => void
   isUpdating?: boolean
 }
@@ -42,13 +42,13 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
                 type="button"
                 className="flex items-center gap-2"
                 onClick={() => {
-                  onMarkVerified(node.id)
+                  onMarkVerified(node.id, !node.verified)
                   close()
                 }}
-                disabled={isMenuDisabled || Boolean(node.verified)}
+                disabled={isMenuDisabled}
               >
                 <CheckCircle2 size={16} />
-                Mark Verified
+                {node.verified ? 'Mark Not Verified' : 'Mark Verified'}
               </button>
               <button
                 type="button"

@@ -14,9 +14,12 @@ import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { SearchFilterBar, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import { EvidenceOrder, EvidenceOrderField, EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
+import type { ApiToken, User } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { getEvidenceColumns, getEvidenceFilterFields, type EvidenceRow } from './evidence-table-config'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
 
 type Props = {
   control: TFormEvidenceData
@@ -83,6 +86,30 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     enabled: Boolean(control.controlID || control.subcontrolID),
   })
 
+  const memberIds = useMemo(() => [...new Set(evidences.map((e) => e.updatedBy).filter((id): id is string => typeof id === 'string' && id.length > 0))], [evidences])
+
+  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
+  const tokensWhere = useMemo(() => (memberIds.length > 0 ? { idIn: memberIds } : undefined), [memberIds])
+
+  const { users } = useGetOrgUserList({ where: userListWhere })
+  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, User> = {}
+    users?.forEach((user) => {
+      map[user.id] = user
+    })
+    return map
+  }, [users])
+
+  const tokenMap = useMemo(() => {
+    const map: Record<string, ApiToken> = {}
+    tokens?.forEach((token) => {
+      map[token.id] = token
+    })
+    return map
+  }, [tokens])
+
   const evidenceSheetHandler = useCallback(
     (controlEvidenceID: string) => {
       if (controlEvidenceID) router.replace({ controlEvidenceId: controlEvidenceID })
@@ -102,7 +129,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     __typename: isSubcontrol ? 'Subcontrol' : 'Control',
   }
 
-  const columns = useMemo(() => getEvidenceColumns(evidenceSheetHandler), [evidenceSheetHandler])
+  const columns = useMemo(() => getEvidenceColumns(evidenceSheetHandler, userMap, tokenMap), [evidenceSheetHandler, userMap, tokenMap])
 
   const rows = useMemo<EvidenceRow[]>(
     () =>
@@ -118,7 +145,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
   )
 
   return (
-    <div className="mt-6 space-y-4">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
           <EvidenceCreateSheet

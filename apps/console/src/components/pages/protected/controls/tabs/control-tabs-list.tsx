@@ -12,9 +12,13 @@ const CONTROL_TABS = [
   { value: 'activity', label: 'Activity' },
 ]
 
-const ControlTabsList: React.FC = () => (
+type ControlTabsListProps = {
+  includeGuidance?: boolean
+}
+
+const ControlTabsList: React.FC<ControlTabsListProps> = ({ includeGuidance = true }) => (
   <TabsList className="w-max gap-2">
-    {CONTROL_TABS.map(({ value, label, className }) => (
+    {CONTROL_TABS.filter((tab) => includeGuidance || tab.value !== 'guidance').map(({ value, label, className }) => (
       <TabsTrigger key={value} value={value} className={className}>
         {label}
       </TabsTrigger>

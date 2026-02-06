@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Tabs, TabsContent } from '@repo/ui/tabs'
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import ImplementationTab from '@/components/pages/protected/controls/tabs/implementation/implementation-tab'
@@ -55,6 +55,29 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
   }, [isSubcontrol, subcontrol?.testingProcedures, control?.testingProcedures])
 
   const references = (isSubcontrol ? subcontrol?.references : control?.references) as { name: string; url?: string }[] | null | undefined
+  const implementationGuidance = (isSubcontrol ? subcontrol?.implementationGuidance : control?.implementationGuidance) as { referenceId: string; guidance: string[] }[] | null
+  const controlQuestions = (isSubcontrol ? subcontrol?.controlQuestions : control?.controlQuestions) as string[] | null
+  const assessmentMethods = (isSubcontrol ? subcontrol?.assessmentMethods : control?.assessmentMethods) as { id: string; type: 'EXAMINE' | 'INTERVIEW' | 'TEST'; method: string }[] | null
+  const assessmentObjectives = (isSubcontrol ? subcontrol?.assessmentObjectives : control?.assessmentObjectives) as { class: string; id: string; objective: string }[] | null
+
+  const hasGuidanceData = useMemo(
+    () =>
+      Boolean(
+        implementationGuidance?.length ||
+          controlQuestions?.some((question) => question.trim().length > 0) ||
+          assessmentMethods?.length ||
+          assessmentObjectives?.length ||
+          testingProcedures?.length ||
+          references?.some((reference) => reference.name.trim().length > 0),
+      ),
+    [implementationGuidance, controlQuestions, assessmentMethods, assessmentObjectives, testingProcedures, references],
+  )
+
+  useEffect(() => {
+    if (!hasGuidanceData && activeTab === 'guidance') {
+      setActiveTab('implementation')
+    }
+  }, [activeTab, hasGuidanceData])
 
   const evidenceFormData = useMemo<TFormEvidenceData>(() => {
     if (isSubcontrol) {
@@ -66,9 +89,11 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} variant="underline">
-      <ScrollableTabsList>
-        <ControlTabsList />
-      </ScrollableTabsList>
+      <div className="mb-6">
+        <ScrollableTabsList>
+          <ControlTabsList includeGuidance={hasGuidanceData} />
+        </ScrollableTabsList>
+      </div>
 
       <TabsContent value="implementation" className="space-y-6">
         <ImplementationTab />
@@ -82,27 +107,29 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
         <LinkedControlsTab controlId={isSubcontrol ? undefined : control?.id} subcontrolId={isSubcontrol ? subcontrol?.id : undefined} refCode={refCode} />
       </TabsContent>
 
-      <TabsContent value="guidance" className="space-y-6">
-        <GuidanceTab
-          implementationGuidance={(isSubcontrol ? subcontrol?.implementationGuidance : control?.implementationGuidance) as { referenceId: string; guidance: string[] }[] | null}
-          controlQuestions={(isSubcontrol ? subcontrol?.controlQuestions : control?.controlQuestions) as string[] | null}
-          assessmentMethods={(isSubcontrol ? subcontrol?.assessmentMethods : control?.assessmentMethods) as { id: string; type: 'EXAMINE' | 'INTERVIEW' | 'TEST'; method: string }[] | null}
-          assessmentObjectives={(isSubcontrol ? subcontrol?.assessmentObjectives : control?.assessmentObjectives) as { class: string; id: string; objective: string }[] | null}
-          testingProcedures={testingProcedures}
-          references={references}
-          refCode={refCode}
-          controlId={control?.id}
-          subcontrolId={subcontrol?.id}
-          isSubcontrol={isSubcontrol}
-        />
-      </TabsContent>
+      {hasGuidanceData && (
+        <TabsContent value="guidance" className="space-y-6">
+          <GuidanceTab
+            implementationGuidance={implementationGuidance}
+            controlQuestions={controlQuestions}
+            assessmentMethods={assessmentMethods}
+            assessmentObjectives={assessmentObjectives}
+            testingProcedures={testingProcedures}
+            references={references}
+            refCode={refCode}
+            controlId={control?.id}
+            subcontrolId={subcontrol?.id}
+            isSubcontrol={isSubcontrol}
+          />
+        </TabsContent>
+      )}
 
       <TabsContent value="documentation" className="space-y-6">
         <DocumentationTab controlId={isSubcontrol ? subcontrol?.control?.id ?? '' : control?.id ?? ''} subcontrolIds={subcontrolIds} />
       </TabsContent>
 
       <TabsContent value="activity" className="space-y-6">
-        <ActivityTab controlId={isSubcontrol ? subcontrol?.control?.id ?? '' : control?.id ?? ''} subcontrolIds={subcontrolIds} />
+        <ActivityTab controlId={isSubcontrol ? undefined : control?.id} subcontrolIds={subcontrolIds} />
       </TabsContent>
     </Tabs>
   )
