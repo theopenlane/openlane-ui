@@ -238,7 +238,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
         </div>
 
         {isEditing ? (
-          <div className="border-b flex items-center py-2.5">
+          <div className="flex items-center py-2.5">
             <Label className="min-w-36">Revision</Label>
             <div className="flex flex-col">
               <Controller
