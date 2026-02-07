@@ -347,12 +347,10 @@ export function DataTable<TData, TValue>({
     },
   })
 
-  // Keep refs in sync for use inside callbacks and effects
   tableRef.current = table
   containerWidthRef.current = containerWidth
   columnSizesRef.current = columnSizes
 
-  // Redistribute column widths when container resizes or column visibility changes
   useLayoutEffect(() => {
     if (containerWidth <= 0) return
     const visibleCols = getVisibleColumnInfos(table)
@@ -360,7 +358,6 @@ export function DataTable<TData, TValue>({
 
     const redistributed = redistributeColumnWidths(visibleCols, columnSizesRef.current, containerWidth, fixedMaxColumns)
 
-    // Only update if any visible column changed meaningfully (> 0.5px)
     const changed = visibleCols.some((col) => {
       const prev = columnSizesRef.current[col.id] ?? col.defSize
       const next = redistributed[col.id] ?? col.defSize
@@ -494,7 +491,6 @@ export function DataTable<TData, TValue>({
             </div>
           )}
 
-          {/* Apply opacity and disable interactions while loading */}
           <div className={cn(isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300', 'relative overflow-x-auto')}>
             {showLeftFade && (
               <div
@@ -598,7 +594,6 @@ export function DataTable<TData, TValue>({
           {footer}
         </div>
       </div>
-      {/* Pagination also gets opacity and interaction block on loading */}
       {pagination && (
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
           <Pagination currentPage={currentPage} totalPages={totalPages} pageSize={currentPageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
@@ -689,7 +684,6 @@ function DataTableBodyContent<TData>({ table, onRowClick, loading, noDataMarkup,
   )
 }
 
-// Skip body re-renders while a column is being resized — CSS variables handle width updates
 const MemoizedDataTableBody = memo(DataTableBodyContent, (prev, next) => {
   return prev.table.options.data === next.table.options.data
 }) as typeof DataTableBodyContent
