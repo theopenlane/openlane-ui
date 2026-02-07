@@ -154,6 +154,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
+      maxSize: 50,
       size: 50,
     },
     {
@@ -187,11 +188,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
-      size: 400,
-      minSize: 300,
-      meta: {
-        className: 'w-[50%] min-w-[300px]',
-      },
+      size: 500,
     },
     {
       header: 'Status',
@@ -224,6 +221,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Subcategory',
       accessorKey: 'subcategory',
+      size: 120,
       cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
     },
     {
@@ -288,6 +286,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       meta: {
         exportPrefix: 'delegate.name',
       },
+      size: 120,
       cell: ({ row }) => {
         const delegate = row.original.delegate
         const controlId = row.original.id
@@ -341,6 +340,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Desired Outcome',
       accessorKey: 'desiredOutcome',
+      size: 220,
       meta: {
         exportPrefix: 'controlObjectives.desiredOutcome',
       },
@@ -356,6 +356,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Implementation Details',
       accessorKey: 'controlImplementationsDetails',
+      size: 220,
       meta: {
         exportPrefix: 'controlImplementations.details',
       },
@@ -371,12 +372,15 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Associated Objects',
       accessorKey: 'associatedObjects',
-      cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
+      size: 180,
       minSize: 180,
+      cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
     },
     {
       header: 'Comments',
       accessorKey: 'comments',
+      size: 130,
+      minSize: 120,
       meta: {
         exportPrefix: 'comments.text',
       },
@@ -389,7 +393,6 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </Link>
         )
       },
-      minSize: 120,
     },
     {
       header: 'Linked Policies',

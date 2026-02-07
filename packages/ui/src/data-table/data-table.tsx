@@ -6,18 +6,22 @@ import {
   ColumnFiltersState,
   ColumnResizeDirection,
   ColumnResizeMode,
+  ColumnSizingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  OnChangeFn,
+  Row,
+  Table as TanstackTable,
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
-import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, ReactElement, type CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
@@ -26,7 +30,6 @@ import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
 import { TableKeyEnum } from '../data-table/table-key.ts'
-import { orderBy } from 'lodash'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -102,6 +105,63 @@ export function getInitialSortConditions<TField extends string>(
   return defaultSortFields
 }
 
+const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
+const cssVarKey = (id: string) => id.replace(/[^a-zA-Z0-9_-]/g, '')
+
+interface VisibleColumnInfo {
+  id: string
+  defSize: number
+  minSize: number
+  maxSize: number
+}
+
+function redistributeColumnWidths(visibleColumns: VisibleColumnInfo[], currentSizing: Record<string, number>, containerWidth: number, fixedMaxColumns: Set<string>): Record<string, number> {
+  if (containerWidth <= 0 || visibleColumns.length === 0) return currentSizing
+
+  const sizes: Record<string, number> = {}
+  for (const col of visibleColumns) {
+    sizes[col.id] = currentSizing[col.id] ?? col.defSize
+  }
+
+  const total = visibleColumns.reduce((sum, col) => sum + sizes[col.id], 0)
+  if (total >= containerWidth) return sizes
+
+  let deficit = containerWidth - total
+  const capped = new Set<string>()
+
+  // Iterative loop to handle columns hitting their maxSize cap
+  for (let iter = 0; iter < visibleColumns.length && deficit > 0.5; iter++) {
+    const growable = visibleColumns.filter((col) => !fixedMaxColumns.has(col.id) && !capped.has(col.id))
+    if (growable.length === 0) break
+
+    const growableTotal = growable.reduce((sum, col) => sum + sizes[col.id], 0)
+    if (growableTotal <= 0) break
+
+    let distributed = 0
+    let newlyCapped = false
+
+    for (const col of growable) {
+      const share = (sizes[col.id] / growableTotal) * deficit
+      const proposed = sizes[col.id] + share
+
+      if (proposed >= col.maxSize) {
+        distributed += col.maxSize - sizes[col.id]
+        sizes[col.id] = col.maxSize
+        capped.add(col.id)
+        newlyCapped = true
+      } else {
+        distributed += share
+        sizes[col.id] = Math.round(proposed * 100) / 100
+      }
+    }
+
+    deficit -= distributed
+    if (!newlyCapped) break
+  }
+
+  return sizes
+}
+
 export function DataTable<TData, TValue>({
   columns,
   loading = false,
@@ -136,15 +196,15 @@ export function DataTable<TData, TValue>({
 
   const { totalCount, pageInfo, isLoading } = paginationMeta || {}
 
-  const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
-  const [columnResizeDirection] = useState<ColumnResizeDirection>('ltr')
+  const columnResizeMode: ColumnResizeMode = 'onChange'
+  const columnResizeDirection: ColumnResizeDirection = 'ltr'
 
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
   }, [totalCount, currentPageSize])
 
   const updatePagination = (next: TPagination) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && tableKey) {
       const safePagination = {
         page: next.page,
         pageSize: next.pageSize,
@@ -185,6 +245,7 @@ export function DataTable<TData, TValue>({
   const [horizontalScrollbarHeight, setHorizontalScrollbarHeight] = useState(0)
   const [hasVerticalScroll, setHasVerticalScroll] = useState(false)
   const [verticalScrollbarWidth, setVerticalScrollbarWidth] = useState(0)
+  const [containerWidth, setContainerWidth] = useState(0)
 
   const checkScroll = () => {
     const scrollRefElement = scrollRef.current
@@ -208,11 +269,53 @@ export function DataTable<TData, TValue>({
     scrollRefElement.addEventListener('scroll', checkScroll)
     window.addEventListener('resize', checkScroll)
 
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width
+        setContainerWidth((prev) => (Math.abs(prev - width) > 0.5 ? width : prev))
+      }
+      checkScroll()
+    })
+    ro.observe(scrollRefElement)
+
     return () => {
       scrollRefElement.removeEventListener('scroll', checkScroll)
       window.removeEventListener('resize', checkScroll)
+      ro.disconnect()
     }
   }, [columnVisibility, pageInfo])
+
+  const fixedMaxColumns = useMemo(() => new Set(columns.filter((col) => (col as any).maxSize != null).map((col) => (col as any).id ?? (col as any).accessorKey ?? '')), [columns])
+
+  const tableRef = useRef<TanstackTable<TData> | null>(null)
+  const containerWidthRef = useRef(0)
+  const columnSizesRef = useRef<Record<string, number>>(columnSizes)
+
+  const getVisibleColumnInfos = useCallback(
+    (tbl: TanstackTable<TData>): VisibleColumnInfo[] =>
+      tbl.getVisibleLeafColumns().map((col) => ({
+        id: col.id,
+        defSize: (col.columnDef.size as number) ?? 150,
+        minSize: (col.columnDef.minSize as number) ?? 60,
+        maxSize: (col.columnDef.maxSize as number) ?? 800,
+      })),
+    [],
+  )
+
+  const handleColumnSizingChange: OnChangeFn<ColumnSizingState> = useCallback(
+    (updater) => {
+      setColumnSizes((prev) => {
+        const rawNext = typeof updater === 'function' ? updater(prev) : updater
+        const tbl = tableRef.current
+        const cw = containerWidthRef.current
+        if (!tbl || cw <= 0) return rawNext
+
+        const visibleCols = getVisibleColumnInfos(tbl)
+        return redistributeColumnWidths(visibleCols, rawNext, cw, fixedMaxColumns)
+      })
+    },
+    [fixedMaxColumns, getVisibleColumnInfos],
+  )
 
   const table = useReactTable({
     data,
@@ -224,7 +327,7 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    onColumnSizingChange: setColumnSizes,
+    onColumnSizingChange: handleColumnSizingChange,
     columnResizeMode,
     columnResizeDirection,
     enableColumnResizing: true,
@@ -239,9 +342,47 @@ export function DataTable<TData, TValue>({
       },
     },
     defaultColumn: {
-      size: 0,
+      minSize: 60,
+      maxSize: 800,
     },
   })
+
+  // Keep refs in sync for use inside callbacks and effects
+  tableRef.current = table
+  containerWidthRef.current = containerWidth
+  columnSizesRef.current = columnSizes
+
+  // Redistribute column widths when container resizes or column visibility changes
+  useLayoutEffect(() => {
+    if (containerWidth <= 0) return
+    const visibleCols = getVisibleColumnInfos(table)
+    if (visibleCols.length === 0) return
+
+    const redistributed = redistributeColumnWidths(visibleCols, columnSizesRef.current, containerWidth, fixedMaxColumns)
+
+    // Only update if any visible column changed meaningfully (> 0.5px)
+    const changed = visibleCols.some((col) => {
+      const prev = columnSizesRef.current[col.id] ?? col.defSize
+      const next = redistributed[col.id] ?? col.defSize
+      return Math.abs(prev - next) > 0.5
+    })
+
+    if (changed) {
+      setColumnSizes(redistributed)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerWidth, columnVisibility])
+
+  const columnSizingInfo = table.getState().columnSizingInfo
+
+  const columnSizeVars = useMemo(() => {
+    const vars: Record<string, string> = {}
+    table.getAllLeafColumns().forEach((column) => {
+      vars[`--col-${cssVarKey(column.id)}`] = `${column.getSize()}px`
+    })
+    return vars as CSSProperties
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnSizes])
 
   const setNewPagination = (newPage: number, query: TPagination['query']) => {
     if (!pagination) {
@@ -304,9 +445,18 @@ export function DataTable<TData, TValue>({
   useEffect(() => {
     if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
       onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
-      localStorage.setItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, JSON.stringify(sortConditions))
+      if (typeof window !== 'undefined' && tableKey) {
+        localStorage.setItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, JSON.stringify(sortConditions))
+      }
+      return
     }
-  }, [onSortChange, sortConditions])
+
+    // Keep server/client sorting in sync when user clears all sorts
+    onSortChange?.([])
+    if (typeof window !== 'undefined' && tableKey) {
+      localStorage.removeItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
+    }
+  }, [onSortChange, sortConditions, tableKey])
 
   return (
     <>
@@ -358,22 +508,47 @@ export function DataTable<TData, TValue>({
                 style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0', right: hasVerticalScroll ? `${verticalScrollbarWidth}px` : '0' }}
               />
             )}
-            <Table ref={scrollRef} variant="data" stickyHeader={stickyHeader} stickyDialogHeader={stickyDialogHeader}>
+            <Table
+              ref={scrollRef}
+              variant="data"
+              stickyHeader={stickyHeader}
+              stickyDialogHeader={stickyDialogHeader}
+              style={{
+                ...columnSizeVars,
+                width: containerWidth > 0 ? Math.max(containerWidth, table.getTotalSize()) : undefined,
+              }}
+            >
               <TableHeader variant="data">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow variant="data" key={headerGroup.id}>
                     {headerGroup.headers.map((header, index) => {
-                      const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
                       const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
-                      const columnWidth = header.getSize() === 0 ? 'auto' : `${header.getSize()}px`
-
+                      const columnCssKey = cssVarKey(header.column.id)
+                      const columnWidth = `var(--col-${columnCssKey})`
+                      const isResizing = header.column.getIsResizing()
                       const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
+                      const ariaSort = sorting === OrderDirection.ASC ? 'ascending' : sorting === OrderDirection.DESC ? 'descending' : 'none'
                       return (
-                        <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth }}>
+                        <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth, minWidth: columnWidth }} aria-sort={ariaSort}>
                           {header.isPlaceholder ? null : (
                             <div className="flex items-center gap-1" style={{ width: columnWidth }}>
                               {/* Sorting Area */}
-                              <div onClick={() => sortField?.key && handleSortChange(sortField.key)} className="flex items-center gap-1 cursor-pointer select-none" style={{ flex: '1 1 auto' }}>
+                              <div
+                                onClick={() => sortField?.key && handleSortChange(sortField.key)}
+                                className={cn('flex items-center gap-1 select-none', sortField ? 'cursor-pointer' : 'cursor-default')}
+                                style={{ flex: '1 1 auto' }}
+                                title={sortField ? `Sort by ${sortField.label}` : undefined}
+                                role={sortField ? 'button' : undefined}
+                                aria-disabled={!sortField}
+                                tabIndex={sortField ? 0 : -1}
+                                onKeyDown={(event) => {
+                                  if (!sortField) return
+                                  if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault()
+                                    handleSortChange(sortField.key)
+                                  }
+                                }}
+                              >
                                 {flexRender(header.column.columnDef.header, header.getContext())}
                                 {sortField &&
                                   (sorting === OrderDirection.ASC ? (
@@ -384,28 +559,27 @@ export function DataTable<TData, TValue>({
                                     <ArrowUpDown size={16} className="text-gray-400" />
                                   ))}
                               </div>
-
-                              {/* Resizing Area */}
-                              {index < headerGroup.headers.length - 1 && (
-                                <div
-                                  {...{
-                                    onDoubleClick: () => header.column.resetSize(),
-                                    onMouseDown: header.getResizeHandler(),
-                                    onTouchStart: header.getResizeHandler(),
-                                    className: `resizer ${table.options.columnResizeDirection} ${header.column.getIsResizing() ? 'isResizing' : ''}`,
-                                    style: {
-                                      transform:
-                                        columnResizeMode === 'onEnd' && header.column.getIsResizing()
-                                          ? `translateX(${(table.options.columnResizeDirection === 'rtl' ? -1 : 1) * (table.getState().columnSizingInfo.deltaOffset ?? 0)}px)`
-                                          : '',
-                                    },
-                                  }}
-                                >
-                                  <div className="absolute right-0 top-0 bottom-0 cursor-col-resize w-[25%]">
-                                    <div className="absolute right-0 top-0 bottom-0 w-[0.25px] bg-[var(--color-border)]" />
-                                  </div>
-                                </div>
+                            </div>
+                          )}
+                          {/* Resizing Area */}
+                          {index < headerGroup.headers.length - 1 && (
+                            <div
+                              onDoubleClick={() => header.column.resetSize()}
+                              onMouseDown={header.getResizeHandler()}
+                              onTouchStart={header.getResizeHandler()}
+                              className={cn(
+                                'absolute right-0 top-0 h-full w-3 cursor-col-resize z-10 group/resizer select-none touch-none',
+                                'flex items-center justify-center',
+                                'opacity-80 hover:opacity-100 focus-visible:opacity-100',
+                                isResizing && 'opacity-100',
                               )}
+                              role="separator"
+                              aria-orientation="vertical"
+                              aria-label={`Resize ${header.column.id} column`}
+                            >
+                              <div
+                                className={cn('h-3/5 w-px rounded-full transition duration-150', isResizing ? 'bg-primary' : 'bg-[var(--color-border)] opacity-70 group-hover/resizer:opacity-100')}
+                              />
                             </div>
                           )}
                         </TableHead>
@@ -414,28 +588,11 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody variant="data">
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      variant="data"
-                      onClick={() => onRowClick?.(row.original)}
-                      className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
-                      key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        // @ts-ignore
-                        <TableCell variant="data" key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <NoData loading={loading} columns={table.getAllLeafColumns()} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
-                )}
-              </TableBody>
+              {columnSizingInfo.isResizingColumn ? (
+                <MemoizedDataTableBody table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+              ) : (
+                <DataTableBodyContent table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+              )}
             </Table>
           </div>
           {footer}
@@ -458,6 +615,32 @@ interface NoDataProps<TData, TValue> {
   noResultsText: string
 }
 
+type DataRowProps<TData, TValue> = {
+  row: Row<TData>
+  onRowClick?: (rowData: TData) => void
+  cssVarKey: (id: string) => string
+}
+
+const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, cssVarKey }: DataRowProps<TData, TValue>) {
+  return (
+    <TableRow variant="data" onClick={() => onRowClick?.(row.original)} className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`} data-state={row.getIsSelected() && 'selected'}>
+      {row.getVisibleCells().map((cell) => {
+        const widthVar = `var(--col-${cssVarKey(cell.column.id)})`
+        return (
+          <TableCell
+            variant="data"
+            key={cell.id}
+            className={(cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className || ''}
+            style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        )
+      })}
+    </TableRow>
+  )
+}) as <TData, TValue>(props: DataRowProps<TData, TValue>) => React.ReactElement
+
 const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData, TValue>) => {
   const visibleCols = columns.filter((col) => col.getIsVisible())
 
@@ -468,7 +651,7 @@ const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }
           <TableRow key={rowIndex} variant="data">
             {visibleCols.map((col, colIndex) => (
               <TableCell key={colIndex} variant="data">
-                <div className="animate-custom-pulse bg-white/20 rounded-lg h-[10px] w-full" style={{ width: `${col.getSize()}px` }} />
+                <div className="animate-custom-pulse bg-white/20 rounded-lg h-2.5 w-full" style={{ width: `${col.getSize()}px` }} />
               </TableCell>
             ))}
           </TableRow>
@@ -480,8 +663,33 @@ const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }
   return (
     <TableRow variant="data">
       <TableCell variant="data" colSpan={visibleCols.length || 100} className="p-0">
-        {noDataMarkup ? noDataMarkup : <div className="flex items-center justify-center w-full h-full p-5">No results</div>}
+        {noDataMarkup ? noDataMarkup : <div className="flex items-center justify-center w-full h-full p-5">{noResultsText}</div>}
       </TableCell>
     </TableRow>
   )
 }
+
+interface DataTableBodyContentProps<TData> {
+  table: TanstackTable<TData>
+  onRowClick?: (rowData: TData) => void
+  loading: boolean
+  noDataMarkup?: ReactElement
+  noResultsText: string
+}
+
+function DataTableBodyContent<TData>({ table, onRowClick, loading, noDataMarkup, noResultsText }: DataTableBodyContentProps<TData>) {
+  return (
+    <TableBody variant="data">
+      {table.getRowModel().rows?.length ? (
+        table.getRowModel().rows.map((row) => <DataRow key={row.id} row={row} onRowClick={onRowClick} cssVarKey={cssVarKey} />)
+      ) : (
+        <NoData loading={loading} columns={table.getAllLeafColumns()} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+      )}
+    </TableBody>
+  )
+}
+
+// Skip body re-renders while a column is being resized — CSS variables handle width updates
+const MemoizedDataTableBody = memo(DataTableBodyContent, (prev, next) => {
+  return prev.table.options.data === next.table.options.data
+}) as typeof DataTableBodyContent
