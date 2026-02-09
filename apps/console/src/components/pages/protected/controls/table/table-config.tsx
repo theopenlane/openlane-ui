@@ -193,7 +193,8 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Status',
       accessorKey: 'status',
-      size: 160,
+      size: 170,
+      minSize: 170,
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
         const label = ControlStatusLabels[value] ?? value
