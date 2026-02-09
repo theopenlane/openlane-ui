@@ -26181,6 +26181,8 @@ export interface Mutation {
   deleteBulkTrustCenterCompliance: TrustCenterComplianceBulkDeletePayload
   /** Delete multiple trustCenterDocs */
   deleteBulkTrustCenterDoc: TrustCenterDocBulkDeletePayload
+  /** Delete multiple existing nda requests (soft-deletes them and removes FGA tuples) */
+  deleteBulkTrustCenterNDARequest: TrustCenterNdaRequestBulkDeletePayload
   /** Delete multiple trustCenterSubprocessors */
   deleteBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkDeletePayload
   /** Delete multiple userSettings */
@@ -26353,6 +26355,8 @@ export interface Mutation {
   rejectWorkflowAssignment: WorkflowAssignmentRejectPayload
   /** Request changes on a workflow assignment and send it back to the originator */
   requestChangesWorkflowAssignment: WorkflowAssignmentRejectPayload
+  /** Create a new requestNewTrustCenterToken for users that have already signed an NDA */
+  requestNewTrustCenterToken: TrustCenterAccessTokenPayload
   /** Resend a campaign to only incomplete targets */
   resendCampaignIncompleteTargets: CampaignLaunchPayload
   /** Resolve a vulnerability and optionally capture a review record. */
@@ -27867,6 +27871,10 @@ export interface MutationDeleteBulkTrustCenterDocArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
+export interface MutationDeleteBulkTrustCenterNdaRequestArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
 export interface MutationDeleteBulkTrustCenterSubprocessorArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -28211,6 +28219,10 @@ export interface MutationRequestChangesWorkflowAssignmentArgs {
   id: Scalars['ID']['input']
   inputs?: InputMaybe<Scalars['Map']['input']>
   reason?: InputMaybe<Scalars['String']['input']>
+}
+
+export interface MutationRequestNewTrustCenterTokenArgs {
+  email: Scalars['String']['input']
 }
 
 export interface MutationResendCampaignIncompleteTargetsArgs {
@@ -45980,6 +45992,12 @@ export interface TrustCenterTrustCenterSubprocessorsArgs {
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>
 }
 
+/** Return response for requestNewTrustCenterToken mutation */
+export interface TrustCenterAccessTokenPayload {
+  __typename?: 'TrustCenterAccessTokenPayload'
+  success: Scalars['Boolean']['output']
+}
+
 export interface TrustCenterCompliance extends Node {
   __typename?: 'TrustCenterCompliance'
   blockedGroups: GroupConnection
@@ -46968,6 +46986,13 @@ export interface TrustCenterNdaRequestBulkCreatePayload {
   __typename?: 'TrustCenterNDARequestBulkCreatePayload'
   /** Created trustCenterNDARequests */
   trustCenterNDARequests?: Maybe<Array<TrustCenterNdaRequest>>
+}
+
+/** Return response for deleteBulkTrustCenterNDARequest mutation */
+export interface TrustCenterNdaRequestBulkDeletePayload {
+  __typename?: 'TrustCenterNDARequestBulkDeletePayload'
+  /** Deleted trustCenterNDARequest IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -58949,6 +58974,8 @@ export interface WorkflowObjectTypeMetadata {
   __typename?: 'WorkflowObjectTypeMetadata'
   /** Description of the object type */
   description: Scalars['String']['output']
+  /** List of edges that can be tracked in workflows for this type */
+  eligibleEdges: Array<Scalars['String']['output']>
   /** List of fields that can be tracked in workflows for this type */
   eligibleFields: Array<WorkflowFieldMetadata>
   /** Human-readable label for the type */
@@ -60679,6 +60706,7 @@ export type GetEvidenceListQuery = {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
         }
+        comments: { __typename?: 'NoteConnection'; totalCount: number }
       } | null
     } | null> | null
   }
@@ -64363,6 +64391,12 @@ export type UpdateTrustCenterNdaRequestMutation = {
   __typename?: 'Mutation'
   updateTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestUpdatePayload'; trustCenterNDARequest: { __typename?: 'TrustCenterNDARequest'; id: string } }
 }
+
+export type DeleteBulkTrustCenterNdaRequestMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterNdaRequestMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 

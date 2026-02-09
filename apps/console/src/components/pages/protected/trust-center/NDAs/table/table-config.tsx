@@ -1,10 +1,12 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
+import { Checkbox } from '@repo/ui/checkbox'
 import { FilterField } from '@/types'
+import React from 'react'
 
 export type NdaRequestRow = {
   id: string
@@ -21,6 +23,9 @@ type NdaRequestColumnOptions = {
   showActions?: boolean
   showApprovedOn?: boolean
   showSignedOn?: boolean
+  showSelect?: boolean
+  selectedRows?: { id: string }[]
+  setSelectedRows?: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   onApprove?: (id: string) => void
   onDeny?: (id: string) => void
   actionLoadingId?: string | null
@@ -31,12 +36,61 @@ export const getNdaRequestColumns = ({
   showActions,
   showApprovedOn,
   showSignedOn,
+  showSelect,
+  selectedRows = [],
+  setSelectedRows,
   onApprove,
   onDeny,
   actionLoadingId,
   actionLoadingType,
 }: NdaRequestColumnOptions = {}): ColumnDef<NdaRequestRow>[] => {
-  const columns: ColumnDef<NdaRequestRow>[] = [
+  const toggleSelection = (row: { id: string }) => {
+    setSelectedRows?.((prev) => {
+      const exists = prev.some((r) => r.id === row.id)
+      return exists ? prev.filter((r) => r.id !== row.id) : [...prev, row]
+    })
+  }
+
+  const columns: ColumnDef<NdaRequestRow>[] = []
+
+  if (showSelect) {
+    columns.push({
+      id: 'select',
+      header: ({ table }) => {
+        const currentPageRows = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPageRows.length > 0 && currentPageRows.every((row) => selectedRows.some((sr) => sr.id === row.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked: boolean) => {
+                const newSelections = checked
+                  ? [...selectedRows.filter((sr) => !currentPageRows.some((r) => r.id === sr.id)), ...currentPageRows.map((r) => ({ id: r.id }))]
+                  : selectedRows.filter((sr) => !currentPageRows.some((r) => r.id === sr.id))
+                setSelectedRows?.(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
+      cell: ({ row }: { row: Row<NdaRequestRow> }) => {
+        const { id } = row.original
+        const isChecked = selectedRows.some((r) => r.id === id)
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+          </div>
+        )
+      },
+      size: 20,
+      maxSize: 20,
+      minSize: 20,
+    })
+  }
+
+  columns.push(
     { accessorKey: 'firstName', header: 'First Name', size: 120 },
     { accessorKey: 'lastName', header: 'Last Name', size: 120 },
     { accessorKey: 'companyName', header: 'Company', size: 120 },
@@ -47,7 +101,7 @@ export const getNdaRequestColumns = ({
       cell: ({ row }) => (row.original.createdAt ? formatDate(row.original.createdAt) : '-'),
       size: 120,
     },
-  ]
+  )
 
   if (showApprovedOn) {
     columns.push({
