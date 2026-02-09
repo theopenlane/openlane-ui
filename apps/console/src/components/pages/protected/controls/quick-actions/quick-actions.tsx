@@ -76,27 +76,12 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
   }, [controlAssociationsData, controlData, isSubcontrol, subcontrolAssociationsData, subcontrolData])
 
   const taskInitialData = useMemo<TObjectAssociationMap>(() => {
-    const getIds = (edges?: Array<{ node?: { id?: string | null } | null } | null> | null) => (edges?.map((edge) => edge?.node?.id).filter(Boolean) as string[]) ?? []
-
     if (isSubcontrol) {
-      return {
-        procedureIDs: getIds(subcontrolAssociationsData?.subcontrol?.procedures?.edges),
-        internalPolicyIDs: getIds(subcontrolAssociationsData?.subcontrol?.internalPolicies?.edges),
-        controlObjectiveIDs: evidenceFormData.objectAssociations?.controlObjectiveIDs ?? [],
-        riskIDs: getIds(subcontrolAssociationsData?.subcontrol?.risks?.edges),
-        subcontrolIDs: subcontrolId ? [subcontrolId] : [],
-      }
+      return { subcontrolIDs: subcontrolId ? [subcontrolId] : [] }
     }
 
-    return {
-      programIDs: evidenceFormData.objectAssociations?.programIDs ?? [],
-      procedureIDs: getIds(controlAssociationsData?.control?.procedures?.edges),
-      internalPolicyIDs: getIds(controlAssociationsData?.control?.internalPolicies?.edges),
-      controlObjectiveIDs: evidenceFormData.objectAssociations?.controlObjectiveIDs ?? [],
-      riskIDs: getIds(controlAssociationsData?.control?.risks?.edges),
-      controlIDs: controlId ? [controlId] : [],
-    }
-  }, [controlAssociationsData, subcontrolAssociationsData, evidenceFormData.objectAssociations, isSubcontrol, controlId, subcontrolId])
+    return { controlIDs: controlId ? [controlId] : [] }
+  }, [isSubcontrol, controlId, subcontrolId])
 
   const actions = useMemo<QuickActionItem[]>(() => {
     const baseActions: QuickActionItem[] = [
@@ -166,6 +151,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
           }
           defaultSelectedObject={isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
           initialData={taskInitialData}
+          hideObjectAssociation
         />
       )
     }

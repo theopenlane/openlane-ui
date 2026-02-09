@@ -173,6 +173,7 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
                     defaultSelectedObject={defaultSelectedObject}
                     initialData={initialData}
                     initialValues={{ title, details: item }}
+                    hideObjectAssociation
                     trigger={
                       <Button type="button" variant="secondary" className="h-8 px-3" icon={<PlusCircle size={14} />} iconPosition="left">
                         Create Task

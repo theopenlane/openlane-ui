@@ -418,7 +418,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       title: 'Field updated successfully',
     })
     queryClient.invalidateQueries({ queryKey: ['evidences'] })
-    queryClient.invalidateQueries({ queryKey: ['evidences-light'] })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
