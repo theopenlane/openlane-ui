@@ -75,8 +75,8 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
           </div>
         )
       },
-      size: 20,
-      maxSize: 20,
+      size: 50,
+      maxSize: 50,
       enableSorting: false,
       enableHiding: false,
       enableResizing: false,

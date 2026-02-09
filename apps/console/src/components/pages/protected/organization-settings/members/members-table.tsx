@@ -163,10 +163,10 @@ export const MembersTable = () => {
       },
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: 'Action',
       cell: ({ cell }) => {
-        return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.getValue() as string} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
+        return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.row.original.id} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
       },
       size: 40,
     },

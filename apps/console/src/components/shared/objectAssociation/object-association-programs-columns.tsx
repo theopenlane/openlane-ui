@@ -59,6 +59,8 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
           </div>
         )
       },
+      size: 50,
+      maxSize: 50,
       enableResizing: false,
     },
     {

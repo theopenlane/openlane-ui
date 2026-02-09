@@ -65,7 +65,8 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNda
           </div>
         )
       },
-      size: 20,
+      size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'title',

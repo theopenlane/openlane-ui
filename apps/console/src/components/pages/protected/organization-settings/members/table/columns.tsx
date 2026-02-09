@@ -95,7 +95,7 @@ export const InvitesColumns = () => {
       cell: ({ cell }) => `${cell.getValue() || 0}/5`,
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: 'Action',
       cell: ({ row }) => {
         const invite = row.original
@@ -147,6 +147,7 @@ export const groupTableForInvitesColumns = ({ allGroups, selectedGroups, setSele
         return <Checkbox checked={isChecked} onCheckedChange={(checked) => handleToggle(!!checked)} />
       },
       size: 50,
+      maxSize: 50,
     },
     {
       header: 'Name',

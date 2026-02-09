@@ -86,7 +86,8 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
           </div>
         )
       },
-      size: 40,
+      size: 50,
+      maxSize: 50,
     }
 
     const actionsCol: ColumnDef<CustomTypeEnumNodeNonNull> = {

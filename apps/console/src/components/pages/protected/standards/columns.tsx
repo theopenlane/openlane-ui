@@ -48,6 +48,8 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
           </div>
         )
       },
+      size: 50,
+      maxSize: 50,
       meta: {
         className: 'max-w-[2%] w-[2%]',
       },

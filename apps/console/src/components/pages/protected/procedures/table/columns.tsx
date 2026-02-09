@@ -62,9 +62,8 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
           </div>
         )
       },
-      size: 20,
-      maxSize: 20,
-      minSize: 20,
+      size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'id',

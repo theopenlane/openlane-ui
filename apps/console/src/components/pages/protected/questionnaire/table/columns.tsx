@@ -53,6 +53,8 @@ export const getQuestionnaireColumns = (params?: Params) => {
           </div>
         )
       },
+      size: 50,
+      maxSize: 50,
       meta: {
         className: 'max-w-[10%] w-[4%]',
       },

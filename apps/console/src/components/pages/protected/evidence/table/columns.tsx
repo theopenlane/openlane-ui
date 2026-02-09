@@ -58,6 +58,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         )
       },
       size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'id',

@@ -55,7 +55,8 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
           />
         ),
         cell: ({ row }) => <Checkbox checked={Boolean(selected[row.original.id])} onCheckedChange={(checked) => setSelected((prev) => ({ ...prev, [row.original.id]: Boolean(checked) }))} />,
-        size: 30,
+        size: 50,
+        maxSize: 50,
       },
       {
         accessorKey: 'name',

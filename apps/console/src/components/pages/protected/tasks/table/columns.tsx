@@ -60,6 +60,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
         )
       },
       size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'id',

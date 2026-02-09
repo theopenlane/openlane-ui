@@ -102,6 +102,8 @@ export const getControlsAndSubcontrolsColumns = ({
           </div>
         )
       },
+      size: 50,
+      maxSize: 50,
       enableResizing: false,
     },
 

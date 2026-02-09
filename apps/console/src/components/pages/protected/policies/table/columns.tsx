@@ -62,20 +62,19 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
           </div>
         )
       },
-      size: 20,
-      maxSize: 20,
-      minSize: 20,
+      size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      minSize: 100,
       size: 100,
     },
     {
@@ -97,8 +96,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
           )}
         </div>
       ),
-      maxSize: 80,
-      size: 80,
+      minSize: 150,
+      size: 150,
     },
     {
       accessorKey: 'summary',

@@ -54,9 +54,8 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
           </div>
         )
       },
-      size: 20,
-      minSize: 20,
-      maxSize: 20,
+      size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'id',

@@ -105,6 +105,8 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
           </div>
         )
       },
+      size: 50,
+      maxSize: 50,
       enableResizing: false,
       meta: {
         className: 'max-w-[5%] w-[5%]',
