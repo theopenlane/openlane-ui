@@ -60706,6 +60706,7 @@ export type GetEvidenceListQuery = {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
         }
+        comments: { __typename?: 'NoteConnection'; totalCount: number }
       } | null
     } | null> | null
   }
@@ -64390,6 +64391,12 @@ export type UpdateTrustCenterNdaRequestMutation = {
   __typename?: 'Mutation'
   updateTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestUpdatePayload'; trustCenterNDARequest: { __typename?: 'TrustCenterNDARequest'; id: string } }
 }
+
+export type DeleteBulkTrustCenterNdaRequestMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterNdaRequestMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 

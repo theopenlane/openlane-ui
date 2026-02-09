@@ -54,7 +54,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
           setIsFocused(false)
           props.onBlur?.(e)
         }}
-        className={cn(input({ hasIcon, hasPrefix, iconPosition }), className, isFocused && '!border-brand')}
+        className={cn(input({ hasIcon, hasPrefix, iconPosition }), className, isFocused && 'border-brand!')}
         style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }}
       />
       {icon && (
