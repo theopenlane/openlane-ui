@@ -20,6 +20,7 @@ import type { TPagination } from '@repo/ui/pagination-types'
 import { getEvidenceColumns, getEvidenceFilterFields, type EvidenceRow } from './evidence-table-config'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
+import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
 
 type Props = {
   control: TFormEvidenceData
@@ -126,7 +127,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
       : '',
 
     refCode: control.controlRefCodes?.[0] ?? '',
-    __typename: isSubcontrol ? 'Subcontrol' : 'Control',
+    __typename: isSubcontrol ? SubcontrolType : ControlType,
   }
 
   const columns = useMemo(() => getEvidenceColumns(evidenceSheetHandler, userMap, tokenMap), [evidenceSheetHandler, userMap, tokenMap])

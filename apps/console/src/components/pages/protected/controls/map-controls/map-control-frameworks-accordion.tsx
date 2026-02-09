@@ -6,11 +6,12 @@ import ContextMenu from '@/components/shared/context-menu/context-menu'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { useMapControls } from './shared/use-selectable-controls'
 import { MapControl } from '@/types'
+import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
 
 interface Props {
   controlData?: (
     | {
-        __typename?: 'Control'
+        __typename?: typeof ControlType
         id: string
         refCode: string
         category?: string | null
@@ -21,7 +22,7 @@ interface Props {
     | undefined
   )[]
   subcontrolData?: {
-    __typename?: 'Subcontrol'
+    __typename?: typeof SubcontrolType
     id: string
     refCode: string
     category?: string | null
