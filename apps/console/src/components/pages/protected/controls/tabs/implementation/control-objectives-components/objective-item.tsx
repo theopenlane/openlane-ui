@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Button } from '@repo/ui/button'
-import { Archive, MoreHorizontal, Pencil } from 'lucide-react'
+import { Archive, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
@@ -15,9 +15,10 @@ type Props = {
   node: ControlObjectiveFieldsFragment
   onEdit: (node: ControlObjectiveFieldsFragment) => void
   onUnarchive: (node: ControlObjectiveFieldsFragment) => void
+  onDelete: (id: string) => void
 }
 
-export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive }) => {
+export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDelete }) => {
   const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectEnum.CONTROL_OBJECTIVE, node.id)
   const isEditAllowed = canEdit(permission?.roles)
   const isMenuDisabled = permLoading || !isEditAllowed
@@ -62,6 +63,18 @@ export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive }) =>
                   Edit
                 </button>
               )}
+              <button
+                type="button"
+                className="flex items-center gap-2 text-destructive"
+                onClick={() => {
+                  onDelete(node.id)
+                  close()
+                }}
+                disabled={isMenuDisabled}
+              >
+                <Trash2 size={16} />
+                Delete
+              </button>
             </>
           )}
         />
