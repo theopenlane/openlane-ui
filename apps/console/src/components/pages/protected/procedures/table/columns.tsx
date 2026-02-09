@@ -68,14 +68,15 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
       accessorKey: 'name',
       header: 'Name',
       minSize: 100,
-      size: 100,
+      size: 200,
     },
     {
       accessorKey: 'status',
@@ -96,17 +97,14 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
           )}
         </div>
       ),
-      maxSize: 80,
-      size: 80,
+      minSize: 150,
     },
     {
       accessorKey: 'summary',
       minSize: 200,
-      size: 100,
+      size: 500,
       header: 'Summary',
-      meta: {
-        className: 'w-[40%] min-w-[300px]', // CSS class for responsive width
-      },
+
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4">{summary === '' ? 'N/A' : summary}</div>
@@ -184,7 +182,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
@@ -209,8 +207,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'createdBy',
       header: 'Created by',
-      size: 150,
-      maxSize: 180,
+      size: 200,
       cell: ({ row }) => {
         const userId = row.original.createdBy
         const token = tokens?.find((item) => item.id === userId)
@@ -231,15 +228,13 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      size: 120,
-      maxSize: 120,
+      size: 150,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedBy',
-      header: 'Updated by',
-      size: 150,
-      maxSize: 180,
+      header: 'Updated By',
+      size: 200,
       cell: ({ row }) => {
         const userId = row.original.updatedBy
         const token = tokens?.find((item) => item.id === userId)
@@ -261,7 +256,6 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      maxSize: 100,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]

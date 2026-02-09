@@ -5,7 +5,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { FilterField } from '@/types'
 import { SubprocessorsFilterIcons } from '@/components/shared/enum-mapper/subprocessors-enum'
 import { CountryFlag } from '@repo/ui/country-flag'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 import { DeleteTrustCenterSubprocessorCell } from './delete-trust-center-subcontrol-cell'
@@ -141,49 +141,49 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      minSize: 100,
-      cell: ({ row }) => (row.original.createdAt ? formatDate(row.original.createdAt) : '—'),
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
 
     {
-      header: 'Created By',
+      header: 'Created by',
       accessorKey: 'createdBy',
-      minSize: 100,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
 
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
 
     {
       accessorKey: 'updatedAt',
-      header: 'Updated At',
-      minSize: 100,
-      cell: ({ row }) => (row.original.updatedAt ? formatDate(row.original.updatedAt) : '—'),
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
 
     {
       header: 'Updated By',
       accessorKey: 'updatedBy',
-      minSize: 100,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.updatedBy ?? '']
 
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },

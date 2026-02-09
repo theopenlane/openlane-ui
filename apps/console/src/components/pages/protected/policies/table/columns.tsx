@@ -75,7 +75,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'name',
       header: 'Name',
-      size: 100,
+      size: 400,
     },
     {
       accessorKey: 'status',
@@ -102,9 +102,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'summary',
       header: 'Summary',
-      enableResizing: true,
       minSize: 200,
-      size: 300,
+      size: 500,
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4 text-justify">{summary === '' ? 'N/A' : summary}</div>
@@ -113,8 +112,6 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'approvalRequired',
       header: 'Approval Required',
-      size: 40,
-      minSize: 40,
       cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No'),
     },
     {
@@ -183,7 +180,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
@@ -207,8 +204,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'createdBy',
       header: 'Created by',
-      size: 150,
-      maxSize: 180,
+      size: 200,
       cell: ({ row }) => {
         const userId = row.original.createdBy
         const token = tokens?.find((item) => item.id === userId)
@@ -229,15 +225,13 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      size: 120,
-      maxSize: 120,
+      size: 150,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
-      size: 150,
-      maxSize: 180,
+      size: 200,
       cell: ({ row }) => {
         const userId = row.original.updatedBy
         const token = tokens?.find((item) => item.id === userId)
@@ -259,7 +253,6 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      maxSize: 100,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]

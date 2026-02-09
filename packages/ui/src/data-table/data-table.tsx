@@ -162,6 +162,17 @@ function redistributeColumnWidths(visibleColumns: VisibleColumnInfo[], currentSi
   return sizes
 }
 
+const AUTO_MIN_SIZE_CHAR_WIDTH = 8
+const AUTO_MIN_SIZE_PADDING = 24
+const AUTO_MIN_SIZE_SORT_ICON = 24
+
+function calcHeaderTextMinSize(header: unknown, hasSortField: boolean): number | undefined {
+  if (typeof header !== 'string') return undefined
+  const textWidth = (header.length + 2) * AUTO_MIN_SIZE_CHAR_WIDTH + AUTO_MIN_SIZE_PADDING
+  const sortWidth = hasSortField ? AUTO_MIN_SIZE_SORT_ICON : 0
+  return Math.max(60, textWidth + sortWidth)
+}
+
 export function DataTable<TData, TValue>({
   columns,
   loading = false,
@@ -285,7 +296,18 @@ export function DataTable<TData, TValue>({
     }
   }, [columnVisibility, pageInfo])
 
-  const fixedMaxColumns = useMemo(() => new Set(columns.filter((col) => (col as any).maxSize != null).map((col) => (col as any).id ?? (col as any).accessorKey ?? '')), [columns])
+  const enhancedColumns = useMemo(() => {
+    return columns.map((col) => {
+      if (col.minSize != null) return col
+      const colId = (col as any).id ?? (col as any).accessorKey ?? ''
+      const hasSortField = sortFields?.some((sf) => normalizeKey(sf.key) === normalizeKey(colId)) ?? false
+      const autoMinSize = calcHeaderTextMinSize(col.header, hasSortField)
+      if (autoMinSize == null) return col
+      return { ...col, minSize: autoMinSize }
+    })
+  }, [columns, sortFields])
+
+  const fixedMaxColumns = useMemo(() => new Set(enhancedColumns.filter((col) => (col as any).maxSize != null).map((col) => (col as any).id ?? (col as any).accessorKey ?? '')), [enhancedColumns])
 
   const tableRef = useRef<TanstackTable<TData> | null>(null)
   const containerWidthRef = useRef(0)
@@ -319,7 +341,7 @@ export function DataTable<TData, TValue>({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: enhancedColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),

@@ -3,7 +3,7 @@ import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Gro
 import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
@@ -294,48 +294,48 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       },
     },
     {
-      header: 'Created By',
+      header: 'Created by',
       accessorKey: 'createdBy',
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
       header: 'Created At',
       accessorKey: 'createdAt',
-      size: 130,
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       header: 'Updated By',
       accessorKey: 'updatedBy',
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
-      header: 'Updated At',
+      header: 'Last Updated',
       accessorKey: 'updatedAt',
-      size: 130,
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
     {
       header: 'Desired Outcome',

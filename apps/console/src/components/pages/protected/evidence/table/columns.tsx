@@ -4,7 +4,7 @@ import React from 'react'
 import { EvidenceIconMapper, EvidenceStatusMapper } from '@/components/shared/enum-mapper/evidence-enum'
 import { Check, Minus } from 'lucide-react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
-import { formatDate } from '@/utils/date.ts'
+import { formatDate, formatTimeSince } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
@@ -63,7 +63,9 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
+      maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
@@ -81,7 +83,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         )
       },
       minSize: 100,
-      size: 180,
+      size: 200,
     },
     {
       accessorKey: 'description',
@@ -90,7 +92,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         return <div className="font-bold">{cell.getValue() as string}</div>
       },
       minSize: 100,
-      size: 180,
+      size: 500,
     },
     {
       accessorKey: 'satisfies',
@@ -151,13 +153,13 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         return <div className="font-bold">{cell.getValue() ? convertToReadOnly(cell.getValue() as string) : '-'}</div>
       },
       minSize: 100,
-      size: 180,
+      size: 500,
     },
     {
       accessorKey: 'source',
       header: 'Source',
       cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() as string}</div>
+        return <div className="font-bold">{(cell.getValue() as string) || '-'}</div>
       },
       minSize: 100,
       size: 180,
@@ -185,52 +187,52 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
+      header: 'Created by',
+      size: 200,
       cell: ({ row }) => {
         const user = userMap?.[row.original.createdBy ?? '']
         return user ? (
-          <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
-      size: 160,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedBy',
-      header: 'Last Updated By',
+      header: 'Updated By',
+      size: 200,
       cell: ({ row }) => {
         const user = userMap?.[row.original.updatedBy ?? '']
         return user ? (
-          <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
-      size: 160,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last updated',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]
 

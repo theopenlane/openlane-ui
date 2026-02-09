@@ -4,7 +4,7 @@ import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import { Group, User } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type Params = {
@@ -92,47 +92,47 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
+      header: 'Created by',
+      size: 200,
       cell: ({ row }) => {
         const user = userMap?.[row.original.createdBy ?? '']
         return user ? (
-          <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
-      size: 160,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
+      size: 200,
       cell: ({ row }) => {
         const user = userMap?.[row.original.updatedBy ?? '']
         return user ? (
-          <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
-      size: 160,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Updated At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]
 

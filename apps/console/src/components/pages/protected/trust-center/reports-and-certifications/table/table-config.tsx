@@ -1,6 +1,6 @@
 'use client'
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 type GqlFile = {
@@ -124,7 +124,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNda
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
@@ -137,13 +137,14 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNda
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ row }) => <span>{formatDate(row.original.createdAt)}</span>,
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Updated At',
-      cell: ({ row }) => <span className="whitespace-nowrap">{formatDate(row.original.updatedAt)}</span>,
-      size: 140,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
     {
       id: 'actions',

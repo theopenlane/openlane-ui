@@ -27,49 +27,49 @@ export const getTemplateColumns = (params?: Params) => {
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
-      size: 160,
+      header: 'Created by',
+      size: 200,
       cell: ({ row }) => {
         const userId = row.original.createdBy
         const user = userMap?.[userId ?? '']
         return user ? (
           <div className="flex items-center gap-2">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            {user.displayName}
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 120,
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const userId = row.original.updatedBy
         const user = userMap?.[userId ?? '']
         return user ? (
           <div className="flex items-center gap-2">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            {user.displayName}
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last updated',
-      cell: ({ cell }) => formatTimeSince(cell.getValue() as string),
-      size: 120,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]
 
