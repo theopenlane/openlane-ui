@@ -549,7 +549,7 @@ export function DataTable<TData, TValue>({
                       return (
                         <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth, minWidth: columnWidth }} aria-sort={ariaSort}>
                           {header.isPlaceholder ? null : (
-                            <div className="flex items-center gap-1" style={{ width: columnWidth }}>
+                            <div className="flex items-center gap-1">
                               {/* Sorting Area */}
                               <div
                                 onClick={() => sortField?.key && handleSortChange(sortField.key)}
