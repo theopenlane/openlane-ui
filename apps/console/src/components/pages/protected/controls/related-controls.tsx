@@ -11,9 +11,10 @@ import Link from 'next/link'
 import StandardChip from '../standards/shared/standard-chip'
 import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
+import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
 
 export type RelatedNode = {
-  type: 'Control' | 'Subcontrol'
+  type: typeof ControlType | typeof SubcontrolType
   id: string
   refCode: string
   referenceFramework?: string | null
@@ -94,7 +95,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ControlType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -109,7 +110,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: SubcontrolType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -128,7 +129,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ControlType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -143,7 +144,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: SubcontrolType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -175,18 +176,18 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
         return true
       })
       .map(([framework, nodes]) => {
-        const filteredNodes = includeSubcontrols ? nodes : nodes.filter((node) => node.type === 'Control')
+        const filteredNodes = includeSubcontrols ? nodes : nodes.filter((node) => node.type === ControlType)
         return [framework, filteredNodes]
       })
       .filter(([, nodes]) => nodes.length > 0),
   ) as GroupedControls
 
   const allControlRefCodes = Object.values(filteredGrouped)
-    .flatMap((nodes) => nodes.filter((n) => n.type === 'Control').map((n) => n.refCode))
+    .flatMap((nodes) => nodes.filter((n) => n.type === ControlType).map((n) => n.refCode))
     .filter(Boolean)
 
   const allSubcontrolRefCodes = Object.values(filteredGrouped)
-    .flatMap((nodes) => nodes.filter((n) => n.type === 'Subcontrol').map((n) => n.refCode))
+    .flatMap((nodes) => nodes.filter((n) => n.type === SubcontrolType).map((n) => n.refCode))
     .filter(Boolean)
 
   const { data: refcodeData } = useGetControlsByRefCode({ refCodeIn: allControlRefCodes })
@@ -255,7 +256,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
             <StandardChip referenceFramework={framework ?? ''} />{' '}
             <div className="flex gap-2.5 flex-wrap">
               {nodes.map((node) => {
-                const href = node.type === 'Subcontrol' ? generateSubcontrolHref(node) : generateControlHref(node)
+                const href = node.type === SubcontrolType ? generateSubcontrolHref(node) : generateControlHref(node)
                 return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
               })}
             </div>

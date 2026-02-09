@@ -81,6 +81,7 @@ const InheritPermissionDialog = () => {
       name: edge?.node?.name,
     })) || []
 
+  // TODO: this should not be hardcoded
   const permissionsData = [
     { object: 'CC1.2', type: 'Control', permission: 'Editor' },
     { object: 'CC2.2', type: 'Risk', permission: 'Blocked' },

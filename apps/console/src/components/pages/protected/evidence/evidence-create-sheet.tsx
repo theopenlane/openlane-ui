@@ -39,6 +39,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tags'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
+import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -71,7 +72,9 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
   const router = useRouter()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<
+    { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ControlType | typeof SubcontrolType }[]
+  >([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -100,7 +103,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : (data.programIDs ?? []),
+        programIDs: programId ? [programId] : data.programIDs ?? [],
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -160,7 +163,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         const newEvidenceSubcontrols: CustomEvidenceControl[] = []
 
         controlParam.forEach((control) => {
-          if (control.__typename === 'Control') {
+          if (control.__typename === ControlType) {
             newEvidenceControls.push(control)
           } else {
             newEvidenceSubcontrols.push(control)

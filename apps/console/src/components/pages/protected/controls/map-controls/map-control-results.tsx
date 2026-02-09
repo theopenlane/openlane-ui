@@ -3,11 +3,12 @@ import ControlChip from './shared/control-chip'
 import ContextMenu from '@/components/shared/context-menu/context-menu'
 import { MapControl } from '@/types'
 import { useMapControls } from './shared/use-selectable-controls'
+import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
 
 interface Props {
   controlData?: (
     | {
-        __typename?: 'Control'
+        __typename?: typeof ControlType
         id: string
         refCode: string
         category?: string | null
@@ -19,7 +20,7 @@ interface Props {
   )[]
   droppedControls: MapControl[]
   subcontrolData?: {
-    __typename?: 'Subcontrol'
+    __typename?: typeof SubcontrolType
     id: string
     refCode: string
     category?: string | null

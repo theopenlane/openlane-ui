@@ -1,4 +1,5 @@
 import { GetSuggestedControlsOrSubcontrolsQuery, MappedControlWhereInput } from '@repo/codegen/src/schema'
+import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
 
 export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 type CustomEvidenceGroupedItems = {
@@ -14,7 +15,7 @@ export type FlattenedControl = {
 }
 
 type RelatedNode = {
-  type: 'Control' | 'Subcontrol'
+  type: typeof ControlType | typeof SubcontrolType
   id: string
   refCode: string
   referenceFramework: string | null
@@ -109,7 +110,7 @@ export const flattenAndFilterControls = (
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ControlType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -123,7 +124,7 @@ export const flattenAndFilterControls = (
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: SubcontrolType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -140,7 +141,7 @@ export const flattenAndFilterControls = (
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ControlType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -154,7 +155,7 @@ export const flattenAndFilterControls = (
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: SubcontrolType,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
