@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
+import { useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -18,6 +18,20 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
+  const { mutateAsync: deleteObjective } = useDeleteControlObjective()
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteObjective({ deleteControlObjectiveId: id })
+      successNotification({ title: 'Control Objective deleted' })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
 
   const handleUnarchive = async (node: ControlObjectiveFieldsFragment) => {
     try {
@@ -69,6 +83,7 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
               setShowCreateSheet(true)
             }}
             onUnarchive={handleUnarchive}
+            onDelete={handleDelete}
           />
         ))}
       </div>
