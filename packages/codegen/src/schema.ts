@@ -64392,6 +64392,12 @@ export type UpdateTrustCenterNdaRequestMutation = {
   updateTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestUpdatePayload'; trustCenterNDARequest: { __typename?: 'TrustCenterNDARequest'; id: string } }
 }
 
+export type DeleteBulkTrustCenterNdaRequestMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterNdaRequestMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestBulkDeletePayload'; deletedIDs: Array<string> } }
+
 export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTrustCenterCompliancesQuery = {

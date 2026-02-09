@@ -6,7 +6,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { TrustCenterNdaRequestTrustCenterNdaRequestStatus, TrustCenterNdaRequestWhereInput } from '@repo/codegen/src/schema'
-import { DEFAULT_NDA_REQUESTS_ORDER, useGetTrustCenterNdaRequests, useUpdateTrustCenterNdaRequest } from '@/lib/graphql-hooks/trust-center-NDA'
+import { DEFAULT_NDA_REQUESTS_ORDER, useBulkDeleteTrustCenterNdaRequest, useGetTrustCenterNdaRequests, useUpdateTrustCenterNdaRequest } from '@/lib/graphql-hooks/trust-center-NDA'
 import NdaRequestsTableToolbar from './nda-requests-table-toolbar'
 import { getNdaRequestColumns, NdaRequestRow } from './table-config'
 import { useNotification } from '@/hooks/useNotification'
@@ -25,10 +25,14 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
   const [actionLoadingType, setActionLoadingType] = useState<'approve' | 'deny' | null>(null)
   const [approveAllLoading, setApproveAllLoading] = useState(false)
   const [approveAllDialogOpen, setApproveAllDialogOpen] = useState(false)
+  const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false)
+  const [revokeLoading, setRevokeLoading] = useState(false)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_NDA_REQUESTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterNdaRequestWhereInput | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateNdaRequest } = useUpdateTrustCenterNdaRequest()
+  const { mutateAsync: bulkDeleteNdaRequests } = useBulkDeleteTrustCenterNdaRequest()
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const status = useMemo<TrustCenterNdaRequestTrustCenterNdaRequestStatus>(() => {
@@ -43,6 +47,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
       page: 1,
       query: { first: prev.pageSize },
     }))
+    setSelectedRows([])
   }, [status])
 
   const whereFilter = useMemo<TrustCenterNdaRequestWhereInput>(
@@ -85,6 +90,9 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         showActions: requireApproval && activeTab === 'requested',
         showApprovedOn: requireApproval && activeTab === 'approved',
         showSignedOn: activeTab === 'signed',
+        showSelect: activeTab === 'signed',
+        selectedRows,
+        setSelectedRows,
         onApprove: async (id) => {
           setActionLoadingId(id)
           setActionLoadingType('approve')
@@ -132,7 +140,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         actionLoadingId,
         actionLoadingType,
       }),
-    [activeTab, actionLoadingId, actionLoadingType, errorNotification, requireApproval, successNotification, updateNdaRequest],
+    [activeTab, actionLoadingId, actionLoadingType, errorNotification, requireApproval, selectedRows, successNotification, updateNdaRequest],
   )
 
   const handleSearchTermChange = (value: string) => {
@@ -180,6 +188,27 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
     }
   }, [errorNotification, requests, successNotification, updateNdaRequest])
 
+  const handleRevokeAccess = useCallback(async () => {
+    if (selectedRows.length === 0) return
+    setRevokeLoading(true)
+    try {
+      await bulkDeleteNdaRequests({ ids: selectedRows.map((r) => r.id) })
+      successNotification({
+        title: 'Access Revoked',
+        description: `Successfully revoked access for ${selectedRows.length} NDA request${selectedRows.length === 1 ? '' : 's'}.`,
+      })
+      setSelectedRows([])
+    } catch (error) {
+      errorNotification({
+        title: 'Revoke Failed',
+        description: parseErrorMessage(error),
+      })
+    } finally {
+      setRevokeLoading(false)
+      setRevokeDialogOpen(false)
+    }
+  }, [bulkDeleteNdaRequests, errorNotification, selectedRows, successNotification])
+
   return (
     <div>
       <ConfirmationDialog
@@ -194,6 +223,18 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         }
         confirmationText="Approve all"
       />
+      <ConfirmationDialog
+        open={revokeDialogOpen}
+        onOpenChange={setRevokeDialogOpen}
+        onConfirm={handleRevokeAccess}
+        title="Revoke document access?"
+        description={
+          <>
+            This will revoke private document access for <b>{selectedRows.length}</b> selected NDA request{selectedRows.length === 1 ? '' : 's'}. This action cannot be undone.
+          </>
+        }
+        confirmationText="Revoke access"
+      />
       <NdaRequestsTableToolbar
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -204,6 +245,9 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         approveAllLoading={approveAllLoading}
         approveAllDisabled={requests.length === 0}
         requireApproval={requireApproval}
+        selectedCount={selectedRows.length}
+        onRevokeAccessRequest={() => setRevokeDialogOpen(true)}
+        revokeLoading={revokeLoading}
       />
       <DataTable
         columns={columns}

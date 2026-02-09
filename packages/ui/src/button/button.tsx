@@ -29,7 +29,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             <TooltipTrigger asChild>
               <Comp className={cn('button-icon', base(), className)} ref={ref} {...rest} aria-label={ariaLabel}>
                 <span className={cn(childWrapper(), 'flex items-center gap-2')}>
-                  {loading && <LoaderCircle className={cn(loadingIcon(), '!relative')} size={20} />}
+                  {loading && <LoaderCircle className={cn(loadingIcon(), 'relative!')} size={20} />}
                   {children}
                 </span>
 
