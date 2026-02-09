@@ -276,6 +276,9 @@ export const GET_EVIDENCE_LIST = gql`
               }
             }
           }
+          comments {
+            totalCount
+          }
         }
       }
     }

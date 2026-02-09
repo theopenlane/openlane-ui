@@ -1,13 +1,15 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { Evidence, User } from '@repo/codegen/src/schema.ts'
+import Link from 'next/link'
 import React from 'react'
 import { EvidenceIconMapper, EvidenceStatusMapper } from '@/components/shared/enum-mapper/evidence-enum'
-import { Check, Minus } from 'lucide-react'
+import { Check, LinkIcon, Minus } from 'lucide-react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
@@ -186,6 +188,20 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         }
         return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
+    },
+    {
+      header: 'Comments',
+      accessorKey: 'comments',
+      cell: ({ row }) => {
+        return (
+          <Link onClick={(e) => e.stopPropagation()} href={`/evidence?id=${row.original.id}&showComments=true`} className="flex items-center gap-2">
+            <Badge>
+              {row.original.comments?.totalCount ?? 0} Comments <LinkIcon size={12} className="ml-1 inline-block" />
+            </Badge>
+          </Link>
+        )
+      },
+      minSize: 120,
     },
     {
       accessorKey: 'createdBy',
