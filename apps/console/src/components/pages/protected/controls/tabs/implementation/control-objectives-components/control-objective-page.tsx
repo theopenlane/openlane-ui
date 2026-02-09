@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState, useContext } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
+import { useDeleteControlObjective, useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
 import { PageHeading } from '@repo/ui/page-heading'
@@ -51,6 +51,7 @@ const ControlObjectivePage = () => {
   const edges = data?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
 
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
+  const { mutateAsync: deleteObjective } = useDeleteControlObjective()
 
   const toggleAll = () => {
     if (!edges) return
@@ -101,6 +102,19 @@ const ControlObjectivePage = () => {
         title: 'Objective unarchived',
         description: `${node.name} is now active.`,
       })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteObjective({ deleteControlObjectiveId: id })
+      successNotification({ title: 'Control Objective deleted' })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -223,7 +237,8 @@ const ControlObjectivePage = () => {
                 setEditData(n)
                 setShowCreateSheet(true)
               }}
-              onUnarchive={handleUnarchinve} // (maybe rename to handleUnarchive)
+              onUnarchive={handleUnarchinve}
+              onDelete={handleDelete}
             />
           ))}
         </Accordion>
