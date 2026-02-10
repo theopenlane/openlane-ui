@@ -17,6 +17,7 @@ import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
+import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-multiselect-field'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -234,10 +235,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
                     : range?.from
-                    ? `From: ${format(range.from, 'PPP')}`
-                    : range?.to
-                    ? `To: ${format(range.to, 'PPP')}`
-                    : 'Pick date range'}
+                      ? `From: ${format(range.from, 'PPP')}`
+                      : range?.to
+                        ? `To: ${format(range.to, 'PPP')}`
+                        : 'Pick date range'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-4 space-y-4 w-auto">
@@ -288,7 +289,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             </ul>
           )
         }
-        case 'dropdownSearch':
+        case 'dropdownUserSearch':
           return <DropdownSearchField field={field} value={values[field.key] as string | undefined} onChange={(val) => handleChange(field.key, val)} />
 
         case 'radio':
@@ -302,6 +303,16 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
               ))}
             </div>
           )
+
+        case 'dropdownSearchMultiselect': {
+          const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
+          return <DropdownSearchMultiselect field={field} value={selected} onChange={(val) => handleChange(field.key, val)} />
+        }
+
+        case 'dropdownSearchSingleSelect': {
+          return <DropdownSearchField field={field} value={values[field.key] as string | undefined} onChange={(val) => handleChange(field.key, val)} />
+        }
+
         default:
           return null
       }
