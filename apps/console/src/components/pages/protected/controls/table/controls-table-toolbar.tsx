@@ -31,6 +31,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { useOrganization } from '@/hooks/useOrganization'
 import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -100,14 +101,15 @@ const ControlsTableToolbar: React.FC<TProps> = ({
       field: 'kind',
     },
   })
-
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
   useEffect(() => {
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess || !isTypesSuccess) {
       return
     }
-    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions)
+    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions, tagOptions)
     setFilterFields(fields)
-  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess])
+  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess, tagOptions])
 
   const handleBulkDelete = async () => {
     if (!selectedControls) {
