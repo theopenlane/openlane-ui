@@ -15,12 +15,12 @@ import { TASK_SORT_FIELDS } from '../../../tasks/table/table-config.ts'
 import { useParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums.ts'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip.tsx'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type FormattedTask = {
   id: string
@@ -77,7 +77,7 @@ const ProgramTasksTable = () => {
           return (
             <span className="flex items-center gap-2 capitalize">
               {icon}
-              {TaskStatusMapper[status]}
+              {getEnumLabel(status)}
             </span>
           )
         },

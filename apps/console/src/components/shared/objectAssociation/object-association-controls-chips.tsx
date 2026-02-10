@@ -16,10 +16,11 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_EXISTING_CONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/control'
 import { GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/subcontrol'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TObjectAssociationControlsChipsProps = {
   form?: UseFormReturn<CreateEvidenceFormData>
-  suggestedControlsMap?: { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]
+  suggestedControlsMap?: { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
   evidenceControls: CustomEvidenceControl[] | null
   setEvidenceControls?: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   evidenceSubcontrols: CustomEvidenceControl[] | null
@@ -181,7 +182,7 @@ const ObjectAssociationControlsChips = ({
       queryClient.invalidateQueries({ queryKey: ['controls'] })
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
 
-      successNotification({ title: `${isSubcontrol ? 'Subcontrol' : 'Control'} added to organization successfully!` })
+      successNotification({ title: `${isSubcontrol ? ObjectTypes.SUBCONTROL : ObjectTypes.CONTROL} added to organization successfully!` })
       setIsDialogOpen(false)
       setPendingAdd(null)
     } catch (error) {
@@ -204,7 +205,7 @@ const ObjectAssociationControlsChips = ({
               id,
               refCode: refCode,
               referenceFramework: referenceFramework,
-              __typename: 'Control',
+              __typename: ObjectTypes.CONTROL,
             }}
           />
         ))}
@@ -217,7 +218,7 @@ const ObjectAssociationControlsChips = ({
               id,
               refCode: refCode,
               referenceFramework: referenceFramework,
-              __typename: 'Subcontrol',
+              __typename: ObjectTypes.SUBCONTROL,
             }}
           />
         ))}
@@ -236,7 +237,7 @@ const ObjectAssociationControlsChips = ({
                 id,
                 refCode: refCode,
                 referenceFramework: referenceFramework,
-                __typename: 'Control',
+                __typename: ObjectTypes.CONTROL,
               }}
               removable
               onRemove={() => handleRemove(id, refCode)}
@@ -252,7 +253,7 @@ const ObjectAssociationControlsChips = ({
                 id,
                 refCode: refCode,
                 referenceFramework: referenceFramework,
-                __typename: 'Subcontrol',
+                __typename: ObjectTypes.SUBCONTROL,
               }}
               removable
               onRemove={() => handleRemove(id, refCode, true)}
@@ -306,7 +307,8 @@ const ObjectAssociationControlsChips = ({
         title={`Clone ${selectedControls[0]?.refCode}?`}
         description={
           <>
-            This {selectedControls[0]?.typeName === ItemType.Control ? 'Control' : 'Subcontrol'} (<b>{selectedControls[0]?.refCode}</b>) is not in your organization, would you like to add it now?
+            This {selectedControls[0]?.typeName === ItemType.Control ? ObjectTypes.CONTROL : ObjectTypes.SUBCONTROL} (<b>{selectedControls[0]?.refCode}</b>) is not in your organization, would you like
+            to add it now?
           </>
         }
         confirmationText="Add"

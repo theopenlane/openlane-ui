@@ -6,10 +6,10 @@ import { Card } from '@repo/ui/cardpanel'
 import StandardChip from '../../standards/shared/standard-chip'
 import { RelatedControlChip } from '../shared/related-control-chip'
 import { Control, Subcontrol } from '@repo/codegen/src/schema'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type RelatedNode = {
-  type: typeof ControlType | typeof SubcontrolType
+  type: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL
   id: string
   refCode: string
   referenceFramework?: string | null
@@ -26,7 +26,7 @@ const RelatedControls = ({ mappedControls, onSave }: RelatedControlsProps) => {
   const grouped = useMemo(() => {
     const groups: GroupedControls = {}
 
-    const processNode = (node: Control | Subcontrol, type: typeof ControlType | typeof SubcontrolType) => {
+    const processNode = (node: Control | Subcontrol, type: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL) => {
       const framework = node.referenceFramework || 'CUSTOM'
       if (!groups[framework]) groups[framework] = []
 
@@ -38,8 +38,8 @@ const RelatedControls = ({ mappedControls, onSave }: RelatedControlsProps) => {
       })
     }
 
-    mappedControls.controls?.forEach((c) => processNode(c, ControlType))
-    mappedControls.subcontrols?.forEach((s) => processNode(s, SubcontrolType))
+    mappedControls.controls?.forEach((c) => processNode(c, ObjectTypes.CONTROL))
+    mappedControls.subcontrols?.forEach((s) => processNode(s, ObjectTypes.SUBCONTROL))
 
     return groups
   }, [mappedControls])

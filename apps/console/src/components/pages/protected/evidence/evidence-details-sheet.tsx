@@ -57,7 +57,6 @@ import { canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import NextLink from 'next/link'
@@ -82,7 +81,7 @@ import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -117,7 +116,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [suggestedControlsMap, setSuggestedControlsMap] = useState<
-    { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ControlType | typeof SubcontrolType }[]
+    { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
   >([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
@@ -167,7 +166,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
 
-  const { data: permission } = useAccountRoles(ObjectEnum.EVIDENCE, data?.evidence.id)
+  const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles)
 

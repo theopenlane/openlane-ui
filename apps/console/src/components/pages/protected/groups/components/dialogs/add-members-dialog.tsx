@@ -11,10 +11,10 @@ import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { User } from '@repo/codegen/src/schema'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const AddMembersDialog = () => {
   const { selectedGroup } = useGroupsStore()
@@ -26,7 +26,7 @@ const AddMembersDialog = () => {
   const { data } = useGetGroupDetails(selectedGroup)
   const { members: membersGroupData, isManaged, id } = data?.group || {}
   const [hasInitialized, setHasInitialized] = useState(false)
-  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
 
   const members = useMemo(
     () =>

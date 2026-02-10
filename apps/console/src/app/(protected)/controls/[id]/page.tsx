@@ -14,7 +14,6 @@ import PropertiesCard from '@/components/pages/protected/controls/propereties-ca
 import { ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
 import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
@@ -39,8 +38,8 @@ import QuickActions from '@/components/pages/protected/controls/quick-actions/qu
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { formatEnumLabel } from '@/utils/enumToLabel.ts'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 interface FormValues {
   refCode: string
@@ -84,7 +83,7 @@ const ControlDetailsPage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
-  const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
+  const { data: permission } = useAccountRoles(data?.__typename, id)
   const { data: orgPermission } = useOrganizationRoles()
 
   const queryClient = useQueryClient()
@@ -333,7 +332,7 @@ const ControlDetailsPage: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-2">Source</p>
-          <Badge variant="document">{formatEnumLabel(control.source ?? 'custom')}</Badge>
+          <Badge variant="document">{getEnumLabel(control.source ?? 'custom')}</Badge>
         </div>
       </div>
 

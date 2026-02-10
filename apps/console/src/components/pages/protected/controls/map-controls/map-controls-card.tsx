@@ -12,7 +12,7 @@ import { useAllSubcontrolsGrouped } from '@/lib/graphql-hooks/subcontrol'
 import { useFormContext } from 'react-hook-form'
 import { MapControlsFormData } from './use-form-schema'
 import { MapControl } from '@/types'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface Props {
   title: 'From' | 'To'
@@ -61,12 +61,12 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
 
       setDroppedControls((prev) => [...prev, ...newControls])
       const newControlIds = newControls
-        .filter((item) => item.__typename === ControlType)
+        .filter((item) => item.__typename === ObjectTypes.CONTROL)
         .map((item) => item.id)
         .filter((id) => !controlIds.includes(id))
 
       const newSubcontrolIds = newControls
-        .filter((item) => item.__typename === SubcontrolType)
+        .filter((item) => item.__typename === ObjectTypes.SUBCONTROL)
         .map((item) => item.id)
         .filter((id) => !subcontrolIds.includes(id))
 
@@ -88,13 +88,13 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
     const subcontrolField = isFrom ? 'fromSubcontrolIDs' : 'toSubcontrolIDs'
     setDroppedControls((prev) => prev.filter((c) => c.id !== control.id))
 
-    if (control.__typename === ControlType) {
+    if (control.__typename === ObjectTypes.CONTROL) {
       const ids = getValues(controlField) || []
       setValue(
         controlField,
         ids.filter((i: string) => i !== control.id),
       )
-    } else if (control.__typename === SubcontrolType) {
+    } else if (control.__typename === ObjectTypes.SUBCONTROL) {
       const ids = getValues(subcontrolField) || []
       setValue(
         subcontrolField,

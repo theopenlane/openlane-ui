@@ -13,10 +13,10 @@ import { useDeleteGroupMembership, useGetGroupDetails, useUpdateGroupMembership 
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { canEdit } from '@/lib/authz/utils'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface Member {
   id: string
@@ -29,7 +29,7 @@ interface Member {
 const GroupsMembersTable = () => {
   const { data: session } = useSession()
   const { selectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup!)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup!)
   const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])

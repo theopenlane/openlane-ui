@@ -15,6 +15,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
+import { ObjectNames } from '@repo/codegen/src/type-names'
 
 type SetObjectAssociationDialogProps = {
   trigger?: React.ReactNode
@@ -146,7 +147,7 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
         queryClient.invalidateQueries({ queryKey: ['procedures'] })
       }
 
-      successNotification({ title: `${isControl ? 'Control' : 'Subcontrol'} updated` })
+      successNotification({ title: `${isControl ? ObjectNames.CONTROL : ObjectNames.SUBCONTROL} updated` })
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

@@ -21,12 +21,12 @@ import { useNotification } from '@/hooks/useNotification'
 import { ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import clsx from 'clsx'
 import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const formSchema = z
   .object({
@@ -59,7 +59,7 @@ type FormValues = z.infer<typeof formSchema>
 const TimelineReadiness = () => {
   const { id } = useParams<{ id: string }>()
 
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const isEditAllowed = canEdit(permission?.roles)
 
   const queryClient = useQueryClient()

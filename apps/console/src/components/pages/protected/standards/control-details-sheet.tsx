@@ -15,7 +15,7 @@ import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codeg
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -85,7 +85,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: ControlType,
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -100,7 +100,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: SubcontrolType,
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -119,7 +119,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: ControlType,
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -134,7 +134,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: SubcontrolType,
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,

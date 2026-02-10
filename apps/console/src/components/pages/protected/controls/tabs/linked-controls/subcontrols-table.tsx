@@ -6,7 +6,6 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { canCreate, canEdit } from '@/lib/authz/utils'
 import { CreateButton } from '@/components/shared/create-button/create-button'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { DataTable } from '@repo/ui/data-table'
 import type { TPagination } from '@repo/ui/pagination-types'
@@ -19,12 +18,13 @@ import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow }
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { SubcontrolControlSource, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { convertToReadOnly } = usePlateEditor()
   const { data: orgPermission } = useOrganizationRoles()
-  const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [filters, setFilters] = useState<WhereCondition>({})

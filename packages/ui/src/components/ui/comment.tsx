@@ -26,6 +26,7 @@ import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateCo
 import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
 import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
 import { useQueryClient } from '@tanstack/react-query'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface TComment {
   id: string
@@ -558,7 +559,7 @@ export function CommentCreateForm({
       Risk: 'updateRiskId',
     }
 
-    const input = entityType === 'Control' || entityType === 'Subcontrol' ? { descriptionJSON: editor.children } : { detailsJSON: editor.children }
+    const input = entityType === ObjectTypes.CONTROL || entityType === ObjectTypes.SUBCONTROL ? { descriptionJSON: editor.children } : { detailsJSON: editor.children }
 
     await entityDescriptionUpdate({
       [entityIdKeyMap[entityType]]: entityId,
@@ -573,23 +574,23 @@ export function CommentCreateForm({
     let entityDiscussionKey
 
     switch (entityType) {
-      case 'Control':
+      case ObjectTypes.CONTROL:
         entityUpdateKey = CONTROL_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'controls'
         break
-      case 'Risk':
+      case RiskType:
         entityUpdateKey = RISK_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'risks'
         break
-      case 'InternalPolicy':
+      case ObjectTypes.INTERNAL_POLICY:
         entityUpdateKey = POLICY_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'internalPolicies'
         break
-      case 'Subcontrol':
+      case ObjectTypes.SUBCONTROL:
         entityUpdateKey = SUBCONTROL_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'subcontrols'
         break
-      case 'Procedure':
+      case ObjectTypes.PROCEDURE:
         entityUpdateKey = PROCEDURE_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'procedures'
         break

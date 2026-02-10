@@ -4,7 +4,7 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate, formatTimeSince } from '@/utils/date'
-import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
+import { ControlIconMapper16, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
@@ -18,6 +18,7 @@ import { LinkedProceduresCell } from './linked-procedures-cell'
 import AssociatedObjectsCell from './associated-objects-cell'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -26,81 +27,81 @@ export const getControlsFilterFields = (
   typeOptions: { value: string; label: string }[],
   tagOptions: { value: string; label: string }[],
 ): FilterField[] => [
-  { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
-  { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
-  { key: 'subcategoryContainsFold', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    options: ControlStatusFilterOptions,
-    icon: FilterIcons.Status,
-  },
-  {
-    key: 'standardIDIn',
-    label: 'Standard',
-    type: 'multiselect',
-    options: [
-      ...standardOptions,
-      {
-        value: 'CUSTOM',
-        label: 'CUSTOM',
-      },
-    ],
-    icon: FileQuestion,
-  },
-  {
-    key: 'controlOwnerIDIn',
-    label: 'Owner',
-    type: 'multiselect',
-    options: groups.map((group) => ({
-      value: group.value,
-      label: group.label,
-    })),
-    icon: FilterIcons.Owners,
-  },
-  {
-    key: 'hasProgramsWith',
-    label: 'Program Name',
-    type: 'multiselect',
-    options: programOptions,
-    icon: FilterIcons.ProgramName,
-  },
-  {
-    key: 'controlKindNameIn',
-    label: 'Control Type',
-    type: 'multiselect',
-    options: typeOptions,
-    icon: FilterIcons.Type,
-  },
-  {
-    key: 'hasInternalPolicies',
-    label: 'Linked Policies',
-    type: 'radio',
-    icon: FilterIcons.LinkedPolicies,
-    radioOptions: [
-      { value: true, label: 'Has linked policies' },
-      { value: false, label: 'No linked policies' },
-    ],
-  },
-  {
-    key: 'hasComments',
-    label: 'Has Comments',
-    type: 'radio',
-    icon: FilterIcons.Comments,
-    radioOptions: [
-      { value: true, label: 'Has comments' },
-      { value: false, label: 'No comments' },
-    ],
-  },
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Status,
-    options: tagOptions,
-  },
-]
+    { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
+    { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
+    { key: 'subcategoryContainsFold', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: ControlStatusFilterOptions,
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'standardIDIn',
+      label: 'Standard',
+      type: 'multiselect',
+      options: [
+        ...standardOptions,
+        {
+          value: 'CUSTOM',
+          label: 'CUSTOM',
+        },
+      ],
+      icon: FileQuestion,
+    },
+    {
+      key: 'controlOwnerIDIn',
+      label: 'Owner',
+      type: 'multiselect',
+      options: groups.map((group) => ({
+        value: group.value,
+        label: group.label,
+      })),
+      icon: FilterIcons.Owners,
+    },
+    {
+      key: 'hasProgramsWith',
+      label: 'Program Name',
+      type: 'multiselect',
+      options: programOptions,
+      icon: FilterIcons.ProgramName,
+    },
+    {
+      key: 'controlKindNameIn',
+      label: 'Control Type',
+      type: 'multiselect',
+      options: typeOptions,
+      icon: FilterIcons.Type,
+    },
+    {
+      key: 'hasInternalPolicies',
+      label: 'Linked Policies',
+      type: 'radio',
+      icon: FilterIcons.LinkedPolicies,
+      radioOptions: [
+        { value: true, label: 'Has linked policies' },
+        { value: false, label: 'No linked policies' },
+      ],
+    },
+    {
+      key: 'hasComments',
+      label: 'Has Comments',
+      type: 'radio',
+      icon: FilterIcons.Comments,
+      radioOptions: [
+        { value: true, label: 'Has comments' },
+        { value: false, label: 'No comments' },
+      ],
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: tagOptions,
+    },
+  ]
 
 export const CONTROLS_SORT_FIELDS = [
   { key: 'created_at', label: 'Created At' },
@@ -207,7 +208,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       minSize: 170,
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
-        const label = ControlStatusLabels[value] ?? value
+        const label = getEnumLabel[value] ?? value
         return (
           <TooltipProvider>
             <Tooltip>

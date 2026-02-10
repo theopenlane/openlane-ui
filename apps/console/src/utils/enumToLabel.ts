@@ -1,4 +1,7 @@
-export function formatEnumLabel(value: string) {
-  const sentence = value.toLowerCase().replace(/_/g, ' ')
-  return sentence.charAt(0).toUpperCase() + sentence.slice(1)
+export function objectToSnakeCase(object: string | undefined): string {
+  if (!object) return ''
+  return object
+    .split(/(?=[A-Z])/)
+    .join('_')
+    .toLowerCase()
 }

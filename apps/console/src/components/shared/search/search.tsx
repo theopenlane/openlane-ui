@@ -19,6 +19,7 @@ import { RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@repo/ui/button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
 
@@ -404,16 +405,16 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
 
   const renderName = (searchNode: ResponseNodes[number]): string => {
     switch (searchNode?.__typename) {
-      case 'Control':
-      case 'Subcontrol':
+      case ObjectTypes.CONTROL:
+      case ObjectTypes.SUBCONTROL:
         return searchNode.refCode
-      case 'Program':
-      case 'Group':
-      case 'Risk':
-      case 'InternalPolicy':
-      case 'Procedure':
+      case ObjectTypes.PROGRAM:
+      case ObjectTypes.GROUP:
+      case ObjectTypes.RISK:
+      case ObjectTypes.INTERNAL_POLICY:
+      case ObjectTypes.PROCEDURE:
         return searchNode.name
-      case 'Task':
+      case ObjectTypes.TASK:
         return searchNode.title
       default:
         return 'Unnamed'
@@ -422,7 +423,7 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
 
   const generateObjectTypeLabel = (searchNode: ResponseNodes[number]): string => {
     switch (searchNode?.__typename) {
-      case 'Control': {
+      case ObjectTypes.CONTROL: {
         return searchNode.ownerID ? 'Controls' : 'Standard Controls'
       }
       default:

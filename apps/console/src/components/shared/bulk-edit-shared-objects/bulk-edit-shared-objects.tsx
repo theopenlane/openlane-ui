@@ -115,7 +115,7 @@ export const defaultObject = {
 }
 
 const clearValueMap: Record<string, string> = {
-  procedureType: 'clearProcedureType',
+  procedureType: 'clearObjectTypes.PROCEDURE',
   policyType: 'clearPolicyType',
   riskType: 'clearRiskType',
   score: 'clearScore',
@@ -199,7 +199,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOp
       options: ProcedureStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
-      selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureType,
+      selectOptionEnum: SelectOptionBulkEditProcedures.ObjectTypes.PROCEDURE,
       name: 'procedureKindName',
       inputType: InputType.Select,
       placeholder: 'Select a procedure type',
@@ -267,7 +267,7 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
-      selectOptionEnum: SelectOptionBulkEditControls.ControlType,
+      selectOptionEnum: SelectOptionBulkEditControls.ObjectTypes.CONTROL,
       name: 'controlKindName',
       placeholder: 'Select a control type',
       inputType: InputType.Select,

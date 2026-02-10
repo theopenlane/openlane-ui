@@ -11,7 +11,7 @@ import { ChevronDown, ChevronsDownUp, List, SlidersHorizontal, SquarePlus, Uploa
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ControlIconMapper, ControlStatusLabels, ControlStatusOrder, ControlStatusTooltips } from '@/components/shared/enum-mapper/control-enum'
+import { ControlIconMapper, ControlStatusOrder, ControlStatusTooltips } from '@/components/shared/enum-mapper/control-enum'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
@@ -33,6 +33,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@repo/ui/checkbox'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -325,7 +326,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                                     <TooltipTrigger asChild>
                                       <div className="flex items-center gap-2 cursor-help">
                                         <Icon className="w-4 h-4" />
-                                        <span>{ControlStatusLabels[status]}</span>
+                                        <span>{getEnumLabel(status)}</span>
                                       </div>
                                     </TooltipTrigger>
                                     <TooltipContent>{ControlStatusTooltips[status]}</TooltipContent>

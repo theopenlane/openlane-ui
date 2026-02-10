@@ -4,51 +4,10 @@ import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
-import { Control, ControlObjective, Evidence, Group, InternalPolicy, Procedure, Program, Subcontrol, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
+import { TaskAllQueriesData, TaskObjectTypes } from '@repo/codegen/src/type-names'
 
-export enum TaskObjectTypes {
-  CONTROL = 'Control',
-  CONTROL_OBJECTIVE = 'Control Objective',
-  EVIDENCE = 'Evidence',
-  GROUP = 'Group',
-  INTERNAL_POLICY = 'Internal Policy',
-  PROCEDURE = 'Procedure',
-  PROGRAM = 'Program',
-  SUBCONTROL = 'Subcontrol',
-}
-
-/**
- * Our "data" shape for all object types, keyed by their respective property.
- */
-export type AllQueriesData = {
-  controls?: {
-    edges?: Array<{ node: Control }>
-  }
-  controlObjectives?: {
-    edges?: Array<{ node: ControlObjective }>
-  }
-  evidences?: {
-    edges?: Array<{ node: Evidence }>
-  }
-  groups?: {
-    edges?: Array<{ node: Group }>
-  }
-  internalPolicies?: {
-    edges?: Array<{ node: InternalPolicy }>
-  }
-  procedures?: {
-    edges?: Array<{ node: Procedure }>
-  }
-  programs?: {
-    edges?: Array<{ node: Program }>
-  }
-  subcontrols?: {
-    edges?: Array<{ node: Subcontrol }>
-  }
-}
-
-export type AllQueriesDataKey = keyof AllQueriesData
+export type AllQueriesDataKey = keyof TaskAllQueriesData
 
 type TTaskObjectTypeConfig = {
   responseObjectKey: AllQueriesDataKey
@@ -124,14 +83,6 @@ export const TASK_OBJECT_TASK_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     searchAttribute: 'refCode',
     objectName: 'refCode',
   },
-}
-
-export const TaskStatusMapper: Record<TaskTaskStatus, string> = {
-  [TaskTaskStatus.COMPLETED]: 'Completed',
-  [TaskTaskStatus.IN_PROGRESS]: 'In progress',
-  [TaskTaskStatus.IN_REVIEW]: 'In review',
-  [TaskTaskStatus.OPEN]: 'Open',
-  [TaskTaskStatus.WONT_DO]: "Won't do",
 }
 
 export const TaskStatusWithoutCompletedAndOpen = Object.fromEntries(Object.entries(TaskTaskStatus).filter(([key]) => key !== 'COMPLETED' && key !== 'OPEN')) as Omit<

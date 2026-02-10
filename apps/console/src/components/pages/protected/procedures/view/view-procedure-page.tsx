@@ -21,7 +21,6 @@ import { useProcedure } from '@/components/pages/protected/procedures/create/hoo
 import { Trash2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -41,6 +40,7 @@ import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -57,7 +57,7 @@ const ViewProcedurePage: React.FC = () => {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
-  const { data: permission } = useAccountRoles(ObjectEnum.PROCEDURE, procedureId)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROCEDURE, procedureId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()

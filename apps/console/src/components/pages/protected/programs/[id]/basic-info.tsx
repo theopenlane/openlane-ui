@@ -19,7 +19,6 @@ import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/members'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { Label } from '@repo/ui/label'
@@ -29,6 +28,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -56,7 +56,7 @@ const BasicInformation = () => {
     },
   })
 
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const isEditAllowed = canEdit(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)

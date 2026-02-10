@@ -19,11 +19,11 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type MemberRow = {
   id: string
@@ -37,7 +37,7 @@ export const ProgramSettingsUsers = () => {
   const { id } = useParams<{ id: string | undefined }>()
   const queryClient = useQueryClient()
 
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
 
   const editAllowed = canEdit(permission?.roles)
 

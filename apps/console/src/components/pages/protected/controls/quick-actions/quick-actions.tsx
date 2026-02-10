@@ -14,7 +14,7 @@ import { useGetControlAssociationsById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type ControlLike = {
   id?: string | null
@@ -201,7 +201,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         id: evidenceFormData.subcontrolID ?? subcontrolId ?? '',
         referenceFramework,
         refCode,
-        __typename: SubcontrolType,
+        __typename: ObjectTypes.SUBCONTROL,
       }
     }
 
@@ -211,7 +211,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       id: evidenceControlParam?.id ?? evidenceFormData.controlID ?? controlId,
       referenceFramework: Object.values(referenceFramework)[0] ?? '',
       refCode: controlRefCodes[0] ?? '',
-      __typename: ControlType,
+      __typename: ObjectTypes.CONTROL,
     }
   }, [evidenceFormData, isSubcontrol, controlId, subcontrolId, evidenceControlParam])
 

@@ -25,7 +25,6 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
@@ -37,11 +36,11 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { formatEnumLabel } from '@/utils/enumToLabel.ts'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import ControlTabs from '@/components/pages/protected/controls/tabs/tabs.tsx'
 import QuickActions from '@/components/pages/protected/controls/quick-actions/quick-actions.tsx'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 interface FormValues {
   refCode: string
@@ -98,7 +97,7 @@ const ControlDetailsPage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const plateEditorHelper = usePlateEditor()
 
-  const { data: permission } = useAccountRoles(ObjectEnum.SUBCONTROL, subcontrolId)
+  const { data: permission } = useAccountRoles(data?.__typename)
   const { data: discussionData } = useGetSubcontrolDiscussionById(subcontrolId)
 
   const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)
@@ -338,7 +337,7 @@ const ControlDetailsPage: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-2">Source</p>
-          <Badge variant="document">{formatEnumLabel(subcontrol.source ?? 'custom')}</Badge>
+          <Badge variant="document">{getEnumLabel(subcontrol.source ?? 'custom')}</Badge>
         </div>
       </div>
 

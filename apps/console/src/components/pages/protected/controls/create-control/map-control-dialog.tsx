@@ -22,7 +22,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { ControlType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface MapControlDialogProps {
   onSave: (arg: { controls: Control[]; subcontrols: Subcontrol[] }) => void
@@ -113,7 +113,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
   )
 
   const toggleRow = useCallback((row: Control | Subcontrol) => {
-    const isControl = row.__typename === ControlType
+    const isControl = row.__typename === ObjectTypes.CONTROL
     const id = row.id
 
     setMapping((prev) => {
@@ -149,7 +149,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
 
         tableData.forEach((row) => {
           if (!isSelected(row.id)) {
-            if (row.__typename === ControlType) {
+            if (row.__typename === ObjectTypes.CONTROL) {
               newControls.push(row as Control)
             } else {
               newSubcontrols.push(row as Subcontrol)

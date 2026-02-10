@@ -5,6 +5,7 @@ import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { Program, Risk, Control, ControlObjective, InternalPolicy, Procedure, PageInfo, GroupPermissionWhereInput } from '@repo/codegen/src/schema'
+import { TypesWithPermissions } from '@repo/codegen/src/type-names'
 import { Checkbox } from '@repo/ui/checkbox'
 import { ColumnDef } from '@tanstack/table-core'
 
@@ -18,22 +19,13 @@ export type TableDataItem = {
   referenceFramework?: string
 }
 
-export enum ObjectTypes {
-  CONTROL = 'Control',
-  CONTROL_OBJECTIVE = 'Control Objective',
-  INTERNAL_POLICY = 'Internal Policy',
-  PROCEDURE = 'Procedure',
-  PROGRAM = 'Program',
-  RISK = 'Risk',
-}
-
-export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
-  Control: ObjectTypes.CONTROL,
-  ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
-  InternalPolicy: ObjectTypes.INTERNAL_POLICY,
-  Procedure: ObjectTypes.PROCEDURE,
-  Program: ObjectTypes.PROGRAM,
-  Risk: ObjectTypes.RISK,
+export const objectTypeInputToEnumMap: Record<string, TypesWithPermissions> = {
+  Control: TypesWithPermissions.CONTROL,
+  ControlObjective: TypesWithPermissions.CONTROL_OBJECTIVE,
+  InternalPolicy: TypesWithPermissions.INTERNAL_POLICY,
+  Procedure: TypesWithPermissions.PROCEDURE,
+  Program: TypesWithPermissions.PROGRAM,
+  Risk: TypesWithPermissions.RISK,
 }
 
 /**
@@ -86,7 +78,7 @@ export type ObjectPermissionConfig = {
 }
 
 export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
-  [ObjectTypes.PROGRAM]: {
+  [TypesWithPermissions.PROGRAM]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'programs',
     queryDocument: GET_ALL_PROGRAMS,
@@ -94,7 +86,7 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'program name',
   },
-  [ObjectTypes.RISK]: {
+  [TypesWithPermissions.RISK]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'risks',
     queryDocument: GET_ALL_RISKS,
@@ -102,7 +94,7 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'risk name',
   },
-  [ObjectTypes.CONTROL]: {
+  [TypesWithPermissions.CONTROL]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'controls',
     queryDocument: GET_ALL_CONTROLS,
@@ -120,7 +112,7 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
       },
     ],
   },
-  [ObjectTypes.CONTROL_OBJECTIVE]: {
+  [TypesWithPermissions.CONTROL_OBJECTIVE]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'controlObjectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
@@ -128,7 +120,7 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'control objective name',
   },
-  [ObjectTypes.INTERNAL_POLICY]: {
+  [TypesWithPermissions.INTERNAL_POLICY]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'internalPolicies',
     queryDocument: GET_ALL_INTERNAL_POLICIES,
@@ -137,7 +129,7 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     inputPlaceholder: 'internal policy name',
     excludeViewersInFilter: true,
   },
-  [ObjectTypes.PROCEDURE]: {
+  [TypesWithPermissions.PROCEDURE]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'procedures',
     queryDocument: GET_ALL_PROCEDURES,
@@ -148,7 +140,7 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
   },
 }
 
-export const generateColumns = (selectedObject: ObjectTypes | null, items: TableDataItem[]): ColumnDef<TableDataItem>[] => {
+export const generateColumns = (selectedObject: TypesWithPermissions | null, items: TableDataItem[]): ColumnDef<TableDataItem>[] => {
   const allChecked = items.length > 0 && items.every((item) => item.checked)
 
   const baseColumns: ColumnDef<TableDataItem>[] = [
@@ -193,7 +185,7 @@ export const generateGroupsPermissionsWhere = ({
 }: {
   debouncedSearchValue: string
   selectedGroup: string | null
-  selectedObject: ObjectTypes | null
+  selectedObject: TypesWithPermissions | null
 }): { where: GroupPermissionWhereInput } => {
   if (!selectedObject || !selectedGroup) return { where: {} }
 

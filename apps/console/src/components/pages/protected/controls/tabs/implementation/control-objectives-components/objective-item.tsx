@@ -5,11 +5,11 @@ import { Button } from '@repo/ui/button'
 import { Archive, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { ControlObjectiveCard } from './control-objective-card'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { LinkControlsModal } from './link-controls-modal'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type Props = {
   node: ControlObjectiveFieldsFragment
@@ -19,7 +19,7 @@ type Props = {
 }
 
 export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDelete }) => {
-  const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectEnum.CONTROL_OBJECTIVE, node.id)
+  const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_OBJECTIVE, node.id)
   const isEditAllowed = canEdit(permission?.roles)
   const isMenuDisabled = permLoading || !isEditAllowed
 
