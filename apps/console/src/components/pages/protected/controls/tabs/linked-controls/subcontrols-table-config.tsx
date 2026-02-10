@@ -21,24 +21,23 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
     accessorKey: 'refCode',
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => (
-      <Link href={`/controls/${controlId}/${row.original.id}`} className="block whitespace-nowrap text-blue-500 hover:underline">
+      <Link href={`/controls/${controlId}/${row.original.id}`} className="block truncate text-blue-500 hover:underline">
         {row.original.refCode}
       </Link>
     ),
     size: 90,
     minSize: 90,
-    maxSize: 90,
   },
   {
     accessorKey: 'description',
     header: () => <span className="whitespace-nowrap">Description</span>,
     cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
-    minSize: 500,
+    minSize: 400,
   },
   {
     accessorKey: 'status',
     header: () => <span className="whitespace-nowrap">Status</span>,
-    cell: ({ row }) => (row.original.status ? formatEnumLabel(row.original.status) : '-'),
+    cell: ({ row }) => <span className="block truncate">{row.original.status ? formatEnumLabel(row.original.status) : '-'}</span>,
     size: 120,
     minSize: 120,
     maxSize: 120,
@@ -46,7 +45,7 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
   {
     accessorKey: 'type',
     header: () => <span className="whitespace-nowrap">Type</span>,
-    cell: ({ row }) => (row.original.type ? formatEnumLabel(row.original.type) : '-'),
+    cell: ({ row }) => <span className="block truncate">{row.original.type ? formatEnumLabel(row.original.type) : '-'}</span>,
     size: 120,
     minSize: 120,
     maxSize: 120,
