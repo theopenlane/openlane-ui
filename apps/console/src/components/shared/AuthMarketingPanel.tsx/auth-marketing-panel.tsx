@@ -5,12 +5,13 @@ import { useGetCustomerQuotes } from './auth-marketing-panel-config'
 
 const AuthMarketingPanel = ({ hideCopy }: { hideCopy?: boolean }) => {
   const customerQuotes = useGetCustomerQuotes()
+  const index = Math.floor(Math.random() * customerQuotes.length)
   return (
     <div className="hidden lg:flex flex-col justify-center rounded-lg w-[560px] relative overflow-hidden">
       <div className="flex flex-col space-y-10 z-10 px-16">
         {!hideCopy && (
           <>
-            <CustomerQuoteSection comments={customerQuotes} intervalMs={3000}></CustomerQuoteSection>
+            <CustomerQuoteSection comment={customerQuotes[index]}></CustomerQuoteSection>
           </>
         )}
       </div>
