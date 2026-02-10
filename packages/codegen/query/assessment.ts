@@ -115,6 +115,51 @@ export const CREATE_ASSESSMENT_RESPONSE = gql`
   }
 `
 
+export const GET_ASSESSMENT_DETAIL = gql`
+  query GetAssessmentDetail($getAssessmentId: ID!) {
+    assessment(id: $getAssessmentId) {
+      id
+      name
+      assessmentType
+      jsonconfig
+      uischema
+      templateID
+      responseDueDuration
+      tags
+      createdAt
+      updatedAt
+      assessmentResponses {
+        totalCount
+        edges {
+          node {
+            id
+            email
+            dueDate
+            status
+            sendAttempts
+            assignedAt
+            startedAt
+            completedAt
+            emailDeliveredAt
+            isTest
+            createdAt
+            document {
+              id
+              data
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          startCursor
+          hasPreviousPage
+          hasNextPage
+        }
+      }
+    }
+  }
+`
+
 export const DELETE_BULK_ASSESSMENT = gql`
   mutation DeleteBulkAssessment($ids: [ID!]!) {
     deleteBulkAssessment(ids: $ids) {

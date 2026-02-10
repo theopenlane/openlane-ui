@@ -3,11 +3,19 @@ import { Assessment, User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
+import { Button } from '@repo/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText } from 'lucide-react'
 
 type Params = {
   userMap?: Record<string, User>
   selectedQuestionnaires: { id: string }[]
   setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  onSend?: (assessment: Assessment) => void
+  onEdit?: (assessment: Assessment) => void
+  onPreview?: (assessment: Assessment) => void
+  onViewDetails?: (assessment: Assessment) => void
+  onDelete?: (assessment: Assessment) => void
 }
 
 export const getQuestionnaireColumns = (params?: Params) => {
@@ -118,6 +126,46 @@ export const getQuestionnaireColumns = (params?: Params) => {
       header: 'Last updated',
       cell: ({ cell }) => formatTimeSince(cell.getValue() as string),
       size: 120,
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => {
+        return (
+          <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary">
+                  <MoreHorizontal className="h-4 w-4 text-brand" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-40">
+                <DropdownMenuItem onClick={() => params?.onViewDetails?.(row.original)}>
+                  <FileText className="h-4 w-4 " />
+                  View Details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => params?.onSend?.(row.original)}>
+                  <Send className="h-4 w-4 " />
+                  Send
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
+                  <Pencil className="h-4 w-4 " />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => params?.onPreview?.(row.original)}>
+                  <Eye className="h-4 w-4 " />
+                  Preview
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => params?.onDelete?.(row.original)}>
+                  <Trash2 className="h-4 w-4 " />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )
+      },
+      size: 40,
     },
   ]
 

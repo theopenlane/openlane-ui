@@ -386,6 +386,13 @@ export interface ApiTokenWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** Return response for markNotificationsAsRead mutation */
+export interface ActionNotificationsReadPayload {
+  __typename?: 'ActionNotificationsReadPayload'
+  /** Updated notification IDs */
+  readIDs: Array<Maybe<Scalars['ID']['output']>>
+}
+
 export interface ActionPlan extends Node {
   __typename?: 'ActionPlan'
   actionPlanKind?: Maybe<CustomTypeEnum>
@@ -26347,6 +26354,8 @@ export interface Mutation {
   forceCompleteWorkflowInstance: WorkflowInstanceAdminPayload
   /** Launch a campaign and send emails to its targets */
   launchCampaign: CampaignLaunchPayload
+  /** Update multiple existing notifications */
+  markNotificationsAsRead: ActionNotificationsReadPayload
   /** Publish changes from preview to live environment */
   publishTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Reassign a workflow assignment by creating an additional assignment for another user */
@@ -28203,6 +28212,10 @@ export interface MutationForceCompleteWorkflowInstanceArgs {
 
 export interface MutationLaunchCampaignArgs {
   input: LaunchCampaignInput
+}
+
+export interface MutationMarkNotificationsAsReadArgs {
+  ids: Array<Scalars['ID']['input']>
 }
 
 export interface MutationReassignWorkflowAssignmentArgs {
@@ -59206,6 +59219,50 @@ export type CreateAssessmentResponseMutation = {
   createAssessmentResponse: {
     __typename?: 'AssessmentResponseCreatePayload'
     assessmentResponse: { __typename?: 'AssessmentResponse'; id: string; email: string; dueDate?: any | null; assessmentID: string; createdAt?: any | null; updatedAt?: any | null }
+  }
+}
+
+export type GetAssessmentDetailQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentDetailQuery = {
+  __typename?: 'Query'
+  assessment: {
+    __typename?: 'Assessment'
+    id: string
+    name: string
+    assessmentType: AssessmentAssessmentType
+    jsonconfig?: any | null
+    uischema?: any | null
+    templateID?: string | null
+    responseDueDuration?: number | null
+    tags?: Array<string> | null
+    createdAt?: any | null
+    updatedAt?: any | null
+    assessmentResponses: {
+      __typename?: 'AssessmentResponseConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'AssessmentResponseEdge'
+        node?: {
+          __typename?: 'AssessmentResponse'
+          id: string
+          email: string
+          dueDate?: any | null
+          status: AssessmentResponseAssessmentResponseStatus
+          sendAttempts: number
+          assignedAt: any
+          startedAt: any
+          completedAt?: any | null
+          emailDeliveredAt?: any | null
+          isTest: boolean
+          createdAt?: any | null
+          document?: { __typename?: 'DocumentData'; id: string; data: any } | null
+        } | null
+      } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+    }
   }
 }
 

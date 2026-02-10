@@ -15,4 +15,5 @@ export enum TableColumnVisibilityKeysEnum {
   TEMPLATE = 'template',
   CUSTOM_ENUMS = 'custom-enums',
   CUSTOM_TAGS = 'custom-tags',
+  QUESTIONNAIRE_DELIVERY = 'questionnaire-delivery',
 }

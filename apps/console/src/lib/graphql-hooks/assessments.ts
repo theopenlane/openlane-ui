@@ -1,7 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_ASSESSMENT, UPDATE_ASSESSMENT, GET_ALL_ASSESSMENTS, GET_ASSESSMENT, DELETE_ASSESSMENT, CREATE_ASSESSMENT_RESPONSE, DELETE_BULK_ASSESSMENT } from '@repo/codegen/query/assessment'
+import {
+  CREATE_ASSESSMENT,
+  UPDATE_ASSESSMENT,
+  GET_ALL_ASSESSMENTS,
+  GET_ASSESSMENT,
+  GET_ASSESSMENT_DETAIL,
+  DELETE_ASSESSMENT,
+  CREATE_ASSESSMENT_RESPONSE,
+  DELETE_BULK_ASSESSMENT,
+} from '@repo/codegen/query/assessment'
 
 import {
   CreateAssessmentMutation,
@@ -12,11 +21,14 @@ import {
   FilterAssessmentsQueryVariables,
   GetAssessmentQuery,
   GetAssessmentQueryVariables,
+  GetAssessmentDetailQuery,
+  GetAssessmentDetailQueryVariables,
   DeleteAssessmentMutation,
   DeleteAssessmentMutationVariables,
   CreateAssessmentResponseMutation,
   CreateAssessmentResponseMutationVariables,
   Assessment,
+  AssessmentResponseAssessmentResponseStatus,
   DeleteBulkAssessmentMutation,
   DeleteBulkAssessmentMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -67,6 +79,30 @@ export const useGetAssessment = (getAssessmentId?: string) => {
     queryFn: () => client.request(GET_ASSESSMENT, { getAssessmentId }),
     enabled: !!getAssessmentId,
   })
+}
+
+export const useGetAssessmentDetail = (id?: string) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables>({
+    queryKey: ['assessments', 'detail', id],
+    queryFn: () => client.request(GET_ASSESSMENT_DETAIL, { getAssessmentId: id! }),
+    enabled: !!id,
+  })
+
+  const assessment = queryResult.data?.assessment
+  const responses = (assessment?.assessmentResponses?.edges ?? []).map((edge) => edge?.node).filter(Boolean)
+  const totalRecipients = assessment?.assessmentResponses?.totalCount ?? 0
+  const completedResponses = responses.filter((r) => r?.status === AssessmentResponseAssessmentResponseStatus.COMPLETED).length
+
+  return {
+    ...queryResult,
+    assessment,
+    responses,
+    totalRecipients,
+    completedResponses,
+    isLoading: queryResult.isFetching,
+  }
 }
 
 export const useCreateAssessment = () => {
