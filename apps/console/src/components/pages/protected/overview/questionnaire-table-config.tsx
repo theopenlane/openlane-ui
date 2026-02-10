@@ -69,7 +69,7 @@ export const getQuestionnaireColumns = ({ userMap }: GetQuestionnaireColumnsArgs
           <span className="text-muted-foreground italic">Deleted user</span>
         )
       },
-      size: 160,
+      size: 200,
     },
     {
       accessorKey: 'createdAt',
@@ -91,7 +91,7 @@ export const getQuestionnaireColumns = ({ userMap }: GetQuestionnaireColumnsArgs
           <span className="text-muted-foreground italic">Deleted user</span>
         )
       },
-      size: 160,
+      size: 200,
     },
     {
       accessorKey: 'updatedAt',

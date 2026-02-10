@@ -59,6 +59,8 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
       accessorKey: 'refCode',
       header: 'Ref Code',
       cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
+      size: 90,
+      minSize: 90,
       meta: {
         className: 'max-w-[5%] w-[5%]',
       },

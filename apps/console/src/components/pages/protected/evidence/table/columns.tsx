@@ -92,7 +92,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         return <div className="font-bold">{cell.getValue() as string}</div>
       },
       minSize: 100,
-      size: 500,
+      size: 400,
     },
     {
       accessorKey: 'satisfies',
@@ -144,7 +144,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         return <div className="font-bold">{cell.getValue() ? <Check size={16} /> : <Minus size={16} />}</div>
       },
       minSize: 100,
-      size: 180,
+      size: 100,
     },
     {
       accessorKey: 'collectionProcedure',
@@ -153,7 +153,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         return <div className="font-bold">{cell.getValue() ? convertToReadOnly(cell.getValue() as string) : '-'}</div>
       },
       minSize: 100,
-      size: 500,
+      size: 400,
     },
     {
       accessorKey: 'source',

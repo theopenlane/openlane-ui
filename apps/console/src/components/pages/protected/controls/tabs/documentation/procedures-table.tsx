@@ -137,7 +137,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
             )}
           </div>
         ),
-        size: 80,
+        size: 150,
       },
       {
         accessorKey: 'approver',
@@ -164,7 +164,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
             </div>
           )
         },
-        size: 180,
+        size: 200,
       },
       {
         accessorKey: 'updatedAt',

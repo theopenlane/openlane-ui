@@ -161,6 +161,8 @@ export const MembersTable = () => {
           </div>
         )
       },
+      size: 120,
+      maxSize: 150,
     },
     {
       id: 'actions',

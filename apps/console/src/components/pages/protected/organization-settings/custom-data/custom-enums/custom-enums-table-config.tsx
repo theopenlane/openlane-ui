@@ -143,7 +143,7 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
         id: 'type',
         header: 'Type',
         cell: ({ row }) => <TypeBadge systemOwned={row.original.systemOwned} />,
-        size: 90,
+        size: 120,
       },
       {
         accessorKey: 'description',
@@ -195,7 +195,7 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
             <span className="text-muted-foreground italic text-sm">Deleted user</span>
           )
         },
-        size: 160,
+        size: 200,
       },
       {
         accessorKey: 'createdAt',
@@ -217,7 +217,7 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
             <span className="text-muted-foreground italic text-sm">Deleted user</span>
           )
         },
-        size: 160,
+        size: 200,
       },
       {
         accessorKey: 'updatedAt',

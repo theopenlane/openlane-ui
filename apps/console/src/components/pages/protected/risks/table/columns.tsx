@@ -109,6 +109,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
           <RiskLabel score={cell.getValue() as number} isEditing={false} />
         </div>
       ),
+      size: 120,
     },
     {
       accessorKey: 'stakeholder',

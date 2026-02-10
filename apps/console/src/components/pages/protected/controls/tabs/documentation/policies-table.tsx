@@ -134,7 +134,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
             )}
           </div>
         ),
-        size: 80,
+        size: 150,
       },
       {
         accessorKey: 'approver',
@@ -161,7 +161,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
             </div>
           )
         },
-        size: 180,
+        size: 200,
       },
       {
         accessorKey: 'updatedAt',

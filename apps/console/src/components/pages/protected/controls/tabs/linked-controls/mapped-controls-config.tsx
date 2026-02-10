@@ -27,9 +27,9 @@ export const getMappedControlsBaseColumns = (
         </Link>
       )
     },
-    size: 120,
-    minSize: 120,
-    maxSize: 120,
+    size: 90,
+    minSize: 90,
+    maxSize: 90,
   },
   {
     accessorKey: 'description',

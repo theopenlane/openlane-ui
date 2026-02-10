@@ -6,7 +6,6 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
-import usePlateEditor from '../plate/usePlateEditor'
 import { TableRow } from './object-assoiation-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -24,7 +23,6 @@ type Props = {
 const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading }: Props) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
-  const { convertToReadOnly } = usePlateEditor()
 
   useEffect(() => {
     if (initialData) setSelectedIdsMap(initialData)
@@ -121,16 +119,6 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       cell: ({ row }) => {
         const { name } = row.original
         return <span className="block truncate whitespace-nowrap">{name}</span>
-      },
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      size: 0,
-      enableResizing: false,
-      cell: ({ row }) => {
-        const { description, details } = row.original
-        return <span className="line-clamp-2 overflow-hidden">{convertToReadOnly(description || details || '')}</span>
       },
     },
   ]

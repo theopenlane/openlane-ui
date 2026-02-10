@@ -75,7 +75,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
     {
       accessorKey: 'name',
       header: 'Name',
-      size: 400,
+      size: 200,
     },
     {
       accessorKey: 'status',

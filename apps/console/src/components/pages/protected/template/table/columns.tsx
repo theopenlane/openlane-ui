@@ -21,9 +21,8 @@ export const getTemplateColumns = (params?: Params) => {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
-      size: 100,
+      size: 200,
       minSize: 100,
-      maxSize: 200,
     },
     {
       accessorKey: 'createdBy',

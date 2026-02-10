@@ -80,6 +80,6 @@ export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap
         </div>
       )
     },
-    size: 180,
+    size: 200,
   },
 ]
