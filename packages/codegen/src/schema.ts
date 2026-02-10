@@ -64592,6 +64592,7 @@ export type GetTrustCenterQuery = {
         __typename?: 'TrustCenter'
         id: string
         slug?: string | null
+        subprocessorURL?: string | null
         pirschDomainID?: string | null
         pirschAccessLink?: string | null
         customDomain?: {

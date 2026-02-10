@@ -7,6 +7,7 @@ export const GET_TRUST_CENTER = gql`
         node {
           id
           slug
+          subprocessorURL
           pirschDomainID
           pirschAccessLink
           customDomain {
