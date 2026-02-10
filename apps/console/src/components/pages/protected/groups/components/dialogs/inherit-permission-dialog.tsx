@@ -9,18 +9,26 @@ import { ChevronDown, ChevronUp, Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { useGetAllGroups, useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups, useGetGroupDetails, useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { Permission } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
+const PERMISSION_LABELS: Record<Permission, string> = {
+  [Permission.VIEWER]: 'View',
+  [Permission.EDITOR]: 'Edit',
+  [Permission.BLOCKED]: 'Blocked',
+  [Permission.CREATOR]: 'Create',
+}
+
 const columns = [
-  { accessorKey: 'object', header: 'Object' },
-  { accessorKey: 'type', header: 'Type' },
+  { accessorKey: 'object', header: 'Name' },
+  { accessorKey: 'type', header: 'Object Type' },
   { accessorKey: 'permission', header: 'Permission' },
 ]
 
@@ -36,6 +44,7 @@ const InheritPermissionDialog = () => {
 
   const { data } = useGetGroupDetails(selectedGroup)
   const { isManaged } = data?.group || {}
+  const { data: permissionsResponse } = useGetGroupPermissions(group || null)
 
   const where = selectedGroup ? { idNEQ: selectedGroup } : undefined
   const { data: TableData } = useGetAllGroups({ where })
@@ -81,10 +90,12 @@ const InheritPermissionDialog = () => {
       name: edge?.node?.name,
     })) || []
 
-  const permissionsData = [
-    { object: 'CC1.2', type: 'Control', permission: 'Editor' },
-    { object: 'CC2.2', type: 'Risk', permission: 'Blocked' },
-  ]
+  const permissionsData =
+    permissionsResponse?.group?.permissions?.edges?.map((edge) => ({
+      object: edge?.node?.name || 'Unknown',
+      type: edge?.node?.objectType || 'Unknown',
+      permission: PERMISSION_LABELS[edge?.node?.permissions as Permission] || edge?.node?.permissions || 'Unknown',
+    })) || []
 
   const handleNextStep = () => {
     if (!group) {
