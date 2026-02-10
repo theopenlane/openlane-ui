@@ -1,5 +1,5 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { DownloadIcon, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { getRisksFilterFields } from './table-config'
@@ -23,6 +23,7 @@ import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -81,15 +82,16 @@ const RisksTableToolbar: React.FC<TProps> = ({
       field: 'category',
     },
   })
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
 
   useEffect(() => {
     if (!isProgramsSuccess || !isTypeSuccess || !isCategorySuccess) return
     if (filterFields) return
-
-    const fields = getRisksFilterFields(programOptions, riskKindOptions ?? [], riskCategoryOptions ?? [])
+    const fields = getRisksFilterFields(programOptions, riskKindOptions ?? [], riskCategoryOptions ?? [], tagOptions)
 
     setFilterFields(fields)
-  }, [filterFields, programOptions, riskKindOptions, riskCategoryOptions, isProgramsSuccess, isTypeSuccess, isCategorySuccess])
+  }, [filterFields, programOptions, riskKindOptions, riskCategoryOptions, isProgramsSuccess, isTypeSuccess, isCategorySuccess, tagOptions])
 
   const handleBulkDelete = async () => {
     if (!selectedRisks) {

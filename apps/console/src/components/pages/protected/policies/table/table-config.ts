@@ -1,9 +1,10 @@
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { FilterField } from '@/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
 
 export function usePoliciesFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
@@ -15,6 +16,9 @@ export function usePoliciesFilters(): FilterField[] | null {
       field: 'kind',
     },
   })
+
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
 
   const [filters, setFilters] = useState<FilterField[] | null>(null)
 
@@ -113,10 +117,17 @@ export function usePoliciesFilters(): FilterField[] | null {
           { value: false, label: 'No comments' },
         ],
       },
+      {
+        key: 'tagsHas',
+        label: 'Tags',
+        type: 'dropdownSearchSingleSelect',
+        icon: FilterIcons.Status,
+        options: tagOptions,
+      },
     ]
 
     setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions])
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions, tagOptions])
 
   return filters
 }

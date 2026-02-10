@@ -24,6 +24,7 @@ export const getControlsFilterFields = (
   groups: { value: string; label: string }[],
   programOptions: { value: string; label: string }[],
   typeOptions: { value: string; label: string }[],
+  tagOptions: { value: string; label: string }[],
 ): FilterField[] => [
   { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
@@ -91,6 +92,13 @@ export const getControlsFilterFields = (
       { value: true, label: 'Has comments' },
       { value: false, label: 'No comments' },
     ],
+  },
+  {
+    key: 'tagsHas',
+    label: 'Tags',
+    type: 'dropdownSearchSingleSelect',
+    icon: FilterIcons.Status,
+    options: tagOptions,
   },
 ]
 
