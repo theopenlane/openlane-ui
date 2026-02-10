@@ -93,12 +93,12 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
     {
       accessorKey: 'riskCategoryName',
       header: 'Category',
-      size: 250,
       cell: ({ cell }) => (
         <div className="flex items-center space-x-2">
           <RiskLabel fieldName="riskCategoryName" riskCategoryName={cell.getValue() as string} isEditing={false} />
         </div>
       ),
+      size: 150,
       minSize: 150,
     },
     {
@@ -109,7 +109,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
           <RiskLabel score={cell.getValue() as number} isEditing={false} />
         </div>
       ),
-      size: 120,
+      size: 90,
     },
     {
       accessorKey: 'stakeholder',
@@ -122,12 +122,13 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
         const riskId = row.original.id
         return <StakeholderCell stakeholder={stakeholder as Group | null} riskId={riskId} />
       },
+      size: 120,
     },
     {
       accessorKey: 'businessCosts',
       header: 'Business Costs',
       cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
-      size: 250,
+      size: 200,
     },
     {
       accessorKey: 'delegate',
