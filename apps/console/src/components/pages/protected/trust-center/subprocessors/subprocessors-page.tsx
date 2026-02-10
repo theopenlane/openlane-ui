@@ -15,6 +15,11 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
+import { useGetTrustCenter, useUpdateTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useNotification } from '@/hooks/useNotification'
+import { Input } from '@repo/ui/input'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const SubprocessorsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.SUBPROCESSORS)
@@ -32,6 +37,33 @@ const SubprocessorsPage = () => {
   const { handleExport } = useFileExport()
 
   const { setCrumbs } = useContext(BreadcrumbContext)
+
+  const { successNotification, errorNotification } = useNotification()
+  const { data: trustCenterData } = useGetTrustCenter()
+  const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+  const savedSubprocessorURL = trustCenterData?.trustCenters?.edges?.[0]?.node?.subprocessorURL ?? ''
+  const [subprocessorURL, setSubprocessorURL] = useState(savedSubprocessorURL)
+
+  const { mutateAsync: updateTrustCenter, isPending: isSavingURL } = useUpdateTrustCenter()
+
+  useEffect(() => {
+    setSubprocessorURL(savedSubprocessorURL)
+  }, [savedSubprocessorURL])
+
+  const handleSaveSubprocessorURL = async () => {
+    const trimmed = subprocessorURL.trim()
+    if (trimmed === savedSubprocessorURL) return
+
+    try {
+      await updateTrustCenter({
+        updateTrustCenterId: trustCenterID,
+        input: trimmed ? { subprocessorURL: trimmed } : { clearSubprocessorURL: true },
+      })
+      successNotification({ title: 'Saved', description: 'Subprocessor URL updated successfully.' })
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
+  }
 
   const where = {
     ...(searchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: searchTerm }, { descriptionContainsFold: searchTerm }] }] } : {}),
@@ -116,6 +148,33 @@ const SubprocessorsPage = () => {
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Subprocessors</h2>
+        </div>
+
+        <div className="flex flex-col justity-center mb-4 gap-3">
+          <p className="text-sm font-medium">Fallback subprocessor list URL (optional)</p>
+          <div className="flex items-center gap-2">
+            <Input
+              type="url"
+              placeholder="https://example.com/subprocessors"
+              value={subprocessorURL}
+              onChange={(e) => setSubprocessorURL(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleSaveSubprocessorURL()
+                }
+              }}
+            />
+            <SaveButton onClick={handleSaveSubprocessorURL} disabled={isSavingURL || subprocessorURL.trim() === savedSubprocessorURL} isSaving={isSavingURL} className="h-9!" />
+          </div>
+          {tableData.length > 0 ? (
+            <p className="text-sm text-muted-foreground">This Trust Center uses the subprocessors listed below. The fallback URL will only be used if this list is empty.</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No subprocessors have been added yet. If you already maintain a public list of subprocessors, you can provide a fallback URL above. Otherwise, add subprocessors here to publish them
+              directly from Openlane.
+            </p>
+          )}
         </div>
 
         <SubprocessorsTableToolbar
