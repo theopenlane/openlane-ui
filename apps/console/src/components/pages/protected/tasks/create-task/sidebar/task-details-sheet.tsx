@@ -15,7 +15,6 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import TitleField from '../form/fields/title-field'
 import DetailsField from '../form/fields/details-field'
@@ -30,6 +29,7 @@ import EvidenceCreateSheet from '../../../evidence/evidence-create-sheet'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TaskDetailsSheetProps = {
   queryParamKey?: string
@@ -48,7 +48,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
 
   const searchParams = useSearchParams()
   const id = searchParams.get(queryParamKey)
-  const { data: permission } = useAccountRoles(ObjectEnum.TASK, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
   const isEditAllowed = canEdit(permission?.roles)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
@@ -98,7 +98,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
         id: control.id,
         referenceFramework: control.referenceFramework,
         refCode: control.refCode ?? '',
-        __typename: isSubcontrol ? 'Subcontrol' : 'Control',
+        __typename: isSubcontrol ? ObjectTypes.SUBCONTROL : ObjectTypes.CONTROL,
       }
     })
 

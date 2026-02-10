@@ -6,12 +6,12 @@ import { ChevronsDownUp, List } from 'lucide-react'
 import MapControlFrameworksAccordion from './map-control-frameworks-accordion'
 import MapControlResults from './map-control-results'
 import { MapControl } from '@/types'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface Props {
   controlData: (
     | {
-        __typename?: typeof ControlType
+        __typename?: typeof ObjectTypes.CONTROL
         id: string
         refCode: string
         category?: string | null
@@ -23,7 +23,7 @@ interface Props {
   )[]
   subcontrolData:
     | {
-        __typename?: typeof SubcontrolType
+        __typename?: typeof ObjectTypes.SUBCONTROL
         id: string
         refCode: string
         category?: string | null

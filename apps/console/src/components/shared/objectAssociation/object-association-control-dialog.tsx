@@ -19,6 +19,7 @@ import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evi
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -129,7 +130,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
@@ -192,7 +193,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           >
             <SelectTrigger>{selectedObject}</SelectTrigger>
             <SelectContent>
-              {(['Control', 'Subcontrol'] as const)
+              {([ObjectTypes.CONTROL, ObjectTypes.SUBCONTROL] as const)
                 .filter((option) => option !== selectedObject)
                 .map((option) => (
                   <SelectItem key={option} value={option}>

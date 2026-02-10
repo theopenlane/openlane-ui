@@ -5,12 +5,12 @@ import { Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import AssigneeCell from './assignee-cell'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type ColumnOptions = {
   userMap: Record<string, User>
@@ -87,7 +87,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
         return (
           <div className="flex items-center space-x-2">
             {TaskStatusIconMapper[status]}
-            <p>{TaskStatusMapper[status]}</p>
+            <p>{getEnumLabel(status)}</p>
           </div>
         )
       },

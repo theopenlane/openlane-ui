@@ -9,7 +9,7 @@ import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useRouter } from 'next/navigation'
 import { useTaskAssociations } from '@/lib/graphql-hooks/tasks'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type RelatedObjectsProps = {
   taskData: TaskQuery['task'] | undefined
@@ -39,7 +39,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
           const key = item?.node?.refCode || item?.node?.displayID
           const id = item?.node?.id
           const details = item?.node?.description
-          if (key && id) acc[key] = { id, value: ControlType, details: details, kind: 'controls' }
+          if (key && id) acc[key] = { id, value: ObjectTypes.CONTROL, details: details, kind: 'controls' }
           return acc
         },
         {} as Record<string, { id: string; value: string; details?: string | null; kind: string }>,
@@ -52,7 +52,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
           const controlId = item?.node?.controlID
           const details = item?.node?.description
           if (key && id) {
-            acc[key] = { id, value: SubcontrolType, controlId, details: details, kind: 'subcontrols' }
+            acc[key] = { id, value: ObjectTypes.SUBCONTROL, controlId, details: details, kind: 'subcontrols' }
           }
           return acc
         },

@@ -6,12 +6,12 @@ import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
 import { useMapControls } from './shared/use-selectable-controls'
 import ContextMenu from '@/components/shared/context-menu/context-menu'
 import { MapControl } from '@/types'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface Props {
   controlData?: (
     | {
-        __typename?: typeof ControlType
+        __typename?: typeof ObjectTypes.CONTROL
         id: string
         refCode: string
         category?: string | null
@@ -25,7 +25,7 @@ interface Props {
   expandedItems: Record<string, boolean>
   setExpandedItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
   subcontrolData?: {
-    __typename?: typeof SubcontrolType
+    __typename?: typeof ObjectTypes.SUBCONTROL
     id: string
     refCode: string
     category?: string | null

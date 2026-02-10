@@ -19,10 +19,10 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Pagination from '@repo/ui/pagination'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type GroupRow = {
   id: string
@@ -34,7 +34,7 @@ type GroupRow = {
 
 export const ProgramSettingsGroups = () => {
   const { id } = useParams<{ id: string | undefined }>()
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
   const [pagination, setPagination] = useState<TPagination>(

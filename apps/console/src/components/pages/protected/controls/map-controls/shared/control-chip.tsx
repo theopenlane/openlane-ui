@@ -11,7 +11,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { MapControl } from '@/types'
 import { StandardsColorSpan, StandardsHexagon } from '@/components/shared/standards-color-mapper/standards-color-mapper'
 import StandardChip from '../../../standards/shared/standard-chip'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface ControlChipProps {
   control: MapControl
@@ -57,7 +57,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   const baseClasses = 'bg-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
   const borderClass = selected ? 'border-brand ring-1 ring-brand' : 'border-border'
-  const href = forceHref || (control.__typename === SubcontrolType ? `/controls/${control.controlID}/${control.id}` : `/controls/${control.id}`)
+  const href = forceHref || (control.__typename === ObjectTypes.SUBCONTROL ? `/controls/${control.controlID}/${control.id}` : `/controls/${control.id}`)
 
   if (!control) {
     return
@@ -129,15 +129,15 @@ export default React.memo(ControlChip)
 const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['control']>; disableHref?: boolean; forceHref?: string }> = ({ control, disableHref, forceHref }) => {
   const { convertToReadOnly } = usePlateEditor()
 
-  const { data: ctrlData, isLoading: ctrlLoading } = useGetControlMinifiedById(control.__typename === ControlType ? control.id : undefined)
-  const { data: subData, isLoading: subLoading } = useGetSubcontrolMinifiedById(control.__typename === SubcontrolType ? control.id : undefined)
+  const { data: ctrlData, isLoading: ctrlLoading } = useGetControlMinifiedById(control.__typename === ObjectTypes.CONTROL ? control.id : undefined)
+  const { data: subData, isLoading: subLoading } = useGetSubcontrolMinifiedById(control.__typename === ObjectTypes.SUBCONTROL ? control.id : undefined)
 
   const loading = ctrlLoading || subLoading
   const details = ctrlData?.control || subData?.subcontrol
 
-  const nameHref = forceHref || (control.__typename === ControlType ? `/controls/${ctrlData?.control.id}` : `/controls/${subData?.subcontrol.control.id}/${subData?.subcontrol.id}`)
+  const nameHref = forceHref || (control.__typename === ObjectTypes.CONTROL ? `/controls/${ctrlData?.control.id}` : `/controls/${subData?.subcontrol.control.id}/${subData?.subcontrol.id}`)
 
-  const standardHref = control.__typename === SubcontrolType ? `/standards/${subData?.subcontrol?.control?.standardID}` : `/standards/${ctrlData?.control.standardID}`
+  const standardHref = control.__typename === ObjectTypes.SUBCONTROL ? `/standards/${subData?.subcontrol?.control?.standardID}` : `/standards/${ctrlData?.control.standardID}`
 
   if (loading) return <p className="text-xs">Loading details…</p>
   if (!details) return <p className="text-xs">No details available.</p>

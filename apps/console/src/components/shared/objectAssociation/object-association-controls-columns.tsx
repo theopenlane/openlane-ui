@@ -5,6 +5,7 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { UseFormReturn } from 'react-hook-form'
 import { AccordionEnum } from './object-association-control-dialog'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TColumnOptions = {
   selectedObject: AccordionEnum.Control | AccordionEnum.Subcontrol
@@ -31,7 +32,7 @@ export const getControlsAndSubcontrolsColumns = ({
         let newControls = prev ?? []
 
         if (isChecked && !newControls.find((c) => c.id === id)) {
-          newControls = [...newControls, { id, refCode, referenceFramework: referenceFramework ?? null, __typename: 'Control' }]
+          newControls = [...newControls, { id, refCode, referenceFramework: referenceFramework ?? null, __typename: ObjectTypes.CONTROL }]
         } else if (!isChecked) {
           newControls = newControls.filter((c) => c.id !== id)
         }
@@ -48,7 +49,7 @@ export const getControlsAndSubcontrolsColumns = ({
         let newSubcontrols = prev ?? []
 
         if (isChecked && !newSubcontrols.find((c) => c.id === id)) {
-          newSubcontrols = [...newSubcontrols, { id, refCode, referenceFramework: referenceFramework ?? null, __typename: 'Subcontrol' }]
+          newSubcontrols = [...newSubcontrols, { id, refCode, referenceFramework: referenceFramework ?? null, __typename: ObjectTypes.SUBCONTROL }]
         } else if (!isChecked) {
           newSubcontrols = newSubcontrols.filter((c) => c.id !== id)
         }

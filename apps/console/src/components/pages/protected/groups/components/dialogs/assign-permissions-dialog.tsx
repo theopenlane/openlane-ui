@@ -18,13 +18,13 @@ import { useNotification } from '@/hooks/useNotification'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { Control } from '@repo/codegen/src/schema'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { ObjectTypes, TypesWithPermissions } from '@repo/codegen/src/type-names'
 
-const options = Object.values(ObjectTypes)
+const options = Object.values(TypesWithPermissions)
 
 const defaultPagination = {
   ...DEFAULT_PAGINATION,
@@ -34,7 +34,7 @@ const defaultPagination = {
 
 const AssignPermissionsDialog = () => {
   const { selectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string; selectedObject: ObjectTypes }[]>([])
@@ -186,7 +186,7 @@ const AssignPermissionsDialog = () => {
     setSearchValue(event.target.value)
   }
 
-  const columnsStep2: ColumnDef<{ id: string; name: string; selectedObject: ObjectTypes }>[] = [
+  const columnsStep2: ColumnDef<{ id: string; name: string; selectedObject: TypesWithPermissions }>[] = [
     {
       header: 'Name',
       accessorKey: 'name',

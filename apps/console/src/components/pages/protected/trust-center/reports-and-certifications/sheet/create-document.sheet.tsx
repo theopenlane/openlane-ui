@@ -23,7 +23,6 @@ import { FileField } from './form-fields/file-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { Label } from '@repo/ui/label'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
@@ -33,6 +32,7 @@ import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-ho
 import { StandardField } from './form-fields/standard-field'
 import { Callout } from '@/components/shared/callout/callout'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -63,7 +63,7 @@ export const CreateDocumentSheet: React.FC = () => {
     },
   })
 
-  const { data: permission } = useAccountRoles(ObjectEnum.TRUST_CENTER_DOCUMENT, documentId)
+  const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOCUMENT, documentId)
 
   const isEditAllowed = canEdit(permission?.roles)
   const isDeleteAllowed = canDelete(permission?.roles)

@@ -4,7 +4,7 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate } from '@/utils/date'
-import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
+import { ControlIconMapper16, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
@@ -18,6 +18,7 @@ import { LinkedProceduresCell } from './linked-procedures-cell'
 import AssociatedObjectsCell from './associated-objects-cell'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -199,7 +200,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       size: 160,
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
-        const label = ControlStatusLabels[value] ?? value
+        const label = getEnumLabel[value] ?? value
         return (
           <TooltipProvider>
             <Tooltip>

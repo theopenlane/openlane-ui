@@ -59215,6 +59215,152 @@ export type DeleteBulkAssessmentMutationVariables = Exact<{
 
 export type DeleteBulkAssessmentMutation = { __typename?: 'Mutation'; deleteBulkAssessment: { __typename?: 'AssessmentBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type AssetsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<AssetWhereInput>
+  orderBy?: InputMaybe<Array<AssetOrder> | AssetOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type AssetsWithFilterQuery = {
+  __typename?: 'Query'
+  assets: {
+    __typename?: 'AssetConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'AssetEdge'
+      node?: {
+        __typename?: 'Asset'
+        id: string
+        name: string
+        internalOwner?: string | null
+        accessModelName?: string | null
+        assetDataClassificationName?: string | null
+        assetSubtypeName?: string | null
+        assetType: AssetAssetType
+        containsPii?: boolean | null
+        costCenter?: string | null
+        cpe?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        criticalityName?: string | null
+        description?: string | null
+        encryptionStatusName?: string | null
+        environmentName?: string | null
+        estimatedMonthlyCost?: number | null
+        identifier?: string | null
+        physicalLocation?: string | null
+        purchaseDate?: string | null
+        region?: string | null
+        scopeName?: string | null
+        securityTierName?: string | null
+        sourceIdentifier?: string | null
+        sourceType: AssetSourceType
+        tags?: Array<string> | null
+        website?: string | null
+        internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type AssetQueryVariables = Exact<{
+  assetId: Scalars['ID']['input']
+}>
+
+export type AssetQuery = {
+  __typename?: 'Query'
+  asset: {
+    __typename?: 'Asset'
+    id: string
+    name: string
+    internalOwner?: string | null
+    accessModelName?: string | null
+    assetDataClassificationName?: string | null
+    assetSubtypeName?: string | null
+    assetType: AssetAssetType
+    containsPii?: boolean | null
+    costCenter?: string | null
+    cpe?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    criticalityName?: string | null
+    description?: string | null
+    encryptionStatusName?: string | null
+    environmentName?: string | null
+    estimatedMonthlyCost?: number | null
+    identifier?: string | null
+    physicalLocation?: string | null
+    purchaseDate?: string | null
+    region?: string | null
+    scopeName?: string | null
+    securityTierName?: string | null
+    sourceIdentifier?: string | null
+    sourceType: AssetSourceType
+    tags?: Array<string> | null
+    website?: string | null
+    internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+  }
+}
+
+export type CreateAssetMutationVariables = Exact<{
+  input: CreateAssetInput
+}>
+
+export type CreateAssetMutation = { __typename?: 'Mutation'; createAsset: { __typename?: 'AssetCreatePayload'; asset: { __typename?: 'Asset'; id: string } } }
+
+export type UpdateAssetMutationVariables = Exact<{
+  updateAssetId: Scalars['ID']['input']
+  input: UpdateAssetInput
+}>
+
+export type UpdateAssetMutation = { __typename?: 'Mutation'; updateAsset: { __typename?: 'AssetUpdatePayload'; asset: { __typename?: 'Asset'; id: string } } }
+
+export type DeleteAssetMutationVariables = Exact<{
+  deleteAssetId: Scalars['ID']['input']
+}>
+
+export type DeleteAssetMutation = { __typename?: 'Mutation'; deleteAsset: { __typename?: 'AssetDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvAssetMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvAssetMutation = { __typename?: 'Mutation'; createBulkCSVAsset: { __typename?: 'AssetBulkCreatePayload'; assets?: Array<{ __typename?: 'Asset'; id: string }> | null } }
+
+export type DeleteBulkAssetMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkAssetMutation = { __typename?: 'Mutation'; deleteBulkAsset: { __typename?: 'AssetBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetAssetAssociationsQueryVariables = Exact<{
+  assetId: Scalars['ID']['input']
+}>
+
+export type GetAssetAssociationsQuery = {
+  __typename?: 'Query'
+  asset: {
+    __typename?: 'Asset'
+    controls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{
+        __typename?: 'ControlEdge'
+        node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
   id: string

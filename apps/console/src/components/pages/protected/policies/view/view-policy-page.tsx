@@ -17,7 +17,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -37,6 +36,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import LinkedProcedures from './fields/linked-procedures'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TViewPolicyPage = {
   policyId: string
@@ -53,7 +53,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
-  const { data: permission } = useAccountRoles(ObjectEnum.POLICY, policyId)
+  const { data: permission } = useAccountRoles(ObjectTypes.INTERNAL_POLICY, policyId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()

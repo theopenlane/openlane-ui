@@ -13,7 +13,7 @@ import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
-import { ControlType, SubcontrolType } from '@repo/codegen/src/type-names'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type LinkedControlsTabProps = {
   controlId?: string
@@ -78,7 +78,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           mappingType: node.mappingType,
           relation: node.relation,
           source: mappingSource,
-          nodeType: ControlType,
+          nodeType: ObjectTypes.CONTROL,
         })
       })
 
@@ -95,7 +95,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           mappingType: node.mappingType,
           relation: node.relation,
           source: mappingSource,
-          nodeType: SubcontrolType,
+          nodeType: ObjectTypes.SUBCONTROL,
         })
       })
     })
@@ -110,7 +110,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       Array.from(
         new Set(
           mappedControls
-            .filter((row) => row.nodeType === ControlType)
+            .filter((row) => row.nodeType === ObjectTypes.CONTROL)
             .map((row) => row.refCode)
             .filter(Boolean),
         ),
@@ -122,7 +122,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       Array.from(
         new Set(
           mappedControls
-            .filter((row) => row.nodeType === SubcontrolType)
+            .filter((row) => row.nodeType === ObjectTypes.SUBCONTROL)
             .map((row) => row.refCode)
             .filter(Boolean),
         ),

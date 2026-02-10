@@ -2,9 +2,13 @@ import { useNotification } from '@/hooks/useNotification'
 import { TAccessRole, TData } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { objectToSnakeCase } from '../../utils/enumToLabel'
 
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
   const { errorNotification } = useNotification()
+
+  // ensure objectType is in snake_case before sending to backend
+  objectType = objectToSnakeCase(objectType)
 
   const resp = useQuery<TData>({
     queryKey: ['accountRoles', objectType, id],

@@ -7,7 +7,7 @@ import { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
-import { formatEnumLabel } from '@/utils/enumToLabel'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { cn } from '@repo/ui/lib/utils'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
@@ -80,10 +80,10 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
               <SelectValue placeholder="Select impact" />
             </SelectTrigger>
             <SelectContent ref={popoverRef}>
-              <SelectItem value={RiskRiskImpact.LOW}>Low</SelectItem>
-              <SelectItem value={RiskRiskImpact.MODERATE}>Medium</SelectItem>
-              <SelectItem value={RiskRiskImpact.HIGH}>High</SelectItem>
-              <SelectItem value={RiskRiskImpact.CRITICAL}>Critical</SelectItem>
+              <SelectItem value={RiskRiskImpact.LOW}>{getEnumLabel(RiskRiskImpact.LOW)}</SelectItem>
+              <SelectItem value={RiskRiskImpact.MODERATE}>{getEnumLabel(RiskRiskImpact.MODERATE)}</SelectItem>
+              <SelectItem value={RiskRiskImpact.HIGH}>{getEnumLabel(RiskRiskImpact.HIGH)}</SelectItem>
+              <SelectItem value={RiskRiskImpact.CRITICAL}>{getEnumLabel(RiskRiskImpact.CRITICAL)}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -97,9 +97,9 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
             <SelectValue placeholder="Select likelihood" />
           </SelectTrigger>
           <SelectContent ref={popoverRef}>
-            <SelectItem value={RiskRiskLikelihood.UNLIKELY}>Unlikely</SelectItem>
-            <SelectItem value={RiskRiskLikelihood.LIKELY}>Likely</SelectItem>
-            <SelectItem value={RiskRiskLikelihood.HIGHLY_LIKELY}>Highly likely</SelectItem>
+            <SelectItem value={RiskRiskLikelihood.UNLIKELY}>{getEnumLabel(RiskRiskLikelihood.UNLIKELY)}</SelectItem>
+            <SelectItem value={RiskRiskLikelihood.LIKELY}>{getEnumLabel(RiskRiskLikelihood.LIKELY)}</SelectItem>
+            <SelectItem value={RiskRiskLikelihood.HIGHLY_LIKELY}>{getEnumLabel(RiskRiskLikelihood.HIGHLY_LIKELY)}</SelectItem>
           </SelectContent>
         </Select>
       )
@@ -115,7 +115,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
           <SelectContent ref={popoverRef}>
             {Object.values(RiskRiskStatus).map((s) => (
               <SelectItem key={s} value={s}>
-                {formatEnumLabel(s)}
+                {getEnumLabel(s)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -265,7 +265,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     return (
       <div className="flex gap-2 items-center text-sm">
         {RiskIconMapper[status]}
-        {formatEnumLabel(status)}
+        {getEnumLabel(status)}
       </div>
     )
   }

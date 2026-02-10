@@ -3,10 +3,10 @@ import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { FileBadge2, Folder, FolderTree, Layers, Link2, Tag } from 'lucide-react'
-import { formatEnumLabel } from '@/utils/enumToLabel'
 import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import type { FilterField } from '@/types'
 import type { MappedControlRow } from './mapped-controls-types'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type LinkMap = Map<string, string>
 
@@ -41,7 +41,7 @@ export const getMappedControlsBaseColumns = (
   {
     accessorKey: 'status',
     header: () => <span className="whitespace-nowrap">Status</span>,
-    cell: ({ row }) => (row.original.status ? formatEnumLabel(row.original.status) : '-'),
+    cell: ({ row }) => (row.original.status ? getEnumLabel(row.original.status) : '-'),
     size: 120,
     minSize: 120,
     maxSize: 120,
@@ -49,7 +49,7 @@ export const getMappedControlsBaseColumns = (
   {
     accessorKey: 'type',
     header: () => <span className="whitespace-nowrap">Type</span>,
-    cell: ({ row }) => (row.original.type ? formatEnumLabel(row.original.type) : '-'),
+    cell: ({ row }) => (row.original.type ? getEnumLabel(row.original.type) : '-'),
     size: 120,
     minSize: 120,
     maxSize: 120,
@@ -79,14 +79,14 @@ export const getMappedControlsFilterFields = (rows: MappedControlRow[], showFram
       label: 'Type',
       type: 'multiselect',
       icon: Tag,
-      options: typeOptions.map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: typeOptions.map((value) => ({ value, label: getEnumLabel(value) })),
     },
     {
       key: 'sourceIn',
       label: 'Source',
       type: 'multiselect',
       icon: Layers,
-      options: sourceOptions.map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
     },
     {
       key: 'categoryContainsFold',
@@ -105,14 +105,14 @@ export const getMappedControlsFilterFields = (rows: MappedControlRow[], showFram
       label: 'Mapping Type',
       type: 'multiselect',
       icon: Link2,
-      options: Object.values(MappedControlMappingType).map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: Object.values(MappedControlMappingType).map((value) => ({ value, label: getEnumLabel(value) })),
     },
     {
       key: 'mappingSourceIn',
       label: 'Mapping Source',
       type: 'multiselect',
       icon: Layers,
-      options: Object.values(MappedControlMappingSource).map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: Object.values(MappedControlMappingSource).map((value) => ({ value, label: getEnumLabel(value) })),
     },
   ]
 
