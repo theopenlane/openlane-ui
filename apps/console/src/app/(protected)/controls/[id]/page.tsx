@@ -1,53 +1,43 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useHasScrollbar } from '@/hooks/useHasScrollbar'
+import { useParams, useRouter } from 'next/navigation'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { CirclePlus, CopyPlus, InfoIcon, PanelRightClose, PencilIcon, Sparkles } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
-import InfoCard from '@/components/pages/protected/controls/info-card.tsx'
-import { Control, ControlControlSource, ControlControlStatus, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
-import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
-import ControlEvidenceTable from '@/components/pages/protected/evidence/evidence-table.tsx'
-import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
-import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
-import Menu from '@/components/shared/menu/menu.tsx'
-import DeleteControlDialog from '@/components/pages/protected/controls/delete-control-dialog.tsx'
-import { CreateBtn } from '@/components/shared/enum-mapper/common-enum.tsx'
+import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
 import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
-import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
-import RelatedControls from '@/components/pages/protected/controls/related-controls.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Loading from './loading.tsx'
-import ControlImplementationsSection from '@/components/pages/protected/controls/control-implementations-section.tsx'
-import ControlObjectivesSection from '@/components/pages/protected/controls/control-objectives-section.tsx'
-import ControlCommentsCard from '@/components/pages/protected/controls/comments-card.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
+import { Badge } from '@repo/ui/badge'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
+import ControlTabs from '@/components/pages/protected/controls/tabs/tabs.tsx'
+import QuickActions from '@/components/pages/protected/controls/quick-actions/quick-actions.tsx'
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { formatEnumLabel } from '@/utils/enumToLabel.ts'
+import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 
 interface FormValues {
   refCode: string
@@ -64,11 +54,6 @@ interface FormValues {
   auditorReferenceID?: string
   title: string
   controlKindName?: string
-}
-
-interface SheetData {
-  refCode: string
-  content: React.ReactNode
 }
 
 const initialDataObj = {
@@ -90,28 +75,26 @@ const ControlDetailsPage: React.FC = () => {
   const { data: userData } = useGetCurrentUser(userId)
 
   const { id } = useParams<{ id: string }>()
+  const router = useRouter()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
-  const [showSheet, setShowSheet] = useState<boolean>(false)
-  const [sheetData, setSheetData] = useState<SheetData | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
   const { data: orgPermission } = useOrganizationRoles()
 
   const { successNotification, errorNotification } = useNotification()
-  const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
-  const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
-
   const [showAskAIDialog, setShowAskAIDialog] = useState(false)
-
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: deleteControl } = useDeleteControl()
   const plateEditorHelper = usePlateEditor()
   const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const { data: associationsData } = useGetControlAssociationsById(id)
+  const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
   const memoizedSections = useMemo(() => {
     if (!associationsData?.control || !data) return {}
@@ -157,7 +140,6 @@ const ControlDetailsPage: React.FC = () => {
       }
 
       if (isSourceFramework) {
-        //remove readonly fields
         delete changedFields.title
         delete changedFields.refCode
         delete changedFields.descriptionJSON
@@ -189,20 +171,6 @@ const ControlDetailsPage: React.FC = () => {
     }
   }
 
-  const showInfoDetails = (refCode: string, content: React.ReactNode) => {
-    setSheetData({ refCode, content })
-    setShowSheet(true)
-  }
-
-  const handleSheetClose = (open: boolean) => {
-    if (!open) {
-      setShowSheet(false)
-      setTimeout(() => {
-        setSheetData(null)
-      }, 300)
-    }
-  }
-
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     form.reset(initialValues)
@@ -225,6 +193,24 @@ const ControlDetailsPage: React.FC = () => {
       errorNotification({
         title: 'Failed to update control',
       })
+    }
+  }
+
+  const handleDeleteControl = async () => {
+    if (!id) return
+
+    try {
+      await deleteControl({ deleteControlId: id })
+      successNotification({ title: 'Control deleted successfully.' })
+      router.push('/controls')
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    } finally {
+      setIsDeleteDialogOpen(false)
     }
   }
 
@@ -263,167 +249,78 @@ const ControlDetailsPage: React.FC = () => {
     return <Loading />
   }
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
-  const control = data?.control
-  const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
-
-  const menuComponent = (
-    <div className="space-y-4">
-      {isEditing && (
-        <div className="flex gap-2 justify-end">
-          <CancelButton onClick={handleCancel}></CancelButton>
-          <SaveButton />
-        </div>
-      )}
-      {!isEditing && (
-        <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="h-8 !px-2" onClick={() => setShowAskAIDialog(true)} icon={<Sparkles size={16} />}>
-            Ask AI
-          </Button>
-          <Menu
-            trigger={CreateBtn}
-            content={
-              <>
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
-                  <button onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 bg-transparent cursor-pointer px-1">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Control Implementation</span>
-                  </button>
-                )}
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
-                  <button onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 bg-transparent cursor-pointer px-1">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Control Objective</span>
-                  </button>
-                )}
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective) && (
-                  <CreateControlObjectiveSheet
-                    open={showCreateObjectiveSheet}
-                    onOpenChange={(open) => {
-                      setShowCreateObjectiveSheet(open)
-                    }}
-                  />
-                )}
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControlImplementation) && (
-                  <CreateControlImplementationSheet
-                    open={showCreateImplementationSheet}
-                    onOpenChange={(open) => {
-                      setShowCreateImplementationSheet(open)
-                    }}
-                  />
-                )}
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) && (
-                  <Link href={`/controls/${id}/create-subcontrol`}>
-                    <button className="flex items-center space-x-2 bg-transparent px-1">
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Subcontrol</span>
-                    </button>
-                  </Link>
-                )}
-                <CreateTaskDialog
-                  trigger={TaskIconBtn}
-                  className="px-1 bg-transparent"
-                  defaultSelectedObject={ObjectTypeObjects.CONTROL}
-                  initialData={{
-                    programIDs: (associationsData?.control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    procedureIDs: (associationsData?.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    internalPolicyIDs: (associationsData?.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    riskIDs: (associationsData?.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    controlIDs: [id],
-                  }}
-                />
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl) && (
-                  <Link href={`/controls/${id}/map-control`}>
-                    <button className="flex items-center space-x-2 px-1 bg-transparent">
-                      <CirclePlus size={16} strokeWidth={2} />
-                      <span>Map Control</span>
-                    </button>
-                  </Link>
-                )}
-                {canCreate(orgPermission?.roles, AccessEnum.CanCreateControl) && (
-                  <Link href={`/controls/${id}/clone-control?mapControlId=${id}`}>
-                    <button className="flex items-center space-x-2 px-1 bg-transparent">
-                      <CopyPlus size={16} strokeWidth={2} />
-                      <span>Clone Control</span>
-                    </button>
-                  </Link>
-                )}
-              </>
-            }
-          />
-          {(canEdit(permission?.roles) || canDelete(permission?.roles)) && (
-            <div className="flex gap-2">
-              {canEdit(permission?.roles) && (
-                <Button type="button" variant="secondary" className="p-1! h-8 " onClick={(e) => handleEdit(e)} aria-label="Edit control">
-                  <PencilIcon size={16} strokeWidth={2} />
-                </Button>
-              )}
-              {canDelete(permission?.roles) && <DeleteControlDialog controlId={control.id} refCode={control.refCode} />}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
+  const control: ControlByIdNode = data?.control
+  const isVerified = control.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
 
   const mainContent = (
-    <div className="space-y-6 p-2">
-      <div className="flex justify-between items-start">
-        <TitleField
-          isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
-          isEditing={isEditing}
-          initialValue={initialValues.title}
-          handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
-          referenceFramework={control.referenceFramework}
-        />
-        {isEditing && isSourceFramework && (
-          <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
-            <InfoIcon size={14} className="mt-1 shrink-0" />
-            <p>
-              This control was created via a reference framework and the details are not editable. If you need to edit it, consider{' '}
-              <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol`}>
-                creating a subcontrol
-              </Link>
-              &nbsp;or&nbsp;
-              <Link className="text-blue-500" href={`/controls/create-control?mapControlId=${id}`}>
-                creating a new control
-              </Link>
-              &nbsp;and linking it.
-            </p>
+    <div className="space-y-6">
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3 flex-wrap">
+            <TitleField
+              isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+              isEditing={isEditing}
+              initialValue={initialValues.title}
+              handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+              referenceFramework={control.referenceFramework}
+            />
+            {isVerified && (
+              <Badge variant="green" className="h-6 px-2 text-xs">
+                Verified
+              </Badge>
+            )}
           </div>
-        )}
+        </div>
+        <div className="flex items-center gap-2">
+          <ControlHeaderActions
+            controlId={id}
+            isEditing={isEditing}
+            onEdit={handleEdit}
+            onCancel={handleCancel}
+            onDeleteClick={() => setIsDeleteDialogOpen(true)}
+            onAskAI={() => setShowAskAIDialog(true)}
+            permissionRoles={permission?.roles}
+            orgPermissionRoles={orgPermission?.roles}
+          />
+        </div>
       </div>
+      {isEditing && isSourceFramework && (
+        <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
+          <InfoIcon size={14} className="mt-1 shrink-0" />
+          <p>
+            This control was created via a reference framework and the details are not editable. If you need to edit it, consider{' '}
+            <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol`}>
+              creating a subcontrol
+            </Link>
+            &nbsp;or&nbsp;
+            <Link className="text-blue-500" href={`/controls/create-control?mapControlId=${id}`}>
+              creating a new control
+            </Link>
+            &nbsp;and linking it.
+          </p>
+        </div>
+      )}
       <DescriptionField
         isEditing={isEditing}
         initialValue={initialValues.descriptionJSON ?? initialValues.description}
         isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
         discussionData={discussionData?.control}
       />
-      <ControlObjectivesSection controlObjectives={control.controlObjectives} />
-      <ControlImplementationsSection controlImplementations={control.controlImplementations} />
-      <ControlEvidenceTable
-        control={{
-          displayID: control?.refCode,
-          controlID: control.id,
-          controlRefCodes: [control?.refCode],
-          referenceFramework: {
-            [control?.id ?? 'default']: control?.referenceFramework ?? '',
-          },
-          programDisplayIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
-          objectAssociations: {
-            controlIDs: [control?.id],
-            programIDs: (associationsData?.control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-            controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-          },
-          objectAssociationsDisplayIDs: [
-            ...((associationsData?.control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-            ...(control.refCode ? [control.refCode] : []),
-          ],
-        }}
-        evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
-      />
-      <SubcontrolsTable subcontrols={control.subcontrols?.edges || []} totalCount={control.subcontrols.totalCount} />
+
+      <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">Framework</p>
+          <StandardChip referenceFramework={control.referenceFramework ?? ''} />
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">Source</p>
+          <Badge variant="document">{formatEnumLabel(control.source ?? 'custom')}</Badge>
+        </div>
+      </div>
+
+      <QuickActions kind="control" controlId={id} control={control} />
+
+      <ControlTabs kind="control" control={control} />
     </div>
   )
 
@@ -431,19 +328,7 @@ const ControlDetailsPage: React.FC = () => {
     <>
       {memoizedCenterNode && <ObjectAssociationSwitch controlId={data?.control.id} sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
 
-      <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} canEdit={canEdit(permission?.roles)} />
-      <ControlCommentsCard />
-      <RelatedControls canCreate={canCreate(orgPermission?.roles, AccessEnum.CanCreateMappedControl)} refCode={control.refCode} sourceFramework={control.referenceFramework} />
-      {hasInfoData && (
-        <InfoCard
-          implementationGuidance={control.implementationGuidance}
-          exampleEvidence={control.exampleEvidence}
-          controlQuestions={control.controlQuestions}
-          assessmentMethods={control.assessmentMethods}
-          assessmentObjectives={control.assessmentObjectives}
-          showInfoDetails={showInfoDetails}
-        />
-      )}
+      <PropertiesCard data={control} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </>
   )
 
@@ -452,26 +337,21 @@ const ControlDetailsPage: React.FC = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Controls - ${data.control.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={430}>
+          <SlideBarLayout
+            sidebarTitle="Details"
+            sidebarContent={sidebarContent}
+            slideOpen={isEditing}
+            minWidth={430}
+            collapsedContentClassName="pr-6"
+            collapsedButtonClassName="-translate-x-4"
+            hasScrollbar={hasScrollbar}
+          >
             {mainContent}
           </SlideBarLayout>
         </form>
       </FormProvider>
 
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
-
-      <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-        <SheetContent
-          header={
-            <SheetHeader>
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-              <SheetTitle>{sheetData?.refCode}</SheetTitle>
-            </SheetHeader>
-          }
-        >
-          <div className="py-4">{sheetData?.content}</div>
-        </SheetContent>
-      </Sheet>
 
       <AIChat
         open={showAskAIDialog}
@@ -499,6 +379,19 @@ const ControlDetailsPage: React.FC = () => {
       />
 
       <EvidenceDetailsSheet controlId={id} />
+      <TaskDetailsSheet queryParamKey="taskId" />
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteControl}
+        title="Delete Control"
+        description={
+          <>
+            This action cannot be undone. This will permanently remove <b>{control?.refCode}</b> from the organization.
+          </>
+        }
+      />
     </>
   )
 }

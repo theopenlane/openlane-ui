@@ -88,6 +88,10 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useEffect, useMemo } from 'react'
 
+export type ControlByIdNode = GetControlByIdQuery['control']
+export type ControlsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetControlsByRefCodeQuery['controls']>['edges']>[number]>
+export type ControlsByRefcodeNode = NonNullable<ControlsByRefcodeEdge['node']>
+
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
   pagination?: TPagination | null
@@ -516,13 +520,9 @@ export const useUpdateControlComment = () => {
 
 export const useDeleteNote = () => {
   const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
 
   return useMutation<DeleteNoteMutation, unknown, DeleteNoteMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_NOTE, variables),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['controlComments', data.deleteNote.deletedID] })
-    },
   })
 }
 

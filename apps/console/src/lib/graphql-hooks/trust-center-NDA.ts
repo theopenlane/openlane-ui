@@ -2,6 +2,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_TRUST_CENTER_NDA,
+  DELETE_BULK_TRUST_CENTER_NDA_REQUEST,
   GET_NDA_REQUESTS_COUNT,
   GET_TRUST_CENTER_NDA_FILES,
   GET_TRUST_CENTER_NDA_REQUESTS,
@@ -26,6 +27,8 @@ import {
   UpdateTrustCenterNdaMutationVariables,
   UpdateTrustCenterNdaRequestMutation,
   UpdateTrustCenterNdaRequestMutationVariables,
+  DeleteBulkTrustCenterNdaRequestMutation,
+  DeleteBulkTrustCenterNdaRequestMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -163,6 +166,18 @@ export const useGetTrustCenterNdaRequests = ({ where, pagination, orderBy, enabl
     requests,
     paginationMeta,
   }
+}
+
+export const useBulkDeleteTrustCenterNdaRequest = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkTrustCenterNdaRequestMutation, unknown, DeleteBulkTrustCenterNdaRequestMutationVariables>({
+    mutationFn: async (variables) => client.request(DELETE_BULK_TRUST_CENTER_NDA_REQUEST, variables),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenter', 'ndaRequests'] })
+    },
+  })
 }
 
 export const DEFAULT_NDA_REQUESTS_ORDER: TrustCenterNdaRequestOrder[] = [

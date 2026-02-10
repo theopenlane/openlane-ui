@@ -45,7 +45,7 @@ type TControlsTableProps = {
 const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => {
   const { push } = useRouter()
   const { convertToReadOnly } = usePlateEditor()
-  const [filters, setFilters] = useState<ControlWhereInput | null>(null)
+  const [filters, setFilters] = useState<ControlWhereInput>({})
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
@@ -165,7 +165,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     where: whereWithSearch,
     orderBy,
     pagination,
-    enabled: !!filters,
+    enabled: true,
   })
 
   useEffect(() => {

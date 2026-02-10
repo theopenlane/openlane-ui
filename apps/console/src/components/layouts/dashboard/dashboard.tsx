@@ -134,7 +134,9 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
         <Header />
 
         <div className={base()}>
-          <main className={main()}>{error ?? children}</main>
+          <main className={main()} data-scroll-container="main">
+            {error ?? children}
+          </main>
           <ChatBot />
           <CommandMenu items={navItems} />
         </div>

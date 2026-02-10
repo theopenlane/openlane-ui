@@ -17,4 +17,5 @@ export enum TableFilterKeysEnum {
   TRUST_CENTER_NDA_REQUESTS = 'trust-center-nda-requests',
   SUBPROCESSORS = 'subprocessors',
   TEMPLATE = 'template',
+  CONTROL_ACTIVITY_TASKS = 'control-activity-tasks',
 }

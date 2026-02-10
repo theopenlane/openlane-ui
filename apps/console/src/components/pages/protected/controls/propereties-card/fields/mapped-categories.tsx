@@ -1,5 +1,6 @@
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { Control, Subcontrol } from '@repo/codegen/src/schema'
+import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import React, { useState } from 'react'
 import MappedCategoriesDialog from '../../mapped-categories-dialog'
 import { Property } from './property'
@@ -12,7 +13,7 @@ export const MappedCategories = ({
   fieldId,
 }: {
   isEditing: boolean
-  data?: Control | Subcontrol
+  data?: ControlByIdNode | SubcontrolByIdNode
   activeField?: string | null
   setActiveField?: (field: string | null) => void
   fieldId?: string
