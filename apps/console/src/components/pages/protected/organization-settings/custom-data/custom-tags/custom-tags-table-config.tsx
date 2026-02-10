@@ -55,7 +55,8 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
           />
         ),
         cell: ({ row }) => <Checkbox checked={Boolean(selected[row.original.id])} onCheckedChange={(checked) => setSelected((prev) => ({ ...prev, [row.original.id]: Boolean(checked) }))} />,
-        size: 30,
+        size: 50,
+        maxSize: 50,
       },
       {
         accessorKey: 'name',
@@ -82,7 +83,7 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
         accessorKey: 'description',
         header: 'Description',
         cell: ({ row }) => <div className="text-sm text-muted-foreground line-clamp-2">{row.original.description || '—'}</div>,
-        size: 300,
+        size: 200,
       },
       {
         id: 'color',
@@ -116,7 +117,7 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
             <span className="text-muted-foreground italic text-sm">Deleted user</span>
           )
         },
-        size: 160,
+        size: 200,
       },
       {
         accessorKey: 'createdAt',
@@ -138,7 +139,7 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
             <span className="text-muted-foreground italic text-sm">Deleted user</span>
           )
         },
-        size: 160,
+        size: 200,
       },
       {
         accessorKey: 'updatedAt',

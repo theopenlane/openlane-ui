@@ -40,7 +40,6 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, allowedObjectTypes,
   const objectKey = selectedConfig?.responseObjectKey
   const inputName = selectedConfig?.inputName
   const inputPlaceholder = selectedConfig?.placeholder
-  const objectName = selectedConfig?.objectName
   const { data: sessionData } = useSession()
   const currentOrg = sessionData?.user.activeOrganizationId
 
@@ -63,9 +62,9 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, allowedObjectTypes,
   const [tableData, setTableData] = useState<TableRow[]>([])
 
   useEffect(() => {
-    const rows = extractTableRows(objectKey, data, objectName, inputName)
+    const rows = extractTableRows(objectKey, data, inputName)
     setTableData(rows)
-  }, [data, objectKey, inputName, objectName])
+  }, [data, objectKey, inputName])
 
   return (
     <div className="space-y-4">
