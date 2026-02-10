@@ -32,7 +32,7 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
     accessorKey: 'description',
     header: () => <span className="whitespace-nowrap">Description</span>,
     cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
-    minSize: 400,
+    size: 320,
   },
   {
     accessorKey: 'status',

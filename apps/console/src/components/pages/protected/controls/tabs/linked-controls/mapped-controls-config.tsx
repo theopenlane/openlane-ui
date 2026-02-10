@@ -34,7 +34,7 @@ export const getMappedControlsBaseColumns = (
     accessorKey: 'description',
     header: () => <span className="whitespace-nowrap">Description</span>,
     cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
-    size: 400,
+    size: 320,
   },
   {
     accessorKey: 'status',
