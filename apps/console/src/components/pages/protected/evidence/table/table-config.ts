@@ -25,9 +25,9 @@ export const getEvidenceFilterableFields = (frameworkOptions: { value: string; l
     options: frameworkOptions,
   },
   {
-    key: 'hasTags',
+    key: 'tagsHas',
     label: 'Tags',
-    type: 'dropdownSearchMultiselect',
+    type: 'dropdownSearchSingleSelect',
     icon: FilterIcons.Status,
     options: tagOptions,
   },

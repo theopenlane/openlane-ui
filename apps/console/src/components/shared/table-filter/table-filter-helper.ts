@@ -129,7 +129,7 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       case 'sliderNumber':
         andConditions.push({ [field.key]: val as number })
         break
-      case 'dropdownSearch':
+      case 'dropdownUserSearch':
         if (val) {
           andConditions.push({
             [key]: [{ userID: val as string }],
@@ -145,6 +145,11 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
         const valuesArray = Array.isArray(val) ? val : []
         if (valuesArray.length === 0) break
         andConditions.push({ [key]: valuesArray } as Condition)
+        break
+      }
+      case 'dropdownSearchSingleSelect': {
+        if (!val) break
+        andConditions.push({ [key]: val } as Condition)
         break
       }
     }
