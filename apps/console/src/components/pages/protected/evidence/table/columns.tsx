@@ -143,7 +143,6 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       cell: ({ cell }) => {
         return <div className="font-bold">{cell.getValue() ? <Check size={16} /> : <Minus size={16} />}</div>
       },
-      minSize: 100,
       size: 100,
     },
     {

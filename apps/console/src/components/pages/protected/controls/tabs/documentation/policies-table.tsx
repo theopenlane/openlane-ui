@@ -135,12 +135,14 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
           </div>
         ),
         size: 150,
+        minSize: 150,
       },
       {
         accessorKey: 'approver',
         header: () => <span className="whitespace-nowrap">Approver</span>,
         cell: ({ row }) => <span className="truncate whitespace-nowrap">{row.original.approver?.displayName ?? '-'}</span>,
-        size: 160,
+        size: 200,
+        minSize: 200,
       },
       {
         accessorKey: 'updatedBy',

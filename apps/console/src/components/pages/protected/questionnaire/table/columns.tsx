@@ -62,9 +62,9 @@ export const getQuestionnaireColumns = (params?: Params) => {
     {
       accessorKey: 'id',
       header: 'ID',
-      meta: {
-        className: 'max-w-[10%] w-[4%]',
-      },
+      size: 270,
+      minSize: 270,
+      maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
