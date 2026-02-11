@@ -93,7 +93,7 @@ export function useWebsocketNotifications() {
     let unreadIds: string[] = []
 
     setNotifications((prev) => {
-      unreadIds = prev.filter((n) => !n.readAt).map((n) => n.id)
+      unreadIds = prev.filter((n) => !n.readAt).map((n) => n.data.id)
       if (unreadIds.length === 0) return prev
       return prev.map((n) => (!n.readAt ? { ...n, readAt: now } : n))
     })
@@ -106,7 +106,7 @@ export function useWebsocketNotifications() {
       console.error('Failed to mark all notifications as read:', err)
       setNotifications((prev) =>
         prev.map((n) => {
-          const wasUnread = unreadIds.includes(n.id)
+          const wasUnread = unreadIds.includes(n.data.id)
           return wasUnread ? { ...n, readAt: null } : n
         }),
       )

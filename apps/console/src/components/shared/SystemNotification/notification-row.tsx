@@ -12,6 +12,7 @@ interface NotificationRowProps {
 
 export function NotificationRow({ notification, onRead }: NotificationRowProps) {
   const isUnread = !notification.readAt
+  console.log('Notification', notification)
   const handleClick = () => {
     if (isUnread) {
       onRead(notification.id)
