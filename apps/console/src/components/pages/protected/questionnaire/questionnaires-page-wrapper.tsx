@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { ClipboardList, LayoutGrid, FileWarning, NotebookPen, Check, Clock2 } from 'lucide-react'
+import { FileWarning, NotebookPen, Check, Clock2, LayoutTemplate } from 'lucide-react'
 import { QuestionnairesTable } from '@/components/pages/protected/questionnaire/table/questionnaire-table'
 import { TemplatesTable } from '@/components/pages/protected/template/table/template-table'
 import { useAssessments } from '@/lib/graphql-hooks/assessments'
@@ -114,11 +114,11 @@ export const QuestionnairesPageWrapper = () => {
         <div className="relative pb-1 mb-1">
           <TabsList className="w-auto flex justify-start">
             <TabsTrigger value="questionnaires" className="inline-flex flex-none items-center text-muted-foreground data-[state=active]:text-foreground">
-              <ClipboardList className="mr-2 h-4 w-4" />
+              <NotebookPen className="mr-2 h-4 w-4" />
               <span>Questionnaires</span>
             </TabsTrigger>
             <TabsTrigger value="templates" className="inline-flex flex-none items-center text-muted-foreground data-[state=active]:text-foreground">
-              <LayoutGrid className="mr-2 h-4 w-4" />
+              <LayoutTemplate className="mr-2 h-4 w-4" />
               <span>Templates</span>
             </TabsTrigger>
           </TabsList>

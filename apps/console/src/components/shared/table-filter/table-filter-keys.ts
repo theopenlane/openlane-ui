@@ -18,4 +18,5 @@ export enum TableFilterKeysEnum {
   SUBPROCESSORS = 'subprocessors',
   TEMPLATE = 'template',
   CONTROL_ACTIVITY_TASKS = 'control-activity-tasks',
+  QUESTIONNAIRE_DELIVERY = 'questionnaire-delivery',
 }
