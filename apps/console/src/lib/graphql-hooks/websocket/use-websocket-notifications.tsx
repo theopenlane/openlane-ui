@@ -90,11 +90,15 @@ export function useWebsocketNotifications() {
 
   const markAllAsRead = useCallback(async () => {
     const now = new Date().toISOString()
-    const unreadIds = notifications.filter((n) => !n.readAt).map((n) => n.id)
+    let unreadIds: string[] = []
+
+    setNotifications((prev) => {
+      unreadIds = prev.filter((n) => !n.readAt).map((n) => n.id)
+      if (unreadIds.length === 0) return prev
+      return prev.map((n) => (!n.readAt ? { ...n, readAt: now } : n))
+    })
 
     if (unreadIds.length === 0) return
-
-    setNotifications((prev) => prev.map((n) => (!n.readAt ? { ...n, readAt: now } : n)))
 
     try {
       await mutateAsync({ ids: unreadIds })
@@ -107,7 +111,7 @@ export function useWebsocketNotifications() {
         }),
       )
     }
-  }, [mutateAsync, notifications])
+  }, [mutateAsync])
 
   return {
     notifications,
